@@ -2,6 +2,7 @@
 # RUN apt-get update
 # RUN apt-get install 
 # RUN apt-get install -y ca-certificates curl
+
 # RUN npm i -g pnpm
 
 
@@ -26,6 +27,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # 全局安装 pnpm
+RUN npm config set registry https://mirrors.cloud.tencent.com/npm/
 RUN npm install -g pnpm
 
 # 设置默认 shell 为 bash
