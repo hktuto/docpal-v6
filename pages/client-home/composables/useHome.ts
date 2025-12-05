@@ -9,7 +9,7 @@ export const useHomePage = () => {
   const homeList = useHomeList()
   const currentHome = useCurrentHome()
   const loading = ref(false)
-
+  const preference = useUserPreference()
   async function getHomeList(force: boolean = false) {
     if(homeList.value.length > 0 && !force) return
     loading.value = true
@@ -21,7 +21,7 @@ export const useHomePage = () => {
       personal.id = 'PERSONAL'
       personal.name = 'PERSONAL'
       homeList.value = [personal, ...dashboardList]
-      const storageHomeList = localStorage.getItem(homeLocalStorageKey)
+      const storageHomeList = preference.value.userStoreHome
       if(storageHomeList && storageHomeList !== 'PERSONAL') {
         const detail = dashboardList.find((item: any) => item.id.toString() === storageHomeList.toString())
         if(detail) {
@@ -54,7 +54,8 @@ export const useHomePage = () => {
     } catch (error) {
       currentHome.value.layout = []
     } finally {
-      localStorage.setItem(homeLocalStorageKey, JSON.stringify(detail.id))
+      preference.value.userStoreHome = detail.id
+      await clientApi.api.putUserSetting(preference.value as any)
       loading.value = false
     }
   }
