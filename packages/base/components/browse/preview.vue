@@ -13,7 +13,9 @@ const isPdf = ref(false)
 const readerType = computed(() => {
   try {
     isPdf.value = false
-
+    if (docDetail.comeFrom === 'google_drive' || docDetail.path.startsWith('/google_drive')) {
+      return resolveComponent('LazyGoogleDrive')
+    }
     if (!docDetail) {
       return resolveComponent('LazyOtherPlayer')
     }
