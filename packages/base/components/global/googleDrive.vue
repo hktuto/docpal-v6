@@ -109,7 +109,6 @@ function loadIframe() {
   loading.value = true;
   iframeReady.value = false;
   embedUrl.value = generateEmbedUrl();
-  console.log('embedUrl', embedUrl.value)
   if (!embedUrl.value) {
     emit('error', new Error('Failed to generate embed URL'));
     loading.value = false;
@@ -118,8 +117,6 @@ function loadIframe() {
 
   nextTick(() => {
     if (iframeRef.value) {
-      console.log('iframeRef', iframeRef.value);
-      
       iframeRef.value.onload = handleIframeLoad;
       iframeRef.value.onerror = handleIframeError;
     }
@@ -186,10 +183,10 @@ defineExpose({
       allowfullscreen
       :class="{ ready: iframeReady }"
     ></iframe>
-    <div v-else class="error-message">
+    <div v-else-if="!loading" class="error-message">
       <el-icon><WarningFilled /></el-icon>
       <span>{{ $t('googleDrive.invalidUrl') || 'Invalid Google Drive URL or File ID' }}</span>
-      <a :href="props.fileUrl" target="_blank">{{ $t('common_open') }}</a>
+      <a v-if="fileUrl" :href="fileUrl" target="_blank">{{ fileUrl }}</a>
     </div>
   </div>
 </template>
