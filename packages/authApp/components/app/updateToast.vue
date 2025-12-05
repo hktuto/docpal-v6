@@ -4,6 +4,7 @@ const nuxtApp = useNuxtApp()
 const { t } = useI18n()
 const config = useRuntimeConfig()
 const toastShow = ref(false);
+const appNeedUpdate = useAppNeedUpdate()
 // app:manifest:update'
 nuxtApp.hooks.hookOnce('app:manifest:update', () => {
   setTimeout(() => {
@@ -15,6 +16,7 @@ nuxtApp.hooks.hookOnce('app:manifest:update', () => {
 function showUpdateToast() {
   if (toastShow.value) return;
   toastShow.value = true;
+  appNeedUpdate.value = true;
   ElNotification({
     title: 'New Version Available',
     dangerouslyUseHTMLString: true,
@@ -23,6 +25,10 @@ function showUpdateToast() {
   })
 }
 
+
+onMounted(() => {
+  appNeedUpdate.value = false;
+})
 
 
 

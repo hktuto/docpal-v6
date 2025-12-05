@@ -18,6 +18,10 @@ type workflowItem = {
 
 const workflowList = ref<workflowItem[]>([])
 
+async function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 async function handleCreateWorkflow(caseResult: any, masterTableResult: any, documentTemplateResult: any, emailTemplateResult: any, idGeneratorResult: any) {
   console.log('workflowList', props.workflowList)
 
@@ -57,21 +61,22 @@ async function handleCreateWorkflow(caseResult: any, masterTableResult: any, doc
     }
 
     const blob = new Blob([bpmnFile], { type: 'text/xml;charset=utf-8' })
+    const formJson = typeof item.styleJson.data === 'string' ? item.styleJson.data : JSON.stringify(item.styleJson.data)
     const form: any = new FormData()
     form.append('name', item.name)
     form.append('attr_id', nameToId)
     form.append('versionId', 'V1')
-    form.append('jsonValue', JSON.stringify(item.styleJson.data))
+    form.append('jsonValue', formJson)
     form.append('file', blob, 'workflow.bpmn.xml')
     form.append('isDraft', true)
     const data = await adminApi.api.postWorkflowProcessDefinitionUpload({ requestDTO: {} }, form).then((res) => res.data)
-
+    console.log("data", item.styleJson.data)
     if (!data || !data?.latestVersionId) {
       return
     }
 
-    const draftId = data?.latestVersionId.split(':')[1]
-
+    const draftId = data?.draftId
+    
     // update field
     const params: any = {
       versionDraftId: data?.latestVersionId,

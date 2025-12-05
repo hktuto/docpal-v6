@@ -36,7 +36,13 @@ function refreshData() {
         })
     }
     console.log("form", node.data.data.extensionElements['docpal:decisionTable'].orConditionElements)
-    form.value = JSON.parse(JSON.stringify(node.data.data.extensionElements['docpal:decisionTable'].orConditionElements))
+    let formData = [];
+    if(!Array.isArray(node.data.data.extensionElements['docpal:decisionTable'].orConditionElements)){
+      formData = [node.data.data.extensionElements['docpal:decisionTable'].orConditionElements]
+    }else{
+      formData = node.data.data.extensionElements['docpal:decisionTable'].orConditionElements
+    }
+    form.value = JSON.parse(JSON.stringify(formData))
     console.log("form", form.value)
     conditionLabel.value = {
         attr_successLable: node.data.data.extensionElements['docpal:graphLabel']?.attr_successLable || "true",
@@ -201,6 +207,7 @@ provide(CONDITION_PROVIDER,{
             <div class="title">Conditions</div>
             <div class="conditions">
                 <div v-for="(element,index) in form" :key="index" class="group">
+                  
                     <BpmnSidebarConditionGroup  
                         :elements="element.element" 
                         :index="index"
@@ -248,7 +255,8 @@ provide(CONDITION_PROVIDER,{
     align-items: center;
     gap: var(--app-space-xs);
     cursor: pointer;
-    font-size: var(--app-font-size-s);
+    font-size: var(--app-font-size-m);
+    margin-block: var(--app-space-xs);
     &:hover {
         color: var(--app-main-color);
     }
