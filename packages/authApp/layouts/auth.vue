@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { TabApp } from "#components";
-
+import { clientApi } from 'api'
 const {public : { platform }} = useRuntimeConfig()
 const localeReady = ref(false)
 const appPlatform = useAppPlatform()
@@ -16,16 +16,16 @@ const config = useAppConfig()
 
 
 const inited = ref(false)
-
+const preference = useUserPreference()
 async function getTabsFromServer() {
   // check if new tab
   
   if(inited.value) return
-  const tabStorageKey = appPlatform.value + '-app-tab'
-  let storageTabs = localStorage.getItem(tabStorageKey);
-
-  sessionStorage.removeItem('temp-path')
-  // storageTabs = null
+  
+  const userStoreTab = preference.value.userStoreTab
+  
+  let storageTabs = userStoreTab ? userStoreTab[appPlatform.value] : null
+  console.log('preference', storageTabs)
   try {
     if (storageTabs) {
       
@@ -80,19 +80,27 @@ async function getTabsFromServer() {
 
 function saveHighlightPanel(panelID: string) {
   const tabStorageKey = appPlatform.value + '-app-hightLightPanel'
+  
   localStorage.setItem(tabStorageKey, panelID);
 }
 
 async function saveTabsToLocalStorage(layout: TabPanel[]) {
-  const tabStorageKey = appPlatform.value + '-app-tab'
+  
   const saveData = JSON.parse(JSON.stringify(layout));
+  
   // loop all panel and tabs to reset all initized to false
   saveData.forEach((panel: any) => {
     panel.tabs.forEach((tab: any) => {
       tab.initized = false;
     });
   });
-  localStorage.setItem(tabStorageKey, JSON.stringify(saveData));
+  if(!preference.value.userStoreTab) {
+    preference.value.userStoreTab = {}
+  }
+  preference.value.userStoreTab[appPlatform.value] = JSON.stringify(saveData)
+  await clientApi.api.putUserSetting(preference.value as any)
+  
+  // localStorage.setItem(tabStorageKey, JSON.stringify(saveData));
 }
 const { t } = useI18n();
 // onMounted(async () => {
