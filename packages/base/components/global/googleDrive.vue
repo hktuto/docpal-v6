@@ -109,7 +109,6 @@ function loadIframe() {
   loading.value = true;
   iframeReady.value = false;
   embedUrl.value = generateEmbedUrl();
-  console.log('embedUrl', embedUrl.value)
   if (!embedUrl.value) {
     emit('error', new Error('Failed to generate embed URL'));
     loading.value = false;
@@ -118,8 +117,6 @@ function loadIframe() {
 
   nextTick(() => {
     if (iframeRef.value) {
-      console.log('iframeRef', iframeRef.value);
-      
       iframeRef.value.onload = handleIframeLoad;
       iframeRef.value.onerror = handleIframeError;
     }

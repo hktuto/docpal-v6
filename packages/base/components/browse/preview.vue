@@ -80,6 +80,7 @@ function handleRefresh(needRefresh: boolean = true) {
           :docId="docDetail.id"
           :doc="docDetail"
           :editMode="editMode"
+          :fileUrl="docDetail.drivePreviewLink"
           fileType="NUXEO"
           :readonly="true"
           :editable="RbacAllowTo('write', docDetail)"
