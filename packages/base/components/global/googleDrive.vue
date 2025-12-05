@@ -183,10 +183,10 @@ defineExpose({
       allowfullscreen
       :class="{ ready: iframeReady }"
     ></iframe>
-    <div v-else class="error-message">
+    <div v-else-if="!loading" class="error-message">
       <el-icon><WarningFilled /></el-icon>
       <span>{{ $t('googleDrive.invalidUrl') || 'Invalid Google Drive URL or File ID' }}</span>
-      <a :href="props.fileUrl" target="_blank">{{ $t('common_open') }}</a>
+      <a v-if="fileUrl" :href="fileUrl" target="_blank">{{ fileUrl }}</a>
     </div>
   </div>
 </template>
