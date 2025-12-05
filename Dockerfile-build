@@ -27,7 +27,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # 全局安装 pnpm
-RUN npm config set registry https://npm.aliyun.com/
+RUN npm config set registry https://mirrors.cloud.tencent.com/npm/
 RUN npm install -g pnpm
 
 # 设置默认 shell 为 bash
