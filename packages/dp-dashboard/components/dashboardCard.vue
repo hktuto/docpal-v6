@@ -94,7 +94,7 @@ defineExpose({
           <SvgIcon id="refresh" src="/icons/refresh.svg" @click="handleRefresh" />
           <Icon :name="fullscreen ? 'material-symbols:fullscreen-exit-rounded' : 'material-symbols:fullscreen'" @click="toggleFullscreen" />
           <SvgIcon v-if="!hideSetting && settingRef" class="" id="setting" src="/icons/setting.svg" @click="openSetting" />
-          <SvgIcon v-if="!hideSetting" class="setting--icon" id="delete" src="/icons/delete.svg" @click="handleDelete" />
+          <SvgIcon v-if="!hideSetting && !fullscreen" class="setting--icon" id="delete" src="/icons/delete.svg" @click="handleDelete" />
         </div>
       </slot>
     </template>
