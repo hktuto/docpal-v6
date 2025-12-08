@@ -63,12 +63,12 @@ function handleDelete() {
 const option = {
   tooltip: {
     trigger: 'axis',
-    axisPointer: {
-      type: 'cross',
-      crossStyle: {
-        color: '#999'
-      }
-    }
+    // axisPointer: {
+    //   type: 'cross',
+    //   crossStyle: {
+    //     color: '#999'
+    //   }
+    // }
   },
   xAxis: [
     {
