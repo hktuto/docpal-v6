@@ -407,7 +407,8 @@ const ignoreDisplayList = [
   'dpa:docpalType',
   'dpc:fileModifiedDate',
   'maskList',
-  'readonlyList'
+  'readonlyList',
+  'folderCabinetId'
 ]
 export function getDisplayProperties(properties: Record<string, any>) {
   if (!properties) return []
