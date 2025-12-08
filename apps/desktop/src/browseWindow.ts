@@ -3,12 +3,13 @@ import path from "path";
 import {havePrefs} from './pref'
 
 export const createWindow = (mainWindow:BrowserWindow) =>{
+  const isMac = process.platform === 'darwin'
     // Create the browser window.
     mainWindow = new BrowserWindow({
         width: 1920,
         height: 1080,
-        transparent: true,               // Make background transparent (optional)
-        titleBarStyle: 'hidden',         // macOS only: hide title bar but keep traffic lights
+        transparent: isMac ? true : false,               // Make background transparent (optional)
+        titleBarStyle: isMac ? 'hidden' : 'default',         // macOS only: hide title bar but keep traffic lights
         trafficLightPosition: { x: 10, y: 10 }, // macOS: position the traffic lights
         webPreferences: {
             nodeIntegration:true,
