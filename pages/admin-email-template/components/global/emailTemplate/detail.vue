@@ -19,7 +19,7 @@ const showClose = ref(true)
 
 const layoutHtml = computed(() => {
   try {
-    if (!selectedLayout.value || !layouts.value) return null
+    if (selectedLayout.value === null || selectedLayout.value === undefined || selectedLayout.value === '' || !layouts.value) return null
     return layouts.value.find((item) => item.id === selectedLayout.value).layoutContent
   } catch (error) {
     return null
@@ -47,7 +47,7 @@ async function handleInit() {
   // loop template body and get all variables
   // const body = res?.body;
   await getTemplateLayout(res?.emailLayoutId)
-
+  console.log('res', res)
   ready.value = true
   return res
 }
@@ -170,6 +170,7 @@ onMounted(async () => {
 </script>
 <template>
   <div class="pageContainer--padding">
+    
     <Editorjs v-if="data" ref="editorEl" :data="data" :layout="layoutHtml">
       <template #name>
         <div class="editButton">
