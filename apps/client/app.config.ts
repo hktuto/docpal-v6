@@ -97,7 +97,7 @@ export default defineAppConfig({
     },
     {
       name: 'contact-book'
-    }
+    },
   ],
   adminMenu: [
     {
@@ -287,7 +287,11 @@ export default defineAppConfig({
     },
     {
       name: 'admin-calendar-setting'
-    }
+    },
+    {
+      name: 'database-management'
+    },
+
 
     // {
     //   name: 'admin-doc-template-collaboration'

@@ -1,0 +1,22 @@
+{
+  "name": "create-package",
+  "version": "1.0.0",
+  "description": "CLI tool to create new packages, pages, or demos for DocPal V5",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "start": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": ["cli", "scaffold", "docpal"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "inquirer": "^9.2.12",
+    "fs-extra": "^11.2.0"
+  }
+}
+
