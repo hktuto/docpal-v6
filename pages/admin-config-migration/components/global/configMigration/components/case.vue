@@ -5,6 +5,17 @@ const props = defineProps<{
   caseList: any
 }>()
 
+type designItem = {
+  oldCaseTypeId: string,
+  caseTypeId: string,
+  versionId: string,
+  xml: string,
+  styleJson: string,
+  dashboard: any[]
+}
+
+const designList = ref<designItem[]>([])
+
 function handleCaseFieldsShow(xml: string) {
   const parser = new DOMParser()
   const xmlDoc = parser.parseFromString(xml, 'application/xml')
@@ -45,7 +56,6 @@ async function handleCreateCase() {
   console.log('case List', props.caseList)
 
   for (const item of Object.values(props.caseList)) {
-
     const data = await adminApi.api.postCaseTypes({
       name: item.name,
       caseIdPrefix: item.caseIdPrefix,
@@ -59,28 +69,67 @@ async function handleCreateCase() {
     const caseDetails: any = await adminApi.api.getCaseTypesId(data.id).then(r => r.data)
     const versionId = caseDetails.latestVersionId
 
-    const blob = new Blob([item.xml], { type: 'text/xml' })
+    const caseData = {
+      oldCaseTypeId: item.id,
+      caseTypeId: data.id,
+      versionId: versionId,
+      xml: item.xml,
+      styleJson: JSON.stringify(item.styleJson),
+      dashboard: item.dashboard
+    } as designItem
+    designList.value.push(caseData)
+  }
+
+  return designList.value
+}
+
+async function updateDesign(caseResult: any, workflowResult: any, masterTableResult: any) {
+  for (const design of caseResult) {
+    if (workflowResult.length > 0) {
+      workflowResult.forEach((workflowItem: any) => {
+        design.xml = design.xml.replaceAll(workflowItem.oldKey, workflowItem.newKey)
+        design.styleJson = design.styleJson.replaceAll(workflowItem.oldKey, workflowItem.newKey)
+      })
+    }
+
+    const blob = new Blob([design.xml], { type: 'text/xml;charset=utf-8' })
     const formData = new FormData()
     formData.append('file', blob, 'ordercase.cmmn.xml')
-    // save design
-    await adminApi.api.patchCaseTypesVersionVersionidSave(versionId, null, formData).then(r => r.data)
+    await adminApi.api.patchCaseTypesVersionVersionidSave(design.versionId, {}, formData).then(r => r.data)
 
     // update styleJson
     await adminApi.api.postCaseTypesStylejsonSave({
-      caseTypeId: data.id,
-      styleJson: JSON.stringify(item.styleJson),
+      caseTypeId: design.caseTypeId,
+      styleJson: design.styleJson,
       versionNumber: 'V1'
     }).then(r => r.data)
 
-    for (const dashboardItem of item.dashboard) {
+    // update Dashboard
+    for (const dashboardItem of design.dashboard) {
+
+      caseResult.forEach((caseItem: any) => {
+        dashboardItem.styleJson = dashboardItem.styleJson.replaceAll(caseItem.oldCaseTypeId, caseItem.caseTypeId)
+      })
+
+      if (masterTableResult.length > 0) {
+        masterTableResult.forEach((masterTableItem: any) => {
+          dashboardItem.styleJson = dashboardItem.styleJson.replaceAll(masterTableItem.oldId, masterTableItem.newId)
+        })
+      }
+
       const form = {
-        caseTypeId: data.id,
-        cmmnVersionId: versionId,
+        caseTypeId: design.caseTypeId,
+        cmmnVersionId: design.versionId,
         label: dashboardItem.label,
         permissions: toPermissions(dashboardItem.permissions)
       }
-      const dashboard = await adminApi.api.postCaseDashboard(form).then(r => r.data)
-      await adminApi.api.postCaseDashboardSaveStyle({ id: dashboard.id, styleJson: dashboardItem.styleJson })
+
+      const dashboard: any = await adminApi.api.postCaseDashboard(form).then(r => r.data)
+
+      await adminApi.api.postCaseDashboardSaveStyle({
+        id: dashboard.id,
+        styleJson: dashboardItem.styleJson
+      }).then(r => r.data)
     }
   }
 }
@@ -99,7 +148,8 @@ function toPermissions(permissions: any[]) {
 }
 
 defineExpose({
-  handleCreateCase
+  handleCreateCase,
+  updateDesign
 })
 </script>
 

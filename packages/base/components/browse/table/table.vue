@@ -474,6 +474,13 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     }
     Object.keys(permissionCodes).forEach((key) => {
       const code = permissionCodes[key]
+      if (row.comeFrom === 'google_drive') {
+        result[key] = {
+          visible: false,
+          disabled: false
+        }
+        return
+      }
       if (!clickItem || clickItem.path === '/') {
         result[key] = {
           visible: false,
@@ -572,7 +579,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
       if (row.source === 'tempFile') {
         return 'temp-file'
       }
-    },
+    }
   },
   optionalEvent: {
     toggleTreeExpand: ({ expanded, row }) => {

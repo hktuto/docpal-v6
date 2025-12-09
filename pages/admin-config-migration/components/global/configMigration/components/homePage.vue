@@ -14,7 +14,6 @@ function handleEditStyle(styleItem: any) {
 }
 
 async function handleCreateHomePage() {
-  let status = true
   const list = []
 
   for (const item of Object.values(props.homePageList)) {
@@ -25,11 +24,9 @@ async function handleCreateHomePage() {
         styleJson: item.styleJson
       }).then(res => res.data)
     } catch (e) {
-      status = false
       list.push(item.name)
     }
   }
-  return { status: status, message: list.join(',') }
 }
 
 defineExpose({

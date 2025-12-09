@@ -2,8 +2,12 @@
 import { clientApi } from 'api'
 import { MoreFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { formSlotOrderDisplayColumns } from '../../../../formSlot/displayColumn/reorderColumn'
+import '../../../../formSlot/displayColumn/vxeTableRender.ts'
+
+
 const platform = useAppPlatform()
-const { id, name, detail } = defineProps<{
+const { id, name, detail, displayColumns } = defineProps<{
   id: string
   name: string
   detail: any
@@ -12,6 +16,7 @@ let where = ref({})
 const { t } = useI18n()
 const emits = defineEmits(['filter-change', 'refresh'])
 const routerProvider = inject(MenuRouterKey)
+const tabProvider = inject(TabManagerKey)
 type TableState = {
   columns: any
   where: any[]
@@ -92,25 +97,9 @@ async function handleTask(actionItem: any, row?: any) {
   }
 }
 async function reorderColumn(fields: any) {
+  console.log('reorderColumn', fields)
   try {
     const columns = [
-      // { field: "case_id", title: "caseManagement.id", width: 200 },
-      // {
-      //   field: "created_date",
-      //   title: "workflow_createDate",
-      //   width: 200,
-      //   formatter({ cellValue }: any) {
-      //     return formatDate(cellValue)
-      //   },
-      // },
-      // {
-      //   field: "modified_date",
-      //   title: "table_modifiedDate",
-      //   width: 200,
-      //   formatter({ cellValue }: any) {
-      //     return formatDate(cellValue)
-      //   },
-      // },
       {
         title: 'dpTable_actions',
         width: 80,
@@ -120,31 +109,9 @@ async function reorderColumn(fields: any) {
         }
       }
     ]
-    if (fields.length > 0) {
-      // keep field order
-      const columneFromSetting = fields.reduce((prev: any, item: any) => {
-        // change name to title case
-        const newItem: any = {
-          field: item.id,
-          title: item.id === 'case_id' ? 'Case ID' : item.name.toLowerCase().replace(/\b\w/g, (s) => s.toUpperCase()),
-          minWidth: 200
-        }
-        if (item.formatter) {
-          newItem.formatter = item.formatter
-        }
-        prev.push(newItem)
-        return prev
-      }, [])
-      columns.splice(0, 0, ...columneFromSetting)
-    }
-    // fields.forEach((row: any) => {
-    //   columns.splice(1, 0, { field: row.id, title: row.name, width: 200 });
-    // });
-    // const actionColumn = tableConfig.columns.find(
-    //   (item) => item.title === "dpTable_actions"
-    // );
-    // if (!!actionColumn) columns.push(actionColumn);
-    tableConfig.columns = columns
+    const _columns = await formSlotOrderDisplayColumns(fields, tabProvider)
+    tableConfig.columns = [..._columns, ...columns]
+    console.log('tableConfig.columns', tableConfig.columns)
   } catch (e) {
     console.log('error', e)
   }

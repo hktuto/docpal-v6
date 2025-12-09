@@ -9,7 +9,7 @@
         <SvgIcon v-if="RbacAllowTo('editMetadata', doc)" :src="'/icons/close.svg'"
                  class="deleteIcon" @click="handleDelete(item)"/>
       </div>
-      <div class="addTagButton">
+      <div v-if="doc.status !== 20" class="addTagButton">
         <SvgIcon :src="'/icons/add.svg'" @click="handleAddCollection"/>
       </div>
     </div>

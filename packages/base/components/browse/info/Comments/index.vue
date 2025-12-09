@@ -67,7 +67,6 @@ async function handleCommentsGet() {
   try {
     state.loading = true
     if (state.userList.length == 0) await getUserList()
-    console.log('doc', props.doc)
     const res = await getCommentList({ documentIdOrPath: props.doc.id })
     if (!res) return
     for (const item of res) {

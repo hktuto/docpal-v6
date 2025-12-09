@@ -68,7 +68,7 @@ function handleOpen(setting) {
   })
 }
 function handleFormChange({ fieldName, newValue, formModel, oldValue }: any) {
-  if (newValue &&fieldName === 'fields' && oldValue !== newValue && DisplayColumnRef.value) {
+  if (newValue && fieldName === 'fields' && oldValue !== newValue && DisplayColumnRef.value) {
     DisplayColumnRef.value.initColumns(formModel)
   }
 }

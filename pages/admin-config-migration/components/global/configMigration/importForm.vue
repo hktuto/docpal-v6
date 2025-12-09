@@ -75,39 +75,61 @@ function handleCancel() {
 
 async function handleSubmit() {
   try {
-    // const userGroupResult = await userGroupRef.value.handleCreateUserGroup()
+    if (Object.keys(jsonData.value.userGroup).length > 0) {
+      const userGroupResult = await userGroupRef.value.handleCreateUserGroup()
+    }
 
-    // const userRoleResult = await userRoleRef.value.handleCreateUserRole()
+    if (Object.keys(jsonData.value.userRole).length > 0) {
+      const userRoleResult = await userRoleRef.value.handleCreateUserRole()
+    }
 
-    const idGeneratorResult = await idGeneratorRef.value.handleCreateIdGenerator()
+    let idGeneratorResult = []
+    if (Object.keys(jsonData.value.idGenerator).length > 0) {
+      idGeneratorResult = await idGeneratorRef.value.handleCreateIdGenerator()
+    }
 
-    const documentTemplateResult = await documentTemplateRef.value.handleCreateDocumentTemplate()
+    let documentTemplateResult = []
+    if (Object.keys(jsonData.value.documentTemplate).length > 0) {
+      documentTemplateResult = await documentTemplateRef.value.handleCreateDocumentTemplate()
+    }
 
-    const emailTemplateResult = await emailTemplateRef.value.handleCreateEmailTemplate()
+    let emailTemplateResult = []
+    if (Object.keys(jsonData.value.emailTemplate).length > 0) {
+      emailTemplateResult = await emailTemplateRef.value.handleCreateEmailTemplate()
+    }
 
     // TODO: 不需要打開
     // const folderCabinetResult = await folderCabinetRef.value.handleCreateFolderCabinet()
-    // if (!folderCabinetResult.status) {
-    //   routerProvider?.message.error(folderCabinetResult.data)
-    //   return
-    // }
 
-    // const masterTableResult = await masterTableRef.value.handleCreateMasterTable()
+    let masterTableResult = []
+    if (Object.keys(jsonData.value.masterTable).length > 0) {
+      masterTableResult = await masterTableRef.value.handleCreateMasterTable()
+    }
 
-    const caseResult: any = await caseRef.value.handleCreateCase()
+    let caseResult = []
+    if (Object.keys(jsonData.value.case).length > 0) {
+      caseResult = await caseRef.value.handleCreateCase()
+    }
 
-    const workflowResult = await workflowRef.value.handleCreateWorkflow(caseResult, documentTemplateResult,
-      emailTemplateResult, idGeneratorResult)
+    let workflowResult = []
+    if (Object.keys(jsonData.value.workflow).length > 0) {
+      workflowResult = await workflowRef.value.handleCreateWorkflow(caseResult, masterTableResult, documentTemplateResult,
+        emailTemplateResult, idGeneratorResult)
+    }
 
-    await caseRef.value.updateDesign(caseResult, workflowResult)
+    if (workflowResult.length > 0 && caseResult.length > 0) {
+      await caseRef.value.updateDesign(caseResult, workflowResult, masterTableResult)
+    }
 
-    // await homePageRef.value.handleCreateHomePage()
+    if (Object.keys(jsonData.value.homePage).length > 0) {
+      await homePageRef.value.handleCreateHomePage()
+    }
 
   } catch (e) {
     console.log(e)
   }
 
-  // mode.value = 'upload'
+  mode.value = 'upload'
   fileList.value = []
 }
 

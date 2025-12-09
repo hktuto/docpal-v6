@@ -25,7 +25,78 @@
         "automaticDropdown": false,
         "multiple": false,
         "multipleLimit": 0,
-        "optionItems": [],
+        "optionItems": [
+          {
+            "value": "88f7d34d-973b-42a4-b368-4735b820e032",
+            "label": " Case Info",
+            "versionId": "3:03365cc2-a29b-4599-8703-a1e43c14752c"
+          },
+          {
+            "value": "9ed1f65a-8605-4413-b7c5-9aede4ebcdfe",
+            "label": "Company Case",
+            "versionId": "33:b0102a3e-2557-49c5-84e8-4a99348b3a9f"
+          },
+          {
+            "value": "70aaa9b9-e699-4407-a56d-87cc5c386a1e",
+            "label": "Company Profile",
+            "versionId": "14:b78ec6e0-6b6a-4c9a-9622-a55fab0fc5a2"
+          },
+          {
+            "value": "b2daaf14-9545-4be2-9d52-2a89ffeb1017",
+            "label": "CPA Customer",
+            "versionId": "95:477742f7-b85e-4f27-810f-7a4ba694280d"
+          },
+          {
+            "value": "77c45105-5355-4219-9432-d2bd3c787ace",
+            "label": "crystal",
+            "versionId": "1:7994bdd5-93d7-4bd9-bdbc-7012e58ad49f"
+          },
+          {
+            "value": "12d81007-53d3-4a94-84cf-6192ea88e798",
+            "label": "HKCTA_Coach",
+            "versionId": "2:9cba01cb-1868-4372-955c-4b970d5a5176"
+          },
+          {
+            "value": "6b359b55-3874-45e6-82bb-04a88b8beff5",
+            "label": "HKCTA_Course",
+            "versionId": "15:6cc9036d-41e0-43d5-b9c2-8cca94fe5a07"
+          },
+          {
+            "value": "16e10133-9221-4bca-8643-ff1bf7b3574b",
+            "label": "Human Resources Case",
+            "versionId": "19:40a575a5-6e1e-4122-8b3e-37f905509fb2"
+          },
+          {
+            "value": "6c30279a-d926-4bfb-aeaf-9e34a1c63f6c",
+            "label": "LT_AP",
+            "versionId": "35:0b249335-5414-4b83-a6b8-586504e19797"
+          },
+          {
+            "value": "f9cdc3a6-02b4-44d7-a979-0785a8237f6c",
+            "label": "LT_CRM_Case",
+            "versionId": "19:0c2b8a6a-9919-4065-b29d-3f8f0ab774d3"
+          },
+          {
+            "value": "ace31312-36c6-4d32-91f5-8ad63bcb7140",
+            "label": "ROC_Events",
+            "versionId": "5:d96609db-b3e4-49f8-9475-286e51902089"
+          },
+          {
+            "value": "53b0a78d-9e2d-4ad0-9c8b-71b76762d665",
+            "label": "ROC_Participants",
+            "versionId": "19:e7e2f3e1-ab05-4a3a-85d7-3f548a30cc9a"
+          },
+          {
+            "value": "968e1b15-dfb4-4659-9112-283c84181e53",
+            "label": "ST_Test",
+            "versionId": "27:82c2ba00-afb6-4465-b012-72d929492119"
+          },
+          {
+            "value": "679157a8-d326-4bc2-8ee2-7a027247afc7",
+            "label": "Test_Vendor",
+            "versionId": "21:a0b628e4-48a3-4959-9479-cee50987800d"
+          }
+        ],
         "required": false,
         "requiredHint": "",
         "validation": "",
@@ -37,7 +108,7 @@
         "onCreated": "const _this = this\nasync function getList() {\n  const data = await $api.post('/docpal/case/types/page',{ pageSize:9999 }).then(res => res.data.data.entryList)\n  return data.reduce((prev, item) => {\n    if(!item.id || !item.name) return prev \n const resultItem = {\n      value: item.id,\n      label: item.name || '' ,\n      versionId: item.productionVersionId\n    }\n   prev.push(resultItem) \n return prev\n  }, []).sort((a,b)=> (a.label.localeCompare(b.label) ))\n\n}\nasync function init() {\n  const options = await getList()\n  _this.loadOptions(options)\n}\ninit()",
         "onMounted": "",
         "onRemoteQuery": "",
-        "onChange": "\nconst optionItems = this.getOptionItems()\nconst _this = this\nloadColumn()\nconst curCase = optionItems.find(item => item.value === value)\nif(curCase){\n  const caseLabelRef = _this.getWidgetRef('caseLabel')\n  caseLabelRef.setValue(curCase.label) \n  \n}\n\nasync function loadColumn() {\n  const displayColumnsRef = _this.getWidgetRef('displayColumns')\n  if(!!oldValue) {\n    displayColumnsRef.setValue([])\n    displayColumnsRef.loadOptions([]) \n  }\n  if(!value) return\n  const primaryData = await getPrimaryData(value)\n  displayColumnsRef.loadOptions(primaryData) \n} \n\nasync function getPrimaryData(id) {\n  try {\n    const data = await $api.get(`/docpal/case/dashboard/caseType/${id}/primaryForm`).then(res => res.data.data.fields)\n  return [...data.reduce((prev, item) => {\n      if(!item.id || !item.name || prev.some(p => p.value === item.id)) return prev \n      const resultItem = {\n        value: item.id,\n        label: item.name || '' \n      }\n      prev.push(resultItem) \n      return prev\n    }, []),{value:'created_date', label:'workflow_createDate'},{value:'modified_date',label:'table_modifiedDate'}].sort((a,b)=> (a.label.localeCompare(b.label) ))\n  } catch (e) {\n    return []\n  }\n\n}",
+        "onChange": "\nconst optionItems = this.getOptionItems()\nconst _this = this\nloadColumn()\nconst curCase = optionItems.find(item => item.value === value)\nif(curCase){\n  const caseLabelRef = _this.getWidgetRef('caseLabel')\n  caseLabelRef.setValue(curCase.label) \n  \n}\n\nasync function loadColumn() {\n  \n  if(!value) return\n  const options = await getOptions(value)\n  const fieldsRef = _this.getWidgetRef('fields')\n  fieldsRef.setValue(JSON.stringify(options))\n} \n\nasync function getOptions() {\n  try {\n    const data = await $api.get(`/docpal/case/types/${value}/caseInfo`).then(res => res.data.data)\n    return data.reduce((prev, item) => {\n      if(!item.id || !item.name) return prev \n      const resultItem = {\n        value: item.id,\n        label: item.name || '' ,\n        type: item.type\n      }\n      prev.push(resultItem) \n      return prev\n    }, [{value:'created_date', label:'workflow_createDate'},{value:'modified_date',label:'table_modifiedDate'}]).sort((a,b)=> (a.label.localeCompare(b.label) ))\n  } catch (e) { return [] }\n}",
         "changeSettings": [],
         "onChangeSetting": true,
         "onFocus": "",
@@ -100,6 +171,37 @@
       "id": "input103788"
     },
     {
+      "key": 52405,
+      "type": "switch",
+      "icon": "switch-field",
+      "formItemFlag": true,
+      "options": {
+        "name": "showAdd",
+        "label": "singleCase.showAdd",
+        "labelAlign": "",
+        "defaultValue": false,
+        "columnWidth": "200px",
+        "labelWidth": null,
+        "labelHidden": false,
+        "disabled": false,
+        "hidden": false,
+        "customClass": "",
+        "labelIconClass": null,
+        "labelIconPosition": "rear",
+        "labelTooltip": null,
+        "switchWidth": 40,
+        "activeText": "el.popconfirm.confirmButtonText",
+        "inactiveText": "el.popconfirm.cancelButtonText",
+        "activeColor": null,
+        "inactiveColor": null,
+        "onCreated": "",
+        "onMounted": "",
+        "onChange": "",
+        "onValidate": ""
+      },
+      "id": "switch31159"
+    },
+    {
       "key": 103356,
       "type": "input",
       "icon": "text-field",
@@ -153,31 +255,38 @@
       "id": "input16170"
     },
     {
-      "key": 46294,
-      "type": "select",
-      "icon": "select-field",
+      "key": 12362,
+      "type": "slot",
+      "icon": "slot-field",
+      "formItemFlag": false,
+      "options": {
+        "name": "dialog_displayColumns",
+        "label": "dialog_displayColumns",
+        "hidden": false
+      },
+      "id": "slot85184"
+    },
+    {
+      "key": 82691,
+      "type": "input",
+      "icon": "text-field",
       "formItemFlag": true,
       "options": {
-        "name": "displayColumns",
-        "label": "singleCase.displayColumns",
+        "name": "fields",
+        "label": "hidden-fields",
         "labelAlign": "",
-        "defaultValue": [],
+        "type": "text",
+        "defaultValue": "",
         "placeholder": "",
         "columnWidth": "200px",
         "size": "",
         "labelWidth": null,
         "labelHidden": false,
+        "readonly": false,
         "disabled": false,
-        "hidden": false,
+        "hidden": true,
         "clearable": true,
-        "filterable": true,
-        "allowCreate": false,
-        "popperClass": "",
-        "remote": false,
-        "automaticDropdown": false,
-        "multiple": true,
-        "multipleLimit": 0,
-        "optionItems": [],
+        "showPassword": false,
         "required": false,
         "requiredHint": "",
         "validation": "",
@@ -186,48 +295,29 @@
         "labelIconClass": null,
         "labelIconPosition": "rear",
         "labelTooltip": null,
+        "minLength": null,
+        "maxLength": null,
+        "showWordLimit": false,
+        "prefixIcon": "",
+        "suffixIcon": "",
+        "appendButton": false,
+        "appendButtonText": "",
+        "prependText": "",
+        "appendButtonDisabled": false,
+        "buttonIcon": "custom-search",
         "onCreated": "",
         "onMounted": "",
-        "onRemoteQuery": "",
+        "onInput": "",
         "onChange": "",
         "changeSettings": [],
         "onChangeSetting": true,
         "onFocus": "",
         "onBlur": "",
-        "onValidate": ""
+        "onEnter": "",
+        "onValidate": "",
+        "onAppendButtonClick": ""
       },
-      "id": "select27075"
-    },
-    {
-      "key": 52405,
-      "type": "switch",
-      "icon": "switch-field",
-      "formItemFlag": true,
-      "options": {
-        "name": "showAdd",
-        "label": "singleCase.showAdd",
-        "labelAlign": "",
-        "defaultValue": false,
-        "columnWidth": "200px",
-        "labelWidth": null,
-        "labelHidden": false,
-        "disabled": false,
-        "hidden": false,
-        "customClass": "",
-        "labelIconClass": null,
-        "labelIconPosition": "rear",
-        "labelTooltip": null,
-        "switchWidth": 40,
-        "activeText": "el.popconfirm.confirmButtonText",
-        "inactiveText": "el.popconfirm.cancelButtonText",
-        "activeColor": null,
-        "inactiveColor": null,
-        "onCreated": "",
-        "onMounted": "",
-        "onChange": "",
-        "onValidate": ""
-      },
-      "id": "switch31159"
+      "id": "input92804"
     }
   ],
   "formConfig": {

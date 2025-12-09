@@ -5,25 +5,30 @@ const props = defineProps<{
   userGroupList: any[]
 }>()
 
-async function handleCreateUserGroup() {
-  const groupList: any = Object.values(props.userGroupList)
-  let status = true
-  const noAdditionsList: any[] = []
+type userGroupItem = {
+  oldId: string,
+  newId: string
+}
 
-  for (const group of groupList) {
+const userGroupList = ref<userGroupItem[]>([])
+
+async function handleCreateUserGroup() {
+  for (const group of Object.values(props.userGroupList)) {
     const params = {
       groupId: group.id,
       groupName: group.name
     }
     try {
       const newVar = await adminApi.api.postNuxeoIdentityGroup(params).then(r => r.data)
+      userGroupList.value.push({
+        oldId: group.id,
+        newId: newVar.id
+      })
     } catch (e) {
-      console.log('Create User Group', e)
-      status = false
-      noAdditionsList.push({ name: group.name, newId: newVar.id })
+      throw new Error('Create UserGroup Error')
     }
   }
-  return { status: status, data: noAdditionsList }
+  return userGroupList.value
 }
 
 defineExpose({

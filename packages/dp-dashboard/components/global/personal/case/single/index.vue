@@ -46,41 +46,8 @@ async function getCaseDetail(caseId: string) {
 }
 // #region module: tableRef
 function handleShowColumn() {
-  const displayColumns = props.setting.displayColumns.reduce((prev: any, columnId: any) => {
-    const column = state.detail?.informations?.find((p: any) => p.metadata === columnId)
-    // check if the field is default fields
-    if (columnId === 'case_id') {
-      prev.push({ id: 'case_id', name: 'Case ID', minWidth: 200 })
-    } else if (columnId === 'created_date') {
-      prev.push({
-        id: 'created_date',
-        name: 'workflow_createDate',
-        minWidth: 200,
-        formatter({ cellValue }: any) {
-          return formatDate(cellValue)
-        }
-      })
-    } else if (columnId === 'modified_date') {
-      prev.push({
-        id: 'modified_date',
-        name: 'table_modifiedDate',
-        minWidth: 200,
-        formatter({ cellValue }: any) {
-          return formatDate(cellValue)
-        }
-      })
-    } else if (!!column) {
-      // get label from primaryForm
-      // TODO : this is a backend bug, the information is not returning correct label/name
-      const field = state.detail.primaryForm.fields.find((p: any) => p.id === columnId)
-      prev.push({
-        id: columnId,
-        name: field?.name || columnId
-      })
-    }
-    return prev
-  }, [])
-  tableRef.value.reorderColumn(displayColumns)
+  
+  tableRef.value.reorderColumn(props.setting.displayColumns || [])
 }
 function handleRefreshTable() {
   tableRef.value.reload()
@@ -114,6 +81,7 @@ watch(
     @refresh="refresh"
   >
     <div class="table-container">
+
       <PersonalCaseSingleTable ref="tableRef" :id="setting.caseId" :detail="state.detail" :label="setting.caseLabel">
         <template #table_right>
           <el-button v-if="props.setting.caseId && props.setting.showAdd" type="primary" @click="handleAddCaseDialog">

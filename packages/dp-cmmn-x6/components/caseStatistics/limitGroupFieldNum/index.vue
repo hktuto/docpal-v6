@@ -63,15 +63,9 @@ const option = {
     trigger: 'item',
     position: function (pos, params, dom, rect, size) {
       // 自定义 tooltip 的位置,在鼠标下方，如果鼠标在底部，则放在鼠标上方，如果鼠标在偏右，则放在鼠标左侧，如果鼠标在偏左，则放在鼠标右侧
-      if (pos[1] > size.viewSize[1] / 2) {
-        return {
+      return {
           top: 10
         }
-      } else {
-        return {
-          bottom: 10
-        }
-      }
     }
   },
   legend: {

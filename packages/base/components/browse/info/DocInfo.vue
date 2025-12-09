@@ -49,7 +49,7 @@
       <BrowseInfoTag :doc="doc" @update="$emit('update', true)" />
       <BrowseInfoCollection v-if="doc.isCollectionMember" :doc="doc" @update="$emit('update', true)" />
     </el-card>
-    <el-card v-if="!doc.isFolder && allowFeature('WORKFLOW_ADHOC')" shadow="never">
+    <el-card v-if="!doc.isFolder && allowFeature('WORKFLOW_ADHOC') && doc.status !== 20" shadow="never">
       <BrowseInfoWorkflowSection :doc="doc"></BrowseInfoWorkflowSection>
     </el-card>
     <!-- <el-divider /> -->

@@ -117,4 +117,8 @@ watch(
     display: flex;
   }
 }
+.cards-container{
+  height: 100%;
+  overflow: auto;
+}
 </style>

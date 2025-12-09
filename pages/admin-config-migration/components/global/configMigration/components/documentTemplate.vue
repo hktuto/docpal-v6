@@ -9,9 +9,15 @@ function handleEditDocumentTemplate(item: any) {
   console.log('item', item)
 }
 
+type documentTemplateItem = {
+  oldId: string,
+  newId: string
+}
+
+const documentList = ref<documentTemplateItem[]>([])
+
 async function handleCreateDocumentTemplate() {
-  let status = true
-  const list = []
+  const list: any[] = []
 
   for (const item of Object.values(props.documentTemplateList)) {
     try {
@@ -29,7 +35,6 @@ async function handleCreateDocumentTemplate() {
       }).then(r => r.data)
 
       if (!data.id) {
-        status = false
         list.push(item.name)
         continue
       }
@@ -39,12 +44,16 @@ async function handleCreateDocumentTemplate() {
         templateVariable: JSON.stringify(item.fileBlob.variablesSchema)
       }).then(r => r.data)
 
+      documentList.value.push({
+        oldId: item.id,
+        newId: data.id
+      })
     } catch (e) {
-      status = false
       list.push(item.name)
+      throw new Error(list.join(', '))
     }
   }
-  return { status: status, message: list.join(',') }
+  return documentList.value
 }
 
 async function createFile(fileType: 'Word' | 'Excel' | 'PPT' | 'PDF', name: string) {

@@ -166,7 +166,11 @@ export function convertWorkflowVariableToTemplateVariable(variables: any, mappin
       try {
         const json = JSON.parse(variables[valueKey])
         // REMARK : number will not throw error in JSON.parse, so we need to check it manually
-        prev[key] = json
+        if(typeof json === 'number') {
+          prev[key] = json.toString()
+        } else {
+          prev[key] = json
+        }
       } catch (e) {
         prev[key] = variables[valueKey]
       }

@@ -18,7 +18,11 @@ type workflowItem = {
 
 const workflowList = ref<workflowItem[]>([])
 
-async function handleCreateWorkflow(caseResult: any, documentTemplateResult: any, emailTemplateResult: any, idGeneratorResult: any) {
+async function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+async function handleCreateWorkflow(caseResult: any, masterTableResult: any, documentTemplateResult: any, emailTemplateResult: any, idGeneratorResult: any) {
   console.log('workflowList', props.workflowList)
 
   for (const item of Object.values(props.workflowList)) {
@@ -29,6 +33,12 @@ async function handleCreateWorkflow(caseResult: any, documentTemplateResult: any
     if (caseResult.length > 0) {
       caseResult.forEach((caseItem: any) => {
         bpmnFile = bpmnFile.replaceAll(caseItem.oldCaseTypeId, caseItem.caseTypeId)
+      })
+    }
+
+    if (masterTableResult.length > 0) {
+      masterTableResult.forEach((masterTableItem: any) => {
+        bpmnFile = bpmnFile.replaceAll(masterTableItem.oldId, masterTableItem.newId)
       })
     }
 
@@ -51,21 +61,22 @@ async function handleCreateWorkflow(caseResult: any, documentTemplateResult: any
     }
 
     const blob = new Blob([bpmnFile], { type: 'text/xml;charset=utf-8' })
+    const formJson = typeof item.styleJson.data === 'string' ? item.styleJson.data : JSON.stringify(item.styleJson.data)
     const form: any = new FormData()
-    form.append('name', item.name + Date.now())
+    form.append('name', item.name)
     form.append('attr_id', nameToId)
     form.append('versionId', 'V1')
-    form.append('jsonValue', JSON.stringify(item.styleJson.data))
+    form.append('jsonValue', formJson)
     form.append('file', blob, 'workflow.bpmn.xml')
     form.append('isDraft', true)
     const data = await adminApi.api.postWorkflowProcessDefinitionUpload({ requestDTO: {} }, form).then((res) => res.data)
-
+    console.log("data", item.styleJson.data)
     if (!data || !data?.latestVersionId) {
       return
     }
 
-    const draftId = data?.latestVersionId.split(':')[1]
-
+    const draftId = data?.draftId
+    
     // update field
     const params: any = {
       versionDraftId: data?.latestVersionId,
@@ -89,7 +100,7 @@ async function handleCreateWorkflow(caseResult: any, documentTemplateResult: any
     workflowList.value.push({
       oldId: item.id,
       newId: data.id,
-      oldKey: data.key,
+      oldKey: item.key,
       newKey: nameToId
     })
   }

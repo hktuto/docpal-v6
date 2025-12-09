@@ -81,7 +81,7 @@
                 "labelWidth": null,
                 "labelHidden": false,
                 "disabled": false,
-                "hidden": false,
+                "hidden": true,
                 "clearable": true,
                 "filterable": true,
                 "allowCreate": false,

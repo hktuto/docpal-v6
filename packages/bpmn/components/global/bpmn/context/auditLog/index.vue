@@ -31,6 +31,14 @@ async function getCaseLise() {
 
 const masterTableList = ref([])
 
+function handelFieldOrValue(status: string) {
+  if ('activities' === status) {
+    form.value.activities.value = ''
+  } else {
+    form.value.status.value = ''
+  }
+}
+
 async function getMasterTableList() {
   const { data } = await adminApi.api.postMasterTablesPage({ pageSize: 100 })
   masterTableList.value = data.entryList.map((item) => ({
@@ -57,7 +65,16 @@ const allFields = computed(() => {
   })
 })
 
-const form = ref<any>({})
+const form = ref<any>({
+  activities: {
+    status: '',
+    value: ''
+  },
+  status: {
+    status: '',
+    value: ''
+  }
+})
 
 const list = ['userId', 'uniqueIdentifier', 'category', 'id']
 
@@ -67,13 +84,18 @@ async function init() {
 
   const fields = node.getData().data.extensionElements['flowable:field']
   fields.forEach((item: any) => {
-    form.value[item.attr_name] = item['flowable:expression'].__cdata
-
     if (!list.includes(item.attr_name)) {
+      form.value[item.attr_name] = {
+        status: item.attr_status === 'field',
+        value: item['flowable:expression'].__cdata
+      }
+
       tableData.value.push({
         id: item.attr_name,
         name: item.attr_label
       })
+    } else {
+      form.value[item.attr_name] = item['flowable:expression'].__cdata
     }
   })
 }
@@ -157,7 +179,12 @@ function updateData() {
   Object.keys(form.value).forEach((key: any) => {
     const field = fields.find((item: any) => item.attr_name === key)
     if (field) {
-      field['flowable:expression'].__cdata = form.value[key]
+      if (!list.includes(field.attr_name)) {
+        field.attr_status = form.value[key].status ? 'field' : 'value'
+        field['flowable:expression'].__cdata = form.value[key].value
+      } else {
+        field['flowable:expression'].__cdata = form.value[key]
+      }
     }
     // else {
     //     const label = tableData.value.find((item: any) => item.id == key).name
@@ -221,27 +248,41 @@ onMounted(async () => {
     </el-form-item>
 
     <el-form-item :label="form.category === 'case' ? 'Case Record ID' : 'Master Table Record ID'" required>
-      <el-select v-model="form.id" clearable filterable :placeholder="t('common_selectedIsRequiredMsg')"
-                 @change="updateData">
+      <el-select v-model="form.id" filterable :placeholder="t('common_selectedIsRequiredMsg')" @change="updateData">
         <el-option v-for="item in allFields" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
 
     <el-divider />
 
-    <el-form-item label="Activities" required>
-      <el-select v-model="form.activities" filterable :placeholder="t('common_selectOccupancyContent')"
-                 @change="updateData">
+    <el-form-item>
+      <template #label>
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <label class="label"> {{ t('Activities') }}</label>
+          <el-switch v-model="form.activities.status" size="small" active-text="Field" inactive-text="Value"
+                     @change="handelFieldOrValue('activities')" />
+        </div>
+      </template>
+      <el-select v-if="form.activities.status" v-model="form.activities.value" filterable @change="updateData"
+                 :placeholder="t('common_selectOccupancyContent')">
         <el-option v-for="item in allFields" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
+      <el-input v-else v-model="form.activities.value" @change="updateData" />
     </el-form-item>
-    <el-form-item label="Status" required>
-      <el-select v-model="form.status" filterable :placeholder="t('common_selectOccupancyContent')"
-                 @change="updateData">
+    <el-form-item>
+      <template #label>
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <label class="label"> {{ t('Status') }}</label>
+          <el-switch v-model="form.status.status" size="small" active-text="Field" inactive-text="Value"
+                     @change="handelFieldOrValue('status')" />
+        </div>
+      </template>
+      <el-select v-if="form.status.status" v-model="form.status.value" filterable @change="updateData"
+                 :placeholder="t('common_selectOccupancyContent')">
         <el-option v-for="item in allFields" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
+      <el-input v-else v-model="form.status.value" @change="updateData" />
     </el-form-item>
-
 
     <!--    <div style="display: flex; justify-content: space-between; align-items: center;">-->
     <!--      <h4>Columns</h4>-->
@@ -284,5 +325,15 @@ onMounted(async () => {
 </template>
 
 <style scoped lang="scss">
+.label::before {
+  content: "*";
+  color: var(--el-color-danger);
+  margin-right: 4px;
+}
 
+:deep .el-form-item--label-top {
+  .el-form-item__label {
+    width: 100%;
+  }
+}
 </style>

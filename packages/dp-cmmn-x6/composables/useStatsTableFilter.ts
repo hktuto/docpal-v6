@@ -60,7 +60,7 @@ export const useStatsTableFilter = (setting: any, sql: string) => {
     return uniqueOptions.map((item: any) => ({
       label: item,
       value: item
-    }))
+    })).sort((a: any, b: any) => a.label.localeCompare(b.label))
   }
   return {
     initFilter,

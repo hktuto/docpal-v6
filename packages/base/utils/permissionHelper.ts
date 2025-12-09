@@ -102,7 +102,8 @@ export const RbacAllowTo = (
   docDetail: any,
   isFolder: boolean | '' = ''
 ): boolean => {
-  if (!docDetail) return false
+  // trash document is not editable
+  if (!docDetail || docDetail.status === 20) return false
   const permissionIds = docDetail?.permissionIds || []
   if (!permissionIds) return false
   if (['normal', 'read'].includes(rbacPermission)) return true

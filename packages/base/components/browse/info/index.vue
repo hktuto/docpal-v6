@@ -123,7 +123,12 @@ watch(
         </el-tab-pane>
         <el-tab-pane v-if="allowFeature('DOC_COMMENT')" class="pane--comment" :label="$t('rightDetail_comments')" name="comments">
           <!-- TODO: rbac check permission :disabled="checkPermission(permission)" -->
-          <BrowseInfoComments v-if="currentTab === 'comments'" :doc="detail" :commentId="commentId" />
+          <BrowseInfoComments 
+            v-if="currentTab === 'comments'" 
+            :doc="detail" 
+            :commentId="commentId"
+            :disabled="detail.status === 20"
+          />
         </el-tab-pane>
         <el-tab-pane v-if="!detail.isFolder && allowFeature('DOCUMENT_CONVERSION')" :label="$t('convert_convert')" name="convert">
           <BrowseInfoPicture v-if="allowFeature('DAM_FILE_CONVERTION')" :doc="detail" />

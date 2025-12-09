@@ -63,12 +63,12 @@ function handleDelete() {
 const option = {
   tooltip: {
     trigger: 'axis',
-    axisPointer: {
-      type: 'cross',
-      crossStyle: {
-        color: '#999'
-      }
-    }
+    // axisPointer: {
+    //   type: 'cross',
+    //   crossStyle: {
+    //     color: '#999'
+    //   }
+    // }
   },
   xAxis: [
     {
@@ -152,6 +152,7 @@ const option = {
 }
 const dialogRef = ref()
 function formatValue(value, displayMethod) {
+  if(!value) return '--'
   if (displayMethod === 'count') {
     return FinancialComputing(Number(value))
   } else if (displayMethod === 'currency') {

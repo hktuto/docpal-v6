@@ -8,6 +8,7 @@ const errorBoundary = useTemplateRef('errorBoundary')
 const { current } = useMagicKeys()
 const { allComponents } = useTabsManager()
 const { layout } = useTabsManager()
+const appNeedUpdate = useAppNeedUpdate()
 
 const hightLightPanel = useCurrentTargetPanel()
 
@@ -40,6 +41,10 @@ async function handleRefresh() {
 }
 
 function navigateTo(param: RouterParams, openInNewTab: boolean = false, ignoreExist: boolean = false) {
+  if(appNeedUpdate.value) {
+    window.location.reload()
+    return
+  }
   if (current.has('meta') || current.has('control') || openInNewTab) {
     tabManager?.openInNewTab(param)
     return
@@ -81,6 +86,10 @@ function addToHistory(param: RouterParams) {
 }
 
 function back(fallback?: any) {
+  if(appNeedUpdate.value) {
+    window.location.reload()
+    return
+  }
   refeshActions.value = []
   if (history.value.length === 0) {
     if (fallback) {
@@ -119,6 +128,10 @@ function back(fallback?: any) {
 }
 
 function forward() {
+  if(appNeedUpdate.value) {
+    window.location.reload()
+    return
+  }
   if (forwardHistory.value.length === 0) return
   const lastItem = forwardHistory.value.pop()
 

@@ -1088,8 +1088,8 @@ export const bpmnElement: BpmnElement = {
                 { attr_name: 'uniqueIdentifier', 'flowable:expression': { __cdata: '' } },
                 { attr_name: 'id', 'flowable:expression': { __cdata: '' } },
                 { attr_name: 'userId', 'flowable:expression': { __cdata: '' } },
-                { attr_name: 'activities', 'flowable:expression': { __cdata: '' } },
-                { attr_name: 'status', 'flowable:expression': { __cdata: '' } },
+                { attr_name: 'activities', attr_status: 'field', 'flowable:expression': { __cdata: '' } },
+                { attr_name: 'status', attr_status: 'field', 'flowable:expression': { __cdata: '' } }
               ]
             }
           }),
@@ -1104,8 +1104,8 @@ export const bpmnElement: BpmnElement = {
                 { attr_name: 'uniqueIdentifier', 'flowable:expression': { __cdata: '' } },
                 { attr_name: 'id', 'flowable:expression': { __cdata: '' } },
                 { attr_name: 'userId', 'flowable:expression': { __cdata: '' } },
-                { attr_name: 'activities', 'flowable:expression': { __cdata: '' } },
-                { attr_name: 'status', 'flowable:expression': { __cdata: '' } },
+                { attr_name: 'activities', attr_status: 'field', 'flowable:expression': { __cdata: '' } },
+                { attr_name: 'status', attr_status: 'field', 'flowable:expression': { __cdata: '' } }
               ]
             }
           })

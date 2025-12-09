@@ -5,24 +5,32 @@ const props = defineProps<{
   idGeneratorList: any[]
 }>()
 
+type idGeneratorItem = {
+  oldId: string,
+  newId: string
+}
+
+const idList = ref<idGeneratorItem[]>([])
+
 async function handleCreateIdGenerator() {
-  const idGeneratorList: any = Object.values(props.idGeneratorList)
-  let status = true
   const list: any[] = []
 
-  for (const idTemplateItem of idGeneratorList) {
+  for (const idTemplateItem of Object.values(props.idGeneratorList)) {
     let data
-    // create
     try {
-      data = await adminApi.api.postIdTemplates({ name: idTemplateItem.name }).then(res => res.data)
+      data = await adminApi.api.postIdTemplates({
+        name: idTemplateItem.name
+      }).then(res => res.data)
+      idList.value.push({
+        oldId: idTemplateItem.id,
+        newId: data.id
+      })
     } catch (e) {
-      status = false
       list.push(idTemplateItem.name)
       continue
     }
 
     if (!data || !data.id) {
-      status = false
       list.push(idTemplateItem.name)
       continue
     }
@@ -37,12 +45,11 @@ async function handleCreateIdGenerator() {
     try {
       await adminApi.api.putIdTemplatesId(data.id, form).then(res => res.data)
     } catch (e) {
-      status = false
       list.push(idTemplateItem.name)
     }
   }
 
-  return { status: status, message: list.join(',') }
+  return idList.value
 }
 
 defineExpose({

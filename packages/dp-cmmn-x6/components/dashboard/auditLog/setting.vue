@@ -14,8 +14,8 @@ const setting = ref({
   category: 'case',
   columns: [
     { id: 'date', label: 'Date', width: 200 },
-    { id: 'activities', label: 'Activities', width: 400 },
-    { id: 'status', label: 'Status', width: 150 },
+    { id: 'activities', label: 'Activities', width: 300 },
+    { id: 'status', label: 'Status', width: 200 },
     { id: 'user', label: 'User', width: 150 }
   ]
 })

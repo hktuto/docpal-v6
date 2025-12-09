@@ -128,27 +128,6 @@ export interface ResultSetString {
     locale?: string;
 }
 
-export interface BasePageRequest {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    /** @format int32 */
-    pageIndex?: number;
-}
-
 /** Document */
 export interface DocumentDTO {
     /** Document ID */
@@ -232,29 +211,6 @@ export interface FileContentDTO {
     /** @format int64 */
     length?: number;
     minio_file_version?: string;
-}
-
-export interface PaginationDTODocumentDTO {
-    entryList?: DocumentDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTODocumentDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTODocumentDTO;
-    messageKey?: string;
-    locale?: string;
 }
 
 export interface PaginableEntityDTODocumentDTO {
@@ -2673,6 +2629,94 @@ export interface UploadFileDetailRecord {
     modifiedDate?: string;
 }
 
+/** Trash RequestDTO */
+export interface TrashRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** Name */
+    name?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+/** Document */
+export interface DocumentThumbnailDTO {
+    /** Document ID */
+    id?: string;
+    /** Document Name */
+    name?: string;
+    /** Document Path */
+    path?: string;
+    /** Is Document Folder */
+    isFolder?: boolean;
+    /** Document lastModified */
+    modifiedDate?: string;
+    /** Document source modified date */
+    fileModifiedDate?: string;
+    /** Document create date */
+    createdDate?: string;
+    /**
+     * Document content size
+     * @format double
+     */
+    fileSize?: number;
+    source?: string;
+    uploadId?: string;
+    mimeType?: string;
+    documentType?: string;
+    docPalType?: string;
+    contributors?: string[];
+    tags?: string[];
+    version?: string;
+    /** @format int32 */
+    status?: number;
+    statusName?: string;
+    collections?: Record<string, string>[];
+    permissionIds?: number[];
+    hold?: PolicyDocument;
+    retention?: RetentionPolicyDocument;
+    comeFrom?: string;
+    drivePreviewLink?: string;
+    originalPath?: string;
+}
+
+export interface PaginationDTODocumentThumbnailDTO {
+    entryList?: DocumentThumbnailDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTODocumentThumbnailDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTODocumentThumbnailDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface SaveFileOverviewRequestDTO {
     userId?: string;
     /** @format int32 */
@@ -2969,70 +3013,6 @@ export interface WatermarkDocumentRequestDTO {
     originDocumentId?: string;
     title?: string;
     fileName?: string;
-}
-
-/** Document */
-export interface DocumentThumbnailDTO {
-    /** Document ID */
-    id?: string;
-    /** Document Name */
-    name?: string;
-    /** Document Path */
-    path?: string;
-    /** Is Document Folder */
-    isFolder?: boolean;
-    /** Document lastModified */
-    modifiedDate?: string;
-    /** Document source modified date */
-    fileModifiedDate?: string;
-    /** Document create date */
-    createdDate?: string;
-    /**
-     * Document content size
-     * @format double
-     */
-    fileSize?: number;
-    source?: string;
-    uploadId?: string;
-    mimeType?: string;
-    documentType?: string;
-    docPalType?: string;
-    contributors?: string[];
-    tags?: string[];
-    version?: string;
-    /** @format int32 */
-    status?: number;
-    statusName?: string;
-    collections?: Record<string, string>[];
-    permissionIds?: number[];
-    hold?: PolicyDocument;
-    retention?: RetentionPolicyDocument;
-    comeFrom?: string;
-    drivePreviewLink?: string;
-    originalPath?: string;
-}
-
-export interface PaginationDTODocumentThumbnailDTO {
-    entryList?: DocumentThumbnailDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTODocumentThumbnailDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTODocumentThumbnailDTO;
-    messageKey?: string;
-    locale?: string;
 }
 
 export interface FileConfirmDTO {
@@ -4644,6 +4624,27 @@ export interface DeleteMTRecordRequestDTO {
     recordIds?: string[];
 }
 
+export interface BasePageRequest {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
 export interface NestedSearchLogV2 {
     searchRequest?: SearchRequestDTO;
     /** @format int64 */
@@ -5377,6 +5378,41 @@ export interface ResultPaginationDTOCompany {
     code?: number;
     message?: string;
     data?: PaginationDTOCompany;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** CF User Table Config Request */
+export interface CfUserTableConfigRequestDTO {
+    /** Related table id */
+    tableId?: string;
+    /** User id (optional, default current user) */
+    userId?: string;
+    /** Column config JSON string */
+    columnConfig?: string;
+}
+
+/** CF User Table Config */
+export interface CfUserTableConfigResponseDTO {
+    id?: string;
+    tableId?: string;
+    userId?: string;
+    columnConfig?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface ResultCfUserTableConfigResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** CF User Table Config */
+    data?: CfUserTableConfigResponseDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -6336,6 +6372,7 @@ export interface AuditLogQueryRequest {
     status?: string;
     type?: string;
     activities?: string;
+    logDate?: string;
     /** @format date-time */
     createdDate?: string;
     request?: Record<string, object>;
@@ -9724,65 +9761,6 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
-         * @name GetNuxeoDocumentTrash
-         * @summary Get trashed documents
-         * @request GET:/api/nuxeo/document/trash
-         */
-        getNuxeoDocumentTrash: (
-            query: {
-                basePageRequest: BasePageRequest;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginationDTODocumentDTO, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/document/trash`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Document (Nuxeo)
-         * @name PostNuxeoDocumentTrash
-         * @summary Get trashed documents
-         * @request POST:/api/nuxeo/document/trash
-         */
-        postNuxeoDocumentTrash: (
-            query: {
-                basePageRequest: BasePageRequest;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginationDTODocumentDTO, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/document/trash`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Document (Nuxeo)
-         * @name DeleteNuxeoDocumentTrash
-         * @summary Move a document to trash
-         * @request DELETE:/api/nuxeo/document/trash
-         */
-        deleteNuxeoDocumentTrash: (data: DocumentRequestDTO[], params: RequestParams = {}) =>
-            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/document/trash`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Collection (Nuxeo)
          * @name GetNuxeoCollectionDeprecate
          * @summary Get user visible collections
@@ -12526,7 +12504,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/registeredServer/audit-log/add
          */
         postNuxeoRegisteredserverAuditLogAdd: (data: Record<string, object>, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
                 path: `/nuxeo/registeredServer/audit-log/add`,
                 method: "POST",
                 body: data,
@@ -13261,6 +13239,40 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Document (Nuxeo)
+         * @name PostNuxeoDocumentTrash
+         * @summary Get trashed documents
+         * @request POST:/api/nuxeo/document/trash
+         */
+        postNuxeoDocumentTrash: (data: TrashRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTODocumentThumbnailDTO, ResultString | (ResultString | Result)>({
+                path: `/nuxeo/document/trash`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document (Nuxeo)
+         * @name DeleteNuxeoDocumentTrash
+         * @summary Move a document to trash
+         * @request DELETE:/api/nuxeo/document/trash
+         */
+        deleteNuxeoDocumentTrash: (data: DocumentRequestDTO[], params: RequestParams = {}) =>
+            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
+                path: `/nuxeo/document/trash`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document (Nuxeo)
          * @name PostNuxeoDocumentThumbnail
          * @summary Get document thumbnail
          * @request POST:/api/nuxeo/document/thumbnail
@@ -13631,6 +13643,23 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         postNuxeoDocumentCreateStructure: (data: DocStructureRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocStructureResponseDTO, ResultString | (ResultString | Result)>({
                 path: `/nuxeo/document/create/structure`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document (Nuxeo)
+         * @name PostNuxeoDocumentCreateFolderTree
+         * @summary Create a folder tree
+         * @request POST:/api/nuxeo/document/create/folder/tree
+         */
+        postNuxeoDocumentCreateFolderTree: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+                path: `/nuxeo/document/create/folder/tree`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17512,6 +17541,45 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         postCompanyprofilesPage: (data: CompanyRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOCompany, ResultString | (ResultString | Result)>({
                 path: `/docpal/companyProfiles/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CfTableController
+         * @name GetCfTableUserConfig
+         * @summary Get user table column config
+         * @request GET:/api/docpal/cf/table/user-config
+         */
+        getCfTableUserConfig: (
+            query: {
+                tableId: string;
+                userId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCfUserTableConfigResponseDTO, ResultString | (ResultString | Result)>({
+                path: `/docpal/cf/table/user-config`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CfTableController
+         * @name PostCfTableUserConfig
+         * @summary Upsert user table column config
+         * @request POST:/api/docpal/cf/table/user-config
+         */
+        postCfTableUserConfig: (data: CfUserTableConfigRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCfUserTableConfigResponseDTO, ResultString | (ResultString | Result)>({
+                path: `/docpal/cf/table/user-config`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,

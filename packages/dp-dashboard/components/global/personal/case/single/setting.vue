@@ -7,7 +7,11 @@
     :close-on-click-modal="false"
     destroy-on-close
   >
-    <FormRenderer ref="FormRendererRef" :form-json="formJson" />
+    <FormRenderer ref="FormRendererRef" :form-json="formJson" @formChange="handleFormChange">
+      <template v-slot:dialog_displayColumns>
+        <FormSlotDisplayColumn ref="DisplayColumnRef" />
+      </template>
+    </FormRenderer>
     <template #footer>
       <div class="footer-grid">
         <el-button type="primary" :loading="state.loading" @click="handleSubmit">{{
@@ -29,12 +33,24 @@ const state = reactive({
   setting: {},
 });
 const FormRendererRef = ref();
+const DisplayColumnRef = ref();
+function handleFormChange({ fieldName, newValue, formModel, oldValue }: any) {
+  if (newValue && fieldName === 'fields' && oldValue !== newValue && DisplayColumnRef.value) {
+    DisplayColumnRef.value.initColumns(formModel)
+  }
+}
+
 async function handleSubmit() {
   state.loading = true;
   try {
-    const data = await FormRendererRef.value.getFormData();
+    let data = await FormRendererRef.value.getFormData();
+    if (DisplayColumnRef.value) {
+      const displayColumns = DisplayColumnRef.value.getData()
+      data = { ...data, displayColumns:JSON.parse(JSON.stringify(displayColumns)) }
+    }
     emits("refresh", structuredClone(toRaw(data)));
   } catch (error) {
+    console.log('handleSubmit error', error)
     state.loading = false;
   }
   state.visible = false;
@@ -45,6 +61,9 @@ function handleOpen(setting) {
   setTimeout(async () => {
     state.setting = JSON.parse(JSON.stringify(setting));
     await FormRendererRef.value.vFormRenderRef.setFormData(state.setting);
+    if (DisplayColumnRef.value) {
+      DisplayColumnRef.value.initColumns(setting)
+    }
     state.loading = false;
   });
 }

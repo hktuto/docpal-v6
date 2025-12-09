@@ -36,11 +36,13 @@ const infoOpened = ref(false)
 const docDetail = ref()
 const mobileActionOpened = ref(false)
 const loading = ref(false)
+const isTrash = ref(false)
 async function getDetail() {
   loading.value = true
   docDetail.value = null
   const userId = useUserId()
   const { doc } = await getDocDetail(idOrPath.value, userId.value)
+  isTrash.value = doc.status === 20;
   // if doc is Folder, redirect to browse page
   if (doc.isFolder) {
     const newItem = createBrowseListPageParams({
@@ -98,7 +100,7 @@ function mobileActionsOpenedChanged(bool: boolean) {
 
 const detailActions = computed(() => {
   if (!docDetail.value) return {}
-  return ActionsFilter(actions, docDetail.value, 'showInDetail')
+  return ActionsFilter(actions, docDetail.value, 'showInDetail', isTrash.value)
 })
 
 function goParent() {

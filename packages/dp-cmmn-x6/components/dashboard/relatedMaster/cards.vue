@@ -121,6 +121,7 @@ defineExpose({ reorderColumn, reload, query })
   font-size: var(--app-font-size-l);
   color: var(--el-text-color-primary);
   font-weight: 600;
+  word-break: break-all;
 }
 .card + .card {
   padding-top: var(--app-space-xs);

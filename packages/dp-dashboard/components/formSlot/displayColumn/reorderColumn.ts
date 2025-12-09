@@ -13,15 +13,19 @@ export async function formSlotOrderDisplayColumns(fields: any, tabProvider: any,
           const prefix = item.prefix || ''
           const suffix = item.suffix || ''
           newItem.formatter = ({ cellValue }: any) => {
-            if (item.dateDisplay === 'duration') {
-              if (!cellValue) return prefix + '0 day' + suffix
-              const diff = dayjs().diff(cellValue, 'day')
-              return prefix + diff + ' days' + suffix
+            if (!cellValue) return '-'
+            try {
+              if (item.dateDisplay === 'duration') {
+                const diff = dayjs().diff(cellValue, 'day')
+                return prefix + diff + ' days' + suffix
+              }
+              if (item.dateFormat) {
+                return prefix + formatDate(cellValue, item.dateFormat) + suffix
+              }
+              return prefix + formatDate(cellValue) + suffix
+            } catch (e) {
+              return '-'
             }
-            if (item.dateFormat) {
-              return prefix + formatDate(cellValue, item.dateFormat) + suffix
-            }
-            return prefix + formatDate(cellValue) + suffix
           }
         } else if (item.clickAction) {
           // return render @click action
@@ -50,11 +54,6 @@ export async function formSlotOrderDisplayColumns(fields: any, tabProvider: any,
       }, [])
       columns.splice(0, 0, ...columneFromSetting)
     }
-    const index = columns.findIndex((item: any) => item.treeNode)
-    if (index !== -1) {
-      const removedElement = columns.splice(index, 1)[0]
-      columns.unshift(removedElement)
-    }
     return columns
   } catch (e) {
     console.log('error', e)
@@ -63,15 +62,20 @@ export async function formSlotOrderDisplayColumns(fields: any, tabProvider: any,
 }
 
 export function formSlotHandleDisplayMethod({ displayMethod, prefix, suffix }: any, value: any) {
-  if (!prefix) prefix = ''
-  if (!suffix) suffix = ''
-  if (['FinancialComputing', 'count'].includes(displayMethod)) {
-    return prefix + FinancialComputing(value) + suffix
-  } else if (['fileSize'].includes(displayMethod)) {
-    return prefix + fileSize(value) + suffix
-  } else if (['currency'].includes(displayMethod)) {
-    // value is money number, format to 1,000.00
-    return prefix + value.toLocaleString('en-US', { style: 'currency', currency: 'USD' }).replace('$', '') + suffix
+  try {
+    if(!value) return '--'
+    if (!prefix) prefix = ''
+    if (!suffix) suffix = ''
+    if (['FinancialComputing', 'count'].includes(displayMethod)) {
+      return prefix + FinancialComputing(value) + suffix
+    } else if (['fileSize'].includes(displayMethod)) {
+      return prefix + fileSize(value) + suffix
+    } else if (['currency'].includes(displayMethod)) {
+      // value is money number, format to 1,000.00
+      return prefix + value.toLocaleString('en-US', { style: 'currency', currency: 'USD' }).replace('$', '') + suffix
+    }
+    return prefix + value + suffix
+  } catch (e) {
+    return '-'
   }
-  return prefix + value + suffix || '--'
 }

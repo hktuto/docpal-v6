@@ -9,32 +9,42 @@ function handleEditEmailTemplate(item: any) {
   console.log('item', item)
 }
 
+type emailTemplateItem = {
+  oldId: string,
+  newId: string
+}
+
+const emailTemplateList = ref<emailTemplateItem[]>([])
+
 async function handleCreateEmailTemplate() {
-  let status = true
   const list: any[] = []
 
   for (const item of Object.values(props.emailTemplateList)) {
     try {
       const res = await adminApi.api.postTemplateEmailTemplate({
+        label: item.label,
         subject: item.subject,
         body: item.body,
         emailLayoutId: item.emailLayoutId,
         emailTemplateJson: item.emailTemplateJson,
-        emailTemplateVariable: item.emailTemplateVariable,
-        label: item.label
+        emailTemplateVariable: item.emailTemplateVariable
       }).then(res => res.data)
+
+      emailTemplateList.value.push({
+        oldId: item.id,
+        newId: res.id
+      })
     } catch (e) {
-      status = false
       list.push(item.name)
+      throw new Error(list.join(', '))
     }
   }
-  return { status: status, message: list.join(',') }
+  return emailTemplateList.value
 }
 
 defineExpose({
   handleCreateEmailTemplate
 })
-
 </script>
 
 <template>

@@ -4,6 +4,7 @@
       <template #toolbar_buttons>
         <header v-show="state.selectList.length === 0" class="header-flex">
           <div class="flex-x-start">
+            <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange" />
             <el-button id="Trash__EmptyTrash" type="danger" @click="handleDeleteAll">
               {{ t('trash_emptyTrash') }}
             </el-button>
@@ -26,6 +27,7 @@
 <script lang="ts" setup>
 import { ElMessageBox, ElNotification } from 'element-plus'
 import { clientApi } from 'api'
+import {useDebounceFn} from '@vueuse/core'
 
 const routerProvider = inject(MenuRouterKey)
 type TableState = {
@@ -46,11 +48,29 @@ const state = reactive<TableState>({
 const { t } = useI18n()
 const ResponsiveFilterRef = ref()
 
+
+
+
+
+function handleFilterFormChange(formModel: any) {
+  state.extraParamsFilter = formModel
+  debouncedReload()
+}
+
+function dblClickHandler(row: any) {
+  const params = createDetailPageParams({
+      idOrPath: row.id,
+      docName: row.name
+    })
+    routerProvider?.navigateTo(params, true)
+}
+
 const { tableConfig, tableEvent, tableRef, reload, query, cleanSelectedRows } = useVxeTable({
   id: 'clientTrashList',
   api: async (pageParams: any) => {
     cleanSelectedRows()
-    return clientApi.api.getNuxeoDocumentTrash(pageParams)
+    pageParams = { ...pageParams, ...state.extraParamsFilter }
+    return clientApi.api.postNuxeoDocumentTrash(pageParams)
   },
   columns: [
     { field: 'checkbox', type: 'checkbox', width: '50px', fixed: 'left' },
@@ -144,6 +164,9 @@ const { tableConfig, tableEvent, tableRef, reload, query, cleanSelectedRows } = 
       }
     ]
   ],
+  dblClickAction: ({ row, column, event }) => {
+    dblClickHandler(row)
+  },
   permissionMethod: ({ options, column, row, rowIndex }: any) => {
     if (!row) {
       return {
@@ -165,8 +188,17 @@ const { tableConfig, tableEvent, tableRef, reload, query, cleanSelectedRows } = 
   },
   selectChangeHander: (selectedRows: any[]) => {
     state.selectList = [...selectedRows]
+  },
+  optionalConfig: {
+    checkboxConfig: {
+      checkMethod: ({ row }) => {
+        return row.permissionIds.includes(12)
+      }
+    },
   }
 })
+
+const debouncedReload = useDebounceFn(reload, 300)
 
 async function handleDeleteAll() {
   try {

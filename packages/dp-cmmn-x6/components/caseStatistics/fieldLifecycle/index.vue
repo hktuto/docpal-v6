@@ -60,17 +60,21 @@ function handleDelete() {
   emits('delete')
 }
 const showFilterButton = computed(() => {
+  if (!props.setting.filterDialogList) return false
   return props.setting.filterDialogList.filter((item) => item.filterDialogField).length > 0
 })
-const displayFilter = computed(() => {
-  if (filterParams.value.length > 0) {
-    return `(${filterParams.value.map((item) => item.value).join(', ')})`
+const displayFilter = computed(
+  () => {
+    if (filterParams.value.length > 0) {
+      return `(${filterParams.value.map((item) => item.value).join(', ')})`
+    }
+    return ''
+  },
+  {
+    deep: true,
+    immediate: true
   }
-  return ''
-}, {
-  deep: true,
-  immediate: true
-})
+)
 const seriesConfig = {
   type: 'bar',
   itemStyle: {},

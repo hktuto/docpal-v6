@@ -102,6 +102,8 @@ async function getCabinetDetail(id: string) {
   }
   const processData = processNode.getData().data
   const cabinetMapping = processData.extensionElements['flowable:folderCabinetMapping']
+  // TODO: 當選中的 folder cabinet被刪除，會導致重新選中的folder cabinet無法初始化
+
   if (cabinetMapping) {
     form.value = arr.map(item => {
       const bpmnItem = cabinetMapping.find((oldItem: any) => item.id === oldItem.attr_id)
@@ -265,9 +267,10 @@ onMounted(async () => {
 </script>
 
 <template>
+  <BpmnSidebarEditLabel :node="node" />
   <div class="folderCabinetContainer">
     <ElForm label-position="top" @native.enter="() => {}">
-      <ElFormItem lable="Folder Cabinet">
+      <ElFormItem label="Folder Cabinet">
         <ElSelect v-model="selectedCabinet" :disabled="editorProvider.readonly.value" @change="getCabinetDetail"
                   clearable>
           <ElOption v-for="item in cabinetOptions" :key="item.id" :label="item.label" :value="item.id" />
