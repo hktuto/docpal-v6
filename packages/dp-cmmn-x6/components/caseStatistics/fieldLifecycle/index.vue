@@ -139,7 +139,7 @@ const { cardRef, chartRef, settingRef, resize, handleInitCard, loading } = useDa
     option.series = []
     option.legend = {
       data: [],
-      top: '5%'
+      top: '0%'
     }
     const rpcParams = {
       _table_name: chartSetting.tableName,
