@@ -74,9 +74,8 @@ async function openTab(tab:TabItem, ignoreFocus:boolean = false){
         window.location.reload()
         return
     }
-    // check if tab is already open
+
     try{
-        if(ignoreFocus) throw new Error("ignoreFocus")
         await focusExistingTab(tab)
     }catch(error){
         addTabInCurrentPanel({...tab})

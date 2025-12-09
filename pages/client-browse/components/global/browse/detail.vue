@@ -53,11 +53,15 @@ async function getDetail() {
   }
   docDetail.value = doc
   loading.value = false
-  const newItem = createBrowseListPageParams({
-    idOrPath: doc.parentRef
-  })
-  routerProvider?.addToHistory(newItem)
+  const history = routerProvider?.getHistory()
+  if(!history || history.length === 0) {
+    const newItem = createBrowseListPageParams({
+      idOrPath: doc.parentRef
+    })
+    routerProvider?.addToHistory(newItem)
+  }
   routerProvider?.updateTabName(docDetail.value.name)
+  
 }
 const isPdf = ref(false)
 

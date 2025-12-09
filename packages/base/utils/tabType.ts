@@ -20,8 +20,8 @@ interface TabManager {
     closeDialog:() => void,
     openFocusMode:(tab:TabItem) => void
     openNewDialog:(args: any) => void
-    openTab:(tab:TabItem) => void
-    openInNewTab:(tab:TabItem) => void
+    openTab:(tab:TabItem, ignoreFocus: boolean) => void
+    openInNewTab:(tab:any) => void
     openInCurrentTab:(tab:TabItem) => void
     toggleMenuStick:() => void
 }

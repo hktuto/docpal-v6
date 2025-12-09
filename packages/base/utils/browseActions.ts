@@ -114,7 +114,7 @@ export const actions: BrowseActionItem[] = [
     groupBy: 'other',
     additionalCheck: (docDetail: any) => {
       const watermarkAcceptFormat = ['jpg', 'pdf', 'png', 'mp4']
-      console.log('additionalCheck', docDetail)
+      
       if (docDetail.fileContentExtension && watermarkAcceptFormat.includes(docDetail.fileContentExtension.toLowerCase())) {
         return true
       }
