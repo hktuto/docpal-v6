@@ -70,12 +70,13 @@ async function handleSubmit() {
       }
     })
   } catch (e: any) {
-    throw createError(e)
+    throw e
   }
 }
 
 async function init() {
   try {
+    const systemFieldList: any = await adminApi.api.getUserSystemFields().then((res) => res.data)
     let { properties }: any = await adminApi.api.getUserProfileSetting().then((res) => res.data)
     state.displayFieldList = Object.keys(properties)
       .map((key) => ({
@@ -90,11 +91,10 @@ async function init() {
       .sort((a, b) => a.sort - b.sort)
       .map(({ sort, ...rest }) => rest)
 
-    const systemFieldList: any = await adminApi.api.getUserSystemFields().then((res) => res.data)
     const exceptionList = ['SIGN']
     state.systemFieldList = systemFieldList.filter((item: any) => !exceptionList.includes(item.key))
   } catch (e: any) {
-    throw createError(e)
+    throw e
   }
 }
 
