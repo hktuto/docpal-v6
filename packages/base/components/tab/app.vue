@@ -68,11 +68,14 @@ provide(
         toggleMenuStick
     }
 )
-
+const appNeedUpdate = useAppNeedUpdate()
 async function openTab(tab:TabItem, ignoreFocus:boolean = false){
-    // check if tab is already open
+    if(appNeedUpdate.value) {
+        window.location.reload()
+        return
+    }
+
     try{
-        if(ignoreFocus) throw new Error("ignoreFocus")
         await focusExistingTab(tab)
     }catch(error){
         addTabInCurrentPanel({...tab})
@@ -80,6 +83,10 @@ async function openTab(tab:TabItem, ignoreFocus:boolean = false){
 }
 
 async function openInNewTab(tab:MenuItem){
+  if(appNeedUpdate.value) {
+        window.location.reload()
+        return
+    }
   // check layout have more than one panel
   const sourceData = tab;
   if(layout.value.length === 1){

@@ -6,7 +6,8 @@ const props = defineProps<{
 
 
 const tabProvider = inject(TabManagerKey)
-if (!tabProvider) {
+const routerProvider = inject(MenuRouterKey)
+if (!tabProvider || !routerProvider) {
   throw new Error('TabManagerKey not found')
 }
 
@@ -27,10 +28,10 @@ async function getDocDetail() {
 }
 
 async function openDoc() {
-  const newItem = createBrowseListPageParams({
+  const newItem = createDetailPageParams({
     idOrPath: props.docId
   })
-  tabProvider?.openTab(newItem, true)
+  routerProvider.navigateTo(newItem, false)
 }
 
 onMounted(() => {
@@ -50,5 +51,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .cursor-pointer {
   cursor: pointer;
+  color: var(--app-primary-color);
+  text-decoration: underline;
 }
 </style>

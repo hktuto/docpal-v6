@@ -27,6 +27,8 @@ export type BrowseActionItem = {
   component: any
   groupBy: string
   hideAfterClick?: boolean
+  showInTrash?: boolean
+  showInGoogleDrive?: boolean
   additionalCheck?: (docDetail: any) => boolean
 }
 export type ShareActionItem = {
@@ -110,13 +112,13 @@ export const actions: BrowseActionItem[] = [
     permission: 'write',
     component: BrowseActionsWatermarkBtn,
     groupBy: 'other',
-    additionalCheck: (docDetail:any) => {
-      const watermarkAcceptFormat = ['jpg', 'pdf','png','mp4']
-      console.log("additionalCheck", docDetail)
-      if(docDetail.fileContentExtension && watermarkAcceptFormat.includes(docDetail.fileContentExtension.toLowerCase())){
-        return true;
+    additionalCheck: (docDetail: any) => {
+      const watermarkAcceptFormat = ['jpg', 'pdf', 'png', 'mp4']
+      
+      if (docDetail.fileContentExtension && watermarkAcceptFormat.includes(docDetail.fileContentExtension.toLowerCase())) {
+        return true
       }
-      return false;
+      return false
     }
   },
   {
@@ -159,10 +161,22 @@ export const actions: BrowseActionItem[] = [
 ]
 export const shareActions: ShareActionItem[] = []
 
-export const ActionsFilter = (actions: BrowseActionItem[], docDetail: any, booleanKey: 'showInFolder' | 'showInDetail' | 'showInShare') => {
-  console.log('actions', actions)
-  console.log('docDetail', docDetail)
-  console.log('booleanKey', booleanKey)
+export const ActionsFilter = (
+  actions: BrowseActionItem[],
+  docDetail: any,
+  booleanKey: 'showInFolder' | 'showInDetail' | 'showInShare',
+  isTrash: boolean = false
+) => {
+  if (isTrash) {
+    return actions.filter((item) => {
+      return item.showInTrash
+    })
+  }
+  if (docDetail.comeFrom === 'google_drive' || docDetail.path === '/google_drive') {
+    return actions.filter((item) => {
+      return item.showInGoogleDrive
+    })
+  }
   return actions
     .filter((item) => {
       if (!item.needFeature || item.needFeature.length === 0) return true
@@ -176,14 +190,14 @@ export const ActionsFilter = (actions: BrowseActionItem[], docDetail: any, boole
     })
     .filter((item) => {
       // console.log(RbacAllowTo(item.permission, docDetail), docDetail);
-      
+
       return RbacAllowTo(item.permission, docDetail)
     })
     .filter((item) => {
-      if(item.additionalCheck){
+      if (item.additionalCheck) {
         return item.additionalCheck(docDetail)
       }
-      return true;
+      return true
     })
     .reduce((prev: any, item: BrowseActionItem) => {
       prev[item.groupBy] = prev[item.groupBy] || []
