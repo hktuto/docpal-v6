@@ -8,7 +8,6 @@ packages:
 
 ignoredBuiltDependencies:
   - core-js
-  - electron
   - esbuild
   - fsevents
   - highlight.js
@@ -16,4 +15,5 @@ ignoredBuiltDependencies:
 onlyBuiltDependencies:
   - puppeteer
   - v-code-diff
+  - electron
   - '@vue-office/excel'
