@@ -204,7 +204,7 @@ defineExpose({ resize })
     --title-font-size: calc(var(--app-font-size-l) * 2);
     --total-font-size: calc(var(--app-font-size-xl) * 2);
   }
-  @container (min-width: 1024px){
+  @container (min-width: 1024px) and (min-height: 300px){
     --title-font-size: calc(var(--app-font-size-l) * 2.5);
     --total-font-size: calc(var(--app-font-size-xl) * 2.5);
   }

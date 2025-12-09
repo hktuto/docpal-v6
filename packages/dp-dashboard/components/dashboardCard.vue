@@ -119,7 +119,7 @@ defineExpose({
   display: grid;
   grid-template-rows: min-content 1fr;
   overflow: hidden;
-  container-type: inline-size;
+  container-type: size;
   border-radius: 6px;
   border: 1px solid var(--app-grey-900);
 }
