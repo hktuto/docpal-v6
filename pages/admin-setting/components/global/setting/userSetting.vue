@@ -78,6 +78,10 @@ async function init() {
   try {
     const systemFieldList: any = await adminApi.api.getUserSystemFields().then((res) => res.data)
     let { properties }: any = await adminApi.api.getUserProfileSetting().then((res) => res.data)
+    if (!properties) {
+      return
+    }
+
     state.displayFieldList = Object.keys(properties)
       .map((key) => ({
         key,
