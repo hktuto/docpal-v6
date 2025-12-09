@@ -30,8 +30,14 @@
 
 <script lang="ts" setup>
 import { clientApi, PostgREST_Decorate } from 'api'
-import formJson from './setting.vform.json'
+import { mergeSetting } from '../settingMergeHelper'
+import formJson from '../setting.vform.json'
+// import styleJson from './setting.style.vform.json'
+import setupJson from './setting.setup.vform.json'
 import dayjs from 'dayjs'
+
+const mergedJson = mergeSetting(formJson, setupJson)
+console.log('mergedJson', mergedJson)
 const props = withDefaults(
   defineProps<{
     dates?: any
