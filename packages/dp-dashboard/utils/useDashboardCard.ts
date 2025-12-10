@@ -1,4 +1,5 @@
 import { useEventListener, watchDebounced } from '@vueuse/core'
+import { formSlotHandleDisplayMethod } from '../components/formSlot/displayColumn/reorderColumn'
 import * as echarts from 'echarts'
 export type useDashboardCardParams = {
   initStyleAction?: (cardRef: any, chartRef: any) => void
@@ -70,7 +71,7 @@ export const useDashboardCard = (params: useDashboardCardParams) => {
   }
   const handleInitCard = async (chartSetting?: any) => {
     try {
-      if(!chartSetting) chartSetting = props.setting
+      if (!chartSetting) chartSetting = props.setting
       loading.value = true
       if (!params.handleInitCardAction) {
         const options = params.getOptions ? await params.getOptions(chartSetting) : params.options ? params.options : null
@@ -90,7 +91,6 @@ export const useDashboardCard = (params: useDashboardCardParams) => {
     return echartInstance
   }
   const resize = () => {
-    console.log('resize')
     setTimeout(async () => {
       if (params.resizeAction) {
         params.resizeAction(echartInstance)
@@ -106,6 +106,33 @@ export const useDashboardCard = (params: useDashboardCardParams) => {
       resize()
     }, 300)
   }
+  const setupOptions = (opts: any) => {
+    const _opts = JSON.parse(JSON.stringify(opts))
+
+    const setting = props.setting
+    if (setting.theme) {
+      _opts.color = setting.theme
+    }
+    _opts.grid.left = setting.leftMargin ? setting.leftMargin + '%' : '10%'
+    _opts.grid.right = setting.rightMargin ? setting.rightMargin + '%' : '15%'
+    _opts.grid.bottom = setting.bottomMargin ? setting.bottomMargin + '%' : '15%'
+    _opts.grid.top = setting.topMargin ? setting.topMargin + '%' : '15%'
+    return _opts
+  }
+  function setSqlParamsByFilterList(filterList: any[], sqlParams: any[]) {
+    filterList.forEach((item: any) => {
+      sqlParams.push({
+        key: item.filterKey,
+        type: 'in',
+        value: item.filterValue
+      })
+    })
+  }
+  function setRpcParamsByFilterList(filterList: any[], rpcFilters: any) {
+    filterList.forEach((item: any) => {
+      rpcFilters[item.filterKey] = item.filterValue
+    })
+  }
   onMounted(async () => {
     setTimeout(async () => {
       initStyle()
@@ -113,7 +140,7 @@ export const useDashboardCard = (params: useDashboardCardParams) => {
       useEventListener(window, 'resize', resize)
 
       const cardElement = cardRef.value?.$el as HTMLElement
-      
+
       if (!cardElement) return
       cardElement.addEventListener('fullscreenchange', offsetResize)
     })
@@ -144,6 +171,10 @@ export const useDashboardCard = (params: useDashboardCardParams) => {
     resize,
     refresh,
     handleInitCard,
-    getInstance
+    getInstance,
+    setupOptions,
+    setSqlParamsByFilterList,
+    setRpcParamsByFilterList,
+    formSlotHandleDisplayMethod
   }
 }
