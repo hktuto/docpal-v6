@@ -38,7 +38,8 @@ const state = reactive({
   visible: false,
   setting: {},
   realTimeSetting: {},
-  echartShow: true
+  echartShow: true,
+  initCloumnLoading: false
 })
 const FormRendererRef = ref()
 const DisplayColumnRef = ref()
@@ -76,11 +77,15 @@ function handleOpen(setting) {
     }
     if (DisplayColumnRef.value) {
       DisplayColumnRef.value.initColumns(setting)
+      state.initCloumnLoading = true
+      setTimeout(() => {
+        state.initCloumnLoading = false
+      }, 1000)
     }
   })
 }
 function handleFormChange({ fieldName, newValue, formModel, oldValue }: any) {
-  if (newValue && fieldName === 'fields' && oldValue !== newValue && DisplayColumnRef.value) {
+  if (!state.initCloumnLoading && oldValue && newValue && fieldName === 'fields' && oldValue !== newValue && DisplayColumnRef.value) {
     DisplayColumnRef.value.initColumns(formModel)
   }
   if (EchartRef.value) {
