@@ -5,8 +5,8 @@ import dayjs from 'dayjs';
 export default defineNuxtPlugin(async nuxtApp => {
   // Dynamically import VForm3 and its styles for code-splitting
   // @ts-expect-error - v-form doesn't have type declarations
-  const VForm3Module = await import('v-form');
-  await import('v-form/dist/designer.style.css');
+  const VForm3Module = await import('v-form-designer');
+  await import('v-form-designer/dist/designer.style.css');
   
   // @ts-ignore
   const VForm3 = VForm3Module.default;
