@@ -192,13 +192,15 @@ const { cardRef, chartRef, settingRef, resize, handleInitCard, loading } = useDa
     response.data.forEach((item) => {
       data.push({
         value: item[chartSetting.sortBy],
-        name: item[chartSetting.groupLabel] || item.case_id
+        name: item[chartSetting.groupLabel] || item.case_id,
+        id: item.case_id
       })
     })
     return option
   },
   clickAction: (params: any) => {
-    notiHandleView({ content: { caseInstanceId: params.name } }, tabProvider)
+    console.log(params)
+    notiHandleView({ content: { caseInstanceId: params.data.id } }, tabProvider)
   }
 })
 

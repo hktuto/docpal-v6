@@ -139,7 +139,8 @@ const { cardRef, chartRef, settingRef, resize, handleInitCard, loading } = useDa
     response.data.forEach((item) => {
       data.push({
         value: item.total_tcv,
-        name: !item.group_value ? '-' : item.group_value
+        name: !item.group_value ? '-' : item.group_value,
+        id: item.case_id
       })
     })
     return option

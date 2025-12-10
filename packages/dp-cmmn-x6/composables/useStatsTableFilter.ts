@@ -40,7 +40,9 @@ export const useStatsTableFilter = (setting: any, sql: string) => {
     filterParams = params
   }
   function initFilter() {
-    const filterList = setting.displayColumns.reduce((prev: any, item: any) => {
+    console.log("initFilter", setting.displayColumns)
+    const displayColumns = JSON.parse(JSON.stringify(setting.displayColumns))
+    const filterList = displayColumns.reduce((prev: any, item: any) => {
       if (item.value && ['short_text', 'float'].includes(item.type) && item.showInFilter) {
         prev.push({
           label: item.label,
@@ -48,14 +50,17 @@ export const useStatsTableFilter = (setting: any, sql: string) => {
           options: getFileterOptions(item.value)
         })
       }
+      console.log("prev", prev)
       return prev
     }, [])
+    console.log("after filterList", filterList)
     setTimeout(() => {
       ResponsiveFilterRef.value?.init(filterList)
     }, 100)
+    return
   }
   function getFileterOptions(key: string) {
-    const options: any[] = originalData.map((item: any) => item[key])
+    const options: any[] = originalData.filter((item) => item[key] !== undefined && item[key] !== null).map((item: any) => item[key])
     const uniqueOptions = [...new Set(options)]
     return uniqueOptions.map((item: any) => ({
       label: item,
