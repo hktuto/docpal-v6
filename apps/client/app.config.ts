@@ -288,9 +288,6 @@ export default defineAppConfig({
     {
       name: 'admin-calendar-setting'
     },
-    {
-      name: 'database-management'
-    },
 
 
     // {

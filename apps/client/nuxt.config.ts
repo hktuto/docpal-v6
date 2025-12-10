@@ -72,7 +72,6 @@ export default defineNuxtConfig({
         '../../packages/dp-contact',
 
         // demo packages
-        '../../demo/database-management',
     ],
     features: {
         inlineStyles: true,
