@@ -66,8 +66,7 @@ export function paneResized(sizes:{min:number, max:number, size:number}[]) {
     })
 }
 
-
-export function closePanelTab(panelId:string, tabIndex: number, deleteComponent = true) {
+export function closePanelTab(panelId:string, tabIndex: number | string[], deleteComponent = true) {
     const layout = useTabLayout()
     const components = useTabComponent()
     const panelIndex = layout.value.findIndex(tab => tab.id === panelId)
@@ -75,14 +74,25 @@ export function closePanelTab(panelId:string, tabIndex: number, deleteComponent 
     if(panelIndex !== -1) {
         // cannot delete the last tab
         if(components.value.length === 1) return;
-        const data = layout.value[panelIndex].tabs[tabIndex]
-        layout.value[panelIndex].tabs.splice(tabIndex, 1);
-        if(!data) {
+        let removeItems = [];
+        if(!Array.isArray(tabIndex)) {
+          const data = layout.value[panelIndex].tabs[tabIndex]
+          removeItems.push(data)
+        } else {
+          tabIndex.forEach((itemId) => {
+            const data = layout.value[panelIndex].tabs.find((tab) => tab.id === itemId)
+            removeItems.push(data)
+          })
+        }
+        layout.value[panelIndex].tabs = layout.value[panelIndex].tabs.filter((tab) => !removeItems.includes(tab))
+        if(!removeItems || removeItems.length === 0) {
             throw new Error('data not found. tabIndex ' + tabIndex + ' is not correct in ' + panelId)
         };
-        if(deleteComponent && data && data.id){
-            const componentIndex = components.value.findIndex((component) => component.id === data.id);
+        if(deleteComponent ){
+          removeItems.forEach((item) => {
+            const componentIndex = components.value.findIndex((component) => component.id === item.id);
             if(componentIndex !== -1) components.value.splice(componentIndex, 1)
+          })
         }
 
         if(layout.value[panelIndex].tabs.length === 0) {
