@@ -73,6 +73,6 @@ watch(
     <ElInput v-model="condition.attr_value" />
   </ElFormItem>
   <ElFormItem v-else label="Value">
-    <ElInput v-model="condition.attr_value" />
+    <ElInput v-model="condition.attr_value" :disabled="disabled" />
   </ElFormItem>
 </template>
