@@ -1,7 +1,7 @@
 <template>
   <BrowseMiniTable ref="tableRef" :home="homeId" showCheckbox @selectedChange="selectedChange">
     <template #toolbar_buttons>
-      <BrowseBreadcrumb :idOrPath="homeId" :home="{ secondId: homeId, disabled: true }" />
+      <BrowseBreadcrumb :idOrPath="idOrPath" :home="{ secondId: homeId, disabled: true }" />
     </template>
   </BrowseMiniTable>
 </template>

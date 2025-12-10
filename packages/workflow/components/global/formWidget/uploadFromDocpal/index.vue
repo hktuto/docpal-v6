@@ -2,7 +2,7 @@
   <div v-loading="loading" class="uploadFromDocpal" ref="uploadFromDocpal" style="height: 70vh" v-if="isReady">
     <FormWidgetUploadFromDocpalSearch v-if="vformOptions.uploadConfig?.type === 'search'" ref="FormRef" v-bind="props" :baseSearch="baseSearch" />
     <FormWidgetUploadFromDocpalBrowse v-else ref="FormRef" v-bind="props" :homeId="homeId" />
-    <el-button style="width: 100px" type="primary" :loading="loading" @click="handleUpload">上传</el-button>
+    <el-button style="width: 100px" type="primary" :loading="loading" @click="handleUpload">{{ $t('button.uploadFile') }}</el-button>
   </div>
 </template>
 <script setup lang="ts">

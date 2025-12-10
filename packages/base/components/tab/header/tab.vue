@@ -117,6 +117,14 @@ async function openContextmenu(ev:any){
                         closeTab()
                         stopBus.emit()
                     }
+                },
+                {
+                  name: "Close Other Tabs",
+                  visible:true,
+                  action:({row}) => {
+                    closeOtherTabs()
+                    stopBus.emit()
+                  }
                 }
             ]
 
@@ -159,6 +167,20 @@ function openInNewTab() {
 
 function tabFocus() {
     panelTabFocus(tab.parent as string, index)
+}
+
+function closeOtherTabs(){
+    const layout = useTabLayout()
+    layout.value.forEach(panel => {
+      console.log("panel", panel, tab)
+      const tabsToDelete:string[] = []
+      panel.tabs.forEach((panelTab, tabIndex) => {
+        if(panelTab.id !== tab.id) {
+          tabsToDelete.push(panelTab.id)
+        }
+      })
+      closePanelTab(panel.id, tabsToDelete, true)
+    })
 }
 
 function closeTab(){

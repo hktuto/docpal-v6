@@ -70,6 +70,8 @@ export default defineNuxtConfig({
         '../../pages/public-upload',
         '../../pages/public-easy-form',
         '../../packages/dp-contact',
+
+        // demo packages
     ],
     features: {
         inlineStyles: true,

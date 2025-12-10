@@ -54,6 +54,8 @@ docpal-v4/
 │   ├── dp-search/         # Search functionality
 │   └── publicApp/         # Public-facing components
 ├── pages/                 # Pages ui for admin and client
+├── dev-tools/             # Developer tools
+│   └── create-package/    # CLI for scaffolding new packages/pages
 ```
 
 ## 🛠️ Technology Stack
@@ -137,6 +139,31 @@ To build for production:
 pnpm build
 ```
 
+### Creating New Packages/Pages
+
+Use the CLI tool to quickly scaffold new packages, pages, or demos:
+
+```bash
+pnpm new
+```
+
+The CLI will prompt you to select:
+- **Package name** - Name in kebab-case (e.g., `my-feature`)
+- **Package type**:
+  - 📄 **Pages** - A page module (goes to `/pages/`)
+  - 📦 **Package** - A reusable package (goes to `/packages/`)
+  - 🎮 **Demo** - A demo/playground (goes to `/demo/`)
+- **Side** (for Pages/Demo) - Client, Admin, or Public
+
+The tool automatically:
+- Copies the `example-package` template
+- Updates `package.json` with the new name
+- Adds the package to `apps/client/nuxt.config.ts`
+- Creates `app.config.ts` with menu configuration (for Pages/Demo)
+- Creates a placeholder `page.vue` component (for Pages/Demo)
+- Updates the menu in `apps/client/app.config.ts` (for Pages/Demo)
+
+For more details, see `dev-tools/create-package/README.md`.
 
 ## 📚 Documentation
 

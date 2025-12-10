@@ -15,6 +15,7 @@
   "scripts": {
     "preinstall": "node -e \"if (process.version.slice(1).split('.')[0] < 22) { console.error('\\x1b[31mError: Node.js 22+ is required. Current version: ' + process.version + '\\x1b[0m'); process.exit(1); }\"",
     "dev": "pnpm -F client dev",
+    "new": "pnpm -F create-package start",
     "build": "nuxt build",
     "testw": "vitest run --workspace",
     "test:reports": "pnpm -r --stream --if-present --no-bail test:report",
