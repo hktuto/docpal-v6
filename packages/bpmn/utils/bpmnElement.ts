@@ -1143,7 +1143,7 @@ export const bpmnElement: BpmnElement = {
         case '${idGeneratorDelegate}':
           return 'LazyBpmnContextGenerateId'
         case '${masterTableRecordDelegate}':
-          return 'LazyBpmnContextUpdateMasterTable'
+          return 'LazyBpmnContextMasterTable'
         case '${calendarEventDelegate}':
           return 'LazyBpmnContextCalendar'
         case '${pdfFormReader}':
