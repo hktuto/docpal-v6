@@ -497,7 +497,7 @@ export const bpmnElement: BpmnElement = {
             color = '#7B61FF'
             break
           case '${createAuditLogDelegate}':
-            icon = '/bpmn/icons/case.svg'
+            icon = '/bpmn/icons/log.svg'
             type = 'Audit Log Task'
             color = '#7B61FF'
             break
@@ -1074,7 +1074,7 @@ export const bpmnElement: BpmnElement = {
         })
       },
       {
-        icon: 'bpmn:case',
+        icon: 'bpmn:log',
         label: 'Audit Log',
         group: 'case',
         order: 0,
