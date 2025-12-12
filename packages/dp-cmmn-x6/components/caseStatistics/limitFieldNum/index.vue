@@ -13,15 +13,17 @@
       <div class="mainChartWrapper">
         <div id="myEcharts" ref="chartRef" class="echart"></div>
       </div>
-      <el-button type="primary" @click="handleShowAll">{{ $t('button.showAll') }}</el-button>
+      <el-button :disabled="mode === 'mock'" type="primary" @click="handleShowAll">{{ $t('button.showAll') }}</el-button>
     </div>
     <CaseStatisticsTableDialog :setting="setting" :dates="dates" ref="dialogRef"> </CaseStatisticsTableDialog>
     <DashboardSetting
       v-if="!hideSetting"
       ref="settingRef"
       :after-open="handleAfterOpen"
-      :formJson="formJson"
+      :formJson="mergedJson"
       :title="title"
+      :big="true"
+      componentName="CaseLimitFieldNum"
       @delete="handleDelete"
       @refresh="handleRefresh"
     />
@@ -30,17 +32,23 @@
 
 <script lang="ts" setup>
 import { clientApi, PostgREST_Decorate } from 'api'
-import formJson from './setting.vform.json'
+import formJson from '../setting.vform.json'
+import styleJson from './setting.style.vform.json'
+import setupJson from './setting.setup.vform.json'
+import { mergeSetting } from '../settingMergeHelper'
+const mergedJson = mergeSetting(formJson, setupJson, styleJson, { addFilterArray: true, addLegend: true })
 const props = withDefaults(
   defineProps<{
     dates?: any
     setting?: any
     hideSetting?: boolean
     type?: string
+    mode?: 'mock' | 'real'
   }>(),
   {
     setting: {},
-    hideSetting: false
+    hideSetting: false,
+    mode: 'real'
   }
 )
 const userId: string = useUserId().value
@@ -57,14 +65,14 @@ function handleRefresh(chartSetting) {
 function handleDelete() {
   emits('delete')
 }
-const option = {
+const option: any = {
   tooltip: {
     trigger: 'item',
     position: function (pos, params, dom, rect, size) {
       // 自定义 tooltip 的位置,在鼠标下方，如果鼠标在底部，则放在鼠标上方，如果鼠标在偏右，则放在鼠标左侧，如果鼠标在偏左，则放在鼠标右侧
       return {
-          top: 10
-        }
+        top: 10
+      }
     }
   },
   legend: {
@@ -97,109 +105,30 @@ const option = {
     }
   ]
 }
-const { cardRef, chartRef, settingRef, resize, handleInitCard, loading } = useDashboardCard({
+const { cardRef, chartRef, settingRef, resize, handleInitCard, loading, setupOptions, formSlotHandleDisplayMethod } = useDashboardCard({
   props,
 
   getOptions: async (chartSetting) => {
+    const _option = setupOptions(option)
     if (!chartSetting.tableName) {
-      return option
+      return _option
     }
-    option.series[0].label.formatter = (params) => {
+    _option.series[0].label.formatter = (params) => {
       return handleCompute(params.value)
     }
-    option.tooltip.valueFormatter = (value) => {
+    _option.tooltip.valueFormatter = (value) => {
       return handleCompute(value)
     }
-    option.series[0].radius = [
+    _option.series[0].radius = [
       chartSetting.innerRingProportion ? chartSetting.innerRingProportion + '%' : '30%',
       chartSetting.outerRingProportion ? chartSetting.outerRingProportion + '%' : '60%'
     ]
-    option.series[0].data = []
-    const data = option.series[0].data
-    const sqlParams = [
-      {
-        key: 'created_date',
-        type: 'gt',
-        value: props.dates[0]
-      },
-      {
-        key: 'created_date',
-        type: 'lt',
-        value: props.dates[1]
-      },
-      {
-        type: 'select',
-        value: `${chartSetting.sortBy},case_id`
-      },
-      {
-        type: 'order',
-        value: `${chartSetting.sortBy}.desc`
-      },
-      {
-        type: 'limit',
-        value: 5
-      },
-      {
-        key: `${chartSetting.sortBy}`,
-        type: 'neq',
-        value: 0
-      }
-    ]
-    if(chartSetting.groupLabel) {
-      const selectedItemIndex = sqlParams.findIndex(item => item.type === 'select')
-      if(selectedItemIndex !== -1) {
-        sqlParams[selectedItemIndex].value += `,${chartSetting.groupLabel}`
-      } else {
-        sqlParams.push({
-          key: 'select',
-          type: 'select',
-          value: `${chartSetting.sortBy},case_id,${chartSetting.groupLabel}`
-        })
-      }
-    }
-    if (chartSetting.currentUserField) {
-      sqlParams.push({
-        key: chartSetting.currentUserField,
-        type: 'eq',
-        value: userId
-      })
-    }
-    if (chartSetting.relatedField && caseInstanceId) {
-      sqlParams.push({
-        key: chartSetting.relatedField,
-        type: 'eq',
-        value: caseInstanceId
-      })
-    }
-    if (chartSetting.filterList.length > 0) {
-      chartSetting.filterList.forEach((item) => {
-        sqlParams.push({
-          key: item.filterKey,
-          type: 'in',
-          value: item.filterValue
-        })
-      })
-    }
-    // if (chartSetting.filterKey && chartSetting.filterValue) {
-    //   sqlParams.push({
-    //     key: chartSetting.filterKey,
-    //     type: 'in',
-    //     value: chartSetting.filterValue
-    //   })
-    // }
-    const sql = PostgREST_Decorate(sqlParams)
-    const response = await clientApi.api.getPostgrestTable(`${chartSetting.tableName}?${sql}`)
-    response.data.forEach((item) => {
-      data.push({
-        value: item[chartSetting.sortBy],
-        name: item[chartSetting.groupLabel] || item.case_id,
-        id: item.case_id
-      })
-    })
-    return option
+    _option.series[0].data = await getData(chartSetting)
+    console.log(_option)
+    return _option
   },
   clickAction: (params: any) => {
-    console.log(params)
+    if (props.mode === 'mock') return
     notiHandleView({ content: { caseInstanceId: params.data.id } }, tabProvider)
   }
 })
@@ -209,13 +138,13 @@ const groupDialogRef = ref()
 function handleShowAll() {
   const sqlParams = [
     {
-      key: 'created_date',
-      type: 'gt',
+      key: props.setting.dateField || 'created_date',
+      type: 'gte',
       value: props.dates[0]
     },
     {
-      key: 'created_date',
-      type: 'lt',
+      key: props.setting.dateField || 'created_date',
+      type: 'lte',
       value: props.dates[1]
     },
     // {
@@ -224,7 +153,7 @@ function handleShowAll() {
     // },
     {
       type: 'order',
-      value: `${props.setting.sortBy}.desc`
+      value: `${props.setting.countField}.desc`
     }
   ]
   if (props.setting.relatedField && caseInstanceId) {
@@ -262,20 +191,120 @@ function handleAfterOpen(formRendererRef: any) {
     displaySettingFields(['relatedField'], formRendererRef)
   }
 }
-function handleCompute(value: number) {
-  const prefix = props.setting.prefix || ''
-  try {
-    if (props.setting.displayMethod === 'count') {
-      return prefix + FinancialComputing(value)
-
-    } else if (props.setting.displayMethod === 'fileSize') {
-      return prefix + fileSize(value)
+async function getData(chartSetting: any) {
+  if (props.mode === 'mock') {
+    return [
+      {
+        value: 1888.88,
+        name: 'Mock Data',
+        id: 'mock-data'
+      },
+      {
+        value: 18888.88,
+        name: 'Mock Data 2',
+        id: 'mock-data-2'
+      },
+      {
+        value: 188888.88,
+        name: 'Mock Data 3',
+        id: 'mock-data-3'
+      },
+      {
+        value: 188888.88,
+        name: 'Mock Data 4',
+        id: 'mock-data-4'
+      },
+      {
+        value: 188888.88,
+        name: 'Mock Data 5',
+        id: 'mock-data-5'
+      }
+    ]
+  }
+  const sqlParams = [
+    {
+      key: chartSetting.dateField || 'created_date',
+      type: 'gte',
+      value: props.dates[0]
+    },
+    {
+      key: chartSetting.dateField || 'created_date',
+      type: 'lte',
+      value: props.dates[1]
+    },
+    {
+      type: 'select',
+      value: `${chartSetting.countField},case_id`
+    },
+    {
+      type: 'order',
+      value: `${chartSetting.countField}.desc`
+    },
+    {
+      type: 'limit',
+      value: 5
+    },
+    {
+      key: `${chartSetting.countField}`,
+      type: 'neq',
+      value: 0
     }
-  } catch (error) {
-    console.error(error)
-    return prefix + value
-  } 
-  return prefix + value
+  ]
+  if (chartSetting.groupLabel) {
+    const selectedItemIndex = sqlParams.findIndex((item) => item.type === 'select')
+    if (selectedItemIndex !== -1) {
+      sqlParams[selectedItemIndex].value += `,${chartSetting.groupLabel}`
+    } else {
+      sqlParams.push({
+        key: 'select',
+        type: 'select',
+        value: `${chartSetting.countField},case_id,${chartSetting.groupLabel}`
+      })
+    }
+  }
+  if (chartSetting.currentUserField) {
+    sqlParams.push({
+      key: chartSetting.currentUserField,
+      type: 'eq',
+      value: userId
+    })
+  }
+  if (chartSetting.relatedField && caseInstanceId) {
+    sqlParams.push({
+      key: chartSetting.relatedField,
+      type: 'eq',
+      value: caseInstanceId
+    })
+  }
+  if (chartSetting.filterList.length > 0) {
+    chartSetting.filterList.forEach((item) => {
+      sqlParams.push({
+        key: item.filterKey,
+        type: 'in',
+        value: item.filterValue
+      })
+    })
+  }
+  const data = []
+  const sql = PostgREST_Decorate(sqlParams)
+  const response: any = await clientApi.api.getPostgrestTable(`${chartSetting.tableName}?${sql}`)
+  response.data.forEach((item) => {
+    data.push({
+      value: item[chartSetting.countField],
+      name: item[chartSetting.groupLabel] || item.case_id,
+      id: item.case_id
+    })
+  })
+  return data
+}
+function handleCompute(value: number) {
+  return formSlotHandleDisplayMethod(
+    {
+      displayMethod: props.setting.displayMethod,
+      prefix: props.setting.prefix
+    },
+    value
+  )
 }
 defineExpose({ resize })
 </script>
@@ -290,11 +319,10 @@ defineExpose({ resize })
   overflow: hidden;
 }
 
-
-.mainChartWrapper{
+.mainChartWrapper {
   flex: 1 0 auto;
   overflow: hidden;
   position: relative;
-  height: 100%;;
+  height: 100%;
 }
 </style>

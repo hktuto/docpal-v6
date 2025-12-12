@@ -10,7 +10,7 @@
     @refresh="handleInitCard"
   >
     <template #action_prefix>
-      <el-button v-if="showFilterButton" type="primary" size="small" @click="handleOpenDialog">{{ $t('common_filter') }} {{ displayFilter }}</el-button>
+      <el-button v-if="showFilterButton" :disabled="mode === 'mock'" type="primary" size="small" @click="handleOpenDialog">{{ $t('common_filter') }} {{ displayFilter }}</el-button>
     </template>
     <div id="myEcharts" ref="chartRef" class="echart"></div>
     <CaseStatisticsTableDialog :setting="setting" :dates="tableDates" ref="dialogRef"> </CaseStatisticsTableDialog>
@@ -20,7 +20,9 @@
       ref="settingRef"
       :after-open="handleAfterOpen"
       :title="title"
-      :formJson="formJson"
+      :big="true"
+      componentName="CaseFieldLifecycle"
+      :formJson="mergedJson"
       @delete="handleDelete"
       @refresh="handleRefresh"
     />
@@ -30,7 +32,10 @@
 
 <script lang="ts" setup>
 import { clientApi } from 'api'
-import formJson from './setting.vform.json'
+import formJson from '../setting.vform.json'
+import setupJson from './setting.setup.vform.json'
+import { mergeSetting } from '../settingMergeHelper'
+const mergedJson = mergeSetting(formJson, setupJson, null, { addFilterArray: false, addLegend: true, addMargin: true })
 import dayjs from 'dayjs'
 const props = withDefaults(
   defineProps<{
@@ -38,10 +43,12 @@ const props = withDefaults(
     setting?: any
     hideSetting?: boolean
     type?: string
+    mode?: 'mock' | 'real'
   }>(),
   {
     setting: {},
-    hideSetting: false
+    hideSetting: false,
+    mode: 'real'
   }
 )
 const userId: string = useUserId().value
@@ -129,43 +136,22 @@ const option = {
 }
 const dialogRef = ref()
 
-const { cardRef, chartRef, settingRef, resize, handleInitCard, loading } = useDashboardCard({
+const { cardRef, chartRef, settingRef, resize, setupOptions, handleInitCard, loading } = useDashboardCard({
   props,
 
   getOptions: async (chartSetting) => {
     if (!chartSetting.tableName) {
       return option
     }
-    option.series = []
-    option.legend = {
+    const _option = setupOptions(option)
+    _option.series = []
+    _option.legend = {
       data: [],
       top: '0%'
     }
-    const rpcParams = {
-      _table_name: chartSetting.tableName,
-      _create_date_column: chartSetting.dateField,
-      // _target_date_column: chartSetting.dateField,
-      _status_column: chartSetting.filterKey,
-      _status_list: chartSetting.filterList.map((item) => item.filterValue),
-      _target_year: dayjs(props.dates[0]).year(),
-      _filters: {}
-    }
-    if (chartSetting.relatedField && caseInstanceId) {
-      rpcParams._filters[chartSetting.relatedField] = caseInstanceId
-    }
-    if (chartSetting.currentUserField) {
-      rpcParams._filters[chartSetting.currentUserField] = userId
-    }
-    if (filterParams.value && filterParams.value.length > 0) {
-      filterParams.value.forEach((item) => {
-        rpcParams._filters[item.key] = item.value
-      })
-    }
-    if (Object.keys(rpcParams._filters).length === 0) {
-      delete rpcParams._filters
-    }
+
     chartSetting.filterList.forEach((item) => {
-      option.series.push({
+      _option.series.push({
         ...seriesConfig,
         name: item.filterValue,
         data: [],
@@ -173,11 +159,11 @@ const { cardRef, chartRef, settingRef, resize, handleInitCard, loading } = useDa
           color: item.color || ''
         }
       })
-      option.legend.data.push(item.filterValue)
+      _option.legend.data.push(item.filterValue)
     })
-    const response = await clientApi.api.postPostgrestRpcFunc('case_status_lifecycle_stats', rpcParams)
-    getData(response.data)
-    return option
+    const data = await getData(chartSetting)
+    formatData(data, _option)
+    return _option
   },
   clickAction: (params: any) => {
     const daysRange = params.name.split('-')
@@ -205,7 +191,7 @@ const { cardRef, chartRef, settingRef, resize, handleInitCard, loading } = useDa
     ]
     if (startDate) {
       sqlParams.push({
-        key: `${props.setting.dateField}`,
+        key: props.setting.dateField || 'created_date',
         type: 'gte',
         value: `${startDate}`
       })
@@ -235,13 +221,58 @@ function handleAfterOpen(formRendererRef: any) {
     displaySettingFields(['relatedField'], formRendererRef)
   }
 }
-function getData(data: any) {
-  option.xAxis[0].data = data.map((item) => item.day_range.replace('天', ''))
+async function getData(chartSetting: any) {
+  if (props.mode === 'mock') {
+    const dayRanges = ['0-30', '31-60', '61-90', '91-120', '121-150', '151-180', '181-210', '211-240', '241-270', '271-300', '301-330', '331-365', '365+']
+    const data = []
+    dayRanges.forEach((dayRange, dayRangeIndex) => {
+      const statusCounts = {}
+      chartSetting.filterList.forEach((item, index) => {
+        if (item.filterValue) {
+          const count = Math.floor(Math.random() * 10) + dayRangeIndex + index
+          statusCounts[item.filterValue] = count
+        }
+      })
+      data.push({
+        day_range: dayRange,
+        status_counts: statusCounts
+      })
+    })
+    return data
+  }
+  const rpcParams: any = {
+    _table_name: chartSetting.tableName,
+    _create_date_column: chartSetting.dateField,
+    // _target_date_column: chartSetting.dateField,
+    _status_column: chartSetting.filterKey,
+    _status_list: chartSetting.filterList.map((item) => item.filterValue),
+    _target_year: dayjs(props.dates[0]).year(),
+    _filters: {}
+  }
+  if (chartSetting.relatedField && caseInstanceId) {
+    rpcParams._filters[chartSetting.relatedField] = caseInstanceId
+  }
+  if (chartSetting.currentUserField) {
+    rpcParams._filters[chartSetting.currentUserField] = userId
+  }
+  if (filterParams.value && filterParams.value.length > 0) {
+    filterParams.value.forEach((item) => {
+      rpcParams._filters[item.key] = item.value
+    })
+  }
+  if (Object.keys(rpcParams._filters).length === 0) {
+    delete rpcParams._filters
+  }
+  const response = await clientApi.api.postPostgrestRpcFunc('case_status_lifecycle_stats', rpcParams)
+  return response.data
+}
+function formatData(data: any, _option: any) {
+  _option.xAxis[0].data = data.map((item) => item.day_range.replace('天', ''))
   data.forEach((item) => {
     Object.keys(item.status_counts).forEach((status) => {
-      const sIndex = option.series.findIndex((s) => s.name === status)
+      const sIndex = _option.series.findIndex((s) => s.name === status)
       if (sIndex !== -1) {
-        option.series[sIndex].data.push(item.status_counts[status])
+        _option.series[sIndex].data.push(item.status_counts[status])
       }
     })
   })

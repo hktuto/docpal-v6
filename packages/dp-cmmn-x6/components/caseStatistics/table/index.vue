@@ -38,7 +38,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       const groupData = groupTree(filteredData)
       return groupData
     }
-    const response = await clientApi.api.getPostgrestTable(`${setting.tableName}?${sql}`)
+    const response: any = await clientApi.api.getPostgrestTable(`${setting.tableName}?${sql}`)
     const data = groupTree(response.data)
     setOriginalData(data)
     initFilter()

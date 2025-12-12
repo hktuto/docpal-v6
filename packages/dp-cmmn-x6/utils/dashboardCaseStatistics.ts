@@ -23,7 +23,8 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
     setting: {
       name: '',
       prefix: '',
-      displayMethod: ''
+      displayMethod: '',
+      dateField: 'created_date'
     }
   },
   CaseFieldTotal: {
@@ -39,7 +40,7 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
     setting: {
       caseId: '',
       relatedField: '',
-      dateField: '',
+      dateField: 'created_date',
       title: 'Total',
       dialogSettingTitle: '',
       displayColumns: [],
@@ -61,7 +62,8 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
     setting: {
       name: '',
       prefix: '',
-      displayMethod: ''
+      displayMethod: '',
+      dateField: 'created_date'
     }
   },
   CaseLimitGroupFieldNum: {
@@ -77,7 +79,8 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
     setting: {
       name: '',
       prefix: '',
-      displayMethod: ''
+      displayMethod: '',
+      dateField: 'created_date'
     }
   },
   CaseMonthlyAverage: {
@@ -99,7 +102,8 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
       title: 'Number of Cases',
       dialogSettingTitle: '',
       displayColumns: [],
-      fields: '[]'
+      fields: '[]',
+      dateField: 'created_date'
     }
   },
   CaseFieldLifecycle: {
@@ -115,11 +119,11 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
     setting: {
       caseId: '',
       relatedField: '',
-      dateField: '',
       title: 'Field Lifecycle',
       dialogSettingTitle: '',
       displayColumns: [],
-      fields: '[]'
+      fields: '[]',
+      dateField: 'created_date'
     }
   }
 }

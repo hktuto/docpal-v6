@@ -1,8 +1,8 @@
 <template>
   <el-dialog
     v-model="state.visible"
-    :title="setting.dialogSettingTitle"
     class="big caseStatistics-table-dialog"
+    :title="setting.drilldownTitle || $t('dashboard.drillDown')"
     :append-to-body="appendToBody"
     :close-on-click-modal="false"
     @close="state.visible = false"
@@ -26,15 +26,16 @@ const state = reactive({
 const appendToBody = ref(true)
 const tableRef = ref()
 function handleOpen(sqlParams: any) {
+  console.log('setting', setting)
   if (!setting.fields) return
   if (sqlParams) {
     appendToBody.value = document.fullscreenElement ? false : true
     const _sqlParams = JSON.parse(JSON.stringify(sqlParams))
     const displayColumns = setting.displayColumns.map((item: any) => item.value || item)
-    if(!displayColumns.includes('case_id')) {
+    if (!displayColumns.includes('case_id')) {
       displayColumns.unshift('case_id')
     }
-    if(setting.groupField && !displayColumns.includes(setting.groupField)) {
+    if (setting.groupField && !displayColumns.includes(setting.groupField)) {
       displayColumns.unshift(setting.groupField)
     }
     const columns = displayColumns.join(',')

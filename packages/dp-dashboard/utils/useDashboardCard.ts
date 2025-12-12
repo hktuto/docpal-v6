@@ -113,10 +113,18 @@ export const useDashboardCard = (params: useDashboardCardParams) => {
     if (setting.theme) {
       _opts.color = setting.theme
     }
-    _opts.grid.left = setting.leftMargin ? setting.leftMargin + '%' : '10%'
-    _opts.grid.right = setting.rightMargin ? setting.rightMargin + '%' : '15%'
-    _opts.grid.bottom = setting.bottomMargin ? setting.bottomMargin + '%' : '15%'
-    _opts.grid.top = setting.topMargin ? setting.topMargin + '%' : '15%'
+    if (_opts.grid) {
+      _opts.grid.left = setting.leftMargin ? setting.leftMargin + '%' : '10%'
+      _opts.grid.right = setting.rightMargin ? setting.rightMargin + '%' : '15%'
+      _opts.grid.bottom = setting.bottomMargin ? setting.bottomMargin + '%' : '15%'
+      _opts.grid.top = setting.topMargin ? setting.topMargin + '%' : '15%'
+    }
+    if (_opts.legend) {
+      _opts.legend.show = setting.showLegend
+      _opts.legend.top = setting.legendTop ? setting.legendTop : 'top'
+      _opts.legend.left = setting.legendLeft ? setting.legendLeft : 'center'
+      _opts.legend.itemGap = setting.legendGap ? Number(setting.legendGap) : 10
+    }
     return _opts
   }
   function setSqlParamsByFilterList(filterList: any[], sqlParams: any[]) {
