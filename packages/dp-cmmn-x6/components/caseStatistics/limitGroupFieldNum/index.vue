@@ -157,12 +157,12 @@ function handleShowAll(groupField: string = '') {
   const sqlParams = [
     {
       key: 'created_date',
-      type: 'gt',
+      type: 'gte',
       value: props.dates[0]
     },
     {
       key: 'created_date',
-      type: 'lt',
+      type: 'lte',
       value: props.dates[1]
     },
     // {

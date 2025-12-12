@@ -234,12 +234,12 @@ const { cardRef, chartRef, settingRef, resize, refresh, handleInitCard, loading,
     const sqlParams = [
       {
         key: props.setting.dateField,
-        type: 'gt',
+        type: 'gte',
         value: startDate
       },
       {
         key: props.setting.dateField,
-        type: 'lt',
+        type: 'lte',
         value: endDate
       },
       {
