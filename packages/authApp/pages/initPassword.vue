@@ -157,7 +157,7 @@ onMounted(async () => {
   if (passwordPolicy.value.containSpecialCharacters) {
     rules.value.newPassword.push({
       validator: (rule: any, value: string) => {
-        return /^(?=.*[^\w\s]).+$/.test(value)
+        return /^(?=.*[!@#$%&*]).+$/.test(value)
       },
       message: t('passwordPolicy.containSpecialCharacters'),
       trigger: 'blur'
