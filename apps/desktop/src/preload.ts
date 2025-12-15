@@ -22,3 +22,8 @@ window.addEventListener('dragTagToWindow', (event:any) => {
     
     ipcRenderer.send('dragTagToWindow', JSON.stringify(event.detail))
 })
+
+window.addEventListener('sendMessage',(event:any)=>{
+  console.log('Message notification', event)
+
+})

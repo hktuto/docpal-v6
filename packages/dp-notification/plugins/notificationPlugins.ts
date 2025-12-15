@@ -18,6 +18,8 @@ export default defineNuxtPlugin(nuxtApp => {
         messageHandlers.value.forEach((handler) => {
             handler.handler(JSON.parse(notiData.value))
         })
+      window.dispatchEvent(new CustomEvent('sendMessage', { detail:JSON.parse(notiData.value) } ))
+
         // messageChangeCB(JSON.parse(notiData.value))
     })
 
