@@ -63,6 +63,32 @@ async function handleSubmit() {
       name: ''
     }
     ElMessage.success(t('tip_createdMsg', { modelName: t('dashboard.WorkflowNewCount'), name: null }))
+
+    if (!data || !data?.latestVersionId || !data?.draftId) {
+      state.visible = false
+      emits('created', data)
+      return
+    }
+
+    // update field
+    const params: any = {
+      versionDraftId: data?.latestVersionId,
+      version: '1',
+      nodeName: 'global',
+      draftId: data?.draftId,
+      validationRules: [
+        {
+          id: 'user_creator_id',
+          name: 'Creator',
+          validationRule: {
+            'type': 'text',
+            'maxLength': 200
+          }
+        }
+      ]
+    }
+    await adminApi.api.postValidationRules(params).then(r => r.data)
+
     state.visible = false
     emits('created', data)
   } catch (e) {
