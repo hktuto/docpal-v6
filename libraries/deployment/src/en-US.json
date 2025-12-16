@@ -1866,6 +1866,7 @@
     "setting": {
       "alertTitle": "Title",
       "alertType": "Type",
+      "cardShowDisplayButton": "Show Display Button",
       "cardFolded": "Folded",
       "cardShadow": "Shadow",
       "cardShowFold": "Show Fold",
@@ -1875,7 +1876,11 @@
       "closeText": "Text On Close Btn",
       "description": "Description",
       "effect": "Effect",
-      "showIcon": "Show Icon"
+      "showIcon": "Show Icon",
+      "themeChangeAutoUpdateColor": "Auto Update Color",
+      "themeChangeFormProperty": "Form Property",
+      "themeChangePleaseSelectFormProperty": "Please select form property",
+      "themeChangePleaseSelectColorWidget": "Please select color widget",
     },
     "widgetLabel": {
       "alert": "Alert",

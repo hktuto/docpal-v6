@@ -1865,6 +1865,7 @@
     "setting": {
       "alertTitle": "标题",
       "alertType": "类型",
+      "cardShowDisplayButton": "显示显示按钮",
       "cardFolded": "是否收起",
       "cardShadow": "显示阴影",
       "cardShowFold": "显示折叠按钮",
@@ -1874,7 +1875,11 @@
       "closeText": "关闭按钮文字",
       "description": "辅助性文字",
       "effect": "显示效果",
-      "showIcon": "显示图标"
+      "showIcon": "显示图标",
+      "themeChangeAutoUpdateColor": "自动更新颜色",
+      "themeChangeFormProperty": "表单属性",
+      "themeChangePleaseSelectFormProperty": "请选择表单属性",
+      "themeChangePleaseSelectColorWidget": "请选择颜色组件"
     },
     "widgetLabel": {
       "alert": "提示",

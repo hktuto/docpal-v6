@@ -1858,35 +1858,40 @@
   "exportDialog": {
     "availableColumns": "可用列",
     "disabledColumns": "停用列",
-    "tip": "拖曳即可操作"
+    "tip": "拖拽即可操作"
   },
   "extension": {
     "setting": {
-      "alertTitle": "标题",
-      "alertType": "类型",
+      "alertTitle": "標題",
+      "alertType": "類型",
+      "cardShowDisplayButton": "顯示顯示按鈕",
       "cardFolded": "是否收起",
-      "cardShadow": "显示阴影",
-      "cardShowFold": "显示折叠按钮",
-      "cardWidth": "卡片宽度",
+      "cardShadow": "顯示陰影",
+      "cardShowFold": "顯示摺疊按鈕",
+      "cardWidth": "卡片寬度",
       "center": "文字居中",
-      "closable": "是否可关闭",
-      "closeText": "关闭按钮文字",
-      "description": "辅助性文字",
-      "effect": "显示效果",
-      "showIcon": "显示图标"
+      "closable": "是否可關閉",
+      "closeText": "關閉按鈕文字",
+      "description": "輔助性文字",
+      "effect": "顯示效果",
+      "showIcon": "顯示圖標",
+      "themeChangeAutoUpdateColor": "自動更新顏色",
+      "themeChangeFormProperty": "表單屬性",
+      "themeChangePleaseSelectFormProperty": "請選擇表單屬性",
+      "themeChangePleaseSelectColorWidget": "請選擇顏色組件"
     },
     "widgetLabel": {
-      "alert": "提示",
+      "alert": "提示框",
       "async-select": "自訂選擇器",
-      "auto-complete": "自动填充",
+      "auto-complete": "自動填充",
       "card": "卡片",
       "json-editor": "Json 編輯器",
-      "select-group": "分组选项",
-      "select-v2": "虛擬化選擇器",
+      "select-group": "分組選項",
+      "select-v2": "虛擬下拉選擇器",
       "ug-select": "使用者與群組"
     }
   },
-  "externalSharing_creationDate": "共享日期",
+  "externalSharing_creationDate": "共享創建日期",
   "externalSharing_delete": "移除此共享請求",
   "externalSharing_deleteMsg": "確定要移除此共享請求？",
   "externalSharing_edit": "編輯此共享請求",
