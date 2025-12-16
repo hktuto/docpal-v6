@@ -1,15 +1,29 @@
-export function mergeSetting(settingJson: any, setupJson: any, styleJson: any = null) {
+import { marginData, legendData, filterArrayData } from './settingMergeCode'
+const initSetting = {
+  addMargin: true,
+  addLegend: true,
+  addFilterArray: true,
+}
+export function mergeSetting(settingJson: any, setupJson: any, styleJson: any = null, setting: any = initSetting) {
   const mergedJson = JSON.parse(JSON.stringify(settingJson))
   if (Array.isArray(mergedJson?.widgetList)) {
     const setupGrid = findSetupGrid(mergedJson, 'setupGrid')
+    if(setting.addFilterArray) {
+      setupGrid.widgetList.push(filterArrayData)
+    }
     if(setupGrid) {
       setupGrid.widgetList.push(...setupJson.widgetList)
     }
   }
-  console.log('styleGrid', styleJson)
   if (Array.isArray(styleJson?.widgetList)) {
     const styleGrid = findSetupGrid(mergedJson, 'styleGrid')
     console.log('styleGrid', styleGrid)
+    if(setting.addMargin) {
+      styleGrid.widgetList.push(marginData)
+    }
+    if(setting.addLegend) {
+      styleGrid.widgetList.push(legendData)
+    }
     if(styleGrid) {
       styleGrid.widgetList.push(...styleJson.widgetList)
     }

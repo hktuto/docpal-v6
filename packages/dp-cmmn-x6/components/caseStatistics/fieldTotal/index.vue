@@ -10,16 +10,20 @@
   >
     <div class="quantity-container" @click="handleDrillDown">
       <div class="quantity-title">{{ setting.title }}</div>
-      <div class="quantity-total">{{ setting.prefix }}{{ handleCompute(total) }}</div>
+      <div :style="`--preset-color: ${setting.barColor ? setting.barColor : 'var(--app-primary-color)'}`" class="quantity-total">
+        {{ handleCompute(total) }}
+      </div>
     </div>
     <!-- <div id="myEcharts" ref="chartRef" class="echart"></div> -->
-    <CaseStatisticsTableDialog :setting="setting" :dates="dates" ref="dialogRef" />
+    <CaseStatisticsTableDialog name="fieldTotal" :setting="setting" :dates="dates" ref="dialogRef" />
     <DashboardSetting
       v-if="!hideSetting"
       ref="settingRef"
       :after-open="handleAfterOpen"
       :title="title"
-      :formJson="formJson"
+      :formJson="mergedJson"
+      :big="true"
+      componentName="CaseFieldTotal"
       @delete="handleDelete"
       @refresh="handleRefresh"
     />
@@ -28,17 +32,24 @@
 
 <script lang="ts" setup>
 import { clientApi, PostgREST_Decorate } from 'api'
-import formJson from './setting.vform.json'
+import formJson from '../setting.vform.json'
+import styleJson from './setting.style.vform.json'
+import setupJson from './setting.setup.vform.json'
+import { mergeSetting } from '../settingMergeHelper'
+
+const mergedJson = mergeSetting(formJson, setupJson, styleJson, { addFilterArray: true })
 const props = withDefaults(
   defineProps<{
     dates?: any
     setting?: any
     hideSetting?: boolean
     type?: string
+    mode?: 'mock' | 'real'
   }>(),
   {
     setting: {},
-    hideSetting: false
+    hideSetting: false,
+    mode: 'real'
   }
 )
 
@@ -56,29 +67,34 @@ function handleDelete() {
   emits('delete')
 }
 
-const { cardRef, settingRef, resize, handleInitCard, loading } = useDashboardCard({
+const { cardRef, settingRef, resize, handleInitCard, loading, setSqlParamsByFilterList, formSlotHandleDisplayMethod } = useDashboardCard({
   props,
-
   getOptions: async (chartSetting) => {
     if (!chartSetting.tableName) {
       return {
         total: 0
       }
     }
+    if (props.mode === 'mock') {
+      total.value = 188888888.88
+      return {
+        total: total.value
+      }
+    }
     const sqlParams = [
       {
-        key: 'created_date',
+        key: chartSetting.dateField || 'created_date',
         type: 'gte',
         value: props.dates[0]
       },
       {
-        key: 'created_date',
+        key: chartSetting.dateField || 'created_date',
         type: 'lte',
         value: props.dates[1]
       },
       {
         type: 'select',
-        value: `${chartSetting.filterKey}.sum()`
+        value: `${chartSetting.countField}.sum()`
       }
     ]
     if (chartSetting.relatedField && caseInstanceId) {
@@ -88,13 +104,7 @@ const { cardRef, settingRef, resize, handleInitCard, loading } = useDashboardCar
         value: caseInstanceId
       })
     }
-    if(chartSetting.additionalFilterKey && chartSetting.additionalFilterValue){
-      sqlParams.push({
-        key: chartSetting.additionalFilterKey,
-        type: 'eq',
-        value: chartSetting.additionalFilterValue
-      })
-    }
+    setSqlParamsByFilterList(chartSetting.filterList, sqlParams)
     if (chartSetting.currentUserField) {
       sqlParams.push({
         key: chartSetting.currentUserField,
@@ -113,20 +123,22 @@ const { cardRef, settingRef, resize, handleInitCard, loading } = useDashboardCar
 
 const dialogRef = ref()
 function handleDrillDown() {
+  const sortBy = props.setting.sortBy || props.setting.countField || 'created_date'
+  const sortOrder = props.setting.sortOrder || 'desc'
   const sqlParams = [
     {
-      key: 'created_date',
+      key: props.setting.dateField || 'created_date',
       type: 'gte',
       value: props.dates[0]
     },
     {
-      key: 'created_date',
+      key: props.setting.dateField || 'created_date',
       type: 'lte',
       value: props.dates[1]
     },
     {
       type: 'order',
-      value: `${props.setting.filterKey}.desc`
+      value: `${sortBy}.${sortOrder}`
     }
   ]
   if (props.setting.currentUserField) {
@@ -136,13 +148,7 @@ function handleDrillDown() {
       value: userId
     })
   }
-  if(props.setting.additionalFilterKey && props.setting.additionalFilterValue){
-    sqlParams.push({
-      key: props.setting.additionalFilterKey,
-      type: 'eq',
-      value: props.setting.additionalFilterValue
-    })
-  }
+  if (props.setting.filterList) setSqlParamsByFilterList(props.setting.filterList, sqlParams)
   if (props.setting.relatedField && caseInstanceId) {
     sqlParams.push({
       key: props.setting.relatedField,
@@ -153,16 +159,13 @@ function handleDrillDown() {
   dialogRef.value.handleOpen(sqlParams)
 }
 function handleCompute(value: number) {
-  try {
-    if (props.setting.displayMethod === 'FinancialComputing') {
-      return FinancialComputing(value)
-    } else if (props.setting.displayMethod === 'fileSize') {
-      return fileSize(value)
-    }
-  } catch (error) {
-    return value
-  }
-  return value
+  return formSlotHandleDisplayMethod(
+    {
+      displayMethod: props.setting.displayMethod,
+      prefix: props.setting.prefix
+    },
+    value
+  )
 }
 function handleAfterOpen(formRendererRef: any) {
   if (props.type === 'caseManagement') {
@@ -190,7 +193,7 @@ defineExpose({ resize })
     padding-top: var(--app-space-xs);
     font-size: var(--total-font-size);
     font-weight: bolder;
-    color: var(--app-primary-color);
+    color: var(--preset-color);
   }
   @container (max-width: 320px ) {
     --title-font-size: var(--app-font-size-l);
@@ -204,7 +207,7 @@ defineExpose({ resize })
     --title-font-size: calc(var(--app-font-size-l) * 2);
     --total-font-size: calc(var(--app-font-size-xl) * 2);
   }
-  @container (min-width: 1024px) and (min-height: 300px){
+  @container (min-width: 1024px) and (min-height: 300px) {
     --title-font-size: calc(var(--app-font-size-l) * 2.5);
     --total-font-size: calc(var(--app-font-size-xl) * 2.5);
   }

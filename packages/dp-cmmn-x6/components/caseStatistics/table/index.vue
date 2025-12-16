@@ -12,7 +12,7 @@ const { setting, displayColumns, dates, sql } = defineProps<{
   dates: any
   sql: string
 }>()
-const { setOriginalData, handleFilterData, setFilterParams, ResponsiveFilterRef, initFilter } = useStatsTableFilter(setting, sql)
+const { setOriginalData, handleFilterData, setFilterParams, ResponsiveFilterRef, initFilter, setSetting } = useStatsTableFilter(setting, sql)
 const CMDProvider = inject(CaseManagementDashboardKey)
 const caseId = CMDProvider?.instanceId?.value || null
 const { t } = useI18n()
@@ -38,7 +38,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       const groupData = groupTree(filteredData)
       return groupData
     }
-    const response = await clientApi.api.getPostgrestTable(`${setting.tableName}?${sql}`)
+    const response: any = await clientApi.api.getPostgrestTable(`${setting.tableName}?${sql}`)
     const data = groupTree(response.data)
     setOriginalData(data)
     initFilter()
@@ -89,6 +89,8 @@ async function reorderColumn(fields: any) {
 
   setTimeout(() => {
     tableReady.value = true
+    if(!!setting) setSetting(setting)
+    initFilter()
   }, 200)
 }
 function closeDialog() {
@@ -110,20 +112,21 @@ watch(
 )
 function groupTree(data: any[]) {
   let treeData: any = []
-  if (setting.groupField && setting.sortBy) {
+  if (setting.groupField && setting.countField) {
     const groupData = data.reduce((prev: any, item: any) => {
-      const groupField = item[setting.groupField] === 'null' || !item[setting.groupField] ? '-' : item[setting.groupField]
-      const sortBy = item[setting.sortBy]
-      if (!prev[groupField]) {
-        prev[groupField] = {
-          id: groupField,
-          [setting.groupField]: groupField,
-          [setting.sortBy]: 0,
+      const groupFieldValue = item[setting.groupField] === 'null' || !item[setting.groupField] ? '-' : item[setting.groupField]
+      console.log('groupField', groupFieldValue)
+      const countFieldValue = item[setting.countField]
+      if (!prev[groupFieldValue]) {
+        prev[groupFieldValue] = {
+          id: groupFieldValue,
+          [setting.groupField]: groupFieldValue,
+          [setting.countField]: 0,
           parent_id: null
         }
       }
-      prev[groupField][setting.sortBy] += sortBy
-      treeData.push({ ...item, parent_id: prev[groupField].id, id: item.case_id })
+      prev[groupFieldValue][setting.countField] += countFieldValue
+      treeData.push({ ...item, parent_id: prev[groupFieldValue].id, id: item.case_id })
       return prev
     }, {})
     Object.values(groupData).forEach((item: any) => {
@@ -132,6 +135,7 @@ function groupTree(data: any[]) {
   } else {
     treeData = data
   }
+  console.log('treeData', treeData)
   return treeData
 }
 function handleFilterFormChange(form: any) {

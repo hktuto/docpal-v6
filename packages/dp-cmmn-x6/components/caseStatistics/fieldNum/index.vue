@@ -10,16 +10,20 @@
   >
     <div class="quantity-container" @click="handleDrillDown">
       <div class="quantity-title">{{ setting.title }}</div>
-      <div class="quantity-total">{{ setting.prefix }}{{ handleCompute(total) }}</div>
+      <div :style="`--preset-color: ${setting.barColor ? setting.barColor : 'var(--app-primary-color)'}`" class="quantity-total">
+        {{ handleCompute(total) }}
+      </div>
     </div>
     <!-- <div id="myEcharts" ref="chartRef" class="echart"></div> -->
-    <CaseStatisticsTableDialog :setting="setting" :dates="dates" ref="dialogRef" />
+    <CaseStatisticsTableDialog name="fieldNum" :setting="setting" :dates="dates" ref="dialogRef" />
     <DashboardSetting
       v-if="!hideSetting"
       ref="settingRef"
       :after-open="handleAfterOpen"
       :title="title"
-      :formJson="formJson"
+      :big="true"
+      :formJson="mergedJson"
+      componentName="CaseFieldNum"
       @delete="handleDelete"
       @refresh="handleRefresh"
     />
@@ -28,17 +32,25 @@
 
 <script lang="ts" setup>
 import { clientApi, PostgREST_Decorate } from 'api'
-import formJson from './setting.vform.json'
+
+import formJson from '../setting.vform.json'
+import styleJson from './setting.style.vform.json'
+import setupJson from './setting.setup.vform.json'
+import { mergeSetting } from '../settingMergeHelper'
+
+const mergedJson = mergeSetting(formJson, setupJson, styleJson, {})
 const props = withDefaults(
   defineProps<{
     dates?: any
     setting?: any
     hideSetting?: boolean
     type?: string
+    mode?: string
   }>(),
   {
     setting: {},
-    hideSetting: false
+    hideSetting: false,
+    mode: 'real'
   }
 )
 
@@ -55,7 +67,7 @@ function handleRefresh(chartSetting) {
 function handleDelete() {
   emits('delete')
 }
-const { cardRef, settingRef, resize, handleInitCard, loading } = useDashboardCard({
+const { cardRef, settingRef, resize, handleInitCard, loading, formSlotHandleDisplayMethod } = useDashboardCard({
   props,
 
   getOptions: async (chartSetting) => {
@@ -64,14 +76,20 @@ const { cardRef, settingRef, resize, handleInitCard, loading } = useDashboardCar
         total: 0
       }
     }
+    if (props.mode === 'mock') {
+      total.value = 18
+      return {
+        total: total.value
+      }
+    }
     const sqlParams = [
       {
-        key: 'created_date',
+        key: chartSetting.dateField || 'created_date',
         type: 'gte',
         value: props.dates[0]
       },
       {
-        key: 'created_date',
+        key: chartSetting.dateField || 'created_date',
         type: 'lte',
         value: props.dates[1]
       },
@@ -115,12 +133,12 @@ function handleDrillDown() {
   const sortOrder = props.setting.sortOrder || 'desc'
   const sqlParams = [
     {
-      key: 'created_date',
+      key: props.setting.dateField || 'created_date',
       type: 'gte',
       value: props.dates[0]
     },
     {
-      key: 'created_date',
+      key: props.setting.dateField || 'created_date',
       type: 'lte',
       value: props.dates[1]
     },
@@ -160,16 +178,13 @@ function handleAfterOpen(formRendererRef: any) {
   }
 }
 function handleCompute(value: number) {
-  try {
-    if (props.setting.displayMethod === 'FinancialComputing') {
-      return FinancialComputing(value)
-    } else if (props.setting.displayMethod === 'fileSize') {
-      return fileSize(value)
-    }
-  } catch (error) {
-    return value
-  }
-  return value
+  return formSlotHandleDisplayMethod(
+    {
+      displayMethod: props.setting.displayMethod,
+      prefix: props.setting.prefix
+    },
+    value
+  )
 }
 defineExpose({ resize })
 </script>
@@ -192,7 +207,7 @@ defineExpose({ resize })
     padding-top: var(--app-space-xs);
     font-size: var(--total-font-size);
     font-weight: bolder;
-    color: var(--app-primary-color);
+    color: var(--preset-color);
   }
   @container (max-width: 320px ) {
     --title-font-size: var(--app-font-size-l);
@@ -206,7 +221,7 @@ defineExpose({ resize })
     --title-font-size: calc(var(--app-font-size-l) * 2);
     --total-font-size: calc(var(--app-font-size-xl) * 2);
   }
-  @container (min-width: 1024px) and (min-height: 300px) { 
+  @container (min-width: 1024px) and (min-height: 300px) {
     --title-font-size: calc(var(--app-font-size-l) * 2.5);
     --total-font-size: calc(var(--app-font-size-xl) * 2.5);
   }

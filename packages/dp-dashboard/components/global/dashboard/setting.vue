@@ -90,9 +90,9 @@ function handleFormChange({ fieldName, newValue, formModel, oldValue }: any) {
   }
   if (EchartRef.value) {
     state.realTimeSetting = JSON.parse(JSON.stringify(formModel))
-    nextTick(() => {
-      EchartRef.value.refresh()
-    })
+    // nextTick(() => {
+    //   EchartRef.value.refresh()
+    // })
   }
 }
 async function handleDelete() {

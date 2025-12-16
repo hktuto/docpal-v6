@@ -13,7 +13,7 @@
       <el-date-picker style="width: 6rem" v-model="targetYear" size="small" type="year" format="YYYY" value-format="YYYY" @change="handleChangeYear" />
     </template>
     <div id="myEcharts" ref="chartRef" class="echart"></div>
-    <CaseStatisticsTableDialog :setting="setting" :dates="tableDates" ref="dialogRef"> </CaseStatisticsTableDialog>
+    <CaseStatisticsTableDialog name="monthlyAverage" :setting="setting" :dates="tableDates" ref="dialogRef"> </CaseStatisticsTableDialog>
 
     <DashboardSetting
       v-if="!hideSetting && mode === 'real'"
@@ -31,11 +31,12 @@
 
 <script lang="ts" setup>
 import { clientApi, PostgREST_Decorate } from 'api'
-import { mergeSetting } from '../settingMergeHelper'
+import dayjs from 'dayjs'
+
 import formJson from '../setting.vform.json'
 import styleJson from './setting.style.vform.json'
 import setupJson from './setting.setup.vform.json'
-import dayjs from 'dayjs'
+import { mergeSetting } from '../settingMergeHelper'
 
 const mergedJson = mergeSetting(formJson, setupJson, styleJson)
 const props = withDefaults(
@@ -163,8 +164,6 @@ const dialogRef = ref()
 const { cardRef, chartRef, settingRef, resize, refresh, handleInitCard, loading, setupOptions, setSqlParamsByFilterList, setRpcParamsByFilterList, formSlotHandleDisplayMethod } = useDashboardCard({
   props,
   getOptions: async (chartSetting) => {
-    console.log('getOptions', chartSetting);
-    
     const _option = setupOptions(option)
     if (!chartSetting.tableName) {
       return _option
@@ -208,11 +207,6 @@ const { cardRef, chartRef, settingRef, resize, refresh, handleInitCard, loading,
       }
       _option.series[1].data = await getAverageDuration(chartSetting)
     }
-    if (props.setting.showLegend) {
-      _option.legend.show = true
-    } else {
-      _option.legend.show = false
-    }
     return _option
   },
   clickAction: (params: any) => {
@@ -231,20 +225,21 @@ const { cardRef, chartRef, settingRef, resize, refresh, handleInitCard, loading,
     const endDate = dayjs(`${year}-${month}-01`).endOf('month').format('YYYY-MM-DD 23:59:59')
     tableDates.value = [startDate, endDate]
     const sortBy = props.setting.sortBy || 'created_date'
+    const sortOrder = props.setting.sortOrder || 'desc'
     const sqlParams = [
       {
-        key: props.setting.dateField,
+        key: props.setting.dateField || 'created_date',
         type: 'gte',
         value: startDate
       },
       {
-        key: props.setting.dateField,
+        key: props.setting.dateField || 'created_date',
         type: 'lte',
         value: endDate
       },
       {
         type: 'order',
-        value: `${sortBy}.desc`
+        value: `${sortBy}.${sortOrder}`
       }
     ]
     if (props.setting.currentUserField) {
@@ -274,9 +269,14 @@ const { cardRef, chartRef, settingRef, resize, refresh, handleInitCard, loading,
 })
 async function getCaseCount(chartSetting) {
   if (props.mode === 'mock') {
-    return [10, 20, 30, 0, 0, 600, 70, 80, 9, 10, 110, 120]
+    const data = []
+    for(let i = 0; i < 12; i++) {
+      const count = Math.floor(Math.random() * 10) + i
+      data.push(count)
+    }
+    return data
   }
-  const rpcParams = {
+  const rpcParams: any = {
     _table_name: chartSetting.tableName,
     _date_column: chartSetting.dateField, // 合同到期日期字段
     _target_year: Number(targetYear.value),
@@ -289,17 +289,23 @@ async function getCaseCount(chartSetting) {
   if (props.setting.currentUserField) {
     rpcParams._filters[props.setting.currentUserField] = userId
   }
+  console.log(rpcParams, 'mmmmrpcParams._filters')
   if (Object.keys(rpcParams._filters).length === 0) {
     delete rpcParams._filters
   }
-  const response = await clientApi.api.postPostgrestRpcFunc('count_by_month_generic', rpcParams).then((res) => res.data)
+  const response: any = await clientApi.api.postPostgrestRpcFunc('count_by_month_generic', rpcParams).then((res) => res.data)
   return response.map((item) => item.count_value)
 }
 async function getAverageDuration(chartSetting) {
   if (props.mode === 'mock') {
-    return [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200]
+    const data = []
+    for(let i = 0; i < 12; i++) {
+      const count = Math.floor(Math.random() * 10) + i
+      data.push(count)
+    }
+    return data
   }
-  const rpcParams = {
+  const rpcParams: any = {
     _table_name: chartSetting.tableName,
     _date_column: chartSetting.dateField, // 合同到期日期字段
     _target_year: Number(targetYear.value),
@@ -318,7 +324,7 @@ async function getAverageDuration(chartSetting) {
   if (Object.keys(rpcParams._filters).length === 0) {
     delete rpcParams._filters
   }
-  const response = await clientApi.api.postPostgrestRpcFunc('avg_by_month_generic', rpcParams).then((res) => res.data)
+  const response: any = await clientApi.api.postPostgrestRpcFunc('avg_by_month_generic', rpcParams).then((res) => res.data)
   return response.map((item) => item.avg_value)
 }
 function handleChangeYear(year: string) {
