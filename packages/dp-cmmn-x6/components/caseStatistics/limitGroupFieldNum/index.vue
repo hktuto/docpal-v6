@@ -15,7 +15,7 @@
       </div>
       <el-button :disabled="mode === 'mock'" type="primary" @click="handleShowAll()">{{ $t('button.showAll') }}</el-button>
     </div>
-    <CaseStatisticsTableDialog :setting="setting" :dates="dates" ref="dialogRef"> </CaseStatisticsTableDialog>
+    <CaseStatisticsTableDialog name="limitGroupFieldNum" :setting="setting" :dates="dates" ref="dialogRef"> </CaseStatisticsTableDialog>
     <DashboardSetting
       v-if="!hideSetting"
       ref="settingRef"
@@ -131,6 +131,7 @@ const {
       chartSetting.outerRingProportion ? chartSetting.outerRingProportion + '%' : '60%'
     ]
     _option.series[0].data = await getData(chartSetting)
+    console.log(_option)
     return _option
   },
   clickAction: (params: any) => {
@@ -143,6 +144,8 @@ const {
 const dialogRef = ref()
 const groupDialogRef = ref()
 function handleShowAll(groupField: string = '') {
+  const sortBy = props.setting.sortBy || props.setting.countField || 'created_date'
+  const sortOrder = props.setting.sortOrder || 'desc'
   const sqlParams: any[] = [
     {
       key: props.setting.dateField || 'created_date',
@@ -160,7 +163,7 @@ function handleShowAll(groupField: string = '') {
     // },
     {
       type: 'order',
-      value: `${props.setting.countField}.desc`
+      value: `${sortBy}.${sortOrder}`
     }
   ]
   if (props.setting.currentUserField) {
@@ -202,33 +205,16 @@ function handleAfterOpen(formRendererRef: any) {
 }
 async function getData(chartSetting: any) {
   if (props.mode === 'mock') {
-    return [
-      {
-        value: 1888.88,
-        name: 'Mock Data',
-        id: 'mock-data'
-      },
-      {
-        value: 1888.88,
-        name: 'Mock Data 2',
-        id: 'mock-data-2'
-      },
-      {
-        value: 1888.88,
-        name: 'Mock Data 3',
-        id: 'mock-data-3'
-      },
-      {
-        value: 1888.88,
-        name: 'Mock Data 4',
-        id: 'mock-data-4'
-      },
-      {
-        value: 1888.88,
-        name: 'Mock Data 5',
-        id: 'mock-data-5'
-      }
-    ]
+    const data = []
+    for (let i = 0; i < 5; i++) {
+      const value = Math.floor(Math.random() * 1000) + 88.88
+      data.push({
+        value,
+        name: `Mock Data ${i + 1}`,
+        id: `mock-data-${i + 1}`
+      })
+    }
+    return data
   }
   const rpcParams = {
     _table_name: chartSetting.tableName,

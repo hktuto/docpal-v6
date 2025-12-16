@@ -15,7 +15,7 @@
       </div>
       <el-button :disabled="mode === 'mock'" type="primary" @click="handleShowAll">{{ $t('button.showAll') }}</el-button>
     </div>
-    <CaseStatisticsTableDialog :setting="setting" :dates="dates" ref="dialogRef"> </CaseStatisticsTableDialog>
+    <CaseStatisticsTableDialog name="limitFieldNum" :setting="setting" :dates="dates" ref="dialogRef"> </CaseStatisticsTableDialog>
     <DashboardSetting
       v-if="!hideSetting"
       ref="settingRef"
@@ -136,6 +136,8 @@ const { cardRef, chartRef, settingRef, resize, handleInitCard, loading, setupOpt
 const dialogRef = ref()
 const groupDialogRef = ref()
 function handleShowAll() {
+  const sortBy = props.setting.sortBy || props.setting.countField || 'created_date'
+  const sortOrder = props.setting.sortOrder || 'desc'
   const sqlParams = [
     {
       key: props.setting.dateField || 'created_date',
@@ -153,7 +155,7 @@ function handleShowAll() {
     // },
     {
       type: 'order',
-      value: `${props.setting.countField}.desc`
+      value: `${sortBy}.${sortOrder}`
     }
   ]
   if (props.setting.relatedField && caseInstanceId) {

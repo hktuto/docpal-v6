@@ -15,7 +15,7 @@
       </div>
     </div>
     <!-- <div id="myEcharts" ref="chartRef" class="echart"></div> -->
-    <CaseStatisticsTableDialog :setting="setting" :dates="dates" ref="dialogRef" />
+    <CaseStatisticsTableDialog name="fieldNum" :setting="setting" :dates="dates" ref="dialogRef" />
     <DashboardSetting
       v-if="!hideSetting"
       ref="settingRef"

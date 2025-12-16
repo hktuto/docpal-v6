@@ -8,16 +8,13 @@ export function mergeSetting(settingJson: any, setupJson: any, styleJson: any = 
   const mergedJson = JSON.parse(JSON.stringify(settingJson))
   if (Array.isArray(mergedJson?.widgetList)) {
     const setupGrid = findSetupGrid(mergedJson, 'setupGrid')
-    console.log('setupGrid', setting)
     if(setting.addFilterArray) {
-      console.log('filterArrayData', filterArrayData)
       setupGrid.widgetList.push(filterArrayData)
     }
     if(setupGrid) {
       setupGrid.widgetList.push(...setupJson.widgetList)
     }
   }
-  console.log('styleGrid', styleJson)
   if (Array.isArray(styleJson?.widgetList)) {
     const styleGrid = findSetupGrid(mergedJson, 'styleGrid')
     console.log('styleGrid', styleGrid)

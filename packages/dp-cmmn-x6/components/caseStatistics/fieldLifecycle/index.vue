@@ -13,7 +13,7 @@
       <el-button v-if="showFilterButton" :disabled="mode === 'mock'" type="primary" size="small" @click="handleOpenDialog">{{ $t('common_filter') }} {{ displayFilter }}</el-button>
     </template>
     <div id="myEcharts" ref="chartRef" class="echart"></div>
-    <CaseStatisticsTableDialog :setting="setting" :dates="tableDates" ref="dialogRef"> </CaseStatisticsTableDialog>
+    <CaseStatisticsTableDialog name="fieldLifecycle" :setting="setting" :dates="tableDates" ref="dialogRef"> </CaseStatisticsTableDialog>
 
     <DashboardSetting
       v-if="!hideSetting"

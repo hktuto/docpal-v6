@@ -131,14 +131,14 @@ export const useDashboardCard = (params: useDashboardCardParams) => {
     filterList.forEach((item: any) => {
       sqlParams.push({
         key: item.filterKey,
-        type: 'in',
-        value: item.filterValue
+        type: item.filterValue.length > 1 ? 'in' : 'eq',
+        value: item.filterValue.length > 1 ? item.filterValue : item.filterValue[0]
       })
     })
   }
   function setRpcParamsByFilterList(filterList: any[], rpcFilters: any) {
     filterList.forEach((item: any) => {
-      rpcFilters[item.filterKey] = item.filterValue
+      rpcFilters[item.filterKey] = item.filterValue.length > 1 ? item.filterValue : item.filterValue[0]
     })
   }
   onMounted(async () => {

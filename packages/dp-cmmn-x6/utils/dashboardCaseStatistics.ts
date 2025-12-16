@@ -24,7 +24,8 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
       name: '',
       prefix: '',
       displayMethod: '',
-      dateField: 'created_date'
+      dateField: 'created_date',
+      drilldownTitle: 'Case List',
     }
   },
   CaseFieldTotal: {
@@ -47,6 +48,7 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
       fields: '[]',
       displayMethod: '',
       prefix: '',
+      drilldownTitle: 'Case List(Total)',
     }
   },
   CaseLimitFieldNum: {
@@ -63,7 +65,8 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
       name: '',
       prefix: '',
       displayMethod: '',
-      dateField: 'created_date'
+      dateField: 'created_date',
+      drilldownTitle: 'Case List(Limit)',
     }
   },
   CaseLimitGroupFieldNum: {
@@ -80,7 +83,8 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
       name: '',
       prefix: '',
       displayMethod: '',
-      dateField: 'created_date'
+      dateField: 'created_date',
+      drilldownTitle: 'Case List(Limit Group)',
     }
   },
   CaseMonthlyAverage: {
@@ -96,14 +100,23 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
     setting: {
       caseId: '',
       relatedField: '',
-      averageField: '',
-      averageTitle: '',
-      averageUnit: 'Average Duration',
       title: 'Number of Cases',
       dialogSettingTitle: '',
       displayColumns: [],
       fields: '[]',
-      dateField: 'created_date'
+      dateField: 'created_date',
+      drilldownTitle: 'Case List',
+      barYAxisTitle: 'Number of Cases',
+      barLegendTitle: 'Number of Cases',
+      barColor: '',
+      barDisplayMethod: '',
+      barChartSuffix: '',
+      lineYAxisTitle: 'Average Duration',
+      lineDataField: '',
+      lineLegendTitle: 'Average Duration',
+      lineColor: '',
+      lineDisplayMethod: '',
+      lineChartSuffix: '',
     }
   },
   CaseFieldLifecycle: {
@@ -123,7 +136,8 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
       dialogSettingTitle: '',
       displayColumns: [],
       fields: '[]',
-      dateField: 'created_date'
+      dateField: 'created_date',
+      drilldownTitle: 'Case List(Lifecycle)',
     }
   }
 }

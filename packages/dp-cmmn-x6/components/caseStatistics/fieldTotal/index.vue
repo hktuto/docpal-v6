@@ -15,7 +15,7 @@
       </div>
     </div>
     <!-- <div id="myEcharts" ref="chartRef" class="echart"></div> -->
-    <CaseStatisticsTableDialog :setting="setting" :dates="dates" ref="dialogRef" />
+    <CaseStatisticsTableDialog name="fieldTotal" :setting="setting" :dates="dates" ref="dialogRef" />
     <DashboardSetting
       v-if="!hideSetting"
       ref="settingRef"
@@ -123,6 +123,8 @@ const { cardRef, settingRef, resize, handleInitCard, loading, setSqlParamsByFilt
 
 const dialogRef = ref()
 function handleDrillDown() {
+  const sortBy = props.setting.sortBy || props.setting.countField || 'created_date'
+  const sortOrder = props.setting.sortOrder || 'desc'
   const sqlParams = [
     {
       key: props.setting.dateField || 'created_date',
@@ -136,7 +138,7 @@ function handleDrillDown() {
     },
     {
       type: 'order',
-      value: `${props.setting.filterKey}.desc`
+      value: `${sortBy}.${sortOrder}`
     }
   ]
   if (props.setting.currentUserField) {
@@ -146,7 +148,7 @@ function handleDrillDown() {
       value: userId
     })
   }
-  setSqlParamsByFilterList(props.setting.filterList, sqlParams)
+  if (props.setting.filterList) setSqlParamsByFilterList(props.setting.filterList, sqlParams)
   if (props.setting.relatedField && caseInstanceId) {
     sqlParams.push({
       key: props.setting.relatedField,

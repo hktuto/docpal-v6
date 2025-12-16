@@ -13,7 +13,7 @@
       <el-date-picker style="width: 6rem" v-model="targetYear" size="small" type="year" format="YYYY" value-format="YYYY" @change="handleChangeYear" />
     </template>
     <div id="myEcharts" ref="chartRef" class="echart"></div>
-    <CaseStatisticsTableDialog :setting="setting" :dates="tableDates" ref="dialogRef"> </CaseStatisticsTableDialog>
+    <CaseStatisticsTableDialog name="monthlyAverage" :setting="setting" :dates="tableDates" ref="dialogRef"> </CaseStatisticsTableDialog>
 
     <DashboardSetting
       v-if="!hideSetting && mode === 'real'"
@@ -225,6 +225,7 @@ const { cardRef, chartRef, settingRef, resize, refresh, handleInitCard, loading,
     const endDate = dayjs(`${year}-${month}-01`).endOf('month').format('YYYY-MM-DD 23:59:59')
     tableDates.value = [startDate, endDate]
     const sortBy = props.setting.sortBy || 'created_date'
+    const sortOrder = props.setting.sortOrder || 'desc'
     const sqlParams = [
       {
         key: props.setting.dateField || 'created_date',
@@ -238,7 +239,7 @@ const { cardRef, chartRef, settingRef, resize, refresh, handleInitCard, loading,
       },
       {
         type: 'order',
-        value: `${sortBy}.desc`
+        value: `${sortBy}.${sortOrder}`
       }
     ]
     if (props.setting.currentUserField) {
@@ -288,6 +289,7 @@ async function getCaseCount(chartSetting) {
   if (props.setting.currentUserField) {
     rpcParams._filters[props.setting.currentUserField] = userId
   }
+  console.log(rpcParams, 'mmmmrpcParams._filters')
   if (Object.keys(rpcParams._filters).length === 0) {
     delete rpcParams._filters
   }

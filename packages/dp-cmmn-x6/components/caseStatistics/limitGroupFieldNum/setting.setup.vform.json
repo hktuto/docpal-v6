@@ -26,7 +26,7 @@
         "multiple": false,
         "multipleLimit": 0,
         "optionItems": [],
-        "required": false,
+        "required": true,
         "requiredHint": "",
         "validation": "",
         "validationHint": "",
