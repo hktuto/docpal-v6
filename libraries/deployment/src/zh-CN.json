@@ -3215,6 +3215,7 @@
   "user_editUser": "编辑用户信息",
   "user_email": "电子邮箱",
   "user_emailCanNotBeNull": "电子邮件不能为空",
+  "user_emailFormatError": "请输入有效的电子邮件地址",
   "user_firstName": "名",
   "user_groupIdentifer": "分组标识符",
   "user_groupIdentiferCanNotBeNull": "分组标识符不能为空",

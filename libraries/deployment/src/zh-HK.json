@@ -3213,6 +3213,7 @@
   "user_editUser": "編輯使用者資訊",
   "user_email": "電子郵箱",
   "user_emailCanNotBeNull": "電子郵件不能為空",
+  "user_emailFormatError": "請輸入有效的電子郵件地址",
   "user_firstName": "名",
   "user_groupIdentifer": "群組標識符",
   "user_groupIdentiferCanNotBeNull": "群組標識符不能為空",

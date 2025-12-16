@@ -3216,6 +3216,7 @@
   "user_editUser": "Edit User Info",
   "user_email": "Email Address",
   "user_emailCanNotBeNull": "Email Can Not Be Null",
+  "user_emailFormatError": "Please enter a valid email address",
   "user_firstName": "First Name",
   "user_groupIdentifer": "Group Identifier",
   "user_groupIdentiferCanNotBeNull": "Group Identifer Can Not Be Null",
