@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, Notification } from 'electron'
 import path from 'path'
 import { havePrefs } from './pref'
 
@@ -23,11 +23,16 @@ export const createWindow = (mainWindow: BrowserWindow) => {
     mainWindow.loadURL(url)
   }
 
-  ipcMain.on('check-focused', (event) => {
-    const isFocused = mainWindow.isFocused()
-    event.reply('reply-focused', isFocused)
-  })
-
   // mainWindow.webContents.openDevTools()
   return mainWindow
+}
+
+export const sendDesktopNotification = (title: string, body: string) => {
+  const options = {
+    title: title,
+    body: body,
+    silent: true,
+    icon: '/icon.png'
+  }
+  new Notification(options).show()
 }

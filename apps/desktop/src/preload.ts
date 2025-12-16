@@ -5,9 +5,6 @@ const notifier = require('node-notifier')
 //@ts-ignore
 window.ipcRenderer = require('electron').ipcRenderer
 
-// 消息標簽頭
-app.setAppUserModelId('Docpal')
-
 contextBridge.exposeInMainWorld('shell', {
   open: () => ipcRenderer.send('shell:open'),
 
@@ -44,14 +41,13 @@ window.addEventListener('sendMessage', (event: any) => {
   }
   new Notification(options).show()
 
-
-  const checkFocused = () => new Promise<boolean>((resolve) => {
-    ipcRenderer.once('reply-focused', (_e, focused: boolean) => resolve(focused))
-    ipcRenderer.send('check-focused')
-  })
-  checkFocused().then((focused) => {
-    if (focused) {
-      return
-    }
-  })
+  // const checkFocused = () => new Promise<boolean>((resolve) => {
+  //   ipcRenderer.once('reply-focused', (_e, focused: boolean) => resolve(focused))
+  //   ipcRenderer.send('check-focused')
+  // })
+  // checkFocused().then((focused) => {
+  //   if (focused) {
+  //     return
+  //   }
+  // })
 })
