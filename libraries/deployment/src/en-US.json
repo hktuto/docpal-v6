@@ -1880,7 +1880,7 @@
       "themeChangeAutoUpdateColor": "Auto Update Color",
       "themeChangeFormProperty": "Form Property",
       "themeChangePleaseSelectFormProperty": "Please select form property",
-      "themeChangePleaseSelectColorWidget": "Please select color widget",
+      "themeChangePleaseSelectColorWidget": "Please select color widget"
     },
     "widgetLabel": {
       "alert": "Alert",
