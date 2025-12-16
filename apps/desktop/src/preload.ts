@@ -1,4 +1,7 @@
-import { contextBridge, ipcRenderer, Notification } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
+//@ts-ignore
+const notifier = require('node-notifier');
+
 //@ts-ignore
 window.ipcRenderer = require('electron').ipcRenderer
 
@@ -6,15 +9,6 @@ contextBridge.exposeInMainWorld('shell', {
   open: () => ipcRenderer.send('shell:open'),
 
   close: () => ipcRenderer.send('shell:close')
-})
-
-contextBridge.exposeInMainWorld('windowState', {
-  isFocused: () => new Promise<boolean>((resolve) => {
-    ipcRenderer.once('reply-focused', (_event, focused: boolean) => {
-      resolve(focused)
-    })
-    ipcRenderer.send('check-focused')
-  })
 })
 
 window.addEventListener('removeBaseUrl', () => {
@@ -40,6 +34,9 @@ window.addEventListener('sendMessage', (event: any) => {
     if (focused) {
       return
     }
-    new Notification({ title: 'qwe', body: 'asdzxc' }).show()
+    notifier.notify({
+      title: 'My notification',
+      message: 'Hello, there!'
+    });
   })
 })
