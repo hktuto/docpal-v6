@@ -10,7 +10,7 @@
     @refresh="handleInitCard"
   >
     <template #action_prefix>
-      <el-date-picker style="width: 6rem" v-model="targetYear" size="small" type="year" format="YYYY" value-format="YYYY" @change="handleChangeYear" />
+      <el-date-picker v-if="!setting.dateFromSystem" style="width: 6rem" v-model="targetYear" size="small" type="year" format="YYYY" value-format="YYYY" @change="handleChangeYear" />
     </template>
     <div id="myEcharts" ref="chartRef" class="echart"></div>
     <CaseStatisticsTableDialog name="monthlyAverage" :setting="setting" :dates="tableDates" ref="dialogRef"> </CaseStatisticsTableDialog>
@@ -161,7 +161,7 @@ function mockCompletedOption(option: any) {
 }
 const dialogRef = ref()
 
-const { cardRef, chartRef, settingRef, resize, refresh, handleInitCard, loading, setupOptions, setSqlParamsByFilterList, setRpcParamsByFilterList, formSlotHandleDisplayMethod } = useDashboardCard({
+const { cardRef, chartRef, settingRef, resize, refresh, handleInitCard, loading, setupOptions, setSqlParamsByFilterList, setRpcParamsByFilterList, formSlotHandleDisplayMethod, getSystemDateYear } = useDashboardCard({
   props,
   getOptions: async (chartSetting) => {
     const _option = setupOptions(option)
@@ -213,13 +213,8 @@ const { cardRef, chartRef, settingRef, resize, refresh, handleInitCard, loading,
     if (props.mode === 'mock') {
       return
     }
-    let dates: any
-    if (!props.dates) {
-      dates = [dayjs(new Date()).format('YYYY-MM-DD'), dayjs(new Date()).format('YYYY-MM-DD')]
-    } else {
-      dates = JSON.parse(JSON.stringify(props.dates))
-    }
-    const year = targetYear.value
+
+    const year = props.setting.dateFromSystem ? getSystemDateYear() + props.setting.dateOffset : targetYear.value
     const month = params.dataIndex + 1
     const startDate = dayjs(`${year}-${month}-01`).format('YYYY-MM-DD 00:00:00')
     const endDate = dayjs(`${year}-${month}-01`).endOf('month').format('YYYY-MM-DD 23:59:59')
@@ -279,7 +274,7 @@ async function getCaseCount(chartSetting) {
   const rpcParams: any = {
     _table_name: chartSetting.tableName,
     _date_column: chartSetting.dateField, // 合同到期日期字段
-    _target_year: Number(targetYear.value),
+    _target_year: chartSetting.dateFromSystem ? getSystemDateYear() + chartSetting.dateOffset : Number(targetYear.value),
     _filters: {}
   }
   if (chartSetting.relatedField && caseInstanceId) {
@@ -289,7 +284,6 @@ async function getCaseCount(chartSetting) {
   if (props.setting.currentUserField) {
     rpcParams._filters[props.setting.currentUserField] = userId
   }
-  console.log(rpcParams, 'mmmmrpcParams._filters')
   if (Object.keys(rpcParams._filters).length === 0) {
     delete rpcParams._filters
   }
@@ -308,7 +302,7 @@ async function getAverageDuration(chartSetting) {
   const rpcParams: any = {
     _table_name: chartSetting.tableName,
     _date_column: chartSetting.dateField, // 合同到期日期字段
-    _target_year: Number(targetYear.value),
+    _target_year: chartSetting.dateFromSystem ? getSystemDateYear() : Number(targetYear.value),
     _value_column: chartSetting.lineDataField,
     _filters: {}
   }

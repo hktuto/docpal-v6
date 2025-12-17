@@ -403,6 +403,8 @@
     "dataSource": "數據來源",
     "dateDisplay": "日期顯示",
     "dateField": "日期字段",
+    "dateFromSystem": "日期跟隨系統",
+    "dateOffset": "日期偏移",
     "displayMethod": "顯示方法",
     "displaySetting": "內環佔比",
     "drilldownSetting": "下鑽操作設定",
@@ -1864,9 +1866,9 @@
     "setting": {
       "alertTitle": "標題",
       "alertType": "類型",
-      "cardShowDisplayButton": "顯示顯示按鈕",
       "cardFolded": "是否收起",
       "cardShadow": "顯示陰影",
+      "cardShowDisplayButton": "顯示顯示按鈕",
       "cardShowFold": "顯示摺疊按鈕",
       "cardWidth": "卡片寬度",
       "center": "文字居中",
@@ -1877,8 +1879,8 @@
       "showIcon": "顯示圖標",
       "themeChangeAutoUpdateColor": "自動更新顏色",
       "themeChangeFormProperty": "表單屬性",
-      "themeChangePleaseSelectFormProperty": "請選擇表單屬性",
-      "themeChangePleaseSelectColorWidget": "請選擇顏色組件"
+      "themeChangePleaseSelectColorWidget": "請選擇顏色組件",
+      "themeChangePleaseSelectFormProperty": "請選擇表單屬性"
     },
     "widgetLabel": {
       "alert": "提示框",

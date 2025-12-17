@@ -1,6 +1,7 @@
 import { useEventListener, watchDebounced } from '@vueuse/core'
 import { formSlotHandleDisplayMethod } from '../components/formSlot/displayColumn/reorderColumn'
 import * as echarts from 'echarts'
+import dayjs from 'dayjs'
 export type useDashboardCardParams = {
   initStyleAction?: (cardRef: any, chartRef: any) => void
   initStyleActionExtend?: (pHeight: number, pWidth: number) => void
@@ -141,6 +142,15 @@ export const useDashboardCard = (params: useDashboardCardParams) => {
       rpcFilters[item.filterKey] = item.filterValue.length > 1 ? item.filterValue : item.filterValue[0]
     })
   }
+  function getSystemDateYear() {
+    let dates: any
+    if (!props.dates) {
+      dates = [dayjs(new Date()).format('YYYY-MM-DD'), dayjs(new Date()).format('YYYY-MM-DD')]
+    } else {
+      dates = JSON.parse(JSON.stringify(props.dates))
+    }
+    return Number(dayjs(dates[0]).year())
+  }
   onMounted(async () => {
     setTimeout(async () => {
       initStyle()
@@ -183,6 +193,7 @@ export const useDashboardCard = (params: useDashboardCardParams) => {
     setupOptions,
     setSqlParamsByFilterList,
     setRpcParamsByFilterList,
-    formSlotHandleDisplayMethod
+    formSlotHandleDisplayMethod,
+    getSystemDateYear
   }
 }

@@ -404,6 +404,8 @@
     "dataSource": "Data Source",
     "dateDisplay": "Date Display",
     "dateField": "Date Field",
+    "dateFromSystem": "Date following system",
+    "dateOffset": "Date Offset",
     "displayMethod": "Display Method",
     "displaySetting": "Inner Ring Ratio",
     "drilldownSetting": "Drilldown Setting",
@@ -1866,9 +1868,9 @@
     "setting": {
       "alertTitle": "Title",
       "alertType": "Type",
-      "cardShowDisplayButton": "Show Display Button",
       "cardFolded": "Folded",
       "cardShadow": "Shadow",
+      "cardShowDisplayButton": "Show Display Button",
       "cardShowFold": "Show Fold",
       "cardWidth": "Width Of Card",
       "center": "Center",
@@ -1879,8 +1881,8 @@
       "showIcon": "Show Icon",
       "themeChangeAutoUpdateColor": "Auto Update Color",
       "themeChangeFormProperty": "Form Property",
-      "themeChangePleaseSelectFormProperty": "Please select form property",
-      "themeChangePleaseSelectColorWidget": "Please select color widget"
+      "themeChangePleaseSelectColorWidget": "Please select color widget",
+      "themeChangePleaseSelectFormProperty": "Please select form property"
     },
     "widgetLabel": {
       "alert": "Alert",
