@@ -42,7 +42,7 @@
     </ElTabs>
     <template #footer>
       <el-button v-if="!pageButtonSetting || pageButtonSetting.showSumBitButton"
-                 id="Workflow__NewWorkflow__StartWorkflow" type="primary" @click="checkAndSubmit">
+                 id="Workflow__NewWorkflow__StartWorkflow" type="primary" :disabled="state.loading" @click="checkAndSubmit">
         <template v-if="pageButtonSetting && pageButtonSetting.submitButtonLabel">
           {{ pageButtonSetting.submitButtonLabel }}
         </template>
@@ -144,8 +144,10 @@ async function workflowClickHandler(item: any) {
 const vFormRef = ref()
 
 async function checkAndSubmit() {
+  state.loading = true
   const data = await vFormRef.value.getFormData()
   if (data) {
+    
     const form = {
       processKey: state.selectedWorkflow.key,
       businessKey: data.businessKey || '',
@@ -154,7 +156,7 @@ async function checkAndSubmit() {
         return newObj
       }, {})
     }
-    state.loading = true
+    
     try {
       await clientApi.api.postWorkflowProcessStart(form).then(res => res.data)
       state.formDialogVisible = false
