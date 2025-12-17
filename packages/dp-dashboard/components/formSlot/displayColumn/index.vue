@@ -52,7 +52,7 @@
             {{ column.label }}
           </div>
           <div v-if="filteredSelectableColumns.length === 0" class="empty-state">
-            {{ $t('common_noData') }}
+            {{ $t('noData') }}
           </div>
         </div>
       </div>
