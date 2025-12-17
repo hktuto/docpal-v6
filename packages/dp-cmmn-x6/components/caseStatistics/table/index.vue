@@ -6,11 +6,13 @@ import dayjs from 'dayjs'
 import '../../../../../packages/dp-dashboard/components/formSlot/displayColumn/vxeTableRender.ts'
 import { formSlotOrderDisplayColumns } from '../../../../../packages/dp-dashboard/components/formSlot/displayColumn/reorderColumn'
 const platform = useAppPlatform()
-const { setting, displayColumns, dates, sql } = defineProps<{
+const { setting, displayColumns, dates, sql, mode, name } = defineProps<{
   setting: any
   displayColumns: any
   dates: any
   sql: string
+  mode: 'mock' | 'real'
+  name: string
 }>()
 const { setOriginalData, handleFilterData, setFilterParams, ResponsiveFilterRef, initFilter, setSetting } = useStatsTableFilter(setting, sql)
 const CMDProvider = inject(CaseManagementDashboardKey)
@@ -21,7 +23,7 @@ const tabProvider = inject(TabManagerKey)
 let inFilter = false
 const tableReady = ref(false)
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
-  id: 'dashboardRelatedCaseTable',
+  id: `dashboardCaseStatisticsTable-${name || 'default'}`,
   virtualScroll: true,
   optionalConfig: {
     treeConfig: {
@@ -38,8 +40,8 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       const groupData = groupTree(filteredData)
       return groupData
     }
-    const response: any = await clientApi.api.getPostgrestTable(`${setting.tableName}?${sql}`)
-    const data = groupTree(response.data)
+    const data = await getData()
+    console.log('data', data)
     setOriginalData(data)
     initFilter()
     setTimeout(() => {
@@ -52,7 +54,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     if (!row.case_id) return
     notiHandleView({ content: { caseInstanceId: row.case_id } }, tabProvider)
     emits('close')
-  },
+  }
   // zoom: false,
   // saveColumnOrder: false
 })
@@ -89,9 +91,46 @@ async function reorderColumn(fields: any) {
 
   setTimeout(() => {
     tableReady.value = true
-    if(!!setting) setSetting(setting)
+    if (!!setting) setSetting(setting)
     initFilter()
   }, 200)
+}
+async function getData() {
+  if (mode === 'mock') {
+    const data: any = []
+    for (let i = 0; i < 100; i++) {
+      const dataItem: any = {
+        case_id: `case_id ${i}`
+      }
+      const displayColumns = JSON.parse(JSON.stringify(setting.displayColumns))
+      displayColumns.forEach((item: any) => {
+        switch (item.type) {
+          case 'text':
+          case 'short_text':
+            dataItem[item.value] = `text ${i}`
+            break
+          case 'number':
+          case 'float':
+            dataItem[item.value] = i
+            break
+          case 'date':
+            dataItem[item.value] = dayjs().add(i, 'day').format('YYYY-MM-DD')
+            break
+          case 'boolean':
+            dataItem[item.value] = i % 2 === 0
+            break
+          default:
+            dataItem[item.value] = `text ${i}`
+            break
+        }
+      })
+      data.push(dataItem)
+    }
+    return data
+  }
+  const response: any = await clientApi.api.getPostgrestTable(`${setting.tableName}?${sql}`)
+  const data = groupTree(response.data)
+  return data
 }
 function closeDialog() {
   emits('close')
@@ -101,6 +140,9 @@ watch(
   (newVal) => {
     try {
       reorderColumn(newVal)
+      if (mode === 'mock') {
+        reload()
+      }
     } catch (error) {
       console.log('error', error)
     }
@@ -115,7 +157,6 @@ function groupTree(data: any[]) {
   if (setting.groupField && setting.countField) {
     const groupData = data.reduce((prev: any, item: any) => {
       const groupFieldValue = item[setting.groupField] === 'null' || !item[setting.groupField] ? '-' : item[setting.groupField]
-      console.log('groupField', groupFieldValue)
       const countFieldValue = item[setting.countField]
       if (!prev[groupFieldValue]) {
         prev[groupFieldValue] = {

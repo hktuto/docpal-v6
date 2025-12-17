@@ -8,16 +8,17 @@
     @close="state.visible = false"
   >
     <slot>
-      <CaseStatisticsTable ref="tableRef" :sql="state.sql" :setting="setting" :dates="dates" @close="state.visible = false" />
+      <CaseStatisticsTable ref="tableRef" :name="name" :sql="state.sql" :setting="setting" :dates="dates" @close="state.visible = false" />
     </slot>
   </el-dialog>
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
 import { PostgREST_Decorate } from 'api'
-const { setting, dates } = defineProps<{
+const { setting, dates, name } = defineProps<{
   setting: any
   dates: any
+  name: string
 }>()
 const state = reactive({
   visible: false,

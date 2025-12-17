@@ -88,7 +88,7 @@ function handleChange(data: typeof ResSelectData) {
 </style>
 <style>
 .auto-popper {
-  max-height: 80vh;
+  max-height: 50vh;
   overflow-y: auto;
 }
 </style>

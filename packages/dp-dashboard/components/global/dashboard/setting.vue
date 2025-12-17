@@ -10,10 +10,13 @@
     <slot></slot>
     <FormRenderer ref="FormRendererRef" :form-json="formJson" @formChange="handleFormChange" @tabClick="handleTabClick">
       <template v-slot:dialog_displayColumns>
-        <FormSlotDisplayColumn ref="DisplayColumnRef" />
+        <FormSlotDisplayColumn ref="DisplayColumnRef" @change="handleDisplayColumnChange" />
       </template>
       <template v-slot:caseEchart>
         <FormSlotEchart v-if="state.echartShow" ref="EchartRef" :componentName="componentName" :setting="state.realTimeSetting" />
+      </template>
+      <template v-slot:CaseStatsTable>
+        <FormSlotCaseStatsTable ref="CaseStatsTableRef" />
       </template>
     </FormRenderer>
     <template #footer>
@@ -77,6 +80,8 @@ function handleOpen(setting) {
     }
     if (DisplayColumnRef.value) {
       DisplayColumnRef.value.initColumns(setting)
+      const displayColumns = setting.displayColumns ? setting.displayColumns : []
+      handleDisplayColumnChange(displayColumns)
       state.initCloumnLoading = true
       setTimeout(() => {
         state.initCloumnLoading = false
@@ -93,6 +98,13 @@ function handleFormChange({ fieldName, newValue, formModel, oldValue }: any) {
     // nextTick(() => {
     //   EchartRef.value.refresh()
     // })
+  }
+}
+const CaseStatsTableRef = ref()
+function handleDisplayColumnChange(data: any) {
+  if (CaseStatsTableRef.value) {
+    console.log('handleDisplayColumnChange', CaseStatsTableRef.value)
+    CaseStatsTableRef.value.initColumns(data)
   }
 }
 async function handleDelete() {

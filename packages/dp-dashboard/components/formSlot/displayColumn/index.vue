@@ -70,6 +70,7 @@ const displayColumns = ref([])
 const addDialogVisible = ref(false)
 const searchQuery = ref('')
 const filteredSelectableColumns = ref([])
+const emits = defineEmits(['change'])
 
 function initColumns(data: any) {
   console.log('initColumns', data)
@@ -127,11 +128,13 @@ function handleAddColumn(column: any) {
   updateSelectableColumns()
   addDialogVisible.value = false
   searchQuery.value = ''
+  emitChange()
 }
 
 function handleRemoveColumn(column: any) {
   displayColumns.value = displayColumns.value.filter((item: any) => item.id !== column.id)
   updateSelectableColumns()
+  emitChange()
 }
 
 const settingRef = ref()
@@ -147,6 +150,16 @@ function handleRefreshColumn(data: any) {
     displayColumns.value[index] = data
   }
   console.log(displayColumns.value)
+  emitChange()
+}
+
+function emitChange() {
+  emits(
+    'change',
+    displayColumns.value.map((item: any) => ({
+      ...item
+    }))
+  )
 }
 
 defineExpose({
@@ -178,7 +191,8 @@ defineExpose({
   border: 1px solid var(--el-border-color-light);
   border-radius: 4px;
   background-color: #fafafa;
-
+  max-height: 360px;
+  overflow-y: auto;
   .list-group {
     display: flex;
     flex-direction: column;

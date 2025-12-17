@@ -10,12 +10,8 @@ const props = defineProps<{
   setting: any
 }>()
 const chartRef = ref()
-function refresh() {
-  // chartRef.value.refresh()
-}
 function init() {
   setTimeout(() => {
-    console.log('chartRef.value', chartRef.value)
     chartRef.value.resize()
   }, 300)
 }
