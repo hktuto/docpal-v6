@@ -83,8 +83,7 @@ const option: any = {
     {
       type: 'pie',
       radius: ['20%', '50%'],
-      center: ['50%', '44%'],
-
+      center: ['50%', '35%'],
       emphasis: {
         label: {
           show: true,
