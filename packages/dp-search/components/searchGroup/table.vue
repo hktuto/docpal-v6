@@ -93,7 +93,7 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
       field: 'name',
       title: 'document_name',
       minWidth: 200,
-      treeNode: true,
+      treeNode: false,
       type: 'html',
       formatter: ({ cellValue, row }: any) => {
         let icon = '/icons/doc/file.svg'
