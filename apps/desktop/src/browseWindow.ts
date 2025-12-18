@@ -26,13 +26,3 @@ export const createWindow = (mainWindow: BrowserWindow) => {
   // mainWindow.webContents.openDevTools()
   return mainWindow
 }
-
-export const sendDesktopNotification = (title: string, body: string) => {
-  const options = {
-    title: title,
-    body: body,
-    silent: true,
-    icon: '/icon.png'
-  }
-  new Notification(options).show()
-}
