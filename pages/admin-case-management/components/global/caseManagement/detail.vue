@@ -120,7 +120,7 @@ async function init() {
   loading.value = false
   routerProvider?.updateTabName(props.name + ` - (${props.currentVersion})`)
 }
-
+// test pull
 defineOptions({
   name: 'CaseManagementDetailDead'
 })
