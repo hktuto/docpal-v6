@@ -24,7 +24,6 @@
       :title="$t('Add')"
       width="500px"
       append-to-body
-      :close-on-click-modal="false"
     >
       <div class="add-column-dialog">
         <div class="add-column-dialog-header">
@@ -40,16 +39,26 @@
           </el-input>
           <div class="added-columns-count">
             {{ $t('singleCase.displayColumns') }}: {{ displayColumns.length }}
+            <el-button
+              v-if="displayColumns.length > 0"
+              type="danger"
+              link
+              size="small"
+              @click="handleRemoveAll"
+            >
+              {{ $t('common_cleanAll') }}
+            </el-button>
           </div>
         </div>
         <div class="selectable-columns-list">
           <div
             v-for="column in filteredSelectableColumns"
             :key="column.id"
-            class="selectable-column-item"
+            :class="['selectable-column-item']"
             @click="handleAddColumn(column)"
           >
-            {{ column.label }}
+            <span class="column-label-text">{{ column.label }}</span>
+            <el-badge v-if="getColumnSelectedCount(column) > 0" class="mark" :value="getColumnSelectedCount(column)" />
           </div>
           <div v-if="filteredSelectableColumns.length === 0" class="empty-state">
             {{ $t('noData') }}
@@ -62,7 +71,7 @@
 </template>
 <script lang="ts" setup>
 import draggable from 'vuedraggable'
-import { Search } from '@element-plus/icons-vue'
+import { Search, Check } from '@element-plus/icons-vue'
 
 const allColumns = ref([])
 const selectableColumns = ref([])
@@ -96,9 +105,7 @@ function getData() {
 }
 
 function updateSelectableColumns() {
-  selectableColumns.value = allColumns.value.filter((item: any) => 
-    !displayColumns.value.some((displayItem: any) => displayItem.value === item.value)
-  )
+  selectableColumns.value = [...allColumns.value]
   handleSearch()
 }
 
@@ -119,20 +126,33 @@ function handleOpenAddDialog() {
   searchQuery.value = ''
 }
 
+function isColumnSelected(column: any) {
+  return displayColumns.value.some((displayItem: any) => displayItem.value === column.value)
+}
+
+function getColumnSelectedCount(column: any) {
+  return displayColumns.value.filter((displayItem: any) => displayItem.value === column.value).length
+}
+
 function handleAddColumn(column: any) {
+  // 总是添加新列，允许重复添加
   const newColumn = {
     ...column,
-    id: `${column.value}-${new Date().getTime()}`
+    id: `${column.value}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
   }
   displayColumns.value.push(newColumn)
   updateSelectableColumns()
-  addDialogVisible.value = false
-  searchQuery.value = ''
   emitChange()
 }
 
 function handleRemoveColumn(column: any) {
   displayColumns.value = displayColumns.value.filter((item: any) => item.id !== column.id)
+  updateSelectableColumns()
+  emitChange()
+}
+
+function handleRemoveAll() {
+  displayColumns.value = []
   updateSelectableColumns()
   emitChange()
 }
@@ -259,6 +279,9 @@ defineExpose({
   }
 
   .added-columns-count {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     font-size: 12px;
     color: var(--el-text-color-secondary);
     padding: 0 var(--app-space-xs);
@@ -272,6 +295,9 @@ defineExpose({
     padding: var(--app-space-xs);
 
     .selectable-column-item {
+      display: flex;
+      align-items: center;
+      gap: var(--app-space-xs);
       padding: var(--app-space-xs) var(--app-space-s);
       cursor: pointer;
       border-radius: 4px;
@@ -280,6 +306,18 @@ defineExpose({
       &:hover {
         background-color: var(--el-color-primary-light-9);
         color: var(--app-primary-color);
+      }
+
+      .column-label-text {
+        flex: 1;
+      }
+
+      .mark {
+        :deep(.el-badge__content) {
+          position: static;
+          transform: none;
+          margin-left: auto;
+        }
       }
     }
 

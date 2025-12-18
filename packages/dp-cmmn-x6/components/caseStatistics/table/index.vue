@@ -4,7 +4,7 @@ import { MoreFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 import '../../../../../packages/dp-dashboard/components/formSlot/displayColumn/vxeTableRender.ts'
-import { formSlotOrderDisplayColumns } from '../../../../../packages/dp-dashboard/components/formSlot/displayColumn/reorderColumn'
+import { formSlotOrderDisplayColumns, formSlotHandleDisplayMethod, formSlotHandleDisplayDataMethod } from '../../../../../packages/dp-dashboard/components/formSlot/displayColumn/reorderColumn'
 const platform = useAppPlatform()
 const { setting, displayColumns, dates, sql, mode, name } = defineProps<{
   setting: any
@@ -96,6 +96,7 @@ async function reorderColumn(fields: any) {
   }, 200)
 }
 async function getData() {
+  console.log('getData')
   if (mode === 'mock') {
     const data: any = []
     for (let i = 0; i < 100; i++) {
@@ -111,13 +112,14 @@ async function getData() {
             break
           case 'number':
           case 'float':
-            dataItem[item.value] = i
+            const mockValue = Math.random() * 1000000 + 0.88
+            dataItem[item.value] = mockValue
             break
           case 'date':
-            dataItem[item.value] = dayjs().add(i, 'day').format('YYYY-MM-DD')
+            dataItem[item.value] = dayjs().subtract(i, 'day').format('YYYY-MM-DD')
             break
           case 'boolean':
-            dataItem[item.value] = i % 2 === 0
+            dataItem[item.value] = i % 2 === 0 ? 'Yes' : 'No'
             break
           default:
             dataItem[item.value] = `text ${i}`

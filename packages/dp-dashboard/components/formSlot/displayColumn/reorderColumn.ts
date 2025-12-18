@@ -4,28 +4,16 @@ export async function formSlotOrderDisplayColumns(fields: any, tabProvider: any,
     const columns: any = []
     if (fields.length > 0) {
       const columneFromSetting = fields.reduce((prev: any, item: any) => {
+        const prefix = item.prefix ? item.prefix : ''
+        const suffix = item.suffix ? item.suffix : ''
         const newItem: any = {
           field: item.value,
           title: item.label && item.label.includes('ID') ? item.label : item.label.toLowerCase().replace(/\b\w/g, (s: any) => s.toUpperCase()),
           minWidth: 200
         }
         if (['date', 'timestamp'].includes(item.type)) {
-          const prefix = item.prefix || ''
-          const suffix = item.suffix || ''
           newItem.formatter = ({ cellValue }: any) => {
-            if (!cellValue) return '-'
-            try {
-              if (item.dateDisplay === 'duration') {
-                const diff = dayjs().diff(cellValue, 'day')
-                return prefix + diff + ' days' + suffix
-              }
-              if (item.dateFormat) {
-                return prefix + formatDate(cellValue, item.dateFormat) + suffix
-              }
-              return prefix + formatDate(cellValue) + suffix
-            } catch (e) {
-              return '-'
-            }
+            return formSlotHandleDisplayDataMethod(cellValue, item)
           }
         } else if (item.clickAction) {
           // return render @click action
@@ -44,9 +32,9 @@ export async function formSlotOrderDisplayColumns(fields: any, tabProvider: any,
           }
         } else if (item.formatter) {
           newItem.formatter = item.formatter
-        } else if (item.prefix || item.suffix) {
+        } else if (prefix || suffix) {
           newItem.formatter = ({ cellValue }: any) => {
-            return item.prefix + cellValue + item.suffix
+            return prefix + cellValue + suffix
           }
         }
         prev.push(newItem)
@@ -63,6 +51,7 @@ export async function formSlotOrderDisplayColumns(fields: any, tabProvider: any,
 
 export function formSlotHandleDisplayMethod({ displayMethod, prefix, suffix }: any, value: any) {
   try {
+    console.log('value', value, displayMethod, prefix, suffix)
     if (!value && value !== 0) return '--'
     if (!prefix) prefix = ''
     if (!suffix) suffix = ''
@@ -75,6 +64,27 @@ export function formSlotHandleDisplayMethod({ displayMethod, prefix, suffix }: a
       return prefix + value.toLocaleString('en-US', { style: 'currency', currency: 'USD' }).replace('$', '') + suffix
     }
     return prefix + value + suffix
+  } catch (e) {
+    return '-'
+  }
+}
+export function formSlotHandleDisplayDataMethod(value: any, setting: any) {
+  if (!value) return '-'
+  // 检查是否日期格式字符
+  const prefix = setting.prefix || ''
+  const suffix = setting.suffix || ''
+  if (!dayjs(value).isValid()) {
+    return prefix + value + suffix
+  }
+  try {
+    if (setting.dateDisplay === 'duration') {
+      const diff = dayjs().diff(value, 'day')
+      return prefix + diff + ' days' + suffix
+    }
+    if (setting.dateFormat) {
+      return prefix + formatDate(value, setting.dateFormat) + suffix
+    }
+    return prefix + formatDate(value) + suffix
   } catch (e) {
     return '-'
   }
