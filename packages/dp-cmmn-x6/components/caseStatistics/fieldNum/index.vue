@@ -10,7 +10,7 @@
   >
     <div class="quantity-container" @click="handleDrillDown">
       <div class="quantity-title">{{ setting.title }}</div>
-      <div :style="`--preset-color: ${setting.barColor ? setting.barColor : 'var(--app-primary-color)'}`" class="quantity-total">
+      <div :style="`--preset-color: ${getPresetColor()}`" class="quantity-total">
         {{ handleCompute(total) }}
       </div>
     </div>
@@ -128,6 +128,16 @@ const { cardRef, settingRef, resize, handleInitCard, loading, formSlotHandleDisp
 })
 
 const dialogRef = ref()
+function getPresetColor() {
+  if(props.setting.barColor) {
+    return props.setting.barColor
+  }
+  const theme = props.setting.theme
+  if(!!theme && Array.isArray(theme) && theme.length > 0) {
+    return theme[0]
+  }
+  return 'var(--app-primary-color)'
+}
 function handleDrillDown() {
   const sortBy = props.setting.sortBy || 'created_date'
   const sortOrder = props.setting.sortOrder || 'desc'
