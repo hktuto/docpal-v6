@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { homeList, currentHome, checkoutDashboard } = useHomePage()
+const { homeList, currentHome, checkoutDashboard, getHomeList } = useHomePage()
 const tabProvider = inject(TabManagerKey)
 if(!tabProvider) {
     throw createError('tab manger not found on menu')
@@ -19,6 +19,9 @@ async function handleSelect(e:Event, item: any) {
     props:{},
   }, false)
 }
+onMounted(async () => {
+  await getHomeList()
+})
 </script>
 
 <template>

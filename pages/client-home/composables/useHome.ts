@@ -62,7 +62,7 @@ export const useHomePage = () => {
 
   onMounted(async () => {
 
-    getHomeList()
+    // getHomeList()
     // routerProvider?.refeshActions.value.push(getDashboardList)
   })
   
