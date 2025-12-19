@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, shell, dialog, ipcRenderer, Menu } from 'electron'
+import { app, BrowserWindow, ipcMain, shell, dialog, ipcRenderer, Menu, Notification } from 'electron'
 import path from 'path'
 import { createSetPrefFrontend, havePrefs, setPrefs, removePrefs } from './pref'
 import { createAppClient } from './app'
@@ -11,6 +11,8 @@ process.env.ROOT = path.join(__dirname, '..')
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 let mainWindow: BrowserWindow
+let isFocused: boolean
+let isMinimized: boolean
 
 app.requestSingleInstanceLock()
 app.setAsDefaultProtocolClient('docpal')
@@ -24,7 +26,8 @@ app.whenReady().then(async () => {
     mainWindow = createSetPrefFrontend(mainWindow)
   }
 
-  const isFocused = mainWindow.isFocused()
+  isFocused = mainWindow.isFocused()
+  isMinimized = mainWindow.isMinimized()
 })
 
 app.on('window-all-closed', function() {
@@ -126,7 +129,51 @@ export function createMenu() {
       ]
     }
   ]
-
   const menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
+}
+
+ipcMain.handle('sendNotification', (event, data: any) => {
+  notificationController(data.title, data.notifyMessage)
+})
+
+export function notificationController(title: string, body: string) {
+  if (!isMinimized) {
+    // TODO 替換數據
+    const data = {
+      path: '/case',
+      caseId: 'CASE-1231523',
+      userId: 'Joshua'
+    }
+
+    const options = {
+      icon: './public/icon.png',
+      title: 'Docpal',
+      subtitle: '',
+      body: body,
+      silent: true
+    }
+
+    const platform = process.platform
+    if (platform === 'win32') {
+      // Windows
+      options.title = title
+    } else if (platform === 'darwin') {
+      // macOS
+      options.subtitle = title
+    } else if (platform === 'linux') {
+      // Linux
+    }
+
+    const notification = new Notification(options)
+
+    notification.on('click', () => {
+      if (mainWindow) {
+        mainWindow.show()
+        mainWindow.focus()
+        mainWindow.webContents.send('navigate-to', data)
+      }
+    })
+    notification.show()
+  }
 }

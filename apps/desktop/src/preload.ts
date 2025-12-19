@@ -1,7 +1,4 @@
-import { app, contextBridge, ipcRenderer, Notification } from 'electron'
-//@ts-ignore
-const notifier = require('node-notifier')
-
+import { contextBridge, ipcRenderer } from 'electron'
 //@ts-ignore
 window.ipcRenderer = require('electron').ipcRenderer
 
@@ -18,36 +15,21 @@ window.addEventListener('removeBaseUrl', () => {
 
 window.addEventListener('dragTagToWindow', (event: any) => {
   console.log('preload dragTagToWindow', event)
-
   ipcRenderer.send('dragTagToWindow', JSON.stringify(event.detail))
 })
 
+// send desktop system message
 window.addEventListener('sendMessage', (event: any) => {
   console.log('Message notification', event)
+  const message = JSON.parse(JSON.parse(event.detail.messageJson.content).message)
+  let title = 'Message'
+  let notifyMessage = message.additionalContent
+  ipcRenderer.invoke('sendNotification', { title, notifyMessage }).then(r => console.log(r))
+})
 
-  // noti
-  notifier.notify({
-    title: 'My notification',
-    message: 'Hello, there!',
-    icon: '/icon.png'
-  })
+// Route jump
+ipcRenderer.on('navigate-to', (event, routeData) => {
+  const { path, data } = routeData
 
-  // el
-  const options = {
-    title: 'Electron Notification',
-    body: '',
-    silent: true,
-    icon: '/icon.png'
-  }
-  new Notification(options).show()
-
-  // const checkFocused = () => new Promise<boolean>((resolve) => {
-  //   ipcRenderer.once('reply-focused', (_e, focused: boolean) => resolve(focused))
-  //   ipcRenderer.send('check-focused')
-  // })
-  // checkFocused().then((focused) => {
-  //   if (focused) {
-  //     return
-  //   }
-  // })
+  window.location.href = `${path}?caseId=${encodeURIComponent(data)}`
 })

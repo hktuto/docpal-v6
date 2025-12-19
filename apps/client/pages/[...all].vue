@@ -53,7 +53,6 @@ onMounted(async () => {
     case "/browse":
       const idOrPath = (route.query.id || route.query.path || "/") as string;
       if(idOrPath){
-
         const newTab = createBrowseListPageParams({
           idOrPath: decodeURI(idOrPath),
         });

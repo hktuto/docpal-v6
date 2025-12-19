@@ -1,5 +1,5 @@
 <template>
-<el-dialog v-model="state.dialogVisible" class="reader-dialog"
+<el-dialog v-model="state.dialogVisible" class="reader-dialog big"
     append-to-body destroy-on-close>
     <template #header>
         <div class="flex-x-between">
@@ -80,7 +80,7 @@ defineExpose({ handleOpen, handleClose })
     --el-dialog-margin-top: var(--app-space-xs) !important;
     --el-dialog-width: calc(100vw - 2 * var(--app-space-xs)) !important;
     height: calc( 100vh - 2 * var(--app-space-xs) - 50px);
-    max-width: 1024px;
+    // max-width: 1024px;
     max-height: 1024px;
     display: grid;
     grid-template-rows: min-content 1fr min-content;
