@@ -1,5 +1,5 @@
 <template>
-  <el-card class="viewer">
+  <el-card style="height: 60vh" class="viewer">
     <template #header>
       <div class="card-header">
         <h4 >{{ $t('caseManagement_detailCaseDashboardView') }}</h4>

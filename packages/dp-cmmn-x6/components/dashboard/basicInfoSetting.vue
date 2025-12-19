@@ -32,7 +32,7 @@
                 <el-input v-model="state.setting.defaultValue[element.id]" />
               </ElFormItem>
               <ElFormItem label="Label">
-                <el-input v-model="state.setting.label[element.id]" />
+                <el-input v-model="state.setting.label[element.key]" />
               </ElFormItem>
               <ElFormItem v-if="element.type === 'short_text'" label="Link type">
                 <el-select v-model="element.linkType" clearable placeholder="Select link type">

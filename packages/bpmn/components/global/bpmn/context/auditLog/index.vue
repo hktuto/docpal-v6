@@ -78,10 +78,7 @@ const form = ref<any>({
 
 const list = ['userId', 'uniqueIdentifier', 'category', 'id']
 
-async function init() {
-  await getCaseLise()
-  await getMasterTableList()
-
+function init() {
   const fields = node.getData().data.extensionElements['flowable:field']
   fields.forEach((item: any) => {
     if (!list.includes(item.attr_name)) {
@@ -214,8 +211,17 @@ function updateData() {
   graphProvider?.graph.value?.stopBatch('update-auditLog-field-data')
 }
 
+watch(() => node, async () => {
+  init()
+}, {
+  immediate: true,
+  deep: true
+})
+
 onMounted(async () => {
-  await init()
+  await getCaseLise()
+  await getMasterTableList()
+  init()
 })
 </script>
 

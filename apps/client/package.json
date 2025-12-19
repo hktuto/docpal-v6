@@ -104,7 +104,7 @@
     "tippy.js": "^6.3.7",
     "tiptap-extension-pagination": "workspace:*",
     "v-code-diff": "1.13.1",
-    "v-form": "file:../../libraries/V-form/v-form.tgz",
+    "v-form-designer": "file:..\\..\\libraries\\V-form\\v-form-designer.tgz",
     "v-viewer": "^3.0.22",
     "vcard-parser": "^1.0.0",
     "vcards-js": "^2.10.0",

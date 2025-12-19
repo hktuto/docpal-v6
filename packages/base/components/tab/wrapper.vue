@@ -10,7 +10,8 @@ const ready = ref(false)
 function layoutReadyHandler(){
     ready.value = true
 }
-
+const isDesktopMode = useDesktopMode()
+const isMac = useIsMac()
 const mainPanel = ref();
 const userDefineSize = useStorage('app-tab-size', 200) // user define sie in pexel
 const haveInteractDrawer = ref(false)
@@ -82,7 +83,7 @@ provide('handleOpenUploadDrawer', handleOpenUpload)
 </script>
 
 <template>
-    <div :class="{appFullPage: true, [isMobile ? 'mobile' : 'desktop']: true}" >
+    <div :class="{appFullPage: true, [isMobile ? 'mobile' : 'desktop']: true, isDesktopMode, isMac}" >
       <div :class="{appSidebar:true, [isMobile ? 'mobile' : 'desktop']: true}">
 
       <slot name="sidebar" />
@@ -115,9 +116,17 @@ provide('handleOpenUploadDrawer', handleOpenUpload)
       grid-template-rows: 1fr min-content;
       grid-template-columns: 1fr;
     }
+    &.isDesktopMode{
+      &.isMac{
+        :deep(.menuContainer){
+          padding-top: 20px;
+        }
+      }
+    }
 }
 .appSidebar{
   grid-area: sidebar;
+  -webkit-app-region: no-drag;
   &.mobile{
     width: 100%;
     position: relative;

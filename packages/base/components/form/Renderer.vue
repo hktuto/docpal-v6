@@ -205,21 +205,21 @@ defineExpose({ vFormRenderRef, setFormJson, setFormData, getFormData })
 .el-time-panel {
   width: 150px;
 }
-.container-wrapper {
-  overflow-x: hidden;
-  width: 100%;
-  min-width: 400px;
-  .sub-form-container {
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    .el-row {
-      flex-wrap: nowrap;
-      min-width: 480px;
-      .el-form-item__error {
-        //opacity: 0;
-      }
-    }
-  }
-}
+// .container-wrapper {
+//   overflow-x: hidden;
+//   width: 100%;
+//   min-width: 400px;
+//   .sub-form-container {
+//     width: 100%;
+//     overflow-x: auto;
+//     overflow-y: hidden;
+//     .el-row {
+//       flex-wrap: nowrap;
+//       min-width: 480px;
+//       .el-form-item__error {
+//         //opacity: 0;
+//       }
+//     }
+//   }
+// }
 </style>

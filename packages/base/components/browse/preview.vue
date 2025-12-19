@@ -13,7 +13,9 @@ const isPdf = ref(false)
 const readerType = computed(() => {
   try {
     isPdf.value = false
-
+    if (docDetail.comeFrom === 'google_drive' || docDetail.path.startsWith('/google_drive')) {
+      return resolveComponent('LazyGoogleDrive')
+    }
     if (!docDetail) {
       return resolveComponent('LazyOtherPlayer')
     }
@@ -78,6 +80,7 @@ function handleRefresh(needRefresh: boolean = true) {
           :docId="docDetail.id"
           :doc="docDetail"
           :editMode="editMode"
+          :fileUrl="docDetail.drivePreviewLink"
           fileType="NUXEO"
           :readonly="true"
           :editable="RbacAllowTo('write', docDetail)"

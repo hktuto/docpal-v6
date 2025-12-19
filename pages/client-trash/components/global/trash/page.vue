@@ -132,7 +132,7 @@ const { tableConfig, tableEvent, tableRef, reload, query, cleanSelectedRows } = 
       }
     },
     { field: 'path', title: 'document_path' },
-    { field: 'type', title: 'tableHeader_type' },
+    { field: '`documentType`', title: 'tableHeader_type' },
     { field: 'modifiedBy', title: 'modified_by' },
     {
       field: 'modifiedDate',

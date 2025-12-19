@@ -33,7 +33,7 @@ const levelList = ref([
 const typeList = ref([
   { label: 'Calendar Event', value: 'calendar' },
   { label: 'Case Dashboard Event', value: 'caseDashboard' },
-  { label: 'Common Event', value: 'common' },
+  { label: 'Common Event', value: 'common' }
 ])
 
 const state = reactive({
@@ -127,12 +127,11 @@ watch(() => node, async () => {
     <el-form ref="formRef" label-width="auto" :model="state" label-position="top" :rules="rules"
              :disabled="editorProvider.readonly.value">
       <el-form-item :label="t('User Field')" prop="userField">
-        <el-select v-model="state.userField" :placeholder="t('common_selectOccupancyContent')"
+        <el-select v-model="state.userField" :placeholder="t('common_selectOccupancyContent')" filterable
                    @change="(val:any) => fieldMappingUpdate(val, 'notificationUserFromVariables')">
           <el-option v-for="item in stringFields" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
-      <!--      <el-input v-model="state.message" disabled :autosize="{ minRows: 10, maxRows: 12 }" type="textarea"/>-->
 
       <el-form-item :label="t('Message Level')">
         <el-select v-model="state.messageObject.level" @change="handelMessageObject">
@@ -147,7 +146,7 @@ watch(() => node, async () => {
       </el-form-item>
 
       <el-form-item :label="t('Message Content')">
-        <el-select v-model="state.messageObject.additionalContent" @change="handelMessageObject">
+        <el-select v-model="state.messageObject.additionalContent" @change="handelMessageObject" filterable>
           <el-option v-for="item in stringFields" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>

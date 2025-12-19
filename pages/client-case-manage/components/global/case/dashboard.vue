@@ -25,7 +25,9 @@ const state = reactive<any>({
   dates: [dayjs().startOf('year').format('YYYY-MM-DDT00:00:00'), formatDate(new Date(), 'YYYY-MM-DDT23:59:59')]
 })
 const { t } = useI18n()
-
+const showDateWidget = computed(() => {
+  return state.layout.some((item) => item && item.setting && 'dateField' in item.setting)
+})
 async function getDashboardList() {
   try {
     state.dashboardList = await clientApi.api.getCaseDashboardVersionCmmnversionidPermission(versionId.value).then((res) => res.data)
@@ -100,7 +102,7 @@ onMounted(() => {
 <template>
   <div class="pageContainer--padding case-dashboard">
     <div class="case-dashboard-header">
-      <div style="display: flex; align-items: center; gap: var(--app-space-s);">
+      <div style="display: flex; align-items: center; gap: var(--app-space-s)">
         <el-dropdown trigger="click">
           <span class="el-dropdown-link">
             <div class="ellipsis">{{ state.selectedDashboard.label }}</div>
@@ -121,7 +123,7 @@ onMounted(() => {
             </el-dropdown-menu>
           </template>
         </el-dropdown>
-        <DashboardDate v-model="state.dates" />
+        <DashboardDate v-if="showDateWidget" v-model="state.dates" />
       </div>
       <!-- TODO : comment now, wait Sales and Marketing to confirm -->
       <!-- <el-button :loading="exportLoading" type="primary" @click="handleExportPdf">{{ $t('dpTool_downloadPDF') }}</el-button> -->

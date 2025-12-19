@@ -4,15 +4,17 @@ import { MoreFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 import '../../../../../packages/dp-dashboard/components/formSlot/displayColumn/vxeTableRender.ts'
-import { formSlotOrderDisplayColumns } from '../../../../../packages/dp-dashboard/components/formSlot/displayColumn/reorderColumn'
+import { formSlotOrderDisplayColumns, formSlotHandleDisplayMethod, formSlotHandleDisplayDataMethod } from '../../../../../packages/dp-dashboard/components/formSlot/displayColumn/reorderColumn'
 const platform = useAppPlatform()
-const { setting, displayColumns, dates, sql } = defineProps<{
+const { setting, displayColumns, dates, sql, mode, name } = defineProps<{
   setting: any
   displayColumns: any
   dates: any
   sql: string
+  mode: 'mock' | 'real'
+  name: string
 }>()
-const { setOriginalData, handleFilterData, setFilterParams, ResponsiveFilterRef, initFilter } = useStatsTableFilter(setting, sql)
+const { setOriginalData, handleFilterData, setFilterParams, ResponsiveFilterRef, initFilter, setSetting } = useStatsTableFilter(setting, sql)
 const CMDProvider = inject(CaseManagementDashboardKey)
 const caseId = CMDProvider?.instanceId?.value || null
 const { t } = useI18n()
@@ -21,7 +23,7 @@ const tabProvider = inject(TabManagerKey)
 let inFilter = false
 const tableReady = ref(false)
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
-  id: 'dashboardRelatedCaseTable',
+  id: `dashboardCaseStatisticsTable-${name || 'default'}`,
   virtualScroll: true,
   optionalConfig: {
     treeConfig: {
@@ -38,8 +40,8 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       const groupData = groupTree(filteredData)
       return groupData
     }
-    const response = await clientApi.api.getPostgrestTable(`${setting.tableName}?${sql}`)
-    const data = groupTree(response.data)
+    const data = await getData()
+    console.log('data', data)
     setOriginalData(data)
     initFilter()
     setTimeout(() => {
@@ -52,7 +54,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     if (!row.case_id) return
     notiHandleView({ content: { caseInstanceId: row.case_id } }, tabProvider)
     emits('close')
-  },
+  }
   // zoom: false,
   // saveColumnOrder: false
 })
@@ -89,7 +91,48 @@ async function reorderColumn(fields: any) {
 
   setTimeout(() => {
     tableReady.value = true
+    if (!!setting) setSetting(setting)
+    initFilter()
   }, 200)
+}
+async function getData() {
+  console.log('getData')
+  if (mode === 'mock') {
+    const data: any = []
+    for (let i = 0; i < 100; i++) {
+      const dataItem: any = {
+        case_id: `case_id ${i}`
+      }
+      const displayColumns = JSON.parse(JSON.stringify(setting.displayColumns))
+      displayColumns.forEach((item: any) => {
+        switch (item.type) {
+          case 'text':
+          case 'short_text':
+            dataItem[item.value] = `text ${i}`
+            break
+          case 'number':
+          case 'float':
+            const mockValue = Math.random() * 1000000 + 0.88
+            dataItem[item.value] = mockValue
+            break
+          case 'date':
+            dataItem[item.value] = dayjs().subtract(i, 'day').format('YYYY-MM-DD')
+            break
+          case 'boolean':
+            dataItem[item.value] = i % 2 === 0 ? 'Yes' : 'No'
+            break
+          default:
+            dataItem[item.value] = `text ${i}`
+            break
+        }
+      })
+      data.push(dataItem)
+    }
+    return data
+  }
+  const response: any = await clientApi.api.getPostgrestTable(`${setting.tableName}?${sql}`)
+  const data = groupTree(response.data)
+  return data
 }
 function closeDialog() {
   emits('close')
@@ -99,6 +142,9 @@ watch(
   (newVal) => {
     try {
       reorderColumn(newVal)
+      if (mode === 'mock') {
+        reload()
+      }
     } catch (error) {
       console.log('error', error)
     }
@@ -110,20 +156,20 @@ watch(
 )
 function groupTree(data: any[]) {
   let treeData: any = []
-  if (setting.groupField && setting.sortBy) {
+  if (setting.groupField && setting.countField) {
     const groupData = data.reduce((prev: any, item: any) => {
-      const groupField = item[setting.groupField] === 'null' || !item[setting.groupField] ? '-' : item[setting.groupField]
-      const sortBy = item[setting.sortBy]
-      if (!prev[groupField]) {
-        prev[groupField] = {
-          id: groupField,
-          [setting.groupField]: groupField,
-          [setting.sortBy]: 0,
+      const groupFieldValue = item[setting.groupField] === 'null' || !item[setting.groupField] ? '-' : item[setting.groupField]
+      const countFieldValue = item[setting.countField]
+      if (!prev[groupFieldValue]) {
+        prev[groupFieldValue] = {
+          id: groupFieldValue,
+          [setting.groupField]: groupFieldValue,
+          [setting.countField]: 0,
           parent_id: null
         }
       }
-      prev[groupField][setting.sortBy] += sortBy
-      treeData.push({ ...item, parent_id: prev[groupField].id, id: item.case_id })
+      prev[groupFieldValue][setting.countField] += countFieldValue
+      treeData.push({ ...item, parent_id: prev[groupFieldValue].id, id: item.case_id })
       return prev
     }, {})
     Object.values(groupData).forEach((item: any) => {
@@ -132,6 +178,7 @@ function groupTree(data: any[]) {
   } else {
     treeData = data
   }
+  console.log('treeData', treeData)
   return treeData
 }
 function handleFilterFormChange(form: any) {

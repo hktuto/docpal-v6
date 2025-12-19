@@ -137,7 +137,11 @@ async function handleExportPdf() {
   }
 }
 onMounted(async () => {
-  routerProvider?.refeshActions.value.push(getHomeList(true))
+  console.log("onMounted", routerProvider?.refeshActions.value)
+  routerProvider?.refeshActions.value.push({
+    fn: getHomeList,
+    params: [true]
+  })
 })
 </script>
 

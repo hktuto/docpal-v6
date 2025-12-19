@@ -11,18 +11,19 @@
   >
     <div class="chartContainer">
       <div class="mainChartWrapper">
-
-      <div id="myEcharts" ref="chartRef" class="echart"></div>
+        <div id="myEcharts" ref="chartRef" class="echart"></div>
       </div>
-      <el-button type="primary" @click="handleShowAll()">{{ $t('button.showAll') }}</el-button>
+      <el-button :disabled="mode === 'mock'" type="primary" @click="handleShowAll()">{{ $t('button.showAll') }}</el-button>
     </div>
-    <CaseStatisticsTableDialog :setting="setting" :dates="dates" ref="dialogRef"> </CaseStatisticsTableDialog>
+    <CaseStatisticsTableDialog name="limitGroupFieldNum" :setting="setting" :dates="dates" ref="dialogRef"> </CaseStatisticsTableDialog>
     <DashboardSetting
       v-if="!hideSetting"
       ref="settingRef"
       :after-open="handleAfterOpen"
-      :formJson="formJson"
-      :title="title" 
+      :formJson="mergedJson"
+      :title="title"
+      :big="true"
+      componentName="CaseLimitGroupFieldNum"
       @delete="handleDelete"
       @refresh="handleRefresh"
     />
@@ -31,17 +32,23 @@
 
 <script lang="ts" setup>
 import { clientApi, PostgREST_Decorate } from 'api'
-import formJson from './setting.vform.json'
+import formJson from '../setting.vform.json'
+import styleJson from './setting.style.vform.json'
+import setupJson from './setting.setup.vform.json'
+import { mergeSetting } from '../settingMergeHelper'
+const mergedJson = mergeSetting(formJson, setupJson, styleJson, { addFilterArray: true, addLegend: true })
 const props = withDefaults(
   defineProps<{
     dates?: any
     setting?: any
     hideSetting?: boolean
     type?: string
+    mode?: 'mock' | 'real'
   }>(),
   {
     setting: {},
-    hideSetting: false
+    hideSetting: false,
+    mode: 'real'
   }
 )
 const userId: string = useUserId().value
@@ -64,8 +71,8 @@ const option = {
     position: function (pos, params, dom, rect, size) {
       // 自定义 tooltip 的位置,在鼠标下方，如果鼠标在底部，则放在鼠标上方，如果鼠标在偏右，则放在鼠标左侧，如果鼠标在偏左，则放在鼠标右侧
       return {
-          top: 10
-        }
+        top: 10
+      }
     }
   },
   legend: {
@@ -94,58 +101,42 @@ const option = {
     }
   ]
 }
-const { cardRef, chartRef, settingRef, resize, handleInitCard, loading } = useDashboardCard({
+const {
+  cardRef,
+  chartRef,
+  settingRef,
+  resize,
+  handleInitCard,
+  loading,
+  setupOptions,
+  setSqlParamsByFilterList,
+  setRpcParamsByFilterList,
+  formSlotHandleDisplayMethod
+} = useDashboardCard({
   props,
 
   getOptions: async (chartSetting) => {
     if (!chartSetting.tableName) {
       return option
     }
-    option.series[0].label.formatter = (params) => {
+    const _option = setupOptions(option)
+    _option.series[0].label.formatter = (params) => {
       return handleCompute(params.value)
     }
-    option.tooltip.valueFormatter = (value) => {
+    _option.tooltip.valueFormatter = (value) => {
       return handleCompute(value)
     }
-    option.series[0].radius = [
+    _option.series[0].radius = [
       chartSetting.innerRingProportion ? chartSetting.innerRingProportion + '%' : '30%',
       chartSetting.outerRingProportion ? chartSetting.outerRingProportion + '%' : '60%'
     ]
-    option.series[0].data = []
-    const data = option.series[0].data
-    const rpcParams = {
-      _table_name: chartSetting.tableName,
-      _date_column: 'created_date',
-      _top_n: 5,
-      _group_column: chartSetting.groupField,
-      _tcv_column: chartSetting.sortBy,
-      _start_date: props.dates[0],
-      _end_date: props.dates[1],
-      _filters: {}
-    }
-    if (chartSetting.filterKey && chartSetting.filterValue) {
-      rpcParams._filters[chartSetting.filterKey] = chartSetting.filterValue
-    }
-    if (chartSetting.relatedField && caseInstanceId) {
-      rpcParams._filters[chartSetting.relatedField] = caseInstanceId
-    }
-    if (chartSetting.currentUserField) {
-      rpcParams._filters[chartSetting.currentUserField] = userId
-    }
-    if (Object.keys(rpcParams._filters).length === 0) {
-      delete rpcParams._filters
-    }
-    const response = await clientApi.api.postPostgrestRpcFunc('top_group_column_with_total', rpcParams)
-    response.data.forEach((item) => {
-      data.push({
-        value: item.total_tcv,
-        name: !item.group_value ? '-' : item.group_value
-      })
-    })
-    return option
+    _option.series[0].data = await getData(chartSetting)
+    console.log(_option)
+    return _option
   },
   clickAction: (params: any) => {
     console.log(params)
+    if (props.mode === 'mock') return
     handleShowAll(params.name)
   }
 })
@@ -153,15 +144,17 @@ const { cardRef, chartRef, settingRef, resize, handleInitCard, loading } = useDa
 const dialogRef = ref()
 const groupDialogRef = ref()
 function handleShowAll(groupField: string = '') {
-  const sqlParams = [
+  const sortBy = props.setting.sortBy || props.setting.countField || 'created_date'
+  const sortOrder = props.setting.sortOrder || 'desc'
+  const sqlParams: any[] = [
     {
-      key: 'created_date',
-      type: 'gt',
+      key: props.setting.dateField || 'created_date',
+      type: 'gte',
       value: props.dates[0]
     },
     {
-      key: 'created_date',
-      type: 'lt',
+      key: props.setting.dateField || 'created_date',
+      type: 'lte',
       value: props.dates[1]
     },
     // {
@@ -170,7 +163,7 @@ function handleShowAll(groupField: string = '') {
     // },
     {
       type: 'order',
-      value: `${props.setting.sortBy}.desc`
+      value: `${sortBy}.${sortOrder}`
     }
   ]
   if (props.setting.currentUserField) {
@@ -180,21 +173,8 @@ function handleShowAll(groupField: string = '') {
       value: userId
     })
   }
-  if (props.setting.filterKey && props.setting.filterValue) {
-    if (Array.isArray(props.setting.filterValue)) {
-      sqlParams.push({
-        key: `${props.setting.filterKey}`,
-        type: 'in',
-        value: props.setting.filterValue
-      })
-    } else {
-      sqlParams.push({
-        key: `${props.setting.filterKey}`,
-        type: 'eq',
-        value: `${props.setting.filterValue}`
-      })
-    }
-  }
+  setSqlParamsByFilterList(props.setting.filterList, sqlParams)
+
   if (props.setting.relatedField && caseInstanceId) {
     sqlParams.push({
       key: props.setting.relatedField,
@@ -223,20 +203,58 @@ function handleAfterOpen(formRendererRef: any) {
     displaySettingFields(['relatedField'], formRendererRef)
   }
 }
-function handleCompute(value: number) {
-  const prefix = props.setting.prefix || ''
-  try {
-    if (props.setting.displayMethod === 'count') {
-      return prefix + FinancialComputing(value)
-
-    } else if (props.setting.displayMethod === 'fileSize') {
-      return prefix + fileSize(value)
+async function getData(chartSetting: any) {
+  if (props.mode === 'mock') {
+    const data = []
+    for (let i = 0; i < 5; i++) {
+      const value = Math.floor(Math.random() * 1000) + 88.88
+      data.push({
+        value,
+        name: `Mock Data ${i + 1}`,
+        id: `mock-data-${i + 1}`
+      })
     }
-  } catch (error) {
-    console.error(error)
-    return prefix + value
-  } 
-  return prefix + value
+    return data
+  }
+  const rpcParams = {
+    _table_name: chartSetting.tableName,
+    _date_column: chartSetting.dateField || 'created_date',
+    _top_n: 5,
+    _group_column: chartSetting.groupField,
+    _tcv_column: chartSetting.countField,
+    _start_date: props.dates[0],
+    _end_date: props.dates[1],
+    _filters: {}
+  }
+  setRpcParamsByFilterList(chartSetting.filterList, rpcParams._filters)
+  if (chartSetting.relatedField && caseInstanceId) {
+    rpcParams._filters[chartSetting.relatedField] = caseInstanceId
+  }
+  if (chartSetting.currentUserField) {
+    rpcParams._filters[chartSetting.currentUserField] = userId
+  }
+  if (Object.keys(rpcParams._filters).length === 0) {
+    delete rpcParams._filters
+  }
+  const data = []
+  const response: any = await clientApi.api.postPostgrestRpcFunc('top_group_column_with_total', rpcParams)
+  response.data.forEach((item) => {
+    data.push({
+      value: item.total_tcv,
+      name: !item.group_value ? '-' : item.group_value,
+      id: item.case_id
+    })
+  })
+  return data
+}
+function handleCompute(value: number) {
+  return formSlotHandleDisplayMethod(
+    {
+      displayMethod: props.setting.displayMethod,
+      prefix: props.setting.prefix
+    },
+    value
+  )
 }
 defineExpose({ resize })
 </script>
@@ -251,10 +269,10 @@ defineExpose({ resize })
   overflow: hidden;
 }
 
-.mainChartWrapper{
+.mainChartWrapper {
   flex: 1 0 auto;
   overflow: hidden;
   position: relative;
-  height: 100%;;
+  height: 100%;
 }
 </style>

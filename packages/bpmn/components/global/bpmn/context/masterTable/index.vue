@@ -187,6 +187,13 @@ async function importFields() {
   }
 }
 
+watch(() => node, async () => {
+  await refreshData()
+}, {
+  immediate: true,
+  deep: true
+})
+
 onMounted(async () => {
   await getMasterTableList()
   setUpListener()

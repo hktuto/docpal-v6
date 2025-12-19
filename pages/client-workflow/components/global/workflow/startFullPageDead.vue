@@ -160,7 +160,8 @@ onMounted(() => {
           </el-button>
           <el-button
             v-if="!pageButtonSetting || pageButtonSetting.showSumBitButton"
-            id="Workflow__NewWorkflow__StartFullPageDead__Submit" type="primary" @click="handleSubmit">
+            id="Workflow__NewWorkflow__StartFullPageDead__Submit" type="primary"
+            :disabled="loading" @click="handleSubmit">
             <template v-if="pageButtonSetting && pageButtonSetting.submitButtonLabel">
               {{ pageButtonSetting.submitButtonLabel }}
             </template>

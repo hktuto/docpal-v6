@@ -10,18 +10,19 @@
     @refresh="handleInitCard"
   >
     <template #action_prefix>
-      <el-date-picker style="width: 6rem" v-model="targetYear" size="small" type="year" format="YYYY" value-format="YYYY" @change="handleChangeYear" />
+      <el-date-picker v-if="!setting.dateFromSystem" style="width: 6rem" v-model="targetYear" size="small" type="year" format="YYYY" value-format="YYYY" @change="handleChangeYear" />
     </template>
     <div id="myEcharts" ref="chartRef" class="echart"></div>
-    <CaseStatisticsTableDialog :setting="setting" :dates="tableDates" ref="dialogRef"> </CaseStatisticsTableDialog>
+    <CaseStatisticsTableDialog name="monthlyAverage" :setting="setting" :dates="tableDates" ref="dialogRef"> </CaseStatisticsTableDialog>
 
     <DashboardSetting
-      v-if="!hideSetting"
+      v-if="!hideSetting && mode === 'real'"
       ref="settingRef"
       :after-open="handleAfterOpen"
-      :formJson="formJson"
+      :formJson="mergedJson"
       :title="title"
       :big="true"
+      componentName="CaseMonthlyAverage"
       @delete="handleDelete"
       @refresh="handleRefresh"
     />
@@ -30,18 +31,26 @@
 
 <script lang="ts" setup>
 import { clientApi, PostgREST_Decorate } from 'api'
-import formJson from './setting.vform.json'
 import dayjs from 'dayjs'
+
+import formJson from '../setting.vform.json'
+import styleJson from './setting.style.vform.json'
+import setupJson from './setting.setup.vform.json'
+import { mergeSetting } from '../settingMergeHelper'
+
+const mergedJson = mergeSetting(formJson, setupJson, styleJson)
 const props = withDefaults(
   defineProps<{
     dates?: any
     setting?: any
     hideSetting?: boolean
     type?: string
+    mode: 'mock' | 'real'
   }>(),
   {
     setting: {},
-    hideSetting: false
+    hideSetting: false,
+    mode: 'real'
   }
 )
 const userId: string = useUserId().value
@@ -62,13 +71,7 @@ function handleDelete() {
 }
 const option = {
   tooltip: {
-    trigger: 'axis',
-    // axisPointer: {
-    //   type: 'cross',
-    //   crossStyle: {
-    //     color: '#999'
-    //   }
-    // }
+    trigger: 'axis'
   },
   xAxis: [
     {
@@ -98,7 +101,7 @@ const option = {
       minInterval: 1,
       axisLabel: {
         formatter: function (value) {
-          return formatValue(value, props.setting.numDisplayMethod)
+          return formatValue(value, props.setting.barDisplayMethod)
         }
       }
     },
@@ -109,7 +112,7 @@ const option = {
       nameLocation: 'middle',
       axisLabel: {
         formatter: function (value) {
-          return formatValue(value, props.setting.averageDisplayMethod)
+          return formatValue(value, props.setting.lineDisplayMethod)
         }
       },
       splitLine: {
@@ -150,98 +153,88 @@ const option = {
     data: ['Number of Cases', 'Average Value']
   }
 }
-const dialogRef = ref()
-function formatValue(value, displayMethod) {
-  if(!value) return '--'
-  if (displayMethod === 'count') {
-    return FinancialComputing(Number(value))
-  } else if (displayMethod === 'currency') {
-    return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' }).replace('$', '')
-  } else if (displayMethod === 'fileSize') {
-    return fileSize(Number(value))
-  } else {
-    return value
-  }
+function mockCompletedOption(option: any) {
+  const _opts = JSON.parse(JSON.stringify(option))
+  _opts.series[0].data = [10, 20, 30, 0, 0, 600, 70, 80, 9, 10, 110, 120]
+  _opts.series[1].data = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200]
+  return _opts
 }
-const { cardRef, chartRef, settingRef, resize, handleInitCard, loading } = useDashboardCard({
+const dialogRef = ref()
+
+const { cardRef, chartRef, settingRef, resize, refresh, handleInitCard, loading, setupOptions, setSqlParamsByFilterList, setRpcParamsByFilterList, formSlotHandleDisplayMethod, getSystemDateYear } = useDashboardCard({
   props,
   getOptions: async (chartSetting) => {
+    const _option = setupOptions(option)
     if (!chartSetting.tableName) {
-      return option
+      return _option
     }
-    option.yAxis[0].name = props.setting.barTitle
-
-    option.legend.data[0] = props.setting.barLabel || props.setting.barTitle
-    option.series[0].name = props.setting.barLabel || props.setting.barTitle
-    option.series[0].tooltip.valueFormatter = function (value) {
-      const unit = props.setting.barUnit ? ' ' + props.setting.barUnit : ''
-      return FinancialComputing(Number(value)) + unit
+    _option.legend.data[0] = props.setting.barLegendTitle || props.setting.barYAxisTitle
+    _option.yAxis[0].name = props.setting.barYAxisTitle
+    _option.yAxis[0].nameGap = props.setting.barGap || 32
+    _option.yAxis[0].axisLabel.formatter = function (value) {
+      return formSlotHandleDisplayMethod({
+        displayMethod: props.setting.barDisplayMethod,
+      }, value)
     }
-    option.grid.left = props.setting.leftMargin + '%' || '10%'
-    option.grid.right = props.setting.rightMargin + '%' || '10%'
-    option.yAxis[0].nameGap = props.setting.barGap || 32
-    option.yAxis[1].nameGap = props.setting.averageGap || 32
+    _option.series[0].name = props.setting.barLegendTitle || props.setting.barYAxisTitle
+    _option.series[0].itemStyle.color = props.setting.barColor || ''
+    _option.series[0].tooltip.valueFormatter = function (value) {
+      const unit = props.setting.barChartSuffix ? ' ' + props.setting.barChartSuffix : ''
+      return formSlotHandleDisplayMethod({
+        displayMethod: props.setting.barDisplayMethod,
+        suffix: unit
+      }, value)
+    }
+    _option.series[0].data = await getCaseCount(chartSetting)
 
-    option.series[0].itemStyle.color = props.setting.numColor || ''
-    option.series[1].itemStyle.color = props.setting.averageColor || ''
-
-    if (props.setting.averageField) {
-      option.legend.data[1] = props.setting.averageLabel || props.setting.averageTitle
-      option.series[1].name = props.setting.averageLegend || props.setting.averageTitle
-      if (props.setting.averageUnit) {
-        option.yAxis[1].name = props.setting.averageTitle
-        // option.yAxis[1].axisLabel.formatter = '{value} ' + props.setting.averageUnit
-        option.series[1].tooltip.valueFormatter = function (value) {
-          return FinancialComputing(Number(value)) + ' ' + props.setting.averageUnit
-        }
+    if (props.setting.lineDataField) {
+      _option.legend.data[1] = props.setting.lineLegendTitle || props.setting.lineYAxisTitle
+      _option.yAxis[1].name = props.setting.lineYAxisTitle
+      _option.yAxis[1].nameGap = props.setting.lineGap || 32
+      _option.yAxis[1].axisLabel.formatter = function (value) {
+        return formSlotHandleDisplayMethod({
+          displayMethod: props.setting.lineDisplayMethod,
+        }, value)
       }
-      if (props.setting.averageField) {
-        option.series[1].data = await getAverageDuration(chartSetting)
+      _option.series[1].name = props.setting.lineLegendTitle || props.setting.lineYAxisTitle
+      _option.series[1].itemStyle.color = props.setting.lineColor || ''
+      _option.series[1].tooltip.valueFormatter = function (value) {
+        const unit = props.setting.lineChartSuffix ? ' ' + props.setting.lineChartSuffix : ''
+        return formSlotHandleDisplayMethod({
+          displayMethod: props.setting.lineDisplayMethod,
+          suffix: unit
+        }, value)
       }
-      // option.series[0].data = chartSetting.data.map(item => item.value)
-      // option.series[1].data = chartSetting.data.map(item => item.average)
+      _option.series[1].data = await getAverageDuration(chartSetting)
     }
-    option.yAxis[0].axisLabel.formatter = function (value) {
-      return formatValue(value, props.setting.numDisplayMethod)
-    }
-    option.yAxis[1].axisLabel.formatter = function (value) {
-      return formatValue(value, props.setting.averageDisplayMethod)
-    }
-    if (props.setting.hideLegend) {
-      option.legend.show = false
-    } else {
-      option.legend.show = true
-    }
-    option.series[0].data = await getCaseCount(chartSetting)
-    return option
+    return _option
   },
   clickAction: (params: any) => {
-    let dates: any
-    if (!props.dates) {
-      dates = [dayjs(new Date()).format('YYYY-MM-DD'), dayjs(new Date()).format('YYYY-MM-DD')]
-    } else {
-      dates = JSON.parse(JSON.stringify(props.dates))
+    if (props.mode === 'mock') {
+      return
     }
-    const year = dayjs(dates[0]).year()
+
+    const year = props.setting.dateFromSystem ? getSystemDateYear() + props.setting.dateOffset : targetYear.value
     const month = params.dataIndex + 1
     const startDate = dayjs(`${year}-${month}-01`).format('YYYY-MM-DD 00:00:00')
     const endDate = dayjs(`${year}-${month}-01`).endOf('month').format('YYYY-MM-DD 23:59:59')
     tableDates.value = [startDate, endDate]
     const sortBy = props.setting.sortBy || 'created_date'
+    const sortOrder = props.setting.sortOrder || 'desc'
     const sqlParams = [
       {
-        key: props.setting.dateField,
-        type: 'gt',
+        key: props.setting.dateField || 'created_date',
+        type: 'gte',
         value: startDate
       },
       {
-        key: props.setting.dateField,
-        type: 'lt',
+        key: props.setting.dateField || 'created_date',
+        type: 'lte',
         value: endDate
       },
       {
         type: 'order',
-        value: `${sortBy}.desc`
+        value: `${sortBy}.${sortOrder}`
       }
     ]
     if (props.setting.currentUserField) {
@@ -258,44 +251,59 @@ const { cardRef, chartRef, settingRef, resize, handleInitCard, loading } = useDa
         value: caseInstanceId
       })
     }
-    if (props.setting.filterKey && props.setting.filterValue) {
-      sqlParams.push({
-        key: props.setting.filterKey,
-        type: 'eq',
-        value: props.setting.filterValue
-      })
-    }
+    setSqlParamsByFilterList(props.setting.filterList, sqlParams)
+    // if (props.setting.filterKey && props.setting.filterValue) {
+    //   sqlParams.push({
+    //     key: props.setting.filterKey,
+    //     type: 'eq',
+    //     value: props.setting.filterValue
+    //   })
+    // }
     dialogRef.value.handleOpen(sqlParams)
   }
 })
 async function getCaseCount(chartSetting) {
-  const rpcParams = {
+  if (props.mode === 'mock') {
+    const data = []
+    for(let i = 0; i < 12; i++) {
+      const count = Math.floor(Math.random() * 10) + i
+      data.push(count)
+    }
+    return data
+  }
+  const rpcParams: any = {
     _table_name: chartSetting.tableName,
     _date_column: chartSetting.dateField, // 合同到期日期字段
-    _target_year: Number(targetYear.value),
+    _target_year: chartSetting.dateFromSystem ? getSystemDateYear() + chartSetting.dateOffset : Number(targetYear.value),
     _filters: {}
   }
   if (chartSetting.relatedField && caseInstanceId) {
     rpcParams._filters[chartSetting.relatedField] = caseInstanceId
   }
-  if (chartSetting.filterKey && chartSetting.filterValue) {
-    rpcParams._filters[chartSetting.filterKey] = chartSetting.filterValue
-  }
+  setRpcParamsByFilterList(props.setting.filterList, rpcParams._filters)
   if (props.setting.currentUserField) {
     rpcParams._filters[props.setting.currentUserField] = userId
   }
   if (Object.keys(rpcParams._filters).length === 0) {
     delete rpcParams._filters
   }
-  const response = await clientApi.api.postPostgrestRpcFunc('count_by_month_generic', rpcParams).then((res) => res.data)
+  const response: any = await clientApi.api.postPostgrestRpcFunc('count_by_month_generic', rpcParams).then((res) => res.data)
   return response.map((item) => item.count_value)
 }
 async function getAverageDuration(chartSetting) {
-  const rpcParams = {
+  if (props.mode === 'mock') {
+    const data = []
+    for(let i = 0; i < 12; i++) {
+      const count = Math.floor(Math.random() * 10) + i
+      data.push(count)
+    }
+    return data
+  }
+  const rpcParams: any = {
     _table_name: chartSetting.tableName,
     _date_column: chartSetting.dateField, // 合同到期日期字段
-    _target_year: Number(targetYear.value),
-    _value_column: chartSetting.averageField,
+    _target_year: chartSetting.dateFromSystem ? getSystemDateYear() : Number(targetYear.value),
+    _value_column: chartSetting.lineDataField,
     _filters: {}
   }
   if (chartSetting.relatedField && caseInstanceId) {
@@ -303,16 +311,14 @@ async function getAverageDuration(chartSetting) {
       [chartSetting.relatedField]: caseInstanceId
     }
   }
-  if (chartSetting.filterKey && chartSetting.filterValue) {
-    rpcParams._filters[chartSetting.filterKey] = chartSetting.filterValue
-  }
+  setRpcParamsByFilterList(props.setting.filterList, rpcParams._filters)
   if (props.setting.currentUserField) {
     rpcParams._filters[props.setting.currentUserField] = userId
   }
   if (Object.keys(rpcParams._filters).length === 0) {
     delete rpcParams._filters
   }
-  const response = await clientApi.api.postPostgrestRpcFunc('avg_by_month_generic', rpcParams).then((res) => res.data)
+  const response: any = await clientApi.api.postPostgrestRpcFunc('avg_by_month_generic', rpcParams).then((res) => res.data)
   return response.map((item) => item.avg_value)
 }
 function handleChangeYear(year: string) {
@@ -324,7 +330,7 @@ function handleAfterOpen(formRendererRef: any) {
     displaySettingFields(['relatedField'], formRendererRef)
   }
 }
-defineExpose({ resize })
+defineExpose({ resize, refresh })
 </script>
 
 <style lang="scss" scoped></style>

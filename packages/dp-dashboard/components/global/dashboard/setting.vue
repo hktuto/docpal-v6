@@ -8,9 +8,15 @@
     @close="state.visible = false"
   >
     <slot></slot>
-    <FormRenderer ref="FormRendererRef" :form-json="formJson" @formChange="handleFormChange">
+    <FormRenderer ref="FormRendererRef" :form-json="formJson" @formChange="handleFormChange" @tabClick="handleTabClick">
       <template v-slot:dialog_displayColumns>
-        <FormSlotDisplayColumn ref="DisplayColumnRef" />
+        <FormSlotDisplayColumn ref="DisplayColumnRef" @change="handleDisplayColumnChange" />
+      </template>
+      <template v-slot:caseEchart>
+        <FormSlotEchart v-if="state.echartShow" ref="EchartRef" :componentName="componentName" :setting="state.realTimeSetting" />
+      </template>
+      <template v-slot:CaseStatsTable>
+        <FormSlotCaseStatsTable ref="CaseStatsTableRef" />
       </template>
     </FormRenderer>
     <template #footer>
@@ -28,12 +34,15 @@
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
 
-const props = defineProps(['formJson', 'title', 'after-open', 'big', 'displayColumnsSetting'])
+const props = defineProps(['formJson', 'title', 'after-open', 'big', 'displayColumnsSetting', 'componentName'])
 const emits = defineEmits(['refresh', 'delete'])
 const state = reactive({
   loading: false,
   visible: false,
-  setting: {}
+  setting: {},
+  realTimeSetting: {},
+  echartShow: true,
+  initCloumnLoading: false
 })
 const FormRendererRef = ref()
 const DisplayColumnRef = ref()
@@ -52,11 +61,18 @@ async function handleSubmit() {
     state.loading = false
   }
 }
-
+const EchartRef = ref()
+function handleTabClick(tab, evt) {
+  state.echartShow = false
+  nextTick(() => {
+    state.echartShow = true
+  })
+}
 function handleOpen(setting) {
   state.visible = true
   setTimeout(async () => {
     state.setting = setting
+    state.realTimeSetting = JSON.parse(JSON.stringify(setting))
     await FormRendererRef.value.vFormRenderRef.setFormData(setting)
     state.loading = false
     if (props.afterOpen) {
@@ -64,12 +80,31 @@ function handleOpen(setting) {
     }
     if (DisplayColumnRef.value) {
       DisplayColumnRef.value.initColumns(setting)
+      const displayColumns = setting.displayColumns ? setting.displayColumns : []
+      handleDisplayColumnChange(displayColumns)
+      state.initCloumnLoading = true
+      setTimeout(() => {
+        state.initCloumnLoading = false
+      }, 1000)
     }
   })
 }
 function handleFormChange({ fieldName, newValue, formModel, oldValue }: any) {
-  if (newValue && fieldName === 'fields' && oldValue !== newValue && DisplayColumnRef.value) {
+  if (!state.initCloumnLoading && oldValue && newValue && fieldName === 'fields' && oldValue !== newValue && DisplayColumnRef.value) {
     DisplayColumnRef.value.initColumns(formModel)
+  }
+  if (EchartRef.value) {
+    state.realTimeSetting = JSON.parse(JSON.stringify(formModel))
+    // nextTick(() => {
+    //   EchartRef.value.refresh()
+    // })
+  }
+}
+const CaseStatsTableRef = ref()
+function handleDisplayColumnChange(data: any) {
+  if (CaseStatsTableRef.value) {
+    console.log('handleDisplayColumnChange', CaseStatsTableRef.value)
+    CaseStatsTableRef.value.initColumns(data)
   }
 }
 async function handleDelete() {

@@ -1,64 +1,62 @@
-import { app, BrowserWindow, ipcMain, shell, dialog, ipcRenderer, Menu } from 'electron';
-import path from 'path';
+import { app, BrowserWindow, ipcMain, shell, dialog, ipcRenderer, Menu, Notification } from 'electron'
+import path from 'path'
 import { createSetPrefFrontend, havePrefs, setPrefs, removePrefs } from './pref'
-import { createAppClient } from './app';
+import { createAppClient } from './app'
 
-export const MAIN_DIST = path.join(__dirname, '../dist');
+export const MAIN_DIST = path.join(__dirname, '../dist')
 
 // set up env
 
 process.env.ROOT = path.join(__dirname, '..')
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
-
-
-
-let mainWindow: BrowserWindow;
-
+let mainWindow: BrowserWindow
+let isFocused: boolean
+let isMinimized: boolean
 
 app.requestSingleInstanceLock()
 app.setAsDefaultProtocolClient('docpal')
 
-app.whenReady().then( async() => {
-    const alreadyHavePrefs = havePrefs()
+app.whenReady().then(async () => {
+  const alreadyHavePrefs = havePrefs()
 
-     if(alreadyHavePrefs){
-      mainWindow = createAppClient(mainWindow)
+  if (alreadyHavePrefs) {
+    mainWindow = createAppClient(mainWindow)
+  } else {
+    mainWindow = createSetPrefFrontend(mainWindow)
+  }
 
-    }else{
-      mainWindow = createSetPrefFrontend(mainWindow)
-
-    }
+  isFocused = mainWindow.isFocused()
+  isMinimized = mainWindow.isMinimized()
 })
 
-app.on('window-all-closed', function () {
-    app.quit()
-  })
+app.on('window-all-closed', function() {
+  app.quit()
+})
 
-
-ipcMain.handle('setBaseUrl',(event,url) => {
+ipcMain.handle('setBaseUrl', (event, url) => {
   mainWindow.close()
   const setting = {
-    "pdfReaderUrl": `https://${url}/resources/pdfjs/web/viewer.html`,
-    "PROXY":`https://${url}/api`,
-    "DASHBOARD_PROXY":`https://${url}/public-api/report/v1/api`,
-    "CLIENT_PROXY": `https://${url}/api`,
-    "ADMIN_PROXY": `https://admin.${url}/api`,
-    "endPoint": "client",
-    "DEFAULT_PATH":"/browse",
-    "OFFICE_END_POINT": `office.${url}`,
-    "UPLOAD_END_POINT": `upload.${url}`,
-    "DOCPAL_END_POINT": `${url}`,
-    "ADMIN_END_POINT": `admin.${url}`
+    'pdfReaderUrl': `https://${url}/resources/pdfjs/web/viewer.html`,
+    'PROXY': `https://${url}/api`,
+    'DASHBOARD_PROXY': `https://${url}/public-api/report/v1/api`,
+    'CLIENT_PROXY': `https://${url}/api`,
+    'ADMIN_PROXY': `https://admin.${url}/api`,
+    'endPoint': 'client',
+    'DEFAULT_PATH': '/browse',
+    'OFFICE_END_POINT': `office.${url}`,
+    'UPLOAD_END_POINT': `upload.${url}`,
+    'DOCPAL_END_POINT': `${url}`,
+    'ADMIN_END_POINT': `admin.${url}`
   }
-  setPrefs(setting);
+  setPrefs(setting)
   mainWindow = createAppClient(mainWindow)
 })
 
-ipcMain.handle('removeBaseUrl',() => {
+ipcMain.handle('removeBaseUrl', () => {
   removePrefs()
-  console.log('removeBaseUrl');
-  mainWindow.close();
+  console.log('removeBaseUrl')
+  mainWindow.close()
   mainWindow = createSetPrefFrontend(mainWindow)
 })
 
@@ -76,7 +74,7 @@ ipcMain.handle('removeBaseUrl',() => {
 //           preload: path.join(MAIN_DIST, 'preload.js'),
 //       },
 //     })
-    
+
 //     newWindow.loadURL(
 //         'http://localhost:3000/tab?arg=' + btoa(encodeURIComponent(args))
 //     )
@@ -117,21 +115,65 @@ export function createMenu() {
           label: 'reset',
           click: async () => {
             removePrefs()
-            console.log('removeBaseUrl');
-            mainWindow.close();
+            console.log('removeBaseUrl')
+            mainWindow.close()
             mainWindow = createSetPrefFrontend(mainWindow)
           }
         },
         {
-          label:'debug',
+          label: 'debug',
           click: async () => {
             mainWindow.webContents.openDevTools()
           }
         }
       ]
     }
-  ];
-
+  ]
   const menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
+}
+
+ipcMain.handle('sendNotification', (event, data: any) => {
+  notificationController(data.title, data.notifyMessage)
+})
+
+export function notificationController(title: string, body: string) {
+  if (!isMinimized) {
+    // TODO 替換數據
+    const data = {
+      path: '/case',
+      caseId: 'CASE-1231523',
+      userId: 'Joshua'
+    }
+
+    const options = {
+      icon: './public/icon.png',
+      title: 'Docpal',
+      subtitle: '',
+      body: body,
+      silent: true
+    }
+
+    const platform = process.platform
+    if (platform === 'win32') {
+      // Windows
+      options.title = title
+    } else if (platform === 'darwin') {
+      // macOS
+      options.subtitle = title
+    } else if (platform === 'linux') {
+      // Linux
+    }
+
+    const notification = new Notification(options)
+
+    notification.on('click', () => {
+      if (mainWindow) {
+        mainWindow.show()
+        mainWindow.focus()
+        mainWindow.webContents.send('navigate-to', data)
+      }
+    })
+    notification.show()
+  }
 }

@@ -3,6 +3,7 @@ export const useStatsTableFilter = (setting: any, sql: string) => {
   let originalData: any[] = []
   let filteredData: any[] = []
   let filterParams: any = {}
+  const _setting: any = ref(setting)
   function handleFilterData() {
     try {
       if (originalData.length === 0) {
@@ -40,29 +41,44 @@ export const useStatsTableFilter = (setting: any, sql: string) => {
     filterParams = params
   }
   function initFilter() {
-    const filterList = setting.displayColumns.reduce((prev: any, item: any) => {
-      if (item.value && ['short_text', 'float'].includes(item.type) && item.showInFilter) {
-        prev.push({
-          label: item.label,
-          key: item.value,
-          options: getFileterOptions(item.value)
-        })
-      }
-      return prev
-    }, [])
-    setTimeout(() => {
-      ResponsiveFilterRef.value?.init(filterList)
-    }, 100)
+    try {
+      if(!_setting.value || !_setting.value.displayColumns) return
+      const displayColumns = JSON.parse(JSON.stringify(_setting.value.displayColumns))
+      const filterList = displayColumns.reduce((prev: any, item: any) => {
+        if (item.value && ['short_text', 'float'].includes(item.type) && item.showInFilter) {
+          prev.push({
+            label: item.label,
+            key: item.value,
+            options: getFileterOptions(item.value)
+          })
+        }
+        console.log('prev', prev)
+        return prev
+      }, [])
+      console.log('after filterList', filterList)
+      setTimeout(() => {
+        ResponsiveFilterRef.value?.init(filterList)
+      }, 100)
+      return
+    } catch (error) {
+      console.error('error', error)
+    }
   }
   function getFileterOptions(key: string) {
-    const options: any[] = originalData.map((item: any) => item[key])
+    const options: any[] = originalData.filter((item) => item[key] !== undefined && item[key] !== null).map((item: any) => item[key])
     const uniqueOptions = [...new Set(options)]
-    return uniqueOptions.map((item: any) => ({
-      label: item,
-      value: item
-    })).sort((a: any, b: any) => a.label.localeCompare(b.label))
+    return uniqueOptions
+      .map((item: any) => ({
+        label: item,
+        value: item
+      }))
+      .sort((a: any, b: any) => a.label.localeCompare(b.label))
+  }
+  function setSetting(setting: any) {
+    _setting.value = setting
   }
   return {
+    setSetting,
     initFilter,
     filterParams,
     handleFilterData,

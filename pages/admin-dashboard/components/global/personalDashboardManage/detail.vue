@@ -42,7 +42,7 @@ function handleDelete(i: string) {
 }
 async function handleClear() {
   try {
-    const action = await ElMessageBox.confirm(t('tip_cleanMsg', {name: state.info.name }))
+    const action = await ElMessageBox.confirm(t('tip_cleanMsg', { name: state.info.name }))
     if (action !== 'confirm') return
     state.layout = []
     handleSave()
@@ -81,12 +81,74 @@ async function getInfo() {
     state.layout = temLayout.map((item) => {
       return Object.assign(item, getNormalizeSetting(item.component))
     })
+    handleDataMigration()
   } else {
     // dashboard is new, set layout to empty array
     state.layout = []
   }
 }
-
+function handleDataMigration() {
+  state.layout.forEach((item) => {
+    if (item.type !== 'caseCount') return
+    if (!item.setting.dataSource) {
+      item.setting.dataSource = ['case', item.setting.caseId]
+    }
+    if (!item.setting.drilldownTitle) {
+      item.setting.drilldownTitle = item.setting.dialogSettingTitle
+    }
+    switch (item.component) {
+      case 'CaseLimitFieldNum':
+        countField(item)
+        break
+      case 'CaseLimitGroupFieldNum':
+        countField(item)
+        filterList(item)
+        break
+      case 'CaseMonthlyAverage':
+        filterList(item)
+        if (!item.setting.barYAxisTitle) item.setting.barYAxisTitle = item.setting.barLabel || item.setting.barTitle
+        if (!item.setting.barLegendTitle) item.setting.barLegendTitle = item.setting.barTitle
+        if (!item.setting.barColor) item.setting.barColor = item.setting.numColor
+        if (!item.setting.barDisplayMethod) item.setting.barDisplayMethod = item.setting.numDisplayMethod
+        if (!item.setting.barChartSuffix) item.setting.barChartSuffix = item.setting.barChartSuffix
+        if (!item.setting.lineYAxisTitle) item.setting.lineYAxisTitle = item.setting.averageTitle
+        if (!item.setting.lineDataField) item.setting.lineDataField = item.setting.averageField
+        if (!item.setting.lineLegendTitle) item.setting.lineLegendTitle = item.setting.averageTitle
+        if (!item.setting.lineColor) item.setting.lineColor = item.setting.averageColor
+        if (!item.setting.lineDisplayMethod) item.setting.lineDisplayMethod = item.setting.averageDisplayMethod
+        if (!item.setting.lineChartSuffix) item.setting.lineChartSuffix = item.setting.averageUnit
+        break
+      case 'CaseFieldTotal':
+        if (!item.setting.countField) item.setting.countField = item.setting.filterKey
+        if (!item.setting.filterList && item.setting.additionalFilterKey) {
+          item.setting.filterList = [
+            {
+              filterKey: item.setting.additionalFilterKey,
+              filterValue: Array.isArray(item.setting.additionalFilterValue) ? item.setting.additionalFilterValue : [item.setting.additionalFilterValue]
+            }
+          ]
+        }
+        break
+      default:
+        break
+    }
+  })
+  function countField(dataItem: any) {
+    if (!dataItem.setting.countField) {
+      dataItem.setting.countField = dataItem.setting.sortBy
+    }
+  }
+  function filterList(dataItem: any) {
+    if (!dataItem.setting.filterList && dataItem.setting.filterKey) {
+      dataItem.setting.filterList = [
+        {
+          filterKey: dataItem.setting.filterKey,
+          filterValue: Array.isArray(dataItem.setting.filterValue) ? dataItem.setting.filterValue : [dataItem.setting.filterValue]
+        }
+      ]
+    }
+  }
+}
 onMounted(() => {
   getInfo()
 })

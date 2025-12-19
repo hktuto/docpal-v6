@@ -27,7 +27,7 @@
           id="SystemSetting__PasswordPolicy__SpecialCharacters"
           :label="$t('passwordPolicy.special')"
           v-model:value="form.containSpecialCharacters"
-          :description="$t('passwordPolicy.specialDesc', {char: '[ @, #, $, %, ... ]'})"
+          :description="$t('passwordPolicy.specialDesc', {char: '[ !,@,#,$,%,&,* ]'})"
           :disabled="loading"
           @change="handleSave"
         />

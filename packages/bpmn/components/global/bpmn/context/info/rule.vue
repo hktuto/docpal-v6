@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
+
 const { t } = useI18n()
 const editorProvider = inject(EDITOR_PROVIDER)
 if (!editorProvider) {
@@ -11,15 +12,18 @@ if (!graphProvider) {
 }
 const { bpmnGlobalRules, setBpmnRules, deleteBpmnRule } = editorProvider.BpmnRule
 const FormDialogRef = ref()
+
 function handleAdd() {
   FormDialogRef.value?.handleOpen()
 }
+
 function handleEdit(row: any) {
   FormDialogRef.value?.handleOpen({
     ...row,
     ...row.validationRule
   })
 }
+
 async function handleRemove(row: any) {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete', { tip: t('bpmn.globalRuleTip') + '，' })}`)
@@ -31,15 +35,32 @@ async function handleRemove(row: any) {
     console.error(error)
   }
 }
+
 async function ruleAdd(newField: any) {
   await setBpmnRules(newField)
   graphProvider?.graph.value?.cleanHistory()
 }
+
 async function ruleChange(newField: any) {
   const nodes = graphProvider?.graph.value?.getNodes()
   await setBpmnRules(newField, nodes)
   graphProvider?.graph.value?.cleanHistory()
 }
+
+onMounted(() => {
+  if (bpmnGlobalRules.value.length > 0) {
+    const find = bpmnGlobalRules.value.find((item: any) => item.id === 'user_creator_id')
+    if (!find) {
+      ruleAdd({
+        id: 'user_creator_id',
+        name: 'Creator',
+        type: 'text',
+        maxLength: 200
+      })
+    }
+  }
+})
+
 </script>
 <template>
   <div>
@@ -72,9 +93,11 @@ async function ruleChange(newField: any) {
   font-size: var(--app-font-size-m);
   transition: all 0.2s ease-in-out;
 }
+
 .formFieldItem + .formFieldItem {
   border-top: 1px solid var(--app-grey-900);
 }
+
 .iconify {
   cursor: pointer;
 }

@@ -210,7 +210,7 @@ onMounted(async () => {
     <BpmnSidebarEditLabel :node="node" />
     <el-form label-position="top" :disabled="editorProvider.readonly.value">
       <el-form-item label="Case" required>
-        <el-select v-model="form.attr_caseTypeId" @change="handleCase">
+        <el-select v-model="form.attr_caseTypeId" @change="handleCase" filterable>
           <el-option v-for="item in caseList" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
@@ -220,7 +220,7 @@ onMounted(async () => {
         <span>Fields</span>
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <el-select v-model="fieldsList" :placeholder="t('common_selectOccupancyContent')" multiple collapse-tags
-                     collapse-tags-tooltip @change="handelFieldsList">
+                     collapse-tags-tooltip @change="handelFieldsList" >
             <el-option v-for="item in caseOptionList" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
           <el-button @click="handleUpdateField">Update Field</el-button>
@@ -229,7 +229,7 @@ onMounted(async () => {
 
       <template v-loading="loading" v-for="item in updateFieldsList">
         <el-form-item :label="item.name" :required="'case_id'===item.id">
-          <el-select v-model="item.formProperty" clearable @change="handleCaseField(item)"
+          <el-select v-model="item.formProperty" filterable clearable @change="handleCaseField(item)"
                      :placeholder="t('common_selectOccupancyContent')">
             <el-option v-for="field in allFields" :key="field.id" :label="field.name" :value="field.id" />
           </el-select>

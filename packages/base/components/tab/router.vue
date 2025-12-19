@@ -30,11 +30,17 @@ const isFullscreen = computed(() => {
 })
 
 
-const refeshActions = ref<Function[]>([])
+const refeshActions = ref<{fn: Function, params: any[]}[]>([])
 
 async function handleRefresh() {
   try {
-    await Promise.all(refeshActions.value.map(item => item()))
+    if(refeshActions.value.length === 0) return;
+    refeshActions.value.forEach(item => {
+      if(item && typeof item.fn === 'function') {
+        console.log("handleRefresh", item.fn ,item.params)
+        item.fn(...item.params)
+      }
+    })
   } catch (err) {
     console.log(err)
   }

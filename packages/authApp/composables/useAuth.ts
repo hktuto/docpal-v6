@@ -22,6 +22,7 @@ export const useLoginState = () => useState<boolean>('auth-login-state', () => f
 export const useUserRole = () => useState<string>(() => '')
 export const useIsAdmin = () => useState<boolean>(() => false)
 export const useIsSuperAdmin = () => useState<boolean>(() => true)
+export const useIsMac = () => useState<boolean>(() => false)
 
 export const useAuth = () => {
   const loggedIn = useLoginState()
@@ -41,9 +42,11 @@ export async function verifly() {
 
   const logedIn = useLoginState()
   const isDesktopMode = useDesktopMode()
+  const isMac = useIsMac()
   const { initializeTheme } = useStyle()
   await Promise.all([getUser(), getFeature(), getUserPreference(), getOCRSetting(), initializeTheme()])
   isDesktopMode.value = !(!window || !window.navigator || !window.navigator.userAgent || !window.navigator.userAgent.toLowerCase().includes('electron'))
+  isMac.value = window.navigator.userAgent.toLowerCase().includes('apple')
   logedIn.value = true
   const token = localStorage.getItem('access_token') || ''
   const decodedToken = parseJwt(token)
