@@ -111,15 +111,15 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       //         listProvider.openProductionVersion(row, true)
       //     }
       // },
-      {
-        code: 'save_as_new_workflow',
-        name: 'workflow_editorNewWorkflow',
-        visible: true,
-        disabled: false,
-        action: ({ row }: any) => {
-          listProvider.saveAsNewWorkflow(row)
-        }
-      },
+      // {
+      //   code: 'save_as_new_workflow',
+      //   name: 'workflow_editorNewWorkflow',
+      //   visible: true,
+      //   disabled: false,
+      //   action: ({ row }: any) => {
+      //     listProvider.saveAsNewWorkflow(row)
+      //   }
+      // },
       {
         code: 'view_versions',
         name: 'workflow_editorViewVersionHistory',
