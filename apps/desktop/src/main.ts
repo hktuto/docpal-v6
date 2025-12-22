@@ -11,8 +11,8 @@ process.env.ROOT = path.join(__dirname, '..')
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 let mainWindow: BrowserWindow
-let isFocused: boolean
-let isMinimized: boolean
+let isFocused: boolean = false
+let isMinimized: boolean = false
 
 app.requestSingleInstanceLock()
 app.setAsDefaultProtocolClient('docpal')
@@ -26,8 +26,18 @@ app.whenReady().then(async () => {
     mainWindow = createSetPrefFrontend(mainWindow)
   }
 
-  isFocused = mainWindow.isFocused()
-  isMinimized = mainWindow.isMinimized()
+  mainWindow.on('focus', () => {
+    isFocused = true
+  })
+
+  mainWindow.on('blur', () => {
+    isFocused = false
+  })
+
+  mainWindow.on('minimize', () => {
+    isMinimized = true
+    isFocused = false
+  })
 })
 
 app.on('window-all-closed', function() {
@@ -134,46 +144,48 @@ export function createMenu() {
 }
 
 ipcMain.handle('sendNotification', (event, data: any) => {
-  notificationController(data.title, data.notifyMessage)
+  console.log('sendNotification', isFocused, isMinimized, event)
+  if (!isFocused) {
+    notificationController(data.title, data.notifyMessage)
+  }
 })
 
 export function notificationController(title: string, body: string) {
-  if (!isMinimized) {
-    // TODO 替換數據
-    const data = {
-      path: '/case',
-      caseId: 'CASE-1231523',
-      userId: 'Joshua'
-    }
-
-    const options = {
-      icon: './public/icon.png',
-      title: 'Docpal',
-      subtitle: '',
-      body: body,
-      silent: true
-    }
-
-    const platform = process.platform
-    if (platform === 'win32') {
-      // Windows
-      options.title = title
-    } else if (platform === 'darwin') {
-      // macOS
-      options.subtitle = title
-    } else if (platform === 'linux') {
-      // Linux
-    }
-
-    const notification = new Notification(options)
-
-    notification.on('click', () => {
-      if (mainWindow) {
-        mainWindow.show()
-        mainWindow.focus()
-        mainWindow.webContents.send('navigate-to', data)
-      }
-    })
-    notification.show()
+  const options = {
+    icon: './public/icon.png',
+    title: 'Docpal',
+    subtitle: '',
+    body: body,
+    silent: true
   }
+
+  const platform = process.platform
+  if (platform === 'win32') {
+    // Windows
+    options.title = title
+  } else if (platform === 'darwin') {
+    // macOS
+    options.subtitle = title
+  } else if (platform === 'linux') {
+    // Linux
+  }
+
+  const notification = new Notification(options)
+
+  // click event
+  notification.on('click', () => {
+    if (mainWindow) {
+      // TODO 替換數據
+      const data = {
+        path: '/case',
+        caseId: 'Joshua-12',
+        userId: 'Joshua'
+      }
+
+      mainWindow.show()
+      mainWindow.focus()
+      mainWindow.webContents.send('navigate-to', data)
+    }
+  })
+  notification.show()
 }
