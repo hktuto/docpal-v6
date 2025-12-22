@@ -20,16 +20,15 @@ window.addEventListener('dragTagToWindow', (event: any) => {
 
 // send desktop system message
 window.addEventListener('sendMessage', (event: any) => {
+  // TODO: 該數據類型會重新定義
   console.log('Message notification', event)
   const message = JSON.parse(JSON.parse(event.detail.messageJson.content).message)
   let title = 'Message'
   let notifyMessage = message.additionalContent
-  ipcRenderer.invoke('sendNotification', { title, notifyMessage }).then(r => console.log(r))
+  ipcRenderer.invoke('sendNotification', { title, notifyMessage })
 })
 
 // Route jump
 ipcRenderer.on('navigate-to', (event, routeData) => {
-  const { path, data } = routeData
-
-  window.location.href = `${path}?caseId=${encodeURIComponent(data)}`
+  window.dispatchEvent(new CustomEvent('urlToRouterObject', { detail: routeData }))
 })
