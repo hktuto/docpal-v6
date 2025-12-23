@@ -45,12 +45,12 @@ const toggleExpanded = (index:number) => {
       </div>
       <div v-if="item.children && expandedItem.includes(index)" class="menuChildren">
         <div v-for="(child,childIndex) in item.children" :key="child.id" class="menuItem" @click="e => childClick(item,e)">
-          <div class="menuIcon">
-            <Icon :name="child.icon" />
-          </div>
-          <div class="menuLabel">
-            {{ $t(child.label) }}
-          </div>
+            <div class="menuIcon">
+              <Icon :name="child.icon" />
+            </div>
+            <div class="menuLabel">
+              {{ $t(child.label) }}
+            </div>
         </div>
       </div>
     </div>
