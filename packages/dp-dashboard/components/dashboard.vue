@@ -170,7 +170,7 @@ onMounted(async () => {
     align-items: center;
     gap: var(--app-space-s);
     &__title {
-      height: 100%;
+      // height: 100%;
       line-height: 30px;
 
       title {
@@ -196,5 +196,7 @@ onMounted(async () => {
   justify-content: space-between;
   align-items: center;
   font-weight: bold;
+  flex-flow: row wrap;
+  gap: var(--app-space-s);
 }
 </style>
