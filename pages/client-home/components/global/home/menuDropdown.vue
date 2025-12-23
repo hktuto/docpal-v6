@@ -4,6 +4,7 @@ const tabProvider = inject(TabManagerKey)
 if(!tabProvider) {
     throw createError('tab manger not found on menu')
 }
+const emit = defineEmits(['selected'])
 async function handleSelect(e:Event, item: any) {
   e.stopPropagation()
   await checkoutDashboard(item);
@@ -18,6 +19,7 @@ async function handleSelect(e:Event, item: any) {
     handleError:true,
     props:{},
   }, false)
+  emit('selected')
 }
 </script>
 

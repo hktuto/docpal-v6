@@ -9,7 +9,6 @@ const props = defineProps<{
     displayMenu: any[]
 }>()
 const opened = ref(false)
-const menuItemRefs = ref()
 const selectedMenuItem = ref<TabItem | undefined>()
   const layout = useTabLayout()
 const hightLightPanel = useCurrentTargetPanel()
@@ -57,14 +56,22 @@ watch(() => [layout, hightLightPanel], () => {
   <div class="inlineMenuList">
     <template v-for="(item,index) in displayMenu" :key="index">
       <template v-if="item.children && item.children.length > 0" >
-        <div ref="menuItemRefs" class="menuItem" @click="e => openExpandMenu(e, item)">
-          <div class="menuIcon">
-            <Icon :name="item.icon" />
+        <el-popover>
+
+          <template #reference>
+            <div class="menuItem" >
+              <div class="menuIcon">
+                <Icon :name="item.icon" />
+              </div>
+              <div class="menuLabel">
+                {{ $t(item.label) }}
+              </div>
+            </div>
+          </template>
+          <div class="expandItemContainer">
+            <AppMenuExpand :menu="item" hideHeader :selectedMenuItem="selectedMenuItem" @click="handleSelect"/>
           </div>
-          <div class="menuLabel">
-            {{ $t(item.label) }}
-          </div>
-        </div>
+        </el-popover>
       </template>
       <template v-else>
         <div  class="menuItem" @click="handleSelect(item)">
