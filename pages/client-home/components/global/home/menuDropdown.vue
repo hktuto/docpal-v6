@@ -1,9 +1,10 @@
 <script setup lang="ts">
-const { homeList, currentHome, checkoutDashboard, getHomeList } = useHomePage()
+const { homeList, currentHome, checkoutDashboard } = useHomePage()
 const tabProvider = inject(TabManagerKey)
 if(!tabProvider) {
     throw createError('tab manger not found on menu')
 }
+const emit = defineEmits(['selected'])
 async function handleSelect(e:Event, item: any) {
   e.stopPropagation()
   await checkoutDashboard(item);
@@ -18,10 +19,8 @@ async function handleSelect(e:Event, item: any) {
     handleError:true,
     props:{},
   }, false)
+  emit('selected')
 }
-onMounted(async () => {
-  await getHomeList()
-})
 </script>
 
 <template>
