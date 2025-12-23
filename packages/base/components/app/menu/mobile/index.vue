@@ -10,10 +10,11 @@ const props = defineProps<{
 }>()
 const opened = ref(false)
 const menuItemRefs = ref()
-
+const selectedMenuItem = ref<TabItem | undefined>()
+  const layout = useTabLayout()
+const hightLightPanel = useCurrentTargetPanel()
 const CONTEXT_MENU_OPEN_BUS = useEventBus(EventType.TABLE_CONTEXT_MENU_OPEN)
 function openExpandMenu(e:any, item:any){
-  console.log('openExpandMenu', e, item)
   const evtParams: TABLE_CONTEXT_PARAMS = {
     row: item,
     column: item,
@@ -35,11 +36,19 @@ function openExpandMenu(e:any, item:any){
 }
 
 function handleSelect(item:any){
-  if(item.component) {
+  if(item && item.component) {
     tabProvider?.openInCurrentTab(item)
-    opened.value = false
   }
+  opened.value = false
 }
+
+watch(() => [layout, hightLightPanel], () => {
+    // get hightLightPanel
+    setSelectedMenuItem(selectedMenuItem, props.displayMenu )
+},{
+    deep:true,
+    immediate:true
+})
 </script>
 
 <template>
@@ -76,7 +85,9 @@ function handleSelect(item:any){
 
       <AppMenuSearch menuMode="collapse"/>
       <ElDivider />
-      <AppMenuMobileList :menu="displayMenu" @select="handleSelect" />
+      <div class="fullMenuContainer">
+        <AppMenuFullItem  v-for="(item, index) in displayMenu" :key="index" :item="item" :selectedMenuItem="selectedMenuItem" @click="handleSelect"/>
+      </div>
       <ElDivider />
       <AuthUser menuMode="expand" /> 
     </div>
@@ -86,6 +97,13 @@ function handleSelect(item:any){
 </template>
 
 <style lang="scss" scoped>
+.fullMenuContainer{
+  width:100%;
+  overflow: auto;
+  :deep(.menuItem){
+    width:100%;
+  }
+}
 .mobileMenuContainer{
   display: flex;
   flex-flow: row nowrap;
