@@ -6,12 +6,11 @@ import { allMenuItem, getMenuItemByComponent } from '#imports'
 
 const route = useRoute()
 const router = useRouter()
-const appPlatform = useAppPlatform()
 const preference = useUserPreference()
 
 async function openTab(path: string, queryObject: any) {
   const allMenu: any = allMenuItem
-  const isAdmin = appPlatform.value === 'admin' ? 'admin' : 'client'
+  const isAdmin = path.includes('admin/') ? 'admin' : 'client'
   let menuItem = allMenu[path]
 
   // 不存在的路徑一律返回 home
@@ -30,7 +29,7 @@ async function openTab(path: string, queryObject: any) {
   } else {
     menuItem = await menuItem.createRouteItem(queryObject)
   }
-  const menuSetting = await getMenuItemByComponent(menuItem.component)
+  const menuSetting = getMenuItemByComponent(menuItem.component)
   const userStoreTab = preference.value.userStoreTab
   const storageTabs = userStoreTab.client || null
   let newLayout: any
@@ -92,7 +91,12 @@ async function openTab(path: string, queryObject: any) {
     }
   }
   preference.value.userStoreTab[isAdmin] = JSON.stringify(newLayout)
-  await router.push('/')
+
+  if (isAdmin === 'admin') {
+    await router.push('/admin')
+  } else {
+    await router.push('/')
+  }
 }
 
 onMounted(async () => {
@@ -106,9 +110,9 @@ onMounted(async () => {
   // const path = route.path.replace(/\/$/, '')
   // sessionStorage.setItem('temp-path', path)
   try {
-    await openTab(route.path.replace(/^\/|\/$/g, ''), route.query)
+    await openTab(route.path.replace(/^\/|\/$/g, '').toLowerCase(), route.query)
   } catch (e) {
-    console.log(e)
+    console.log('..all', e)
   }
 })
 </script>
