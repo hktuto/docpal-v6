@@ -288,10 +288,5 @@ export default defineAppConfig({
     {
       name: 'admin-calendar-setting'
     },
-
-
-    // {
-    //   name: 'admin-doc-template-collaboration'
-    // },
   ]
 })

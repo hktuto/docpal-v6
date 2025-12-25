@@ -30,7 +30,11 @@ async function openTab(path: string, queryObject: any) {
     menuItem = await menuItem.createRouteItem(queryObject)
   }
   const menuSetting = getMenuItemByComponent(menuItem.component)
-  const userStoreTab = preference.value.userStoreTab
+  if (!menuSetting) {
+    await router.push('/')
+    return
+  }
+  const userStoreTab = await preference.value.userStoreTab
   const storageTabs = userStoreTab.client || null
   let newLayout: any
 
