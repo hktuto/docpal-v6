@@ -18,17 +18,18 @@ window.addEventListener('dragTagToWindow', (event: any) => {
   ipcRenderer.send('dragTagToWindow', JSON.stringify(event.detail))
 })
 
-// send desktop system message
-window.addEventListener('sendMessage', (event: any) => {
-  // TODO: 該數據類型會重新定義
+/**
+ * send desktop system message
+ * @param event { title: string, id: string }
+ */
+window.addEventListener('sendDesktopMessage', (event: any) => {
   console.log('Message notification', event)
-  const message = JSON.parse(JSON.parse(event.detail.messageJson.content).message)
-  let title = 'Message'
-  let notifyMessage = message.additionalContent
-  ipcRenderer.invoke('sendNotification', { title, notifyMessage })
+  ipcRenderer.invoke('sendNotification', event)
 })
 
-// Route jump
-ipcRenderer.on('navigate-to', (event, routeData) => {
-  window.dispatchEvent(new CustomEvent('urlToRouterObject', { detail: routeData }))
+/**
+ * Open message dialog
+ */
+ipcRenderer.on('navigate-to', (event, messageId) => {
+  window.dispatchEvent(new CustomEvent('urlToRouterObject', messageId))
 })

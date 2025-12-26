@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
-import { getIgnoreSchemas } from '~/utils/masterTableHelper'
 
+const { curTableId } = defineProps<{
+  curTableId: string
+}>()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
@@ -50,10 +52,19 @@ async function init() {
     state.masterTables = await clientApi.api
       .getMasterTablesFindAllByUser()
       .then((res) => res.data)
-    let permission = state.masterTables[0]
-    handleClick(permission.id, permission)
-    clientMasterTableList.value.setActive(permission.id)
+    if (!!curTableId && '' !== curTableId) {
+      const find = state.masterTables.find((item: any) => item.id === curTableId)
+      if (!!find) {
+        handleClick(find.id, find)
+        clientMasterTableList.value.setActive(find.id)
+      }
+    } else {
+      let permission = state.masterTables[0]
+      handleClick(permission.id, permission)
+      clientMasterTableList.value.setActive(permission.id)
+    }
   } catch (error) {
+    console.log(error)
   }
 }
 

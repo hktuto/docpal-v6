@@ -143,13 +143,22 @@ export function createMenu() {
   Menu.setApplicationMenu(menu)
 }
 
+/**
+ * callback
+ * @param data {title: message title, id: message Id}
+ */
 ipcMain.handle('sendNotification', (event, data: any) => {
-  console.log('sendNotification', isFocused, isMinimized, event)
+  console.log('sendNotification', isFocused, event)
   if (!isFocused) {
-    notificationController(data.title, data.notifyMessage)
+    notificationController(data.title, data.id)
   }
 })
 
+/**
+ * Send operating system notifications
+ * @param title 顯示的標題
+ * @param body message ID
+ */
 export function notificationController(title: string, body: string) {
   const options = {
     icon: './public/icon.png',
@@ -172,19 +181,12 @@ export function notificationController(title: string, body: string) {
 
   const notification = new Notification(options)
 
-  // click event
+  // user click event
   notification.on('click', () => {
     if (mainWindow) {
-      // TODO 替換數據
-      const data = {
-        path: '/case',
-        caseId: 'Joshua-12',
-        userId: 'Joshua'
-      }
-
       mainWindow.show()
       mainWindow.focus()
-      mainWindow.webContents.send('navigate-to', data)
+      mainWindow.webContents.send('navigate-to', body)
     }
   })
   notification.show()
