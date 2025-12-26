@@ -35,6 +35,13 @@ async function openTab(path: string, queryObject: any) {
     return
   }
 
+  // TODO: 有機率遇到 preference.value沒有獲取到導致後續無法進行
+  if (!preference.value) {
+    preference.value = {}
+    console.log("preference.value Undefined")
+    await router.push('/')
+    return
+  }
   if (!preference.value.userStoreTab) {
     preference.value.userStoreTab = {
       client: '',
@@ -107,15 +114,6 @@ async function openTab(path: string, queryObject: any) {
 }
 
 onMounted(async () => {
-  // step1 normalize route path by removing trailing slash
-  // const temPath = sessionStorage.getItem('temp-path')
-  // if (!!temPath) {
-  //   router.push('/')
-  //   return
-  // }
-
-  // const path = route.path.replace(/\/$/, '')
-  // sessionStorage.setItem('temp-path', path)
   try {
     await openTab(route.path.replace(/^\/|\/$/g, '').toLowerCase(), route.query)
   } catch (e) {
