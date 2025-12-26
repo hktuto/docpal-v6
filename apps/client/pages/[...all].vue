@@ -34,59 +34,6 @@ async function openTab(path: string, queryObject: any) {
     await router.push('/')
     return
   }
-  const userStoreTab = await preference.value.userStoreTab
-  const storageTabs = userStoreTab.client || null
-  let newLayout: any
-
-  if (storageTabs) {
-    newLayout = JSON.parse(storageTabs)
-    let openNewTab = false
-    outerLoop: for (let layoutIndex = 0; layoutIndex < newLayout.length; layoutIndex++) {
-      const layoutItem = newLayout[layoutIndex]
-      for (let tabIndex = 0; tabIndex < layoutItem.tabs.length; tabIndex++) {
-        const tabItem = layoutItem.tabs[tabIndex]
-        // 不存在路由中
-        if (tabItem.component !== menuItem.component) {
-          openNewTab = true
-          continue
-        }
-
-        // 是否替換tab的數據
-        if (menuSetting.shouldReplace(tabItem, menuItem)) {
-          openNewTab = false
-          layoutItem.tabs[tabIndex] = menuItem
-          preference.value.userStoreTab[isAdmin] = JSON.stringify(newLayout)
-          break outerLoop
-        } else {
-          openNewTab = true
-        }
-      }
-    }
-
-    // open new Tab
-    if (openNewTab) {
-      const lastItem = newLayout[newLayout.length - 1]
-      lastItem.showingTabIndex = lastItem.tabs.length
-      lastItem.tabs.push({
-        ...menuItem,
-        parent: lastItem.id,
-        initized: true
-      })
-      localStorage.setItem('app-tab-hightLightPanel', lastItem.id)
-    }
-  } else {
-    const id = `dummy-tab-container-${Date.now()}`
-    newLayout = [
-      {
-        id: id,
-        parent: 'root',
-        showingTabIndex: 0,
-        size: 100,
-        tabs: [{ ...menuItem, parent: id }]
-      }
-    ]
-    localStorage.setItem('app-tab-hightLightPanel', id)
-  }
 
   if (!preference.value.userStoreTab) {
     preference.value.userStoreTab = {
@@ -94,7 +41,63 @@ async function openTab(path: string, queryObject: any) {
       admin: ''
     }
   }
-  preference.value.userStoreTab[isAdmin] = JSON.stringify(newLayout)
+
+  nextTick(() => {
+    const userStoreTab = preference.value.userStoreTab
+
+    const storageTabs = userStoreTab[isAdmin] || null
+    let newLayout: any
+    if (storageTabs) {
+      newLayout = JSON.parse(storageTabs)
+      let openNewTab = false
+      outerLoop: for (let layoutIndex = 0; layoutIndex < newLayout.length; layoutIndex++) {
+        const layoutItem = newLayout[layoutIndex]
+        for (let tabIndex = 0; tabIndex < layoutItem.tabs.length; tabIndex++) {
+          const tabItem = layoutItem.tabs[tabIndex]
+          // 不存在路由中
+          if (tabItem.component !== menuItem.component) {
+            openNewTab = true
+            continue
+          }
+
+          // 是否替換tab的數據
+          if (menuSetting.shouldReplace(tabItem, menuItem)) {
+            openNewTab = false
+            menuItem.initized = true
+            layoutItem.tabs[tabIndex] = menuItem
+            preference.value.userStoreTab[isAdmin] = JSON.stringify(newLayout)
+            break outerLoop
+          } else {
+            openNewTab = true
+          }
+        }
+      }
+      // open new Tab
+      if (openNewTab) {
+        const lastItem = newLayout[newLayout.length - 1]
+        lastItem.showingTabIndex = lastItem.tabs.length
+        lastItem.tabs.push({
+          ...menuItem,
+          parent: lastItem.id,
+          initized: true
+        })
+        localStorage.setItem('app-tab-hightLightPanel', lastItem.id)
+      }
+    } else {
+      const id = `dummy-tab-container-${Date.now()}`
+      newLayout = [
+        {
+          id: id,
+          parent: 'root',
+          showingTabIndex: 0,
+          size: 100,
+          tabs: [{ ...menuItem, parent: id }]
+        }
+      ]
+      localStorage.setItem('app-tab-hightLightPanel', id)
+    }
+    preference.value.userStoreTab[isAdmin] = JSON.stringify(newLayout)
+  })
 
   if (isAdmin === 'admin') {
     await router.push('/admin')
