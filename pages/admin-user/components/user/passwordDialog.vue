@@ -91,9 +91,9 @@ function validatePassword(rule: any, value: any, callback: any) {
     }
   }
 
-  // 检查是否包含特殊字符（只允许 !,@,#,$,%,&,*）
+  // 检查是否包含特殊字符（只允许 !@#$%^&*()-+=[]{}:;'",.<>\|）
   if (passwordPolicy.value.containSpecialCharacters) {
-    if (!/^(?=.*[!@#$%&*]).+$/.test(value)) {
+    if (!/^(?=.*[!@#$%^&*()\-+=\[\]{}:;'",.<>/\\|]).+$/.test(value)) {
       callback(new Error(t('passwordPolicy.containSpecialCharacters')))
       return
     }
