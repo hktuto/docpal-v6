@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi, adminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -75,7 +75,7 @@ async function getWorkflowList() {
 }
 
 async function handleExportEmailTemplate(emailTemplateId: string) {
-  const emailTemplateDetail = await adminApi.api.getTemplateEmailTemplateId(emailTemplateId)
+  const emailTemplateDetail = await clientApi.api.getDmsTemplateEmailTemplateId(emailTemplateId)
   exportData.value.emailTemplate[emailTemplateId] = emailTemplateDetail.data
 }
 

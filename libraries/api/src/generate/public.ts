@@ -105,88 +105,31 @@ export interface VerificationPermissionReq {
     operation?: string;
 }
 
-export interface AuditLogRequestDTO {
-    collapseField?: string;
-    mustFilterMap?: Record<string, string>;
-    wildcardFilterMap?: Record<string, string>;
-    sourceIncludes?: string[];
-    sourceExcludes?: string[];
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageSize?: number;
-    orderBy?: string;
-    isDesc?: boolean;
-}
-
-/** Define audit template */
-export interface AuditTemplateDTO {
-    id?: string;
-    eventId?: string;
-    nuxeoEventId?: string;
-    documentId?: string;
-    comment?: string;
-    docPath?: string;
-    docType?: string;
-    eventType?: string;
-    eventCategory?: string;
-    /** @format date-time */
-    createTime?: string;
-    /** @format date-time */
-    updateTime?: string;
-    eventDateFrom?: string;
-    eventDateTo?: string;
-    principalName?: string;
-    creators?: string[];
-    businessNames?: string[];
-    collapseField?: string;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageSize?: number;
-    orderBy?: string;
-    isDesc?: boolean;
-    excludeUser?: string;
-}
-
-export interface PaginationDTOAuditTemplateDTO {
-    entryList?: AuditTemplateDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOAuditTemplateDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOAuditTemplateDTO;
-}
-
-export interface AuditModel {
+/** Entity for storing user search history records */
+export interface SearchHistory {
     /** @format int64 */
     id?: number;
-    principalName?: string;
-    eventId?: string;
-    eventDate?: string;
-    logDate?: string;
-    docUUID?: string;
-    docType?: string;
-    docPath?: string;
-    category?: string;
-    comment?: string;
-    docLifeCycle?: string;
-    repositoryId?: string;
-    preprocessedComment?: string;
-    entity__type?: string;
-    extended?: Record<string, object>;
+    /** Search query string */
+    queryString: string;
+    /**
+     * Total number of search results
+     * @format int64
+     */
+    totalSize: number;
+    /** User identifier */
+    userId: string;
+    /** Tenant identifier */
+    tenantId: string;
+    /**
+     * Record creation timestamp
+     * @format date-time
+     */
+    createdDate: string;
+    /**
+     * Record last modification timestamp
+     * @format date-time
+     */
+    modifiedDate: string;
 }
 
 /** Define information of user related permission that access control permission */
@@ -195,7 +138,7 @@ export interface AclUserPermission {
     /** the id of acl user or user group */
     belongTo: string;
     /** the type of business, may be from business sub project */
-    belongType: "U" | "G";
+    belongType: "U" | "G" | "R";
     /** the id of business, may be from business sub project */
     businessId: string;
     /** the type of business, may be from business sub project */
@@ -382,14 +325,20 @@ export interface AclUserInformation {
     lastName: string;
     /** email */
     email?: string;
-    /** password */
+    /** Password */
     password: string;
-    /** tenant id */
+    /** Tenant ID */
     tenantId?: string;
+    /** MobilePhone */
+    phone?: string;
     /** source */
     source?: string;
     /** status */
     status?: string;
+    /** user level */
+    userLevel?: string;
+    /** registered status */
+    registered?: string;
     properties?: Record<string, object>;
     /**
      * Delete flag
@@ -1000,7 +949,57 @@ export interface MailSendRequest {
     templateId?: string;
     variables?: Record<string, object>;
     files?: File[];
+    userId?: string;
     accessToken?: string;
+}
+
+export interface BatchMailSendRequest {
+    batchTaskId?: string;
+    fromEmail: string;
+    subject?: string;
+    text?: string;
+    templateId?: string;
+    tos: string[];
+    ccs?: string[];
+    bcc?: string[];
+    files?: File[];
+    variables?: Record<string, object>;
+    userId?: string;
+    accessToken?: string;
+    /** @format int64 */
+    sendInterval?: number;
+    /** @format int32 */
+    batchSize?: number;
+    /** @format int64 */
+    batchInterval?: number;
+    async?: boolean;
+}
+
+export interface BatchSendEmailResponseDTO {
+    batchTaskId?: string;
+    /** @format int32 */
+    totalCount?: number;
+    /** @format int32 */
+    successCount?: number;
+    /** @format int32 */
+    failedCount?: number;
+    status?: string;
+    /** @format date-time */
+    createdTime?: string;
+    /** @format date-time */
+    completedTime?: string;
+    errorMessages?: string[];
+    async?: boolean;
+    /** @format double */
+    progress?: number;
+}
+
+export interface ResultBatchSendEmailResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: BatchSendEmailResponseDTO;
 }
 
 export interface DashBoardWorkflowRequestDTO {
@@ -1121,6 +1120,37 @@ export interface ResultListDocDTO {
     data?: DocDTO[];
 }
 
+export interface PageSearchHistory {
+    /** @format int32 */
+    totalPages?: number;
+    /** @format int64 */
+    totalElements?: number;
+    /** @format int32 */
+    number?: number;
+    /** @format int32 */
+    size?: number;
+    /** @format int32 */
+    numberOfElements?: number;
+    content?: SearchHistory[];
+    sort?: SortObject;
+    first?: boolean;
+    last?: boolean;
+    pageable?: PageableObject;
+    empty?: boolean;
+}
+
+export interface PageableObject {
+    paged?: boolean;
+    unpaged?: boolean;
+    /** @format int32 */
+    pageNumber?: number;
+    /** @format int32 */
+    pageSize?: number;
+    /** @format int64 */
+    offset?: number;
+    sort?: SortObject;
+}
+
 export interface ResultListAclPermissionDTO {
     result?: boolean;
     /** @format int32 */
@@ -1169,6 +1199,38 @@ export interface ResultListConditionResponseDTO {
     code?: number;
     message?: string;
     data?: ConditionResponseDTO[];
+}
+
+export interface DocPalEmailTemplate {
+    id?: string;
+    /** @format int64 */
+    emailLayoutId?: number;
+    emailTemplateJson?: string;
+    emailTemplateVariable?: string;
+    to?: string;
+    from?: string;
+    label?: string;
+    cc?: string;
+    bcc?: string;
+    subject?: string;
+    body?: string;
+    status?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    display?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    emailLayoutName?: string;
+}
+
+export interface ResultListDocPalEmailTemplate {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocPalEmailTemplate[];
 }
 
 export interface AzureOcrSettingDTO {
@@ -1275,10 +1337,7 @@ export class HttpClient<SecurityDataType = unknown> {
     private format?: ResponseType;
 
     constructor({ securityWorker, secure, format, ...axiosConfig }: ApiConfig<SecurityDataType> = {}) {
-        this.instance = axios.create({
-            ...axiosConfig,
-            baseURL: axiosConfig.baseURL || "http://sit-v2.wclsolution.com",
-        });
+        this.instance = axios.create({ ...axiosConfig, baseURL: axiosConfig.baseURL || "http://132.148.160.191" });
         this.secure = secure;
         this.format = format;
         this.securityWorker = securityWorker;
@@ -1372,7 +1431,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title DocPal REST API
  * @version 0.0.1
- * @baseUrl http://sit-v2.wclsolution.com
+ * @baseUrl http://132.148.160.191
  *
  * DocPal REST API Documentation
  */
@@ -1525,45 +1584,50 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags VerificationPermissionController
-         * @name PostVerificationPermissionQuerycollapsefieldvalues
-         * @request POST:/api/verification/permission/queryCollapseFieldValues
+         * @tags Search History
+         * @name GetV1SearchHistory
+         * @summary Get paginated search history
+         * @request GET:/api/v1/search-history
          */
-        postVerificationPermissionQuerycollapsefieldvalues: (data: AuditLogRequestDTO, params: RequestParams = {}) =>
-            this.request<object, Result>({
-                path: `/verification/permission/queryCollapseFieldValues`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
+        getV1SearchHistory: (
+            query: {
+                /** User ID */
+                userId: string;
+                /** Tenant ID */
+                tenantId: string;
+                /**
+                 * Page number (0-based)
+                 * @format int32
+                 * @default 0
+                 */
+                pageNum?: number;
+                /**
+                 * Page size
+                 * @format int32
+                 * @default 10
+                 */
+                pageSize?: number;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<PageSearchHistory, Result>({
+                path: `/v1/search-history`,
+                method: "GET",
+                query: query,
                 ...params,
             }),
 
         /**
          * No description
          *
-         * @tags VerificationPermissionController
-         * @name PostVerificationPermissionQueryauditevent
-         * @request POST:/api/verification/permission/queryAuditEvent
+         * @tags Search History
+         * @name PostV1SearchHistory
+         * @summary Save search history record
+         * @request POST:/api/v1/search-history
          */
-        postVerificationPermissionQueryauditevent: (data: AuditTemplateDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOAuditTemplateDTO, Result>({
-                path: `/verification/permission/queryAuditEvent`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags VerificationPermissionController
-         * @name PostVerificationPermissionAuditevent
-         * @request POST:/api/verification/permission/auditEvent
-         */
-        postVerificationPermissionAuditevent: (data: AuditModel, params: RequestParams = {}) =>
-            this.request<void, Result>({
-                path: `/verification/permission/auditEvent`,
+        postV1SearchHistory: (data: SearchHistory, params: RequestParams = {}) =>
+            this.request<SearchHistory, Result>({
+                path: `/v1/search-history`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -2211,6 +2275,47 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
+         * @tags DocPalEmailController
+         * @name PostEmailBatchSend
+         * @request POST:/api/docpal/email/batch/send
+         */
+        postEmailBatchSend: (data: BatchMailSendRequest, params: RequestParams = {}) =>
+            this.request<ResultBatchSendEmailResponseDTO, Result>({
+                path: `/docpal/email/batch/send`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalEmailController
+         * @name PostEmailBatchSendundefined
+         * @request POST:/api/docpal/email/batch-send
+         */
+        postEmailBatchSendundefined: (
+            query: {
+                request: string;
+            },
+            data: {
+                files?: File[];
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBatchSendEmailResponseDTO, Result>({
+                path: `/docpal/email/batch-send`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags dash-board-controller
          * @name PostDashboardWorkflowspendtime
          * @request POST:/api/docpal/dashboard/WorkflowSpendTime
@@ -2571,20 +2676,6 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags VerificationPermissionController
-         * @name GetVerificationPermissionEventTypes
-         * @request GET:/api/verification/permission/event/types
-         */
-        getVerificationPermissionEventTypes: (params: RequestParams = {}) =>
-            this.request<ResultObject, Result>({
-                path: `/verification/permission/event/types`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags VerificationPermissionController
          * @name GetVerificationPermissionBusinessBusinessid
          * @request GET:/api/verification/permission/business/{businessId}
          */
@@ -2820,6 +2911,46 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
+         * @tags AclUserGroupController
+         * @name GetPermissionUserGroupGroupsAll
+         * @request GET:/api/permission/user/group/groups/all
+         */
+        getPermissionUserGroupGroupsAll: (
+            query: {
+                userIds: string[];
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result>({
+                path: `/permission/user/group/groups/all`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AclUserGroupController
+         * @name GetPermissionUserGroupAll
+         * @request GET:/api/permission/user/group/all
+         */
+        getPermissionUserGroupAll: (
+            query: {
+                userId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result>({
+                path: `/permission/user/group/all`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags AclEntryController
          * @name GetPermissionEntryId
          * @summary Query entry by id
@@ -3007,6 +3138,20 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
         getOcrConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result>({
                 path: `/docpal/ocr/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalEmailController
+         * @name GetEmailTemplateList
+         * @request GET:/api/docpal/email/template/list
+         */
+        getEmailTemplateList: (params: RequestParams = {}) =>
+            this.request<ResultListDocPalEmailTemplate, Result>({
+                path: `/docpal/email/template/list`,
                 method: "GET",
                 ...params,
             }),

@@ -39,160 +39,39 @@ export interface ResultObject {
     locale?: string;
 }
 
-/** Document Type */
-export interface DocumentTypeDTO {
-    /** Document Type Name */
-    name?: string;
-    /** Is Folder Type */
-    isFolder?: boolean;
-    /** Document Type keywords */
-    keywords?: KeywordDTO[];
+/** Additional role data transfer object */
+export interface AdditionRoleDTO {
+    /** Role ID */
+    roleId?: string;
+    /** Role name */
+    roleName?: string;
 }
 
-/** Keyword */
-export interface KeywordDTO {
-    /** Keyword Name */
-    name?: string;
-    /** Keyword Type */
-    type?: string;
-    /** Keyword Value */
-    value?: object;
-    /** Schema That Belong To Keyword */
-    schema?: string;
-    /** Keyword Is Multiple Value */
-    isMultiValue?: boolean;
-    /** Keyword Default Value */
-    defaultValue?: object;
-    /** Value Scope Of This Keyword */
-    valueScope?: KeywordValueScope;
-}
-
-/** Value Scope Of This Keyword */
-export interface KeywordValueScope {
-    scope?: string;
-    scopeName?: string;
-}
-
-export interface ResultListDocumentTypeDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocumentTypeDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Document */
-export interface DocumentDTO {
-    /** Document ID */
-    id?: string;
-    /** Document Name */
-    name?: string;
-    /** Document Description */
-    description?: string;
-    /** Document Path */
-    path?: string;
-    /** Document Type */
-    type?: string;
-    /** Document Version */
-    version?: string;
-    /** File Suffix */
-    fileSuffix?: string;
+/** Attribute rule data transfer object */
+export interface AttributeRuleDTO {
     /**
-     * Document Status
+     * Attribute type (1=User, 2=Document, 3=System)
      * @format int32
      */
-    status?: number;
-    statusName?: string;
-    /** Document Creator */
-    createdBy?: string;
-    /** Document Modifier */
-    modifiedBy?: string;
-    /**
-     * Document Created Date
-     * @format date-time
-     */
-    createdDate?: string;
-    /**
-     * Docuemnt Modification Date
-     * @format date-time
-     */
-    modifiedDate?: string;
-    /** Is Document Folder */
-    isFolder?: boolean;
-    /** Is Document Checked Out */
-    isCheckedOut?: boolean;
-    /** Document Properties */
-    properties?: Record<string, object>;
-    /** parentRef */
-    parentRef?: string;
-    /** logicalPath */
-    logicalPath?: string;
-    /** Document File Content */
-    fileContent?: FileContentDTO;
-    ocrState?: string;
-    fileContentName?: string;
-    fileContentMimeType?: string;
-    /** @format int64 */
-    fileContentLength?: number;
-    fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
-    fileContentDigest?: string;
-    fileContentData?: string;
-    /** Document Extended Data */
-    extend_datas?: ExtendDataDTO;
+    attributeType?: number;
+    /** Attribute name */
+    attributeName?: string;
+    /** Operator (AND, OR, NOT) */
+    operator?: string;
+    /** Attribute value */
+    attributeValue?: string;
 }
 
-/** Document Extended Data */
-export interface ExtendDataDTO {
-    aux_id?: string;
-    text_idx_id?: string;
-    permissions?: PermissionDTO[];
-    is_inherit_permissions?: boolean;
-}
-
-/** Document File Content */
-export interface FileContentDTO {
-    digestAlgorithm?: string;
-    digest?: string;
-    data?: string;
-    name?: string;
-    mime_type?: string;
-    /** @format int64 */
-    length?: number;
-    minio_file_version?: string;
-}
-
-export interface PaginationDTODocumentDTO {
-    entryList?: DocumentDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface PermissionDTO {
-    acl?: string;
-    type?: string;
+/** Configuration rule data transfer object */
+export interface ConfigurationRuleDTO {
+    /** Rule ID */
     id?: string;
-    inherit_from?: string;
-    entity_id?: string;
-}
-
-export interface ResultPaginationDTODocumentDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTODocumentDTO;
-    messageKey?: string;
-    locale?: string;
+    /** Rule name */
+    name?: string;
+    /** List of members */
+    members?: MemberDTO[];
+    /** List of rules */
+    rules?: RuleDTO[];
 }
 
 /** Group data transfer object */
@@ -201,6 +80,22 @@ export interface GroupDTO {
     groupId?: string;
     /** Group name */
     groupName?: string;
+}
+
+/** Member data transfer object */
+export interface MemberDTO {
+    /**
+     * Member type (1=User, 2=Role, 3=Group)
+     * @format int32
+     */
+    memberType?: number;
+    /** Member ID (user/role/group ID) */
+    memberId?: string;
+    /**
+     * Operator (1=Include, 2=Exclude)
+     * @format int32
+     */
+    operator?: number;
 }
 
 export interface ResultSetUserDTO {
@@ -212,6 +107,14 @@ export interface ResultSetUserDTO {
     data?: UserDTO[];
     messageKey?: string;
     locale?: string;
+}
+
+/** Rule data transfer object */
+export interface RuleDTO {
+    /** Logical operator (AND, OR) */
+    operator?: string;
+    /** List of attribute rules */
+    rules?: AttributeRuleDTO[];
 }
 
 /** User's role */
@@ -245,22 +148,26 @@ export interface UserDTO {
     lastName?: string;
     /** User Email */
     email?: string;
+    /** MobilePhone */
+    phone?: string;
     /** User Password */
     password?: string;
     /** Datetime token expired at */
     jwtExpiredAt?: string;
     /** User Properties */
     properties?: Record<string, object>;
-    /** User Groups */
-    groups?: GroupDTO[];
-    /** User's role */
-    role?: SimpleRoleVO;
     /** active status , A = active , D = unActive */
     status?: string;
+    /** User groups */
+    groupDTOList?: GroupDTO[];
+    /** User groups */
+    groups?: GroupDTO[];
+    /** User detail data transfer object */
+    aclUserDetail?: UserDetailDTO;
+    /** User's role */
+    role?: SimpleRoleVO;
     /** Department */
     department?: string;
-    /** Department */
-    phone?: string;
     /** Department */
     company?: string;
     /** User Level */
@@ -269,7 +176,22 @@ export interface UserDTO {
     registered?: string;
     userName?: string;
     kcUserId?: string;
-    groupDTOList?: GroupDTO[];
+}
+
+/** User detail data transfer object */
+export interface UserDetailDTO {
+    /** User ID */
+    userId?: string;
+    /** Primary role ID */
+    roleId?: string;
+    /** Primary role name */
+    roleName?: string;
+    /** List of groups the user belongs to */
+    groups?: GroupDTO[];
+    /** List of configuration rules */
+    configurationRules?: ConfigurationRuleDTO[];
+    /** List of additional roles */
+    additionRoleList?: AdditionRoleDTO[];
 }
 
 export interface ResultListMapStringObject {
@@ -320,6 +242,8 @@ export interface ContactGroupRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface Permission {
@@ -577,7 +501,7 @@ export interface EventCalendarSetting {
     name?: string;
     /** Event color code (hex format) */
     color?: string;
-    /** Event status (ACTIVE, INACTIVE, DELETED) */
+    /** Event status (A, D, R) */
     status?: string;
     /** Whether the event type is registered */
     registered?: boolean;
@@ -740,7 +664,7 @@ export interface FieldProfile {
     rules?: Record<string, object>;
 }
 
-/** User Profile RequestDTO */
+/** User Profile Setting */
 export interface UserProfileSettingDTO {
     schema?: string;
     type?: string;
@@ -752,7 +676,7 @@ export interface ResultUserProfileSettingDTO {
     /** @format int32 */
     code?: number;
     message?: string;
-    /** User Profile RequestDTO */
+    /** User Profile Setting */
     data?: UserProfileSettingDTO;
     messageKey?: string;
     locale?: string;
@@ -899,6 +823,8 @@ export interface DocumentTemplateRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 /** Document Template ResponseDTO */
@@ -946,6 +872,10 @@ export interface ResultDocumentTemplateResponseDTO {
 export interface IdentityRequestDTO {
     /** Id */
     id?: string;
+    /** Group Id */
+    groupId?: string;
+    /** Group Name */
+    groupName?: string;
     /** User Id */
     userId?: string;
     /** User Name */
@@ -956,20 +886,18 @@ export interface IdentityRequestDTO {
     lastName?: string;
     /** User Email Address */
     email?: string;
+    /** Phone */
+    phone?: string;
     /** User Login Password */
     password?: string;
-    /** User Status */
-    status?: string;
-    /** Group Id */
-    groupId?: string;
-    /** Group Name */
-    groupName?: string;
     /** Group Id List */
     groups?: string[];
     /** User Id List */
     users?: string[];
     /** User Properties */
     properties?: Record<string, object>;
+    /** User Status */
+    status?: string;
     /** @format int32 */
     pageNum?: number;
     /** @format int32 */
@@ -983,11 +911,9 @@ export interface IdentityRequestDTO {
 }
 
 /** RetentionPolicy event */
-export interface RetentionPolicyEvent {
-    /** @format int64 */
-    id?: number;
-    /** @format int64 */
-    policyRetentionId?: number;
+export interface RetentionEvent {
+    id?: string;
+    policyRetentionId?: string;
     eventType?: string;
     eventLabel?: string;
     eventValue?: string;
@@ -1015,11 +941,8 @@ export interface RetentionPolicyRequestDTO {
     orderBy?: string;
     /** The sort ASC or DESC */
     isDesc?: boolean;
-    /**
-     * RetentionPolicy ID
-     * @format int64
-     */
-    id?: number;
+    /** RetentionPolicy ID */
+    id?: string;
     /** the name of retention policy */
     policyName?: string;
     /** the status of retention policy */
@@ -1043,15 +966,15 @@ export interface RetentionPolicyRequestDTO {
      */
     actionDelayDay?: number;
     /** RetentionPolicy trigger list */
-    triggers?: RetentionPolicyTrigger[];
+    triggers?: RetentionTrigger[];
     /** RetentionPolicy event */
-    events?: RetentionPolicyEvent[];
+    events?: RetentionEvent[];
     /** Document Type list */
     documentTypes?: string[];
     /** ApprovalId list */
     approvalIds?: string[];
     /** the list of retention policy id */
-    ids?: number[];
+    ids?: string[];
     sort?: SortObject;
     sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
@@ -1060,11 +983,9 @@ export interface RetentionPolicyRequestDTO {
 }
 
 /** RetentionPolicy trigger list */
-export interface RetentionPolicyTrigger {
-    /** @format int64 */
-    id?: number;
-    /** @format int64 */
-    policyRetentionId?: number;
+export interface RetentionTrigger {
+    id?: string;
+    policyRetentionId?: string;
     documentType?: string;
     triggerMetaData?: string;
     /** @format date-time */
@@ -1086,11 +1007,8 @@ export interface ResultRetentionPolicyResponseDTO {
 
 /** Retention Policy ResponseDTO */
 export interface RetentionPolicyResponseDTO {
-    /**
-     * RetentionPolicy ID
-     * @format int64
-     */
-    id?: number;
+    /** RetentionPolicy ID */
+    id?: string;
     /** the name of retention policy */
     policyName?: string;
     /** the status of retention policy */
@@ -1114,20 +1032,15 @@ export interface RetentionPolicyResponseDTO {
      */
     actionDelayDay?: number;
     /** RetentionPolicy trigger list */
-    triggers?: RetentionPolicyTrigger[];
+    triggers?: RetentionTrigger[];
     /** RetentionPolicy event */
-    events?: RetentionPolicyEvent[];
+    events?: RetentionEvent[];
 }
 
 export interface HoldPolicy {
-    /** @format int64 */
-    id?: number;
+    id?: string;
     policyName?: string;
-    isHoldAuto?: boolean;
-    isHoldReasonReq?: boolean;
     holdApprovalId?: string;
-    isRemoveAuto?: boolean;
-    isRemoveReasonReq?: boolean;
     removeApprovalId?: string;
     status?: string;
     createdBy?: string;
@@ -1136,6 +1049,10 @@ export interface HoldPolicy {
     createdDate?: string;
     /** @format date-time */
     modifiedDate?: string;
+    holdAuto?: boolean;
+    holdReasonReq?: boolean;
+    removeAuto?: boolean;
+    removeReasonReq?: boolean;
 }
 
 export interface ResultHoldPolicy {
@@ -1175,6 +1092,8 @@ export interface PersonalDashboardRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface MasterTable {
@@ -1247,6 +1166,8 @@ export interface MTRecordRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface IdGenerationRuleItem {
@@ -1299,10 +1220,10 @@ export interface EasyFormResult {
     actionId?: string;
     /** Name of Bound business */
     actionName?: string;
-    /** Status, Active or Deactivated */
-    status?: string;
     /** Mapping data structure between form columns and bound business fields */
     dataMapping?: ParamMappingDTO[];
+    /** Status, Active or Deactivated */
+    status?: string;
     /** Email Subject */
     subject?: string;
     /** Email Body Text */
@@ -1418,6 +1339,8 @@ export interface CompanyChopRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface CompanyChop {
@@ -1447,6 +1370,21 @@ export interface ResultCompanyChop {
     locale?: string;
 }
 
+/** Case Table ResponseDTO */
+export interface CaseTableResponseDTO {
+    id?: string;
+    caseTypeId?: string;
+    label?: string;
+    status?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    fields?: MTColumnInfo[];
+}
+
 export interface CaseType {
     id?: string;
     name?: string;
@@ -1458,7 +1396,8 @@ export interface CaseType {
     startNumber?: number;
     enable?: boolean;
     publishStatus?: string;
-    primaryForm?: string;
+    /** Case Table ResponseDTO */
+    primaryForm?: CaseTableResponseDTO;
     productionVersion?: string;
     createdBy?: string;
     modifiedBy?: string;
@@ -1468,10 +1407,28 @@ export interface CaseType {
     modifiedDate?: string;
     caseDefinitionKey?: string;
     caseDefinitionId?: string;
-    productionVersionId?: string;
     latestVersion?: string;
     latestVersionId?: string;
+    productionVersionId?: string;
     tableName?: string;
+    /** Case Table ResponseDTO */
+    upPrimaryForm?: CaseTableResponseDTO;
+}
+
+export interface MTColumnInfo {
+    columnName?: string;
+    dataType?: string;
+    /** @format int32 */
+    length?: number;
+    relationTable?: string;
+    relationField?: string;
+    displayField?: string;
+    nullRelation?: boolean;
+    /** @format int32 */
+    sort?: number;
+    primaryKey?: boolean;
+    required?: boolean;
+    unique?: boolean;
 }
 
 export interface ResultCaseType {
@@ -1502,14 +1459,17 @@ export interface CmmnDashboardRequestDTO {
     /** The sort ASC or DESC */
     isDesc?: boolean;
     id?: string;
-    caseTypeId?: string;
     label?: string;
+    caseTypeId?: string;
+    /** Case definition version Id */
+    cmmnVersionId?: string;
     /** @deprecated */
     userGroup?: string;
     permissions?: Record<string, string[]>;
     versionNumber?: string;
     styleJson?: string;
-    cmmnVersionId?: string;
+    /** Is need to detail */
+    detail?: boolean;
     businessKey?: string;
     status?: string;
     /** Where Condition */
@@ -1519,6 +1479,8 @@ export interface CmmnDashboardRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 /** Case model dashboard (RequestDTO) */
@@ -1589,12 +1551,16 @@ export interface CalendarTaskReq {
     remark?: string;
     /** Business ID */
     bizId?: string;
+    /** Fuzzy Search */
+    q?: string;
     /** ID */
     id?: string;
     /** Event ID */
     eventId?: string;
     /** Event Name */
     eventName?: string;
+    /** Event Description */
+    eventDescription?: string;
     /** Action Type[Create/Edit/Cancel/Remove] */
     actionType?: string;
     /** Event all day */
@@ -1609,8 +1575,6 @@ export interface CalendarTaskReq {
     relatedWorkflows?: Record<string, object>;
     /** Reminder Providers */
     reminders?: Record<string, object>[];
-    /** Fuzzy Search */
-    q?: string;
     /** Where AND Condition */
     where?: Record<string, object>;
     users?: string[];
@@ -1626,6 +1590,8 @@ export interface CalendarTaskRespDTO {
     eventId?: string;
     /** Event Name */
     eventName?: string;
+    /** Event Description */
+    eventDescription?: string;
     /** Action Type */
     actionType?: string;
     /** Event all day */
@@ -1735,37 +1701,6 @@ export interface RoleRequest {
     additionUsers?: string[];
 }
 
-/** Attribute rule data transfer object */
-export interface AttributeRuleDTO {
-    /**
-     * Attribute type (1=User, 2=Document, 3=System)
-     * @format int32
-     */
-    attributeType?: number;
-    /** Attribute name */
-    attributeName?: string;
-    /** Operator (AND, OR, NOT) */
-    operator?: string;
-    /** Attribute value */
-    attributeValue?: string;
-}
-
-/** Member data transfer object */
-export interface MemberDTO {
-    /**
-     * Member type (1=User, 2=Role, 3=Group)
-     * @format int32
-     */
-    memberType?: number;
-    /** Member ID (user/role/group ID) */
-    memberId?: string;
-    /**
-     * Operator (1=Include, 2=Exclude)
-     * @format int32
-     */
-    operator?: number;
-}
-
 /** Resource permission data transfer object */
 export interface ResourcePermissionDTO {
     /** Permission ID */
@@ -1807,14 +1742,6 @@ export interface ResourcePermissionDTO {
      * @format date-time
      */
     updateTime?: string;
-}
-
-/** Rule data transfer object */
-export interface RuleDTO {
-    /** Logical operator (AND, OR) */
-    operator?: string;
-    /** List of attribute rules */
-    rules?: AttributeRuleDTO[];
 }
 
 export interface ResourcePermissionRequest {
@@ -2056,6 +1983,8 @@ export interface ContactRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface PaginationDTOMapStringObject {
@@ -2504,17 +2433,6 @@ export interface PasswordConfigDTO {
     reusePasswordCount?: number;
 }
 
-export interface ResultSetString {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** @uniqueItems true */
-    data?: string[];
-    messageKey?: string;
-    locale?: string;
-}
-
 /** EasyShare (Request) */
 export interface SharePageRequestDTO {
     /**
@@ -2573,6 +2491,8 @@ export interface SmartFolderRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface PaginationDTOSmartFolderResponseDTO {
@@ -2615,6 +2535,91 @@ export interface VersioningRequestDTO {
     versionNum?: string;
     /** Increment */
     increment?: string;
+}
+
+/** Document */
+export interface DocumentDTO {
+    /** Document ID */
+    id?: string;
+    /** Document Name */
+    name?: string;
+    /** Document Description */
+    description?: string;
+    /** Document Path */
+    path?: string;
+    /** Document Type */
+    type?: string;
+    /** Document Version */
+    version?: string;
+    /**
+     * Document Status
+     * @format int32
+     */
+    status?: number;
+    statusName?: string;
+    /** Document Creator */
+    createdBy?: string;
+    /** Document Modifier */
+    modifiedBy?: string;
+    /**
+     * Document Created Date
+     * @format date-time
+     */
+    createdDate?: string;
+    /**
+     * Document Modification Date
+     * @format date-time
+     */
+    modifiedDate?: string;
+    /** Is Document Folder */
+    isFolder?: boolean;
+    /** Is Document Checked Out */
+    isCheckedOut?: boolean;
+    /** Document Properties */
+    properties?: Record<string, object>;
+    /** Document File Content */
+    fileContent?: FileContentDTO;
+    /** parentRef */
+    parentRef?: string;
+    /** logicalPath */
+    logicalPath?: string;
+    auditComment?: string;
+    auditName?: string;
+    /** Permission Name */
+    permissionName?: string[];
+    /** Contributors */
+    contributors?: string[];
+    /** File Suffix */
+    fileSuffix?: string;
+    /** OCR State */
+    ocrState?: string;
+    /** ID of Document Folder Cabinet */
+    dfcId?: string;
+    permissionIds?: number[];
+    comeFrom?: string;
+    drivePreviewLink?: string;
+    originalPath?: string;
+    fileContentName?: string;
+    fileContentMimeType?: string;
+    /** @format int64 */
+    fileContentLength?: number;
+    fileContentMinioFileVersion?: string;
+    fileContentDigestAlgorithm?: string;
+    fileContentDigest?: string;
+    fileContentData?: string;
+    fileContentExtension?: string;
+}
+
+/** Document File Content */
+export interface FileContentDTO {
+    digestAlgorithm?: string;
+    digest?: string;
+    data?: string;
+    name?: string;
+    mime_type?: string;
+    /** @format int64 */
+    length?: number;
+    minio_file_version?: string;
 }
 
 export interface ResultDocumentDTO {
@@ -2737,8 +2742,14 @@ export interface DocumentRequestDTO {
     templateId?: string;
     /** Every level folder cabinet template Id */
     layoutId?: string;
+    /** The Id of document folder cabinet */
+    dfcId?: string;
     oldDocPalType?: string;
+    watermarkTemplateId?: string;
+    version?: string;
+    needMetadata?: boolean;
     title?: string;
+    fileName?: string;
 }
 
 /** Open Observe Audit Log Search Request */
@@ -2894,45 +2905,40 @@ export interface DocumentThumbnailDTO {
     isFolder?: boolean;
     /** Document lastModified */
     modifiedDate?: string;
+    /** Document Modifier */
+    modifiedBy?: string;
     /** Document create date */
     createdDate?: string;
     /** Document source modified date */
     fileModifiedDate?: string;
-    mimeType?: string;
-    documentType?: string;
-    docPalType?: string;
-    contributors?: string[];
-    tags?: string[];
-    version?: string;
-    collections?: Record<string, string>[];
     /**
      * Document content size
      * @format double
      */
     fileSize?: number;
+    source?: string;
+    uploadId?: string;
+    mimeType?: string;
+    documentType?: string;
+    docPalType?: string;
+    /** @format int32 */
+    status?: number;
+    statusName?: string;
+    contributors?: string[];
+    tags?: string[];
+    version?: string;
+    collections?: Record<string, string>[];
     permissionIds?: number[];
-    hold?: PolicyDocument;
-    retention?: RetentionPolicyDocument;
+    holdDocument?: HoldDocument;
+    retentionDocument?: RetentionDocument;
+    comeFrom?: string;
+    drivePreviewLink?: string;
+    originalPath?: string;
 }
 
-export interface PaginationDTODocumentThumbnailDTO {
-    entryList?: DocumentThumbnailDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface PolicyDocument {
-    /** @format int64 */
-    id?: number;
-    /** @format int64 */
-    policyHoldId?: number;
+export interface HoldDocument {
+    id?: string;
+    policyHoldId?: string;
     documentId?: string;
     documentName?: string;
     documentPath?: string;
@@ -2957,6 +2963,21 @@ export interface PolicyDocument {
     createdDate?: string;
     /** @format date-time */
     modifiedDate?: string;
+    policyHoldName?: string;
+    valid?: boolean;
+}
+
+export interface PaginationDTODocumentThumbnailDTO {
+    entryList?: DocumentThumbnailDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
 }
 
 export interface ResultPaginationDTODocumentThumbnailDTO {
@@ -2969,11 +2990,9 @@ export interface ResultPaginationDTODocumentThumbnailDTO {
     locale?: string;
 }
 
-export interface RetentionPolicyDocument {
-    /** @format int64 */
-    id?: number;
-    /** @format int64 */
-    policyRetentionId?: number;
+export interface RetentionDocument {
+    id?: string;
+    policyRetentionId?: string;
     documentId?: string;
     documentName?: string;
     documentPath?: string;
@@ -2994,6 +3013,8 @@ export interface RetentionPolicyDocument {
     createdDate?: string;
     /** @format date-time */
     modifiedDate?: string;
+    policyName?: string;
+    approver?: string;
 }
 
 export interface ResultListVirtualFolderSettingResponseDTO {
@@ -3148,6 +3169,8 @@ export interface ExternalStorageImportJobRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface PaginationDTOExternalStorageImportJobDTO {
@@ -3202,6 +3225,8 @@ export interface ExternalProfileRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
     /** External storage ID that this external storage profile belongs to */
     external_storage_id?: string;
     /** Profile type (e.g., READ_ONLY, READ_WRITE, ADMIN) of the external storage profile */
@@ -3292,6 +3317,8 @@ export interface ExternalStorageRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
     /** Type of connection (e.g., S3, FTP, SFTP, etc.) */
     connection_type?: string;
     /** Connection settings configuration */
@@ -3347,6 +3374,8 @@ export interface BasePageRequest {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface PaginationDTOEventCalendarSetting {
@@ -3425,6 +3454,8 @@ export interface DocPalTypeRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface DocPalTypeResponseDTO {
@@ -3531,6 +3562,8 @@ export interface QueryMetadataRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export type BooleanValidation = MetadataValidation;
@@ -3890,6 +3923,8 @@ export interface ProcessVersionRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface PaginationDTOProcessDefinitionVersion {
@@ -4034,6 +4069,14 @@ export interface WorkflowRequestDTO {
     candidateUser?: string;
     candidateOrAssigned?: string;
     interrelatedUserId?: string;
+    /** @uniqueItems true */
+    orderList?: string[];
+    /**
+     * Page Index
+     * @deprecated
+     * @format int32
+     */
+    pageIndex?: number;
 }
 
 /** Process Instance */
@@ -4149,6 +4192,11 @@ export interface TaskDTO {
     claimDate?: string;
     /** Process Instance */
     taskInstance?: InstanceDTO;
+    businessKey?: string;
+    processDefinitionName?: string;
+    startUserId?: string;
+    createDateStr?: string;
+    dueDateStr?: string;
     variables?: Record<string, object>;
 }
 
@@ -4300,6 +4348,8 @@ export interface QueryWorkflowJobRequest {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface PaginationDTOWorkflowRetryManagerDTO {
@@ -4424,6 +4474,7 @@ export interface ProcessDefinitionDraft {
     createdDate?: string;
     /** @format date-time */
     modifiedDate?: string;
+    folderCabinetSettingId?: string;
     latestVersionId?: string;
     productionVersionId?: string;
 }
@@ -4465,6 +4516,8 @@ export interface ProcessDefinitionRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface PaginationDTOProcessDefinitionDraft {
@@ -4519,6 +4572,8 @@ export interface WorkflowDraftRequestDTO {
     versionId?: string;
     /** Process Definition Version Number */
     versionNumber?: string;
+    /** Process Definition Operator */
+    operator?: string;
 }
 
 export interface ConditionValidationReq {
@@ -4552,8 +4607,7 @@ export interface ResultWhatsAppOverviewResponse {
 }
 
 export interface WhatsAppLogDTO {
-    /** @format int64 */
-    id?: number;
+    id?: string;
     status?: string;
     responseMessage?: string;
     /** @format date-time */
@@ -4768,6 +4822,8 @@ export interface EmailTemplateRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface PaginationDTOEmailTemplate {
@@ -4862,6 +4918,8 @@ export interface EmailLayoutRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface PaginationDTOEmailLayout {
@@ -5016,8 +5074,7 @@ export interface ResultPaginationDTORetentionPolicy {
 }
 
 export interface RetentionPolicy {
-    /** @format int64 */
-    id?: number;
+    id?: string;
     policyName?: string;
     isAuto?: boolean;
     approvalId?: string;
@@ -5034,9 +5091,9 @@ export interface RetentionPolicy {
     /** @format date-time */
     modifiedDate?: string;
     /** @uniqueItems true */
-    triggers?: RetentionPolicyTrigger[];
+    triggers?: RetentionTrigger[];
     /** @uniqueItems true */
-    events?: RetentionPolicyEvent[];
+    events?: RetentionEvent[];
 }
 
 /** HoldPolicy RequestDTO */
@@ -5187,6 +5244,25 @@ export interface ResultGrpcMetadataResp {
     locale?: string;
 }
 
+export interface NotificationSetting {
+    /** @format int64 */
+    id?: number;
+    type?: "SUB_DOCUMENT" | "SUBSCRIPTION";
+    moduleName?: string;
+    description?: string;
+    funcPoint?: string;
+    pointEnable?: boolean;
+    templateId?: string;
+    scope?: string;
+    realm?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
 export interface SubNotificationRequest {
     action?:
         | "DOCUMENT_CREATE"
@@ -5208,10 +5284,16 @@ export interface SubNotificationRequest {
         | "DOCUMENT_SHARE_OPEN_LINK"
         | "DOCUMENT_SHARE_DOWNLOAD_FILE"
         | "DOCUMENT_FOLDER_CABINET_NOTIFICATION"
-        | "DOCUMENT_FOLDER_CABINET_SUMMARY_REPORT";
+        | "DOCUMENT_FOLDER_CABINET_SUMMARY_REPORT"
+        | "WORKFLOW_CUSTOM"
+        | "WORKFLOW_APPLY"
+        | "WORKFLOW_SUCCESS"
+        | "WORKFLOW_REJECTED";
     variables?: Record<string, object>;
     notificationUserId?: string[];
     businessId?: string;
+    setting?: NotificationSetting;
+    messageBody?: string;
 }
 
 /** Metadata (RequestDTO) */
@@ -5242,6 +5324,8 @@ export interface MetadataRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface MessageTemplateRequestDTO {
@@ -5270,6 +5354,8 @@ export interface MessageTemplateRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface MessageTemplateVO {
@@ -5352,6 +5438,7 @@ export interface MTFieldInfo {
     required?: boolean;
     unique?: boolean;
     primaryKey?: boolean;
+    defaultValue?: object;
     relationTable?: string;
     relationField?: string;
     displayField?: string;
@@ -5394,22 +5481,8 @@ export interface MasterTableRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
-}
-
-export interface MTColumnInfo {
-    columnName?: string;
-    dataType?: string;
     /** @format int32 */
-    length?: number;
-    relationTable?: string;
-    relationField?: string;
-    displayField?: string;
-    nullRelation?: boolean;
-    /** @format int32 */
-    sort?: number;
-    primaryKey?: boolean;
-    required?: boolean;
-    unique?: boolean;
+    pageIndex?: number;
 }
 
 /** Master Table ResponseDTO */
@@ -5425,6 +5498,12 @@ export interface MasterTableResponseDTO {
     /** @format date-time */
     modifiedDate?: string;
     fields?: MTColumnInfo[];
+    userId?: string;
+    aces?: string;
+    read?: boolean;
+    edit?: boolean;
+    create?: boolean;
+    enable?: boolean;
 }
 
 export interface ResultMasterTableResponseDTO {
@@ -5496,6 +5575,8 @@ export interface MTAuditLogRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface MTAddColumnRequestDTO {
@@ -5561,6 +5642,7 @@ export interface InternalShareQueryDTO {
     shareToUserId?: string;
     shareToUserIds?: string[];
     documentId?: string;
+    documentIds?: string;
     documentName?: string;
     documentType?: string;
     /** @format date-time */
@@ -5588,8 +5670,8 @@ export interface InternalShareQueryDTO {
     biggerThenId?: number;
 }
 
-export interface PaginationDTOObject {
-    entryList?: object[];
+export interface PaginationDTOInternalShareQueryDTO {
+    entryList?: InternalShareQueryDTO[];
     /** @format int32 */
     totalSize?: number;
     /** @format int32 */
@@ -5601,12 +5683,12 @@ export interface PaginationDTOObject {
     isNextPageAvailable?: boolean;
 }
 
-export interface ResultPaginationDTOObject {
+export interface ResultPaginationDTOInternalShareQueryDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: PaginationDTOObject;
+    data?: PaginationDTOInternalShareQueryDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -5638,6 +5720,8 @@ export interface IdTemplateRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface PaginationDTOIdTemplate {
@@ -5730,6 +5814,8 @@ export interface FormDesignRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 /** Form Design Information List */
@@ -5821,6 +5907,8 @@ export interface ResultFormDesignResponseDTO {
 export interface FormDesignDataDTO {
     /** Form Design ID */
     id?: string;
+    /** Email Business Log id */
+    emailBusinessLogId?: string;
     /** Form Data */
     data?: Record<string, object>;
     /** Business Number */
@@ -5869,6 +5957,8 @@ export interface EasyFormResultRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface ResultEasyFormResult {
@@ -5918,6 +6008,8 @@ export interface EasyFormEmailQueryRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface EasyFormActionDTO {
@@ -6037,121 +6129,6 @@ export interface ResultBatchSendEmailResponseDTO {
     data?: BatchSendEmailResponseDTO;
 }
 
-/** Vocabulary Entry */
-export interface VocabularyEntryRequestDTO {
-    /** Entry ID */
-    id?: string;
-    /** Entry Label */
-    label?: string;
-    /** Select the id of one of the entries in the parent vocabulary, required for Child Vocabulary and Hierarchical Vocabulary Creation */
-    parentEntryID?: string;
-    /**
-     * Ordering of entries，only valid for simple vocabulary entries
-     * @format int32
-     */
-    order?: number;
-    /** Select true if the Entry is obsolete */
-    obsolete?: boolean;
-}
-
-/** Dict RequestDTO */
-export interface DictRequestDTO {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    /**
-     * ID
-     * @format int64
-     */
-    id?: number;
-    /** categoryCode */
-    categoryCode?: string;
-    /** categoryDesc */
-    categoryDesc?: string;
-    /** dataType */
-    dataType?: string;
-    /** dictDesc */
-    dictDesc?: string;
-    /** language */
-    language?: string;
-    /** status */
-    status?: string;
-    /** locateCode */
-    locateCode?: string;
-    /** parentCode */
-    parentCode?: string;
-    /** remark */
-    remark?: string;
-    /** dictCode */
-    dictCode?: string;
-    /**
-     * sortNo
-     * @format int32
-     */
-    sortNo?: number;
-    /**
-     * version
-     * @format int32
-     */
-    version?: number;
-    sort?: SortObject;
-    sortOrModifiedDate?: SortObject;
-    descSort?: SortObject;
-    desc?: boolean;
-    orderByValue?: string;
-}
-
-/** Dict ResponseDTO */
-export interface DictResponseDTO {
-    /** @format int64 */
-    id?: number;
-    categoryCode?: string;
-    categoryDesc?: string;
-    parentCode?: string;
-    dictCode?: string;
-    dictDesc?: string;
-    dataType?: string;
-    language?: string;
-    status?: string;
-    locateCode?: string;
-    remark?: string;
-    /** @format int32 */
-    sortNo?: number;
-    /** @format int32 */
-    version?: number;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    children?: DictResponseDTO[];
-}
-
-export interface ResultDictResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Dict ResponseDTO */
-    data?: DictResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface ExecuteSqlDTO {
     executeQuerySqlTemplate?: string;
     tableName?: string;
@@ -6222,6 +6199,8 @@ export interface CompanyRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface PaginationDTOCompany {
@@ -6245,21 +6224,6 @@ export interface ResultPaginationDTOCompany {
     data?: PaginationDTOCompany;
     messageKey?: string;
     locale?: string;
-}
-
-/** Case Table ResponseDTO */
-export interface CaseTableResponseDTO {
-    id?: string;
-    caseTypeId?: string;
-    label?: string;
-    status?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    fields?: MTColumnInfo[];
 }
 
 export interface CaseTypeInfo {
@@ -6309,17 +6273,16 @@ export interface CmmnVersion {
     caseDefinitionKey?: string;
     productionVersion?: string;
     publishStatus?: string;
-    primaryForm?: string;
     bytes?: string[];
     styleJson?: string;
+    /** Case Table ResponseDTO */
+    primaryForm?: CaseTableResponseDTO;
     createdBy?: string;
     modifiedBy?: string;
     /** @format date-time */
     createdDate?: string;
     /** @format date-time */
     modifiedDate?: string;
-    /** Case Table ResponseDTO */
-    upPrimaryForm?: CaseTableResponseDTO;
     production?: boolean;
 }
 
@@ -6433,6 +6396,8 @@ export interface CmmnVersionRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface PaginationDTOCmmnVersion {
@@ -6488,6 +6453,8 @@ export interface CaseTypeRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface PaginationDTOCaseType {
@@ -6567,6 +6534,10 @@ export interface CaseTableRequestDTO {
     data?: Record<string, object>[];
     /** Where Condition */
     where?: Record<string, object>;
+    /** Where Condition (Not Equal) */
+    notEquals?: Record<string, object>;
+    /** Where Condition (Equal) */
+    equals?: Record<string, object>;
     /** Where And Condition */
     andConditions?: WhereCondition[];
     c?: Record<string, object>;
@@ -6577,6 +6548,8 @@ export interface CaseTableRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 /** Where And Condition */
@@ -6671,9 +6644,13 @@ export interface CmmnTaskDTO {
     claimDate?: string;
     /** Process Instance */
     taskInstance?: InstanceDTO;
+    businessKey?: string;
+    processDefinitionName?: string;
+    startUserId?: string;
+    createDateStr?: string;
+    dueDateStr?: string;
     variables?: Record<string, object>;
     state?: string;
-    processDefinitionName?: string;
     /** @format date-time */
     endTime?: string;
     /** @format int64 */
@@ -6740,6 +6717,8 @@ export interface CaseInstanceRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 /** Case Instance (Request) */
@@ -6815,10 +6794,17 @@ export interface PlanItemInstanceDTO {
     /** @format date-time */
     exitTime?: string;
     active?: boolean;
+    businessKey?: string;
+    operator?: string;
     variables?: Record<string, object>;
+    /** Workflow Instance Request Variables */
+    workflowVariables?: Record<string, object>;
+    /** Workflow PlanItem Instance */
     subItems?: PlanItemInstanceDTO[];
     /** Case Model Plan Form DTO */
     planForm?: CmmnPlanFormDTO;
+    processInstanceId?: string;
+    humanTaskId?: string;
 }
 
 export interface ResultListPlanItemInstanceDTO {
@@ -6903,14 +6889,18 @@ export interface CmmnProcessRequestDTO {
     caseInstanceId?: string;
     businessKey?: string;
     caseDefinitionId?: string;
-    /** @uniqueItems true */
     processDefinitionKeys?: string[];
     assignee?: string;
+    candidateOrAssigned?: string;
+    category?: string;
+    workflow?: string;
     sort?: SortObject;
     sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 /** Case Instance Process Instance Information */
@@ -7115,6 +7105,8 @@ export interface FolderCabinetRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 /** Document Access Control Entry */
@@ -7165,6 +7157,7 @@ export interface FolderCabinetResponseDTO {
     createdDate?: string;
     /** @format date-time */
     modifiedDate?: string;
+    complete?: boolean;
     /** The bind owners of this folder cabinet */
     binds?: FolderCabinetBinds[];
     /** The label Rule list */
@@ -7223,9 +7216,9 @@ export interface FolderCabinet {
     parentId?: string;
     pathIds?: string;
     label?: string;
+    documentId?: string;
     documentType?: string;
     documentPath?: string;
-    documentId?: string;
     allow?: boolean;
     multiple?: boolean;
     complete?: boolean;
@@ -7288,6 +7281,8 @@ export interface OcrTransactionLogRequestDTO {
     descSort?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
 }
 
 export interface OcrTransactionLogDTO {
@@ -7805,17 +7800,6 @@ export interface ResultPasswordConfigDTO {
     locale?: string;
 }
 
-export interface ResultDocumentTypeDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Document Type */
-    data?: DocumentTypeDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
 /** All Condition ResponseDTO */
 export interface ConditionResponseDTO {
     key?: string;
@@ -7856,7 +7840,6 @@ export interface ResultObjects {
     locale?: string;
 }
 
-/** Define audit template */
 export interface AuditTemplate {
     id?: string;
     eventId?: string;
@@ -8060,6 +8043,51 @@ export interface ResultListDocPalTypeRelated {
     code?: number;
     message?: string;
     data?: DocPalTypeRelated[];
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Document Type */
+export interface DocumentTypeDTO {
+    /** Document Type Name */
+    name?: string;
+    /** Is Folder Type */
+    isFolder?: boolean;
+    /** Document Type keywords */
+    keywords?: KeywordDTO[];
+}
+
+/** Keyword */
+export interface KeywordDTO {
+    /** Keyword Name */
+    name?: string;
+    /** Keyword Type */
+    type?: string;
+    /** Keyword Value */
+    value?: object;
+    /** Schema That Belong To Keyword */
+    schema?: string;
+    /** Keyword Is Multiple Value */
+    isMultiValue?: boolean;
+    /** Keyword Default Value */
+    defaultValue?: object;
+    /** Value Scope Of This Keyword */
+    valueScope?: KeywordValueScope;
+}
+
+/** Value Scope Of This Keyword */
+export interface KeywordValueScope {
+    scope?: string;
+    scopeName?: string;
+}
+
+export interface ResultDocumentTypeDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Document Type */
+    data?: DocumentTypeDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -8282,6 +8310,16 @@ export interface WMContentTypeDTO {
     metadata?: string;
 }
 
+export interface ResultListDocumentTypeDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocumentTypeDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface ResultEmailTemplate {
     result?: boolean;
     /** @format int32 */
@@ -8352,6 +8390,17 @@ export interface ResultMapStringBoolean {
     locale?: string;
 }
 
+export interface ResultSetString {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** @uniqueItems true */
+    data?: string[];
+    messageKey?: string;
+    locale?: string;
+}
+
 /** KeyCloakPropertyDTO */
 export interface KeyCloakPropertyDTO {
     /** url */
@@ -8394,12 +8443,12 @@ export interface ResultKeyCloakPropertyVO {
     locale?: string;
 }
 
-export interface ResultListRetentionPolicyTrigger {
+export interface ResultListRetentionTrigger {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: RetentionPolicyTrigger[];
+    data?: RetentionTrigger[];
     messageKey?: string;
     locale?: string;
 }
@@ -8424,15 +8473,25 @@ export interface ResultOAuth2AuthenticationMethod {
     locale?: string;
 }
 
+export interface Content {
+    type?: string;
+    format?: string;
+    text?: string;
+}
+
 export interface MessageTemplateDTO {
     /** @format int64 */
     id?: number;
     status?: string;
+    name?: string;
+    category?: string;
     language?: string;
+    parameter_format?: string;
     needSendTextMessage?: boolean;
     headerVariables?: string[];
     bodyVariables?: string[];
     textVariables?: string[];
+    components?: Content[];
 }
 
 export interface ResultListMessageTemplateDTO {
@@ -8645,16 +8704,6 @@ export interface ResultListDocPalEmailTemplate {
     code?: number;
     message?: string;
     data?: DocPalEmailTemplate[];
-}
-
-export interface ResultListDictResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DictResponseDTO[];
-    messageKey?: string;
-    locale?: string;
 }
 
 export interface ConversionSupportDestType {
@@ -9031,42 +9080,6 @@ export interface ResultAzureSettingDTO {
     locale?: string;
 }
 
-/** Additional role data transfer object */
-export interface AdditionRoleDTO {
-    /** Role ID */
-    roleId?: string;
-    /** Role name */
-    roleName?: string;
-}
-
-/** Configuration rule data transfer object */
-export interface ConfigurationRuleDTO {
-    /** Rule ID */
-    id?: string;
-    /** Rule name */
-    name?: string;
-    /** List of members */
-    members?: MemberDTO[];
-    /** List of rules */
-    rules?: RuleDTO[];
-}
-
-/** User detail data transfer object */
-export interface UserDetailDTO {
-    /** User ID */
-    userId?: string;
-    /** Primary role ID */
-    roleId?: string;
-    /** Primary role name */
-    roleName?: string;
-    /** List of groups the user belongs to */
-    groups?: GroupDTO[];
-    /** List of configuration rules */
-    configurationRules?: ConfigurationRuleDTO[];
-    /** List of additional roles */
-    additionRoleList?: AdditionRoleDTO[];
-}
-
 export interface ResultUserDetailDTO {
     result?: boolean;
     /** @format int32 */
@@ -9234,7 +9247,7 @@ export class HttpClient<SecurityDataType = unknown> {
     constructor({ securityWorker, secure, format, ...axiosConfig }: ApiConfig<SecurityDataType> = {}) {
         this.instance = axios.create({
             ...axiosConfig,
-            baseURL: axiosConfig.baseURL || "http://sit-v2.wclsolution.com",
+            baseURL: axiosConfig.baseURL || "http://sit-v3.wclsolution.com",
         });
         this.secure = secure;
         this.format = format;
@@ -9329,70 +9342,10 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title OpenAPI definition
  * @version v0
- * @baseUrl http://sit-v2.wclsolution.com
+ * @baseUrl http://sit-v3.wclsolution.com
  */
 export class Admin<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
     api = {
-        /**
-         * No description
-         *
-         * @tags Configuration
-         * @name GetNuxeoTypes
-         * @summary Get all document types
-         * @request GET:/api/nuxeo/types
-         */
-        getNuxeoTypes: (params: RequestParams = {}) =>
-            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/types`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration
-         * @name PostNuxeoTypes
-         * @summary Get all document types
-         * @request POST:/api/nuxeo/types
-         */
-        postNuxeoTypes: (params: RequestParams = {}) =>
-            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/types`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Collection (Nuxeo)
-         * @name GetNuxeoCollection
-         * @summary Get user visible collections
-         * @request GET:/api/nuxeo/collection
-         */
-        getNuxeoCollection: (params: RequestParams = {}) =>
-            this.request<ResultPaginationDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Collection (Nuxeo)
-         * @name PostNuxeoCollection
-         * @summary Get user visible collections
-         * @request POST:/api/nuxeo/collection
-         */
-        postNuxeoCollection: (params: RequestParams = {}) =>
-            this.request<ResultPaginationDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection`,
-                method: "POST",
-                ...params,
-            }),
-
         /**
          * No description
          *
@@ -10512,52 +10465,6 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags system-feature-controller
-         * @name GetSystemfeatureGroups
-         * @request GET:/api/docpal/systemfeature/groups
-         */
-        getSystemfeatureGroups: (params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/systemfeature/groups`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags system-feature-controller
-         * @name PutSystemfeatureGroups
-         * @request PUT:/api/docpal/systemfeature/groups
-         */
-        putSystemfeatureGroups: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/systemfeature/groups`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags system-feature-controller
-         * @name PostSystemfeatureGroups
-         * @request POST:/api/docpal/systemfeature/groups
-         */
-        postSystemfeatureGroups: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/systemfeature/groups`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags RetentionPolicyController
          * @name PutPolicyRetentions
          * @summary Modify retention policy
@@ -10799,6 +10706,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags FormDesignController
          * @name PutFormDesignDraftidFormresultStatus
          * @request PUT:/api/docpal/form/design/{draftId}/formResult/status
+         * @deprecated
          */
         putFormDesignDraftidFormresultStatus: (draftId: string, data: EasyFormResult, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -11289,22 +11197,6 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * No description
          *
          * @tags azure-ocr-controller
-         * @name PutAzureOcrUpdateocrsettingDeprecate
-         * @request PUT:/api/docpal/azure/ocr/updateOcrSetting/
-         */
-        putAzureOcrUpdateocrsettingDeprecate: (data: AzureOcrSettingDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/azure/ocr/updateOcrSetting/`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags azure-ocr-controller
          * @name PutAzureOcrUpdateocrsetting
          * @request PUT:/api/docpal/azure/ocr/updateOcrSetting
          */
@@ -11337,44 +11229,12 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * No description
          *
          * @tags azure-ocr-controller
-         * @name PutAzureOcrUpdateocrprofilemappingDeprecate
-         * @request PUT:/api/docpal/azure/ocr/updateOcrProfileMapping/
-         */
-        putAzureOcrUpdateocrprofilemappingDeprecate: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/azure/ocr/updateOcrProfileMapping/`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags azure-ocr-controller
          * @name PutAzureOcrUpdateapisetting
          * @request PUT:/api/docpal/azure/ocr/updateApiSetting
          */
         putAzureOcrUpdateapisetting: (data: AzureOcrApiKeyDTO, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/azure/ocr/updateApiSetting`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags azure-ocr-controller
-         * @name PutAzureOcrUpdateapisettingDeprecate
-         * @request PUT:/api/docpal/azure/ocr/updateApiSetting/
-         */
-        putAzureOcrUpdateapisettingDeprecate: (data: AzureOcrApiKeyDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/azure/ocr/updateApiSetting/`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12283,20 +12143,6 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Tag (Nuxeo)
-         * @name PostNuxeoTagsGetalltags
-         * @request POST:/api/nuxeo/tags/getAllTags
-         */
-        postNuxeoTagsGetalltags: (params: RequestParams = {}) =>
-            this.request<ResultSetString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/tags/getAllTags`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags External Share
          * @name PostNuxeoSharePage
          * @request POST:/api/nuxeo/share/page
@@ -12850,7 +12696,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name GetNuxeoDocument
          * @summary Get document information
          * @request GET:/api/nuxeo/document
@@ -12871,7 +12717,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocument
          * @summary Get a document
          * @request POST:/api/nuxeo/document
@@ -12888,7 +12734,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentQueryauditevent
          * @request POST:/api/nuxeo/document/queryAuditEvent
          */
@@ -12907,7 +12753,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentPreview
          * @summary Preview document content
          * @request POST:/api/nuxeo/document/preview
@@ -12924,7 +12770,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentOfficeCreate
          * @request POST:/api/nuxeo/document/office/create
          */
@@ -12940,7 +12786,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentDownload
          * @summary Download a document file
          * @request POST:/api/nuxeo/document/download
@@ -12957,7 +12803,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentCreate
          * @summary Create a document
          * @request POST:/api/nuxeo/document/create
@@ -12991,7 +12837,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentCreatefolders
          * @summary Create folders
          * @request POST:/api/nuxeo/document/createFolders
@@ -13008,7 +12854,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentCreatedocument
          * @summary Create a document
          * @request POST:/api/nuxeo/document/createDocument
@@ -13033,7 +12879,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentCreateStructure
          * @request POST:/api/nuxeo/document/create/structure
          */
@@ -13049,7 +12895,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentCollections
          * @summary Get collections of a document is in
          * @request POST:/api/nuxeo/document/collections
@@ -13066,7 +12912,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentCollectionsDeprecate
          * @summary Get collections of a document is in
          * @request POST:/api/nuxeo/document/collections/
@@ -13083,7 +12929,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentChildrenThumbnail
          * @summary Get children of thumbnail Result
          * @request POST:/api/nuxeo/document/children/thumbnail
@@ -13100,7 +12946,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentChildrenThumbnailV2
          * @summary Get children of thumbnail Result
          * @request POST:/api/nuxeo/document/children/thumbnail_v2
@@ -13117,7 +12963,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentBreadcrumb
          * @summary Get document breadcrumb
          * @request POST:/api/nuxeo/document/breadcrumb
@@ -14865,50 +14711,6 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Auto Generated Value
-         * @name PostTestUpdateDocument
-         * @request POST:/api/docpal/test/update-document
-         */
-        postTestUpdateDocument: (params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/test/update-document`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Auto Generated Value
-         * @name PostTestCreateDocument
-         * @request POST:/api/docpal/test/create-document
-         */
-        postTestCreateDocument: (data: Record<string, object>, params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/test/create-document`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Auto Generated Value
-         * @name PostTestAuditLogDocid
-         * @request POST:/api/docpal/test/audit-log/{docId}
-         */
-        postTestAuditLogDocid: (docId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/test/audit-log/${docId}`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags EmailController
          * @name PostTemplateEmailPage
          * @summary Pagination search (Email Template)
@@ -15097,60 +14899,12 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * No description
          *
          * @tags system-feature-controller
-         * @name PostSystemfeatureGroupsMembers
-         * @request POST:/api/docpal/systemfeature/groups/members
-         */
-        postSystemfeatureGroupsMembers: (data: GroupDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/systemfeature/groups/members`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags system-feature-controller
          * @name PostSystemfeatureCreateuser
          * @request POST:/api/docpal/systemfeature/createUser
          */
         postSystemfeatureCreateuser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/systemfeature/createUser`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags system-feature-controller
-         * @name PostSystemfeatureCreateusergroup
-         * @request POST:/api/docpal/systemfeature/createUserGroup
-         */
-        postSystemfeatureCreateusergroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/systemfeature/createUserGroup`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags system-feature-controller
-         * @name PostSystemfeatureAddusertogroup
-         * @request POST:/api/docpal/systemfeature/addUserToGroup
-         */
-        postSystemfeatureAddusertogroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/systemfeature/addUserToGroup`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15916,7 +15670,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @request POST:/api/docpal/master/tables/column/add
          */
         postMasterTablesColumnAdd: (data: MTAddColumnRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/column/add`,
                 method: "POST",
                 body: data,
@@ -16107,7 +15861,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @request POST:/api/docpal/internalShare/page
          */
         postInternalsharePage: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOObject, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultPaginationDTOInternalShareQueryDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare/page`,
                 method: "POST",
                 body: data,
@@ -16237,6 +15991,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostFormDesign
          * @summary Create a form design
          * @request POST:/api/docpal/form/design
+         * @deprecated
          */
         postFormDesign: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -16254,6 +16009,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostFormDesignSubmitData
          * @summary Submit form data
          * @request POST:/api/docpal/form/design/submit/data
+         * @deprecated
          */
         postFormDesignSubmitData: (
             query: {
@@ -16287,6 +16043,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags FormDesignController
          * @name PostFormDesignSendEmail
          * @request POST:/api/docpal/form/design/send_email
+         * @deprecated
          */
         postFormDesignSendEmail: (data: EasyFormEmailDTO, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
@@ -16304,6 +16061,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostFormDesignSavePreview
          * @summary Save preview style
          * @request POST:/api/docpal/form/design/save/preview
+         * @deprecated
          */
         postFormDesignSavePreview: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -16321,6 +16079,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostFormDesignSavePermission
          * @summary Save Permission
          * @request POST:/api/docpal/form/design/save/permission
+         * @deprecated
          */
         postFormDesignSavePermission: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -16338,6 +16097,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostFormDesignSaveInformation
          * @summary Save information
          * @request POST:/api/docpal/form/design/save/information
+         * @deprecated
          */
         postFormDesignSaveInformation: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -16355,6 +16115,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostFormDesignSaveFormresult
          * @summary Save Form Result
          * @request POST:/api/docpal/form/design/save/formResult
+         * @deprecated
          */
         postFormDesignSaveFormresult: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -16371,6 +16132,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags FormDesignController
          * @name PostFormDesignSaveFormresultAppend
          * @request POST:/api/docpal/form/design/save/formResult/append
+         * @deprecated
          */
         postFormDesignSaveFormresultAppend: (data: EasyFormResultRequestDTO, params: RequestParams = {}) =>
             this.request<ResultEasyFormResult, Result | (ResultObject | Result | ResultString)>({
@@ -16387,6 +16149,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags FormDesignController
          * @name PostFormDesignRecords
          * @request POST:/api/docpal/form/design/records
+         * @deprecated
          */
         postFormDesignRecords: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListLinkedHashMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -16404,6 +16167,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostFormDesignRecordPage
          * @summary Paging search form data
          * @request POST:/api/docpal/form/design/record/page
+         * @deprecated
          */
         postFormDesignRecordPage: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -16421,6 +16185,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostFormDesignPublish
          * @summary Publish Form Design
          * @request POST:/api/docpal/form/design/publish
+         * @deprecated
          */
         postFormDesignPublish: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -16437,6 +16202,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags FormDesignController
          * @name PostFormDesignPageEmailLog
          * @request POST:/api/docpal/form/design/page_email_log
+         * @deprecated
          */
         postFormDesignPageEmailLog: (data: EasyFormEmailQueryRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEasyFormEmailLogDTO, Result | (ResultObject | Result | ResultString)>({
@@ -16454,6 +16220,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostFormDesignPage
          * @summary Paging Query (form design)
          * @request POST:/api/docpal/form/design/page
+         * @deprecated
          */
         postFormDesignPage: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -16572,122 +16339,6 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
                 query: query,
                 body: data,
                 type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DictController
-         * @name PostDictCategoryCategorycodeEntry
-         * @summary Create new Vocabulary entry
-         * @request POST:/api/docpal/dict/category/{categoryCode}/entry
-         */
-        postDictCategoryCategorycodeEntry: (
-            categoryCode: string,
-            data: VocabularyEntryRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dict/category/${categoryCode}/entry`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DictController
-         * @name PatchDictCategoryCategorycodeEntry
-         * @summary Update Vocabulary entry
-         * @request PATCH:/api/docpal/dict/category/{categoryCode}/entry
-         */
-        patchDictCategoryCategorycodeEntry: (
-            categoryCode: string,
-            data: VocabularyEntryRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dict/category/${categoryCode}/entry`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DictController
-         * @name PostDictCategorycodeEntry
-         * @summary Create new Vocabulary entry
-         * @request POST:/api/docpal/dict/{categoryCode}/entry
-         */
-        postDictCategorycodeEntry: (
-            categoryCode: string,
-            data: VocabularyEntryRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dict/${categoryCode}/entry`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DictController
-         * @name PatchDictCategorycodeEntry
-         * @summary Update Vocabulary entry
-         * @request PATCH:/api/docpal/dict/{categoryCode}/entry
-         */
-        patchDictCategorycodeEntry: (
-            categoryCode: string,
-            data: VocabularyEntryRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dict/${categoryCode}/entry`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DictController
-         * @name PostDictCategory
-         * @request POST:/api/docpal/dict/category
-         */
-        postDictCategory: (data: DictRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDictResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dict/category`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DictController
-         * @name PostDict
-         * @request POST:/api/docpal/dict
-         */
-        postDict: (data: DictRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDictResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dict`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
                 ...params,
             }),
 
@@ -17733,6 +17384,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCabinetTemplate
          * @summary create folder cabinet template
          * @request POST:/api/docpal/cabinet/template
+         * @deprecated
          */
         postCabinetTemplate: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -17750,6 +17402,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchCabinetTemplate
          * @summary Modify folder/file into exist folder cabinet template
          * @request PATCH:/api/docpal/cabinet/template
+         * @deprecated
          */
         patchCabinetTemplate: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -17766,6 +17419,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags FolderCabinetController
          * @name GetCabinetTemplatePermission
          * @request GET:/api/docpal/cabinet/template/permission
+         * @deprecated
          */
         getCabinetTemplatePermission: (
             query: {
@@ -17787,6 +17441,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCabinetTemplatePermission
          * @summary Add permission for folder cabinet template
          * @request POST:/api/docpal/cabinet/template/permission
+         * @deprecated
          */
         postCabinetTemplatePermission: (data: DocumentACLEntryDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -17804,6 +17459,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteCabinetTemplatePermission
          * @summary Delete permission from folder cabinet template
          * @request DELETE:/api/docpal/cabinet/template/permission
+         * @deprecated
          */
         deleteCabinetTemplatePermission: (
             query: {
@@ -17830,6 +17486,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCabinetTemplatePage
          * @summary Pagination search folder cabinet
          * @request POST:/api/docpal/cabinet/template/page
+         * @deprecated
          */
         postCabinetTemplatePage: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -17847,6 +17504,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCabinetTemplateDuplicateName
          * @summary Checking duplicate name
          * @request POST:/api/docpal/cabinet/template/duplicate/name
+         * @deprecated
          */
         postCabinetTemplateDuplicateName: (data: FolderCabinet, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -17864,6 +17522,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCabinetImport
          * @summary Import a folder cabinet
          * @request POST:/api/docpal/cabinet/import
+         * @deprecated
          */
         postCabinetImport: (
             query: {
@@ -17887,6 +17546,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCabinetExporttojson
          * @summary Export a folder cabinet
          * @request POST:/api/docpal/cabinet/exportToJson
+         * @deprecated
          */
         postCabinetExporttojson: (
             query: {
@@ -17898,22 +17558,6 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
                 path: `/docpal/cabinet/exportToJson`,
                 method: "POST",
                 query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags azure-ocr-controller
-         * @name PostAzureOcrQueryocrtransactionlogsDeprecate
-         * @request POST:/api/docpal/azure/ocr/queryOcrTransactionLogs/
-         */
-        postAzureOcrQueryocrtransactionlogsDeprecate: (data: OcrTransactionLogRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOOcrTransactionLogDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/azure/ocr/queryOcrTransactionLogs/`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
                 ...params,
             }),
 
@@ -17943,22 +17587,6 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         postAzureOcrCreateocrprofilemapping: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/azure/ocr/createOcrProfileMapping`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags azure-ocr-controller
-         * @name PostAzureOcrCreateocrprofilemappingDeprecate
-         * @request POST:/api/docpal/azure/ocr/createOcrProfileMapping/
-         */
-        postAzureOcrCreateocrprofilemappingDeprecate: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/azure/ocr/createOcrProfileMapping/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18725,7 +18353,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @summary Modify status by id
          * @request PATCH:/api/docpal/policy/retentions/{id}/status/{status}
          */
-        patchPolicyRetentionsIdStatusStatus: (id: number, status: string, params: RequestParams = {}) =>
+        patchPolicyRetentionsIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/${id}/status/${status}`,
                 method: "PATCH",
@@ -18740,7 +18368,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @summary Modify status by id
          * @request PATCH:/api/docpal/policy/holds/{id}/status/{status}
          */
-        patchPolicyHoldsIdStatusStatus: (id: number, status: string, params: RequestParams = {}) =>
+        patchPolicyHoldsIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/holds/${id}/status/${status}`,
                 method: "PATCH",
@@ -18787,6 +18415,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchFormDesignName
          * @summary Update name of form design
          * @request PATCH:/api/docpal/form/design/name
+         * @deprecated
          */
         patchFormDesignName: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -18804,6 +18433,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchFormDesignEnableId
          * @summary Enable a form design
          * @request PATCH:/api/docpal/form/design/enable/{id}
+         * @deprecated
          */
         patchFormDesignEnableId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -18819,6 +18449,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchFormDesignDisableId
          * @summary Disable a form design
          * @request PATCH:/api/docpal/form/design/disable/{id}
+         * @deprecated
          */
         patchFormDesignDisableId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -19249,6 +18880,26 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
+         * @tags AclUserGroupController
+         * @name GetPermissionUserGroupAll
+         * @request GET:/api/permission/user/group/all
+         */
+        getPermissionUserGroupAll: (
+            query: {
+                userId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/permission/user/group/all`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags AclEntryController
          * @name GetPermissionEntryId
          * @summary Query entry by id
@@ -19356,36 +19007,6 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags vocabulary-controller
-         * @name GetNuxeoVocabularyListvocabularyids
-         * @summary Get All Vocabulary ids
-         * @request GET:/api/nuxeo/vocabulary/listVocabularyIds
-         */
-        getNuxeoVocabularyListvocabularyids: (params: RequestParams = {}) =>
-            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/vocabulary/listVocabularyIds`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags vocabulary-controller
-         * @name GetNuxeoVocabularyListvocabularyidsDeprecate
-         * @summary Get All Vocabulary ids
-         * @request GET:/api/nuxeo/vocabulary/listVocabularyIds/
-         */
-        getNuxeoVocabularyListvocabularyidsDeprecate: (params: RequestParams = {}) =>
-            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/vocabulary/listVocabularyIds/`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags User Management APIs
          * @name GetNuxeoUserKeycloakKeycloakuserid
          * @summary Get keycloak user through keycloak user id
@@ -19394,21 +19015,6 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         getNuxeoUserKeycloakKeycloakuserid: (keycloakUserId: string, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/user/keycloak/${keycloakUserId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration
-         * @name GetNuxeoTypeDocumenttype
-         * @summary Obtain metadata list of this documentType
-         * @request GET:/api/nuxeo/type/{documentType}
-         */
-        getNuxeoTypeDocumenttype: (documentType: string, params: RequestParams = {}) =>
-            this.request<ResultDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/type/${documentType}`,
                 method: "GET",
                 ...params,
             }),
@@ -19487,7 +19093,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name GetNuxeoDocumentVersions
          * @request GET:/api/nuxeo/document/versions
          */
@@ -19507,42 +19113,13 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name GetNuxeoDocumentQueryaudittemplate
          * @request GET:/api/nuxeo/document/queryAuditTemplate
          */
         getNuxeoDocumentQueryaudittemplate: (params: RequestParams = {}) =>
             this.request<ResultListAuditTemplate, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/queryAuditTemplate`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration
-         * @name GetNuxeoConfigRefresh
-         * @request GET:/api/nuxeo/config-refresh
-         */
-        getNuxeoConfigRefresh: (params: RequestParams = {}) =>
-            this.request<string, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/config-refresh`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Collection (Nuxeo)
-         * @name GetNuxeoCollectionAll
-         * @request GET:/api/nuxeo/collection/all
-         * @deprecated
-         */
-        getNuxeoCollectionAll: (params: RequestParams = {}) =>
-            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/all`,
                 method: "GET",
                 ...params,
             }),
@@ -20740,6 +20317,21 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * No description
          *
          * @tags DocPalTypeSettingController
+         * @name GetTypesSetting
+         * @summary Load User Setting
+         * @request GET:/api/docpal/types/setting
+         */
+        getTypesSetting: (params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/types/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
          * @name GetTypesList
          * @summary Obtain all list of actived docpal types
          * @request GET:/api/docpal/types/list
@@ -21151,7 +20743,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @summary Obtain RetentionPolicy detail
          * @request GET:/api/docpal/policy/retentions/{id}
          */
-        getPolicyRetentionsId: (id: number, params: RequestParams = {}) =>
+        getPolicyRetentionsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultRetentionPolicyResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/${id}`,
                 method: "GET",
@@ -21166,7 +20758,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @summary Delete the retention policy it must not have been used yet
          * @request DELETE:/api/docpal/policy/retentions/{id}
          */
-        deletePolicyRetentionsId: (id: number, params: RequestParams = {}) =>
+        deletePolicyRetentionsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/${id}`,
                 method: "DELETE",
@@ -21204,7 +20796,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListRetentionPolicyTrigger, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultListRetentionTrigger, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/documentType/used`,
                 method: "GET",
                 query: query,
@@ -21219,7 +20811,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @summary Obtain hold policy detail
          * @request GET:/api/docpal/policy/holds/{id}
          */
-        getPolicyHoldsId: (id: number, params: RequestParams = {}) =>
+        getPolicyHoldsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultHoldPolicy, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/holds/${id}`,
                 method: "GET",
@@ -21234,7 +20826,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @summary Delete the hold policy it must not have been used yet
          * @request DELETE:/api/docpal/policy/holds/{id}
          */
-        deletePolicyHoldsId: (id: number, params: RequestParams = {}) =>
+        deletePolicyHoldsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/holds/${id}`,
                 method: "DELETE",
@@ -21826,6 +21418,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetFormDesignIdDetail
          * @summary Retrieve form design detail of published
          * @request GET:/api/docpal/form/design/{id}/detail
+         * @deprecated
          */
         getFormDesignIdDetail: (id: string, params: RequestParams = {}) =>
             this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -21840,6 +21433,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags FormDesignController
          * @name GetFormDesignProcessDefinitions
          * @request GET:/api/docpal/form/design/process/definitions
+         * @deprecated
          */
         getFormDesignProcessDefinitions: (params: RequestParams = {}) =>
             this.request<ResultListPDResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -21854,6 +21448,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags FormDesignController
          * @name GetFormDesignEmailId
          * @request GET:/api/docpal/form/design/email/{id}
+         * @deprecated
          */
         getFormDesignEmailId: (id: string, params: RequestParams = {}) =>
             this.request<ResultEasyFormBaseEmailDTO, Result | (ResultObject | Result | ResultString)>({
@@ -21868,6 +21463,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags FormDesignController
          * @name GetFormDesignEmailHistoryLogId
          * @request GET:/api/docpal/form/design/email/history/log/{id}
+         * @deprecated
          */
         getFormDesignEmailHistoryLogId: (id: number, params: RequestParams = {}) =>
             this.request<ResultEasyFormBaseEmailDTO, Result | (ResultObject | Result | ResultString)>({
@@ -21883,6 +21479,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetFormDesignDraftId
          * @summary Retrieve form design draft
          * @request GET:/api/docpal/form/design/draft/{id}
+         * @deprecated
          */
         getFormDesignDraftId: (id: string, params: RequestParams = {}) =>
             this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -21898,24 +21495,11 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetFormDesignDatatypeMapping
          * @summary Obtain dataType mapping of form design
          * @request GET:/api/docpal/form/design/dataType/mapping
+         * @deprecated
          */
         getFormDesignDatatypeMapping: (params: RequestParams = {}) =>
             this.request<ResultListMTFieldTypeMapping, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/form/design/dataType/mapping`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags FormDesignController
-         * @name GetFormDesignDataPatchPermission
-         * @request GET:/api/docpal/form/design/data/patch/permission
-         */
-        getFormDesignDataPatchPermission: (params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/data/patch/permission`,
                 method: "GET",
                 ...params,
             }),
@@ -21931,80 +21515,6 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
             this.request<ResultListDocPalEmailTemplate, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/email/template/list`,
                 method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DictController
-         * @name GetDictCategories
-         * @summary Get All Vocabulary ids
-         * @request GET:/api/docpal/dict/categories
-         */
-        getDictCategories: (params: RequestParams = {}) =>
-            this.request<ResultListDictResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dict/categories`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DictController
-         * @name GetDictListvocabularyids
-         * @summary Get All Vocabulary ids
-         * @request GET:/api/docpal/dict/listVocabularyIds
-         */
-        getDictListvocabularyids: (params: RequestParams = {}) =>
-            this.request<ResultListDictResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dict/listVocabularyIds`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DictController
-         * @name GetDictCategorycode
-         * @summary Get Vocabulary by id
-         * @request GET:/api/docpal/dict/{categoryCode}
-         */
-        getDictCategorycode: (
-            categoryCode: string,
-            query?: {
-                language?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListDictResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dict/${categoryCode}`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DictController
-         * @name GetDictCategoryCategorycode
-         * @summary Get Vocabulary by id
-         * @request GET:/api/docpal/dict/category/{categoryCode}
-         */
-        getDictCategoryCategorycode: (
-            categoryCode: string,
-            query?: {
-                language?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListDictResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dict/category/${categoryCode}`,
-                method: "GET",
-                query: query,
                 ...params,
             }),
 
@@ -22160,7 +21670,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          *
          * @tags CaseTypeController
          * @name GetCaseTypesIdExport
-         * @summary Export case type data, including CaseType, CaseModelDraft, CmmnVersion and CMMN XML file
+         * @summary 导出Case数据，包含CaseType、CaseModelDraft、CmmnVersion和cmmn.xml文件
          * @request GET:/api/docpal/case/types/{id}/export
          */
         getCaseTypesIdExport: (
@@ -22372,6 +21882,26 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/tables/${id}`,
                 method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name GetCaseTablesNameExist
+         * @request GET:/api/docpal/case/tables/name/exist
+         */
+        getCaseTablesNameExist: (
+            query: {
+                tablename: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/case/tables/name/exist`,
+                method: "GET",
+                query: query,
                 ...params,
             }),
 
@@ -22884,7 +22414,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
             versionNumber: string,
             params: RequestParams = {},
         ) =>
-            this.request<ResultCmmnDashboard, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultListCmmnDashboard, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/caseType/${caseTypeId}/versionNumber/${versionNumber}`,
                 method: "GET",
                 ...params,
@@ -23013,6 +22543,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCabinetIdUseWorkflow
          * @summary Query workflow list of use this folder cabinet
          * @request GET:/api/docpal/cabinet/{id}/use/workflow
+         * @deprecated
          */
         getCabinetIdUseWorkflow: (id: string, params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -23028,6 +22559,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCabinetTemplateId
          * @summary get folder cabinet template tree
          * @request GET:/api/docpal/cabinet/template/{id}
+         * @deprecated
          */
         getCabinetTemplateId: (id: string, params: RequestParams = {}) =>
             this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -23042,6 +22574,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags FolderCabinetController
          * @name GetCabinetTemplateIdInformation
          * @request GET:/api/docpal/cabinet/template/{id}/information
+         * @deprecated
          */
         getCabinetTemplateIdInformation: (id: string, params: RequestParams = {}) =>
             this.request<ResultFolderCabinet, Result | (ResultObject | Result | ResultString)>({
@@ -23057,24 +22590,11 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCabinetList
          * @summary query all folder cabinet list of top level
          * @request GET:/api/docpal/cabinet/list
+         * @deprecated
          */
         getCabinetList: (params: RequestParams = {}) =>
             this.request<ResultListFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/list`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags azure-ocr-controller
-         * @name GetAzureOcrQueryazuresettingDeprecate
-         * @request GET:/api/docpal/azure/ocr/queryAzureSetting/
-         */
-        getAzureOcrQueryazuresettingDeprecate: (params: RequestParams = {}) =>
-            this.request<ResultAzureSettingDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/azure/ocr/queryAzureSetting/`,
                 method: "GET",
                 ...params,
             }),
@@ -23089,20 +22609,6 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         getAzureOcrQueryazuresetting: (params: RequestParams = {}) =>
             this.request<ResultAzureSettingDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/azure/ocr/queryAzureSetting`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags azure-ocr-controller
-         * @name GetAzureOcrQueryazureocrmodelsDeprecate
-         * @request GET:/api/docpal/azure/ocr/queryAzureOcrModels/
-         */
-        getAzureOcrQueryazureocrmodelsDeprecate: (params: RequestParams = {}) =>
-            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/azure/ocr/queryAzureOcrModels/`,
                 method: "GET",
                 ...params,
             }),
@@ -23138,20 +22644,6 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
                 path: `/docpal/azure/ocr/judgeAndSendAlertEmail`,
                 method: "GET",
                 query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags azure-ocr-controller
-         * @name GetAzureOcrConditionsDeprecate
-         * @request GET:/api/docpal/azure/ocr/conditions/
-         */
-        getAzureOcrConditionsDeprecate: (params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/azure/ocr/conditions/`,
-                method: "GET",
                 ...params,
             }),
 
@@ -23556,20 +23048,6 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags system-feature-controller
-         * @name DeleteSystemfeatureGroupsGroupid
-         * @request DELETE:/api/docpal/systemfeature/groups/{groupId}
-         */
-        deleteSystemfeatureGroupsGroupid: (groupId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/systemfeature/groups/${groupId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags template-message-controller
          * @name DeleteMessageTemplateId
          * @request DELETE:/api/docpal/message/template/{id}
@@ -23650,6 +23128,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags FormDesignController
          * @name DeleteFormDesignId
          * @request DELETE:/api/docpal/form/design/{id}
+         * @deprecated
          */
         deleteFormDesignId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -23664,6 +23143,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags FormDesignController
          * @name DeleteFormDesignDraftidFormresultFormresultid
          * @request DELETE:/api/docpal/form/design/{draftId}/formResult/{formResultId}
+         * @deprecated
          */
         deleteFormDesignDraftidFormresultFormresultid: (
             draftId: string,
@@ -23672,40 +23152,6 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/form/design/${draftId}/formResult/${formResultId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DictController
-         * @name DeleteDictCategoryCategorycodeEntryEntryid
-         * @summary Remove Vocabulary entry
-         * @request DELETE:/api/docpal/dict/category/{categoryCode}/entry/{entryId}
-         */
-        deleteDictCategoryCategorycodeEntryEntryid: (
-            categoryCode: string,
-            entryId: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dict/category/${categoryCode}/entry/${entryId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DictController
-         * @name DeleteDictCategorycodeEntryEntryid
-         * @summary Remove Vocabulary entry
-         * @request DELETE:/api/docpal/dict/{categoryCode}/entry/{entryId}
-         */
-        deleteDictCategorycodeEntryEntryid: (categoryCode: string, entryId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dict/${categoryCode}/entry/${entryId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -23784,6 +23230,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteCabinetId
          * @summary Delete folder cabinet template and all sub folder cabinet
          * @request DELETE:/api/docpal/cabinet/{id}
+         * @deprecated
          */
         deleteCabinetId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -23799,6 +23246,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteCabinetAll
          * @summary Delete folder cabinet template and all sub folder cabinet
          * @request DELETE:/api/docpal/cabinet/all
+         * @deprecated
          */
         deleteCabinetAll: (params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({

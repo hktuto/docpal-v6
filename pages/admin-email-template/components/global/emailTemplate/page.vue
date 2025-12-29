@@ -26,7 +26,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { routeEmailTemplateDetail, routeLayoutTemplatePage } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -37,7 +37,7 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-emailTemplate',
-  api: (pageParams: any) => adminApi.api.postTemplateEmailTemplatePage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => clientApi.api.postDmsTemplateEmailTemplatePage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'label', title: 'emailContentTemplate_name', fixed: 'left' },
     { field: 'subject', title: 'tableHeader_subject' },
@@ -99,7 +99,7 @@ async function handleDeleteTemplate(row: Template[]) {
         confirmButtonText: t('common_confirmDelete')
       })
     if (action !== 'confirm') return
-    await adminApi.api.deleteTemplateEmailTemplateId(row.id)
+    await clientApi.api.deleteDmsTemplateEmailTemplateId(row.id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: row.label }))
     query({})
   } catch (error) {
@@ -117,7 +117,7 @@ function handleFilterFormChange(formModel: any) {
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
-  const layouts = await adminApi.api.getTemplateEmailLayoutAll().then((res) => res.data)
+  const layouts = await adminApi.api.getDmsTemplateEmailLayoutAll().then((res) => res.data)
   const filters = [
     {
       key: 'orderBy',

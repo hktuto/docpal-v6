@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -43,7 +43,7 @@ async function handleInit() {
       emailTemplateVariable: ''
     }
   }
-  const res = await adminApi.api.getTemplateEmailTemplateId(id).then((res) => res.data)
+  const res = await clientApi.api.getDmsTemplateEmailTemplateId(id).then((res) => res.data)
   // loop template body and get all variables
   // const body = res?.body;
   await getTemplateLayout(res?.emailLayoutId)
@@ -61,9 +61,10 @@ async function handleInit() {
  * @param templateId
  */
 async function getTemplateLayout(templateId?: any) {
-  const res: any = await adminApi.api
-    .postTemplateEmailLayoutPage({ pageNum: 0, pageSize: 1000 })
-    .then((res) => res.data)
+  const res: any = await clientApi.api.postDmsTemplateEmailLayoutPage({
+    pageNum: 0,
+    pageSize: 1000
+  }).then((res) => res.data)
   layouts.value = res?.entryList
   const layoutId = layouts.value.length > 0 ? layouts.value[0].id : ''
   selectedLayout.value = templateId || layoutId
@@ -103,7 +104,7 @@ async function save() {
         return
       }
       // }
-      const result = await adminApi.api.postTemplateEmailTemplate({
+      const result = await clientApi.api.postDmsTemplateEmailTemplate({
         ...data.value,
         // TODO : send html to body
         // url encode html
@@ -127,7 +128,8 @@ async function save() {
 
     // update new variable
     // test save json to backend
-    await adminApi.api.putTemplateEmailTemplate({
+    await clientApi.api.putDmsTemplateEmailTemplate
+    ({
       id: id,
       ...data.value,
       // TODO : send html to body
@@ -170,7 +172,6 @@ onMounted(async () => {
 </script>
 <template>
   <div class="pageContainer--padding">
-    
     <Editorjs v-if="data" ref="editorEl" :data="data" :layout="layoutHtml">
       <template #name>
         <div class="editButton">

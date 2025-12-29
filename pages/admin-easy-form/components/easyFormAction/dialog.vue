@@ -355,9 +355,7 @@ async function getWorkflowProps(processKey: string) {
 
 async function getEmailProps(id: string) {
   try {
-    const options = await adminApi.api
-      .getTemplateEmailTemplateId(id)
-      .then((res) => res.data)
+    const options = await clientApi.api.getDmsTemplateEmailTemplateId(id).then((res) => res.data)
     const variable = options.emailTemplateVariable
       ? JSON.parse(options.emailTemplateVariable)
       : []

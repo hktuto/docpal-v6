@@ -57,17 +57,20 @@ export interface KeywordDTO {
     type?: string;
     /** Keyword Value */
     value?: object;
+    /** Schema That Belong To Keyword */
+    schema?: string;
+    /** Keyword Is Multiple Value */
+    isMultiValue?: boolean;
+    /** Keyword Default Value */
+    defaultValue?: object;
+    /** Value Scope Of This Keyword */
+    valueScope?: KeywordValueScope;
 }
 
-export interface ResultDocumentTypeDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Document Type */
-    data?: DocumentTypeDTO;
-    messageKey?: string;
-    locale?: string;
+/** Value Scope Of This Keyword */
+export interface KeywordValueScope {
+    scope?: string;
+    scopeName?: string;
 }
 
 export interface ResultListDocumentTypeDTO {
@@ -76,43 +79,6 @@ export interface ResultListDocumentTypeDTO {
     code?: number;
     message?: string;
     data?: DocumentTypeDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Keyword (Request) */
-export interface KeywordRequestDTO {
-    /** Keyword Name */
-    name?: string;
-    /** Keyword Type */
-    type?: string;
-}
-
-/** Keyword Type Group */
-export interface KeywordTypeGroupDTO {
-    /** Keyword Type Group Name */
-    name?: string;
-    /** Keywords */
-    keywords?: KeywordDTO[];
-}
-
-export interface ResultListKeywordTypeGroupDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: KeywordTypeGroupDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultKeywordTypeGroupDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Keyword Type Group */
-    data?: KeywordTypeGroupDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -313,6 +279,14 @@ export interface RuleDTO {
     rules?: AttributeRuleDTO[];
 }
 
+/** User's role */
+export interface SimpleRoleVO {
+    /** Role ID */
+    roleId?: string;
+    /** Role name */
+    roleName?: string;
+}
+
 /** User */
 export interface UserDTO {
     /** Is user connected */
@@ -352,6 +326,16 @@ export interface UserDTO {
     groups?: GroupDTO[];
     /** User detail data transfer object */
     aclUserDetail?: UserDetailDTO;
+    /** User's role */
+    role?: SimpleRoleVO;
+    /** Department */
+    department?: string;
+    /** Department */
+    company?: string;
+    /** User Level */
+    userLevel?: string;
+    /** Registered */
+    registered?: string;
     userName?: string;
     kcUserId?: string;
 }
@@ -429,6 +413,10 @@ export interface VirtualFolderSettingRequestDTO {
     id?: string;
     /** Virtual Folder Setting in JSON format */
     jsonValue?: string;
+    type?: string;
+    user?: string;
+    userAllowList?: string[];
+    groupAllowList?: string[];
 }
 
 export interface UpdateSyncTaskRequest {
@@ -501,6 +489,74 @@ export interface ResultOAuthAppDTO {
     locale?: string;
 }
 
+/** Event Calendar Setting */
+export interface EventCalendarSetting {
+    /** Event calendar setting ID */
+    id?: string;
+    /** Event calendar setting name */
+    name?: string;
+    /** Event color code (hex format) */
+    color?: string;
+    /** Event status (A, D, R) */
+    status?: string;
+    /** Whether the event type is registered */
+    registered?: boolean;
+    /** Location configuration settings */
+    location?: Record<string, object>;
+    /** EventCalendarSetting Permission */
+    permission?: Permission;
+    /** Workflow Configuration Settings */
+    flows?: Workflows[];
+    /** Background color for event display */
+    backgroundColor?: string;
+    /** Text color for event display */
+    textColor?: string;
+    /** Highlight color for event selection */
+    highlightColor?: string;
+    /**
+     * Available seats for the event
+     * @format int32
+     */
+    availableSeat?: number;
+}
+
+/** EventCalendarSetting Permission */
+export interface Permission {
+    /** View configuration settings */
+    view?: Record<string, string[]>;
+    /** Create event configuration settings */
+    create?: Record<string, string[]>;
+    /** Update event configuration settings */
+    update?: Record<string, string[]>;
+    /** Cancel event configuration settings */
+    cancel?: Record<string, string[]>;
+    /** Remove event configuration settings */
+    remove?: Record<string, string[]>;
+    /** Remove event configuration settings */
+    export?: Record<string, string[]>;
+}
+
+/** Workflow Configuration Settings */
+export interface Workflows {
+    /** Workflow Key */
+    key?: string;
+    /** Workflow Name */
+    name?: string;
+    /** Workflow Template Key */
+    type?: string;
+}
+
+export interface ResultEventCalendarSetting {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Event Calendar Setting */
+    data?: EventCalendarSetting;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface FieldProfile {
     type?: string;
     label?: string;
@@ -530,16 +586,71 @@ export interface ResultUserProfileSettingDTO {
     locale?: string;
 }
 
+/** Identity (Request) */
+export interface IdentityRequestDTO {
+    /** Id */
+    id?: string;
+    /** Group Id */
+    groupId?: string;
+    /** Group Name */
+    groupName?: string;
+    /** User Id */
+    userId?: string;
+    /** User Name */
+    username?: string;
+    /** User First Name */
+    firstName?: string;
+    /** User Last Name */
+    lastName?: string;
+    /** User Email Address */
+    email?: string;
+    /** Phone */
+    phone?: string;
+    /** User Login Password */
+    password?: string;
+    /** Group Id List */
+    groups?: string[];
+    /** User Id List */
+    users?: string[];
+    /** User Properties */
+    properties?: Record<string, object>;
+    /** User Status */
+    status?: string;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageSize?: number;
+    userNameOrEmail?: string;
+    userLevel?: string;
+    registered?: string;
+    orderBy?: string;
+    isDesc?: boolean;
+    groupList?: string[];
+}
+
 export interface PersonalLandingRequestDTO {
     styleJson?: string;
 }
 
-export interface ResultVoid {
+export interface PersonalLanding {
+    /** @format int64 */
+    id?: number;
+    userId?: string;
+    styleJson?: string;
+    /** @format int32 */
+    version?: number;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface ResultPersonalLanding {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: object;
+    data?: PersonalLanding;
     messageKey?: string;
     locale?: string;
 }
@@ -583,11 +694,21 @@ export interface NotificationManageRequestDTO {
     type?: string;
 }
 
+export interface ResultVoid {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: object;
+    messageKey?: string;
+    locale?: string;
+}
+
 /** Relation Record */
 export interface MTRecordDTO {
     /** Table Id */
     tableId?: string;
-    /** Record Ids */
+    /** Record Id */
     recordId?: string;
     /** Record Data List */
     data?: Record<string, object>;
@@ -625,8 +746,52 @@ export interface MTRecordRequestDTO {
     in?: Record<string, object>;
     /** Relation Record */
     relationRecords?: MTRecordDTO[];
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
+}
+
+export interface SortObject {
+    sorted?: boolean;
+    empty?: boolean;
+    unsorted?: boolean;
+}
+
+export interface EasyFormResult {
+    /** Action Item Id */
+    id?: string;
+    /** Action Type, Example value： Email、Workflow、CaseType  */
+    actionType?: string;
+    /** Bound business Key, Example value：customApproval */
+    actionKey?: string;
+    /** DeploymentId of Bound business, Example value：customApproval:1:7212b388-36f3-4aff-9b03-bc500537dd23 */
+    actionId?: string;
+    /** Name of Bound business */
+    actionName?: string;
+    /** Mapping data structure between form columns and bound business fields */
+    dataMapping?: ParamMappingDTO[];
+    /** Status, Active or Deactivated */
+    status?: string;
+    /** Email Subject */
+    subject?: string;
+    /** Email Body Text */
+    text?: string;
+    /** Email TO */
+    to?: string;
+    /** Email CC */
+    cc?: string;
+    /** Email BCC */
+    bcc?: string;
+}
+
+/** Mapping data structure between form columns and bound business fields */
+export interface ParamMappingDTO {
+    source?: string;
+    target?: string;
 }
 
 /** 文档模板签名请求 */
@@ -726,14 +891,13 @@ export interface ContactGroupRequestDTO {
     attributes?: ContactAttribute[];
     operator?: string;
     verifyReadPermission?: boolean;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
-}
-
-export interface Permission {
-    users?: string[];
-    roles?: string[];
-    groups?: string[];
 }
 
 export interface BasicField {
@@ -899,11 +1063,6 @@ export interface EmailReminder {
     variables?: Record<string, object>;
 }
 
-export interface ParamDTO {
-    name?: string;
-    value?: string;
-}
-
 export interface ResultCalendarTaskRespDTO {
     result?: boolean;
     /** @format int32 */
@@ -929,23 +1088,6 @@ export interface TaskReminder {
     /** @format date-time */
     modifiedDate?: string;
     emailReminder?: EmailReminder;
-    whatsApp?: WhatsAppMessageRequestDTO;
-}
-
-export interface WhatsAppMessageRequestDTO {
-    to?: string;
-    templateName?: string;
-    languageCode?: string;
-    components?: {
-        empty?: boolean;
-        /** @deprecated */
-        componentType?: {
-            typeName?: string;
-        };
-        /** @deprecated */
-        relatedArray?: object;
-    };
-    textParamDTOList?: ParamDTO[];
 }
 
 export interface RoleRequest {
@@ -958,6 +1100,250 @@ export interface RoleRequest {
     type?: number;
     parentId?: string;
     additionUsers?: string[];
+}
+
+export interface EmailTemplate {
+    id?: string;
+    /** @format int64 */
+    emailLayoutId?: number;
+    emailTemplateJson?: string;
+    emailTemplateVariable?: string;
+    to?: string;
+    from?: string;
+    label?: string;
+    cc?: string;
+    bcc?: string;
+    subject?: string;
+    body?: string;
+    status?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    display?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    emailLayoutName?: string;
+}
+
+/** Email Template ResponseDTO */
+export interface EmailTemplateResponseDTO {
+    id?: string;
+    /** @format int64 */
+    emailLayoutId?: number;
+    /** @format int64 */
+    emailLayoutName?: number;
+    emailTemplateJson?: string;
+    emailTemplateVariable?: string;
+    to?: string;
+    label?: string;
+    from?: string;
+    cc?: string;
+    bcc?: string;
+    subject?: string;
+    body?: string;
+    status?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    useMap?: Record<string, object>;
+}
+
+export interface ResultEmailTemplateResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Email Template ResponseDTO */
+    data?: EmailTemplateResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface EmailLayout {
+    /** @format int64 */
+    id?: number;
+    name?: string;
+    layoutContent?: string;
+    status?: string;
+    createdBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface ResultEmailLayout {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: EmailLayout;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface MasterTable {
+    id?: string;
+    name?: string;
+    status?: string;
+    tableName?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+/** Case Table ResponseDTO */
+export interface CaseTableResponseDTO {
+    id?: string;
+    caseTypeId?: string;
+    label?: string;
+    status?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    fields?: MTColumnInfo[];
+}
+
+export interface CaseType {
+    id?: string;
+    name?: string;
+    uniqueName?: string;
+    caseIdPrefix?: string;
+    /** @format int32 */
+    caseIdDigit?: number;
+    /** @format int32 */
+    startNumber?: number;
+    enable?: boolean;
+    publishStatus?: string;
+    /** Case Table ResponseDTO */
+    primaryForm?: CaseTableResponseDTO;
+    productionVersion?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    caseDefinitionKey?: string;
+    caseDefinitionId?: string;
+    latestVersion?: string;
+    latestVersionId?: string;
+    productionVersionId?: string;
+    tableName?: string;
+    /** Case Table ResponseDTO */
+    upPrimaryForm?: CaseTableResponseDTO;
+}
+
+export interface MTColumnInfo {
+    columnName?: string;
+    dataType?: string;
+    /** @format int32 */
+    length?: number;
+    relationTable?: string;
+    relationField?: string;
+    displayField?: string;
+    nullRelation?: boolean;
+    /** @format int32 */
+    sort?: number;
+    primaryKey?: boolean;
+    required?: boolean;
+    unique?: boolean;
+}
+
+export interface ResultCaseType {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaseType;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Case model dashboard (RequestDTO) */
+export interface CmmnDashboardRequestDTO {
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    id?: string;
+    label?: string;
+    caseTypeId?: string;
+    /** Case definition version Id */
+    cmmnVersionId?: string;
+    /** @deprecated */
+    userGroup?: string;
+    permissions?: Record<string, string[]>;
+    versionNumber?: string;
+    styleJson?: string;
+    /** Is need to detail */
+    detail?: boolean;
+    businessKey?: string;
+    status?: string;
+    /** Where Condition */
+    where?: Record<string, object>;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+/** Case model dashboard (RequestDTO) */
+export interface CmmnDashboardResponseDTO {
+    id?: string;
+    caseTypeId?: string;
+    deploymentId?: string;
+    cmmnVersionId?: string;
+    label?: string;
+    /** @deprecated */
+    userGroup?: string;
+    status?: string;
+    styleJson?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    createdByName?: string;
+    modifiedByName?: string;
+    permissions?: BasicField[];
+}
+
+export interface ResultCmmnDashboardResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Case model dashboard (RequestDTO) */
+    data?: CmmnDashboardResponseDTO;
+    messageKey?: string;
+    locale?: string;
 }
 
 export interface WOPIFileDTO {
@@ -1361,43 +1747,6 @@ export interface ResultAccessControlEntry {
     data?: AccessControlEntry;
 }
 
-/** Identity (Request) */
-export interface IdentityRequestDTO {
-    /** Id */
-    id?: string;
-    /** Group Id */
-    groupId?: string;
-    /** Group Name */
-    groupName?: string;
-    /** User Id */
-    userId?: string;
-    /** User Name */
-    username?: string;
-    /** User First Name */
-    firstName?: string;
-    /** User Last Name */
-    lastName?: string;
-    /** User Email Address */
-    email?: string;
-    /** Phone */
-    phone?: string;
-    /** User Login Password */
-    password?: string;
-    /** Group Id List */
-    groups?: string[];
-    /** User Id List */
-    users?: string[];
-    /** User Properties */
-    properties?: Record<string, object>;
-    /** User Status */
-    status?: string;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageSize?: number;
-    userNameOrEmail?: string;
-}
-
 /** Password (Request) */
 export interface PasswordRequestDTO {
     token?: string;
@@ -1443,18 +1792,18 @@ export interface TagRequestDTO {
     keyword?: string;
 }
 
-export interface ResultListTagDTO {
+export interface ResultListTagResponseDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: TagDTO[];
+    data?: TagResponseDTO[];
     messageKey?: string;
     locale?: string;
 }
 
 /** Tag */
-export interface TagDTO {
+export interface TagResponseDTO {
     /** Username */
     username?: string;
     /** Label */
@@ -1567,17 +1916,6 @@ export interface NestedSearchLogRequestDTO {
     queryCondition?: string;
 }
 
-export interface ElasticSearchFilterDTO {
-    documentTypes?: string[];
-    collections?: string[];
-    tags?: string[];
-    creators?: string[];
-    lastModifyBy?: string[];
-    authors?: string[];
-    createdDate?: string;
-    modified?: string;
-}
-
 export interface MatchDTO {
     queryType?: string;
     type?: string;
@@ -1602,6 +1940,17 @@ export interface QueryConditionDTO {
     matchs?: MatchDTO[];
 }
 
+export interface SearchFilterDTO {
+    documentTypes?: string[];
+    collections?: string[];
+    tags?: string[];
+    creators?: string[];
+    lastModifyBy?: string[];
+    authors?: string[];
+    createdDate?: string;
+    modified?: string;
+}
+
 export interface SearchRequestDTO {
     condition?: string;
     docId?: string;
@@ -1610,7 +1959,7 @@ export interface SearchRequestDTO {
     /** @format int32 */
     pageNum?: number;
     isExport?: boolean;
-    filter?: ElasticSearchFilterDTO;
+    filter?: SearchFilterDTO;
     query?: QueryConditionDTO[];
 }
 
@@ -1676,65 +2025,6 @@ export interface SearchResponseHits {
     total?: number;
     total_relation?: string;
     hits?: HitsHits[];
-}
-
-/** NestedSearch (Request) */
-export interface NestedSearchRequestDTO {
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /**
-     * Current Page Index
-     * @format int32
-     */
-    currentPageIndex?: number;
-    /** type */
-    type?: string[];
-    /** query params in text search */
-    paramsInTextSearch?: string;
-    /** Include full text search,all meta or ocr content */
-    textSearchType?: string;
-    /** tags */
-    tags?: string[];
-    /** collections */
-    collections?: string[];
-    /** authors */
-    authors?: string[];
-    /** creator */
-    creator?: string[];
-    /** modified */
-    modified?: string;
-    /** fileModified */
-    fileModified?: string;
-    /** mimeTypes */
-    mimeTypes?: string[];
-    /**
-     * size
-     * @format int32
-     */
-    size?: number;
-    /** assetType */
-    assetType?: string;
-    /** duration */
-    duration?: string[];
-    /** mimeType */
-    mimeType?: string[];
-    /** height */
-    height?: string[];
-    /** width */
-    width?: string[];
-    /** includeFolder */
-    includeFolder?: boolean;
-    /** Document Properties */
-    properties?: Record<string, object>;
-    /** @uniqueItems true */
-    orderList?: string[];
-    emailId?: string;
-    isExport?: boolean;
-    orderBy?: string;
-    isDesc?: boolean;
 }
 
 export interface ResultListSearchDocumentVO {
@@ -1810,6 +2100,27 @@ export interface ResultDocumentDTO {
     locale?: string;
 }
 
+export interface ParamDTO {
+    name?: string;
+    value?: string;
+}
+
+export interface WhatsAppMessageRequestDTO {
+    to?: string;
+    templateName?: string;
+    languageCode?: string;
+    components?: {
+        empty?: boolean;
+        /** @deprecated */
+        componentType?: {
+            typeName?: string;
+        };
+        /** @deprecated */
+        relatedArray?: object;
+    };
+    textParamDTOList?: ParamDTO[];
+}
+
 export interface ResultSendMessageResponseDTO {
     result?: boolean;
     /** @format int32 */
@@ -1875,7 +2186,6 @@ export interface FormDesignDataDTO {
     bizNo?: string;
     /** Business Type */
     bizType?: string;
-    params?: Record<string, object>;
 }
 
 export interface FCCreateDocsRequestDTO {
@@ -1973,18 +2283,16 @@ export interface DocumentRequestDTO {
     parentDocPath?: string;
     /** Parent ID */
     parentId?: string;
-    /** Document ID */
-    documentId?: string;
     /** Document ID or Path */
     idOrPath?: string;
     /** Document Name */
     name?: string;
-    /** Document File Suffix */
-    fileSuffix?: string;
     /** Document Creator */
     creator?: string;
     /** Document Type */
     type?: string;
+    /** Document File Suffix */
+    fileSuffix?: string;
     /** Document Properties */
     properties?: Record<string, object>;
     /** Document Language */
@@ -2109,11 +2417,16 @@ export interface CaseInstanceRequestDTO {
     planItemInstanceIds?: string[];
     /** PlanItem Definition Type list */
     planItemDefinitionTypes?: string[];
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
 }
 
-/** Case Instance */
+/** Case Instance (Request) */
 export interface CaseInstanceDTO {
     id?: string;
     parentId?: string;
@@ -2140,65 +2453,6 @@ export interface CaseInstanceDTO {
     completable?: boolean;
     tenantId?: string;
     variables?: Record<string, object>;
-    planItemInstances?: PlanItemInstanceDTO[];
-}
-
-/** Case Model Plan Form DTO */
-export interface CmmnPlanFormDTO {
-    id?: string;
-    name?: string;
-    type?: string;
-    casetable?: string;
-    fields?: PlanTableFieldDTO[];
-}
-
-/** PlanItemInstanceDTO */
-export interface PlanItemInstanceDTO {
-    caseDefinitionId?: string;
-    caseInstanceId?: string;
-    derivedCaseDefinitionId?: string;
-    formKey?: string;
-    id?: string;
-    name?: string;
-    planItemDefinitionId?: string;
-    planItemDefinitionType?: string;
-    referenceId?: string;
-    referenceType?: string;
-    stageInstanceId?: string;
-    startUserId?: string;
-    state?: string;
-    /** @format date-time */
-    completedTime?: string;
-    /** @format date-time */
-    createTime?: string;
-    /** @format date-time */
-    endedTime?: string;
-    /** @format date-time */
-    exitTime?: string;
-    active?: boolean;
-    businessKey?: string;
-    operator?: string;
-    variables?: Record<string, object>;
-    /** Workflow Instance Request Variables */
-    workflowVariables?: Record<string, object>;
-    /** Case Model Plan Form DTO */
-    planForm?: CmmnPlanFormDTO;
-    processInstanceId?: string;
-    humanTaskId?: string;
-}
-
-export interface PlanTableFieldDTO {
-    id?: string;
-    name?: string;
-    type?: string;
-    accesstype?: string;
-    fieldMappingId?: string;
-    masterTable?: string;
-    documentType?: string;
-    displayField?: string;
-    vocabulary?: string;
-    require?: string;
-    readOnly?: string;
 }
 
 export interface ResultCaseInstanceDTO {
@@ -2206,7 +2460,7 @@ export interface ResultCaseInstanceDTO {
     /** @format int32 */
     code?: number;
     message?: string;
-    /** Case Instance */
+    /** Case Instance (Request) */
     data?: CaseInstanceDTO;
     messageKey?: string;
     locale?: string;
@@ -2254,7 +2508,7 @@ export interface ResultMapStringInstant {
     locale?: string;
 }
 
-export interface FileRequestUploadRequestDTO {
+export interface UploadRequestRequestDTO {
     idOrPath?: string;
     email?: string;
     message?: string;
@@ -2268,7 +2522,17 @@ export interface FileRequestUploadRequestDTO {
     expiredAt?: string;
 }
 
-export interface FileRequestUploadDTO {
+export interface ResultUploadRequestResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: UploadRequestResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface UploadRequestResponseDTO {
     id?: string;
     shareId?: string;
     workflowId?: string;
@@ -2296,19 +2560,9 @@ export interface FileRequestUploadDTO {
     modifiedDate?: string;
 }
 
-export interface ResultFileRequestUploadDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: FileRequestUploadDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
 /** Workflow (Request) */
 export interface WorkflowRequestDTO {
-    /** ID */
+    /** Version ID */
     versionId?: string;
     /** Deployment ID */
     deploymentId?: string;
@@ -2322,12 +2576,16 @@ export interface WorkflowRequestDTO {
     businessKeyLike?: string;
     /** Process Definition Id */
     processDefinitionId?: string;
+    /** Process Instance Name */
+    processDefinitionName?: string;
     /** Process Instance Id */
     processInstanceId?: string;
     /** creator */
     creator?: string;
     /** User ID */
     userId?: string;
+    /** Task Name */
+    taskName?: string;
     /** Task ID */
     taskId?: string;
     /** Task Delete Reason */
@@ -2339,22 +2597,20 @@ export interface WorkflowRequestDTO {
     dueDate?: string;
     /** process Category */
     processCategory?: string;
+    /** process Category List */
+    categories?: string[];
     /** Groups */
     groups?: string[];
     /** Form Properties */
     properties?: Record<string, string>;
     /** Variables */
     variables?: Record<string, object>;
-    /** Display Columns For Show Extract Variables */
+    /** Display Columns For Show Extract Variables, frontend haven't used it yet */
     displayColumns?: string[];
     /** Form Attachments */
     attachments?: Record<string, string>;
-    /**
-     * Page Index
-     * @deprecated
-     * @format int32
-     */
-    pageIndex?: number;
+    /** Activity ID */
+    activityId?: string;
     /**
      * Page num
      * @format int32
@@ -2367,10 +2623,10 @@ export interface WorkflowRequestDTO {
     pageSize?: number;
     /** processKeys */
     processKeys?: string[];
-    /** Task Due Date */
-    dueDates?: string[];
     /** createdDate */
     createdDate?: string[];
+    /** Task Due Date */
+    dueDates?: string[];
     involvedUser?: string;
     assignedUser?: string;
     candidateUser?: string;
@@ -2378,38 +2634,12 @@ export interface WorkflowRequestDTO {
     interrelatedUserId?: string;
     /** @uniqueItems true */
     orderList?: string[];
-}
-
-export interface FileUploadRequestDetailDTO {
-    email?: string;
-    message?: string;
-    password?: string;
-    files?: File[];
-    accessToken?: string;
-    /** @format int64 */
-    parentId?: number;
-    isFinishUpload?: boolean;
-}
-
-export interface ResultLong {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** @format int64 */
-    data?: number;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface FileUploadRequestDTO {
-    idOrPath?: string;
-    email?: string[];
-    message?: string;
-    password?: string;
-    fileType?: string[];
-    /** @format date-time */
-    dueDate?: string;
+    /**
+     * Page Index
+     * @deprecated
+     * @format int32
+     */
+    pageIndex?: number;
 }
 
 /** Document */
@@ -2475,8 +2705,8 @@ export interface DocumentResponseDTO {
     originalPath?: string;
     facets?: string[];
     isCollectionMember?: boolean;
-    hold?: PolicyDocument;
-    retention?: RetentionPolicyDocument;
+    holdDocument?: HoldDocument;
+    retentionDocument?: RetentionDocument;
     fileContentName?: string;
     fileContentMimeType?: string;
     /** @format int64 */
@@ -2488,11 +2718,9 @@ export interface DocumentResponseDTO {
     fileContentExtension?: string;
 }
 
-export interface PolicyDocument {
-    /** @format int64 */
-    id?: number;
-    /** @format int64 */
-    policyHoldId?: number;
+export interface HoldDocument {
+    id?: string;
+    policyHoldId?: string;
     documentId?: string;
     documentName?: string;
     documentPath?: string;
@@ -2532,11 +2760,9 @@ export interface ResultDocumentResponseDTO {
     locale?: string;
 }
 
-export interface RetentionPolicyDocument {
-    /** @format int64 */
-    id?: number;
-    /** @format int64 */
-    policyRetentionId?: number;
+export interface RetentionDocument {
+    id?: string;
+    policyRetentionId?: string;
     documentId?: string;
     documentName?: string;
     documentPath?: string;
@@ -2550,9 +2776,9 @@ export interface RetentionPolicyDocument {
     removeBy?: string;
     /** @format date-time */
     removeDate?: string;
-    status?: string;
     /** @format date-time */
     expireDate?: string;
+    status?: string;
     /** @format date-time */
     createdDate?: string;
     /** @format date-time */
@@ -2575,8 +2801,7 @@ export interface UploadTempFileRequestDTO {
 }
 
 export interface FileCheckElementDTO {
-    /** @format int64 */
-    id?: number;
+    id?: string;
     docName?: string;
     fileSuffix?: string;
 }
@@ -2601,9 +2826,8 @@ export interface ResultFileCheckResultDTO {
     locale?: string;
 }
 
-export interface UploadFileDetailRecord {
-    /** @format int64 */
-    id?: number;
+export interface UploadBatchItem {
+    id?: string;
     userId?: string;
     uploadId?: string;
     documentId?: string;
@@ -2622,6 +2846,7 @@ export interface UploadFileDetailRecord {
     extractId?: string;
     tempFileDeleted?: string;
     display?: string;
+    /** @format date-time */
     fileModifiedDate?: string;
     /** @format date-time */
     createdDate?: string;
@@ -2649,6 +2874,11 @@ export interface TrashRequestDTO {
     isDesc?: boolean;
     /** Name */
     name?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
 }
@@ -2665,10 +2895,12 @@ export interface DocumentThumbnailDTO {
     isFolder?: boolean;
     /** Document lastModified */
     modifiedDate?: string;
-    /** Document source modified date */
-    fileModifiedDate?: string;
+    /** Document Modifier */
+    modifiedBy?: string;
     /** Document create date */
     createdDate?: string;
+    /** Document source modified date */
+    fileModifiedDate?: string;
     /**
      * Document content size
      * @format double
@@ -2679,16 +2911,16 @@ export interface DocumentThumbnailDTO {
     mimeType?: string;
     documentType?: string;
     docPalType?: string;
-    contributors?: string[];
-    tags?: string[];
-    version?: string;
     /** @format int32 */
     status?: number;
     statusName?: string;
+    contributors?: string[];
+    tags?: string[];
+    version?: string;
     collections?: Record<string, string>[];
     permissionIds?: number[];
-    hold?: PolicyDocument;
-    retention?: RetentionPolicyDocument;
+    holdDocument?: HoldDocument;
+    retentionDocument?: RetentionDocument;
     comeFrom?: string;
     drivePreviewLink?: string;
     originalPath?: string;
@@ -2735,26 +2967,24 @@ export interface MetadataVO {
     value?: string;
 }
 
-export interface ResultListUploadFileDetailDTO {
+export interface ResultListUploadBatchItemDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: UploadFileDetailDTO[];
+    data?: UploadBatchItemDTO[];
     messageKey?: string;
     locale?: string;
 }
 
-export interface UploadFileDetailDTO {
-    /** @format int64 */
-    id?: number;
+export interface UploadBatchItemDTO {
+    id?: string;
     fileRelativePath?: string;
     aiAnalysisDocument?: AiAnalysisDocumentDTO;
     metaDatas?: string;
     name?: string;
     fileType?: string;
-    /** @format int64 */
-    parentId?: number;
+    parentId?: string;
 }
 
 export interface QueryFileOverviewRequestDTO {
@@ -2777,11 +3007,16 @@ export interface QueryFileOverviewRequestDTO {
     userId?: string;
     fileUploadStatus?: string[];
     fileName?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
 }
 
-export interface PageUploadFileDTO {
+export interface PageUploadBatchDTO {
     /** @format int32 */
     totalPages?: number;
     /** @format int64 */
@@ -2792,7 +3027,7 @@ export interface PageUploadFileDTO {
     size?: number;
     /** @format int32 */
     numberOfElements?: number;
-    content?: UploadFileDTO[];
+    content?: UploadBatchDTO[];
     sort?: SortObject;
     first?: boolean;
     last?: boolean;
@@ -2812,23 +3047,17 @@ export interface PageableObject {
     sort?: SortObject;
 }
 
-export interface ResultPageUploadFileDTO {
+export interface ResultPageUploadBatchDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: PageUploadFileDTO;
+    data?: PageUploadBatchDTO;
     messageKey?: string;
     locale?: string;
 }
 
-export interface SortObject {
-    sorted?: boolean;
-    empty?: boolean;
-    unsorted?: boolean;
-}
-
-export interface UploadFileDTO {
+export interface UploadBatchDTO {
     uploadStatus?: string;
     /** @format int32 */
     filesCount?: number;
@@ -2968,18 +3197,16 @@ export interface WatermarkDocumentRequestDTO {
     parentDocPath?: string;
     /** Parent ID */
     parentId?: string;
-    /** Document ID */
-    documentId?: string;
     /** Document ID or Path */
     idOrPath?: string;
     /** Document Name */
     name?: string;
-    /** Document File Suffix */
-    fileSuffix?: string;
     /** Document Creator */
     creator?: string;
     /** Document Type */
     type?: string;
+    /** Document File Suffix */
+    fileSuffix?: string;
     /** Document Properties */
     properties?: Record<string, object>;
     /** Document Language */
@@ -3016,8 +3243,7 @@ export interface WatermarkDocumentRequestDTO {
 }
 
 export interface FileConfirmDTO {
-    /** @format int64 */
-    id?: number;
+    id?: string;
     docName?: string;
     metadatas?: string;
     documentType?: string;
@@ -3310,9 +3536,9 @@ export interface BusinessResultRecord {
     businessId?: string;
     fileName?: string;
     filePath?: string;
-    logicalPath?: string;
     /** @format int64 */
     fileSize?: number;
+    logicalPath?: string;
     category?: "OCR" | "PDF" | "CONVERSION" | "DAM" | "OTHER" | "EXTRACT";
     status: "CREATE" | "PENDING" | "COMPLETED" | "FINISH" | "ERROR" | "PENDING_FOR_SENDING_MESSAGE";
     operation?: string;
@@ -3359,12 +3585,12 @@ export interface ResultPageBusinessResultRecord {
     locale?: string;
 }
 
-export interface ResultUploadFileDetailRecord {
+export interface ResultUploadBatchItem {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: UploadFileDetailRecord;
+    data?: UploadBatchItem;
     messageKey?: string;
     locale?: string;
 }
@@ -3391,21 +3617,53 @@ export interface CreateOAuthAppRequest {
     create_by?: string;
 }
 
-export interface DocumentTypeMetadataMapping {
-    /** @format int64 */
-    id?: number;
-    name?: string;
-    metaDataMapper?: string;
+export interface BasePageRequest {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
-    version?: number;
-    createUserId?: string;
-    createUserName?: string;
-    /** @format date-time */
-    createTime?: string;
-    updateUserId?: string;
-    updateUserName?: string;
-    /** @format date-time */
-    updateTime?: string;
+    pageIndex?: number;
+}
+
+export interface PaginationDTOEventCalendarSetting {
+    entryList?: EventCalendarSetting[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOEventCalendarSetting {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOEventCalendarSetting;
+    messageKey?: string;
+    locale?: string;
 }
 
 /** Process Instance */
@@ -3492,6 +3750,8 @@ export interface TaskDTO {
     description?: string;
     /** Task Definition ID */
     taskDefinitionId?: string;
+    /** Process Definition Version ID */
+    processDefinitionVersionId?: string;
     /** Task Definition Key */
     taskDefinitionKey?: string;
     /** Task Assignee */
@@ -3500,8 +3760,6 @@ export interface TaskDTO {
     formKey?: string;
     /** Task Instance ID */
     instanceId?: string;
-    /** Process Definition Version ID */
-    processDefinitionVersionId?: string;
     /** Task Parent ID */
     parentId?: string;
     /**
@@ -3569,81 +3827,6 @@ export interface ResultTaskDTO {
     message?: string;
     /** Task */
     data?: TaskDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface DocPalDocumentType {
-    name?: string;
-    metaDataMapper?: Record<string, string>;
-}
-
-export interface DocPalDocumentTypeMapping {
-    documentType?: DocPalDocumentType[];
-}
-
-export interface ResultListDocumentTypeMetadataMapping {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocumentTypeMetadataMapping[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface DocumentTypeProfileSettingRequest {
-    /** @format int64 */
-    id?: number;
-    documentType?: string;
-    profileID?: string;
-    profileName?: string;
-    rootPath?: string;
-    folder?: Folder;
-    /** @format int32 */
-    version?: number;
-    createUserId?: string;
-    createUserName?: string;
-    /** @format date-time */
-    createTime?: string;
-    updateUserId?: string;
-    updateUserName?: string;
-    /** @format date-time */
-    updateTime?: string;
-}
-
-export interface Folder {
-    name?: string;
-    title?: string;
-    folder?: Folder;
-}
-
-export interface DocumentTypeProfileSetting {
-    /** @format int64 */
-    id?: number;
-    documentType?: string;
-    profileID?: string;
-    profileName?: string;
-    rootPath?: string;
-    folder?: string;
-    /** @format int32 */
-    version?: number;
-    createUserId?: string;
-    createUserName?: string;
-    /** @format date-time */
-    createTime?: string;
-    updateUserId?: string;
-    updateUserName?: string;
-    /** @format date-time */
-    updateTime?: string;
-}
-
-export interface ResultDocumentTypeProfileSetting {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocumentTypeProfileSetting;
     messageKey?: string;
     locale?: string;
 }
@@ -4118,67 +4301,6 @@ export interface WatermarkSettingsTemplate {
     modifiedDate?: string;
 }
 
-export interface DocPalType {
-    id?: string;
-    name?: string;
-    category?: string;
-    dataType?: string;
-    enable?: boolean;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    folder?: boolean;
-}
-
-export interface DirectoryEntry {
-    id?: string;
-    directoryName?: string;
-    properties?: Record<string, object>;
-    "entity-type"?: string;
-}
-
-export interface DocPalTypeMetadataDTO {
-    id?: string;
-    docpalType?: string;
-    metaData?: string;
-    metaDataType?: string;
-    isRequire?: boolean;
-    display?: boolean;
-    /** @format int32 */
-    status?: number;
-    dataType?: string;
-    values?: Record<string, object>[];
-    options?: MSOptions;
-    directoryEntries?: DirectoryEntry[];
-}
-
-export interface MSOptions {
-    dropdownType?: string;
-    vocabulary?: string;
-    masterTable?: string;
-    masterTableColumn?: string;
-    documentType?: string;
-    displayField?: string;
-    multiple?: boolean;
-    /** @format int32 */
-    length?: number;
-    regex?: string;
-    formatDate?: string;
-}
-
-export interface ResultListDocPalTypeMetadataDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocPalTypeMetadataDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface ValidateJsonSchemaRequestDTO {
     docpalTypeName?: string;
     metadataJson?: {
@@ -4261,12 +4383,9 @@ export interface RetentionPolicyDocumentRequestDTO {
     /** ApprovalId list */
     approvalIds?: string[];
     /** the list of retention policy id */
-    retentionPolicyIds?: number[];
-    /**
-     * Retention policy event id
-     * @format int64
-     */
-    eventId?: number;
+    retentionPolicyIds?: string[];
+    /** Retention policy event id */
+    eventId?: string;
     /** Document ID */
     documentId?: string;
     /** Document Name */
@@ -4275,22 +4394,27 @@ export interface RetentionPolicyDocumentRequestDTO {
     applyBy?: string;
     /** The Retention Policy Document Status List */
     states?: string[];
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
 }
 
-export interface ResultRetentionPolicyDocument {
+export interface ResultRetentionDocument {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: RetentionPolicyDocument;
+    data?: RetentionDocument;
     messageKey?: string;
     locale?: string;
 }
 
-export interface PaginationDTORetentionPolicyDocument {
-    entryList?: RetentionPolicyDocument[];
+export interface PaginationDTORetentionDocument {
+    entryList?: RetentionDocument[];
     /** @format int32 */
     totalSize?: number;
     /** @format int32 */
@@ -4302,18 +4426,18 @@ export interface PaginationDTORetentionPolicyDocument {
     isNextPageAvailable?: boolean;
 }
 
-export interface ResultPaginationDTORetentionPolicyDocument {
+export interface ResultPaginationDTORetentionDocument {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: PaginationDTORetentionPolicyDocument;
+    data?: PaginationDTORetentionDocument;
     messageKey?: string;
     locale?: string;
 }
 
 /** HoldPolicy Document RequestDTO */
-export interface PolicyDocumentRequestDTO {
+export interface HoldDocumentRequestDTO {
     /** Fuzzy Search Parameter */
     q?: string;
     /**
@@ -4332,11 +4456,8 @@ export interface PolicyDocumentRequestDTO {
     isDesc?: boolean;
     /** Document ID */
     documentId?: string;
-    /**
-     * HoldPolicy ID
-     * @format int64
-     */
-    holdPolicyId?: number;
+    /** HoldPolicy ID */
+    holdPolicyId?: string;
     /** The apply approved By */
     applyApprovedBy?: string;
     /** apply reason */
@@ -4353,31 +4474,33 @@ export interface PolicyDocumentRequestDTO {
     holdPolicyIds?: number[];
     /** The Policy Document Status List */
     states?: string[];
-    /**
-     * ID
-     * @format int64
-     */
-    id?: number;
+    /** ID */
+    id?: string;
     /** Document name */
     documentName?: string;
     /** Document path */
     documentPath?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
 }
 
-export interface ResultPolicyDocument {
+export interface ResultHoldDocument {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: PolicyDocument;
+    data?: HoldDocument;
     messageKey?: string;
     locale?: string;
 }
 
-export interface PaginationDTOPolicyDocument {
-    entryList?: PolicyDocument[];
+export interface PaginationDTOHoldDocument {
+    entryList?: HoldDocument[];
     /** @format int32 */
     totalSize?: number;
     /** @format int32 */
@@ -4389,12 +4512,12 @@ export interface PaginationDTOPolicyDocument {
     isNextPageAvailable?: boolean;
 }
 
-export interface ResultPaginationDTOPolicyDocument {
+export interface ResultPaginationDTOHoldDocument {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: PaginationDTOPolicyDocument;
+    data?: PaginationDTOHoldDocument;
     messageKey?: string;
     locale?: string;
 }
@@ -4515,6 +4638,11 @@ export interface QueryNotificationRequestDTO {
     readStatus?: string;
     type?: string;
     action?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
 }
@@ -4585,6 +4713,19 @@ export interface ResultPageNotificationRecord {
     locale?: string;
 }
 
+/** All Table Fields */
+export interface MTFieldInfo {
+    fieldName?: string;
+    dataType?: string;
+    required?: boolean;
+    unique?: boolean;
+    primaryKey?: boolean;
+    defaultValue?: object;
+    relationTable?: string;
+    relationField?: string;
+    displayField?: string;
+}
+
 /** Master Table RequestDTO */
 export interface MasterTableRequestDTO {
     /** Fuzzy Search Parameter */
@@ -4611,10 +4752,17 @@ export interface MasterTableRequestDTO {
     status?: string;
     /** Create by list */
     createdBys?: string[];
+    /** All Table Fields */
+    fields?: MTFieldInfo[];
     /** New Data List */
     data?: Record<string, object>[];
     /** Where Condition */
     where?: Record<string, object>;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
 }
@@ -4622,27 +4770,6 @@ export interface MasterTableRequestDTO {
 export interface DeleteMTRecordRequestDTO {
     tableId?: string;
     recordIds?: string[];
-}
-
-export interface BasePageRequest {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    /** @format int32 */
-    pageIndex?: number;
 }
 
 export interface NestedSearchLogV2 {
@@ -4707,7 +4834,9 @@ export interface InternalShareQueryDTO {
     /** @format int64 */
     biggerThenDetailId?: number;
     shareToUserId?: string;
+    shareToUserIds?: string[];
     documentId?: string;
+    documentIds?: string;
     documentName?: string;
     documentType?: string;
     /** @format date-time */
@@ -4727,6 +4856,10 @@ export interface InternalShareQueryDTO {
     pageSize?: number;
     /** @format int32 */
     status?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
     /** @format int64 */
     biggerThenId?: number;
 }
@@ -4878,21 +5011,9 @@ export interface ResultInternalShareAudit {
     locale?: string;
 }
 
-export interface EasyFormEmailDTO {
-    subject?: string;
-    body?: string;
-    userEmails?: UserEmailDTO[];
-    easyFormId?: string;
-}
-
-export interface UserEmailDTO {
-    username?: string;
-    email?: string;
-}
-
-/** form design request */
+/** Form Designer (Request) */
 export interface FormDesignRequestDTO {
-    /** Fuzzy Search */
+    /** Fuzzy query parameter name */
     q?: string;
     /**
      * Page Number
@@ -4908,22 +5029,30 @@ export interface FormDesignRequestDTO {
     orderBy?: string;
     /** The sort ASC or DESC */
     isDesc?: boolean;
+    /** Form Design ID */
     id?: string;
     /** Form Design Name */
     name?: string;
     /** Form Design Publish Status (value is A or D) */
     publishStatus?: string;
+    /** Form Designer Process Definition Key */
+    processDefinitionKey?: string;
+    /** Form Design Permission */
+    permission?: string;
+    /** Form Design Permission List */
+    permissions?: Record<string, string[]>;
     /** Disable or Enable form design */
     enable?: boolean;
-    /** Table Name */
-    tableName?: string;
-    /** Status is Active or Disable (A or D) */
-    status?: string;
+    /** Form Design Information List */
+    information?: PlanTableFieldDTO[];
+    /** Form Design Preview Style */
+    previewStyle?: string;
+    /** Form Design Form Result List */
+    formResult?: EasyFormResult[];
     /** Form Design Creator */
     createdBy?: string;
     /** Form Design Modifier */
     modifiedBy?: string;
-    permissions?: Record<string, string[]>;
     /** New Data List */
     data?: Record<string, object>[];
     /** Where Condition */
@@ -4932,117 +5061,28 @@ export interface FormDesignRequestDTO {
     notEquals?: Record<string, object>;
     /** Where Condition (Equal) */
     equals?: Record<string, object>;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
 }
 
-export interface ResultListLinkedHashMapStringObject {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: Record<string, object>[];
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Easy Form Email RequestDTO */
-export interface EasyFormEmailQueryRequestDTO {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    email?: string;
-    subject?: string;
-    easyFormId?: string;
-    status?: string;
-    /** @format int32 */
-    pageIndex?: number;
-}
-
-export interface EasyFormActionDTO {
-    actionType?: string;
-    workflowInstanceId?: string;
-    caseId?: string;
-    caseDefinitionVersionId?: string;
-    actionId?: string;
-    actionName?: string;
-}
-
-export interface EasyFormEmailLogDTO {
-    /** @format int64 */
-    id?: number;
-    email?: string;
-    subject?: string;
-    createdBy?: string;
-    status?: string;
-    /** @format date-time */
-    sentDate?: string;
-    relatedWorkflows?: EasyFormActionDTO[];
-    relateCases?: EasyFormActionDTO[];
-}
-
-export interface PaginationDTOEasyFormEmailLogDTO {
-    entryList?: EasyFormEmailLogDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOEasyFormEmailLogDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOEasyFormEmailLogDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Form Design Form Result List */
-export interface EasyFormResult {
-    /** Action Item Id */
+/** Form Design Information List */
+export interface PlanTableFieldDTO {
     id?: string;
-    /** Action Type, Example value： Email、Workflow、CaseType  */
-    actionType?: string;
-    /** Bound business Key, Example value：customApproval */
-    actionKey?: string;
-    /** DeploymentId of Bound business, Example value：customApproval:1:7212b388-36f3-4aff-9b03-bc500537dd23 */
-    actionId?: string;
-    /** Name of Bound business */
-    actionName?: string;
-    /** Mapping data structure between form columns and bound business fields */
-    dataMapping?: ParamMappingDTO[];
-    /** Status, Active or Deactivated */
-    status?: string;
-    /** Email Subject */
-    subject?: string;
-    /** Email Body Text */
-    text?: string;
-    /** Email TO */
-    to?: string;
-    /** Email CC */
-    cc?: string;
-    /** Email BCC */
-    bcc?: string;
+    name?: string;
+    type?: string;
+    accesstype?: string;
+    fieldMappingId?: string;
+    masterTable?: string;
+    documentType?: string;
+    displayField?: string;
+    vocabulary?: string;
+    require?: string;
+    readOnly?: string;
 }
 
 /** Form Designer (Response) */
@@ -5104,8 +5144,136 @@ export interface FormInfoDTO {
     fieldMappings?: FormFieldMapping[];
 }
 
-export interface PaginationDTOFormDesignResponseDTO {
-    entryList?: FormDesignResponseDTO[];
+export interface ResultFormDesignResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Form Designer (Response) */
+    data?: FormDesignResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface EasyFormEmailDTO {
+    subject?: string;
+    body?: string;
+    userEmails?: UserEmailDTO[];
+    easyFormId?: string;
+}
+
+export interface UserEmailDTO {
+    username?: string;
+    email?: string;
+}
+
+/** Easy Form Result (RequestDTO) */
+export interface EasyFormResultRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** Form Design ID */
+    id?: string;
+    /** Form Design Name */
+    name?: string;
+    formResult?: EasyFormResult;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface ResultEasyFormResult {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: EasyFormResult;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListLinkedHashMapStringObject {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: Record<string, object>[];
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Easy Form Email RequestDTO */
+export interface EasyFormEmailQueryRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    email?: string;
+    subject?: string;
+    easyFormId?: string;
+    status?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface EasyFormActionDTO {
+    actionType?: string;
+    workflowInstanceId?: string;
+    caseId?: string;
+    caseDefinitionVersionId?: string;
+    actionId?: string;
+    actionName?: string;
+}
+
+export interface EasyFormEmailLogDTO {
+    /** @format int64 */
+    id?: number;
+    email?: string;
+    subject?: string;
+    createdBy?: string;
+    status?: string;
+    /** @format date-time */
+    sentDate?: string;
+    relatedWorkflows?: EasyFormActionDTO[];
+    relateCases?: EasyFormActionDTO[];
+}
+
+export interface PaginationDTOEasyFormEmailLogDTO {
+    entryList?: EasyFormEmailLogDTO[];
     /** @format int32 */
     totalSize?: number;
     /** @format int32 */
@@ -5117,10 +5285,27 @@ export interface PaginationDTOFormDesignResponseDTO {
     isNextPageAvailable?: boolean;
 }
 
-/** Mapping data structure between form columns and bound business fields */
-export interface ParamMappingDTO {
-    source?: string;
-    target?: string;
+export interface ResultPaginationDTOEasyFormEmailLogDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOEasyFormEmailLogDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PaginationDTOFormDesignResponseDTO {
+    entryList?: FormDesignResponseDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
 }
 
 export interface ResultPaginationDTOFormDesignResponseDTO {
@@ -5239,15 +5424,11 @@ export interface ContactImportRequestDTO {
 export interface ImportResponseDTO {
     /** @format int32 */
     totalRecords?: number;
-    status?: string;
-    message?: string;
     /** @format int32 */
     successCount?: number;
     /** @format int32 */
     failureCount?: number;
-    /** @format int32 */
-    totalCount?: number;
-    errorDetails?: string;
+    status?: string;
 }
 
 export interface ResultImportResponseDTO {
@@ -5326,6 +5507,11 @@ export interface CompanyRequestDTO {
     website?: string;
     /** Contact Address */
     address?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
 }
@@ -5417,39 +5603,6 @@ export interface ResultCfUserTableConfigResponseDTO {
     locale?: string;
 }
 
-/** Case model dashboard (RequestDTO) */
-export interface CmmnDashboardRequestDTO {
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    id?: string;
-    label?: string;
-    caseTypeId?: string;
-    /** Case definition version Id */
-    cmmnVersionId?: string;
-    permissions?: Record<string, string[]>;
-    /** Is need to detail */
-    detail?: boolean;
-    /** Where Condition */
-    where?: Record<string, object>;
-    businessKey?: string;
-    versionNumber?: string;
-    /** @format int32 */
-    pageIndex?: number;
-}
-
 /** Case Table RequestDTO */
 export interface CaseTableRequestDTO {
     /** Fuzzy Search */
@@ -5497,6 +5650,11 @@ export interface CaseTableRequestDTO {
     c?: Record<string, object>;
     /** User */
     operator?: UserDTO;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
 }
@@ -5513,7 +5671,8 @@ export interface CmmnVersion {
     publishStatus?: string;
     bytes?: string[];
     styleJson?: string;
-    primaryForm?: string;
+    /** Case Table ResponseDTO */
+    primaryForm?: CaseTableResponseDTO;
     createdBy?: string;
     modifiedBy?: string;
     /** @format date-time */
@@ -5521,18 +5680,6 @@ export interface CmmnVersion {
     /** @format date-time */
     modifiedDate?: string;
     production?: boolean;
-}
-
-/** All Table Fields */
-export interface MTFieldInfo {
-    fieldName?: string;
-    dataType?: string;
-    required?: boolean;
-    unique?: boolean;
-    primaryKey?: boolean;
-    relationTable?: string;
-    relationField?: string;
-    displayField?: string;
 }
 
 /** Where And Condition */
@@ -5563,41 +5710,20 @@ export interface CaseTypeRequestDTO {
     orderBy?: string;
     /** The sort ASC or DESC */
     isDesc?: boolean;
+    /** ID */
+    id?: string;
     /** Name */
     name?: string;
     /** is enable */
     enable?: boolean;
-    /** List of Case Type Id */
     caseIds?: string[];
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
-}
-
-export interface CaseType {
-    id?: string;
-    name?: string;
-    uniqueName?: string;
-    caseIdPrefix?: string;
-    /** @format int32 */
-    caseIdDigit?: number;
-    /** @format int32 */
-    startNumber?: number;
-    enable?: boolean;
-    publishStatus?: string;
-    primaryForm?: string;
-    productionVersion?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    caseDefinitionKey?: string;
-    caseDefinitionId?: string;
-    latestVersion?: string;
-    latestVersionId?: string;
-    productionVersionId?: string;
-    tableName?: string;
 }
 
 export interface PaginationDTOCaseType {
@@ -5633,17 +5759,6 @@ export interface CaseTypeInfo {
     status?: string;
 }
 
-/** Case Type Permission RequestDTO */
-export interface CaseTypePermissionRequestDTO {
-    userGroupId?: string;
-    groupName?: string;
-    permissions?: Record<string, PlanTableFieldDTO[]>;
-    userId?: string;
-    username?: string;
-    roleId?: string;
-    roleName?: string;
-}
-
 export interface CaseTypeResponseDTO {
     id?: string;
     name?: string;
@@ -5666,11 +5781,10 @@ export interface CaseTypeResponseDTO {
     modifiedDate?: string;
     caseDefinitionKey?: string;
     caseDefinitionId?: string;
+    /** Case Model PlanItem Information DTO */
+    startTask?: PlanItemDefinitionDTO;
+    caseVersions?: CmmnVersion[];
     informations?: CaseTypeInfo[];
-    permissions?: CaseTypePermissionRequestDTO[];
-    startTask?: PlanItemDefinitionDTO[];
-    /** Case Model Plan Form DTO */
-    primaryForm?: CmmnPlanFormDTO;
 }
 
 /** Case Model PlanItem Information DTO */
@@ -5689,9 +5803,8 @@ export interface PlanItemDefinitionDTO {
     rules?: Record<string, object>;
     /** PlanItem Definition Sub-List */
     subItems?: PlanItemDefinitionDTO[];
-    /** Case Model Plan Form DTO */
-    planForm?: CmmnPlanFormDTO;
     fields?: PlanTableFieldDTO[];
+    /** Form Design Information List */
     assigneeField?: PlanTableFieldDTO;
     isStartTask?: boolean;
     upProcessTaskKey?: string;
@@ -5718,11 +5831,9 @@ export interface CmmnTriggerEventReqDTO {
 /** Case Instance TaskDTO (Request) */
 export interface CaseInstanceTaskDTO {
     caseInstanceId?: string;
-    planItemInstanceId?: string;
     taskId?: string;
-    variables?: Record<string, object>;
-    operator?: string;
     assignee?: string;
+    variables?: Record<string, object>;
 }
 
 /** Task */
@@ -5735,6 +5846,8 @@ export interface CmmnTaskDTO {
     description?: string;
     /** Task Definition ID */
     taskDefinitionId?: string;
+    /** Process Definition Version ID */
+    processDefinitionVersionId?: string;
     /** Task Definition Key */
     taskDefinitionKey?: string;
     /** Task Assignee */
@@ -5743,8 +5856,6 @@ export interface CmmnTaskDTO {
     formKey?: string;
     /** Task Instance ID */
     instanceId?: string;
-    /** Process Definition Version ID */
-    processDefinitionVersionId?: string;
     /** Task Parent ID */
     parentId?: string;
     /**
@@ -5888,8 +5999,59 @@ export interface PlanItemInstanceRequestDTO {
     workflowVariables?: Record<string, object>;
     /** Execute Action */
     action?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
+}
+
+/** Case Model Plan Form DTO */
+export interface CmmnPlanFormDTO {
+    id?: string;
+    name?: string;
+    type?: string;
+    casetable?: string;
+    fields?: PlanTableFieldDTO[];
+}
+
+/** PlanItemInstanceDTO */
+export interface PlanItemInstanceDTO {
+    caseDefinitionId?: string;
+    caseInstanceId?: string;
+    derivedCaseDefinitionId?: string;
+    formKey?: string;
+    id?: string;
+    name?: string;
+    planItemDefinitionId?: string;
+    planItemDefinitionType?: string;
+    referenceId?: string;
+    referenceType?: string;
+    stageInstanceId?: string;
+    startUserId?: string;
+    state?: string;
+    /** @format date-time */
+    completedTime?: string;
+    /** @format date-time */
+    createTime?: string;
+    /** @format date-time */
+    endedTime?: string;
+    /** @format date-time */
+    exitTime?: string;
+    active?: boolean;
+    businessKey?: string;
+    operator?: string;
+    variables?: Record<string, object>;
+    /** Workflow Instance Request Variables */
+    workflowVariables?: Record<string, object>;
+    /** Workflow PlanItem Instance */
+    subItems?: PlanItemInstanceDTO[];
+    /** Case Model Plan Form DTO */
+    planForm?: CmmnPlanFormDTO;
+    processInstanceId?: string;
+    humanTaskId?: string;
 }
 
 export interface ResultListPlanItemInstanceDTO {
@@ -5945,27 +6107,8 @@ export interface ResultPaginationDTOAuditTemplateDTO {
     locale?: string;
 }
 
-export interface CmmnDashboard {
-    id?: string;
-    caseTypeId?: string;
-    deploymentId?: string;
-    cmmnVersionId?: string;
-    label?: string;
-    /** @deprecated */
-    userGroup?: string;
-    permissions?: string[];
-    status?: string;
-    styleJson?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-}
-
-export interface PaginationDTOCmmnDashboard {
-    entryList?: CmmnDashboard[];
+export interface PaginationDTOCmmnDashboardResponseDTO {
+    entryList?: CmmnDashboardResponseDTO[];
     /** @format int32 */
     totalSize?: number;
     /** @format int32 */
@@ -5977,12 +6120,12 @@ export interface PaginationDTOCmmnDashboard {
     isNextPageAvailable?: boolean;
 }
 
-export interface ResultPaginationDTOCmmnDashboard {
+export interface ResultPaginationDTOCmmnDashboardResponseDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: PaginationDTOCmmnDashboard;
+    data?: PaginationDTOCmmnDashboardResponseDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -6012,6 +6155,11 @@ export interface CmmnProcessRequestDTO {
     candidateOrAssigned?: string;
     category?: string;
     workflow?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
 }
@@ -6079,6 +6227,7 @@ export interface FolderCabinetBinds {
     folderCabinetId?: string;
     bindId?: string;
     type?: string;
+    label?: string;
 }
 
 /** Folder Cabinet RequestDTO */
@@ -6233,6 +6382,11 @@ export interface DocFolderCabinetRequestDTO {
     emailReminder?: FCReminder;
     jpasortOrderStr?: SortObject;
     nuxeoSortSql?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
 }
@@ -6243,18 +6397,16 @@ export interface DFCRequestDTO {
     parentDocPath?: string;
     /** Parent ID */
     parentId?: string;
-    /** Document ID */
-    documentId?: string;
     /** Document ID or Path */
     idOrPath?: string;
     /** Document Name */
     name?: string;
-    /** Document File Suffix */
-    fileSuffix?: string;
     /** Document Creator */
     creator?: string;
     /** Document Type */
     type?: string;
+    /** Document File Suffix */
+    fileSuffix?: string;
     /** Document Properties */
     properties?: Record<string, object>;
     /** Document Language */
@@ -6323,6 +6475,7 @@ export interface DocumentFolderCabinet {
     state?: string;
     complete?: boolean;
     folder?: boolean;
+    metadata?: FCMetadata[];
     permission?: string;
     metadataValue?: string;
     repeatName?: boolean;
@@ -6690,6 +6843,646 @@ export interface RoleDTO {
     additionUsers?: string[];
 }
 
+/** Email Template RequestDTO */
+export interface EmailTemplateRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** Email Template ID */
+    id?: string;
+    /** The status of Email Template */
+    status?: string;
+    /** The email subject or name */
+    subject?: string;
+    /** The email template label */
+    label?: string;
+    /**
+     * Email Layout ID
+     * @format int64
+     */
+    emailLayoutId?: number;
+    /** Email Template JSON */
+    emailTemplateJson?: string;
+    /** Email Template Variable */
+    emailTemplateVariable?: string;
+    /** The email recipient's key */
+    to?: string;
+    from?: string;
+    /** The email cc's key */
+    cc?: string;
+    /** The email bcc's key */
+    bcc?: string;
+    /** The email main body */
+    body?: string;
+    /** Email Template Created By */
+    createdBy?: string;
+    /** Email Template Modified By */
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    /** Email Layout ID List */
+    emailLayoutIds?: number[];
+    name?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface PaginationDTOEmailTemplate {
+    entryList?: EmailTemplate[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOEmailTemplate {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOEmailTemplate;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultSendEmailResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: SendEmailResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface SendEmailResponseDTO {
+    /** @format int64 */
+    emailLogId?: number;
+    successSendEmail?: boolean;
+}
+
+/** Email Layout RequestDTO */
+export interface EmailLayoutRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /**
+     * Email Layout ID
+     * @format int64
+     */
+    id?: number;
+    /** Email Layout Name */
+    name?: string;
+    /** The status of Email Layout */
+    status?: string;
+    /** Email Layout Layout Content */
+    layoutContent?: string;
+    /** Email Layout Created By */
+    createdBy?: string;
+    /** Email Layout Modified By */
+    modifiedBy?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface PaginationDTOEmailLayout {
+    entryList?: EmailLayout[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOEmailLayout {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOEmailLayout;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Master Table ResponseDTO */
+export interface MasterTableResponseDTO {
+    id?: string;
+    name?: string;
+    status?: string;
+    description?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    fields?: MTColumnInfo[];
+    userId?: string;
+    aces?: string;
+    read?: boolean;
+    edit?: boolean;
+    create?: boolean;
+    enable?: boolean;
+}
+
+export interface ResultMasterTableResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Master Table ResponseDTO */
+    data?: MasterTableResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PaginationDTOMasterTableResponseDTO {
+    entryList?: MasterTableResponseDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOMasterTableResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOMasterTableResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Master Table Logs RequestDTO */
+export interface MTAuditLogRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** Master Table ID */
+    id?: string;
+    /** Master Table Name */
+    name?: string;
+    /** Master Table Logs eventId */
+    eventId?: string;
+    /** Master Table Logs Event Category list */
+    categories?: string[];
+    /** Master Table Logs Principal Name list */
+    creators?: string[];
+    /** Master Table Logs Principal Name list */
+    eventCategory?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface MTAddColumnRequestDTO {
+    id?: string;
+    fieldName?: string;
+    dataType?: string;
+    required?: boolean;
+    defaultValue?: object;
+    unique?: boolean;
+    relationTable?: string;
+    relationField?: string;
+    displayField?: string;
+}
+
+export interface MTPermissionDTO {
+    aces?: string;
+    masterTableId?: string;
+    masterTableName?: string;
+    userId?: string;
+    userName?: string;
+    userType?: string;
+    read?: boolean;
+    edit?: boolean;
+    create?: boolean;
+    enable?: boolean;
+}
+
+export interface ResultListContactGroupResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ContactGroupResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface FCNotificationConfig {
+    id?: string;
+    folderCabinetId?: string;
+    reminderType?: string;
+    /** @format int32 */
+    intervalTime?: number;
+    /**
+     * @deprecated
+     * @format int32
+     */
+    notificationReminder?: number;
+    /**
+     * @deprecated
+     * @format int32
+     */
+    reportDay?: number;
+    /**
+     * @deprecated
+     * @format int32
+     */
+    emailReminder?: number;
+    tos?: string;
+    ccs?: string;
+}
+
+/** Document Access Control Entry */
+export interface DocumentACLEntryDTO {
+    /** Access Control Entry ID */
+    id?: string;
+    /** User ID */
+    userId?: string;
+    /** User Permission */
+    permission?: string;
+    /** Granted By */
+    grarntedBy?: string;
+    /** Start Date */
+    startDate?: string;
+    /** End Date */
+    endDate?: string;
+    print?: boolean;
+}
+
+/** Folder Cabinet ResponseDTO */
+export interface FolderCabinetResponseDTO {
+    /** FolderCabinet ID */
+    id?: string;
+    /** Folder Cabinet Setting ID */
+    folderCabinetSettingId?: string;
+    /** Document ID of Nuxeo */
+    rootId?: string;
+    /** The parent ID of this folder cabinet */
+    parentId?: string;
+    /** The name of folder cabinet */
+    label?: string;
+    /** The document type of nuxeo */
+    documentType?: string;
+    /** The document path of nuxeo */
+    documentPath?: string;
+    /** Whether it is a folder? */
+    folder?: boolean;
+    /** Whether it allow other document-type file? */
+    allow?: boolean;
+    /** Whether it allow multiple file? */
+    multiple?: boolean;
+    pathIds?: string;
+    /** The create user of this folder cabinet */
+    createdBy?: string;
+    /** The last modify user of this folder cabinet */
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    complete?: boolean;
+    /** The bind owners of this folder cabinet */
+    binds?: FolderCabinetBinds[];
+    /** The label Rule list */
+    labelRule?: string;
+    /** The sublist of this folder cabinet */
+    children?: FolderCabinetResponseDTO[];
+    /** choose metadata */
+    metadata?: FCMetadata[];
+    /** Email Reminder */
+    notificationReminder?: FCReminder;
+    /** Email Reminder */
+    emailReport?: FCReminder;
+    /** Email Reminder */
+    emailReminder?: FCReminder;
+    repeatName?: boolean;
+    metadataValue?: string;
+    acls?: DocumentACLEntryDTO[];
+}
+
+export interface ResultFolderCabinetResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Folder Cabinet ResponseDTO */
+    data?: FolderCabinetResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PaginationDTOFolderCabinetResponseDTO {
+    entryList?: FolderCabinetResponseDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOFolderCabinetResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOFolderCabinetResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface FolderCabinet {
+    id?: string;
+    parentId?: string;
+    pathIds?: string;
+    label?: string;
+    documentId?: string;
+    documentType?: string;
+    documentPath?: string;
+    allow?: boolean;
+    multiple?: boolean;
+    complete?: boolean;
+    folder?: boolean;
+    metadata?: FCMetadata[];
+    labelRule?: string;
+    permission?: string;
+    repeatName?: boolean;
+    metadataValue?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    binds?: FolderCabinetBinds[];
+    children?: FolderCabinet[];
+    configList?: FCNotificationConfig[];
+}
+
+export interface ResultFolderCabinet {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: FolderCabinet;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultCaseTypeResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaseTypeResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface CaseModelDraft {
+    id?: string;
+    caseTypeId?: string;
+    caseDefinitionKey?: string;
+    caseDefinitionId?: string;
+    bytes?: string[];
+    styleJson?: string;
+    serialNo?: string;
+    createdBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    fileName?: string;
+}
+
+export interface ResultCaseModelDraft {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaseModelDraft;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface CopyCaseTypeRequest {
+    caseIdPrefix?: string;
+    /** @format int32 */
+    caseIdDigit?: number;
+    /** @format int32 */
+    startNumber?: number;
+    /** ID */
+    id?: string;
+    /** Name */
+    name?: string;
+    /** Case Version Id */
+    versionId?: string;
+}
+
+export interface ResultCmmnVersion {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Start Case Model Version */
+    data?: CmmnVersion;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface CmmnVersionRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** ID of case type */
+    caseTypeId?: string;
+    /** Version Number */
+    versionNumber?: string;
+    /** The style json */
+    styleJson?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface PaginationDTOCmmnVersion {
+    entryList?: CmmnVersion[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOCmmnVersion {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOCmmnVersion;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface CaseTable {
+    id?: string;
+    caseTypeId?: string;
+    label?: string;
+    tableName?: string;
+    status?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface ResultCaseTable {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaseTable;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultCaseTableResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Case Table ResponseDTO */
+    data?: CaseTableResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface CmmnDashboard {
+    id?: string;
+    caseTypeId?: string;
+    deploymentId?: string;
+    cmmnVersionId?: string;
+    label?: string;
+    /** @deprecated */
+    userGroup?: string;
+    permissions?: string[];
+    status?: string;
+    styleJson?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface ResultCmmnDashboard {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CmmnDashboard;
+    messageKey?: string;
+    locale?: string;
+}
+
 /** Define block inherited permission of document */
 export interface BlockInheritedPermission {
     /** @format int64 */
@@ -6853,6 +7646,14 @@ export interface DocumentReplaceReq {
     documentRequestDTO?: DocumentReplaceReq;
 }
 
+/** Status Update Request */
+export interface StatusRequest {
+    /** Status (A, D, R) */
+    status?: string;
+    /** Reason for status change (optional) */
+    reason?: string;
+}
+
 export interface PageSearchHistory {
     /** @format int32 */
     totalPages?: number;
@@ -7007,50 +7808,6 @@ export interface ResultPasswordConfigDTO {
     locale?: string;
 }
 
-export interface ResultVocabularyDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Nuxeo Vocabulary */
-    data?: VocabularyDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Nuxeo Vocabulary */
-export interface VocabularyDTO {
-    /** Vocabulary ID */
-    id?: string;
-    /** Vocabulary Type */
-    type?: string;
-    /** Parent Vocabulary */
-    parent?: string;
-    /** The entries in the vocabulary */
-    vocabularyEntries?: VocabularyEntryDTO[];
-    /** Table Creation Policy */
-    tableCreationPolicy?: string;
-    /** Is Local Vocabulary */
-    isLocalVocabulary?: boolean;
-}
-
-/** Vocabulary Entry */
-export interface VocabularyEntryDTO {
-    /** Entry ID */
-    id?: string;
-    /** Entry Label */
-    label?: string;
-    /** Select the id of one of the entries in the parent vocabulary, required for Child Vocabulary and Hierarchical Vocabulary Creation */
-    parentEntryID?: string;
-    /**
-     * Ordering of entries，only valid for simple vocabulary entries
-     * @format int32
-     */
-    order?: number;
-    /** Select true if the Entry is obsolete */
-    obsolete?: boolean;
-}
-
 export interface ResultListVirtualFolderSettingResponseDTO {
     result?: boolean;
     /** @format int32 */
@@ -7066,6 +7823,7 @@ export interface VirtualFolderSettingResponseDTO {
     jsonValue?: string;
     userAllowList?: string[];
     groupAllowList?: string[];
+    virtualFolderName?: string;
 }
 
 export interface ResultVirtualFolderSettingResponseDTO {
@@ -7083,9 +7841,9 @@ export interface DocumentTemplate {
     name?: string;
     documentId?: string;
     fileType?: string;
+    source?: string;
     templateVariable?: string;
     description?: string;
-    source?: string;
     createdBy?: string;
     modifiedBy?: string;
     /** @format date-time */
@@ -7399,6 +8157,10 @@ export interface ResultListMQDayTotalDTO {
 
 export interface MQConfigurationInfo {
     mqName?: string;
+    /** @format int64 */
+    length?: number;
+    /** @format int64 */
+    groupCount?: number;
     consumeGroups?: Record<string, object>[];
 }
 
@@ -7442,63 +8204,12 @@ export interface ResultListOAuthAppDTO {
     locale?: string;
 }
 
-/** Event Calendar Setting */
-export interface EventCalendarSetting {
-    /** Event calendar setting ID */
-    id?: string;
-    /** Event calendar setting name */
-    name?: string;
-    /** Event color code (hex format) */
-    color?: string;
-    /** Event status (A, D, R) */
-    status?: string;
-    /** Whether the event type is registered */
-    registered?: boolean;
-    /** Location configuration settings */
-    location?: Record<string, object>;
-    permission?: Permission;
-    /** Workflow Configuration Settings */
-    flows?: Workflows[];
-    /** Background color for event display */
-    backgroundColor?: string;
-    /** Text color for event display */
-    textColor?: string;
-    /** Highlight color for event selection */
-    highlightColor?: string;
-    /**
-     * Available seats for the event
-     * @format int32
-     */
-    availableSeat?: number;
-}
-
-/** Workflow Configuration Settings */
-export interface Workflows {
-    /** Workflow Key */
-    key?: string;
-    /** Workflow Name */
-    name?: string;
-    /** Workflow Template Key */
-    type?: string;
-}
-
 export interface ResultListEventCalendarSetting {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
     data?: EventCalendarSetting[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultEventCalendarSetting {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Event Calendar Setting */
-    data?: EventCalendarSetting;
     messageKey?: string;
     locale?: string;
 }
@@ -7529,51 +8240,6 @@ export interface ResultProcessDefinitionVersion {
     code?: number;
     message?: string;
     data?: ProcessDefinitionVersion;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface MetadataSetting {
-    /** @format int64 */
-    id?: number;
-    documentType?: string;
-    metaData?: string;
-    dataType?: string;
-    operation?: string;
-    isRequire?: boolean;
-    display?: boolean;
-    /** @format int32 */
-    length?: number;
-    /** @deprecated */
-    vocabulary?: string;
-    /** @format int32 */
-    status?: number;
-    creatorId?: string;
-    creatorName?: string;
-    /** @format date-time */
-    creationTime?: string;
-    modifiedId?: string;
-    modifiedName?: string;
-    /** @format date-time */
-    modifiedTime?: string;
-}
-
-export interface ResultListDocumentTypeProfileSetting {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocumentTypeProfileSetting[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultMapStringListMapStringString {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: Record<string, Record<string, string>[]>;
     messageKey?: string;
     locale?: string;
 }
@@ -7641,15 +8307,24 @@ export interface ProcessDefinitionDTO {
     category?: string;
     name?: string;
     key?: string;
+    description?: string;
     /** @format int32 */
     version?: number;
     resourceName?: string;
     deploymentId?: string;
     diagramResourceName?: string;
-    description?: string;
+    hasStartFormKey?: boolean;
+    hasGraphicalNotation?: boolean;
+    getTenantId?: string;
+    getDerivedFrom?: string;
+    getDerivedFromRoot?: string;
+    /** @format int32 */
+    getDerivedVersion?: number;
+    getEngineVersion?: string;
     userTasks?: UserTaskDTO[];
     permissions?: Record<string, string>[];
     fcDataMapping?: Record<string, string>[];
+    suspended?: boolean;
 }
 
 export interface ResultListProcessDefinitionDTO {
@@ -7735,12 +8410,17 @@ export interface Content {
 }
 
 export interface MessageTemplateDTO {
-    name?: string;
-    parameter_format?: string;
-    language?: string;
+    /** @format int64 */
+    id?: number;
     status?: string;
+    name?: string;
     category?: string;
-    id?: string;
+    language?: string;
+    parameter_format?: string;
+    needSendTextMessage?: boolean;
+    headerVariables?: string[];
+    bodyVariables?: string[];
+    textVariables?: string[];
     components?: Content[];
 }
 
@@ -7770,70 +8450,6 @@ export interface ResultListWatermarkSettingsDTO {
     code?: number;
     message?: string;
     data?: WatermarkSettingsDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface DocPalTypeMetadata {
-    id?: string;
-    docpalTypeId?: string;
-    schemaName?: string;
-    metadata?: string;
-    metaDataType?: string;
-    dataType?: string;
-    display?: boolean;
-    options?: string;
-    isRequire?: boolean;
-    status?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    docPalType?: string;
-}
-
-export interface DocPalTypeResponseDTO {
-    id?: string;
-    name?: string;
-    category?: string;
-    dataType?: string;
-    enable?: boolean;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    metadata?: DocPalTypeMetadata[];
-    folder?: boolean;
-}
-
-export interface ResultDocPalTypeResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocPalTypeResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface DocPalTypeRelated {
-    id?: string;
-    docPalTypeId?: string;
-    rootDocPalType?: string;
-    metaData?: string;
-    docPalType?: string;
-}
-
-export interface ResultListDocPalTypeRelated {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocPalTypeRelated[];
     messageKey?: string;
     locale?: string;
 }
@@ -7962,24 +8578,6 @@ export interface ResultListMetadataResponseVO {
     locale?: string;
 }
 
-export interface DocPalTypeDistinction {
-    oldDocPalType?: string;
-    newDocPalType?: string;
-    intersection?: string[];
-    destruction?: string[];
-    addition?: string[];
-}
-
-export interface ResultDocPalTypeDistinction {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocPalTypeDistinction;
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface ResultMapStringBoolean {
     result?: boolean;
     /** @format int32 */
@@ -8024,21 +8622,11 @@ export interface AccountPropertyDTO {
     essential?: number;
 }
 
-/** KeyCloakPropertyVO */
-export interface KeyCloakPropertyVO {
-    /** isLdap */
-    isLdap?: boolean;
-    /** KeyCloakPropertyDTO */
-    keyCloakProperty?: KeycloakPropertyDTO;
-    /** AccountPropertyDTO */
-    accountProperty?: AccountPropertyDTO;
-}
-
 /** KeyCloakPropertyDTO */
-export interface KeycloakPropertyDTO {
+export interface KeyCloakPropertyDTO {
     /** url */
     url?: string;
-    /** Realm */
+    /** 域 */
     realm?: string;
     /** clientId */
     clientId?: string;
@@ -8053,6 +8641,16 @@ export interface KeycloakPropertyDTO {
     confidentialPort?: number;
     /** enable SSO */
     enableSSO?: boolean;
+}
+
+/** KeyCloakPropertyVO */
+export interface KeyCloakPropertyVO {
+    /** isLdap */
+    isLdap?: boolean;
+    /** KeyCloakPropertyDTO */
+    keyCloakProperty?: KeyCloakPropertyDTO;
+    /** AccountPropertyDTO */
+    accountProperty?: AccountPropertyDTO;
 }
 
 export interface ResultKeyCloakPropertyVO {
@@ -8076,9 +8674,20 @@ export interface ResultListRetentionPolicy {
     locale?: string;
 }
 
+export interface RetentionEvent {
+    id?: string;
+    policyRetentionId?: string;
+    eventType?: string;
+    eventLabel?: string;
+    eventValue?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
 export interface RetentionPolicy {
-    /** @format int64 */
-    id?: number;
+    id?: string;
     policyName?: string;
     isAuto?: boolean;
     approvalId?: string;
@@ -8095,30 +8704,14 @@ export interface RetentionPolicy {
     /** @format date-time */
     modifiedDate?: string;
     /** @uniqueItems true */
-    triggers?: RetentionPolicyTrigger[];
+    triggers?: RetentionTrigger[];
     /** @uniqueItems true */
-    events?: RetentionPolicyEvent[];
+    events?: RetentionEvent[];
 }
 
-export interface RetentionPolicyEvent {
-    /** @format int64 */
-    id?: number;
-    /** @format int64 */
-    policyRetentionId?: number;
-    eventType?: string;
-    eventLabel?: string;
-    eventValue?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-}
-
-export interface RetentionPolicyTrigger {
-    /** @format int64 */
-    id?: number;
-    /** @format int64 */
-    policyRetentionId?: number;
+export interface RetentionTrigger {
+    id?: string;
+    policyRetentionId?: string;
     documentType?: string;
     triggerMetaData?: string;
     /** @format date-time */
@@ -8127,12 +8720,12 @@ export interface RetentionPolicyTrigger {
     modifiedDate?: string;
 }
 
-export interface ResultListRetentionPolicyEvent {
+export interface ResultListRetentionEvent {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: RetentionPolicyEvent[];
+    data?: RetentionEvent[];
     messageKey?: string;
     locale?: string;
 }
@@ -8150,11 +8743,8 @@ export interface ResultRetentionPolicyResponseDTO {
 
 /** Retention Policy ResponseDTO */
 export interface RetentionPolicyResponseDTO {
-    /**
-     * RetentionPolicy ID
-     * @format int64
-     */
-    id?: number;
+    /** RetentionPolicy ID */
+    id?: string;
     /** the name of retention policy */
     policyName?: string;
     /** the status of retention policy */
@@ -8178,22 +8768,22 @@ export interface RetentionPolicyResponseDTO {
      */
     actionDelayDay?: number;
     /** RetentionPolicy trigger list */
-    triggers?: RetentionPolicyTrigger[];
+    triggers?: RetentionTrigger[];
     /** RetentionPolicy event */
-    events?: RetentionPolicyEvent[];
+    events?: RetentionEvent[];
 }
 
-export interface ResultMapLongListRetentionPolicyEvent {
+export interface ResultMapStringListRetentionEvent {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: Record<string, RetentionPolicyEvent[]>;
+    data?: Record<string, RetentionEvent[]>;
     messageKey?: string;
     locale?: string;
 }
 
-/** Document Folder Cabinet Condition ResponseDTO */
+/** All Condition ResponseDTO */
 export interface ConditionResponseDTO {
     key?: string;
     label?: string;
@@ -8214,14 +8804,9 @@ export interface ResultListConditionResponseDTO {
 }
 
 export interface HoldPolicy {
-    /** @format int64 */
-    id?: number;
+    id?: string;
     policyName?: string;
-    isHoldAuto?: boolean;
-    isHoldReasonReq?: boolean;
     holdApprovalId?: string;
-    isRemoveAuto?: boolean;
-    isRemoveReasonReq?: boolean;
     removeApprovalId?: string;
     status?: string;
     createdBy?: string;
@@ -8230,6 +8815,10 @@ export interface HoldPolicy {
     createdDate?: string;
     /** @format date-time */
     modifiedDate?: string;
+    holdAuto?: boolean;
+    holdReasonReq?: boolean;
+    removeAuto?: boolean;
+    removeReasonReq?: boolean;
 }
 
 export interface ResultListHoldPolicy {
@@ -8333,7 +8922,12 @@ export interface CheckBoxDTO {
     isMultiple?: boolean;
     key?: string;
     label?: string;
-    options?: OptionDTO[];
+    options?: CheckBoxOptionDTO[];
+}
+
+export interface CheckBoxOptionDTO {
+    label?: string;
+    value?: object;
 }
 
 export interface ResultListCheckBoxDTO {
@@ -8346,58 +8940,12 @@ export interface ResultListCheckBoxDTO {
     locale?: string;
 }
 
-export interface MTColumnInfo {
-    columnName?: string;
-    dataType?: string;
-    /** @format int32 */
-    length?: number;
-    relationTable?: string;
-    relationField?: string;
-    displayField?: string;
-    nullRelation?: boolean;
-    primaryKey?: boolean;
-    required?: boolean;
-    unique?: boolean;
-}
-
-/** Master Table ResponseDTO */
-export interface MasterTableResponseDTO {
-    id?: string;
-    name?: string;
-    status?: string;
-    description?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    fields?: MTColumnInfo[];
-    userId?: string;
-    aces?: string;
-    read?: boolean;
-    edit?: boolean;
-    create?: boolean;
-    enable?: boolean;
-}
-
 export interface ResultListMasterTableResponseDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
     data?: MasterTableResponseDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultMasterTableResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Master Table ResponseDTO */
-    data?: MasterTableResponseDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -8447,13 +8995,20 @@ export interface ResultListFormDesignResponseDTO {
     locale?: string;
 }
 
-export interface ResultFormDesignResponseDTO {
+/** Process Definition ResponseDTO */
+export interface PDResponseDTO {
+    key?: string;
+    label?: string;
+    type?: string;
+    properties?: FormPropertyDTO[];
+}
+
+export interface ResultListPDResponseDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    /** Form Designer (Response) */
-    data?: FormDesignResponseDTO;
+    data?: PDResponseDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -8470,6 +9025,23 @@ export interface ResultEasyFormBaseEmailDTO {
     code?: number;
     message?: string;
     data?: EasyFormBaseEmailDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface MTFieldTypeMapping {
+    value?: string;
+    label?: string;
+    key?: string;
+    unique?: boolean;
+}
+
+export interface ResultListMTFieldTypeMapping {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: MTFieldTypeMapping[];
     messageKey?: string;
     locale?: string;
 }
@@ -8537,16 +9109,6 @@ export interface ResultMapStringListDAMConversionSetting {
     locale?: string;
 }
 
-export interface ResultListContactGroupResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ContactGroupResponseDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface ResultCompany {
     result?: boolean;
     /** @format int32 */
@@ -8591,6 +9153,11 @@ export interface CompanyChopRequestDTO {
     status?: string;
     /** @format binary */
     file?: File;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
 }
@@ -8663,30 +9230,6 @@ export interface ResultListPlanTableFieldDTO {
     locale?: string;
 }
 
-export interface ResultCaseTypeResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CaseTypeResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface CaseTable {
-    id?: string;
-    caseTypeId?: string;
-    label?: string;
-    tableName?: string;
-    status?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-}
-
 export interface ResultListCaseTable {
     result?: boolean;
     /** @format int32 */
@@ -8719,30 +9262,6 @@ export interface ResultListCmmnInstance {
     code?: number;
     message?: string;
     data?: CmmnInstance[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface CaseModelDraft {
-    id?: string;
-    caseTypeId?: string;
-    caseDefinitionKey?: string;
-    caseDefinitionId?: string;
-    bytes?: string[];
-    styleJson?: string;
-    serialNo?: string;
-    createdBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    fileName?: string;
-}
-
-export interface ResultCaseModelDraft {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CaseModelDraft;
     messageKey?: string;
     locale?: string;
 }
@@ -8783,15 +9302,13 @@ export interface CaseFormFieldData {
     id?: string;
     name?: string;
     type?: string;
-    accesstype?: string;
-    fieldMappingId?: string;
+    value?: object;
     masterTable?: string;
     documentType?: string;
     displayField?: string;
     vocabulary?: string;
     require?: string;
     readOnly?: string;
-    value?: object;
 }
 
 /** Case Model Form Data DTO */
@@ -8844,12 +9361,24 @@ export interface CaseDefinitionDTO {
     permissions?: CmmnPlanPermissionDTO[];
 }
 
-/** Case Model Data Filter Permission DTO */
+/** Case Model Data Permission DTO */
 export interface CmmnDataFilterPermission {
+    /** Bind Business Id */
+    bindId?: string;
+    /** Bind Business Type */
+    bindType?: string;
+    /**
+     * User Group Id
+     * @deprecated
+     */
     userGroupId?: string;
+    /** metadata */
     metadata?: string;
+    /** Condition Type */
     conditionType?: string;
+    /** Field Value */
     fieldValue?: string;
+    /** Field Mapping Id */
     fieldMappingId?: string;
 }
 
@@ -8880,39 +9409,6 @@ export interface ResultListCaseInstanceDTO {
     code?: number;
     message?: string;
     data?: CaseInstanceDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Case model dashboard (RequestDTO) */
-export interface CmmnDashboardResponseDTO {
-    id?: string;
-    caseTypeId?: string;
-    deploymentId?: string;
-    cmmnVersionId?: string;
-    label?: string;
-    /** @deprecated */
-    userGroup?: string;
-    status?: string;
-    styleJson?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    createdByName?: string;
-    modifiedByName?: string;
-    permissions?: BasicField[];
-}
-
-export interface ResultCmmnDashboardResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Case model dashboard (RequestDTO) */
-    data?: CmmnDashboardResponseDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -8980,119 +9476,6 @@ export interface ResultListCmmnDashboard {
     code?: number;
     message?: string;
     data?: CmmnDashboard[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface Document {
-    path?: string;
-    type?: string;
-    state?: string;
-    lockOwner?: string;
-    lockCreated?: string;
-    versionLabel?: string;
-    isCheckedOut?: string;
-    lastModified?: string;
-    contextParameters?: Record<string, object>;
-    changeToken?: string;
-    facets?: string[];
-    parentRef?: string;
-    uid?: string;
-    title?: string;
-    name?: string;
-    retainUntil?: string;
-    versionableId?: string;
-    id?: string;
-    lock?: string;
-    locked?: boolean;
-    checkedOut?: boolean;
-    record?: boolean;
-    underRetentionOrLegalHold?: boolean;
-    version?: boolean;
-    proxy?: boolean;
-    trashed?: boolean;
-    "entity-type"?: string;
-    repository?: string;
-    properties?: Record<string, object>;
-    isProxy?: boolean;
-    isTrashed?: boolean;
-    isRecord?: boolean;
-    hasLegalHold?: boolean;
-    isUnderRetentionOrLegalHold?: boolean;
-    isVersion?: boolean;
-}
-
-/** Document Access Control Entry */
-export interface DocumentACLEntryDTO {
-    /** Access Control Entry ID */
-    id?: string;
-    /** User ID */
-    userId?: string;
-    /** User Permission */
-    permission?: string;
-    /** Granted By */
-    grarntedBy?: string;
-    /** Start Date */
-    startDate?: string;
-    /** End Date */
-    endDate?: string;
-    print?: boolean;
-}
-
-/** Folder Cabinet ResponseDTO */
-export interface FolderCabinetResponseDTO {
-    /** FolderCabinet ID */
-    id?: string;
-    /** Document ID of Nuxeo */
-    rootId?: string;
-    /** The parent ID of this folder cabinet */
-    parentId?: string;
-    /** The name of folder cabinet */
-    label?: string;
-    /** The document type of nuxeo */
-    documentType?: string;
-    /** The document path of nuxeo */
-    documentPath?: string;
-    pathIds?: string;
-    /** Whether it is a folder? */
-    folder?: boolean;
-    /** Whether it allow other document-type file? */
-    allow?: boolean;
-    /** Whether it allow multiple file? */
-    multiple?: boolean;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    complete?: boolean;
-    binds?: FolderCabinetBinds[];
-    /** choose metadata */
-    metadata?: FCMetadata[];
-    /** The label Rule list */
-    labelRule?: string;
-    metadataValue?: string;
-    /** Email Reminder */
-    notificationReminder?: FCReminder;
-    /** Email Reminder */
-    emailReport?: FCReminder;
-    /** Email Reminder */
-    emailReminder?: FCReminder;
-    children?: FolderCabinetResponseDTO[];
-    documents?: Document[];
-    modifiedDateStr?: string;
-    repeatName?: boolean;
-    acls?: DocumentACLEntryDTO[];
-}
-
-export interface ResultFolderCabinetResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Folder Cabinet ResponseDTO */
-    data?: FolderCabinetResponseDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -9166,6 +9549,90 @@ export interface ResultListPermissionDTO {
     code?: number;
     message?: string;
     data?: PermissionDTO[];
+}
+
+export interface ResultEmailTemplate {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: EmailTemplate;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListEmailLayout {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: EmailLayout[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListEmailTemplate {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: EmailTemplate[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListDocumentACLEntryDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocumentACLEntryDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListCmmnVersion {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CmmnVersion[];
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Case Model Deployment DTO */
+export interface CmmnDeploymentDTO {
+    id?: string;
+    name?: string;
+    category?: string;
+    key?: string;
+    caseDefinitionId?: string;
+    parentDeploymentId?: string;
+    /** @format date-time */
+    deploymentTime?: string;
+    newState?: boolean;
+    derivedFrom?: string;
+    derivedFromRoot?: string;
+    engineVersion?: string;
+    inserted?: boolean;
+    idPrefix?: string;
+    updated?: boolean;
+    deleted?: boolean;
+    primaryForm?: string;
+    caseTables?: CmmnPlanFormDTO[];
+    permissions?: CmmnPlanPermissionDTO[];
+}
+
+export interface ResultCmmnDeploymentDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Case Model Deployment DTO */
+    data?: CmmnDeploymentDTO;
+    messageKey?: string;
+    locale?: string;
 }
 
 export interface AiTopicIdVO {
@@ -9295,7 +9762,7 @@ export class HttpClient<SecurityDataType = unknown> {
     constructor({ securityWorker, secure, format, ...axiosConfig }: ApiConfig<SecurityDataType> = {}) {
         this.instance = axios.create({
             ...axiosConfig,
-            baseURL: axiosConfig.baseURL || "http://sit-v2.wclsolution.com",
+            baseURL: axiosConfig.baseURL || "http://sit-v3.wclsolution.com",
         });
         this.secure = secure;
         this.format = format;
@@ -9390,72 +9857,12 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title DocPal REST API
  * @version 0.0.1
- * @baseUrl http://sit-v2.wclsolution.com
+ * @baseUrl http://sit-v3.wclsolution.com
  *
  * DocPal REST API Documentation
  */
 export class Client<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
     api = {
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name GetNuxeoTypesDocumenttype
-         * @summary Get a document type
-         * @request GET:/api/nuxeo/types/{documentType}
-         */
-        getNuxeoTypesDocumenttype: (documentType: string, params: RequestParams = {}) =>
-            this.request<ResultDocumentTypeDTO, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/types/${documentType}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name PostNuxeoTypesDocumenttype
-         * @summary Get a document type
-         * @request POST:/api/nuxeo/types/{documentType}
-         */
-        postNuxeoTypesDocumenttype: (documentType: string, params: RequestParams = {}) =>
-            this.request<ResultDocumentTypeDTO, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/types/${documentType}`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name GetNuxeoTypesDocumenttypeDeprecate
-         * @summary Get a document type
-         * @request GET:/api/nuxeo/types/{documentType}/
-         */
-        getNuxeoTypesDocumenttypeDeprecate: (documentType: string, params: RequestParams = {}) =>
-            this.request<ResultDocumentTypeDTO, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/types/${documentType}/`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name PostNuxeoTypesDocumenttypeDeprecate
-         * @summary Get a document type
-         * @request POST:/api/nuxeo/types/{documentType}/
-         */
-        postNuxeoTypesDocumenttypeDeprecate: (documentType: string, params: RequestParams = {}) =>
-            this.request<ResultDocumentTypeDTO, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/types/${documentType}/`,
-                method: "POST",
-                ...params,
-            }),
-
         /**
          * No description
          *
@@ -9471,7 +9878,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentTypeDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/types`,
                 method: "GET",
                 query: query,
@@ -9493,7 +9900,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentTypeDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/types`,
                 method: "POST",
                 query: query,
@@ -9515,7 +9922,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentTypeDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/types/`,
                 method: "GET",
                 query: query,
@@ -9537,178 +9944,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentTypeDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/types/`,
                 method: "POST",
                 query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name GetNuxeoKeywordsDeprecate
-         * @summary Get all keywords or a keyword
-         * @request GET:/api/nuxeo/keywords/
-         */
-        getNuxeoKeywordsDeprecate: (
-            query: {
-                /** Keyword (Request) */
-                keyword: KeywordRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/keywords/`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name PostNuxeoKeywordsDeprecate
-         * @summary Get all keywords or a keyword
-         * @request POST:/api/nuxeo/keywords/
-         */
-        postNuxeoKeywordsDeprecate: (data: KeywordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/keywords/`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name GetNuxeoKeywords
-         * @summary Get all keywords or a keyword
-         * @request GET:/api/nuxeo/keywords
-         */
-        getNuxeoKeywords: (
-            query: {
-                /** Keyword (Request) */
-                keyword: KeywordRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/keywords`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name PostNuxeoKeywords
-         * @summary Get all keywords or a keyword
-         * @request POST:/api/nuxeo/keywords
-         */
-        postNuxeoKeywords: (data: KeywordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/keywords`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name GetNuxeoKeywordGroups
-         * @summary Get all keyword groups
-         * @request GET:/api/nuxeo/keyword/groups
-         */
-        getNuxeoKeywordGroups: (params: RequestParams = {}) =>
-            this.request<ResultListKeywordTypeGroupDTO, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/keyword/groups`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name PostNuxeoKeywordGroups
-         * @summary Get all keyword groups
-         * @request POST:/api/nuxeo/keyword/groups
-         */
-        postNuxeoKeywordGroups: (params: RequestParams = {}) =>
-            this.request<ResultListKeywordTypeGroupDTO, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/keyword/groups`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name GetNuxeoKeywordGroupsGroupname
-         * @summary Get a keyword group
-         * @request GET:/api/nuxeo/keyword/groups/{groupName}
-         */
-        getNuxeoKeywordGroupsGroupname: (groupName: string, params: RequestParams = {}) =>
-            this.request<ResultKeywordTypeGroupDTO, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/keyword/groups/${groupName}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name PostNuxeoKeywordGroupsGroupname
-         * @summary Get a keyword group
-         * @request POST:/api/nuxeo/keyword/groups/{groupName}
-         */
-        postNuxeoKeywordGroupsGroupname: (groupName: string, params: RequestParams = {}) =>
-            this.request<ResultKeywordTypeGroupDTO, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/keyword/groups/${groupName}`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name GetNuxeoIconDocumenttype
-         * @summary Get the default icon of a document
-         * @request GET:/api/nuxeo/icon/{documentType}
-         */
-        getNuxeoIconDocumenttype: (documentType: string, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
-                path: `/nuxeo/icon/${documentType}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name PostNuxeoIconDocumenttype
-         * @summary Get the default icon of a document
-         * @request POST:/api/nuxeo/icon/{documentType}
-         */
-        postNuxeoIconDocumenttype: (documentType: string, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
-                path: `/nuxeo/icon/${documentType}`,
-                method: "POST",
                 ...params,
             }),
 
@@ -9728,7 +9967,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultSetString, ResultString | (ResultString | Result)>({
+            this.request<ResultSetString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/form/metadata/list`,
                 method: "GET",
                 query: query,
@@ -9751,7 +9990,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultSetString, ResultString | (ResultString | Result)>({
+            this.request<ResultSetString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/form/metadata/list`,
                 method: "POST",
                 query: query,
@@ -9761,7 +10000,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name GetNuxeoCollectionDeprecate
          * @summary Get user visible collections
          * @request GET:/api/nuxeo/collection/
@@ -9775,7 +10014,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultPaginableEntityDTODocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection/`,
                 method: "GET",
                 query: query,
@@ -9785,7 +10024,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name PostNuxeoCollectionDeprecate
          * @summary Get user visible collections
          * @request POST:/api/nuxeo/collection/
@@ -9799,7 +10038,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultPaginableEntityDTODocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection/`,
                 method: "POST",
                 query: query,
@@ -9809,12 +10048,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name PatchNuxeoCollectionDeprecate
          * @request PATCH:/api/nuxeo/collection/
          */
         patchNuxeoCollectionDeprecate: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection/`,
                 method: "PATCH",
                 body: data,
@@ -9825,7 +10064,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name GetNuxeoCollection
          * @summary Get user visible collections
          * @request GET:/api/nuxeo/collection
@@ -9839,7 +10078,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultPaginableEntityDTODocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection`,
                 method: "GET",
                 query: query,
@@ -9849,7 +10088,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name PostNuxeoCollection
          * @summary Get user visible collections
          * @request POST:/api/nuxeo/collection
@@ -9863,7 +10102,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultPaginableEntityDTODocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection`,
                 method: "POST",
                 query: query,
@@ -9873,12 +10112,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name PatchNuxeoCollection
          * @request PATCH:/api/nuxeo/collection
          */
         patchNuxeoCollection: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection`,
                 method: "PATCH",
                 body: data,
@@ -9901,7 +10140,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/candidatesByTaskDefinitionKey/`,
                 method: "GET",
                 query: query,
@@ -9923,7 +10162,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/candidatesByTaskDefinitionKey/`,
                 method: "POST",
                 query: query,
@@ -9945,7 +10184,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/candidatesByTaskDefinitionKey`,
                 method: "GET",
                 query: query,
@@ -9967,7 +10206,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/candidatesByTaskDefinitionKey`,
                 method: "POST",
                 query: query,
@@ -9988,7 +10227,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultSetUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/candidates/`,
                 method: "GET",
                 query: query,
@@ -10009,7 +10248,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultSetUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/candidates/`,
                 method: "POST",
                 query: query,
@@ -10030,7 +10269,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultSetUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/candidates`,
                 method: "GET",
                 query: query,
@@ -10051,7 +10290,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultSetUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/candidates`,
                 method: "POST",
                 query: query,
@@ -10072,7 +10311,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/attachment`,
                 method: "GET",
                 query: query,
@@ -10094,7 +10333,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultFileDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultFileDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/attachment`,
                 method: "PUT",
                 body: data,
@@ -10116,7 +10355,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/attachment`,
                 method: "POST",
                 query: query,
@@ -10137,7 +10376,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/attachment`,
                 method: "DELETE",
                 query: query,
@@ -10158,7 +10397,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/attachment/preview`,
                 method: "GET",
                 query: query,
@@ -10179,7 +10418,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/attachment/preview`,
                 method: "POST",
                 query: query,
@@ -10200,7 +10439,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultFileDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultFileDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/attachment/info`,
                 method: "GET",
                 query: query,
@@ -10221,7 +10460,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultFileDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultFileDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/attachment/info`,
                 method: "POST",
                 query: query,
@@ -10237,7 +10476,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/userProfile/{userId}/signature
          */
         getUserprofileUseridSignature: (userId: string, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/userProfile/${userId}/signature`,
                 method: "GET",
                 ...params,
@@ -10266,7 +10505,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/userProfile/${userId}/signature`,
                 method: "PUT",
                 query: query,
@@ -10298,7 +10537,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/userProfile/${userId}/signature`,
                 method: "POST",
                 query: query,
@@ -10316,7 +10555,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/userProfile/{userId}/signature
          */
         deleteUserprofileUseridSignature: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/userProfile/${userId}/signature`,
                 method: "DELETE",
                 ...params,
@@ -10330,7 +10569,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/admin/virtualfolder/setting
          */
         getNuxeoAdminVirtualfolderSetting: (params: RequestParams = {}) =>
-            this.request<ResultListVirtualFolderSettingResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/admin/virtualfolder/setting`,
                 method: "GET",
                 ...params,
@@ -10344,7 +10583,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PUT:/api/nuxeo/admin/virtualfolder/setting
          */
         putNuxeoAdminVirtualfolderSetting: (data: VirtualFolderSettingRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/admin/virtualfolder/setting`,
                 method: "PUT",
                 body: data,
@@ -10360,7 +10599,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/admin/setting
          */
         getNuxeoAdminSetting: (systemId: string, params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/admin/setting`,
                 method: "GET",
                 ...params,
@@ -10374,7 +10613,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PUT:/api/nuxeo/admin/setting
          */
         putNuxeoAdminSetting: (data: string, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/admin/setting`,
                 method: "PUT",
                 body: data,
@@ -10395,7 +10634,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/admin/icon`,
                 method: "GET",
                 query: query,
@@ -10431,7 +10670,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/admin/icon`,
                 method: "PUT",
                 body: data,
@@ -10448,7 +10687,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/external-drive/sync-tasks/{task_id}
          */
         getExternalDriveSyncTasksTaskId: (taskId: string, params: RequestParams = {}) =>
-            this.request<ResultSyncTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultSyncTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/sync-tasks/${taskId}`,
                 method: "GET",
                 ...params,
@@ -10463,7 +10702,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PUT:/api/external-drive/sync-tasks/{task_id}
          */
         putExternalDriveSyncTasksTaskId: (taskId: string, data: UpdateSyncTaskRequest, params: RequestParams = {}) =>
-            this.request<ResultSyncTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultSyncTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/sync-tasks/${taskId}`,
                 method: "PUT",
                 body: data,
@@ -10480,7 +10719,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/external-drive/sync-tasks/{task_id}
          */
         deleteExternalDriveSyncTasksTaskId: (taskId: string, params: RequestParams = {}) =>
-            this.request<ResultVoid, ResultString | (ResultString | Result)>({
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/sync-tasks/${taskId}`,
                 method: "DELETE",
                 ...params,
@@ -10495,7 +10734,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/external-drive/oauth/apps/{app_id}
          */
         getExternalDriveOauthAppsAppId: (appId: string, params: RequestParams = {}) =>
-            this.request<ResultOAuthAppDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultOAuthAppDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/oauth/apps/${appId}`,
                 method: "GET",
                 ...params,
@@ -10510,7 +10749,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PUT:/api/external-drive/oauth/apps/{app_id}
          */
         putExternalDriveOauthAppsAppId: (appId: string, data: UpdateOAuthAppRequest, params: RequestParams = {}) =>
-            this.request<ResultOAuthAppDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultOAuthAppDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/oauth/apps/${appId}`,
                 method: "PUT",
                 body: data,
@@ -10527,8 +10766,55 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/external-drive/oauth/apps/{app_id}
          */
         deleteExternalDriveOauthAppsAppId: (appId: string, params: RequestParams = {}) =>
-            this.request<ResultVoid, ResultString | (ResultString | Result)>({
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/oauth/apps/${appId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name GetEventCalendarsSettingId
+         * @summary Get Event Calendar Setting by ID
+         * @request GET:/api/event/calendars/setting/{id}
+         */
+        getEventCalendarsSettingId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/event/calendars/setting/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name PutEventCalendarsSettingId
+         * @summary Update Event Calendar Setting
+         * @request PUT:/api/event/calendars/setting/{id}
+         */
+        putEventCalendarsSettingId: (id: string, data: EventCalendarSetting, params: RequestParams = {}) =>
+            this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/event/calendars/setting/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name DeleteEventCalendarsSettingId
+         * @summary Remove Event Calendar Setting
+         * @request DELETE:/api/event/calendars/setting/{id}
+         */
+        deleteEventCalendarsSettingId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/event/calendars/setting/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -10548,7 +10834,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultFileDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultFileDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/attachment/`,
                 method: "PUT",
                 body: data,
@@ -10565,7 +10851,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/user/setting
          */
         getUserSetting: (params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/user/setting`,
                 method: "GET",
                 ...params,
@@ -10579,7 +10865,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PUT:/api/docpal/user/setting
          */
         putUserSetting: (data: string, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/user/setting`,
                 method: "PUT",
                 body: data,
@@ -10595,7 +10881,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PATCH:/api/docpal/user/setting
          */
         patchUserSetting: (data: string, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/user/setting`,
                 method: "PATCH",
                 body: data,
@@ -10616,7 +10902,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultUserProfileSettingDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/user/profile`,
                 method: "GET",
                 query: query,
@@ -10632,7 +10918,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PUT:/api/docpal/user/profile
          */
         putUserProfile: (data: UserProfileSettingDTO, params: RequestParams = {}) =>
-            this.request<ResultUserProfileSettingDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/user/profile`,
                 method: "PUT",
                 body: data,
@@ -10649,7 +10935,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/user/profile
          */
         postUserProfile: (data: UserProfileSettingDTO, params: RequestParams = {}) =>
-            this.request<ResultUserProfileSettingDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/user/profile`,
                 method: "POST",
                 body: data,
@@ -10666,7 +10952,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/user/profile/{userId}/signature
          */
         getUserProfileUseridSignature: (userId: string, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/user/profile/${userId}/signature`,
                 method: "GET",
                 ...params,
@@ -10689,7 +10975,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/user/profile/${userId}/signature`,
                 method: "PUT",
                 query: query,
@@ -10713,7 +10999,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/user/profile/${userId}/signature`,
                 method: "POST",
                 query: query,
@@ -10729,9 +11015,25 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/docpal/user/profile/{userId}/signature
          */
         deleteUserProfileUseridSignature: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/user/profile/${userId}/signature`,
                 method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags system-feature-controller
+         * @name PutSystemfeatureUser
+         * @request PUT:/api/docpal/systemfeature/user
+         */
+        putSystemfeatureUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/systemfeature/user`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
@@ -10743,7 +11045,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PUT:/api/docpal/personal/landing/save
          */
         putPersonalLandingSave: (data: PersonalLandingRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, ResultString | (ResultString | Result)>({
+            this.request<ResultPersonalLanding, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/personal/landing/save`,
                 method: "PUT",
                 body: data,
@@ -10760,7 +11062,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PUT:/api/docpal/notification/{id}/status/{status}
          */
         putNotificationIdStatusStatus: (id: number, status: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/${id}/status/${status}`,
                 method: "PUT",
                 ...params,
@@ -10775,7 +11077,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PUT:/api/docpal/notification/status
          */
         putNotificationStatus: (data: NotificationRecordDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/status`,
                 method: "PUT",
                 body: data,
@@ -10792,7 +11094,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PUT:/api/docpal/notification/setting/status
          */
         putNotificationSettingStatus: (data: NotificationSetting[], params: RequestParams = {}) =>
-            this.request<ResultListNotificationSetting, ResultString | (ResultString | Result)>({
+            this.request<ResultListNotificationSetting, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/setting/status`,
                 method: "PUT",
                 body: data,
@@ -10808,7 +11110,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PUT:/api/docpal/notification/dissmiss_by_type
          */
         putNotificationDissmissByType: (data: NotificationManageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, ResultString | (ResultString | Result)>({
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/dissmiss_by_type`,
                 method: "PUT",
                 body: data,
@@ -10824,7 +11126,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PUT:/api/docpal/notification/dissmiss_by_ids
          */
         putNotificationDissmissByIds: (data: NotificationManageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, ResultString | (ResultString | Result)>({
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/dissmiss_by_ids`,
                 method: "PUT",
                 body: data,
@@ -10839,9 +11141,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PutMasterTablesIdRecord
          * @summary update data (master table)
          * @request PUT:/api/docpal/master/tables/{id}/record
+         * @deprecated
          */
         putMasterTablesIdRecord: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/${id}/record`,
                 method: "PUT",
                 body: data,
@@ -10855,9 +11158,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags MasterTableController
          * @name PutMasterTablesIdRecordStatus
          * @request PUT:/api/docpal/master/tables/{id}/record/status
+         * @deprecated
          */
         putMasterTablesIdRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/${id}/record/status`,
                 method: "PUT",
                 body: data,
@@ -10872,9 +11176,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PatchMasterTablesIdRecordStatus
          * @summary Enable or Disable Record
          * @request PATCH:/api/docpal/master/tables/{id}/record/status
+         * @deprecated
          */
         patchMasterTablesIdRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/${id}/record/status`,
                 method: "PATCH",
                 body: data,
@@ -10888,9 +11193,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags MasterTableController
          * @name PutMasterTablesIdBatchRecord
          * @request PUT:/api/docpal/master/tables/{id}/batch/record
+         * @deprecated
          */
         putMasterTablesIdBatchRecord: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/${id}/batch/record`,
                 method: "PUT",
                 body: data,
@@ -10904,10 +11210,28 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags MasterTableController
          * @name PutMasterTablesForAdminIdBatchRecord
          * @request PUT:/api/docpal/master/tables/for_admin/{id}/batch/record
+         * @deprecated
          */
         putMasterTablesForAdminIdBatchRecord: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/for_admin/${id}/batch/record`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PutFormDesignDraftidFormresultStatus
+         * @request PUT:/api/docpal/form/design/{draftId}/formResult/status
+         * @deprecated
+         */
+        putFormDesignDraftidFormresultStatus: (draftId: string, data: EasyFormResult, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design/${draftId}/formResult/status`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -10923,7 +11247,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/doc/template/signature/{id}
          */
         getDocTemplateSignatureId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultDocTemplateSignatureResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocTemplateSignatureResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/doc/template/signature/${id}`,
                 method: "GET",
                 ...params,
@@ -10938,7 +11262,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PUT:/api/docpal/doc/template/signature/{id}
          */
         putDocTemplateSignatureId: (id: string, data: DocTemplateSignatureRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocTemplateSignatureResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocTemplateSignatureResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/doc/template/signature/${id}`,
                 method: "PUT",
                 body: data,
@@ -10955,7 +11279,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/docpal/doc/template/signature/{id}
          */
         deleteDocTemplateSignatureId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/doc/template/signature/${id}`,
                 method: "DELETE",
                 ...params,
@@ -10968,9 +11292,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetContactgroupId
          * @summary Get contact group by id
          * @request GET:/api/docpal/contactGroup/{id}
+         * @deprecated
          */
         getContactgroupId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultContactGroupResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}`,
                 method: "GET",
                 ...params,
@@ -10983,9 +11308,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PutContactgroupId
          * @summary Update contact group
          * @request PUT:/api/docpal/contactGroup/{id}
+         * @deprecated
          */
         putContactgroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultContactGroupResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}`,
                 method: "PUT",
                 body: data,
@@ -11000,9 +11326,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name DeleteContactgroupId
          * @summary Delete contact group by id
          * @request DELETE:/api/docpal/contactGroup/{id}
+         * @deprecated
          */
         deleteContactgroupId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}`,
                 method: "DELETE",
                 ...params,
@@ -11015,9 +11342,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PatchContactgroupId
          * @summary Reference to update contact group
          * @request PATCH:/api/docpal/contactGroup/{id}
+         * @deprecated
          */
         patchContactgroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultContactGroupResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}`,
                 method: "PATCH",
                 body: data,
@@ -11032,13 +11360,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetContactgroupIdContactdetailContactdetailid
          * @summary Get contact detail by id
          * @request GET:/api/docpal/contactGroup/{id}/contactDetail/{contactDetailId}
+         * @deprecated
          */
         getContactgroupIdContactdetailContactdetailid: (
             id: string,
             contactDetailId: string,
             params: RequestParams = {},
         ) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}/contactDetail/${contactDetailId}`,
                 method: "GET",
                 ...params,
@@ -11051,6 +11380,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PutContactgroupIdContactdetailContactdetailid
          * @summary Edit contact record with the specified information
          * @request PUT:/api/docpal/contactGroup/{id}/contactDetail/{contactDetailId}
+         * @deprecated
          */
         putContactgroupIdContactdetailContactdetailid: (
             id: string,
@@ -11058,7 +11388,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}/contactDetail/${contactDetailId}`,
                 method: "PUT",
                 body: data,
@@ -11073,13 +11403,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name DeleteContactgroupIdContactdetailContactdetailid
          * @summary Delete contact record
          * @request DELETE:/api/docpal/contactGroup/{id}/contactDetail/{contactDetailId}
+         * @deprecated
          */
         deleteContactgroupIdContactdetailContactdetailid: (
             id: string,
             contactDetailId: string,
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}/contactDetail/${contactDetailId}`,
                 method: "DELETE",
                 ...params,
@@ -11088,13 +11419,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags TaskController
+         * @tags CalendarController
          * @name PutCalendars
          * @summary Update Event Task
          * @request PUT:/api/docpal/calendars
+         * @deprecated
          */
         putCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
-            this.request<ResultCalendarTaskRespDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/calendars`,
                 method: "PUT",
                 body: data,
@@ -11105,13 +11437,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags TaskController
+         * @tags CalendarController
          * @name PostCalendars
          * @summary Create a new event task
          * @request POST:/api/docpal/calendars
+         * @deprecated
          */
         postCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
-            this.request<ResultCalendarTaskRespDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/calendars`,
                 method: "POST",
                 body: data,
@@ -11128,7 +11461,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PUT:/api/docpal/acl/role
          */
         putAclRole: (data: RoleRequest, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/acl/role`,
                 method: "PUT",
                 body: data,
@@ -11145,9 +11478,611 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/acl/role
          */
         postAclRole: (data: RoleRequest, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/acl/role`,
                 method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PutDmsTemplateEmailTemplate
+         * @summary Modify (Email Template)
+         * @request PUT:/api/dms/template/email/template
+         */
+        putDmsTemplateEmailTemplate: (data: EmailTemplate, params: RequestParams = {}) =>
+            this.request<ResultEmailTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/template`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PostDmsTemplateEmailTemplate
+         * @summary Create Email Template
+         * @request POST:/api/dms/template/email/template
+         */
+        postDmsTemplateEmailTemplate: (data: EmailTemplate, params: RequestParams = {}) =>
+            this.request<ResultEmailTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/template`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PutDmsTemplateEmail
+         * @summary Modify (Email Template)
+         * @request PUT:/api/dms/template/email
+         */
+        putDmsTemplateEmail: (data: EmailTemplate, params: RequestParams = {}) =>
+            this.request<ResultEmailTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PostDmsTemplateEmail
+         * @summary Create Email Template
+         * @request POST:/api/dms/template/email
+         */
+        postDmsTemplateEmail: (data: EmailTemplate, params: RequestParams = {}) =>
+            this.request<ResultEmailTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name DeleteDmsTemplateEmail
+         * @summary Delete email template by id
+         * @request DELETE:/api/dms/template/email
+         */
+        deleteDmsTemplateEmail: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PutDmsTemplateEmailLayout
+         * @summary Update (Email Layout)
+         * @request PUT:/api/dms/template/email/layout
+         */
+        putDmsTemplateEmailLayout: (data: EmailLayout, params: RequestParams = {}) =>
+            this.request<ResultEmailLayout, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/layout`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PostDmsTemplateEmailLayout
+         * @summary Create (Email Layout)
+         * @request POST:/api/dms/template/email/layout
+         */
+        postDmsTemplateEmailLayout: (data: EmailLayout, params: RequestParams = {}) =>
+            this.request<ResultEmailLayout, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/layout`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetDmsMasterTable
+         * @summary Get all master tables
+         * @request GET:/api/dms/master-table
+         */
+        getDmsMasterTable: (params: RequestParams = {}) =>
+            this.request<ResultListMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PutDmsMasterTable
+         * @summary Update information (Master Table)
+         * @request PUT:/api/dms/master-table
+         */
+        putDmsMasterTable: (data: MasterTable, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTable
+         * @summary Creation (Master Table)
+         * @request POST:/api/dms/master-table
+         */
+        postDmsMasterTable: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PutDmsMasterTableIdRecord
+         * @summary update data (master table)
+         * @request PUT:/api/dms/master-table/{id}/record
+         */
+        putDmsMasterTableIdRecord: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}/record`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name DeleteDmsMasterTableIdRecord
+         * @summary Delete record
+         * @request DELETE:/api/dms/master-table/{id}/record
+         */
+        deleteDmsMasterTableIdRecord: (
+            id: string,
+            query: {
+                recordId: string;
+            },
+            data: any,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}/record`,
+                method: "DELETE",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PutDmsMasterTableIdRecordStatus
+         * @request PUT:/api/dms/master-table/{id}/record/status
+         */
+        putDmsMasterTableIdRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}/record/status`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PatchDmsMasterTableIdRecordStatus
+         * @summary Enable or Disable Record
+         * @request PATCH:/api/dms/master-table/{id}/record/status
+         */
+        patchDmsMasterTableIdRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}/record/status`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PutDmsMasterTableIdBatchRecord
+         * @request PUT:/api/dms/master-table/{id}/batch/record
+         */
+        putDmsMasterTableIdBatchRecord: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}/batch/record`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PutDmsEasyFormDraftidFormresultStatus
+         * @request PUT:/api/dms/easy-form/{draftId}/formResult/status
+         */
+        putDmsEasyFormDraftidFormresultStatus: (draftId: string, data: EasyFormResult, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/${draftId}/formResult/status`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name GetDmsContactGroupId
+         * @summary Get contact group by id
+         * @request GET:/api/dms/contact-group/{id}
+         */
+        getDmsContactGroupId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * @description Update contact group with the specified information
+         *
+         * @tags ContactController
+         * @name PutDmsContactGroupId
+         * @summary Update contact group
+         * @request PUT:/api/dms/contact-group/{id}
+         */
+        putDmsContactGroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Delete a contact group by ContactGroupId
+         *
+         * @tags ContactController
+         * @name DeleteDmsContactGroupId
+         * @summary Delete contact group by id
+         * @request DELETE:/api/dms/contact-group/{id}
+         */
+        deleteDmsContactGroupId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * @description Update contact group with the specified information
+         *
+         * @tags ContactController
+         * @name PatchDmsContactGroupId
+         * @summary Reference to update contact group
+         * @request PATCH:/api/dms/contact-group/{id}
+         */
+        patchDmsContactGroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name GetDmsContactGroupIdContactdetailContactdetailid
+         * @summary Get contact detail by id
+         * @request GET:/api/dms/contact-group/{id}/contactDetail/{contactDetailId}
+         */
+        getDmsContactGroupIdContactdetailContactdetailid: (
+            id: string,
+            contactDetailId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}/contactDetail/${contactDetailId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PutDmsContactGroupIdContactdetailContactdetailid
+         * @summary Edit contact record with the specified information
+         * @request PUT:/api/dms/contact-group/{id}/contactDetail/{contactDetailId}
+         */
+        putDmsContactGroupIdContactdetailContactdetailid: (
+            id: string,
+            contactDetailId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}/contactDetail/${contactDetailId}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name DeleteDmsContactGroupIdContactdetailContactdetailid
+         * @summary Delete contact record
+         * @request DELETE:/api/dms/contact-group/{id}/contactDetail/{contactDetailId}
+         */
+        deleteDmsContactGroupIdContactdetailContactdetailid: (
+            id: string,
+            contactDetailId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}/contactDetail/${contactDetailId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name PutDmsCalendars
+         * @summary Update Event Task
+         * @request PUT:/api/dms/calendars
+         */
+        putDmsCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
+            this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name PostDmsCalendars
+         * @summary Create a new event task
+         * @request POST:/api/dms/calendars
+         */
+        postDmsCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
+            this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name GetDmsCalendarsEventSettingId
+         * @summary Get Event Calendar Setting by ID
+         * @request GET:/api/dms/calendars/event/setting/{id}
+         */
+        getDmsCalendarsEventSettingId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/event/setting/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name PutDmsCalendarsEventSettingId
+         * @summary Update Event Calendar Setting
+         * @request PUT:/api/dms/calendars/event/setting/{id}
+         */
+        putDmsCalendarsEventSettingId: (id: string, data: EventCalendarSetting, params: RequestParams = {}) =>
+            this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/event/setting/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name DeleteDmsCalendarsEventSettingId
+         * @summary Remove Event Calendar Setting
+         * @request DELETE:/api/dms/calendars/event/setting/{id}
+         */
+        deleteDmsCalendarsEventSettingId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/event/setting/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypes
+         * @summary Retrieve all case types
+         * @request GET:/api/case/types
+         */
+        getCaseTypes: (
+            query?: {
+                name?: string;
+                deployed?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListCaseType, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PutCaseTypes
+         * @summary Update case type
+         * @request PUT:/api/case/types
+         */
+        putCaseTypes: (data: CaseType, params: RequestParams = {}) =>
+            this.request<ResultCaseType, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypes
+         * @summary Create a new case type
+         * @request POST:/api/case/types
+         */
+        postCaseTypes: (data: CaseType, params: RequestParams = {}) =>
+            this.request<ResultCaseType, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PutCaseTypesEnable
+         * @summary Enable or Disable case type
+         * @request PUT:/api/case/types/enable
+         */
+        putCaseTypesEnable: (data: CaseType, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/enable`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name PutCaseDashboard
+         * @summary Update case dashboard
+         * @request PUT:/api/case/dashboard
+         */
+        putCaseDashboard: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name PostCaseDashboard
+         * @summary Create a new case dashboard
+         * @request POST:/api/case/dashboard
+         */
+        postCaseDashboard: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name PutCaseDashboardStatus
+         * @summary Update status of case dashboard
+         * @request PUT:/api/case/dashboard/status
+         */
+        putCaseDashboardStatus: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/status`,
+                method: "PUT",
                 body: data,
                 type: ContentType.Json,
                 ...params,
@@ -11169,7 +12104,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<WOPIFileDTO, ResultString | (ResultString | Result)>({
+            this.request<WOPIFileDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/wopi/files/${id}`,
                 method: "GET",
                 query: query,
@@ -11192,7 +12127,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<WOPIFileDTO, ResultString | (ResultString | Result)>({
+            this.request<WOPIFileDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/wopi/files/${id}`,
                 method: "POST",
                 query: query,
@@ -11214,7 +12149,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/wopi/files/${id}/contents`,
                 method: "GET",
                 query: query,
@@ -11252,7 +12187,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<JsonNode, ResultString | (ResultString | Result)>({
+            this.request<JsonNode, Result | (ResultObject | Result | ResultString)>({
                 path: `/wopi/files/${id}/contents`,
                 method: "POST",
                 query: query,
@@ -11270,7 +12205,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/verification/permission
          */
         postVerificationPermission: (data: VerificationPermissionReq, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/verification/permission`,
                 method: "POST",
                 body: data,
@@ -11307,7 +12242,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<PageSearchHistory, ResultString | (ResultString | Result)>({
+            this.request<PageSearchHistory, Result | (ResultObject | Result | ResultString)>({
                 path: `/v1/search-history`,
                 method: "GET",
                 query: query,
@@ -11323,7 +12258,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/v1/search-history
          */
         postV1SearchHistory: (data: SearchHistory, params: RequestParams = {}) =>
-            this.request<SearchHistory, ResultString | (ResultString | Result)>({
+            this.request<SearchHistory, Result | (ResultObject | Result | ResultString)>({
                 path: `/v1/search-history`,
                 method: "POST",
                 body: data,
@@ -11347,7 +12282,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultAclUserPermission, ResultString | (ResultString | Result)>({
+            this.request<ResultAclUserPermission, Result | (ResultObject | Result | ResultString)>({
                 path: `/user/permission`,
                 method: "GET",
                 query: query,
@@ -11363,7 +12298,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/user/permission
          */
         postUserPermission: (data: AclUserPermission, params: RequestParams = {}) =>
-            this.request<ResultAclUserPermission, ResultString | (ResultString | Result)>({
+            this.request<ResultAclUserPermission, Result | (ResultObject | Result | ResultString)>({
                 path: `/user/permission`,
                 method: "POST",
                 body: data,
@@ -11380,7 +12315,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/user/permission
          */
         deleteUserPermission: (data: AclUserPermission, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/user/permission`,
                 method: "DELETE",
                 body: data,
@@ -11396,7 +12331,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/user/permission/replace
          */
         postUserPermissionReplace: (data: AclUserPermission, params: RequestParams = {}) =>
-            this.request<ResultAclUserPermission, ResultString | (ResultString | Result)>({
+            this.request<ResultAclUserPermission, Result | (ResultObject | Result | ResultString)>({
                 path: `/user/permission/replace`,
                 method: "POST",
                 body: data,
@@ -11420,7 +12355,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/postgrest/rpc/${func}`,
                 method: "GET",
                 query: query,
@@ -11436,7 +12371,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/postgrest/rpc/{func}
          */
         postPostgrestRpcFunc: (func: string, data: string, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/postgrest/rpc/${func}`,
                 method: "POST",
                 body: data,
@@ -11453,7 +12388,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/permissions
          */
         postPermissions: (data: AccessControlPermission, params: RequestParams = {}) =>
-            this.request<ResultAccessControlPermission, ResultString | (ResultString | Result)>({
+            this.request<ResultAccessControlPermission, Result | (ResultObject | Result | ResultString)>({
                 path: `/permissions`,
                 method: "POST",
                 body: data,
@@ -11470,7 +12405,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/permissions
          */
         deletePermissions: (data: AclPermissionDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/permissions`,
                 method: "DELETE",
                 body: data,
@@ -11486,7 +12421,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/permissions/names
          */
         postPermissionsNames: (data: string[], params: RequestParams = {}) =>
-            this.request<ResultListAccessControlPermission, ResultString | (ResultString | Result)>({
+            this.request<ResultListAccessControlPermission, Result | (ResultObject | Result | ResultString)>({
                 path: `/permissions/names`,
                 method: "POST",
                 body: data,
@@ -11503,7 +12438,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/permissions/entries
          */
         postPermissionsEntries: (data: string[], params: RequestParams = {}) =>
-            this.request<ResultListString, ResultString | (ResultString | Result)>({
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
                 path: `/permissions/entries`,
                 method: "POST",
                 body: data,
@@ -11520,7 +12455,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/permissions/batch/entry
          */
         postPermissionsBatchEntry: (data: AclPermissionDTO, params: RequestParams = {}) =>
-            this.request<ResultAclPermissionDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultAclPermissionDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/permissions/batch/entry`,
                 method: "POST",
                 body: data,
@@ -11537,7 +12472,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/permission/users
          */
         postPermissionUsers: (data: AclUserInformation, params: RequestParams = {}) =>
-            this.request<ResultAclUserInformation, ResultString | (ResultString | Result)>({
+            this.request<ResultAclUserInformation, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/users`,
                 method: "POST",
                 body: data,
@@ -11554,7 +12489,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/permission/user/relationships
          */
         postPermissionUserRelationships: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/user/relationships`,
                 method: "POST",
                 body: data,
@@ -11571,7 +12506,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/permission/user/relationships
          */
         deletePermissionUserRelationships: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/user/relationships`,
                 method: "DELETE",
                 body: data,
@@ -11588,7 +12523,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/permission/user/group
          */
         postPermissionUserGroup: (data: AclUserGroup, params: RequestParams = {}) =>
-            this.request<ResultAclUserGroup, ResultString | (ResultString | Result)>({
+            this.request<ResultAclUserGroup, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/user/group`,
                 method: "POST",
                 body: data,
@@ -11605,7 +12540,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/permission/user/group
          */
         deletePermissionUserGroup: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/user/group`,
                 method: "DELETE",
                 body: data,
@@ -11622,7 +12557,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/permission/user/group/users
          */
         postPermissionUserGroupUsers: (data: AclUserGroupDTO, params: RequestParams = {}) =>
-            this.request<ResultAclUserGroup, ResultString | (ResultString | Result)>({
+            this.request<ResultAclUserGroup, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/user/group/users`,
                 method: "POST",
                 body: data,
@@ -11638,7 +12573,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/permission/user/group/groups
          */
         postPermissionUserGroupGroups: (data: AclUserGroupDTO, params: RequestParams = {}) =>
-            this.request<ResultListAclUserGroup, ResultString | (ResultString | Result)>({
+            this.request<ResultListAclUserGroup, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/user/group/groups`,
                 method: "POST",
                 body: data,
@@ -11655,7 +12590,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/permission/user/group/add/users
          */
         postPermissionUserGroupAddUsers: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/user/group/add/users`,
                 method: "POST",
                 body: data,
@@ -11672,7 +12607,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/permission/entry
          */
         postPermissionEntry: (data: AccessControlEntry, params: RequestParams = {}) =>
-            this.request<ResultAccessControlEntry, ResultString | (ResultString | Result)>({
+            this.request<ResultAccessControlEntry, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/entry`,
                 method: "POST",
                 body: data,
@@ -11689,7 +12624,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/permission/entry
          */
         deletePermissionEntry: (data: AclEntryDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/entry`,
                 method: "DELETE",
                 body: data,
@@ -11705,7 +12640,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/password/init-password
          */
         postPasswordInitPassword: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/password/init-password`,
                 method: "POST",
                 body: data,
@@ -11721,7 +12656,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/user/resetPassword
          */
         postNuxeoUserResetpassword: (data: PasswordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/user/resetPassword`,
                 method: "POST",
                 body: data,
@@ -11742,7 +12677,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/user/forgetPassword`,
                 method: "POST",
                 query: query,
@@ -11758,7 +12693,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/template/summitAndDownloadFile
          */
         postNuxeoTemplateSummitanddownloadfile: (data: GenerateTemplateRequestDTO, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/template/summitAndDownloadFile`,
                 method: "POST",
                 body: data,
@@ -11775,7 +12710,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/template/getTemplateParams
          */
         postNuxeoTemplateGettemplateparams: (data: GenerateTemplateRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringListString, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringListString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/template/getTemplateParams`,
                 method: "POST",
                 body: data,
@@ -11797,7 +12732,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/template/getTemplateList`,
                 method: "POST",
                 query: query,
@@ -11807,13 +12742,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Tag (Nuxeo)
+         * @tags Tag
          * @name PostNuxeoTagsLabel
          * @summary fuzzy Query Tags by label
          * @request POST:/api/nuxeo/tags/label
          */
         postNuxeoTagsLabel: (data: TagRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultSetString, ResultString | (ResultString | Result)>({
+            this.request<ResultSetString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/tags/label`,
                 method: "POST",
                 body: data,
@@ -11824,12 +12759,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Tag (Nuxeo)
+         * @tags Tag
          * @name PostNuxeoTagsGetalltags
          * @request POST:/api/nuxeo/tags/getAllTags
          */
         postNuxeoTagsGetalltags: (params: RequestParams = {}) =>
-            this.request<ResultSetString, ResultString | (ResultString | Result)>({
+            this.request<ResultSetString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/tags/getAllTags`,
                 method: "POST",
                 ...params,
@@ -11838,13 +12773,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Tag (Nuxeo)
+         * @tags Tag
          * @name PostNuxeoTagsDeprecate
          * @summary Tag document with one or several 'tags'
          * @request POST:/api/nuxeo/tags/
          */
         postNuxeoTagsDeprecate: (data: TagRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListTagDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListTagResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/tags/`,
                 method: "POST",
                 body: data,
@@ -11855,13 +12790,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Tag (Nuxeo)
+         * @tags Tag
          * @name DeleteNuxeoTagsDeprecate
          * @summary Remove all document tags
          * @request DELETE:/api/nuxeo/tags/
          */
         deleteNuxeoTagsDeprecate: (data: TagRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListTagDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListTagResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/tags/`,
                 method: "DELETE",
                 body: data,
@@ -11872,13 +12807,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Tag (Nuxeo)
+         * @tags Tag
          * @name PatchNuxeoTagsDeprecate
          * @summary Untag document from one or several 'tags'
          * @request PATCH:/api/nuxeo/tags/
          */
         patchNuxeoTagsDeprecate: (data: TagRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListTagDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListTagResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/tags/`,
                 method: "PATCH",
                 body: data,
@@ -11889,13 +12824,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Tag (Nuxeo)
+         * @tags Tag
          * @name PostNuxeoTags
          * @summary Tag document with one or several 'tags'
          * @request POST:/api/nuxeo/tags
          */
         postNuxeoTags: (data: TagRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListTagDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListTagResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/tags`,
                 method: "POST",
                 body: data,
@@ -11906,13 +12841,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Tag (Nuxeo)
+         * @tags Tag
          * @name DeleteNuxeoTags
          * @summary Remove all document tags
          * @request DELETE:/api/nuxeo/tags
          */
         deleteNuxeoTags: (data: TagRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListTagDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListTagResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/tags`,
                 method: "DELETE",
                 body: data,
@@ -11923,13 +12858,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Tag (Nuxeo)
+         * @tags Tag
          * @name PatchNuxeoTags
          * @summary Untag document from one or several 'tags'
          * @request PATCH:/api/nuxeo/tags
          */
         patchNuxeoTags: (data: TagRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListTagDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListTagResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/tags`,
                 method: "PATCH",
                 body: data,
@@ -11946,7 +12881,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/share/prepare/download
          */
         postNuxeoSharePrepareDownload: (data: string[], params: RequestParams = {}) =>
-            this.request<ResultListString, ResultString | (ResultString | Result)>({
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/share/prepare/download`,
                 method: "POST",
                 body: data,
@@ -11962,7 +12897,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/share/page
          */
         postNuxeoSharePage: (data: SharePageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/share/page`,
                 method: "POST",
                 body: data,
@@ -11979,7 +12914,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/share/new
          */
         postNuxeoShareNew: (data: ShareRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultEasyShareDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/share/new`,
                 method: "POST",
                 body: data,
@@ -11995,7 +12930,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/share/get
          */
         postNuxeoShareGet: (data: SharePageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/share/get`,
                 method: "POST",
                 body: data,
@@ -12011,7 +12946,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/search/save_nested_search_log
          */
         postNuxeoSearchSaveNestedSearchLog: (data: NestedSearchLogRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, ResultString | (ResultString | Result)>({
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/search/save_nested_search_log`,
                 method: "POST",
                 body: data,
@@ -12028,7 +12963,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/search/open-search
          */
         postNuxeoSearchOpenSearch: (data: SearchRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/search/open-search`,
                 method: "POST",
                 body: data,
@@ -12045,7 +12980,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/search/nestedSearch_v2
          */
         postNuxeoSearchNestedsearchV2: (data: SearchRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/search/nestedSearch_v2`,
                 method: "POST",
                 body: data,
@@ -12062,25 +12997,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/search/manticore-search
          */
         postNuxeoSearchManticoreSearch: (data: DocpalSearchRequest, params: RequestParams = {}) =>
-            this.request<ResultSearchResponse, ResultString | (ResultString | Result)>({
+            this.request<ResultSearchResponse, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/search/manticore-search`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name PostNuxeoSearchExportcsv
-         * @summary export Nested Search
-         * @request POST:/api/nuxeo/search/exportCsv
-         */
-        postNuxeoSearchExportcsv: (data: NestedSearchRequestDTO, params: RequestParams = {}) =>
-            this.request<void, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/search/exportCsv`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -12094,8 +13012,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostNuxeoSearchDocument
          * @request POST:/api/nuxeo/search/document
          */
-        postNuxeoSearchDocument: (data: ElasticSearchFilterDTO, params: RequestParams = {}) =>
-            this.request<ResultListSearchDocumentVO, ResultString | (ResultString | Result)>({
+        postNuxeoSearchDocument: (data: SearchFilterDTO, params: RequestParams = {}) =>
+            this.request<ResultListSearchDocumentVO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/search/document`,
                 method: "POST",
                 body: data,
@@ -12110,8 +13028,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostNuxeoSearchDocumentPaths
          * @request POST:/api/nuxeo/search/document/paths
          */
-        postNuxeoSearchDocumentPaths: (data: ElasticSearchFilterDTO, params: RequestParams = {}) =>
-            this.request<ResultListSearchDocumentVO, ResultString | (ResultString | Result)>({
+        postNuxeoSearchDocumentPaths: (data: SearchFilterDTO, params: RequestParams = {}) =>
+            this.request<ResultListSearchDocumentVO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/search/document/paths`,
                 method: "POST",
                 body: data,
@@ -12128,7 +13046,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/search/admin-open-search
          */
         postNuxeoSearchAdminOpenSearch: (data: SearchRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/search/admin-open-search`,
                 method: "POST",
                 body: data,
@@ -12145,7 +13063,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/restoreVersion
          */
         postNuxeoRestoreversion: (data: VersioningRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/restoreVersion`,
                 method: "POST",
                 body: data,
@@ -12161,7 +13079,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/registeredServer/send_whatsapp_message
          */
         postNuxeoRegisteredserverSendWhatsappMessage: (data: WhatsAppMessageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultSendMessageResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultSendMessageResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/send_whatsapp_message`,
                 method: "POST",
                 body: data,
@@ -12183,7 +13101,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/policy/retentions/documents/approval`,
                 method: "POST",
                 query: query,
@@ -12205,7 +13123,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/policy/documents/approval`,
                 method: "POST",
                 query: query,
@@ -12221,7 +13139,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/registeredServer/notification/send
          */
         postNuxeoRegisteredserverNotificationSend: (data: SubNotificationRequest, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/notification/send`,
                 method: "POST",
                 body: data,
@@ -12237,7 +13155,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/registeredServer/judge_save_process_name
          */
         postNuxeoRegisteredserverJudgeSaveProcessName: (data: WhatsAppUsageDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/judge_save_process_name`,
                 method: "POST",
                 body: data,
@@ -12253,7 +13171,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/registeredServer/form/design/submit/data
          */
         postNuxeoRegisteredserverFormDesignSubmitData: (data: FormDesignDataDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/form/design/submit/data`,
                 method: "POST",
                 body: data,
@@ -12272,7 +13190,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             data: FCCreateDocsRequestDTO,
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/folderCabinet/create/documents`,
                 method: "POST",
                 body: data,
@@ -12288,7 +13206,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/registeredServer/filing/document
          */
         postNuxeoRegisteredserverFilingDocument: (data: FilingCreateDocRequestDTO[], params: RequestParams = {}) =>
-            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/filing/document`,
                 method: "POST",
                 body: data,
@@ -12304,7 +13222,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/registeredServer/filing/create/document
          */
         postNuxeoRegisteredserverFilingCreateDocument: (data: FilingCreateDocRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/filing/create/document`,
                 method: "POST",
                 body: data,
@@ -12323,7 +13241,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             data: GenerateDocumentRequestDTO,
             params: RequestParams = {},
         ) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/document/template/validate`,
                 method: "POST",
                 body: data,
@@ -12342,7 +13260,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             data: WorkflowGenerateDocumentReq,
             params: RequestParams = {},
         ) =>
-            this.request<DocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<DocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/document/template/generate`,
                 method: "POST",
                 body: data,
@@ -12362,7 +13280,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             data: DocumentRequestDTO,
             params: RequestParams = {},
         ) =>
-            this.request<DocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<DocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/document/createFolder/`,
                 method: "POST",
                 body: data,
@@ -12379,7 +13297,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/registeredServer/document/createFolder
          */
         postNuxeoRegisteredserverDocumentCreatefolder: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<DocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<DocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/document/createFolder`,
                 method: "POST",
                 body: data,
@@ -12402,7 +13320,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<DocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<DocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/document/createDocument`,
                 method: "POST",
                 body: data,
@@ -12419,7 +13337,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/registeredServer/document/create/structure
          */
         postNuxeoRegisteredserverDocumentCreateStructure: (data: DocStructureRequestDTO, params: RequestParams = {}) =>
-            this.request<DocStructureResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<DocStructureResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/document/create/structure`,
                 method: "POST",
                 body: data,
@@ -12435,7 +13353,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/registeredServer/document/copy
          */
         postNuxeoRegisteredserverDocumentCopy: (data: DocumentCopyDTO, params: RequestParams = {}) =>
-            this.request<DocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<DocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/document/copy`,
                 method: "POST",
                 body: data,
@@ -12452,7 +13370,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/registeredServer/caseInstance/start
          */
         postNuxeoRegisteredserverCaseinstanceStart: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCaseInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/caseInstance/start`,
                 method: "POST",
                 body: data,
@@ -12472,7 +13390,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             data: CaseInstanceRequestDTO,
             params: RequestParams = {},
         ) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/caseInstance/saveTableData`,
                 method: "POST",
                 body: data,
@@ -12488,7 +13406,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/registeredServer/calendar
          */
         postNuxeoRegisteredserverCalendar: (data: CalendarTaskReq, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/calendar`,
                 method: "POST",
                 body: data,
@@ -12504,7 +13422,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/registeredServer/audit-log/add
          */
         postNuxeoRegisteredserverAuditLogAdd: (data: Record<string, object>, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/registeredServer/audit-log/add`,
                 method: "POST",
                 body: data,
@@ -12525,7 +13443,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/public/filerequest`,
                 method: "GET",
                 query: query,
@@ -12547,54 +13465,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/public/filerequest`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Data Import (Nuxeo)
-         * @name PostNuxeoImport
-         * @request POST:/api/nuxeo/import
-         */
-        postNuxeoImport: (
-            data: {
-                name: string;
-                data: string;
-                files: File[];
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/import`,
-                method: "POST",
-                body: data,
-                type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Data Import (Nuxeo)
-         * @name PostNuxeoImportDeprecate
-         * @request POST:/api/nuxeo/import/
-         */
-        postNuxeoImportDeprecate: (
-            data: {
-                name: string;
-                data: string;
-                files: File[];
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/import/`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
@@ -12610,7 +13482,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/identity/user
          */
         postNuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/user`,
                 method: "POST",
                 body: data,
@@ -12627,7 +13499,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PATCH:/api/nuxeo/identity/user
          */
         patchNuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/user`,
                 method: "PATCH",
                 body: data,
@@ -12644,7 +13516,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/identity/membership
          */
         postNuxeoIdentityMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/membership`,
                 method: "POST",
                 body: data,
@@ -12661,7 +13533,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/nuxeo/identity/membership
          */
         deleteNuxeoIdentityMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/membership`,
                 method: "DELETE",
                 body: data,
@@ -12678,7 +13550,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/identity/member
          */
         postNuxeoIdentityMember: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/member`,
                 method: "POST",
                 body: data,
@@ -12695,7 +13567,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/identity/memberGroup
          */
         postNuxeoIdentityMembergroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListGroupDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/memberGroup`,
                 method: "POST",
                 body: data,
@@ -12712,7 +13584,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/identity/groups
          */
         postNuxeoIdentityGroups: (params: RequestParams = {}) =>
-            this.request<ResultListGroupDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/groups`,
                 method: "POST",
                 ...params,
@@ -12727,7 +13599,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/identity/group
          */
         postNuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultGroupDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/group`,
                 method: "POST",
                 body: data,
@@ -12744,7 +13616,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PATCH:/api/nuxeo/identity/group
          */
         patchNuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultGroupDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/group`,
                 method: "PATCH",
                 body: data,
@@ -12761,7 +13633,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/identity/users
          */
         postNuxeoIdentityUsers: (params: RequestParams = {}) =>
-            this.request<ResultListUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/users`,
                 method: "POST",
                 ...params,
@@ -12776,7 +13648,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/identity/getKeyCloakAllUsers
          */
         postNuxeoIdentityGetkeycloakallusers: (params: RequestParams = {}) =>
-            this.request<ResultListUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/getKeyCloakAllUsers`,
                 method: "POST",
                 ...params,
@@ -12790,7 +13662,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/identity/copyUsers
          */
         postNuxeoIdentityCopyusers: (params: RequestParams = {}) =>
-            this.request<ResultListUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/copyUsers`,
                 method: "POST",
                 ...params,
@@ -12805,7 +13677,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/getVersions
          */
         postNuxeoGetversions: (data: VersioningRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringInstant, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringInstant, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/getVersions`,
                 method: "POST",
                 body: data,
@@ -12822,7 +13694,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/getVersionNum
          */
         postNuxeoGetversionnum: (data: VersioningRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/getVersionNum`,
                 method: "POST",
                 body: data,
@@ -12839,7 +13711,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/getSpecificVersion
          */
         postNuxeoGetspecificversion: (data: VersioningRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/getSpecificVersion`,
                 method: "POST",
                 body: data,
@@ -12856,7 +13728,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/getLatestVersion
          */
         postNuxeoGetlatestversion: (data: VersioningRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/getLatestVersion`,
                 method: "POST",
                 body: data,
@@ -12867,7 +13739,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags File Request Upload (Nuxeo)
+         * @tags Upload Request
          * @name GetNuxeoFilerequest
          * @request GET:/api/nuxeo/filerequest
          */
@@ -12880,7 +13752,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/filerequest`,
                 method: "GET",
                 query: query,
@@ -12890,13 +13762,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags File Request Upload (Nuxeo)
+         * @tags Upload Request
          * @name PostNuxeoFilerequest
          * @summary Create a new file-request-upload
          * @request POST:/api/nuxeo/filerequest
          */
-        postNuxeoFilerequest: (data: FileRequestUploadRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultFileRequestUploadDTO, ResultString | (ResultString | Result)>({
+        postNuxeoFilerequest: (data: UploadRequestRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultUploadRequestResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/filerequest`,
                 method: "POST",
                 body: data,
@@ -12907,7 +13779,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags File Request Upload (Nuxeo)
+         * @tags Upload Request
          * @name DeleteNuxeoFilerequest
          * @request DELETE:/api/nuxeo/filerequest
          */
@@ -12917,7 +13789,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultFileRequestUploadDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultUploadRequestResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/filerequest`,
                 method: "DELETE",
                 query: query,
@@ -12927,12 +13799,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags File Request Upload (Nuxeo)
+         * @tags Upload Request
          * @name PostNuxeoFilerequestApprove
          * @request POST:/api/nuxeo/filerequest/approve
          */
         postNuxeoFilerequestApprove: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/filerequest/approve`,
                 method: "POST",
                 body: data,
@@ -12943,12 +13815,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags File Request Upload (Nuxeo)
+         * @tags Upload Request
          * @name PostNuxeoFilerequestApproveDeprecate
          * @request POST:/api/nuxeo/filerequest/approve/
          */
         postNuxeoFilerequestApproveDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/filerequest/approve/`,
                 method: "POST",
                 body: data,
@@ -12959,70 +13831,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags FileUpload (Nuxeo)
-         * @name PostNuxeoFileuploadrequestIsallowaccess
-         * @summary check password is ok
-         * @request POST:/api/nuxeo/fileUploadRequest/isAllowAccess
-         */
-        postNuxeoFileuploadrequestIsallowaccess: (data: FileUploadRequestDetailDTO, params: RequestParams = {}) =>
-            this.request<ResultLong, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/fileUploadRequest/isAllowAccess`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags FileUpload (Nuxeo)
-         * @name PostNuxeoFileuploadrequestAddrequest
-         * @summary addRequest
-         * @request POST:/api/nuxeo/fileUploadRequest/addRequest
-         */
-        postNuxeoFileuploadrequestAddrequest: (data: FileUploadRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/fileUploadRequest/addRequest`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags FileUpload (Nuxeo)
-         * @name PostNuxeoFileuploadrequestAddrequestdetail
-         * @summary check password is ok
-         * @request POST:/api/nuxeo/fileUploadRequest/addRequestDetail
-         */
-        postNuxeoFileuploadrequestAddrequestdetail: (
-            query: {
-                message: string;
-                /** @format int64 */
-                parentId: number;
-                isFinishUpload: boolean;
-            },
-            data: {
-                files?: File[];
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/fileUploadRequest/addRequestDetail`,
-                method: "POST",
-                query: query,
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name GetNuxeoDocument
          * @summary Get document information
          * @request GET:/api/nuxeo/document
@@ -13034,7 +13843,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document`,
                 method: "GET",
                 query: query,
@@ -13044,13 +13853,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocument
          * @summary Get a document
          * @request POST:/api/nuxeo/document
          */
         postNuxeoDocument: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document`,
                 method: "POST",
                 body: data,
@@ -13061,13 +13870,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name DeleteNuxeoDocument
-         * @summary Delete a document
+         * @summary Purge a document
          * @request DELETE:/api/nuxeo/document
          */
         deleteNuxeoDocument: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document`,
                 method: "DELETE",
                 body: data,
@@ -13078,13 +13887,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PatchNuxeoDocument
          * @summary Update a document
          * @request PATCH:/api/nuxeo/document
          */
         patchNuxeoDocument: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document`,
                 method: "PATCH",
                 body: data,
@@ -13095,13 +13904,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentUploadFolder
          * @summary Upload TempFolder
          * @request POST:/api/nuxeo/document/upload/folder
          */
         postNuxeoDocumentUploadFolder: (data: UploadTempFileRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/upload/folder`,
                 method: "POST",
                 body: data,
@@ -13112,13 +13921,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentUploadtempfolder
          * @summary Upload TempFolder
          * @request POST:/api/nuxeo/document/uploadTempFolder
          */
         postNuxeoDocumentUploadtempfolder: (data: UploadTempFileRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/uploadTempFolder`,
                 method: "POST",
                 body: data,
@@ -13129,7 +13938,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentUploadtempfile
          * @summary Upload TempFile to system
          * @request POST:/api/nuxeo/document/uploadTempFile
@@ -13146,7 +13955,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultLong, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/uploadTempFile`,
                 method: "POST",
                 query: query,
@@ -13158,13 +13967,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentCheckfileexist
          * @summary check file exist situation in nuxeo
          * @request POST:/api/nuxeo/document/checkFileExist
          */
         postNuxeoDocumentCheckfileexist: (data: FileCheckRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultFileCheckResultDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultFileCheckResultDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/checkFileExist`,
                 method: "POST",
                 body: data,
@@ -13175,13 +13984,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentUploadValidate
          * @summary check file exist situation in nuxeo
          * @request POST:/api/nuxeo/document/upload/validate
          */
         postNuxeoDocumentUploadValidate: (data: FileCheckRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultFileCheckResultDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultFileCheckResultDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/upload/validate`,
                 method: "POST",
                 body: data,
@@ -13192,7 +14001,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentUploadFile
          * @summary Upload TempFile to system
          * @request POST:/api/nuxeo/document/upload/file
@@ -13201,7 +14010,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             query: {
                 /** @format binary */
                 file: File;
-                uploadFileDetailRecord: UploadFileDetailRecord;
+                uploadBatchItem: UploadBatchItem;
             },
             data: {
                 /** @format binary */
@@ -13226,7 +14035,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultLong, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/upload/file`,
                 method: "POST",
                 query: query,
@@ -13238,13 +14047,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentTrash
          * @summary Get trashed documents
          * @request POST:/api/nuxeo/document/trash
          */
         postNuxeoDocumentTrash: (data: TrashRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTODocumentThumbnailDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTODocumentThumbnailDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/trash`,
                 method: "POST",
                 body: data,
@@ -13255,13 +14064,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name DeleteNuxeoDocumentTrash
          * @summary Move a document to trash
          * @request DELETE:/api/nuxeo/document/trash
          */
         deleteNuxeoDocumentTrash: (data: DocumentRequestDTO[], params: RequestParams = {}) =>
-            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/trash`,
                 method: "DELETE",
                 body: data,
@@ -13272,13 +14081,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentThumbnail
          * @summary Get document thumbnail
          * @request POST:/api/nuxeo/document/thumbnail
          */
         postNuxeoDocumentThumbnail: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/thumbnail`,
                 method: "POST",
                 body: data,
@@ -13295,7 +14104,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/document/templates/generate/document
          */
         postNuxeoDocumentTemplatesGenerateDocument: (data: WorkflowGenerateDocumentReq, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/templates/generate/document`,
                 method: "POST",
                 body: data,
@@ -13314,7 +14123,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             data: FCCreateDocsRequestDTO,
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/templates/folderCabinet/create/documents`,
                 method: "POST",
                 body: data,
@@ -13325,13 +14134,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentSaveuploadfileoverview
          * @summary Create file upload batch and return uploadId
          * @request POST:/api/nuxeo/document/saveUploadFileOverview
          */
         postNuxeoDocumentSaveuploadfileoverview: (data: SaveFileOverviewRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/saveUploadFileOverview`,
                 method: "POST",
                 body: data,
@@ -13342,13 +14151,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentUploadBatch
          * @summary Create file upload batch and return uploadId
          * @request POST:/api/nuxeo/document/upload/batch
          */
         postNuxeoDocumentUploadBatch: (data: SaveFileOverviewRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/upload/batch`,
                 method: "POST",
                 body: data,
@@ -13359,13 +14168,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentRestore
          * @summary Restore a document
          * @request POST:/api/nuxeo/document/restore
          */
         postNuxeoDocumentRestore: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/restore`,
                 method: "POST",
                 body: data,
@@ -13376,7 +14185,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentQueryuploadfiledetaildtolist
          * @summary Query the list of upload files
          * @request POST:/api/nuxeo/document/queryUploadFileDetailDTOList
@@ -13388,7 +14197,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListUploadFileDetailDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListUploadBatchItemDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/queryUploadFileDetailDTOList`,
                 method: "POST",
                 query: query,
@@ -13398,13 +14207,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentUploadPage
          * @summary Page query upload records
          * @request POST:/api/nuxeo/document/upload/page
          */
         postNuxeoDocumentUploadPage: (data: QueryFileOverviewRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPageUploadFileDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPageUploadBatchDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/upload/page`,
                 method: "POST",
                 body: data,
@@ -13415,13 +14224,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentQueryuploadfiledtopage
          * @summary Page query upload records
          * @request POST:/api/nuxeo/document/queryUploadFileDTOPage
          */
         postNuxeoDocumentQueryuploadfiledtopage: (data: QueryFileOverviewRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPageUploadFileDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPageUploadBatchDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/queryUploadFileDTOPage`,
                 method: "POST",
                 body: data,
@@ -13432,12 +14241,15 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentQueryauditevent
          * @request POST:/api/nuxeo/document/queryAuditEvent
          */
         postNuxeoDocumentQueryauditevent: (data: OpenObserveAuditLogSearchRequest, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOAuditTemplateResponseExtendDTO, ResultString | (ResultString | Result)>({
+            this.request<
+                ResultPaginationDTOAuditTemplateResponseExtendDTO,
+                Result | (ResultObject | Result | ResultString)
+            >({
                 path: `/nuxeo/document/queryAuditEvent`,
                 method: "POST",
                 body: data,
@@ -13448,13 +14260,29 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
+         * @name PostNuxeoDocumentProperties
+         * @request POST:/api/nuxeo/document/properties
+         */
+        postNuxeoDocumentProperties: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/nuxeo/document/properties`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
          * @name PostNuxeoDocumentPreview
          * @summary Preview document content
          * @request POST:/api/nuxeo/document/preview
          */
         postNuxeoDocumentPreview: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/preview`,
                 method: "POST",
                 body: data,
@@ -13465,12 +14293,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentOfficeCreate
          * @request POST:/api/nuxeo/document/office/create
          */
         postNuxeoDocumentOfficeCreate: (data: OfficeFileCreateDTO, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/office/create`,
                 method: "POST",
                 body: data,
@@ -13481,13 +14309,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentMove
          * @summary Move a document
          * @request POST:/api/nuxeo/document/move
          */
         postNuxeoDocumentMove: (data: DocumentRequestDTO[], params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/move`,
                 method: "POST",
                 body: data,
@@ -13498,14 +14326,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentIsduplicatename
          * @summary Check is duplicate name
          * @request POST:/api/nuxeo/document/isDuplicateName
          * @deprecated
          */
         postNuxeoDocumentIsduplicatename: (data: DuplicateNameRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDuplicateNameRespDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDuplicateNameRespDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/isDuplicateName`,
                 method: "POST",
                 body: data,
@@ -13516,13 +14344,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentDuplicateName
          * @summary Check is duplicate name
          * @request POST:/api/nuxeo/document/duplicate/name
          */
         postNuxeoDocumentDuplicateName: (data: CheckDuplicateNameReqDTO, params: RequestParams = {}) =>
-            this.request<ResultDuplicateNameRespDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDuplicateNameRespDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/duplicate/name`,
                 method: "POST",
                 body: data,
@@ -13533,13 +14361,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentDownload
          * @summary Download a document file
          * @request POST:/api/nuxeo/document/download
          */
         postNuxeoDocumentDownload: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/download`,
                 method: "POST",
                 body: data,
@@ -13550,13 +14378,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentDownloadNonpermission
          * @summary Download a document file without ACL
          * @request POST:/api/nuxeo/document/download/nonPermission
          */
         postNuxeoDocumentDownloadNonpermission: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/download/nonPermission`,
                 method: "POST",
                 body: data,
@@ -13567,7 +14395,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentCreate
          * @request POST:/api/nuxeo/document/create
          */
@@ -13582,7 +14410,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/create`,
                 method: "POST",
                 query: query,
@@ -13594,13 +14422,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentCreatefolders
          * @summary Create folders
          * @request POST:/api/nuxeo/document/createFolders
          */
         postNuxeoDocumentCreatefolders: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/createFolders`,
                 method: "POST",
                 body: data,
@@ -13611,7 +14439,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentCreatedocument
          * @summary Create a document
          * @request POST:/api/nuxeo/document/createDocument
@@ -13625,7 +14453,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/createDocument`,
                 method: "POST",
                 body: data,
@@ -13636,12 +14464,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentCreateStructure
          * @request POST:/api/nuxeo/document/create/structure
          */
         postNuxeoDocumentCreateStructure: (data: DocStructureRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocStructureResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocStructureResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/create/structure`,
                 method: "POST",
                 body: data,
@@ -13652,13 +14480,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentCreateFolderTree
          * @summary Create a folder tree
          * @request POST:/api/nuxeo/document/create/folder/tree
          */
         postNuxeoDocumentCreateFolderTree: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/create/folder/tree`,
                 method: "POST",
                 body: data,
@@ -13669,13 +14497,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentCopy
          * @summary Copy a document
          * @request POST:/api/nuxeo/document/copy
          */
         postNuxeoDocumentCopy: (data: DocumentRequestDTO[], params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/copy`,
                 method: "POST",
                 body: data,
@@ -13686,13 +14514,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentCopyWatermark
          * @summary Create a document through attach watermark to generate new file
          * @request POST:/api/nuxeo/document/copy/watermark
          */
         postNuxeoDocumentCopyWatermark: (data: WatermarkDocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/copy/watermark`,
                 method: "POST",
                 body: data,
@@ -13703,13 +14531,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentCollections
          * @summary Get collections of a document is in
          * @request POST:/api/nuxeo/document/collections
          */
         postNuxeoDocumentCollections: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/collections`,
                 method: "POST",
                 body: data,
@@ -13720,13 +14548,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentCollectionsDeprecate
          * @summary Get collections of a document is in
          * @request POST:/api/nuxeo/document/collections/
          */
         postNuxeoDocumentCollectionsDeprecate: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/collections/`,
                 method: "POST",
                 body: data,
@@ -13737,13 +14565,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentChildrenThumbnail
          * @summary Get children of thumbnail Result
          * @request POST:/api/nuxeo/document/children/thumbnail
          */
         postNuxeoDocumentChildrenThumbnail: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTODocumentThumbnailDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTODocumentThumbnailDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/children/thumbnail`,
                 method: "POST",
                 body: data,
@@ -13754,13 +14582,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentChildrenThumbnailV2
          * @summary Get children of thumbnail Result
          * @request POST:/api/nuxeo/document/children/thumbnail_v2
          */
         postNuxeoDocumentChildrenThumbnailV2: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTODocumentThumbnailDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTODocumentThumbnailDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/children/thumbnail_v2`,
                 method: "POST",
                 body: data,
@@ -13771,13 +14599,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentBreadcrumb
          * @summary Get document breadcrumb
          * @request POST:/api/nuxeo/document/breadcrumb
          */
         postNuxeoDocumentBreadcrumb: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/breadcrumb`,
                 method: "POST",
                 body: data,
@@ -13788,13 +14616,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentBatchconfirm
          * @summary Confirm upload files by batch operation
          * @request POST:/api/nuxeo/document/batchConfirm
          */
         postNuxeoDocumentBatchconfirm: (data: FileConfirmRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultFileConfirmResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultFileConfirmResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/batchConfirm`,
                 method: "POST",
                 body: data,
@@ -13805,7 +14633,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentBatchcancel
          * @summary Batch cancel upload files
          * @request POST:/api/nuxeo/document/batchCancel
@@ -13823,7 +14651,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/batchCancel`,
                 method: "POST",
                 query: query,
@@ -13835,13 +14663,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentAddWatermark
          * @summary Replace document for add watermark to document and overview to new version
          * @request POST:/api/nuxeo/document/add/watermark
          */
         postNuxeoDocumentAddWatermark: (data: WatermarkDocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/add/watermark`,
                 method: "POST",
                 body: data,
@@ -13852,13 +14680,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentAcls
          * @summary Get access control list of a document
          * @request POST:/api/nuxeo/document/acls
          */
         postNuxeoDocumentAcls: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListAccessControlListDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListAccessControlListDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/acls`,
                 method: "POST",
                 body: data,
@@ -13869,13 +14697,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PostNuxeoDocumentAcl
          * @summary Get access control list of a document
          * @request POST:/api/nuxeo/document/acl
          */
         postNuxeoDocumentAcl: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListAccessControlListDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListAccessControlListDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/acl`,
                 method: "POST",
                 body: data,
@@ -13892,7 +14720,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/createVersion
          */
         postNuxeoCreateversion: (data: VersioningRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/createVersion`,
                 method: "POST",
                 body: data,
@@ -13909,7 +14737,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/conversion/submitExportRequest
          */
         postNuxeoConversionSubmitexportrequest: (data: ConversionFileRequestDTO[], params: RequestParams = {}) =>
-            this.request<ResultListMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/conversion/submitExportRequest`,
                 method: "POST",
                 body: data,
@@ -13926,7 +14754,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/conversion/format/submit
          */
         postNuxeoConversionFormatSubmit: (data: ConversionFileRequestDTO[], params: RequestParams = {}) =>
-            this.request<ResultListMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/conversion/format/submit`,
                 method: "POST",
                 body: data,
@@ -13943,7 +14771,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/conversion/download
          */
         postNuxeoConversionDownload: (data: string[], params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/conversion/download`,
                 method: "POST",
                 body: data,
@@ -13960,7 +14788,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/conversion/downloadFile
          */
         postNuxeoConversionDownloadfile: (data: string[], params: RequestParams = {}) =>
-            this.request<void, ResultString | (ResultString | Result)>({
+            this.request<void, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/conversion/downloadFile`,
                 method: "POST",
                 body: data,
@@ -13977,7 +14805,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/comments/add
          */
         postNuxeoCommentsAdd: (data: CommentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/comments/add`,
                 method: "POST",
                 body: data,
@@ -13994,7 +14822,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/comments/add/
          */
         postNuxeoCommentsAddDeprecate: (data: CommentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/comments/add/`,
                 method: "POST",
                 body: data,
@@ -14011,7 +14839,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/comments
          */
         postNuxeoComments: (data: CommentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/comments`,
                 method: "POST",
                 body: data,
@@ -14028,7 +14856,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/comments/
          */
         postNuxeoCommentsDeprecate: (data: CommentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/comments/`,
                 method: "POST",
                 body: data,
@@ -14039,13 +14867,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name PostNuxeoCollectionDocumentsDeprecate
          * @summary Get documents in a collection
          * @request POST:/api/nuxeo/collection/documents/
          */
         postNuxeoCollectionDocumentsDeprecate: (data: CollectionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTODocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection/documents/`,
                 method: "POST",
                 body: data,
@@ -14056,13 +14884,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name PostNuxeoCollectionDocuments
          * @summary Get documents in a collection
          * @request POST:/api/nuxeo/collection/documents
          */
         postNuxeoCollectionDocuments: (data: CollectionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTODocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection/documents`,
                 method: "POST",
                 body: data,
@@ -14073,13 +14901,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name PostNuxeoCollectionCreate
          * @summary Create a collection in user workspace
          * @request POST:/api/nuxeo/collection/create
          */
         postNuxeoCollectionCreate: (data: CollectionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection/create`,
                 method: "POST",
                 body: data,
@@ -14090,13 +14918,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name PostNuxeoCollectionCreateDeprecate
          * @summary Create a collection in user workspace
          * @request POST:/api/nuxeo/collection/create/
          */
         postNuxeoCollectionCreateDeprecate: (data: CollectionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection/create/`,
                 method: "POST",
                 body: data,
@@ -14107,12 +14935,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name PostNuxeoCollectionAlldocumentsDeprecate
          * @request POST:/api/nuxeo/collection/allDocuments/
          */
         postNuxeoCollectionAlldocumentsDeprecate: (data: CollectionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultEntityVODocumentThumbnailDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultEntityVODocumentThumbnailDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection/allDocuments/`,
                 method: "POST",
                 body: data,
@@ -14123,12 +14951,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name PostNuxeoCollectionAlldocuments
          * @request POST:/api/nuxeo/collection/allDocuments
          */
         postNuxeoCollectionAlldocuments: (data: CollectionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultEntityVODocumentThumbnailDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultEntityVODocumentThumbnailDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection/allDocuments`,
                 method: "POST",
                 body: data,
@@ -14139,13 +14967,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name PostNuxeoCollectionAddDeprecate
          * @summary Add documents to collection
          * @request POST:/api/nuxeo/collection/add/
          */
         postNuxeoCollectionAddDeprecate: (data: DocumentCollectionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection/add/`,
                 method: "POST",
                 body: data,
@@ -14156,13 +14984,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name PostNuxeoCollectionAdd
          * @summary Add documents to collection
          * @request POST:/api/nuxeo/collection/add
          */
         postNuxeoCollectionAdd: (data: DocumentCollectionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection/add`,
                 method: "POST",
                 body: data,
@@ -14186,7 +15014,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListAnnotationDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListAnnotationDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/annotation`,
                 method: "GET",
                 query: query,
@@ -14202,7 +15030,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/annotation
          */
         postNuxeoAnnotation: (data: AnnotationRequestDTO[], params: RequestParams = {}) =>
-            this.request<ResultListAnnotationDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListAnnotationDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/annotation`,
                 method: "POST",
                 body: data,
@@ -14226,7 +15054,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListAnnotationDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListAnnotationDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/annotation/`,
                 method: "GET",
                 query: query,
@@ -14242,7 +15070,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/annotation/
          */
         postNuxeoAnnotationDeprecate: (data: AnnotationRequestDTO[], params: RequestParams = {}) =>
-            this.request<ResultListAnnotationDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListAnnotationDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/annotation/`,
                 method: "POST",
                 body: data,
@@ -14259,7 +15087,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/message/queue/{messageId}/reinvoke
          */
         postMessageQueueMessageidReinvoke: (messageId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/message/queue/${messageId}/reinvoke`,
                 method: "POST",
                 ...params,
@@ -14283,7 +15111,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             data: BusinessResultRecord,
             params: RequestParams = {},
         ) =>
-            this.request<ResultPageBusinessResultRecord, ResultString | (ResultString | Result)>({
+            this.request<ResultPageBusinessResultRecord, Result | (ResultObject | Result | ResultString)>({
                 path: `/message/queue/page`,
                 method: "POST",
                 query: query,
@@ -14312,7 +15140,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultLong, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/file/uploadTempFile`,
                 method: "POST",
                 query: query,
@@ -14330,7 +15158,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/file/upload/page
          */
         postFileUploadPage: (data: QueryFileOverviewRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPageUploadFileDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPageUploadBatchDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/file/upload/page`,
                 method: "POST",
                 body: data,
@@ -14347,7 +15175,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/file/upload/folder
          */
         postFileUploadFolder: (data: UploadTempFileRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultUploadFileDetailRecord, ResultString | (ResultString | Result)>({
+            this.request<ResultUploadBatchItem, Result | (ResultObject | Result | ResultString)>({
                 path: `/file/upload/folder`,
                 method: "POST",
                 body: data,
@@ -14367,7 +15195,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             query: {
                 /** @format binary */
                 file: File;
-                uploadFileDetailRecord: UploadFileDetailRecord;
+                uploadBatchItem: UploadBatchItem;
             },
             data: {
                 /** @format binary */
@@ -14392,7 +15220,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultLong, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/file/upload/file`,
                 method: "POST",
                 query: query,
@@ -14410,7 +15238,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/file/upload/confirm
          */
         postFileUploadConfirm: (data: FileConfirmRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultFileConfirmResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultFileConfirmResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/file/upload/confirm`,
                 method: "POST",
                 body: data,
@@ -14427,7 +15255,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/file/upload/confirm/validate
          */
         postFileUploadConfirmValidate: (data: FileCheckRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultFileCheckResultDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultFileCheckResultDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/file/upload/confirm/validate`,
                 method: "POST",
                 body: data,
@@ -14456,7 +15284,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/file/upload/cancel`,
                 method: "POST",
                 query: query,
@@ -14474,7 +15302,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/file/upload/batch
          */
         postFileUploadBatch: (data: SaveFileOverviewRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/file/upload/batch`,
                 method: "POST",
                 body: data,
@@ -14497,7 +15325,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListUploadFileDetailDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListUploadBatchItemDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/file/list`,
                 method: "POST",
                 query: query,
@@ -14513,7 +15341,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/external-drive/sync-tasks
          */
         getExternalDriveSyncTasks: (params: RequestParams = {}) =>
-            this.request<ResultListSyncTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListSyncTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/sync-tasks`,
                 method: "GET",
                 ...params,
@@ -14528,7 +15356,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/external-drive/sync-tasks
          */
         postExternalDriveSyncTasks: (data: CreateSyncTaskRequest, params: RequestParams = {}) =>
-            this.request<ResultSyncTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultSyncTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/sync-tasks`,
                 method: "POST",
                 body: data,
@@ -14545,7 +15373,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/external-drive/sync-tasks/{task_id}/trigger
          */
         postExternalDriveSyncTasksTaskIdTrigger: (taskId: string, params: RequestParams = {}) =>
-            this.request<ResultVoid, ResultString | (ResultString | Result)>({
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/sync-tasks/${taskId}/trigger`,
                 method: "POST",
                 ...params,
@@ -14560,7 +15388,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/external-drive/oauth/cloud-services/{service_id}/reauthorize
          */
         postExternalDriveOauthCloudServicesServiceIdReauthorize: (serviceId: string, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/oauth/cloud-services/${serviceId}/reauthorize`,
                 method: "POST",
                 ...params,
@@ -14575,7 +15403,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/external-drive/oauth/apps
          */
         getExternalDriveOauthApps: (params: RequestParams = {}) =>
-            this.request<ResultListOAuthAppDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListOAuthAppDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/oauth/apps`,
                 method: "GET",
                 ...params,
@@ -14590,8 +15418,42 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/external-drive/oauth/apps
          */
         postExternalDriveOauthApps: (data: CreateOAuthAppRequest, params: RequestParams = {}) =>
-            this.request<ResultOAuthAppDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultOAuthAppDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/oauth/apps`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name PostEventCalendarsSetting
+         * @summary Create Event Calendar Setting
+         * @request POST:/api/event/calendars/setting
+         */
+        postEventCalendarsSetting: (data: EventCalendarSetting, params: RequestParams = {}) =>
+            this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/event/calendars/setting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name PostEventCalendarsSettingPage
+         * @summary Paging query Event Calendar Settings
+         * @request POST:/api/event/calendars/setting/page
+         */
+        postEventCalendarsSettingPage: (data: BasePageRequest, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/event/calendars/setting/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14613,7 +15475,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/upload/files`,
                 method: "POST",
                 body: data,
@@ -14637,7 +15499,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/upload/file`,
                 method: "POST",
                 body: data,
@@ -14649,27 +15511,11 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Workflow
-         * @name PostWorkflowUpdatemetadatamapping
-         * @request POST:/api/docpal/workflow/updateMetadataMapping
-         */
-        postWorkflowUpdatemetadatamapping: (data: DocumentTypeMetadataMapping, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
-                path: `/docpal/workflow/updateMetadataMapping`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow
          * @name PostWorkflowTestStart
          * @request POST:/api/docpal/workflow/test/start
          */
         postWorkflowTestStart: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<JsonNode, ResultString | (ResultString | Result)>({
+            this.request<JsonNode, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/test/start`,
                 method: "POST",
                 body: data,
@@ -14691,7 +15537,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/tasks`,
                 method: "GET",
                 query: query,
@@ -14707,7 +15553,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/tasks
          */
         postWorkflowTasks: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/tasks`,
                 method: "POST",
                 body: data,
@@ -14724,7 +15570,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/tasks/user
          */
         postWorkflowTasksUser: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTOTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/tasks/user`,
                 method: "POST",
                 body: data,
@@ -14741,7 +15587,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/tasks/unassigned
          */
         postWorkflowTasksUnassigned: (params: RequestParams = {}) =>
-            this.request<ResultListTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/tasks/unassigned`,
                 method: "POST",
                 ...params,
@@ -14756,7 +15602,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/tasks/unassigned/
          */
         postWorkflowTasksUnassignedDeprecate: (params: RequestParams = {}) =>
-            this.request<ResultListTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/tasks/unassigned/`,
                 method: "POST",
                 ...params,
@@ -14771,7 +15617,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/tasks/personal
          */
         postWorkflowTasksPersonal: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTOTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/tasks/personal`,
                 method: "POST",
                 body: data,
@@ -14788,7 +15634,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/tasks/group/
          */
         postWorkflowTasksGroupDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/tasks/group/`,
                 method: "POST",
                 body: data,
@@ -14805,7 +15651,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/tasks/group
          */
         postWorkflowTasksGroup: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/tasks/group`,
                 method: "POST",
                 body: data,
@@ -14821,7 +15667,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/tasks/getUsersExportHeader
          */
         postWorkflowTasksGetusersexportheader: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringString, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/tasks/getUsersExportHeader`,
                 method: "POST",
                 body: data,
@@ -14837,7 +15683,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/tasks/exportTasksUser
          */
         postWorkflowTasksExporttasksuser: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/tasks/exportTasksUser`,
                 method: "POST",
                 body: data,
@@ -14860,7 +15706,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task`,
                 method: "GET",
                 query: query,
@@ -14876,7 +15722,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/task
          */
         postWorkflowTask: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task`,
                 method: "POST",
                 body: data,
@@ -14899,7 +15745,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task`,
                 method: "DELETE",
                 query: query,
@@ -14915,7 +15761,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/task/unclaim/
          */
         postWorkflowTaskUnclaimDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/unclaim/`,
                 method: "POST",
                 body: data,
@@ -14932,7 +15778,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/task/unclaim
          */
         postWorkflowTaskUnclaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/unclaim`,
                 method: "POST",
                 body: data,
@@ -14949,7 +15795,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/task/dueDate
          */
         postWorkflowTaskDuedate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/dueDate`,
                 method: "POST",
                 body: data,
@@ -14966,7 +15812,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/task/dueDate/
          */
         postWorkflowTaskDuedateDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/dueDate/`,
                 method: "POST",
                 body: data,
@@ -14988,7 +15834,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultVoid, ResultString | (ResultString | Result)>({
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/delegate`,
                 method: "POST",
                 query: query,
@@ -15004,7 +15850,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/task/complete
          */
         postWorkflowTaskComplete: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/complete`,
                 method: "POST",
                 body: data,
@@ -15021,7 +15867,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/task/claim
          */
         postWorkflowTaskClaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/claim`,
                 method: "POST",
                 body: data,
@@ -15038,7 +15884,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/task/assign
          */
         postWorkflowTaskAssign: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/task/assign`,
                 method: "POST",
                 body: data,
@@ -15054,7 +15900,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/adhoc/approval
          */
         postWorkflowAdhocApproval: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/adhoc/approval`,
                 method: "POST",
                 body: data,
@@ -15070,40 +15916,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/submitAdhocApproval
          */
         postWorkflowSubmitadhocapproval: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/submitAdhocApproval`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow
-         * @name PostWorkflowSavemetadatamapping
-         * @request POST:/api/docpal/workflow/saveMetadataMapping
-         */
-        postWorkflowSavemetadatamapping: (data: DocPalDocumentTypeMapping, params: RequestParams = {}) =>
-            this.request<ResultListDocumentTypeMetadataMapping, ResultString | (ResultString | Result)>({
-                path: `/docpal/workflow/saveMetadataMapping`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow
-         * @name PostWorkflowSavedocumenttypeprofile
-         * @request POST:/api/docpal/workflow/saveDocumentTypeProfile
-         */
-        postWorkflowSavedocumenttypeprofile: (data: DocumentTypeProfileSettingRequest, params: RequestParams = {}) =>
-            this.request<ResultDocumentTypeProfileSetting, ResultString | (ResultString | Result)>({
-                path: `/docpal/workflow/saveDocumentTypeProfile`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15118,7 +15932,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/queryAdhocApprovalPage
          */
         postWorkflowQueryadhocapprovalpage: (data: AdhocApprovalDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOAdhocApproval, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTOAdhocApproval, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/queryAdhocApprovalPage`,
                 method: "POST",
                 body: data,
@@ -15135,7 +15949,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/properties
          */
         postWorkflowProperties: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListFormPropertyDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/properties`,
                 method: "POST",
                 body: data,
@@ -15152,7 +15966,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/properties/save
          */
         postWorkflowPropertiesSave: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/properties/save`,
                 method: "POST",
                 body: data,
@@ -15169,7 +15983,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/properties/save/
          */
         postWorkflowPropertiesSaveDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/properties/save/`,
                 method: "POST",
                 body: data,
@@ -15186,7 +16000,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/process
          */
         postWorkflowProcess: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultProcessDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultProcessDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process`,
                 method: "POST",
                 body: data,
@@ -15212,7 +16026,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process`,
                 method: "DELETE",
                 query: query,
@@ -15232,7 +16046,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/triggerByProcessInstanceId`,
                 method: "POST",
                 query: query,
@@ -15254,7 +16068,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/start`,
                 method: "POST",
                 query: query,
@@ -15272,7 +16086,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/process/model
          */
         postWorkflowProcessModel: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/model`,
                 method: "POST",
                 body: data,
@@ -15289,7 +16103,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/process/model/
          */
         postWorkflowProcessModelDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/model/`,
                 method: "POST",
                 body: data,
@@ -15305,7 +16119,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/process/message
          */
         postWorkflowProcessMessage: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/message`,
                 method: "POST",
                 body: data,
@@ -15322,7 +16136,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/process/list
          */
         postWorkflowProcessList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListProcessDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListProcessDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/list`,
                 method: "POST",
                 body: data,
@@ -15339,7 +16153,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/process/instance/
          */
         postWorkflowProcessInstanceDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/instance/`,
                 method: "POST",
                 body: data,
@@ -15356,7 +16170,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/process/instance
          */
         postWorkflowProcessInstance: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/instance`,
                 method: "POST",
                 body: data,
@@ -15379,7 +16193,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListHistoricProcessInstanceEntityImpl, ResultString | (ResultString | Result)>({
+            this.request<ResultListHistoricProcessInstanceEntityImpl, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/instance`,
                 method: "DELETE",
                 query: query,
@@ -15395,7 +16209,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/process/diagram
          */
         postWorkflowProcessDiagram: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/diagram`,
                 method: "POST",
                 body: data,
@@ -15412,7 +16226,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/process/diagram/
          */
         postWorkflowProcessDiagramDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/diagram/`,
                 method: "POST",
                 body: data,
@@ -15428,7 +16242,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/process/condition/validate
          */
         postWorkflowProcessConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/condition/validate`,
                 method: "POST",
                 body: data,
@@ -15444,7 +16258,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/process/combine/list
          */
         postWorkflowProcessCombineList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListProcessDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListProcessDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/combine/list`,
                 method: "POST",
                 body: data,
@@ -15461,7 +16275,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/process/bpmn
          */
         postWorkflowProcessBpmn: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/bpmn`,
                 method: "POST",
                 body: data,
@@ -15486,7 +16300,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/addFileForBulkUpload`,
                 method: "POST",
                 query: query,
@@ -15503,7 +16317,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/process/active
          */
         postWorkflowProcessActive: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTOInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/active`,
                 method: "POST",
                 body: data,
@@ -15520,7 +16334,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/history/variable
          */
         postWorkflowHistoryVariable: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListObject, ResultString | (ResultString | Result)>({
+            this.request<ResultListObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/history/variable`,
                 method: "POST",
                 body: data,
@@ -15537,7 +16351,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/history/task
          */
         postWorkflowHistoryTask: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/history/task`,
                 method: "POST",
                 body: data,
@@ -15554,7 +16368,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/history/taskLog
          */
         postWorkflowHistoryTasklog: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListObject, ResultString | (ResultString | Result)>({
+            this.request<ResultListObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/history/taskLog`,
                 method: "POST",
                 body: data,
@@ -15570,7 +16384,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/history/process_without_variables
          */
         postWorkflowHistoryProcessWithoutVariables: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOHistoricProcessInstanceEntityImpl, ResultString | (ResultString | Result)>({
+            this.request<
+                ResultPaginationDTOHistoricProcessInstanceEntityImpl,
+                Result | (ResultObject | Result | ResultString)
+            >({
                 path: `/docpal/workflow/history/process_without_variables`,
                 method: "POST",
                 body: data,
@@ -15587,7 +16404,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/history/process
          */
         postWorkflowHistoryProcess: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOHistoricProcessInstanceEntityImpl, ResultString | (ResultString | Result)>({
+            this.request<
+                ResultPaginationDTOHistoricProcessInstanceEntityImpl,
+                Result | (ResultObject | Result | ResultString)
+            >({
                 path: `/docpal/workflow/history/process`,
                 method: "POST",
                 body: data,
@@ -15603,7 +16423,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/history/exportProcessHistory
          */
         postWorkflowHistoryExportprocesshistory: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/history/exportProcessHistory`,
                 method: "POST",
                 body: data,
@@ -15619,7 +16439,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/history/detailProperties
          */
         postWorkflowHistoryDetailproperties: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/history/detailProperties`,
                 method: "POST",
                 body: data,
@@ -15635,7 +16455,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/history/detailProperties/
          */
         postWorkflowHistoryDetailpropertiesDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/history/detailProperties/`,
                 method: "POST",
                 body: data,
@@ -15652,7 +16472,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/history/detail
          */
         postWorkflowHistoryDetail: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListObject, ResultString | (ResultString | Result)>({
+            this.request<ResultListObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/history/detail`,
                 method: "POST",
                 body: data,
@@ -15669,7 +16489,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/history/detail/
          */
         postWorkflowHistoryDetailDeprecate: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListObject, ResultString | (ResultString | Result)>({
+            this.request<ResultListObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/history/detail/`,
                 method: "POST",
                 body: data,
@@ -15686,7 +16506,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/history/activity
          */
         postWorkflowHistoryActivity: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/history/activity`,
                 method: "POST",
                 body: data,
@@ -15703,7 +16523,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/workflow/form/submit
          */
         postWorkflowFormSubmit: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/form/submit`,
                 method: "POST",
                 body: data,
@@ -15726,53 +16546,11 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListFileDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListFileDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/files/upload`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow
-         * @name PostWorkflowDeletemetadatamapping
-         * @request POST:/api/docpal/workflow/deleteMetadataMapping
-         */
-        postWorkflowDeletemetadatamapping: (
-            query: {
-                /** @format int64 */
-                id: number;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
-                path: `/docpal/workflow/deleteMetadataMapping`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow
-         * @name PostWorkflowDeletedocumenttypeprofile
-         * @request POST:/api/docpal/workflow/deleteDocumentTypeProfile
-         */
-        postWorkflowDeletedocumenttypeprofile: (
-            query: {
-                /** @format int64 */
-                id: number;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
-                path: `/docpal/workflow/deleteDocumentTypeProfile`,
-                method: "POST",
-                query: query,
                 ...params,
             }),
 
@@ -15790,7 +16568,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultVoid, ResultString | (ResultString | Result)>({
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/data/submit/`,
                 method: "POST",
                 body: data,
@@ -15812,7 +16590,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultVoid, ResultString | (ResultString | Result)>({
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/data/submit`,
                 method: "POST",
                 body: data,
@@ -15834,7 +16612,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/data/save`,
                 method: "POST",
                 body: data,
@@ -15856,7 +16634,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/data/save/`,
                 method: "POST",
                 body: data,
@@ -15878,7 +16656,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/comment/task`,
                 method: "GET",
                 query: query,
@@ -15901,7 +16679,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/comment/task`,
                 method: "POST",
                 query: query,
@@ -15924,7 +16702,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/comment/task/`,
                 method: "POST",
                 query: query,
@@ -15945,7 +16723,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/comment/process`,
                 method: "GET",
                 query: query,
@@ -15968,7 +16746,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/comment/process`,
                 method: "POST",
                 query: query,
@@ -15991,26 +16769,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/comment/process/`,
                 method: "POST",
                 query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow
-         * @name PostWorkflowChecknameortitle
-         * @request POST:/api/docpal/workflow/checkNameOrTitle
-         */
-        postWorkflowChecknameortitle: (data: string, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
-                path: `/docpal/workflow/checkNameOrTitle`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
                 ...params,
             }),
 
@@ -16030,7 +16792,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/addCommentByTaskId`,
                 method: "POST",
                 query: query,
@@ -16050,7 +16812,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string, ResultString | (ResultString | Result)>({
+            this.request<string, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/whatsapp/webhook`,
                 method: "GET",
                 query: query,
@@ -16065,7 +16827,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/whatsapp/webhook
          */
         postWhatsappWebhook: (data: JSONObject, params: RequestParams = {}) =>
-            this.request<void, ResultString | (ResultString | Result)>({
+            this.request<void, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/whatsapp/webhook`,
                 method: "POST",
                 body: data,
@@ -16081,7 +16843,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/whatsapp/send_message
          */
         postWhatsappSendMessage: (data: WhatsAppMessageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultSendMessageResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultSendMessageResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/whatsapp/send_message`,
                 method: "POST",
                 body: data,
@@ -16098,7 +16860,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/watermark/templates
          */
         getWatermarkTemplates: (params: RequestParams = {}) =>
-            this.request<ResultListWatermarkSettingsTemplate, ResultString | (ResultString | Result)>({
+            this.request<ResultListWatermarkSettingsTemplate, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/watermark/templates`,
                 method: "GET",
                 ...params,
@@ -16113,7 +16875,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/watermark/templates
          */
         postWatermarkTemplates: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultWMKTemplateRequestDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/watermark/templates`,
                 method: "POST",
                 body: data,
@@ -16130,7 +16892,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PATCH:/api/docpal/watermark/templates
          */
         patchWatermarkTemplates: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultWMKTemplateRequestDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/watermark/templates`,
                 method: "PATCH",
                 body: data,
@@ -16156,7 +16918,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             data: WMKTemplateRequestDTO,
             params: RequestParams = {},
         ) =>
-            this.request<ResultPageWatermarkSettingsTemplate, ResultString | (ResultString | Result)>({
+            this.request<ResultPageWatermarkSettingsTemplate, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/watermark/templates/page`,
                 method: "POST",
                 query: query,
@@ -16173,7 +16935,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/watermark/templates/append
          */
         postWatermarkTemplatesAppend: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/watermark/templates/append`,
                 method: "POST",
                 body: data,
@@ -16196,7 +16958,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/watermark/document/template`,
                 method: "POST",
                 query: query,
@@ -16218,43 +16980,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/watermark/document/multiple/template/`,
                 method: "POST",
                 query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DocPalTypeController
-         * @name PostTypesNameNameVerify
-         * @request POST:/api/docpal/types/name/{name}/verify
-         */
-        postTypesNameNameVerify: (name: string, data: Record<string, string>, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
-                path: `/docpal/types/name/${name}/verify`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DocPalTypeController
-         * @name PostTypesMetadatas
-         * @summary Query all metadata list of the docpal type through name
-         * @request POST:/api/docpal/types/metadatas
-         */
-        postTypesMetadatas: (data: DocPalType, params: RequestParams = {}) =>
-            this.request<ResultListDocPalTypeMetadataDTO, ResultString | (ResultString | Result)>({
-                path: `/docpal/types/metadatas`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
                 ...params,
             }),
 
@@ -16266,7 +16995,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/types/metadata/validate/json-schema
          */
         postTypesMetadataValidateJsonSchema: (data: ValidateJsonSchemaRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/types/metadata/validate/json-schema`,
                 method: "POST",
                 body: data,
@@ -16282,7 +17011,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/template/email
          */
         postTemplateEmail: (data: TemplateRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/template/email`,
                 method: "POST",
                 body: data,
@@ -16298,7 +17027,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/template/email/send
          */
         postTemplateEmailSend: (data: MailSendRequest, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/template/email/send`,
                 method: "POST",
                 body: data,
@@ -16321,11 +17050,43 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/template/document`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags system-feature-controller
+         * @name PostSystemfeatureUsersMembers
+         * @request POST:/api/docpal/systemfeature/users/members
+         */
+        postSystemfeatureUsersMembers: (data: UserDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/systemfeature/users/members`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags system-feature-controller
+         * @name PostSystemfeatureCreateuser
+         * @request POST:/api/docpal/systemfeature/createUser
+         */
+        postSystemfeatureCreateuser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/systemfeature/createUser`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
@@ -16337,7 +17098,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/relation/updateLanguage
          */
         postRelationUpdatelanguage: (data: LanguageEntity, params: RequestParams = {}) =>
-            this.request<ResultLanguageEntity, ResultString | (ResultString | Result)>({
+            this.request<ResultLanguageEntity, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/relation/updateLanguage`,
                 method: "POST",
                 body: data,
@@ -16353,7 +17114,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/relation/save
          */
         postRelationSave: (data: FormPropertiesRelation, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/relation/save`,
                 method: "POST",
                 body: data,
@@ -16375,7 +17136,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/relation/deleteLanguage`,
                 method: "POST",
                 query: query,
@@ -16390,7 +17151,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/relation/addLanguage
          */
         postRelationAddlanguage: (data: LanguageEntity, params: RequestParams = {}) =>
-            this.request<ResultLanguageEntity, ResultString | (ResultString | Result)>({
+            this.request<ResultLanguageEntity, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/relation/addLanguage`,
                 method: "POST",
                 body: data,
@@ -16407,7 +17168,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/policy/retentions/submitEvent
          */
         postPolicyRetentionsSubmitevent: (data: RetentionPolicyDocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultRetentionPolicyDocument, ResultString | (ResultString | Result)>({
+            this.request<ResultRetentionDocument, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/submitEvent`,
                 method: "POST",
                 body: data,
@@ -16424,7 +17185,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/policy/retentions/document/page
          */
         postPolicyRetentionsDocumentPage: (data: RetentionPolicyDocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTORetentionPolicyDocument, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTORetentionDocument, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/document/page`,
                 method: "POST",
                 body: data,
@@ -16435,13 +17196,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags PolicyDocumentController
+         * @tags HoldDocumentController
          * @name PostPolicyDocumentsRemove
          * @summary Remove hold policy who bind document
          * @request POST:/api/docpal/policy/documents/remove
          */
-        postPolicyDocumentsRemove: (data: PolicyDocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPolicyDocument, ResultString | (ResultString | Result)>({
+        postPolicyDocumentsRemove: (data: HoldDocumentRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultHoldDocument, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/documents/remove`,
                 method: "POST",
                 body: data,
@@ -16452,13 +17213,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags PolicyDocumentController
+         * @tags HoldDocumentController
          * @name PostPolicyDocumentsPage
          * @summary Pagination search
          * @request POST:/api/docpal/policy/documents/page
          */
-        postPolicyDocumentsPage: (data: PolicyDocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOPolicyDocument, ResultString | (ResultString | Result)>({
+        postPolicyDocumentsPage: (data: HoldDocumentRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOHoldDocument, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/documents/page`,
                 method: "POST",
                 body: data,
@@ -16469,13 +17230,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags PolicyDocumentController
+         * @tags HoldDocumentController
          * @name PostPolicyDocumentsAdd
          * @summary Add a hold policy to bind document
          * @request POST:/api/docpal/policy/documents/add
          */
-        postPolicyDocumentsAdd: (data: PolicyDocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPolicyDocument, ResultString | (ResultString | Result)>({
+        postPolicyDocumentsAdd: (data: HoldDocumentRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultHoldDocument, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/documents/add`,
                 method: "POST",
                 body: data,
@@ -16492,7 +17253,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/notification
          */
         postNotification: (data: NotificationRecord, params: RequestParams = {}) =>
-            this.request<ResultNotificationRecord, ResultString | (ResultString | Result)>({
+            this.request<ResultNotificationRecord, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification`,
                 method: "POST",
                 body: data,
@@ -16509,7 +17270,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/docpal/notification
          */
         deleteNotification: (data: NotificationRecordDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification`,
                 method: "DELETE",
                 body: data,
@@ -16526,7 +17287,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/notification/subscriber
          */
         postNotificationSubscriber: (data: NotificationSubscriberRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultNotificationSubscriber, ResultString | (ResultString | Result)>({
+            this.request<ResultNotificationSubscriber, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/subscriber`,
                 method: "POST",
                 body: data,
@@ -16543,7 +17304,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/notification/subscriber/document
          */
         postNotificationSubscriberDocument: (data: NotificationSubscriber, params: RequestParams = {}) =>
-            this.request<ResultNotificationSubscriber, ResultString | (ResultString | Result)>({
+            this.request<ResultNotificationSubscriber, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/subscriber/document`,
                 method: "POST",
                 body: data,
@@ -16560,7 +17321,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/notification/setting
          */
         postNotificationSetting: (data: NotificationSetting, params: RequestParams = {}) =>
-            this.request<ResultNotificationSetting, ResultString | (ResultString | Result)>({
+            this.request<ResultNotificationSetting, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/setting`,
                 method: "POST",
                 body: data,
@@ -16577,7 +17338,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/notification/setting/user/{userId}/preferences
          */
         getNotificationSettingUserUseridPreferences: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultListUserNotifyPreference, ResultString | (ResultString | Result)>({
+            this.request<ResultListUserNotifyPreference, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/setting/user/${userId}/preferences`,
                 method: "GET",
                 ...params,
@@ -16596,7 +17357,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             data: UserNotifyPreference[],
             params: RequestParams = {},
         ) =>
-            this.request<ResultListUserNotifyPreference, ResultString | (ResultString | Result)>({
+            this.request<ResultListUserNotifyPreference, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/setting/user/${userId}/preferences`,
                 method: "POST",
                 body: data,
@@ -16617,7 +17378,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             moduleName: string,
             params: RequestParams = {},
         ) =>
-            this.request<ResultListNotificationSetting, ResultString | (ResultString | Result)>({
+            this.request<ResultListNotificationSetting, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/setting/type/${type}/module/${moduleName}`,
                 method: "POST",
                 ...params,
@@ -16632,7 +17393,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/notification/send
          */
         postNotificationSend: (data: SubNotificationRequest, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/send`,
                 method: "POST",
                 body: data,
@@ -16649,7 +17410,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/notification/read/all
          */
         postNotificationReadAll: (params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/read/all`,
                 method: "POST",
                 ...params,
@@ -16663,7 +17424,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/notification/query_notification_list
          */
         postNotificationQueryNotificationList: (data: QueryNotificationRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTONotificationInfoDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTONotificationInfoDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/query_notification_list`,
                 method: "POST",
                 body: data,
@@ -16689,7 +17450,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             data: NotificationRecord,
             params: RequestParams = {},
         ) =>
-            this.request<ResultPageNotificationRecord, ResultString | (ResultString | Result)>({
+            this.request<ResultPageNotificationRecord, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/page`,
                 method: "POST",
                 query: query,
@@ -16705,6 +17466,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetMasterTablesRecords
          * @summary query records with related fields of master table
          * @request GET:/api/docpal/master/tables/records
+         * @deprecated
          */
         getMasterTablesRecords: (
             query: {
@@ -16714,7 +17476,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/records`,
                 method: "GET",
                 query: query,
@@ -16728,9 +17490,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostMasterTablesRecords
          * @summary Query all records of master table
          * @request POST:/api/docpal/master/tables/records
+         * @deprecated
          */
         postMasterTablesRecords: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/records`,
                 method: "POST",
                 body: data,
@@ -16745,6 +17508,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetMasterTablesRecord
          * @summary query record with related fields of master table
          * @request GET:/api/docpal/master/tables/record
+         * @deprecated
          */
         getMasterTablesRecord: (
             query: {
@@ -16753,7 +17517,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/record`,
                 method: "GET",
                 query: query,
@@ -16767,9 +17531,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostMasterTablesRecord
          * @summary Insert data into a master table
          * @request POST:/api/docpal/master/tables/record
+         * @deprecated
          */
         postMasterTablesRecord: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/record`,
                 method: "POST",
                 body: data,
@@ -16784,9 +17549,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostMasterTablesRecordPage
          * @summary Pagination Search (Master Table Record)
          * @request POST:/api/docpal/master/tables/record/page
+         * @deprecated
          */
         postMasterTablesRecordPage: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/record/page`,
                 method: "POST",
                 body: data,
@@ -16800,26 +17566,11 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags MasterTableController
          * @name PostMasterTablesRecordPageNonpermission
          * @request POST:/api/docpal/master/tables/record/page/nonPermission
+         * @deprecated
          */
         postMasterTablesRecordPageNonpermission: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/record/page/nonPermission`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags MasterTableController
-         * @name PostMasterTablesForAdminRecordPage
-         * @request POST:/api/docpal/master/tables/for_admin/record/page
-         */
-        postMasterTablesForAdminRecordPage: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
-                path: `/docpal/master/tables/for_admin/record/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16833,9 +17584,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostMasterTablesBatchDelete
          * @summary delete master table record
          * @request POST:/api/docpal/master/tables/batch/delete
+         * @deprecated
          */
         postMasterTablesBatchDelete: (data: DeleteMTRecordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, ResultString | (ResultString | Result)>({
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/batch/delete`,
                 method: "POST",
                 body: data,
@@ -16851,7 +17603,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/logs/recent/search/page_v2
          */
         postLogsRecentSearchPageV2: (data: BasePageRequest, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTONestedSearchLogV2, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTONestedSearchLogV2, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/logs/recent/search/page_v2`,
                 method: "POST",
                 body: data,
@@ -16867,7 +17619,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/internalShare/page/
          */
         postInternalsharePageDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare/page/`,
                 method: "POST",
                 body: data,
@@ -16883,7 +17635,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/internalShare/page
          */
         postInternalsharePage: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare/page`,
                 method: "POST",
                 body: data,
@@ -16899,7 +17651,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/internalShare/others/
          */
         postInternalshareOthersDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare/others/`,
                 method: "POST",
                 body: data,
@@ -16915,7 +17667,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/internalShare/others
          */
         postInternalshareOthers: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare/others`,
                 method: "POST",
                 body: data,
@@ -16931,7 +17683,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/internalShare/me/
          */
         postInternalshareMeDeprecate: (data: InternalShareToMePageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare/me/`,
                 method: "POST",
                 body: data,
@@ -16947,7 +17699,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/docpal/internalShare/me/
          */
         deleteInternalshareMeDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare/me/`,
                 method: "DELETE",
                 body: data,
@@ -16963,7 +17715,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/internalShare/me
          */
         postInternalshareMe: (data: InternalShareToMePageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare/me`,
                 method: "POST",
                 body: data,
@@ -16979,7 +17731,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/docpal/internalShare/me
          */
         deleteInternalshareMe: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare/me`,
                 method: "DELETE",
                 body: data,
@@ -16995,7 +17747,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/internalShare/groups
          */
         postInternalshareGroups: (data: InternalShareByGroupsRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultInternalShare, ResultString | (ResultString | Result)>({
+            this.request<ResultInternalShare, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare/groups`,
                 method: "POST",
                 body: data,
@@ -17011,7 +17763,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/internalShare/checkDocumentIsInShare/
          */
         postInternalshareCheckdocumentisinshareDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare/checkDocumentIsInShare/`,
                 method: "POST",
                 body: data,
@@ -17027,7 +17779,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/internalShare/checkDocumentIsInShare
          */
         postInternalshareCheckdocumentisinshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare/checkDocumentIsInShare`,
                 method: "POST",
                 body: data,
@@ -17048,7 +17800,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultPaginableEntityDTOObject, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare`,
                 method: "GET",
                 query: query,
@@ -17063,7 +17815,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/internalShare
          */
         postInternalshare: (data: InternalShareRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultInternalShareAudit, ResultString | (ResultString | Result)>({
+            this.request<ResultInternalShareAudit, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare`,
                 method: "POST",
                 body: data,
@@ -17079,7 +17831,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/docpal/internalShare
          */
         deleteInternalshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare`,
                 method: "DELETE",
                 body: data,
@@ -17095,7 +17847,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/internalShare/
          */
         postInternalshareDeprecate: (data: InternalShareRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultInternalShareAudit, ResultString | (ResultString | Result)>({
+            this.request<ResultInternalShareAudit, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare/`,
                 method: "POST",
                 body: data,
@@ -17107,12 +17859,75 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags FormDesignController
+         * @name GetFormDesign
+         * @summary Query form design
+         * @request GET:/api/docpal/form/design
+         * @deprecated
+         */
+        getFormDesign: (
+            query?: {
+                name?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostFormDesign
+         * @summary Create a form design
+         * @request POST:/api/docpal/form/design
+         * @deprecated
+         */
+        postFormDesign: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name DeleteFormDesign
+         * @request DELETE:/api/docpal/form/design
+         * @deprecated
+         */
+        deleteFormDesign: (
+            query: {
+                tableName: string;
+                caseId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<JsonNode, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
          * @name PostFormDesignSubmitData
          * @summary Submit form data
          * @request POST:/api/docpal/form/design/submit/data
+         * @deprecated
          */
         postFormDesignSubmitData: (data: FormDesignDataDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/form/design/submit/data`,
                 method: "POST",
                 body: data,
@@ -17126,10 +17941,100 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags FormDesignController
          * @name PostFormDesignSendEmail
          * @request POST:/api/docpal/form/design/send_email
+         * @deprecated
          */
         postFormDesignSendEmail: (data: EasyFormEmailDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, ResultString | (ResultString | Result)>({
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/form/design/send_email`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostFormDesignSavePreview
+         * @summary Save preview style
+         * @request POST:/api/docpal/form/design/save/preview
+         * @deprecated
+         */
+        postFormDesignSavePreview: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design/save/preview`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostFormDesignSavePermission
+         * @summary Save Permission
+         * @request POST:/api/docpal/form/design/save/permission
+         * @deprecated
+         */
+        postFormDesignSavePermission: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design/save/permission`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostFormDesignSaveInformation
+         * @summary Save information
+         * @request POST:/api/docpal/form/design/save/information
+         * @deprecated
+         */
+        postFormDesignSaveInformation: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design/save/information`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostFormDesignSaveFormresult
+         * @summary Save Form Result
+         * @request POST:/api/docpal/form/design/save/formResult
+         * @deprecated
+         */
+        postFormDesignSaveFormresult: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design/save/formResult`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostFormDesignSaveFormresultAppend
+         * @request POST:/api/docpal/form/design/save/formResult/append
+         * @deprecated
+         */
+        postFormDesignSaveFormresultAppend: (data: EasyFormResultRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultEasyFormResult, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design/save/formResult/append`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17142,9 +18047,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags FormDesignController
          * @name PostFormDesignRecords
          * @request POST:/api/docpal/form/design/records
+         * @deprecated
          */
         postFormDesignRecords: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListLinkedHashMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultListLinkedHashMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/form/design/records`,
                 method: "POST",
                 body: data,
@@ -17159,10 +18065,29 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostFormDesignRecordPage
          * @summary Paging search form data
          * @request POST:/api/docpal/form/design/record/page
+         * @deprecated
          */
         postFormDesignRecordPage: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/form/design/record/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostFormDesignPublish
+         * @summary Publish Form Design
+         * @request POST:/api/docpal/form/design/publish
+         * @deprecated
+         */
+        postFormDesignPublish: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design/publish`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17175,9 +18100,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags FormDesignController
          * @name PostFormDesignPageEmailLog
          * @request POST:/api/docpal/form/design/page_email_log
+         * @deprecated
          */
         postFormDesignPageEmailLog: (data: EasyFormEmailQueryRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOEasyFormEmailLogDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTOEasyFormEmailLogDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/form/design/page_email_log`,
                 method: "POST",
                 body: data,
@@ -17192,9 +18118,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostFormDesignPage
          * @summary Paging query form design list
          * @request POST:/api/docpal/form/design/page
+         * @deprecated
          */
         postFormDesignPage: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOFormDesignResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTOFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/form/design/page`,
                 method: "POST",
                 body: data,
@@ -17210,7 +18137,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/email/template/send
          */
         postEmailTemplateSend: (data: MailSendRequest, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/email/template/send`,
                 method: "POST",
                 body: data,
@@ -17227,7 +18154,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/email/send
          */
         postEmailSend: (data: MailSendRequest, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/email/send`,
                 method: "POST",
                 body: data,
@@ -17249,7 +18176,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/email/send/from`,
                 method: "POST",
                 query: query,
@@ -17264,7 +18191,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/email/customize/send
          */
         postEmailCustomizeSend: (data: MailSendRequest, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/email/customize/send`,
                 method: "POST",
                 body: data,
@@ -17280,7 +18207,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/email/batch/send
          */
         postEmailBatchSend: (data: BatchMailSendRequest, params: RequestParams = {}) =>
-            this.request<ResultBatchSendEmailResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultBatchSendEmailResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/email/batch/send`,
                 method: "POST",
                 body: data,
@@ -17304,7 +18231,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBatchSendEmailResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultBatchSendEmailResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/email/batch-send`,
                 method: "POST",
                 query: query,
@@ -17322,7 +18249,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/doc/template/signature
          */
         postDocTemplateSignature: (data: DocTemplateSignatureRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocTemplateSignatureResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocTemplateSignatureResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/doc/template/signature`,
                 method: "POST",
                 body: data,
@@ -17337,9 +18264,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostContactgroup
          * @summary Create a new contact group
          * @request POST:/api/docpal/contactGroup
+         * @deprecated
          */
         postContactgroup: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultContactGroupResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup`,
                 method: "POST",
                 body: data,
@@ -17354,9 +18282,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostContactgroupIdPermission
          * @summary Add the contact permission
          * @request POST:/api/docpal/contactGroup/{id}/permission
+         * @deprecated
          */
         postContactgroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
-            this.request<ResultListBasicField, ResultString | (ResultString | Result)>({
+            this.request<ResultListBasicField, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}/permission`,
                 method: "POST",
                 body: data,
@@ -17371,9 +18300,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PatchContactgroupIdPermission
          * @summary Remove the contact permission
          * @request PATCH:/api/docpal/contactGroup/{id}/permission
+         * @deprecated
          */
         patchContactgroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
-            this.request<ResultListBasicField, ResultString | (ResultString | Result)>({
+            this.request<ResultListBasicField, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}/permission`,
                 method: "PATCH",
                 body: data,
@@ -17388,9 +18318,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostContactgroupIdNewfields
          * @summary Add new field to contact Group
          * @request POST:/api/docpal/contactGroup/{id}/newFields
+         * @deprecated
          */
         postContactgroupIdNewfields: (id: string, data: ContactAttribute, params: RequestParams = {}) =>
-            this.request<ResultListContactAttribute, ResultString | (ResultString | Result)>({
+            this.request<ResultListContactAttribute, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}/newFields`,
                 method: "POST",
                 body: data,
@@ -17405,9 +18336,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostContactgroupIdContactdetail
          * @summary Adding a new contact record
          * @request POST:/api/docpal/contactGroup/{id}/contactDetail
+         * @deprecated
          */
         postContactgroupIdContactdetail: (id: string, data: Record<string, object>, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}/contactDetail`,
                 method: "POST",
                 body: data,
@@ -17422,9 +18354,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostContactgroupIdContactdetailPage
          * @summary Page query contact detail list
          * @request POST:/api/docpal/contactGroup/{id}/contactDetail/page
+         * @deprecated
          */
         postContactgroupIdContactdetailPage: (id: string, data: Record<string, object>, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTOMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}/contactDetail/page`,
                 method: "POST",
                 body: data,
@@ -17439,6 +18372,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostContactgroupIdContactdetailImport
          * @summary Import contacts from file
          * @request POST:/api/docpal/contactGroup/{id}/contactDetail/import
+         * @deprecated
          */
         postContactgroupIdContactdetailImport: (
             id: string,
@@ -17458,7 +18392,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultImportResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultImportResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}/contactDetail/import`,
                 method: "POST",
                 query: query,
@@ -17474,6 +18408,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostContactgroupIdContactdetailExport
          * @summary Export contact record for file type include excel, csv, vcf
          * @request POST:/api/docpal/contactGroup/{id}/contactDetail/export
+         * @deprecated
          */
         postContactgroupIdContactdetailExport: (
             id: string,
@@ -17483,7 +18418,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}/contactDetail/export`,
                 method: "POST",
                 query: query,
@@ -17497,6 +18432,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostContactgroupReadTitle
          * @summary Get header list through read the file
          * @request POST:/api/docpal/contactGroup/read/title
+         * @deprecated
          */
         postContactgroupReadTitle: (
             data: {
@@ -17505,7 +18441,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultMapStringInteger, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringInteger, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/read/title`,
                 method: "POST",
                 body: data,
@@ -17520,9 +18456,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostContactgroupPage
          * @summary Page query contact group
          * @request POST:/api/docpal/contactGroup/page
+         * @deprecated
          */
         postContactgroupPage: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOContactGroupResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTOContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/page`,
                 method: "POST",
                 body: data,
@@ -17539,7 +18476,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/companyProfiles/page
          */
         postCompanyprofilesPage: (data: CompanyRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOCompany, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTOCompany, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/companyProfiles/page`,
                 method: "POST",
                 body: data,
@@ -17562,7 +18499,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultCfUserTableConfigResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCfUserTableConfigResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cf/table/user-config`,
                 method: "GET",
                 query: query,
@@ -17578,7 +18515,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/cf/table/user-config
          */
         postCfTableUserConfig: (data: CfUserTableConfigRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCfUserTableConfigResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCfUserTableConfigResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cf/table/user-config`,
                 method: "POST",
                 body: data,
@@ -17599,7 +18536,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             data: CmmnDashboardRequestDTO,
             params: RequestParams = {},
         ) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/${caseTypeId}/records/page`,
                 method: "POST",
                 body: data,
@@ -17616,7 +18553,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/case/types/table/page
          */
         postCaseTypesTablePage: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/table/page`,
                 method: "POST",
                 body: data,
@@ -17633,7 +18570,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/case/types/records/list
          */
         postCaseTypesRecordsList: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListLinkedHashMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultListLinkedHashMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/records/list`,
                 method: "POST",
                 body: data,
@@ -17650,7 +18587,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/case/types/page
          */
         postCaseTypesPage: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOCaseType, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTOCaseType, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/page`,
                 method: "POST",
                 body: data,
@@ -17667,7 +18604,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/case/types/list
          */
         postCaseTypesList: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListCaseTypeResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/list`,
                 method: "POST",
                 body: data,
@@ -17683,7 +18620,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/instance/{caseInstanceId}/variables
          */
         getCaseInstanceCaseinstanceidVariables: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<Record<string, object>, ResultString | (ResultString | Result)>({
+            this.request<Record<string, object>, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/${caseInstanceId}/variables`,
                 method: "GET",
                 ...params,
@@ -17701,7 +18638,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
-            this.request<Record<string, object>, ResultString | (ResultString | Result)>({
+            this.request<Record<string, object>, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/${caseInstanceId}/variables`,
                 method: "POST",
                 body: data,
@@ -17716,9 +18653,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostCaseInstanceTriggerEvent
          * @summary Trigger event for completed
          * @request POST:/api/docpal/case/instance/trigger/event
+         * @deprecated
          */
         postCaseInstanceTriggerEvent: (data: CmmnTriggerEventReqDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/trigger/event`,
                 method: "POST",
                 body: data,
@@ -17733,9 +18671,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostCaseInstanceTasks
          * @summary Retrieve all tasks of this case instance
          * @request POST:/api/docpal/case/instance/tasks
+         * @deprecated
          */
         postCaseInstanceTasks: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
-            this.request<ResultListCmmnTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/tasks`,
                 method: "POST",
                 body: data,
@@ -17750,9 +18689,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostCaseInstanceTasksComplete
          * @summary Complete task
          * @request POST:/api/docpal/case/instance/tasks/complete
+         * @deprecated
          */
         postCaseInstanceTasksComplete: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/tasks/complete`,
                 method: "POST",
                 body: data,
@@ -17766,9 +18706,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags CaseInstanceController
          * @name PostCaseInstanceSubmitStart
          * @request POST:/api/docpal/case/instance/submit-start
+         * @deprecated
          */
         postCaseInstanceSubmitStart: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCaseInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/submit-start`,
                 method: "POST",
                 body: data,
@@ -17783,6 +18724,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostCaseInstanceStart
          * @summary Start a case model definition to get a case instance
          * @request POST:/api/docpal/case/instance/start
+         * @deprecated
          */
         postCaseInstanceStart: (
             data: CaseInstanceRequestDTO,
@@ -17791,7 +18733,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultCaseInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/start`,
                 method: "POST",
                 query: query,
@@ -17807,6 +18749,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostCaseInstanceStartImport
          * @summary Import an Excel file to start case instances
          * @request POST:/api/docpal/case/instance/start/import
+         * @deprecated
          */
         postCaseInstanceStartImport: (
             query: {
@@ -17818,7 +18761,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultCaseImportResponse, ResultString | (ResultString | Result)>({
+            this.request<ResultCaseImportResponse, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/start/import`,
                 method: "POST",
                 query: query,
@@ -17832,9 +18775,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostCaseInstanceProcessStart
          * @summary Starting a sub-process of case instance
          * @request POST:/api/docpal/case/instance/process/start
+         * @deprecated
          */
         postCaseInstanceProcessStart: (data: PlanItemInstanceRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/process/start`,
                 method: "POST",
                 body: data,
@@ -17849,9 +18793,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostCaseInstancePlanitems
          * @summary Retrieve all or activated planItem instances of this case instance
          * @request POST:/api/docpal/case/instance/planItems
+         * @deprecated
          */
         postCaseInstancePlanitems: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/planItems`,
                 method: "POST",
                 body: data,
@@ -17868,7 +18813,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/case/instance/planItems/{planItemId}/enable
          */
         postCaseInstancePlanitemsPlanitemidEnable: (planItemId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/planItems/${planItemId}/enable`,
                 method: "POST",
                 ...params,
@@ -17883,7 +18828,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/case/instance/planItems/complete
          */
         postCaseInstancePlanitemsComplete: (data: PlanItemInstanceRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/planItems/complete`,
                 method: "POST",
                 body: data,
@@ -17898,9 +18843,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostCaseInstancePlanitemsActive
          * @summary Active a planItem instance
          * @request POST:/api/docpal/case/instance/planItems/active
+         * @deprecated
          */
         postCaseInstancePlanitemsActive: (data: PlanItemInstanceRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/planItems/active`,
                 method: "POST",
                 body: data,
@@ -17915,9 +18861,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostCaseInstanceAuditlog
          * @summary Obtain Audit Log of a case instance
          * @request POST:/api/docpal/case/instance/auditLog
+         * @deprecated
          */
         postCaseInstanceAuditlog: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOAuditTemplateDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTOAuditTemplateDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/auditLog`,
                 method: "POST",
                 body: data,
@@ -17934,7 +18881,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/case/dashboard/page
          */
         postCaseDashboardPage: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOCmmnDashboard, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTOCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/page`,
                 method: "POST",
                 body: data,
@@ -17945,17 +18892,18 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags CmmnDashboardController
+         * @tags api-cmmn-dashboard-controller
          * @name PostCaseDashboardInstanceCaseidProcessInstancePage
          * @summary Paging search process instance of this case instance
          * @request POST:/api/docpal/case/dashboard/instance/{caseId}/process/instance/page
+         * @deprecated
          */
         postCaseDashboardInstanceCaseidProcessInstancePage: (
             caseId: string,
             data: CmmnProcessRequestDTO,
             params: RequestParams = {},
         ) =>
-            this.request<ResultPaginationDTOCmmnTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTOCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/instance/${caseId}/process/instance/page`,
                 method: "POST",
                 body: data,
@@ -17966,13 +18914,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags CmmnDashboardController
+         * @tags api-cmmn-dashboard-controller
          * @name PostCaseDashboardInstanceActionPreRequisite
          * @summary Get Pre-requisite of planItem instance,
          * @request POST:/api/docpal/case/dashboard/instance/action/pre-requisite
+         * @deprecated
          */
         postCaseDashboardInstanceActionPreRequisite: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/instance/action/pre-requisite`,
                 method: "POST",
                 body: data,
@@ -17983,17 +18932,18 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags CmmnDashboardController
+         * @tags api-cmmn-dashboard-controller
          * @name PostCaseDashboardCasetypeCasetypeidRecordsPage
          * @summary Paging Query instance data for deployed case types for the currently logged in user
          * @request POST:/api/docpal/case/dashboard/caseType/{caseTypeId}/records/page
+         * @deprecated
          */
         postCaseDashboardCasetypeCasetypeidRecordsPage: (
             caseTypeId: string,
             data: CmmnDashboardRequestDTO,
             params: RequestParams = {},
         ) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/caseType/${caseTypeId}/records/page`,
                 method: "POST",
                 body: data,
@@ -18004,12 +18954,47 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags TaskController
+         * @tags CalendarController
+         * @name GetCalendarsWidgetSetting
+         * @summary Obtain calendar widget settings
+         * @request GET:/api/docpal/calendars/widget/setting
+         * @deprecated
+         */
+        getCalendarsWidgetSetting: (params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/calendars/widget/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name PostCalendarsWidgetSetting
+         * @summary Save calendar settings
+         * @request POST:/api/docpal/calendars/widget/setting
+         * @deprecated
+         */
+        postCalendarsWidgetSetting: (data: Record<string, object>, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/calendars/widget/setting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
          * @name PostCalendarsValidate
          * @request POST:/api/docpal/calendars/validate
+         * @deprecated
          */
         postCalendarsValidate: (params: RequestParams = {}) =>
-            this.request<ResultVoid, ResultString | (ResultString | Result)>({
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/calendars/validate`,
                 method: "POST",
                 ...params,
@@ -18018,13 +19003,48 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags TaskController
+         * @tags CalendarController
+         * @name GetCalendarsSetting
+         * @summary Obtain calendar settings
+         * @request GET:/api/docpal/calendars/setting
+         * @deprecated
+         */
+        getCalendarsSetting: (params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/calendars/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name PostCalendarsSetting
+         * @summary Save calendar settings
+         * @request POST:/api/docpal/calendars/setting
+         * @deprecated
+         */
+        postCalendarsSetting: (data: Record<string, object>, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/calendars/setting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
          * @name PostCalendarsList
          * @summary Query list
          * @request POST:/api/docpal/calendars/list
+         * @deprecated
          */
         postCalendarsList: (data: CalendarTaskReq, params: RequestParams = {}) =>
-            this.request<ResultListCalendarTaskRespDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/calendars/list`,
                 method: "POST",
                 body: data,
@@ -18039,9 +19059,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostCabinetVerificationComplete
          * @summary verification complete of folder cabinet
          * @request POST:/api/docpal/cabinet/verification/complete
+         * @deprecated
          */
         postCabinetVerificationComplete: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocFolderCabinetResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/verification/complete`,
                 method: "POST",
                 body: data,
@@ -18056,6 +19077,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostCabinetUploadFile
          * @summary Upload file of folder cabinet
          * @request POST:/api/docpal/cabinet/upload/file
+         * @deprecated
          */
         postCabinetUploadFile: (
             data: {
@@ -18067,7 +19089,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/upload/file`,
                 method: "POST",
                 body: data,
@@ -18082,9 +19104,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostCabinetPage
          * @summary Pagination search of document folder cabinet
          * @request POST:/api/docpal/cabinet/page
+         * @deprecated
          */
         postCabinetPage: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/page`,
                 method: "POST",
                 body: data,
@@ -18099,9 +19122,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostCabinetItem
          * @summary New Item
          * @request POST:/api/docpal/cabinet/item
+         * @deprecated
          */
         postCabinetItem: (data: DFCRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentFolderCabinet, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentFolderCabinet, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/item`,
                 method: "POST",
                 body: data,
@@ -18115,6 +19139,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags FolderCabinetController
          * @name PostCabinetGenerateDocument
          * @request POST:/api/docpal/cabinet/generate/document
+         * @deprecated
          */
         postCabinetGenerateDocument: (
             query: {
@@ -18123,7 +19148,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             data: FilingDocumentPreviewReq,
             params: RequestParams = {},
         ) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/generate/document`,
                 method: "POST",
                 query: query,
@@ -18138,9 +19163,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags FolderCabinetController
          * @name PostCabinetExport
          * @request POST:/api/docpal/cabinet/export
+         * @deprecated
          */
         postCabinetExport: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
-            this.request<void, ResultString | (ResultString | Result)>({
+            this.request<void, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/export`,
                 method: "POST",
                 body: data,
@@ -18155,9 +19181,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostCabinetCreate
          * @summary Create Top folder cabinet
          * @request POST:/api/docpal/cabinet/create
+         * @deprecated
          */
         postCabinetCreate: (data: DFCRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/create`,
                 method: "POST",
                 body: data,
@@ -18179,7 +19206,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/auto/crId`,
                 method: "GET",
                 query: query,
@@ -18200,7 +19227,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/auto/crId`,
                 method: "POST",
                 query: query,
@@ -18215,7 +19242,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/auto/caseId
          */
         getAutoCaseid: (params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/auto/caseId`,
                 method: "GET",
                 ...params,
@@ -18229,7 +19256,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/auto/caseId
          */
         postAutoCaseid: (params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/auto/caseId`,
                 method: "POST",
                 ...params,
@@ -18243,7 +19270,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/audit-log/workflow/page
          */
         postAuditLogWorkflowPage: (data: AuditLogQueryRequest, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/audit-log/workflow/page`,
                 method: "POST",
                 body: data,
@@ -18260,7 +19287,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/audit-log/query
          */
         postAuditLogQuery: (data: AuditLogQueryRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, Result | ResultString>({
+            this.request<Result, Result>({
                 path: `/docpal/audit-log/query`,
                 method: "POST",
                 body: data,
@@ -18277,7 +19304,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/audit-log/add
          */
         postAuditLogAdd: (data: AuditLogQueryRequest, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/audit-log/add`,
                 method: "POST",
                 body: data,
@@ -18294,7 +19321,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/audit-log/
          */
         postAuditLogDeprecate: (data: AuditLogCreateRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, Result | ResultString>({
+            this.request<Result, Result>({
                 path: `/docpal/audit-log/`,
                 method: "POST",
                 body: data,
@@ -18312,7 +19339,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/acl/user/roles-and-groups
          */
         postAclUserRolesAndGroups: (data: string[], params: RequestParams = {}) =>
-            this.request<ResultMapStringUserRoleGroupDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringUserRoleGroupDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/acl/user/roles-and-groups`,
                 method: "POST",
                 body: data,
@@ -18329,7 +19356,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/acl/role/users
          */
         postAclRoleUsers: (data: RoleUsersRequest, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/acl/role/users`,
                 method: "POST",
                 body: data,
@@ -18346,7 +19373,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/docpal/acl/role/users
          */
         deleteAclRoleUsers: (data: number[], params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/acl/role/users`,
                 method: "DELETE",
                 body: data,
@@ -18363,7 +19390,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/acl/role/users/page
          */
         postAclRoleUsersPage: (data: BasePageDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTORoleUsersVO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTORoleUsersVO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/acl/role/users/page`,
                 method: "POST",
                 body: data,
@@ -18380,7 +19407,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/acl/role/page
          */
         postAclRolePage: (data: BasePageDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTORoleVO, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginationDTORoleVO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/acl/role/page`,
                 method: "POST",
                 body: data,
@@ -18397,8 +19424,1468 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/docpal/acl/role/hierarchy
          */
         postAclRoleHierarchy: (data: string[], params: RequestParams = {}) =>
-            this.request<ResultListRoleDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListRoleDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/acl/role/hierarchy`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PostDmsTemplateEmailTemplatePage
+         * @summary Pagination search (Email Template)
+         * @request POST:/api/dms/template/email/template/page
+         */
+        postDmsTemplateEmailTemplatePage: (data: EmailTemplateRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOEmailTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/template/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PostDmsTemplateEmailPage
+         * @summary Pagination search (Email Template)
+         * @request POST:/api/dms/template/email/page
+         */
+        postDmsTemplateEmailPage: (data: EmailTemplateRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOEmailTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PostDmsTemplateEmailSend
+         * @summary Send test email using email template
+         * @request POST:/api/dms/template/email/send
+         */
+        postDmsTemplateEmailSend: (data: MailSendRequest, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/send`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PostDmsTemplateEmailSendCustomize
+         * @summary Send Customize Email
+         * @request POST:/api/dms/template/email/send/customize
+         */
+        postDmsTemplateEmailSendCustomize: (data: MailSendRequest, params: RequestParams = {}) =>
+            this.request<ResultSendEmailResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/send/customize`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PostDmsTemplateEmailLayoutPage
+         * @summary Pagination search (Email Layout)
+         * @request POST:/api/dms/template/email/layout/page
+         */
+        postDmsTemplateEmailLayoutPage: (data: EmailLayoutRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOEmailLayout, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/layout/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableIdStructureExport
+         * @summary Export table structure
+         * @request POST:/api/dms/master-table/{id}/structure/export
+         */
+        postDmsMasterTableIdStructureExport: (
+            id: string,
+            data: any,
+            query?: {
+                /** @default "excel" */
+                format?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}/structure/export`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableIdRecordExport
+         * @summary Export data of a master table
+         * @request POST:/api/dms/master-table/{id}/record/export
+         */
+        postDmsMasterTableIdRecordExport: (
+            id: string,
+            query?: {
+                operation?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}/record/export`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableIdField
+         * @summary Add single field to master table
+         * @request POST:/api/dms/master-table/{id}/field
+         */
+        postDmsMasterTableIdField: (id: string, data: MTFieldInfo, params: RequestParams = {}) =>
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}/field`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableStructureImport
+         * @summary Import Excel to create master table
+         * @request POST:/api/dms/master-table/structure/import
+         */
+        postDmsMasterTableStructureImport: (
+            data: {
+                /** @format binary */
+                file?: File;
+            },
+            query?: {
+                /** @default "excel" */
+                format?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/structure/import`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetDmsMasterTableRecords
+         * @summary query records with related fields of master table
+         * @request GET:/api/dms/master-table/records
+         */
+        getDmsMasterTableRecords: (
+            query: {
+                relationTable: string;
+                relationField: string;
+                displayField: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/records`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableRecords
+         * @summary Query all records of master table
+         * @request POST:/api/dms/master-table/records
+         */
+        postDmsMasterTableRecords: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/records`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetDmsMasterTableRecord
+         * @summary query record with related fields of master table
+         * @request GET:/api/dms/master-table/record
+         */
+        getDmsMasterTableRecord: (
+            query: {
+                id: string;
+                recordId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/record`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableRecord
+         * @summary Insert data into a master table
+         * @request POST:/api/dms/master-table/record
+         */
+        postDmsMasterTableRecord: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/record`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableRecordPage
+         * @summary Pagination Search (Master Table Record)
+         * @request POST:/api/dms/master-table/record/page
+         */
+        postDmsMasterTableRecordPage: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/record/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableRecordPageNonpermission
+         * @request POST:/api/dms/master-table/record/page/nonPermission
+         */
+        postDmsMasterTableRecordPageNonpermission: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/record/page/nonPermission`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableRecordImport
+         * @summary Upload json for import data into a master table
+         * @request POST:/api/dms/master-table/record/import
+         */
+        postDmsMasterTableRecordImport: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/record/import`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableRecordImportFile
+         * @summary Upload .csv file for import data into a master table
+         * @request POST:/api/dms/master-table/record/import/file
+         */
+        postDmsMasterTableRecordImportFile: (
+            query: {
+                /** @format binary */
+                file: File;
+                id: string;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                id?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/record/import/file`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTablePage
+         * @summary Pagination search (Master Table)
+         * @request POST:/api/dms/master-table/page
+         */
+        postDmsMasterTablePage: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableLogs
+         * @summary Pagination Search (Audit Logs of master table)
+         * @request POST:/api/dms/master-table/logs
+         */
+        postDmsMasterTableLogs: (data: MTAuditLogRequestDTO, params: RequestParams = {}) =>
+            this.request<
+                ResultPaginationDTOAuditTemplateResponseExtendDTO,
+                Result | (ResultObject | Result | ResultString)
+            >({
+                path: `/dms/master-table/logs`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableLogsPageConditions
+         * @request POST:/api/dms/master-table/logs/page/conditions
+         */
+        postDmsMasterTableLogsPageConditions: (data: MTAuditLogRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/logs/page/conditions`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableInit
+         * @request POST:/api/dms/master-table/init
+         */
+        postDmsMasterTableInit: (params: RequestParams = {}) =>
+            this.request<void, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/init`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableFields
+         * @summary Add multiple fields to master table
+         * @request POST:/api/dms/master-table/fields
+         */
+        postDmsMasterTableFields: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/fields`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableColumnAdd
+         * @summary For master table adding column
+         * @request POST:/api/dms/master-table/column/add
+         */
+        postDmsMasterTableColumnAdd: (data: MTAddColumnRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/column/add`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableBatchDelete
+         * @summary delete master table record
+         * @request POST:/api/dms/master-table/batch/delete
+         */
+        postDmsMasterTableBatchDelete: (data: DeleteMTRecordRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/batch/delete`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableAclsRemove
+         * @summary Remove permission of current master table
+         * @request POST:/api/dms/master-table/acls/remove
+         */
+        postDmsMasterTableAclsRemove: (data: MTPermissionDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/acls/remove`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableAclsUpdate
+         * @summary Remove permission of current master table
+         * @request POST:/api/dms/master-table/acls/update
+         */
+        postDmsMasterTableAclsUpdate: (data: MTPermissionDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/acls/update`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableAclsDelete
+         * @summary Delete permission of current master table
+         * @request POST:/api/dms/master-table/acls/delete
+         */
+        postDmsMasterTableAclsDelete: (data: MTPermissionDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/acls/delete`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostDmsMasterTableAclsAdd
+         * @summary Add permission of current master table
+         * @request POST:/api/dms/master-table/acls/add
+         */
+        postDmsMasterTableAclsAdd: (data: MTPermissionDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/acls/add`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name GetDmsEasyForm
+         * @summary Query form design
+         * @request GET:/api/dms/easy-form
+         */
+        getDmsEasyForm: (
+            query?: {
+                name?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PostDmsEasyForm
+         * @summary Create a form design
+         * @request POST:/api/dms/easy-form
+         */
+        postDmsEasyForm: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name DeleteDmsEasyForm
+         * @request DELETE:/api/dms/easy-form
+         */
+        deleteDmsEasyForm: (
+            query: {
+                tableName: string;
+                caseId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<JsonNode, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PostDmsEasyFormSubmitData
+         * @summary Submit form data
+         * @request POST:/api/dms/easy-form/submit/data
+         */
+        postDmsEasyFormSubmitData: (data: FormDesignDataDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/submit/data`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PostDmsEasyFormSavePreview
+         * @summary Save preview style
+         * @request POST:/api/dms/easy-form/save/preview
+         */
+        postDmsEasyFormSavePreview: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/save/preview`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PostDmsEasyFormSavePermission
+         * @summary Save Permission
+         * @request POST:/api/dms/easy-form/save/permission
+         */
+        postDmsEasyFormSavePermission: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/save/permission`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PostDmsEasyFormSaveInformation
+         * @summary Save information
+         * @request POST:/api/dms/easy-form/save/information
+         */
+        postDmsEasyFormSaveInformation: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/save/information`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PostDmsEasyFormSaveFormresult
+         * @summary Save Form Result
+         * @request POST:/api/dms/easy-form/save/formResult
+         */
+        postDmsEasyFormSaveFormresult: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/save/formResult`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PostDmsEasyFormSaveFormresultAppend
+         * @request POST:/api/dms/easy-form/save/formResult/append
+         */
+        postDmsEasyFormSaveFormresultAppend: (data: EasyFormResultRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultEasyFormResult, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/save/formResult/append`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PostDmsEasyFormRecords
+         * @request POST:/api/dms/easy-form/records
+         */
+        postDmsEasyFormRecords: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListLinkedHashMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/records`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PostDmsEasyFormRecordPage
+         * @summary Paging search form data
+         * @request POST:/api/dms/easy-form/record/page
+         */
+        postDmsEasyFormRecordPage: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/record/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PostDmsEasyFormPublish
+         * @summary Publish Form Design
+         * @request POST:/api/dms/easy-form/publish
+         */
+        postDmsEasyFormPublish: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/publish`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PostDmsEasyFormPage
+         * @summary Paging query form design list
+         * @request POST:/api/dms/easy-form/page
+         */
+        postDmsEasyFormPage: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PostDmsEasyFormEmailSend
+         * @request POST:/api/dms/easy-form/email/send
+         */
+        postDmsEasyFormEmailSend: (data: EasyFormEmailDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/email/send`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PostDmsEasyFormEmailLogPage
+         * @request POST:/api/dms/easy-form/email-log/page
+         */
+        postDmsEasyFormEmailLogPage: (data: EasyFormEmailQueryRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOEasyFormEmailLogDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/email-log/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Create a new contact group with the specified information
+         *
+         * @tags ContactController
+         * @name PostDmsContactGroup
+         * @summary Create a new contact group
+         * @request POST:/api/dms/contact-group
+         */
+        postDmsContactGroup: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostDmsContactGroupIdPermission
+         * @summary Add the contact permission
+         * @request POST:/api/dms/contact-group/{id}/permission
+         */
+        postDmsContactGroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
+            this.request<ResultListBasicField, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}/permission`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PatchDmsContactGroupIdPermission
+         * @summary Remove the contact permission
+         * @request PATCH:/api/dms/contact-group/{id}/permission
+         */
+        patchDmsContactGroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
+            this.request<ResultListBasicField, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}/permission`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostDmsContactGroupIdNewfields
+         * @summary Add new field to contact Group
+         * @request POST:/api/dms/contact-group/{id}/newFields
+         */
+        postDmsContactGroupIdNewfields: (id: string, data: ContactAttribute, params: RequestParams = {}) =>
+            this.request<ResultListContactAttribute, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}/newFields`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostDmsContactGroupIdContactdetail
+         * @summary Adding a new contact record
+         * @request POST:/api/dms/contact-group/{id}/contactDetail
+         */
+        postDmsContactGroupIdContactdetail: (id: string, data: Record<string, object>, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}/contactDetail`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostDmsContactGroupIdContactdetailPage
+         * @summary Page query contact detail list
+         * @request POST:/api/dms/contact-group/{id}/contactDetail/page
+         */
+        postDmsContactGroupIdContactdetailPage: (
+            id: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPaginationDTOMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}/contactDetail/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Import contacts from Excel or CSV file into the specified contact group
+         *
+         * @tags ContactController
+         * @name PostDmsContactGroupIdContactdetailImport
+         * @summary Import contacts from file
+         * @request POST:/api/dms/contact-group/{id}/contactDetail/import
+         */
+        postDmsContactGroupIdContactdetailImport: (
+            id: string,
+            query: {
+                requestDTO: ContactImportRequestDTO;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format Boolean */
+                replace?: replace;
+                /**
+                 * @format object string
+                 * @example {"name":"username","email":"email","description":"notes"}
+                 */
+                columns?: map;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultImportResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}/contactDetail/import`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostDmsContactGroupIdContactdetailExport
+         * @summary Export contact record for file type include excel, csv, vcf
+         * @request POST:/api/dms/contact-group/{id}/contactDetail/export
+         */
+        postDmsContactGroupIdContactdetailExport: (
+            id: string,
+            query: {
+                /** File Type */
+                fileType: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}/contactDetail/export`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostDmsContactGroupReadTitle
+         * @summary Get header list through read the file
+         * @request POST:/api/dms/contact-group/read/title
+         */
+        postDmsContactGroupReadTitle: (
+            data: {
+                /** @format binary */
+                file?: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringInteger, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/read/title`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostDmsContactGroupPage
+         * @summary Page query contact group
+         * @request POST:/api/dms/contact-group/page
+         */
+        postDmsContactGroupPage: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name GetDmsContactGroupList
+         * @summary Query all contact group without filter condition
+         * @request GET:/api/dms/contact-group/list
+         */
+        getDmsContactGroupList: (params: RequestParams = {}) =>
+            this.request<ResultListContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostDmsContactGroupList
+         * @summary Query all contact group without filter condition
+         * @request POST:/api/dms/contact-group/list
+         */
+        postDmsContactGroupList: (
+            query: {
+                requestDTO: ContactGroupRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/list`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name GetDmsCalendarsWidgetSetting
+         * @summary Obtain calendar widget settings
+         * @request GET:/api/dms/calendars/widget/setting
+         */
+        getDmsCalendarsWidgetSetting: (params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/widget/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name PostDmsCalendarsWidgetSetting
+         * @summary Save calendar settings
+         * @request POST:/api/dms/calendars/widget/setting
+         */
+        postDmsCalendarsWidgetSetting: (data: Record<string, object>, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/widget/setting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name PostDmsCalendarsValidate
+         * @request POST:/api/dms/calendars/validate
+         */
+        postDmsCalendarsValidate: (params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/validate`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name GetDmsCalendarsSetting
+         * @summary Obtain calendar settings
+         * @request GET:/api/dms/calendars/setting
+         */
+        getDmsCalendarsSetting: (params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name PostDmsCalendarsSetting
+         * @summary Save calendar settings
+         * @request POST:/api/dms/calendars/setting
+         */
+        postDmsCalendarsSetting: (data: Record<string, object>, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/setting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name PostDmsCalendarsList
+         * @summary Query list
+         * @request POST:/api/dms/calendars/list
+         */
+        postDmsCalendarsList: (data: CalendarTaskReq, params: RequestParams = {}) =>
+            this.request<ResultListCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name PostDmsCalendarsEventSetting
+         * @summary Create Event Calendar Setting
+         * @request POST:/api/dms/calendars/event/setting
+         */
+        postDmsCalendarsEventSetting: (data: EventCalendarSetting, params: RequestParams = {}) =>
+            this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/event/setting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name PostDmsCalendarsEventSettingPage
+         * @summary Paging query Event Calendar Settings
+         * @request POST:/api/dms/calendars/event/setting/page
+         */
+        postDmsCalendarsEventSettingPage: (data: BasePageRequest, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/event/setting/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name PostDmsCabinetVerificationComplete
+         * @summary verification complete of folder cabinet
+         * @request POST:/api/dms/cabinet/verification/complete
+         */
+        postDmsCabinetVerificationComplete: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultDocFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/verification/complete`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name PostDmsCabinetUploadFile
+         * @summary Upload file of folder cabinet
+         * @request POST:/api/dms/cabinet/upload/file
+         */
+        postDmsCabinetUploadFile: (
+            data: {
+                id: string;
+                path: string;
+                documentType: string;
+                /** @format binary */
+                file: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/upload/file`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name PostDmsCabinetTemplate
+         * @summary create folder cabinet template
+         * @request POST:/api/dms/cabinet/template
+         */
+        postDmsCabinetTemplate: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/template`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name PatchDmsCabinetTemplate
+         * @summary Modify folder/file into exist folder cabinet template
+         * @request PATCH:/api/dms/cabinet/template
+         */
+        patchDmsCabinetTemplate: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/template`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetTemplatePermission
+         * @request GET:/api/dms/cabinet/template/permission
+         */
+        getDmsCabinetTemplatePermission: (
+            query: {
+                id: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListDocumentACLEntryDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/template/permission`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name PostDmsCabinetTemplatePermission
+         * @summary Add permission for folder cabinet template
+         * @request POST:/api/dms/cabinet/template/permission
+         */
+        postDmsCabinetTemplatePermission: (data: DocumentACLEntryDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/template/permission`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name DeleteDmsCabinetTemplatePermission
+         * @summary Delete permission from folder cabinet template
+         * @request DELETE:/api/dms/cabinet/template/permission
+         */
+        deleteDmsCabinetTemplatePermission: (
+            query: {
+                id: string;
+                userId: string;
+                permission?: string;
+            },
+            data: any,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/template/permission`,
+                method: "DELETE",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name PostDmsCabinetTemplatePage
+         * @summary Pagination search folder cabinet
+         * @request POST:/api/dms/cabinet/template/page
+         */
+        postDmsCabinetTemplatePage: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/template/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name PostDmsCabinetTemplateDuplicateName
+         * @summary Checking duplicate name
+         * @request POST:/api/dms/cabinet/template/duplicate/name
+         */
+        postDmsCabinetTemplateDuplicateName: (data: FolderCabinet, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/template/duplicate/name`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name PostDmsCabinetPage
+         * @summary Pagination search of document folder cabinet
+         * @request POST:/api/dms/cabinet/page
+         */
+        postDmsCabinetPage: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name PostDmsCabinetItem
+         * @summary New Item
+         * @request POST:/api/dms/cabinet/item
+         */
+        postDmsCabinetItem: (data: DFCRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultDocumentFolderCabinet, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/item`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name PostDmsCabinetImport
+         * @summary Import a folder cabinet
+         * @request POST:/api/dms/cabinet/import
+         */
+        postDmsCabinetImport: (
+            query: {
+                documentPath: string;
+                /** @format binary */
+                multipartFile: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultFolderCabinet, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/import`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name PostDmsCabinetGenerateDocument
+         * @request POST:/api/dms/cabinet/generate/document
+         */
+        postDmsCabinetGenerateDocument: (
+            query: {
+                processDefinitionKey: string;
+            },
+            data: FilingDocumentPreviewReq,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/generate/document`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name PostDmsCabinetExport
+         * @request POST:/api/dms/cabinet/export
+         */
+        postDmsCabinetExport: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
+            this.request<void, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/export`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name PostDmsCabinetExporttojson
+         * @summary Export a folder cabinet
+         * @request POST:/api/dms/cabinet/exportToJson
+         */
+        postDmsCabinetExporttojson: (
+            query: {
+                folderCabinetId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/exportToJson`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name PostDmsCabinetCreate
+         * @summary Create Top folder cabinet
+         * @request POST:/api/dms/cabinet/create
+         */
+        postDmsCabinetCreate: (data: DFCRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/create`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18413,9 +20900,838 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/clearUpExpiredDocument
          */
         postClearupexpireddocument: (params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/clearUpExpiredDocument`,
                 method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypesIdPublish
+         * @summary Publish CMMN file to workflow application
+         * @request POST:/api/case/types/{id}/publish
+         * @deprecated
+         */
+        postCaseTypesIdPublish: (
+            id: string,
+            data: {
+                /**
+                 * CMMN XML file
+                 * @format binary
+                 */
+                file?: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${id}/publish`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypesIdDraftSave
+         * @summary Save draft cmmn xml
+         * @request POST:/api/case/types/{id}/draft/save
+         */
+        postCaseTypesIdDraftSave: (
+            id: string,
+            query: {
+                /** @format binary */
+                file: File;
+            },
+            data: {
+                /**
+                 * this is a .xml file
+                 * @format binary
+                 */
+                file?: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCaseModelDraft, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${id}/draft/save`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypesIdDownloadDraft
+         * @summary Download draft cmmn xml (case model definition)
+         * @request POST:/api/case/types/{id}/download/draft
+         */
+        postCaseTypesIdDownloadDraft: (id: string, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${id}/download/draft`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypesIdDraftDownload
+         * @summary Download draft cmmn xml (case model definition)
+         * @request POST:/api/case/types/{id}/draft/download
+         */
+        postCaseTypesIdDraftDownload: (id: string, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${id}/draft/download`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypesIdCopy
+         * @summary New Case for new case type
+         * @request POST:/api/case/types/{id}/copy
+         */
+        postCaseTypesIdCopy: (id: string, data: CopyCaseTypeRequest, params: RequestParams = {}) =>
+            this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${id}/copy`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypesCasetypeidRecordsPageundefined
+         * @summary Pagination Search data of deployed case type
+         * @request POST:/api/case/types/{caseTypeId}/records/page
+         */
+        postCaseTypesCasetypeidRecordsPageundefined: (
+            caseTypeId: string,
+            data: CmmnDashboardRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${caseTypeId}/records/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypesVersionVersionidRefresh
+         * @request POST:/api/case/types/version/{versionId}/refresh
+         */
+        postCaseTypesVersionVersionidRefresh: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/version/${versionId}/refresh`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypesVersionVersionidNew
+         * @summary Create a new version of case type
+         * @request POST:/api/case/types/version/{versionId}/new
+         */
+        postCaseTypesVersionVersionidNew: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultCmmnVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/version/${versionId}/new`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypesVersionVersionidActive
+         * @summary Deploy a version case type
+         * @request POST:/api/case/types/version/{versionId}/active
+         */
+        postCaseTypesVersionVersionidActive: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/version/${versionId}/active`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypesVersionPage
+         * @summary Paging query case-model version
+         * @request POST:/api/case/types/version/page
+         */
+        postCaseTypesVersionPage: (data: CmmnVersionRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOCmmnVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/version/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypesTablePageundefined
+         * @summary Paging query of a case table
+         * @request POST:/api/case/types/table/page
+         */
+        postCaseTypesTablePageundefined: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/table/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypesStylejsonSave
+         * @summary Save style json of cmmn xml
+         * @request POST:/api/case/types/styleJson/save
+         */
+        postCaseTypesStylejsonSave: (data: CmmnVersionRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCmmnVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/styleJson/save`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypesRefresh
+         * @request POST:/api/case/types/refresh
+         */
+        postCaseTypesRefresh: (
+            query: {
+                id: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/refresh`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypesRecordsListundefined
+         * @summary Get all case instance data of deployed case type without permission
+         * @request POST:/api/case/types/records/list
+         */
+        postCaseTypesRecordsListundefined: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListLinkedHashMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/records/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypesPageundefined
+         * @summary Pagination search
+         * @request POST:/api/case/types/page
+         */
+        postCaseTypesPageundefined: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOCaseType, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostCaseTypesListundefined
+         * @summary Retrieve case list through the list of case id
+         * @request POST:/api/case/types/list
+         */
+        postCaseTypesListundefined: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name GetCaseTables
+         * @summary Retrieve all case tables
+         * @request GET:/api/case/tables
+         */
+        getCaseTables: (params: RequestParams = {}) =>
+            this.request<ResultListCaseTable, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/tables`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name PostCaseTables
+         * @summary Create (Case Table)
+         * @request POST:/api/case/tables
+         */
+        postCaseTables: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCaseTable, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/tables`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name PostCaseTablesIdField
+         * @summary Add single field to Case Table
+         * @request POST:/api/case/tables/{id}/field
+         */
+        postCaseTablesIdField: (id: string, data: MTFieldInfo, params: RequestParams = {}) =>
+            this.request<ResultCaseTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/tables/${id}/field`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name DeleteCaseTablesIdField
+         * @summary Delete field when not data (Case Table)
+         * @request DELETE:/api/case/tables/{id}/field
+         */
+        deleteCaseTablesIdField: (
+            id: string,
+            query: {
+                columnName: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/tables/${id}/field`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name PostCaseTablesRecord
+         * @summary Insert data into a Case Table
+         * @request POST:/api/case/tables/record
+         */
+        postCaseTablesRecord: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/tables/record`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name PostCaseTablesRecordPage
+         * @summary Pagination Search (Case Table Record)
+         * @request POST:/api/case/tables/record/page
+         */
+        postCaseTablesRecordPage: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/tables/record/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseModeController
+         * @name GetCaseInstanceCaseinstanceidVariablesundefined
+         * @request GET:/api/case/instance/{caseInstanceId}/variables
+         */
+        getCaseInstanceCaseinstanceidVariablesundefined: (caseInstanceId: string, params: RequestParams = {}) =>
+            this.request<Record<string, object>, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/${caseInstanceId}/variables`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseModeController
+         * @name PostCaseInstanceCaseinstanceidVariablesundefined
+         * @request POST:/api/case/instance/{caseInstanceId}/variables
+         */
+        postCaseInstanceCaseinstanceidVariablesundefined: (
+            caseInstanceId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<Record<string, object>, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/${caseInstanceId}/variables`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostCaseInstanceTypesRecordsList
+         * @summary Get all case instance data of deployed case type without permission
+         * @request POST:/api/case/instance/types/records/list
+         */
+        postCaseInstanceTypesRecordsList: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListLinkedHashMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/types/records/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostCaseInstanceTriggerEventundefined
+         * @summary Trigger event for completed
+         * @request POST:/api/case/instance/trigger/event
+         */
+        postCaseInstanceTriggerEventundefined: (data: CmmnTriggerEventReqDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/trigger/event`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostCaseInstanceTasksundefined
+         * @summary Retrieve all tasks of this case instance
+         * @request POST:/api/case/instance/tasks
+         */
+        postCaseInstanceTasksundefined: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
+            this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/tasks`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostCaseInstanceTasksCompleteundefined
+         * @summary Complete task
+         * @request POST:/api/case/instance/tasks/complete
+         */
+        postCaseInstanceTasksCompleteundefined: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/tasks/complete`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostCaseInstanceSubmitStartundefined
+         * @request POST:/api/case/instance/submit-start
+         */
+        postCaseInstanceSubmitStartundefined: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/submit-start`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostCaseInstanceStartundefined
+         * @summary Start a case model definition to get a case instance
+         * @request POST:/api/case/instance/start
+         */
+        postCaseInstanceStartundefined: (
+            data: CaseInstanceRequestDTO,
+            query?: {
+                useWorkflow?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/start`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostCaseInstanceStartImportundefined
+         * @summary Import an Excel file to start case instances
+         * @request POST:/api/case/instance/start/import
+         */
+        postCaseInstanceStartImportundefined: (
+            query: {
+                /** @format binary */
+                file: File;
+                caseTypeId?: string;
+                versionNumber?: string;
+                cmmnVersionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCaseImportResponse, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/start/import`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostCaseInstanceProcessStartundefined
+         * @summary Starting a sub-process of case instance
+         * @request POST:/api/case/instance/process/start
+         */
+        postCaseInstanceProcessStartundefined: (data: PlanItemInstanceRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/process/start`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostCaseInstancePlanitemsundefined
+         * @summary Retrieve all or activated planItem instances of this case instance
+         * @request POST:/api/case/instance/planItems
+         */
+        postCaseInstancePlanitemsundefined: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/planItems`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseModeController
+         * @name PostCaseInstancePlanitemsPlanitemidEnableundefined
+         * @summary Enable plan item instance
+         * @request POST:/api/case/instance/planItems/{planItemId}/enable
+         */
+        postCaseInstancePlanitemsPlanitemidEnableundefined: (planItemId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/planItems/${planItemId}/enable`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseModeController
+         * @name PostCaseInstancePlanitemsCompleteundefined
+         * @summary Submit form data for complete plan item instance
+         * @request POST:/api/case/instance/planItems/complete
+         */
+        postCaseInstancePlanitemsCompleteundefined: (data: PlanItemInstanceRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/planItems/complete`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostCaseInstancePlanitemsActiveundefined
+         * @summary Active a planItem instance
+         * @request POST:/api/case/instance/planItems/active
+         */
+        postCaseInstancePlanitemsActiveundefined: (data: PlanItemInstanceRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/planItems/active`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostCaseInstanceInstancePlanitems
+         * @summary Retrieve all or activated planItem instances of this case instance
+         * @request POST:/api/case/instance/instance/planItems
+         */
+        postCaseInstanceInstancePlanitems: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/instance/planItems`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostCaseInstanceInstancePlanitemsPlanitemidEnable
+         * @summary Enable plan item instance
+         * @request POST:/api/case/instance/instance/planItems/{planItemId}/enable
+         */
+        postCaseInstanceInstancePlanitemsPlanitemidEnable: (planItemId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/instance/planItems/${planItemId}/enable`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostCaseInstanceInstancePlanitemsComplete
+         * @summary Complete PlanItem instance
+         * @request POST:/api/case/instance/instance/planItems/complete
+         */
+        postCaseInstanceInstancePlanitemsComplete: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/instance/planItems/complete`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostCaseInstanceAuditlogundefined
+         * @summary Obtain Audit Log of a case instance
+         * @request POST:/api/case/instance/auditLog
+         */
+        postCaseInstanceAuditlogundefined: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOAuditTemplateDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/auditLog`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name PostCaseDashboardSaveStyle
+         * @summary Save dashboard Json
+         * @request POST:/api/case/dashboard/save/style
+         */
+        postCaseDashboardSaveStyle: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCmmnDashboard, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/save/style`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name PostCaseDashboardPageundefined
+         * @summary Pagination search (Case Dashboard)
+         * @request POST:/api/case/dashboard/page
+         */
+        postCaseDashboardPageundefined: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name PostCaseDashboardInstanceCaseidProcessInstanceTasks
+         * @summary Query sub-process tasks of this case instance
+         * @request POST:/api/case/dashboard/instance/{caseId}/process/instance/tasks
+         */
+        postCaseDashboardInstanceCaseidProcessInstanceTasks: (
+            caseId: string,
+            data: CmmnProcessRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPaginationDTOTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/instance/${caseId}/process/instance/tasks`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name PostCaseDashboardInstanceCaseidProcessInstancePageundefined
+         * @summary Paging search process instance of this case instance
+         * @request POST:/api/case/dashboard/instance/{caseId}/process/instance/page
+         */
+        postCaseDashboardInstanceCaseidProcessInstancePageundefined: (
+            caseId: string,
+            data: CmmnProcessRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPaginationDTOCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/instance/${caseId}/process/instance/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name PostCaseDashboardInstanceActionPreRequisiteundefined
+         * @summary Get Pre-requisite of planItem instance,
+         * @request POST:/api/case/dashboard/instance/action/pre-requisite
+         */
+        postCaseDashboardInstanceActionPreRequisiteundefined: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/instance/action/pre-requisite`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name PostCaseDashboardCasetypeCasetypeidRecordsPageundefined
+         * @summary Paging Query instance data for deployed case types for the currently logged in user
+         * @request POST:/api/case/dashboard/caseType/{caseTypeId}/records/page
+         */
+        postCaseDashboardCasetypeCasetypeidRecordsPageundefined: (
+            caseTypeId: string,
+            data: CmmnDashboardRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/caseType/${caseTypeId}/records/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
@@ -18428,7 +21744,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/block/permission
          */
         postBlockPermission: (data: BlockInheritedPermission, params: RequestParams = {}) =>
-            this.request<ResultBlockInheritedPermission, ResultString | (ResultString | Result)>({
+            this.request<ResultBlockInheritedPermission, Result | (ResultObject | Result | ResultString)>({
                 path: `/block/permission`,
                 method: "POST",
                 body: data,
@@ -18445,7 +21761,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/block/permission/filter
          */
         postBlockPermissionFilter: (data: DocDTO, params: RequestParams = {}) =>
-            this.request<ResultListDocDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/block/permission/filter`,
                 method: "POST",
                 body: data,
@@ -18461,7 +21777,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/ai/document-classification
          */
         postAiDocumentClassification: (data: DocumentClassificationRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentClassificationResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentClassificationResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/ai/document-classification`,
                 method: "POST",
                 body: data,
@@ -18477,7 +21793,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/ai/ask_ai/ai_chat/askQuestion
          */
         postAiAskAiAiChatAskquestion: (data: AiSearchRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultAiChatAnswerResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultAiChatAnswerResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/ai/ask_ai/ai_chat/askQuestion`,
                 method: "POST",
                 body: data,
@@ -18493,7 +21809,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/ai/ask_ai/ai_chat/addAiComment
          */
         postAiAskAiAiChatAddaicomment: (data: AddAiCommentRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/ai/ask_ai/ai_chat/addAiComment`,
                 method: "POST",
                 body: data,
@@ -18510,7 +21826,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PATCH:/api/permissions/update/entry
          */
         patchPermissionsUpdateEntry: (data: AclPermissionDTO, params: RequestParams = {}) =>
-            this.request<ResultAclPermissionDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultAclPermissionDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/permissions/update/entry`,
                 method: "PATCH",
                 body: data,
@@ -18526,7 +21842,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PATCH:/api/password/update-password
          */
         patchPasswordUpdatePassword: (data: UpdatePasswordDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/password/update-password`,
                 method: "PATCH",
                 body: data,
@@ -18542,7 +21858,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/nuxeo/share
          */
         deleteNuxeoShare: (data: string[], params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/share`,
                 method: "DELETE",
                 body: data,
@@ -18558,7 +21874,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PATCH:/api/nuxeo/share
          */
         patchNuxeoShare: (data: ShareSaveRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultEasyShareDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/share`,
                 method: "PATCH",
                 body: data,
@@ -18569,12 +21885,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PatchNuxeoDocumentUpdateaidocument
          * @request PATCH:/api/nuxeo/document/updateAiDocument
          */
         patchNuxeoDocumentUpdateaidocument: (data: UpdateAiDocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/updateAiDocument`,
                 method: "PATCH",
                 body: data,
@@ -18585,7 +21901,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PatchNuxeoDocumentReplacefile
          * @summary Replace document FILE Content
          * @request PATCH:/api/nuxeo/document/replaceFile
@@ -18605,7 +21921,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/replaceFile`,
                 method: "PATCH",
                 query: query,
@@ -18617,7 +21933,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PatchNuxeoDocumentReplacefileV2
          * @summary Replace document FILE Content
          * @request PATCH:/api/nuxeo/document/replaceFile/v2
@@ -18637,7 +21953,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/replaceFile/v2`,
                 method: "PATCH",
                 query: query,
@@ -18649,13 +21965,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name PatchNuxeoDocumentChangeType
          * @summary Change docpal type of document
          * @request PATCH:/api/nuxeo/document/change/docpal/type
          */
         patchNuxeoDocumentChangeType: (data: DocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/change/docpal/type`,
                 method: "PATCH",
                 body: data,
@@ -18672,7 +21988,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PATCH:/api/nuxeo/comments/update/
          */
         patchNuxeoCommentsUpdateDeprecate: (data: CommentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/comments/update/`,
                 method: "PATCH",
                 body: data,
@@ -18689,7 +22005,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PATCH:/api/nuxeo/comments/update
          */
         patchNuxeoCommentsUpdate: (data: CommentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/comments/update`,
                 method: "PATCH",
                 body: data,
@@ -18705,8 +22021,25 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PATCH:/api/file/updateAiDocument
          */
         patchFileUpdateaidocument: (data: UpdateAiDocumentRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/file/updateAiDocument`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name PatchEventCalendarsSettingIdStatus
+         * @summary Update Event Calendar Setting Status
+         * @request PATCH:/api/event/calendars/setting/{id}/status
+         */
+        patchEventCalendarsSettingIdStatus: (id: string, data: StatusRequest, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/event/calendars/setting/${id}/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -18727,7 +22060,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/comment/`,
                 method: "DELETE",
                 query: query,
@@ -18749,7 +22082,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/comment/`,
                 method: "PATCH",
                 query: query,
@@ -18770,7 +22103,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/comment`,
                 method: "DELETE",
                 query: query,
@@ -18792,7 +22125,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/comment`,
                 method: "PATCH",
                 query: query,
@@ -18808,7 +22141,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request PATCH:/api/docpal/watermark/templates/
          */
         patchWatermarkTemplatesDeprecate: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultWMKTemplateRequestDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/watermark/templates/`,
                 method: "PATCH",
                 body: data,
@@ -18824,8 +22157,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @summary Update status through id
          * @request PATCH:/api/docpal/policy/retentions/{id}/status/{status}
          */
-        patchPolicyRetentionsIdStatusStatus: (id: number, status: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+        patchPolicyRetentionsIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/${id}/status/${status}`,
                 method: "PATCH",
                 ...params,
@@ -18839,8 +22172,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @summary Approval retention policy document
          * @request PATCH:/api/docpal/policy/retentions/{id}/approval/{approved}
          */
-        patchPolicyRetentionsIdApprovalApproved: (id: number, approved: boolean, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+        patchPolicyRetentionsIdApprovalApproved: (id: string, approved: boolean, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/${id}/approval/${approved}`,
                 method: "PATCH",
                 ...params,
@@ -18849,13 +22182,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags PolicyDocumentController
+         * @tags HoldDocumentController
          * @name PatchPolicyDocumentsIdStatusStatus
          * @summary submit approved comment
          * @request PATCH:/api/docpal/policy/documents/{id}/status/{status}
          */
-        patchPolicyDocumentsIdStatusStatus: (id: number, status: boolean, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+        patchPolicyDocumentsIdStatusStatus: (id: string, status: boolean, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/documents/${id}/status/${status}`,
                 method: "PATCH",
                 ...params,
@@ -18867,9 +22200,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags MasterTableController
          * @name PatchMasterTablesIdBatchRecordStatus
          * @request PATCH:/api/docpal/master/tables/{id}/batch/record/status
+         * @deprecated
          */
         patchMasterTablesIdBatchRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/${id}/batch/record/status`,
                 method: "PATCH",
                 body: data,
@@ -18883,13 +22217,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags MasterTableController
          * @name PatchMasterTablesForAdminIdBatchRecordStatus
          * @request PATCH:/api/docpal/master/tables/for_admin/{id}/batch/record/status
+         * @deprecated
          */
         patchMasterTablesForAdminIdBatchRecordStatus: (
             id: string,
             data: MTRecordRequestDTO,
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/for_admin/${id}/batch/record/status`,
                 method: "PATCH",
                 body: data,
@@ -18900,17 +22235,68 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
+         * @tags FormDesignController
+         * @name PatchFormDesignName
+         * @summary Update name of form design
+         * @request PATCH:/api/docpal/form/design/name
+         * @deprecated
+         */
+        patchFormDesignName: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design/name`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PatchFormDesignEnableId
+         * @summary Enable a form design
+         * @request PATCH:/api/docpal/form/design/enable/{id}
+         * @deprecated
+         */
+        patchFormDesignEnableId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design/enable/${id}`,
+                method: "PATCH",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PatchFormDesignDisableId
+         * @summary Disable a form design
+         * @request PATCH:/api/docpal/form/design/disable/{id}
+         * @deprecated
+         */
+        patchFormDesignDisableId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design/disable/${id}`,
+                method: "PATCH",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags CaseInstanceController
          * @name PatchCaseInstanceCaseidCaseidUpdateinformation
          * @summary Update case information
          * @request PATCH:/api/docpal/case/instance/caseId/{caseId}/updateInformation
+         * @deprecated
          */
         patchCaseInstanceCaseidCaseidUpdateinformation: (
             caseId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/caseId/${caseId}/updateInformation`,
                 method: "PATCH",
                 body: data,
@@ -18921,13 +22307,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags TaskController
+         * @tags CalendarController
          * @name PatchCalendarsIdStatusStatus
          * @summary Modify status by id
          * @request PATCH:/api/docpal/calendars/{id}/status/{status}
+         * @deprecated
          */
         patchCalendarsIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/calendars/${id}/status/${status}`,
                 method: "PATCH",
                 ...params,
@@ -18940,10 +22327,220 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PatchCabinet
          * @summary Update Document Folder Cabinet
          * @request PATCH:/api/docpal/cabinet
+         * @deprecated
          */
         patchCabinet: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocFolderCabinetResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PatchDmsMasterTableIdBatchRecordStatus
+         * @request PATCH:/api/dms/master-table/{id}/batch/record/status
+         */
+        patchDmsMasterTableIdBatchRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}/batch/record/status`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PatchDmsEasyFormName
+         * @summary Update name of form design
+         * @request PATCH:/api/dms/easy-form/name
+         */
+        patchDmsEasyFormName: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/name`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PatchDmsEasyFormEnableId
+         * @summary Enable a form design
+         * @request PATCH:/api/dms/easy-form/enable/{id}
+         */
+        patchDmsEasyFormEnableId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/enable/${id}`,
+                method: "PATCH",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name PatchDmsEasyFormDisableId
+         * @summary Disable a form design
+         * @request PATCH:/api/dms/easy-form/disable/{id}
+         */
+        patchDmsEasyFormDisableId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/disable/${id}`,
+                method: "PATCH",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name PatchDmsCalendarsIdStatusStatus
+         * @summary Modify status by id
+         * @request PATCH:/api/dms/calendars/{id}/status/{status}
+         */
+        patchDmsCalendarsIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/${id}/status/${status}`,
+                method: "PATCH",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name PatchDmsCalendarsEventSettingIdStatus
+         * @summary Update Event Calendar Setting Status
+         * @request PATCH:/api/dms/calendars/event/setting/{id}/status
+         */
+        patchDmsCalendarsEventSettingIdStatus: (id: string, data: StatusRequest, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/event/setting/${id}/status`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name PatchDmsCabinet
+         * @summary Update Document Folder Cabinet
+         * @request PATCH:/api/dms/cabinet
+         */
+        patchDmsCabinet: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultDocFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PatchCaseTypesVersionVersionidSave
+         * @summary Edit XML file [cmmn.xml] of version
+         * @request PATCH:/api/case/types/version/{versionId}/save
+         */
+        patchCaseTypesVersionVersionidSave: (
+            versionId: string,
+            query: {
+                /** @format binary */
+                file: File;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCmmnVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/version/${versionId}/save`,
+                method: "PATCH",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PatchCaseTypesVersionVersionidSaveall
+         * @summary [Test API] Save XML file for all version of case definition
+         * @request PATCH:/api/case/types/version/{versionId}/saveAll
+         * @deprecated
+         */
+        patchCaseTypesVersionVersionidSaveall: (
+            versionId: string,
+            query: {
+                /** @format binary */
+                file: File;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/version/${versionId}/saveAll`,
+                method: "PATCH",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name PatchCaseTablesFields
+         * @summary The Case Table has been augmented with the addition of multiple columns.
+         * @request PATCH:/api/case/tables/fields
+         */
+        patchCaseTablesFields: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCaseTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/tables/fields`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PatchCaseInstanceCaseidCaseidUpdateinformationundefined
+         * @summary Update case information
+         * @request PATCH:/api/case/instance/caseId/{caseId}/updateInformation
+         */
+        patchCaseInstanceCaseidCaseidUpdateinformationundefined: (
+            caseId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/caseId/${caseId}/updateInformation`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -18958,7 +22555,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/verification/permission/business/{businessId}
          */
         getVerificationPermissionBusinessBusinessid: (businessId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/verification/permission/business/${businessId}`,
                 method: "GET",
                 ...params,
@@ -18978,7 +22575,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/verification/permission/acl/permission/`,
                 method: "GET",
                 query: query,
@@ -18999,7 +22596,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/verification/permission/acl/permission`,
                 method: "GET",
                 query: query,
@@ -19015,7 +22612,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/userProfile/{userId}/signature/info
          */
         getUserprofileUseridSignatureInfo: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultUserSignature, ResultString | (ResultString | Result)>({
+            this.request<ResultUserSignature, Result | (ResultObject | Result | ResultString)>({
                 path: `/userProfile/${userId}/signature/info`,
                 method: "GET",
                 ...params,
@@ -19030,7 +22627,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/user/permission/{id}
          */
         getUserPermissionId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultAclUserPermission, ResultString | (ResultString | Result)>({
+            this.request<ResultAclUserPermission, Result | (ResultObject | Result | ResultString)>({
                 path: `/user/permission/${id}`,
                 method: "GET",
                 ...params,
@@ -19045,7 +22642,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/user/permission/all/{userId}
          */
         getUserPermissionAllUserid: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultListAclPermissionDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListAclPermissionDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/user/permission/all/${userId}`,
                 method: "GET",
                 ...params,
@@ -19067,7 +22664,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/postgrest/${table}`,
                 method: "GET",
                 query: query,
@@ -19083,7 +22680,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/permissions/{id}
          */
         getPermissionsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultAclPermissionDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultAclPermissionDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/permissions/${id}`,
                 method: "GET",
                 ...params,
@@ -19098,7 +22695,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/permissions/{id}
          */
         deletePermissionsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/permissions/${id}`,
                 method: "DELETE",
                 ...params,
@@ -19113,7 +22710,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/permissions/name/{name}
          */
         getPermissionsNameName: (name: string, params: RequestParams = {}) =>
-            this.request<ResultAclPermissionDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultAclPermissionDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/permissions/name/${name}`,
                 method: "GET",
                 ...params,
@@ -19128,7 +22725,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/permissions/name/{name}
          */
         deletePermissionsNameName: (name: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/permissions/name/${name}`,
                 method: "DELETE",
                 ...params,
@@ -19143,7 +22740,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/permission/users/{id}
          */
         getPermissionUsersId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultAclUserInformation, ResultString | (ResultString | Result)>({
+            this.request<ResultAclUserInformation, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/users/${id}`,
                 method: "GET",
                 ...params,
@@ -19158,7 +22755,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/permission/users/{id}
          */
         deletePermissionUsersId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/users/${id}`,
                 method: "DELETE",
                 ...params,
@@ -19173,7 +22770,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/permission/user/relationships/groupId/{groupId}
          */
         getPermissionUserRelationshipsGroupidGroupid: (groupId: string, params: RequestParams = {}) =>
-            this.request<ResultListAclUserRelationshipWithUserGroup, ResultString | (ResultString | Result)>({
+            this.request<ResultListAclUserRelationshipWithUserGroup, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/user/relationships/groupId/${groupId}`,
                 method: "GET",
                 ...params,
@@ -19188,7 +22785,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/permission/user/group/{id}
          */
         getPermissionUserGroupId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultAclUserGroup, ResultString | (ResultString | Result)>({
+            this.request<ResultAclUserGroup, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/user/group/${id}`,
                 method: "GET",
                 ...params,
@@ -19203,7 +22800,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/permission/user/group/{id}
          */
         deletePermissionUserGroupId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/user/group/${id}`,
                 method: "DELETE",
                 ...params,
@@ -19218,7 +22815,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/permission/user/group/{groupId}/users
          */
         getPermissionUserGroupGroupidUsers: (groupId: string, params: RequestParams = {}) =>
-            this.request<ResultAclUserGroupDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultAclUserGroupDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/user/group/${groupId}/users`,
                 method: "GET",
                 ...params,
@@ -19237,8 +22834,28 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/user/group/groups/all`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AclUserGroupController
+         * @name GetPermissionUserGroupAll
+         * @request GET:/api/permission/user/group/all
+         */
+        getPermissionUserGroupAll: (
+            query: {
+                userId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/permission/user/group/all`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -19253,7 +22870,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/permission/entry/{id}
          */
         getPermissionEntryId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultAccessControlEntry, ResultString | (ResultString | Result)>({
+            this.request<ResultAccessControlEntry, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/entry/${id}`,
                 method: "GET",
                 ...params,
@@ -19268,7 +22885,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/permission/entry/{id}
          */
         deletePermissionEntryId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/permission/entry/${id}`,
                 method: "DELETE",
                 ...params,
@@ -19282,7 +22899,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/password/user-status
          */
         getPasswordUserStatus: (params: RequestParams = {}) =>
-            this.request<ResultUserStatusDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultUserStatusDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/password/user-status`,
                 method: "GET",
                 ...params,
@@ -19296,7 +22913,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/password/has-lock/{userId}
          */
         getPasswordHasLockUserid: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultLockUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/password/has-lock/${userId}`,
                 method: "GET",
                 ...params,
@@ -19310,7 +22927,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/password/config
          */
         getPasswordConfig: (params: RequestParams = {}) =>
-            this.request<ResultPasswordConfigDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPasswordConfigDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/password/config`,
                 method: "GET",
                 ...params,
@@ -19324,7 +22941,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/password/check-old-password/{password}
          */
         getPasswordCheckOldPasswordPassword: (password: string, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/password/check-old-password/${password}`,
                 method: "GET",
                 ...params,
@@ -19344,7 +22961,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultLockUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/password/check-lock-user/${userId}`,
                 method: "GET",
                 query: query,
@@ -19359,38 +22976,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/password/check-expire
          */
         getPasswordCheckExpire: (params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/password/check-expire`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags vocabulary-controller
-         * @name GetNuxeoVocabularyId
-         * @summary Get Vocabulary by id
-         * @request GET:/api/nuxeo/vocabulary/{id}
-         */
-        getNuxeoVocabularyId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultVocabularyDTO, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/vocabulary/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags vocabulary-controller
-         * @name GetNuxeoVocabularyIdDeprecate
-         * @summary Get Vocabulary by id
-         * @request GET:/api/nuxeo/vocabulary/{id}/
-         */
-        getNuxeoVocabularyIdDeprecate: (id: string, params: RequestParams = {}) =>
-            this.request<ResultVocabularyDTO, ResultString | (ResultString | Result)>({
-                path: `/nuxeo/vocabulary/${id}/`,
                 method: "GET",
                 ...params,
             }),
@@ -19404,7 +22991,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/user/{userId}
          */
         getNuxeoUserUserid: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/user/${userId}`,
                 method: "GET",
                 ...params,
@@ -19418,7 +23005,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/user/virtualfolder2/setting
          */
         getNuxeoUserVirtualfolder2Setting: (params: RequestParams = {}) =>
-            this.request<ResultListVirtualFolderSettingResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/user/virtualfolder2/setting`,
                 method: "GET",
                 ...params,
@@ -19433,7 +23020,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @deprecated
          */
         getNuxeoUserVirtualfolderSetting: (params: RequestParams = {}) =>
-            this.request<ResultListVirtualFolderSettingResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/user/virtualfolder/setting`,
                 method: "GET",
                 ...params,
@@ -19447,7 +23034,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/user/virtualfolder/setting/{id}
          */
         getNuxeoUserVirtualfolderSettingId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultVirtualFolderSettingResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/user/virtualfolder/setting/${id}`,
                 method: "GET",
                 ...params,
@@ -19462,7 +23049,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/user/listHeaders
          */
         getNuxeoUserListheaders: (params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/user/listHeaders`,
                 method: "GET",
                 ...params,
@@ -19477,7 +23064,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/user/getApplication
          */
         getNuxeoUserGetapplication: (params: RequestParams = {}) =>
-            this.request<ResultUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/user/getApplication`,
                 method: "GET",
                 ...params,
@@ -19496,7 +23083,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/user/confirmReset`,
                 method: "GET",
                 query: query,
@@ -19512,7 +23099,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/template/{templateId}
          */
         getNuxeoTemplateTemplateid: (templateId: string, params: RequestParams = {}) =>
-            this.request<ResultDocumentTemplate, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentTemplate, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/template/${templateId}`,
                 method: "GET",
                 ...params,
@@ -19527,7 +23114,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/template/all
          */
         getNuxeoTemplateAll: (params: RequestParams = {}) =>
-            this.request<ResultListDocumentTemplate, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentTemplate, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/template/all`,
                 method: "GET",
                 ...params,
@@ -19548,7 +23135,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/share/preview`,
                 method: "GET",
                 query: query,
@@ -19569,7 +23156,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/share/preview/retry`,
                 method: "GET",
                 query: query,
@@ -19585,7 +23172,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/share/prepare/download/{docId}
          */
         getNuxeoSharePrepareDownloadDocid: (docId: string, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/share/prepare/download/${docId}`,
                 method: "GET",
                 ...params,
@@ -19606,7 +23193,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/share/download`,
                 method: "GET",
                 query: query,
@@ -19627,7 +23214,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/share/download/retry`,
                 method: "GET",
                 query: query,
@@ -19649,7 +23236,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListEasyShareDocumentResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListEasyShareDocumentResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/share/documents`,
                 method: "GET",
                 query: query,
@@ -19664,7 +23251,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/sfolder/{id}
          */
         getNuxeoSfolderId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultSmartFolderResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/sfolder/${id}`,
                 method: "GET",
                 ...params,
@@ -19678,7 +23265,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/sfolder/
          */
         getNuxeoSfolderDeprecate: (params: RequestParams = {}) =>
-            this.request<ResultListSmartFolderResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/sfolder/`,
                 method: "GET",
                 ...params,
@@ -19692,7 +23279,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/sfolder
          */
         getNuxeoSfolder: (params: RequestParams = {}) =>
-            this.request<ResultListSmartFolderResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/sfolder`,
                 method: "GET",
                 ...params,
@@ -19706,7 +23293,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/setting/view
          */
         getNuxeoSettingView: (params: RequestParams = {}) =>
-            this.request<ResultViewSettingResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultViewSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/setting/view`,
                 method: "GET",
                 ...params,
@@ -19726,7 +23313,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/search/searchAllParent`,
                 method: "GET",
                 query: query,
@@ -19741,7 +23328,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/search/query_nested_search_log
          */
         getNuxeoSearchQueryNestedSearchLog: (params: RequestParams = {}) =>
-            this.request<ResultListNestedSearchLogRecord, ResultString | (ResultString | Result)>({
+            this.request<ResultListNestedSearchLogRecord, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/search/query_nested_search_log`,
                 method: "GET",
                 ...params,
@@ -19756,7 +23343,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/search/open-search/{documentId}
          */
         getNuxeoSearchOpenSearchDocumentid: (documentId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/search/open-search/${documentId}`,
                 method: "GET",
                 ...params,
@@ -19771,7 +23358,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/search/getExportHeader
          */
         getNuxeoSearchGetexportheader: (params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/search/getExportHeader`,
                 method: "GET",
                 ...params,
@@ -19791,7 +23378,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/public/share/preview`,
                 method: "GET",
                 query: query,
@@ -19812,7 +23399,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/public/share/download`,
                 method: "GET",
                 query: query,
@@ -19834,7 +23421,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultEasyShareDocumentResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultEasyShareDocumentResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/public/share/document/${documentId}`,
                 method: "GET",
                 query: query,
@@ -19856,7 +23443,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultEasyShareDocumentResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultEasyShareDocumentResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/public/document/${documentId}`,
                 method: "GET",
                 query: query,
@@ -19877,7 +23464,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListEasyShareDocumentResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListEasyShareDocumentResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/public/document`,
                 method: "GET",
                 query: query,
@@ -19898,7 +23485,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListEasyShareDocumentResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListEasyShareDocumentResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/public/share/document`,
                 method: "GET",
                 query: query,
@@ -19913,7 +23500,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/mq/streams
          */
         getNuxeoMqStreams: (params: RequestParams = {}) =>
-            this.request<ResultMapStringMQProperties, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringMQProperties, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/mq/streams`,
                 method: "GET",
                 ...params,
@@ -19927,7 +23514,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/job/writeAiTrainingData
          */
         getNuxeoJobWriteaitrainingdata: (params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/job/writeAiTrainingData`,
                 method: "GET",
                 ...params,
@@ -19942,7 +23529,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/identity/user/{userId}/information
          */
         getNuxeoIdentityUserUseridInformation: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultVerifyPermission, ResultString | (ResultString | Result)>({
+            this.request<ResultVerifyPermission, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/user/${userId}/information`,
                 method: "GET",
                 ...params,
@@ -19962,7 +23549,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/getOfficeToken/${id}`,
                 method: "GET",
                 query: query,
@@ -19972,7 +23559,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags File Request Upload (Nuxeo)
+         * @tags Upload Request
          * @name GetNuxeoFilerequestDeprecate
          * @request GET:/api/nuxeo/filerequest/
          */
@@ -19985,7 +23572,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/filerequest/`,
                 method: "GET",
                 query: query,
@@ -19995,7 +23582,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags File Request Upload (Nuxeo)
+         * @tags Upload Request
          * @name DeleteNuxeoFilerequestDeprecate
          * @request DELETE:/api/nuxeo/filerequest/
          */
@@ -20005,7 +23592,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultFileRequestUploadDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultUploadRequestResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/filerequest/`,
                 method: "DELETE",
                 query: query,
@@ -20021,7 +23608,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/extension/subtypes/{docType}/
          */
         getNuxeoExtensionSubtypesDoctypeDeprecate: (docType: string, params: RequestParams = {}) =>
-            this.request<ResultListDocumentType, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentType, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/extension/subtypes/${docType}/`,
                 method: "GET",
                 ...params,
@@ -20036,7 +23623,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/extension/subtypes/{docType}
          */
         getNuxeoExtensionSubtypesDoctype: (docType: string, params: RequestParams = {}) =>
-            this.request<ResultListDocumentType, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentType, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/extension/subtypes/${docType}`,
                 method: "GET",
                 ...params,
@@ -20051,7 +23638,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/extension/domains
          */
         getNuxeoExtensionDomains: (params: RequestParams = {}) =>
-            this.request<ResultListDocumentType, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentType, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/extension/domains`,
                 method: "GET",
                 ...params,
@@ -20066,7 +23653,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/extension/domains/
          */
         getNuxeoExtensionDomainsDeprecate: (params: RequestParams = {}) =>
-            this.request<ResultListDocumentType, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentType, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/extension/domains/`,
                 method: "GET",
                 ...params,
@@ -20081,7 +23668,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/extension/doctypes
          */
         getNuxeoExtensionDoctypes: (params: RequestParams = {}) =>
-            this.request<ResultListDocumentType, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentType, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/extension/doctypes`,
                 method: "GET",
                 ...params,
@@ -20096,7 +23683,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/extension/doctypes/
          */
         getNuxeoExtensionDoctypesDeprecate: (params: RequestParams = {}) =>
-            this.request<ResultListDocumentType, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentType, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/extension/doctypes/`,
                 method: "GET",
                 ...params,
@@ -20105,13 +23692,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name GetNuxeoDocumentDocumentidOcrState
          * @request GET:/api/nuxeo/document/{documentId}/ocr/state
          * @deprecated
          */
         getNuxeoDocumentDocumentidOcrState: (documentId: string, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/${documentId}/ocr/state`,
                 method: "GET",
                 ...params,
@@ -20120,7 +23707,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name GetNuxeoDocumentVersions
          * @summary Find all versions of a document
          * @request GET:/api/nuxeo/document/versions
@@ -20131,7 +23718,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/versions`,
                 method: "GET",
                 query: query,
@@ -20146,7 +23733,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/document/templates
          */
         getNuxeoDocumentTemplates: (params: RequestParams = {}) =>
-            this.request<ResultListDocumentTemplate, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentTemplate, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/templates`,
                 method: "GET",
                 ...params,
@@ -20160,7 +23747,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/document/templates/{id}
          */
         getNuxeoDocumentTemplatesId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultDocumentTemplate, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentTemplate, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/templates/${id}`,
                 method: "GET",
                 ...params,
@@ -20169,7 +23756,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name GetNuxeoDocumentSearch
          * @request GET:/api/nuxeo/document/search
          */
@@ -20179,7 +23766,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListSearchDocumentVO, ResultString | (ResultString | Result)>({
+            this.request<ResultListSearchDocumentVO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/search`,
                 method: "GET",
                 query: query,
@@ -20189,12 +23776,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name GetNuxeoDocumentRetryClassificationUploadidDeprecate
          * @request GET:/api/nuxeo/document/retry_classification/{uploadId}/
          */
         getNuxeoDocumentRetryClassificationUploadidDeprecate: (uploadId: string, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/retry_classification/${uploadId}/`,
                 method: "GET",
                 ...params,
@@ -20203,12 +23790,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name GetNuxeoDocumentRetryClassificationUploadid
          * @request GET:/api/nuxeo/document/retry_classification/{uploadId}
          */
         getNuxeoDocumentRetryClassificationUploadid: (uploadId: string, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/retry_classification/${uploadId}`,
                 method: "GET",
                 ...params,
@@ -20217,12 +23804,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name GetNuxeoDocumentQueryaianalyzeIdorpath
          * @request GET:/api/nuxeo/document/queryAiAnalyze/{idOrPath}
          */
         getNuxeoDocumentQueryaianalyzeIdorpath: (idOrPath: string, params: RequestParams = {}) =>
-            this.request<ResultAiAnalysisDocumentVO, ResultString | (ResultString | Result)>({
+            this.request<ResultAiAnalysisDocumentVO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/queryAiAnalyze/${idOrPath}`,
                 method: "GET",
                 ...params,
@@ -20231,7 +23818,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name GetNuxeoDocumentList
          * @request GET:/api/nuxeo/document/list
          */
@@ -20241,7 +23828,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListSearchDocumentVO, ResultString | (ResultString | Result)>({
+            this.request<ResultListSearchDocumentVO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/list`,
                 method: "GET",
                 query: query,
@@ -20251,12 +23838,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name GetNuxeoDocumentDownloadTempFileId
          * @request GET:/api/nuxeo/document/download_temp_file/{id}
          */
-        getNuxeoDocumentDownloadTempFileId: (id: number, params: RequestParams = {}) =>
-            this.request<string, ResultString | (ResultString | Result)>({
+        getNuxeoDocumentDownloadTempFileId: (id: string, params: RequestParams = {}) =>
+            this.request<string, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/download_temp_file/${id}`,
                 method: "GET",
                 ...params,
@@ -20265,7 +23852,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name GetNuxeoDocumentChildren
          * @request GET:/api/nuxeo/document/children
          */
@@ -20275,7 +23862,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/children`,
                 method: "GET",
                 query: query,
@@ -20285,12 +23872,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name GetNuxeoDocumentAdditionalFormatDocumentid
          * @request GET:/api/nuxeo/document/additional/format/{documentId}
          */
         getNuxeoDocumentAdditionalFormatDocumentid: (documentId: string, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/additional/format/${documentId}`,
                 method: "GET",
                 ...params,
@@ -20299,7 +23886,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name GetNuxeoDocumentAdditionalFormatDownload
          * @request GET:/api/nuxeo/document/additional/format/download
          */
@@ -20310,7 +23897,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/additional/format/download`,
                 method: "GET",
                 query: query,
@@ -20320,7 +23907,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name GetNuxeoDocumentAclPermission
          * @summary Get user's maximum permission on a document
          * @request GET:/api/nuxeo/document/acl/permission
@@ -20332,7 +23919,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/acl/permission`,
                 method: "GET",
                 query: query,
@@ -20348,7 +23935,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/conversion/getTemplateFilePath
          */
         getNuxeoConversionGettemplatefilepath: (params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/conversion/getTemplateFilePath`,
                 method: "GET",
                 ...params,
@@ -20363,7 +23950,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/conversion/getSupportedFormat
          */
         getNuxeoConversionGetsupportedformat: (params: RequestParams = {}) =>
-            this.request<ResultMapStringListObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringListObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/conversion/getSupportedFormat`,
                 method: "GET",
                 ...params,
@@ -20383,7 +23970,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListFileConversionRecord, ResultString | (ResultString | Result)>({
+            this.request<ResultListFileConversionRecord, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/conversion/getConversionHistory`,
                 method: "GET",
                 query: query,
@@ -20393,12 +23980,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name GetNuxeoCollectionAllDeprecate
          * @request GET:/api/nuxeo/collection/all/
          */
         getNuxeoCollectionAllDeprecate: (params: RequestParams = {}) =>
-            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection/all/`,
                 method: "GET",
                 ...params,
@@ -20407,12 +23994,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name GetNuxeoCollectionAll
          * @request GET:/api/nuxeo/collection/all
          */
         getNuxeoCollectionAll: (params: RequestParams = {}) =>
-            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection/all`,
                 method: "GET",
                 ...params,
@@ -20426,7 +24013,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/admin/virtualfolder/setting/{id}
          */
         getNuxeoAdminVirtualfolderSettingId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultVirtualFolderSettingResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/admin/virtualfolder/setting/${id}`,
                 method: "GET",
                 ...params,
@@ -20440,7 +24027,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/nuxeo/admin/virtualfolder/setting/{id}
          */
         deleteNuxeoAdminVirtualfolderSettingId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/admin/virtualfolder/setting/${id}`,
                 method: "DELETE",
                 ...params,
@@ -20454,7 +24041,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/admin/setting/language
          */
         getNuxeoAdminSettingLanguage: (params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/admin/setting/language`,
                 method: "GET",
                 ...params,
@@ -20468,7 +24055,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/admin/setting/{system_id}
          */
         getNuxeoAdminSettingSystemId: (systemId: string, params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/admin/setting/${systemId}`,
                 method: "GET",
                 ...params,
@@ -20482,7 +24069,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/nuxeo/admin/icons
          */
         getNuxeoAdminIcons: (params: RequestParams = {}) =>
-            this.request<ResultListCustomIconDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCustomIconDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/admin/icons`,
                 method: "GET",
                 ...params,
@@ -20497,7 +24084,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/message/queue/{documentId}/message
          */
         getMessageQueueDocumentidMessage: (documentId: string, params: RequestParams = {}) =>
-            this.request<ResultListBusinessResultRecord, ResultString | (ResultString | Result)>({
+            this.request<ResultListBusinessResultRecord, Result | (ResultObject | Result | ResultString)>({
                 path: `/message/queue/${documentId}/message`,
                 method: "GET",
                 ...params,
@@ -20517,7 +24104,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListMQMessageTotalDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListMQMessageTotalDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/message/queue/total`,
                 method: "GET",
                 query: query,
@@ -20533,7 +24120,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/message/queue/report/statusGroup
          */
         getMessageQueueReportStatusgroup: (params: RequestParams = {}) =>
-            this.request<ResultListMQConsumeGroupStatusDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListMQConsumeGroupStatusDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/message/queue/report/statusGroup`,
                 method: "GET",
                 ...params,
@@ -20548,7 +24135,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/message/queue/report/dayGroup
          */
         getMessageQueueReportDaygroup: (params: RequestParams = {}) =>
-            this.request<ResultListMQDayTotalDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListMQDayTotalDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/message/queue/report/dayGroup`,
                 method: "GET",
                 ...params,
@@ -20563,7 +24150,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/message/queue/consumes
          */
         getMessageQueueConsumes: (params: RequestParams = {}) =>
-            this.request<ResultListMQConfigurationInfo, ResultString | (ResultString | Result)>({
+            this.request<ResultListMQConfigurationInfo, Result | (ResultObject | Result | ResultString)>({
                 path: `/message/queue/consumes`,
                 method: "GET",
                 ...params,
@@ -20577,7 +24164,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/file/retry_classification/{uploadId}
          */
         getFileRetryClassificationUploadid: (uploadId: string, params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/file/retry_classification/${uploadId}`,
                 method: "GET",
                 ...params,
@@ -20591,7 +24178,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/file/queryAiAnalyze/{idOrPath}
          */
         getFileQueryaianalyzeIdorpath: (idOrPath: string, params: RequestParams = {}) =>
-            this.request<ResultAiAnalysisDocumentVO, ResultString | (ResultString | Result)>({
+            this.request<ResultAiAnalysisDocumentVO, Result | (ResultObject | Result | ResultString)>({
                 path: `/file/queryAiAnalyze/${idOrPath}`,
                 method: "GET",
                 ...params,
@@ -20604,8 +24191,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetFileDownloadFileId
          * @request GET:/api/file/download/file/{id}
          */
-        getFileDownloadFileId: (id: number, params: RequestParams = {}) =>
-            this.request<string, ResultString | (ResultString | Result)>({
+        getFileDownloadFileId: (id: string, params: RequestParams = {}) =>
+            this.request<string, Result | (ResultObject | Result | ResultString)>({
                 path: `/file/download/file/${id}`,
                 method: "GET",
                 ...params,
@@ -20620,7 +24207,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/external-drive/rclone/test/{remote_name}
          */
         getExternalDriveRcloneTestRemoteName: (remoteName: string, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/rclone/test/${remoteName}`,
                 method: "GET",
                 ...params,
@@ -20635,7 +24222,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/external-drive/rclone/test-all
          */
         getExternalDriveRcloneTestAll: (params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/rclone/test-all`,
                 method: "GET",
                 ...params,
@@ -20650,7 +24237,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/external-drive/rclone/config
          */
         getExternalDriveRcloneConfig: (params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/rclone/config`,
                 method: "GET",
                 ...params,
@@ -20665,7 +24252,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/external-drive/oauth/cloud-services
          */
         getExternalDriveOauthCloudServices: (params: RequestParams = {}) =>
-            this.request<ResultListCloudServiceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCloudServiceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/oauth/cloud-services`,
                 method: "GET",
                 ...params,
@@ -20686,7 +24273,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultVoid, ResultString | (ResultString | Result)>({
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/oauth/callback`,
                 method: "GET",
                 query: query,
@@ -20702,7 +24289,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/external-drive/oauth/apps/{app_id}/authorize
          */
         getExternalDriveOauthAppsAppIdAuthorize: (appId: string, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/oauth/apps/${appId}/authorize`,
                 method: "GET",
                 ...params,
@@ -20717,7 +24304,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/external-drive/oauth/apps/
          */
         getExternalDriveOauthAppsDeprecate: (params: RequestParams = {}) =>
-            this.request<ResultListOAuthAppDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListOAuthAppDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/oauth/apps/`,
                 method: "GET",
                 ...params,
@@ -20738,7 +24325,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListEventCalendarSetting, ResultString | (ResultString | Result)>({
+            this.request<ResultListEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
                 path: `/event/calendars/settings`,
                 method: "GET",
                 query: query,
@@ -20754,23 +24341,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/event/calendars/settings/{id}/users
          */
         getEventCalendarsSettingsIdUsers: (id: string, params: RequestParams = {}) =>
-            this.request<ResultListUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/event/calendars/settings/${id}/users`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags EventCalendarController
-         * @name GetEventCalendarsSettingId
-         * @summary Get Event Calendar Setting by ID
-         * @request GET:/api/event/calendars/setting/{id}
-         */
-        getEventCalendarsSettingId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultEventCalendarSetting, ResultString | (ResultString | Result)>({
-                path: `/event/calendars/setting/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -20790,7 +24362,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultProcessDefinitionVersion, ResultString | (ResultString | Result)>({
+            this.request<ResultProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/version`,
                 method: "GET",
                 query: query,
@@ -20806,7 +24378,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/workflow/version/{versionId}
          */
         getWorkflowVersionVersionid: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultProcessDefinitionVersion, ResultString | (ResultString | Result)>({
+            this.request<ResultProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/version/${versionId}`,
                 method: "GET",
                 ...params,
@@ -20820,7 +24392,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/docpal/workflow/version/{versionId}
          */
         deleteWorkflowVersionVersionid: (versionId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/version/${versionId}`,
                 method: "DELETE",
                 ...params,
@@ -20835,7 +24407,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/workflow/version/{versionId}/bpmnXml
          */
         getWorkflowVersionVersionidBpmnxml: (versionId: string, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/version/${versionId}/bpmnXml`,
                 method: "GET",
                 ...params,
@@ -20857,7 +24429,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/version/json`,
                 method: "GET",
                 query: query,
@@ -20880,7 +24452,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/version/bpmnXml`,
                 method: "GET",
                 query: query,
@@ -20895,7 +24467,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/workflow/variables/{instanceId}
          */
         getWorkflowVariablesInstanceid: (instanceId: string, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/variables/${instanceId}`,
                 method: "GET",
                 ...params,
@@ -20916,135 +24488,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListFormPropertyDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/start/properties`,
                 method: "GET",
                 query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow
-         * @name GetWorkflowQuerydocumenttypeprofileid
-         * @request GET:/api/docpal/workflow/querydocumentTypeProFileId
-         */
-        getWorkflowQuerydocumenttypeprofileid: (
-            query: {
-                documentType: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListString, ResultString | (ResultString | Result)>({
-                path: `/docpal/workflow/querydocumentTypeProFileId`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow
-         * @name GetWorkflowQuerymetadatamapping
-         * @request GET:/api/docpal/workflow/queryMetadataMapping
-         */
-        getWorkflowQuerymetadatamapping: (
-            query: {
-                request: DocumentTypeMetadataMapping;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListDocumentTypeMetadataMapping, ResultString | (ResultString | Result)>({
-                path: `/docpal/workflow/queryMetadataMapping`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow
-         * @name GetWorkflowQuerymetadatamappingnames
-         * @request GET:/api/docpal/workflow/queryMetadataMappingNames
-         */
-        getWorkflowQuerymetadatamappingnames: (params: RequestParams = {}) =>
-            this.request<ResultListString, ResultString | (ResultString | Result)>({
-                path: `/docpal/workflow/queryMetadataMappingNames`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow
-         * @name GetWorkflowQuerymetavalidationrule
-         * @request GET:/api/docpal/workflow/queryMetaValidationRule
-         */
-        getWorkflowQuerymetavalidationrule: (
-            query: {
-                entity: MetadataSetting;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
-                path: `/docpal/workflow/queryMetaValidationRule`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow
-         * @name GetWorkflowQuerydocumenttypeprofile
-         * @request GET:/api/docpal/workflow/queryDocumentTypeProfile
-         */
-        getWorkflowQuerydocumenttypeprofile: (
-            query?: {
-                /** @format int64 */
-                id?: number;
-                documentType?: string;
-                profileID?: string;
-                profileName?: string;
-                rootPath?: string;
-                folderName?: string;
-                folderTitle?: string;
-                /** @format int32 */
-                version?: number;
-                createUserId?: string;
-                createUserName?: string;
-                /** @format date-time */
-                createTime?: string;
-                updateUserId?: string;
-                updateUserName?: string;
-                /** @format date-time */
-                updateTime?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListDocumentTypeProfileSetting, ResultString | (ResultString | Result)>({
-                path: `/docpal/workflow/queryDocumentTypeProfile`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Workflow
-         * @name GetWorkflowQuerydocumenttypeprofilesettings
-         * @request GET:/api/docpal/workflow/queryDocumentTypeProFileSettings
-         */
-        getWorkflowQuerydocumenttypeprofilesettings: (params: RequestParams = {}) =>
-            this.request<ResultMapStringListMapStringString, ResultString | (ResultString | Result)>({
-                path: `/docpal/workflow/queryDocumentTypeProFileSettings`,
-                method: "GET",
                 ...params,
             }),
 
@@ -21056,7 +24503,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/workflow/process/instance/{processInstanceId}
          */
         getWorkflowProcessInstanceProcessinstanceid: (processInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultProcessInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultProcessInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/instance/${processInstanceId}`,
                 method: "GET",
                 ...params,
@@ -21075,7 +24522,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListProcessDefinitionDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/getProcessDefinitionList`,
                 method: "GET",
                 query: query,
@@ -21095,7 +24542,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListUserTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListUserTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/getProcessByProcDefId`,
                 method: "GET",
                 query: query,
@@ -21114,7 +24561,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             processDefinitionKey: string,
             params: RequestParams = {},
         ) =>
-            this.request<ResultListProcessDefinitionDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/definition/${processDefinitionKey}/history`,
                 method: "GET",
                 ...params,
@@ -21128,7 +24575,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/workflow/history/getHistoryExportHeader
          */
         getWorkflowHistoryGethistoryexportheader: (params: RequestParams = {}) =>
-            this.request<ResultMapStringString, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/history/getHistoryExportHeader`,
                 method: "GET",
                 ...params,
@@ -21149,7 +24596,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/getCommentByProcessInstanceId`,
                 method: "GET",
                 query: query,
@@ -21169,7 +24616,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultLinkedHashSetString, ResultString | (ResultString | Result)>({
+            this.request<ResultLinkedHashSetString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/getBusinessKeyList`,
                 method: "GET",
                 query: query,
@@ -21184,7 +24631,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/workflow/generate/caseId/
          */
         getWorkflowGenerateCaseidDeprecate: (params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/generate/caseId/`,
                 method: "GET",
                 ...params,
@@ -21198,7 +24645,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/workflow/generate/caseId
          */
         getWorkflowGenerateCaseid: (params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/generate/caseId`,
                 method: "GET",
                 ...params,
@@ -21219,7 +24666,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListBpmnDynamicFormDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListBpmnDynamicFormDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/forms`,
                 method: "GET",
                 query: query,
@@ -21242,7 +24689,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListFormPropertyDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/forms/${elementKey}`,
                 method: "GET",
                 query: query,
@@ -21263,7 +24710,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListFormPropertyDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/form/properties`,
                 method: "GET",
                 query: query,
@@ -21285,7 +24732,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultAdhocApprovalResp, ResultString | (ResultString | Result)>({
+            this.request<ResultAdhocApprovalResp, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/adhoc/list`,
                 method: "GET",
                 query: query,
@@ -21305,7 +24752,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultMapStringString, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/adhoc/canStart`,
                 method: "GET",
                 query: query,
@@ -21321,7 +24768,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @deprecated
          */
         getWhatsappGetMessageTemplates: (params: RequestParams = {}) =>
-            this.request<ResultListMessageTemplateDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListMessageTemplateDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/whatsapp/get_message_templates`,
                 method: "GET",
                 ...params,
@@ -21336,7 +24783,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/watermark/templates/{id}
          */
         getWatermarkTemplatesId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultWMKTemplateRequestDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/watermark/templates/${id}`,
                 method: "GET",
                 ...params,
@@ -21351,7 +24798,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/docpal/watermark/templates/{id}
          */
         deleteWatermarkTemplatesId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/watermark/templates/${id}`,
                 method: "DELETE",
                 ...params,
@@ -21366,7 +24813,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/watermark/templates/name/{name}
          */
         getWatermarkTemplatesNameName: (name: string, params: RequestParams = {}) =>
-            this.request<ResultWMKTemplateRequestDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/watermark/templates/name/${name}`,
                 method: "GET",
                 ...params,
@@ -21381,7 +24828,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/docpal/watermark/templates/name/{name}
          */
         deleteWatermarkTemplatesNameName: (name: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/watermark/templates/name/${name}`,
                 method: "DELETE",
                 ...params,
@@ -21396,7 +24843,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/watermark/templates/all
          */
         getWatermarkTemplatesAll: (params: RequestParams = {}) =>
-            this.request<ResultListWatermarkSettingsTemplate, ResultString | (ResultString | Result)>({
+            this.request<ResultListWatermarkSettingsTemplate, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/watermark/templates/all`,
                 method: "GET",
                 ...params,
@@ -21411,7 +24858,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/watermark/template/{templateId}
          */
         getWatermarkTemplateTemplateid: (templateId: string, params: RequestParams = {}) =>
-            this.request<ResultListWatermarkSettingsDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListWatermarkSettingsDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/watermark/template/${templateId}`,
                 method: "GET",
                 ...params,
@@ -21425,7 +24872,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/watermark/settings/preview/{id}
          */
         getWatermarkSettingsPreviewId: (id: string, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/watermark/settings/preview/${id}`,
                 method: "GET",
                 ...params,
@@ -21445,7 +24892,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/watermark/document/preview`,
                 method: "GET",
                 query: query,
@@ -21460,7 +24907,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/user/roles
          */
         getUserRoles: (params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/user/roles`,
                 method: "GET",
                 ...params,
@@ -21475,7 +24922,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/user/profile/{userId}/signature/info
          */
         getUserProfileUseridSignatureInfo: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultUserSignature, ResultString | (ResultString | Result)>({
+            this.request<ResultUserSignature, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/user/profile/${userId}/signature/info`,
                 method: "GET",
                 ...params,
@@ -21490,7 +24937,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/user/profile/setting
          */
         getUserProfileSetting: (params: RequestParams = {}) =>
-            this.request<ResultUserProfileSettingDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/user/profile/setting`,
                 method: "GET",
                 ...params,
@@ -21504,7 +24951,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/user/list
          */
         getUserList: (params: RequestParams = {}) =>
-            this.request<ResultListUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/user/list`,
                 method: "GET",
                 ...params,
@@ -21518,7 +24965,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/user/groups
          */
         getUserGroups: (params: RequestParams = {}) =>
-            this.request<ResultListGroupDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/user/groups`,
                 method: "GET",
                 ...params,
@@ -21533,53 +24980,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/user/getApplication
          */
         getUserGetapplication: (params: RequestParams = {}) =>
-            this.request<ResultUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/user/getApplication`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DocPalTypeController
-         * @name GetTypesNameName
-         * @summary Obtain docpal type detail through name
-         * @request GET:/api/docpal/types/name/{name}
-         */
-        getTypesNameName: (name: string, params: RequestParams = {}) =>
-            this.request<ResultDocPalTypeResponseDTO, ResultString | (ResultString | Result)>({
-                path: `/docpal/types/name/${name}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DocPalTypeController
-         * @name GetTypesNameNameRelated
-         * @summary Query all related docpal type of current docpal type
-         * @request GET:/api/docpal/types/name/{name}/related
-         */
-        getTypesNameNameRelated: (name: string, params: RequestParams = {}) =>
-            this.request<ResultListDocPalTypeRelated, ResultString | (ResultString | Result)>({
-                path: `/docpal/types/name/${name}/related`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DocPalTypeController
-         * @name GetTypesNameNameMetadatas
-         * @summary Query all metadata list of the docpal type through name
-         * @request GET:/api/docpal/types/name/{name}/metadatas
-         */
-        getTypesNameNameMetadatas: (name: string, params: RequestParams = {}) =>
-            this.request<ResultListDocPalTypeMetadataDTO, ResultString | (ResultString | Result)>({
-                path: `/docpal/types/name/${name}/metadatas`,
                 method: "GET",
                 ...params,
             }),
@@ -21592,7 +24994,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/types/metadata/generate/json-schema/{docpalTypeName}
          */
         getTypesMetadataGenerateJsonSchemaDocpaltypename: (docpalTypeName: string, params: RequestParams = {}) =>
-            this.request<ResultObjectNode, ResultString | (ResultString | Result)>({
+            this.request<ResultObjectNode, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/types/metadata/generate/json-schema/${docpalTypeName}`,
                 method: "GET",
                 ...params,
@@ -21607,7 +25009,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/types/metadata-v2/{docpalTypeName}
          */
         getTypesMetadataV2Docpaltypename: (docpalTypeName: string, params: RequestParams = {}) =>
-            this.request<ResultListMetadataValidDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListMetadataValidDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/types/metadata-v2/${docpalTypeName}`,
                 method: "GET",
                 ...params,
@@ -21621,23 +25023,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/types/metadata-v2/query-cache
          */
         getTypesMetadataV2QueryCache: (params: RequestParams = {}) =>
-            this.request<ResultListMetadataResponseVO, ResultString | (ResultString | Result)>({
+            this.request<ResultListMetadataResponseVO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/types/metadata-v2/query-cache`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DocPalTypeController
-         * @name GetTypesCompareIntersection
-         * @summary Compare metadata differences between two DocPal types
-         * @request GET:/api/docpal/types/compare/intersection
-         */
-        getTypesCompareIntersection: (oldDocPalType: string, newDocPalType: string, params: RequestParams = {}) =>
-            this.request<ResultDocPalTypeDistinction, ResultString | (ResultString | Result)>({
-                path: `/docpal/types/compare/intersection`,
                 method: "GET",
                 ...params,
             }),
@@ -21651,8 +25038,36 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/types/active
          */
         getTypesActive: (params: RequestParams = {}) =>
-            this.request<ResultListDocumentTypeDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/types/active`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags system-feature-controller
+         * @name GetSystemfeatureUsers
+         * @request GET:/api/docpal/systemfeature/users
+         */
+        getSystemfeatureUsers: (params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/systemfeature/users`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags system-feature-controller
+         * @name GetSystemfeatureUsersNameUsername
+         * @request GET:/api/docpal/systemfeature/users/name/{username}
+         */
+        getSystemfeatureUsersNameUsername: (username: string, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/systemfeature/users/name/${username}`,
                 method: "GET",
                 ...params,
             }),
@@ -21665,7 +25080,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/systemfeature/keycloak-token-verification
          */
         getSystemfeatureKeycloakTokenVerification: (params: RequestParams = {}) =>
-            this.request<ResultMapStringString, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/systemfeature/keycloak-token-verification`,
                 method: "GET",
                 ...params,
@@ -21679,7 +25094,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/systemfeature/getFeatures
          */
         getSystemfeatureGetfeatures: (params: RequestParams = {}) =>
-            this.request<ResultMapStringBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/systemfeature/getFeatures`,
                 method: "GET",
                 ...params,
@@ -21693,7 +25108,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/setting/workflow/condition/setting
          */
         getSettingWorkflowConditionSetting: (params: RequestParams = {}) =>
-            this.request<ResultListMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/setting/workflow/condition/setting`,
                 method: "GET",
                 ...params,
@@ -21717,7 +25132,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListFormPropertiesRelation, ResultString | (ResultString | Result)>({
+            this.request<ResultListFormPropertiesRelation, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/relation/query`,
                 method: "GET",
                 query: query,
@@ -21741,7 +25156,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListLanguageEntity, ResultString | (ResultString | Result)>({
+            this.request<ResultListLanguageEntity, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/relation/queryLanguage`,
                 method: "GET",
                 query: query,
@@ -21757,7 +25172,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @deprecated
          */
         getRelationQuerylanguagelocale: (params: RequestParams = {}) =>
-            this.request<ResultSetString, ResultString | (ResultString | Result)>({
+            this.request<ResultSetString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/relation/queryLanguageLocale`,
                 method: "GET",
                 ...params,
@@ -21772,7 +25187,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/relation/isLdapMode
          */
         getRelationIsldapmode: (params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/relation/isLdapMode`,
                 method: "GET",
                 ...params,
@@ -21786,7 +25201,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/relation/initeLanguageCache
          */
         getRelationInitelanguagecache: (params: RequestParams = {}) =>
-            this.request<Result, ResultString | (ResultString | Result)>({
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/relation/initeLanguageCache`,
                 method: "GET",
                 ...params,
@@ -21801,7 +25216,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/relation/getKeyCloakProperty
          */
         getRelationGetkeycloakproperty: (params: RequestParams = {}) =>
-            this.request<ResultKeyCloakPropertyVO, ResultString | (ResultString | Result)>({
+            this.request<ResultKeyCloakPropertyVO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/relation/getKeyCloakProperty`,
                 method: "GET",
                 ...params,
@@ -21816,7 +25231,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/policy/retentions
          */
         getPolicyRetentions: (params: RequestParams = {}) =>
-            this.request<ResultListRetentionPolicy, ResultString | (ResultString | Result)>({
+            this.request<ResultListRetentionPolicy, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions`,
                 method: "GET",
                 ...params,
@@ -21830,8 +25245,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @summary Get policy events through policy id
          * @request GET:/api/docpal/policy/retentions/{retentionPolicyId}/events
          */
-        getPolicyRetentionsRetentionpolicyidEvents: (retentionPolicyId: number, params: RequestParams = {}) =>
-            this.request<ResultListRetentionPolicyEvent, ResultString | (ResultString | Result)>({
+        getPolicyRetentionsRetentionpolicyidEvents: (retentionPolicyId: string, params: RequestParams = {}) =>
+            this.request<ResultListRetentionEvent, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/${retentionPolicyId}/events`,
                 method: "GET",
                 ...params,
@@ -21844,8 +25259,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetPolicyRetentionsPolicyidScanExpired
          * @request GET:/api/docpal/policy/retentions/{policyId}/scan/expired
          */
-        getPolicyRetentionsPolicyidScanExpired: (policyId: number, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+        getPolicyRetentionsPolicyidScanExpired: (policyId: string, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/${policyId}/scan/expired`,
                 method: "GET",
                 ...params,
@@ -21859,8 +25274,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @summary Scan all documents to find the list of documents that match this retention policy
          * @request GET:/api/docpal/policy/retentions/{policyId}/scan/document
          */
-        getPolicyRetentionsPolicyidScanDocument: (policyId: number, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+        getPolicyRetentionsPolicyidScanDocument: (policyId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/${policyId}/scan/document`,
                 method: "GET",
                 ...params,
@@ -21874,8 +25289,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @summary Obtain a retention policy detail
          * @request GET:/api/docpal/policy/retentions/{id}
          */
-        getPolicyRetentionsId: (id: number, params: RequestParams = {}) =>
-            this.request<ResultRetentionPolicyResponseDTO, ResultString | (ResultString | Result)>({
+        getPolicyRetentionsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultRetentionPolicyResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/${id}`,
                 method: "GET",
                 ...params,
@@ -21890,7 +25305,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/policy/retentions/scan/expired
          */
         getPolicyRetentionsScanExpired: (params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/scan/expired`,
                 method: "GET",
                 ...params,
@@ -21905,7 +25320,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/policy/retentions/scan/document
          */
         getPolicyRetentionsScanDocument: (params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/scan/document`,
                 method: "GET",
                 ...params,
@@ -21920,7 +25335,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/policy/retentions/events
          */
         getPolicyRetentionsEvents: (params: RequestParams = {}) =>
-            this.request<ResultMapLongListRetentionPolicyEvent, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringListRetentionEvent, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/events`,
                 method: "GET",
                 ...params,
@@ -21934,8 +25349,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @summary Obtain retention policy detail
          * @request GET:/api/docpal/policy/retentions/document/{id}
          */
-        getPolicyRetentionsDocumentId: (id: number, params: RequestParams = {}) =>
-            this.request<ResultRetentionPolicyDocument, ResultString | (ResultString | Result)>({
+        getPolicyRetentionsDocumentId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultRetentionDocument, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/document/${id}`,
                 method: "GET",
                 ...params,
@@ -21950,7 +25365,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/policy/retentions/document/page/conditions
          */
         getPolicyRetentionsDocumentPageConditions: (params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/retentions/document/page/conditions`,
                 method: "GET",
                 ...params,
@@ -21965,7 +25380,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/policy/holds
          */
         getPolicyHolds: (params: RequestParams = {}) =>
-            this.request<ResultListHoldPolicy, ResultString | (ResultString | Result)>({
+            this.request<ResultListHoldPolicy, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/holds`,
                 method: "GET",
                 ...params,
@@ -21979,8 +25394,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @summary Obtain hold policy detail
          * @request GET:/api/docpal/policy/holds/{id}
          */
-        getPolicyHoldsId: (id: number, params: RequestParams = {}) =>
-            this.request<ResultHoldPolicy, ResultString | (ResultString | Result)>({
+        getPolicyHoldsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultHoldPolicy, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/holds/${id}`,
                 method: "GET",
                 ...params,
@@ -21989,13 +25404,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags PolicyDocumentController
+         * @tags HoldDocumentController
          * @name GetPolicyDocumentsId
          * @summary Obtain policy document detail
          * @request GET:/api/docpal/policy/documents/{id}
          */
-        getPolicyDocumentsId: (id: number, params: RequestParams = {}) =>
-            this.request<ResultPolicyDocument, ResultString | (ResultString | Result)>({
+        getPolicyDocumentsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultHoldDocument, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/documents/${id}`,
                 method: "GET",
                 ...params,
@@ -22004,12 +25419,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags PolicyDocumentController
+         * @tags HoldDocumentController
          * @name DeletePolicyDocumentsId
          * @request DELETE:/api/docpal/policy/documents/{id}
          */
-        deletePolicyDocumentsId: (id: number, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+        deletePolicyDocumentsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/documents/${id}`,
                 method: "DELETE",
                 ...params,
@@ -22018,13 +25433,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags PolicyDocumentController
+         * @tags HoldDocumentController
          * @name GetPolicyDocumentsPageConditions
          * @summary Obtain all conditions that has been used
          * @request GET:/api/docpal/policy/documents/page/conditions
          */
         getPolicyDocumentsPageConditions: (params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/documents/page/conditions`,
                 method: "GET",
                 ...params,
@@ -22033,13 +25448,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags PolicyDocumentController
+         * @tags HoldDocumentController
          * @name GetPolicyDocumentsDocumentDocumentid
          * @summary Obtain policy who document used
          * @request GET:/api/docpal/policy/documents/document/{documentId}
          */
         getPolicyDocumentsDocumentDocumentid: (documentId: string, params: RequestParams = {}) =>
-            this.request<ResultPolicyDocument, ResultString | (ResultString | Result)>({
+            this.request<ResultHoldDocument, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/documents/document/${documentId}`,
                 method: "GET",
                 ...params,
@@ -22048,13 +25463,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags PolicyDocumentController
+         * @tags HoldDocumentController
          * @name GetPolicyDocumentsDocumentDocumentidApproval
          * @summary Query my policy who document used
          * @request GET:/api/docpal/policy/documents/document/{documentId}/approval
          */
         getPolicyDocumentsDocumentDocumentidApproval: (documentId: string, params: RequestParams = {}) =>
-            this.request<ResultPolicyDocument, ResultString | (ResultString | Result)>({
+            this.request<ResultHoldDocument, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/policy/documents/document/${documentId}/approval`,
                 method: "GET",
                 ...params,
@@ -22068,7 +25483,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/personal/landing
          */
         getPersonalLanding: (params: RequestParams = {}) =>
-            this.request<ResultPersonalLandingResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultPersonalLandingResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/personal/landing`,
                 method: "GET",
                 ...params,
@@ -22082,7 +25497,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/personal/landing/dashboard/{id}
          */
         getPersonalLandingDashboardId: (id: number, params: RequestParams = {}) =>
-            this.request<ResultPersonalDashboard, ResultString | (ResultString | Result)>({
+            this.request<ResultPersonalDashboard, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/personal/landing/dashboard/${id}`,
                 method: "GET",
                 ...params,
@@ -22096,7 +25511,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/personal/landing/dashboard/list
          */
         getPersonalLandingDashboardList: (params: RequestParams = {}) =>
-            this.request<ResultListPersonalDashboard, ResultString | (ResultString | Result)>({
+            this.request<ResultListPersonalDashboard, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/personal/landing/dashboard/list`,
                 method: "GET",
                 ...params,
@@ -22111,7 +25526,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/notification/unRead/number
          */
         getNotificationUnreadNumber: (params: RequestParams = {}) =>
-            this.request<ResultObject | ResultString, ResultString | (ResultString | Result) | void>({
+            this.request<ResultObject | ResultString, Result | (ResultObject | Result | ResultString) | void>({
                 path: `/docpal/notification/unRead/number`,
                 method: "GET",
                 ...params,
@@ -22126,7 +25541,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/notification/subscriber/{subscriber}/folders
          */
         getNotificationSubscriberSubscriberFolders: (subscriber: string, params: RequestParams = {}) =>
-            this.request<ResultListDocumentThumbnailDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentThumbnailDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/subscriber/${subscriber}/folders`,
                 method: "GET",
                 ...params,
@@ -22145,7 +25560,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             idOrPath: string,
             params: RequestParams = {},
         ) =>
-            this.request<ResultNotificationSubscriber, ResultString | (ResultString | Result)>({
+            this.request<ResultNotificationSubscriber, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/subscriber/subscriber/${subscriber}/idOrPath/${idOrPath}`,
                 method: "GET",
                 ...params,
@@ -22164,7 +25579,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             idOrPath: string,
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/subscriber/subscriber/${subscriber}/idOrPath/${idOrPath}`,
                 method: "DELETE",
                 ...params,
@@ -22179,7 +25594,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/notification/setting/type/{type}/all
          */
         getNotificationSettingTypeTypeAll: (type: "SUB_DOCUMENT" | "SUBSCRIPTION", params: RequestParams = {}) =>
-            this.request<ResultListNotificationSetting, ResultString | (ResultString | Result)>({
+            this.request<ResultListNotificationSetting, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/setting/type/${type}/all`,
                 method: "GET",
                 ...params,
@@ -22194,7 +25609,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/notification/setting/preferences
          */
         getNotificationSettingPreferences: (params: RequestParams = {}) =>
-            this.request<ResultMapStringListString, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringListString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/setting/preferences`,
                 method: "GET",
                 ...params,
@@ -22209,7 +25624,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @deprecated
          */
         getNotificationSettingModuleName: (params: RequestParams = {}) =>
-            this.request<ResultListString, ResultString | (ResultString | Result)>({
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/setting/module_name`,
                 method: "GET",
                 ...params,
@@ -22224,7 +25639,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @deprecated
          */
         getNotificationQueryOperatorList: (params: RequestParams = {}) =>
-            this.request<ResultListString, ResultString | (ResultString | Result)>({
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/query_operator_list`,
                 method: "GET",
                 ...params,
@@ -22238,7 +25653,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/notification/query_notification_unread_count_list
          */
         getNotificationQueryNotificationUnreadCountList: (params: RequestParams = {}) =>
-            this.request<ResultListNotificationUnreadCountDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListNotificationUnreadCountDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/query_notification_unread_count_list`,
                 method: "GET",
                 ...params,
@@ -22252,7 +25667,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/notification/query_notification_filter
          */
         getNotificationQueryNotificationFilter: (params: RequestParams = {}) =>
-            this.request<ResultListCheckBoxDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCheckBoxDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/notification/query_notification_filter`,
                 method: "GET",
                 ...params,
@@ -22265,9 +25680,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetMasterTables
          * @summary Get all master tables
          * @request GET:/api/docpal/master/tables
+         * @deprecated
          */
         getMasterTables: (params: RequestParams = {}) =>
-            this.request<ResultListMasterTableResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables`,
                 method: "GET",
                 ...params,
@@ -22280,9 +25696,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetMasterTablesId
          * @summary Get data structure of master table and include associated table structures
          * @request GET:/api/docpal/master/tables/{id}
+         * @deprecated
          */
         getMasterTablesId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultMasterTableResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/${id}`,
                 method: "GET",
                 ...params,
@@ -22295,9 +25712,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetMasterTablesIdStructure
          * @summary Get data structure of master table，but not relation fields
          * @request GET:/api/docpal/master/tables/{id}/structure
+         * @deprecated
          */
         getMasterTablesIdStructure: (id: string, params: RequestParams = {}) =>
-            this.request<ResultMasterTableResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/${id}/structure`,
                 method: "GET",
                 ...params,
@@ -22310,9 +25728,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetMasterTablesIdAcls
          * @summary Obtain all permission of current master table
          * @request GET:/api/docpal/master/tables/{id}/acls
+         * @deprecated
          */
         getMasterTablesIdAcls: (id: string, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/${id}/acls`,
                 method: "GET",
                 ...params,
@@ -22324,9 +25743,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags MasterTableController
          * @name GetMasterTablesTest
          * @request GET:/api/docpal/master/tables/test
+         * @deprecated
          */
         getMasterTablesTest: (params: RequestParams = {}) =>
-            this.request<void, ResultString | (ResultString | Result)>({
+            this.request<void, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/test`,
                 method: "GET",
                 ...params,
@@ -22339,9 +25759,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetMasterTablesRelationId
          * @summary query relation of master table
          * @request GET:/api/docpal/master/tables/relation/{id}
+         * @deprecated
          */
         getMasterTablesRelationId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultListMTRelationResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListMTRelationResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/relation/${id}`,
                 method: "GET",
                 ...params,
@@ -22353,9 +25774,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags MasterTableController
          * @name GetMasterTablesRecordSortOptionTableid
          * @request GET:/api/docpal/master/tables/record/sort-option/{tableId}
+         * @deprecated
          */
         getMasterTablesRecordSortOptionTableid: (tableId: string, params: RequestParams = {}) =>
-            this.request<ResultListSelectOptionDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListSelectOptionDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/record/sort-option/${tableId}`,
                 method: "GET",
                 ...params,
@@ -22368,9 +25790,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetMasterTablesNameName
          * @summary Obtain structure of master table through table label
          * @request GET:/api/docpal/master/tables/name/{name}
+         * @deprecated
          */
         getMasterTablesNameName: (name: string, params: RequestParams = {}) =>
-            this.request<ResultMasterTableResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/name/${name}`,
                 method: "GET",
                 ...params,
@@ -22383,9 +25806,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetMasterTablesForAdminRelationId
          * @summary query relation of master table
          * @request GET:/api/docpal/master/tables/for_admin/relation/{id}
+         * @deprecated
          */
         getMasterTablesForAdminRelationId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultListMTRelationResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListMTRelationResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/for_admin/relation/${id}`,
                 method: "GET",
                 ...params,
@@ -22398,6 +25822,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetMasterTablesForAdminRecord
          * @summary query record with related fields of master table for admin
          * @request GET:/api/docpal/master/tables/for_admin/record
+         * @deprecated
          */
         getMasterTablesForAdminRecord: (
             query: {
@@ -22406,7 +25831,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/for_admin/record`,
                 method: "GET",
                 query: query,
@@ -22420,9 +25845,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetMasterTablesFindAllByUser
          * @summary Get all master tables by user
          * @request GET:/api/docpal/master/tables/find_all_by_user
+         * @deprecated
          */
         getMasterTablesFindAllByUser: (params: RequestParams = {}) =>
-            this.request<ResultListMasterTableResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/find_all_by_user`,
                 method: "GET",
                 ...params,
@@ -22442,7 +25868,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultPaginableEntityDTOObject, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare/initScheduler`,
                 method: "GET",
                 query: query,
@@ -22463,51 +25889,9 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultPaginableEntityDTOObject, ResultString | (ResultString | Result)>({
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/internalShare/initScheduler/`,
                 method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags FormDesignController
-         * @name GetFormDesign
-         * @summary Query form design
-         * @request GET:/api/docpal/form/design
-         */
-        getFormDesign: (
-            query?: {
-                name?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListFormDesignResponseDTO, ResultString | (ResultString | Result)>({
-                path: `/docpal/form/design`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags FormDesignController
-         * @name DeleteFormDesign
-         * @request DELETE:/api/docpal/form/design
-         */
-        deleteFormDesign: (
-            query: {
-                tableName: string;
-                caseId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<JsonNode, ResultString | (ResultString | Result)>({
-                path: `/docpal/form/design`,
-                method: "DELETE",
                 query: query,
                 ...params,
             }),
@@ -22519,10 +25903,26 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetFormDesignIdDetail
          * @summary Retrieve form design
          * @request GET:/api/docpal/form/design/{id}/detail
+         * @deprecated
          */
         getFormDesignIdDetail: (id: string, params: RequestParams = {}) =>
-            this.request<ResultFormDesignResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/form/design/${id}/detail`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name GetFormDesignProcessDefinitions
+         * @request GET:/api/docpal/form/design/process/definitions
+         * @deprecated
+         */
+        getFormDesignProcessDefinitions: (params: RequestParams = {}) =>
+            this.request<ResultListPDResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design/process/definitions`,
                 method: "GET",
                 ...params,
             }),
@@ -22533,9 +25933,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags FormDesignController
          * @name GetFormDesignEmailId
          * @request GET:/api/docpal/form/design/email/{id}
+         * @deprecated
          */
         getFormDesignEmailId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultEasyFormBaseEmailDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultEasyFormBaseEmailDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/form/design/email/${id}`,
                 method: "GET",
                 ...params,
@@ -22547,10 +25948,43 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags FormDesignController
          * @name GetFormDesignEmailHistoryLogId
          * @request GET:/api/docpal/form/design/email/history/log/{id}
+         * @deprecated
          */
         getFormDesignEmailHistoryLogId: (id: number, params: RequestParams = {}) =>
-            this.request<ResultEasyFormBaseEmailDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultEasyFormBaseEmailDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/form/design/email/history/log/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name GetFormDesignDraftId
+         * @summary Retrieve form design draft
+         * @request GET:/api/docpal/form/design/draft/{id}
+         * @deprecated
+         */
+        getFormDesignDraftId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design/draft/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name GetFormDesignDatatypeMapping
+         * @summary Obtain dataType mapping of form design
+         * @request GET:/api/docpal/form/design/dataType/mapping
+         * @deprecated
+         */
+        getFormDesignDatatypeMapping: (params: RequestParams = {}) =>
+            this.request<ResultListMTFieldTypeMapping, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design/dataType/mapping`,
                 method: "GET",
                 ...params,
             }),
@@ -22563,7 +25997,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/email/template/list
          */
         getEmailTemplateList: (params: RequestParams = {}) =>
-            this.request<ResultListDocPalEmailTemplate, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocPalEmailTemplate, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/email/template/list`,
                 method: "GET",
                 ...params,
@@ -22578,7 +26012,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/doc/template/{docTemplateId}/signature
          */
         getDocTemplateDoctemplateidSignature: (docTemplateId: string, params: RequestParams = {}) =>
-            this.request<ResultListDocTemplateSignatureResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocTemplateSignatureResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/doc/template/${docTemplateId}/signature`,
                 method: "GET",
                 ...params,
@@ -22592,7 +26026,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/dam/settings
          */
         getDamSettings: (params: RequestParams = {}) =>
-            this.request<ResultMapStringListDAMConversionSetting, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringListDAMConversionSetting, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/dam/settings`,
                 method: "GET",
                 ...params,
@@ -22605,9 +26039,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetContactgroupIdUserUseridPermission
          * @summary Get permission of contact group
          * @request GET:/api/docpal/contactGroup/{id}/user/{userId}/permission
+         * @deprecated
          */
         getContactgroupIdUserUseridPermission: (id: string, userId: string, params: RequestParams = {}) =>
-            this.request<ResultListString, ResultString | (ResultString | Result)>({
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}/user/${userId}/permission`,
                 method: "GET",
                 ...params,
@@ -22620,9 +26055,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetContactgroupIdContactdetaillist
          * @summary Get contact detail list include filter and sort by
          * @request GET:/api/docpal/contactGroup/{id}/contactDetailList
+         * @deprecated
          */
         getContactgroupIdContactdetaillist: (id: string, data: any, params: RequestParams = {}) =>
-            this.request<ResultListMapStringObject, ResultString | (ResultString | Result)>({
+            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}/contactDetailList`,
                 method: "GET",
                 body: data,
@@ -22637,9 +26073,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetContactgroupList
          * @summary Query all contact group without filter condition
          * @request GET:/api/docpal/contactGroup/list
+         * @deprecated
          */
         getContactgroupList: (params: RequestParams = {}) =>
-            this.request<ResultListContactGroupResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/list`,
                 method: "GET",
                 ...params,
@@ -22654,7 +26091,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/companyProfiles/{companyId}
          */
         getCompanyprofilesCompanyid: (companyId: string, params: RequestParams = {}) =>
-            this.request<ResultCompany, ResultString | (ResultString | Result)>({
+            this.request<ResultCompany, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/companyProfiles/${companyId}`,
                 method: "GET",
                 ...params,
@@ -22676,7 +26113,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListCompanyChop, ResultString | (ResultString | Result)>({
+            this.request<ResultListCompanyChop, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/companyProfiles/${companyId}/chops`,
                 method: "GET",
                 query: query,
@@ -22696,7 +26133,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             companyChopId: string,
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/companyProfiles/${companyId}/chops/${companyChopId}/file`,
                 method: "GET",
                 ...params,
@@ -22711,7 +26148,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/companyProfiles/chops/{companyChopId}/file
          */
         getCompanyprofilesChopsCompanychopidFile: (companyChopId: string, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/companyProfiles/chops/${companyChopId}/file`,
                 method: "GET",
                 ...params,
@@ -22721,18 +26158,18 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags CaseTypeController
-         * @name GetCaseTypes
+         * @name GetCaseTypesundefined
          * @summary Retrieve all case types
          * @request GET:/api/docpal/case/types
          */
-        getCaseTypes: (
+        getCaseTypesundefined: (
             query?: {
                 name?: string;
                 deployed?: boolean;
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListCaseType, ResultString | (ResultString | Result)>({
+            this.request<ResultListCaseType, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types`,
                 method: "GET",
                 query: query,
@@ -22748,7 +26185,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/types/{id}/styleJson
          */
         getCaseTypesIdStylejson: (id: string, params: RequestParams = {}) =>
-            this.request<ResultString, ResultString | (ResultString | Result)>({
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/${id}/styleJson`,
                 method: "GET",
                 ...params,
@@ -22770,7 +26207,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListPlanItemDefinitionDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListPlanItemDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/${id}/startTask`,
                 method: "GET",
                 query: query,
@@ -22792,7 +26229,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultCmmnPlanFormDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/${id}/primaryForm`,
                 method: "GET",
                 query: query,
@@ -22808,7 +26245,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/types/{id}/caseInfo
          */
         getCaseTypesIdCaseinfo: (id: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanTableFieldDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListPlanTableFieldDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/${id}/caseInfo`,
                 method: "GET",
                 ...params,
@@ -22829,7 +26266,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultCaseTypeResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/${caseTypeId}`,
                 method: "GET",
                 query: query,
@@ -22845,7 +26282,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/types/{caseTypeId}/tables
          */
         getCaseTypesCasetypeidTables: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListCaseTable, ResultString | (ResultString | Result)>({
+            this.request<ResultListCaseTable, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/${caseTypeId}/tables`,
                 method: "GET",
                 ...params,
@@ -22860,7 +26297,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/types/{caseTypeId}/records/page/conditions
          */
         getCaseTypesCasetypeidRecordsPageConditions: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/${caseTypeId}/records/page/conditions`,
                 method: "GET",
                 ...params,
@@ -22874,7 +26311,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/types/{caseTypeId}/permissions
          */
         getCaseTypesCasetypeidPermissions: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/${caseTypeId}/permissions`,
                 method: "GET",
                 ...params,
@@ -22888,7 +26325,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/types/{caseTypeId}/permissions/{userId}
          */
         getCaseTypesCasetypeidPermissionsUserid: (caseTypeId: string, userId: string, params: RequestParams = {}) =>
-            this.request<ResultMapStringString, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/${caseTypeId}/permissions/${userId}`,
                 method: "GET",
                 ...params,
@@ -22903,7 +26340,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/types/{caseTypeId}/instances
          */
         getCaseTypesCasetypeidInstances: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnInstance, ResultString | (ResultString | Result)>({
+            this.request<ResultListCmmnInstance, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/${caseTypeId}/instances`,
                 method: "GET",
                 ...params,
@@ -22918,7 +26355,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/types/{caseTypeId}/deploy/version
          */
         getCaseTypesCasetypeidDeployVersion: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultCaseModelDraft, ResultString | (ResultString | Result)>({
+            this.request<ResultCaseModelDraft, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/${caseTypeId}/deploy/version`,
                 method: "GET",
                 ...params,
@@ -22936,7 +26373,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             userId: string,
             params: RequestParams = {},
         ) =>
-            this.request<ResultMapStringString, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/version/${cmmnVersionId}/permissions/${userId}`,
                 method: "GET",
                 ...params,
@@ -22951,7 +26388,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/types/permissions/rules
          */
         getCaseTypesPermissionsRules: (params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/permissions/rules`,
                 method: "GET",
                 ...params,
@@ -22966,7 +26403,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/types/my
          */
         getCaseTypesMy: (params: RequestParams = {}) =>
-            this.request<ResultListCaseType, ResultString | (ResultString | Result)>({
+            this.request<ResultListCaseType, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/my`,
                 method: "GET",
                 ...params,
@@ -22981,7 +26418,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/types/deploymentId/{deploymentId}
          */
         getCaseTypesDeploymentidDeploymentid: (deploymentId: string, params: RequestParams = {}) =>
-            this.request<ResultCaseTypeResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/deploymentId/${deploymentId}`,
                 method: "GET",
                 ...params,
@@ -22994,6 +26431,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetCaseInstanceCasetypeidStarttask
          * @summary Retrieve start humanTask of production version of case definition
          * @request GET:/api/docpal/case/instance/{caseTypeId}/startTask
+         * @deprecated
          */
         getCaseInstanceCasetypeidStarttask: (
             caseTypeId: string,
@@ -23003,7 +26441,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListPlanItemDefinitionDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListPlanItemDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/${caseTypeId}/startTask`,
                 method: "GET",
                 query: query,
@@ -23017,6 +26455,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetCaseInstanceCasetypeidStarttaskDownloadExceltemplate
          * @summary Download an Excel template file of a case type. Excel is used to import data to start case instances.
          * @request GET:/api/docpal/case/instance/{caseTypeId}/startTask/download/excelTemplate
+         * @deprecated
          */
         getCaseInstanceCasetypeidStarttaskDownloadExceltemplate: (
             caseTypeId: string,
@@ -23025,7 +26464,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/${caseTypeId}/startTask/download/excelTemplate`,
                 method: "GET",
                 query: query,
@@ -23039,9 +26478,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetCaseInstanceCaseinstanceidMilestoneStatus
          * @summary Obtain Milestone Status of a case instance
          * @request GET:/api/docpal/case/instance/{caseInstanceId}/milestone/status
+         * @deprecated
          */
         getCaseInstanceCaseinstanceidMilestoneStatus: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/${caseInstanceId}/milestone/status`,
                 method: "GET",
                 ...params,
@@ -23056,7 +26496,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/instance/{caseInstanceId}/forms
          */
         getCaseInstanceCaseinstanceidForms: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnPlanFormDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/${caseInstanceId}/forms`,
                 method: "GET",
                 ...params,
@@ -23071,7 +26511,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/instance/{caseInstanceId}/events
          */
         getCaseInstanceCaseinstanceidEvents: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultListUserEventInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListUserEventInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/${caseInstanceId}/events`,
                 method: "GET",
                 ...params,
@@ -23084,9 +26524,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetCaseInstanceTasksTaskidForm
          * @summary Retrieve form information of task
          * @request GET:/api/docpal/case/instance/tasks/{taskId}/form
+         * @deprecated
          */
         getCaseInstanceTasksTaskidForm: (taskId: string, params: RequestParams = {}) =>
-            this.request<ResultCaseInstanceFormDataDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCaseInstanceFormDataDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/tasks/${taskId}/form`,
                 method: "GET",
                 ...params,
@@ -23099,6 +26540,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetCaseInstanceStartImportExportFailed
          * @summary Export a batch of failed import records to an Excel file
          * @request GET:/api/docpal/case/instance/start/import/export-failed
+         * @deprecated
          */
         getCaseInstanceStartImportExportFailed: (
             query: {
@@ -23106,7 +26548,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/start/import/export-failed`,
                 method: "GET",
                 query: query,
@@ -23127,7 +26569,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListProcessDefinitionDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/process/definitions`,
                 method: "GET",
                 query: query,
@@ -23149,7 +26591,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultCmmnPlanFormDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/planItems/${planItemId}/form`,
                 method: "GET",
                 query: query,
@@ -23171,12 +26613,16 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
                 caseTypeId?: string;
                 /** Case definition version Id */
                 cmmnVersionId?: string;
+                /** @deprecated */
+                userGroup?: string;
+                versionNumber?: string;
+                styleJson?: string;
                 /** Fuzzy Search Parameter */
                 q?: string;
                 /** Is need to detail */
                 detail?: string;
                 businessKey?: string;
-                versionNumber?: string;
+                status?: string;
                 /** Page Number */
                 pageNum?: string;
                 /** Page Size */
@@ -23188,8 +26634,29 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListCmmnInstance, ResultString | (ResultString | Result)>({
+            this.request<ResultListCmmnInstance, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceGenerateCaseid
+         * @request GET:/api/docpal/case/instance/generate/caseId
+         * @deprecated
+         */
+        getCaseInstanceGenerateCaseid: (
+            query: {
+                id: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/case/instance/generate/caseId`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -23202,9 +26669,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetCaseInstanceCaseidCaseid
          * @summary Retrieve form information of task
          * @request GET:/api/docpal/case/instance/caseId/{caseId}
+         * @deprecated
          */
         getCaseInstanceCaseidCaseid: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultCmmnInstance, ResultString | (ResultString | Result)>({
+            this.request<ResultCmmnInstance, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/instance/caseId/${caseId}`,
                 method: "GET",
                 ...params,
@@ -23225,7 +26693,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListBpmnDynamicFormDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListBpmnDynamicFormDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/forms`,
                 method: "GET",
                 query: query,
@@ -23248,7 +26716,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListFormPropertyDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/forms/${elementKey}`,
                 method: "GET",
                 query: query,
@@ -23264,7 +26732,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/definitions
          */
         getCaseDefinitions: (params: RequestParams = {}) =>
-            this.request<ResultListCaseDefinitionDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCaseDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/definitions`,
                 method: "GET",
                 ...params,
@@ -23279,7 +26747,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/definitions/{caseDefinitionKey}/instances
          */
         getCaseDefinitionsCasedefinitionkeyInstances: (caseDefinitionKey: string, params: RequestParams = {}) =>
-            this.request<ResultListCaseInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/definitions/${caseDefinitionKey}/instances`,
                 method: "GET",
                 ...params,
@@ -23294,7 +26762,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/definition/{caseDefinitionKey}/process/definitions
          */
         getCaseDefinitionCasedefinitionkeyProcessDefinitions: (caseDefinitionKey: string, params: RequestParams = {}) =>
-            this.request<ResultListProcessDefinitionDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/definition/${caseDefinitionKey}/process/definitions`,
                 method: "GET",
                 ...params,
@@ -23303,13 +26771,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags CmmnDashboardController
+         * @tags api-cmmn-dashboard-controller
          * @name GetCaseDashboardId
          * @summary Retrieve case dashboard detail
          * @request GET:/api/docpal/case/dashboard/{id}
+         * @deprecated
          */
         getCaseDashboardId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultCmmnDashboardResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/${id}`,
                 method: "GET",
                 ...params,
@@ -23318,13 +26787,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags CmmnDashboardController
+         * @tags api-cmmn-dashboard-controller
          * @name GetCaseDashboardVersionCmmnversionidPermission
          * @summary Show all dashboard views that belong to the current user of this case type. (Case Dashboard)
          * @request GET:/api/docpal/case/dashboard/version/{cmmnVersionId}/permission
+         * @deprecated
          */
         getCaseDashboardVersionCmmnversionidPermission: (cmmnVersionId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnDashboardDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCmmnDashboardDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/version/${cmmnVersionId}/permission`,
                 method: "GET",
                 ...params,
@@ -23339,7 +26809,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/dashboard/instance/{caseInstanceId}/milestone/status
          */
         getCaseDashboardInstanceCaseinstanceidMilestoneStatus: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/instance/${caseInstanceId}/milestone/status`,
                 method: "GET",
                 ...params,
@@ -23348,13 +26818,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags CmmnDashboardController
+         * @tags api-cmmn-dashboard-controller
          * @name GetCaseDashboardInstanceCaseidTasks
          * @summary Retrieve tasks of this case instance
          * @request GET:/api/docpal/case/dashboard/instance/{caseId}/tasks
+         * @deprecated
          */
         getCaseDashboardInstanceCaseidTasks: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/instance/${caseId}/tasks`,
                 method: "GET",
                 ...params,
@@ -23363,13 +26834,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags CmmnDashboardController
+         * @tags api-cmmn-dashboard-controller
          * @name GetCaseDashboardInstanceCaseidStages
          * @summary Retrieve Stage planItem Instances of this case instance
          * @request GET:/api/docpal/case/dashboard/instance/{caseId}/stages
+         * @deprecated
          */
         getCaseDashboardInstanceCaseidStages: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/instance/${caseId}/stages`,
                 method: "GET",
                 ...params,
@@ -23378,13 +26850,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags CmmnDashboardController
+         * @tags api-cmmn-dashboard-controller
          * @name GetCaseDashboardInstanceCaseidProcessInstancePageConditions
          * @summary Obtain process instance conditions that has been used
          * @request GET:/api/docpal/case/dashboard/instance/{caseId}/process/instance/page/conditions
+         * @deprecated
          */
         getCaseDashboardInstanceCaseidProcessInstancePageConditions: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/instance/${caseId}/process/instance/page/conditions`,
                 method: "GET",
                 ...params,
@@ -23393,13 +26866,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags CmmnDashboardController
+         * @tags api-cmmn-dashboard-controller
          * @name GetCaseDashboardInstanceCaseidPrimaryformData
          * @summary Retrieve information and information data of this case instance
          * @request GET:/api/docpal/case/dashboard/instance/{caseId}/primaryForm/data
+         * @deprecated
          */
         getCaseDashboardInstanceCaseidPrimaryformData: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultCaseInstanceFormDataDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCaseInstanceFormDataDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/instance/${caseId}/primaryForm/data`,
                 method: "GET",
                 ...params,
@@ -23421,7 +26895,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListPlanItemInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/instance/${caseId}/planItems`,
                 method: "GET",
                 query: query,
@@ -23437,7 +26911,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/dashboard/instance/{caseId}/personal/tasks
          */
         getCaseDashboardInstanceCaseidPersonalTasks: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnTaskDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/instance/${caseId}/personal/tasks`,
                 method: "GET",
                 ...params,
@@ -23452,7 +26926,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/case/dashboard/instance/{caseId}/events
          */
         getCaseDashboardInstanceCaseidEvents: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/instance/${caseId}/events`,
                 method: "GET",
                 ...params,
@@ -23461,13 +26935,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags CmmnDashboardController
+         * @tags api-cmmn-dashboard-controller
          * @name GetCaseDashboardInstanceCaseidActivity
          * @summary Retrieve activities of this case instance
          * @request GET:/api/docpal/case/dashboard/instance/{caseId}/activity
+         * @deprecated
          */
         getCaseDashboardInstanceCaseidActivity: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnActivityItem, ResultString | (ResultString | Result)>({
+            this.request<ResultListCmmnActivityItem, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/instance/${caseId}/activity`,
                 method: "GET",
                 ...params,
@@ -23476,13 +26951,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags CmmnDashboardController
+         * @tags api-cmmn-dashboard-controller
          * @name GetCaseDashboardInstanceCaseidActions
          * @summary Retrieve my action list of this case instance
          * @request GET:/api/docpal/case/dashboard/instance/{caseId}/actions
+         * @deprecated
          */
         getCaseDashboardInstanceCaseidActions: (caseId: string, params: RequestParams = {}) =>
-            this.request<ResultListPlanItemInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/instance/${caseId}/actions`,
                 method: "GET",
                 ...params,
@@ -23507,7 +26983,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListPlanItemInstanceDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/instance/stage/planItems`,
                 method: "GET",
                 query: query,
@@ -23517,17 +26993,18 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags CmmnDashboardController
+         * @tags api-cmmn-dashboard-controller
          * @name GetCaseDashboardCasetypeCasetypeidVersionnumberVersionnumber
          * @summary Retrieve case dashboard detail of version number
          * @request GET:/api/docpal/case/dashboard/caseType/{caseTypeId}/versionNumber/{versionNumber}
+         * @deprecated
          */
         getCaseDashboardCasetypeCasetypeidVersionnumberVersionnumber: (
             caseTypeId: string,
             versionNumber: string,
             params: RequestParams = {},
         ) =>
-            this.request<ResultListCmmnDashboard, ResultString | (ResultString | Result)>({
+            this.request<ResultListCmmnDashboard, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/caseType/${caseTypeId}/versionNumber/${versionNumber}`,
                 method: "GET",
                 ...params,
@@ -23536,13 +27013,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags CmmnDashboardController
+         * @tags api-cmmn-dashboard-controller
          * @name GetCaseDashboardCasetypeCasetypeidRecordsPageConditions
          * @summary Obtain all conditions that paging search data of deployed case type
          * @request GET:/api/docpal/case/dashboard/caseType/{caseTypeId}/records/page/conditions
+         * @deprecated
          */
         getCaseDashboardCasetypeCasetypeidRecordsPageConditions: (caseTypeId: string, params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/caseType/${caseTypeId}/records/page/conditions`,
                 method: "GET",
                 ...params,
@@ -23551,10 +27029,11 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags CmmnDashboardController
+         * @tags api-cmmn-dashboard-controller
          * @name GetCaseDashboardCasetypeCasetypeidPrimaryform
          * @summary Get information form of case type
          * @request GET:/api/docpal/case/dashboard/caseType/{caseTypeId}/primaryForm
+         * @deprecated
          */
         getCaseDashboardCasetypeCasetypeidPrimaryform: (
             caseTypeId: string,
@@ -23563,7 +27042,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultCmmnPlanFormDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/caseType/${caseTypeId}/primaryForm`,
                 method: "GET",
                 query: query,
@@ -23573,13 +27052,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags CmmnDashboardController
+         * @tags api-cmmn-dashboard-controller
          * @name GetCaseDashboardCaseinstanceCaseinstanceid
          * @summary Show all dashboard views that belong to the current user of this case type. (Case Dashboard)
          * @request GET:/api/docpal/case/dashboard/caseInstance/{caseInstanceId}
+         * @deprecated
          */
         getCaseDashboardCaseinstanceCaseinstanceid: (caseInstanceId: string, params: RequestParams = {}) =>
-            this.request<ResultListCmmnDashboardDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCmmnDashboardDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/dashboard/caseInstance/${caseInstanceId}`,
                 method: "GET",
                 ...params,
@@ -23588,12 +27068,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags TaskController
+         * @tags CalendarController
          * @name GetCalendarsId
          * @request GET:/api/docpal/calendars/{id}
+         * @deprecated
          */
         getCalendarsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultCalendarTaskRespDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/calendars/${id}`,
                 method: "GET",
                 ...params,
@@ -23602,13 +27083,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags TaskController
+         * @tags CalendarController
          * @name DeleteCalendarsId
          * @summary Delete the Task  it must not have been used yet
          * @request DELETE:/api/docpal/calendars/{id}
+         * @deprecated
          */
         deleteCalendarsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/calendars/${id}`,
                 method: "DELETE",
                 ...params,
@@ -23617,43 +27099,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags TaskController
-         * @name GetCalendarsWidgetSetting
-         * @summary Obtain calendar widget settings
-         * @request GET:/api/docpal/calendars/widget/setting
-         */
-        getCalendarsWidgetSetting: (params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
-                path: `/docpal/calendars/widget/setting`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags TaskController
-         * @name GetCalendarsSetting
-         * @summary Obtain calendar settings
-         * @request GET:/api/docpal/calendars/setting
-         */
-        getCalendarsSetting: (params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, ResultString | (ResultString | Result)>({
-                path: `/docpal/calendars/setting`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags TaskController
+         * @tags CalendarController
          * @name GetCalendarsSettingTables
          * @summary Obtain calendar tables
          * @request GET:/api/docpal/calendars/setting/tables
+         * @deprecated
          */
         getCalendarsSettingTables: (params: RequestParams = {}) =>
-            this.request<ResultMapStringString, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/calendars/setting/tables`,
                 method: "GET",
                 ...params,
@@ -23662,12 +27115,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags TaskController
+         * @tags CalendarController
          * @name GetCalendarsActive
          * @request GET:/api/docpal/calendars/active
+         * @deprecated
          */
         getCalendarsActive: (params: RequestParams = {}) =>
-            this.request<ResultListCalendarTaskRespDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/calendars/active`,
                 method: "GET",
                 ...params,
@@ -23680,9 +27134,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetCabinetTemplateidPageConditions
          * @summary Obtain conditions of pagination search
          * @request GET:/api/docpal/cabinet/{templateId}/page/conditions
+         * @deprecated
          */
         getCabinetTemplateidPageConditions: (templateId: string, params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/${templateId}/page/conditions`,
                 method: "GET",
                 ...params,
@@ -23695,9 +27150,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetCabinetId
          * @summary get folder cabinet template tree
          * @request GET:/api/docpal/cabinet/{id}
+         * @deprecated
          */
         getCabinetId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultDocFolderCabinetResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultDocFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/${id}`,
                 method: "GET",
                 ...params,
@@ -23710,9 +27166,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name DeleteCabinetId
          * @summary Delete folder cabinet
          * @request DELETE:/api/docpal/cabinet/{id}
+         * @deprecated
          */
         deleteCabinetId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/${id}`,
                 method: "DELETE",
                 ...params,
@@ -23725,9 +27182,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetCabinetIdTree
          * @summary Get template details for tree structure
          * @request GET:/api/docpal/cabinet/{id}/tree
+         * @deprecated
          */
         getCabinetIdTree: (id: string, params: RequestParams = {}) =>
-            this.request<ResultDocumentFolderCabinet, ResultString | (ResultString | Result)>({
+            this.request<ResultDocumentFolderCabinet, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/${id}/tree`,
                 method: "GET",
                 ...params,
@@ -23739,6 +27197,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags FolderCabinetController
          * @name GetCabinetIdPrefix
          * @request GET:/api/docpal/cabinet/{id}/prefix
+         * @deprecated
          */
         getCabinetIdPrefix: (
             id: string,
@@ -23747,7 +27206,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultFolderCabinetResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/${id}/prefix`,
                 method: "GET",
                 query: query,
@@ -23760,9 +27219,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags FolderCabinetController
          * @name GetCabinetIdList
          * @request GET:/api/docpal/cabinet/{id}/list
+         * @deprecated
          */
         getCabinetIdList: (id: string, params: RequestParams = {}) =>
-            this.request<ResultListDocumentFolderCabinet, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentFolderCabinet, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/${id}/list`,
                 method: "GET",
                 ...params,
@@ -23774,9 +27234,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags FolderCabinetController
          * @name GetCabinetIdDownloadSummaryReport
          * @request GET:/api/docpal/cabinet/{id}/download/summary/report
+         * @deprecated
          */
         getCabinetIdDownloadSummaryReport: (id: string, params: RequestParams = {}) =>
-            this.request<string[], ResultString | (ResultString | Result)>({
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/${id}/download/summary/report`,
                 method: "GET",
                 ...params,
@@ -23789,9 +27250,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetCabinetTemplateId
          * @summary Get detail of folder cabinet template
          * @request GET:/api/docpal/cabinet/template/{id}
+         * @deprecated
          */
         getCabinetTemplateId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultFolderCabinetResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/template/${id}`,
                 method: "GET",
                 ...params,
@@ -23804,9 +27266,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetCabinetTemplateIdTree
          * @summary Get template details for tree structure
          * @request GET:/api/docpal/cabinet/template/{id}/tree
+         * @deprecated
          */
         getCabinetTemplateIdTree: (id: string, params: RequestParams = {}) =>
-            this.request<ResultListFolderCabinetResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/template/${id}/tree`,
                 method: "GET",
                 ...params,
@@ -23819,6 +27282,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetCabinetTemplateList
          * @summary Query all Top-level folder cabinet template
          * @request GET:/api/docpal/cabinet/template/list
+         * @deprecated
          */
         getCabinetTemplateList: (
             query?: {
@@ -23826,7 +27290,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListFolderCabinetResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/template/list`,
                 method: "GET",
                 query: query,
@@ -23839,9 +27303,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags FolderCabinetController
          * @name GetCabinetRefreshStatusDocumentid
          * @request GET:/api/docpal/cabinet/refresh/status/{documentId}
+         * @deprecated
          */
         getCabinetRefreshStatusDocumentid: (documentId: string, params: RequestParams = {}) =>
-            this.request<void, ResultString | (ResultString | Result)>({
+            this.request<void, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/refresh/status/${documentId}`,
                 method: "GET",
                 ...params,
@@ -23853,9 +27318,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags FolderCabinetController
          * @name GetCabinetRefreshCompletestatusFoldercabinetid
          * @request GET:/api/docpal/cabinet/refresh/completeStatus/{folderCabinetId}
+         * @deprecated
          */
         getCabinetRefreshCompletestatusFoldercabinetid: (folderCabinetId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/refresh/completeStatus/${folderCabinetId}`,
                 method: "GET",
                 ...params,
@@ -23867,9 +27333,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags FolderCabinetController
          * @name GetCabinetRefreshcompletestatusId
          * @request GET:/api/docpal/cabinet/refreshCompleteStatus/{id}
+         * @deprecated
          */
         getCabinetRefreshcompletestatusId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/refreshCompleteStatus/${id}`,
                 method: "GET",
                 ...params,
@@ -23881,9 +27348,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags FolderCabinetController
          * @name GetCabinetRefreshCompleteStatusId
          * @request GET:/api/docpal/cabinet/refresh/complete/status/{id}
+         * @deprecated
          */
         getCabinetRefreshCompleteStatusId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/refresh/complete/status/${id}`,
                 method: "GET",
                 ...params,
@@ -23895,9 +27363,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags FolderCabinetController
          * @name GetCabinetNotification
          * @request GET:/api/docpal/cabinet/notification
+         * @deprecated
          */
         getCabinetNotification: (params: RequestParams = {}) =>
-            this.request<ResultObject, ResultString | (ResultString | Result)>({
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/notification`,
                 method: "GET",
                 ...params,
@@ -23910,6 +27379,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetCabinetLoginuserList
          * @summary Query template list of Top-level folder cabinet that belong to current logged-in user
          * @request GET:/api/docpal/cabinet/loginUser/list
+         * @deprecated
          */
         getCabinetLoginuserList: (
             query?: {
@@ -23917,7 +27387,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListFolderCabinetResponseDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/loginUser/list`,
                 method: "GET",
                 query: query,
@@ -23931,6 +27401,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetCabinetHeaderList
          * @summary Get export header list
          * @request GET:/api/docpal/cabinet/header/list
+         * @deprecated
          */
         getCabinetHeaderList: (
             query: {
@@ -23938,7 +27409,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultMapStringString, ResultString | (ResultString | Result)>({
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/cabinet/header/list`,
                 method: "GET",
                 query: query,
@@ -23961,7 +27432,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/auto/crId/accepted`,
                 method: "GET",
                 query: query,
@@ -23977,7 +27448,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/acl/user/{userId}
          */
         getAclUserUserid: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultUserDetailDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultUserDetailDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/acl/user/${userId}`,
                 method: "GET",
                 ...params,
@@ -23992,7 +27463,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/acl/role/users/dropdown
          */
         getAclRoleUsersDropdown: (params: RequestParams = {}) =>
-            this.request<ResultListAclUserInformation, ResultString | (ResultString | Result)>({
+            this.request<ResultListAclUserInformation, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/acl/role/users/dropdown`,
                 method: "GET",
                 ...params,
@@ -24007,7 +27478,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/acl/role/root
          */
         getAclRoleRoot: (params: RequestParams = {}) =>
-            this.request<ResultRoleDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultRoleDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/acl/role/root`,
                 method: "GET",
                 ...params,
@@ -24022,7 +27493,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/acl/role/hierarchy/{roleId}
          */
         getAclRoleHierarchyRoleid: (roleId: string, params: RequestParams = {}) =>
-            this.request<ResultRoleDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultRoleDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/acl/role/hierarchy/${roleId}`,
                 method: "GET",
                 ...params,
@@ -24036,8 +27507,2316 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/docpal/acl/resource/{resourceId}
          */
         getAclResourceResourceid: (resourceId: string, params: RequestParams = {}) =>
-            this.request<ResultListPermissionDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListPermissionDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/acl/resource/${resourceId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name GetDmsTemplateEmailTemplateId
+         * @summary Obtain email template detail
+         * @request GET:/api/dms/template/email/template/{id}
+         */
+        getDmsTemplateEmailTemplateId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultEmailTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/template/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name DeleteDmsTemplateEmailTemplateId
+         * @summary Delete email template by id
+         * @request DELETE:/api/dms/template/email/template/{id}
+         */
+        deleteDmsTemplateEmailTemplateId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/template/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name GetDmsTemplateEmailId
+         * @summary Obtain email template detail
+         * @request GET:/api/dms/template/email/{id}
+         */
+        getDmsTemplateEmailId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultEmailTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name GetDmsTemplateEmailLayouts
+         * @summary Obtain all layouts used by email template
+         * @request GET:/api/dms/template/email/layouts
+         */
+        getDmsTemplateEmailLayouts: (params: RequestParams = {}) =>
+            this.request<ResultListEmailLayout, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/layouts`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name GetDmsTemplateEmailTemplateLayouts
+         * @summary Obtain all layouts used by email template
+         * @request GET:/api/dms/template/email/template/layouts
+         */
+        getDmsTemplateEmailTemplateLayouts: (params: RequestParams = {}) =>
+            this.request<ResultListEmailLayout, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/template/layouts`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name GetDmsTemplateEmailLayoutId
+         * @summary Obtain email layout by id
+         * @request GET:/api/dms/template/email/layout/{id}
+         */
+        getDmsTemplateEmailLayoutId: (id: number, params: RequestParams = {}) =>
+            this.request<ResultEmailLayout, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/layout/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name DeleteDmsTemplateEmailLayoutId
+         * @summary Delete email layout by id
+         * @request DELETE:/api/dms/template/email/layout/{id}
+         */
+        deleteDmsTemplateEmailLayoutId: (id: number, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/layout/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name GetDmsTemplateEmailLayoutAll
+         * @summary Obtain all email layout
+         * @request GET:/api/dms/template/email/layout/all
+         */
+        getDmsTemplateEmailLayoutAll: (params: RequestParams = {}) =>
+            this.request<ResultListEmailLayout, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/layout/all`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name GetDmsTemplateEmailAll
+         * @request GET:/api/dms/template/email/all
+         */
+        getDmsTemplateEmailAll: (params: RequestParams = {}) =>
+            this.request<ResultListEmailTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/template/email/all`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetDmsMasterTableId
+         * @summary Get all fields of master table and include associated data structures
+         * @request GET:/api/dms/master-table/{id}
+         */
+        getDmsMasterTableId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name DeleteDmsMasterTableId
+         * @request DELETE:/api/dms/master-table/{id}
+         */
+        deleteDmsMasterTableId: (
+            id: string,
+            query?: {
+                enforceable?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetDmsMasterTableIdStructure
+         * @summary Get data structure of master table，but not relation fields
+         * @request GET:/api/dms/master-table/{id}/structure
+         */
+        getDmsMasterTableIdStructure: (id: string, params: RequestParams = {}) =>
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}/structure`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetDmsMasterTableIdRecordRecordid
+         * @summary Query row data record in single master table
+         * @request GET:/api/dms/master-table/{id}/record/{recordId}
+         */
+        getDmsMasterTableIdRecordRecordid: (id: string, recordId: string, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}/record/${recordId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetDmsMasterTableIdRecordTemplate
+         * @summary Download excel template file of master table for use import data
+         * @request GET:/api/dms/master-table/{id}/record/template
+         */
+        getDmsMasterTableIdRecordTemplate: (
+            id: string,
+            query?: {
+                operation?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}/record/template`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetDmsMasterTableIdAcls
+         * @summary Obtain all permission of current master table
+         * @request GET:/api/dms/master-table/{id}/acls
+         */
+        getDmsMasterTableIdAcls: (id: string, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}/acls`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetDmsMasterTableRelationId
+         * @summary query relation of master table
+         * @request GET:/api/dms/master-table/relation/{id}
+         */
+        getDmsMasterTableRelationId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListMTRelationResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/relation/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetDmsMasterTableRecordSortOptionTableid
+         * @request GET:/api/dms/master-table/record/sort-option/{tableId}
+         */
+        getDmsMasterTableRecordSortOptionTableid: (tableId: string, params: RequestParams = {}) =>
+            this.request<ResultListSelectOptionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/record/sort-option/${tableId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetDmsMasterTablePageConditions
+         * @request GET:/api/dms/master-table/page/conditions
+         */
+        getDmsMasterTablePageConditions: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/page/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetDmsMasterTableNameName
+         * @summary Obtain structure of master table through table label
+         * @request GET:/api/dms/master-table/name/{name}
+         */
+        getDmsMasterTableNameName: (name: string, params: RequestParams = {}) =>
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/name/${name}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetDmsMasterTableListWithPermission
+         * @summary Get all master tables by user
+         * @request GET:/api/dms/master-table/list/with-permission
+         */
+        getDmsMasterTableListWithPermission: (params: RequestParams = {}) =>
+            this.request<ResultListMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/list/with-permission`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetDmsMasterTableDownloadFailure
+         * @summary Download data that failed to upload .csv file
+         * @request GET:/api/dms/master-table/download/failure
+         */
+        getDmsMasterTableDownloadFailure: (
+            query: {
+                id: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/download/failure`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetDmsMasterTableDatatypeMapping
+         * @summary Obtain dataType mapping of master table
+         * @request GET:/api/dms/master-table/dataType/mapping
+         */
+        getDmsMasterTableDatatypeMapping: (params: RequestParams = {}) =>
+            this.request<ResultListMTFieldTypeMapping, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/dataType/mapping`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name GetDmsEasyFormIdDetail
+         * @summary Retrieve form design
+         * @request GET:/api/dms/easy-form/{id}/detail
+         */
+        getDmsEasyFormIdDetail: (id: string, params: RequestParams = {}) =>
+            this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/${id}/detail`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name GetDmsEasyFormProcessDefinitions
+         * @request GET:/api/dms/easy-form/process/definitions
+         */
+        getDmsEasyFormProcessDefinitions: (params: RequestParams = {}) =>
+            this.request<ResultListPDResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/process/definitions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name GetDmsEasyFormEmailId
+         * @request GET:/api/dms/easy-form/email/{id}
+         */
+        getDmsEasyFormEmailId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultEasyFormBaseEmailDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/email/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name GetDmsEasyFormEmailLogId
+         * @request GET:/api/dms/easy-form/email-log/{id}
+         */
+        getDmsEasyFormEmailLogId: (id: number, params: RequestParams = {}) =>
+            this.request<ResultEasyFormBaseEmailDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/email-log/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name GetDmsEasyFormDraftId
+         * @summary Retrieve form design draft
+         * @request GET:/api/dms/easy-form/draft/{id}
+         */
+        getDmsEasyFormDraftId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/draft/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name GetDmsEasyFormDatatypeMapping
+         * @summary Obtain dataType mapping of form design
+         * @request GET:/api/dms/easy-form/dataType/mapping
+         */
+        getDmsEasyFormDatatypeMapping: (params: RequestParams = {}) =>
+            this.request<ResultListMTFieldTypeMapping, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/dataType/mapping`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name GetDmsContactGroupIdUserUseridPermission
+         * @summary Get permission of contact group
+         * @request GET:/api/dms/contact-group/{id}/user/{userId}/permission
+         */
+        getDmsContactGroupIdUserUseridPermission: (id: string, userId: string, params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}/user/${userId}/permission`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name GetDmsContactGroupIdContactdetaillist
+         * @summary Get contact detail list include filter and sort by
+         * @request GET:/api/dms/contact-group/{id}/contactDetailList
+         */
+        getDmsContactGroupIdContactdetaillist: (id: string, data: any, params: RequestParams = {}) =>
+            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}/contactDetailList`,
+                method: "GET",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name GetDmsCalendarsId
+         * @request GET:/api/dms/calendars/{id}
+         */
+        getDmsCalendarsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name DeleteDmsCalendarsId
+         * @summary Delete the Task  it must not have been used yet
+         * @request DELETE:/api/dms/calendars/{id}
+         */
+        deleteDmsCalendarsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name GetDmsCalendarsSettingTables
+         * @summary Obtain calendar tables
+         * @request GET:/api/dms/calendars/setting/tables
+         */
+        getDmsCalendarsSettingTables: (params: RequestParams = {}) =>
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/setting/tables`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name GetDmsCalendarsEventSettings
+         * @summary Get All Event Calendar Settings
+         * @request GET:/api/dms/calendars/event/settings
+         */
+        getDmsCalendarsEventSettings: (
+            query: {
+                /** Event Calendar Setting */
+                eventCalendarSetting: EventCalendarSetting;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/event/settings`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name GetDmsCalendarsEventSettingsIdUsers
+         * @summary Retrieve user list by calendar id
+         * @request GET:/api/dms/calendars/event/settings/{id}/users
+         */
+        getDmsCalendarsEventSettingsIdUsers: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/event/settings/${id}/users`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name GetDmsCalendarsActive
+         * @request GET:/api/dms/calendars/active
+         */
+        getDmsCalendarsActive: (params: RequestParams = {}) =>
+            this.request<ResultListCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/calendars/active`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetTemplateidPageConditions
+         * @summary Obtain conditions of pagination search
+         * @request GET:/api/dms/cabinet/{templateId}/page/conditions
+         */
+        getDmsCabinetTemplateidPageConditions: (templateId: string, params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/${templateId}/page/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetId
+         * @summary get folder cabinet template tree
+         * @request GET:/api/dms/cabinet/{id}
+         */
+        getDmsCabinetId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultDocFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name DeleteDmsCabinetId
+         * @summary Delete folder cabinet
+         * @request DELETE:/api/dms/cabinet/{id}
+         */
+        deleteDmsCabinetId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetIdUseWorkflow
+         * @summary Query workflow list of use this folder cabinet
+         * @request GET:/api/dms/cabinet/{id}/use/workflow
+         */
+        getDmsCabinetIdUseWorkflow: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/${id}/use/workflow`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetIdTree
+         * @summary Get template details for tree structure
+         * @request GET:/api/dms/cabinet/{id}/tree
+         */
+        getDmsCabinetIdTree: (id: string, params: RequestParams = {}) =>
+            this.request<ResultDocumentFolderCabinet, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/${id}/tree`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetIdPrefix
+         * @request GET:/api/dms/cabinet/{id}/prefix
+         */
+        getDmsCabinetIdPrefix: (
+            id: string,
+            query: {
+                id: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/${id}/prefix`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetIdList
+         * @request GET:/api/dms/cabinet/{id}/list
+         */
+        getDmsCabinetIdList: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListDocumentFolderCabinet, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/${id}/list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetIdDownloadSummaryReport
+         * @request GET:/api/dms/cabinet/{id}/download/summary/report
+         */
+        getDmsCabinetIdDownloadSummaryReport: (id: string, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/${id}/download/summary/report`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetTemplateId
+         * @summary get folder cabinet template tree
+         * @request GET:/api/dms/cabinet/template/{id}
+         */
+        getDmsCabinetTemplateId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/template/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name DeleteDmsCabinetTemplateId
+         * @summary Delete folder cabinet template and all sub folder cabinet
+         * @request DELETE:/api/dms/cabinet/template/{id}
+         */
+        deleteDmsCabinetTemplateId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/template/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetTemplateIdTree
+         * @summary Get template details for tree structure
+         * @request GET:/api/dms/cabinet/template/{id}/tree
+         */
+        getDmsCabinetTemplateIdTree: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/template/${id}/tree`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetTemplateIdInformation
+         * @request GET:/api/dms/cabinet/template/{id}/information
+         */
+        getDmsCabinetTemplateIdInformation: (id: string, params: RequestParams = {}) =>
+            this.request<ResultFolderCabinet, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/template/${id}/information`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetTemplateIdDetail
+         * @summary Get detail of folder cabinet template
+         * @request GET:/api/dms/cabinet/template/{id}/detail
+         */
+        getDmsCabinetTemplateIdDetail: (id: string, params: RequestParams = {}) =>
+            this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/template/${id}/detail`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetTemplateList
+         * @summary Query all Top-level folder cabinet template
+         * @request GET:/api/dms/cabinet/template/list
+         */
+        getDmsCabinetTemplateList: (
+            query?: {
+                label?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/template/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetRefreshStatusDocumentid
+         * @request GET:/api/dms/cabinet/refresh/status/{documentId}
+         */
+        getDmsCabinetRefreshStatusDocumentid: (documentId: string, params: RequestParams = {}) =>
+            this.request<void, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/refresh/status/${documentId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetRefreshCompletestatusFoldercabinetid
+         * @request GET:/api/dms/cabinet/refresh/completeStatus/{folderCabinetId}
+         */
+        getDmsCabinetRefreshCompletestatusFoldercabinetid: (folderCabinetId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/refresh/completeStatus/${folderCabinetId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetRefreshCompleteStatusId
+         * @request GET:/api/dms/cabinet/refresh/complete/status/{id}
+         */
+        getDmsCabinetRefreshCompleteStatusId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/refresh/complete/status/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetRefreshcompletestatusId
+         * @request GET:/api/dms/cabinet/refreshCompleteStatus/{id}
+         */
+        getDmsCabinetRefreshcompletestatusId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/refreshCompleteStatus/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetLoginuserList
+         * @summary Query template list of Top-level folder cabinet that belong to current logged-in user
+         * @request GET:/api/dms/cabinet/loginUser/list
+         */
+        getDmsCabinetLoginuserList: (
+            query?: {
+                label?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/loginUser/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetList
+         * @summary query all folder cabinet list of top level
+         * @request GET:/api/dms/cabinet/list
+         */
+        getDmsCabinetList: (params: RequestParams = {}) =>
+            this.request<ResultListFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name GetDmsCabinetHeaderList
+         * @summary Get export header list
+         * @request GET:/api/dms/cabinet/header/list
+         */
+        getDmsCabinetHeaderList: (
+            query: {
+                templateId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/header/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesIdVersions
+         * @summary Create a new version case type
+         * @request GET:/api/case/types/{id}/versions
+         */
+        getCaseTypesIdVersions: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${id}/versions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesIdStylejsonundefined
+         * @summary Query style json of cmmn xml
+         * @request GET:/api/case/types/{id}/styleJson
+         */
+        getCaseTypesIdStylejsonundefined: (
+            id: string,
+            query?: {
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${id}/styleJson`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesIdStarttaskundefined
+         * @summary Retrieve start humanTask of a case model definition
+         * @request GET:/api/case/types/{id}/startTask
+         */
+        getCaseTypesIdStarttaskundefined: (
+            id: string,
+            query?: {
+                startMatchSign?: string;
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListPlanItemDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${id}/startTask`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesIdPrimaryformundefined
+         * @summary Get information form of case type
+         * @request GET:/api/case/types/{id}/primaryForm
+         */
+        getCaseTypesIdPrimaryformundefined: (
+            id: string,
+            query?: {
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${id}/primaryForm`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesIdExport
+         * @summary Export case type data, including CaseType, CaseModelDraft, CmmnVersion and CMMN XML file
+         * @request GET:/api/case/types/{id}/export
+         */
+        getCaseTypesIdExport: (
+            id: string,
+            query?: {
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${id}/export`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesIdDownloadXml
+         * @summary Download cmmn.xml of version (case model definition)
+         * @request GET:/api/case/types/{id}/download/xml
+         */
+        getCaseTypesIdDownloadXml: (
+            id: string,
+            query?: {
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${id}/download/xml`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesIdDownloadDeployVersion
+         * @summary Download latest version cmmn xml (case model definition)
+         * @request GET:/api/case/types/{id}/download/deploy/version
+         */
+        getCaseTypesIdDownloadDeployVersion: (id: string, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${id}/download/deploy/version`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesIdCaseinfoundefined
+         * @summary Get form fields of deployed version based on this case type
+         * @request GET:/api/case/types/{id}/caseInfo
+         */
+        getCaseTypesIdCaseinfoundefined: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanTableFieldDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${id}/caseInfo`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesCasetypeidundefined
+         * @summary Retrieve case type detail
+         * @request GET:/api/case/types/{caseTypeId}
+         */
+        getCaseTypesCasetypeidundefined: (
+            caseTypeId: string,
+            query?: {
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${caseTypeId}`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesCasetypeidTablesundefined
+         * @summary Retrieve the list of case tables that belong to the specified case type
+         * @request GET:/api/case/types/{caseTypeId}/tables
+         */
+        getCaseTypesCasetypeidTablesundefined: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultListCaseTable, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${caseTypeId}/tables`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesCasetypeidRecordsPageConditionsundefined
+         * @summary Obtain all conditions that Pagination Search data of deployed case type
+         * @request GET:/api/case/types/{caseTypeId}/records/page/conditions
+         */
+        getCaseTypesCasetypeidRecordsPageConditionsundefined: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${caseTypeId}/records/page/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesCasetypeidPermissionsundefined
+         * @request GET:/api/case/types/{caseTypeId}/permissions
+         */
+        getCaseTypesCasetypeidPermissionsundefined: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${caseTypeId}/permissions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesCasetypeidPermissionsUseridundefined
+         * @request GET:/api/case/types/{caseTypeId}/permissions/{userId}
+         */
+        getCaseTypesCasetypeidPermissionsUseridundefined: (
+            caseTypeId: string,
+            userId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${caseTypeId}/permissions/${userId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesCasetypeidInstancesundefined
+         * @summary Retrieve all case instances of this case type
+         * @request GET:/api/case/types/{caseTypeId}/instances
+         */
+        getCaseTypesCasetypeidInstancesundefined: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnInstance, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${caseTypeId}/instances`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesCasetypeidDeployVersionundefined
+         * @summary Query cmmn version information of the last successfully deployed version
+         * @request GET:/api/case/types/{caseTypeId}/deploy/version
+         */
+        getCaseTypesCasetypeidDeployVersionundefined: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultCaseModelDraft, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${caseTypeId}/deploy/version`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesCasedefinitionkeyDeployment
+         * @request GET:/api/case/types/{caseDefinitionKey}/deployment
+         */
+        getCaseTypesCasedefinitionkeyDeployment: (caseDefinitionKey: string, params: RequestParams = {}) =>
+            this.request<ResultCmmnDeploymentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${caseDefinitionKey}/deployment`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesVersionVersionid
+         * @summary Retrieve detail of case model version
+         * @request GET:/api/case/types/version/{versionId}
+         */
+        getCaseTypesVersionVersionid: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultCmmnVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/version/${versionId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesVersionVersionidStarttask
+         * @summary Retrieve startup task for the case definition of the specified version
+         * @request GET:/api/case/types/version/{versionId}/startTask
+         */
+        getCaseTypesVersionVersionidStarttask: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/version/${versionId}/startTask`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesVersionCmmnversionidPermissionsUseridundefined
+         * @request GET:/api/case/types/version/{cmmnVersionId}/permissions/{userId}
+         */
+        getCaseTypesVersionCmmnversionidPermissionsUseridundefined: (
+            cmmnVersionId: string,
+            userId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/version/${cmmnVersionId}/permissions/${userId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesPermissionsRulesundefined
+         * @summary Retrieve case type permission rules
+         * @request GET:/api/case/types/permissions/rules
+         */
+        getCaseTypesPermissionsRulesundefined: (params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/permissions/rules`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesMyundefined
+         * @summary Find out what cases the logged-in user can see.
+         * @request GET:/api/case/types/my
+         */
+        getCaseTypesMyundefined: (params: RequestParams = {}) =>
+            this.request<ResultListCaseType, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/my`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesDeploymentidDeploymentidundefined
+         * @summary Retrieve case type detail
+         * @request GET:/api/case/types/deploymentId/{deploymentId}
+         */
+        getCaseTypesDeploymentidDeploymentidundefined: (deploymentId: string, params: RequestParams = {}) =>
+            this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/deploymentId/${deploymentId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetCaseTypesDatatypeMapping
+         * @summary Obtain support column mapping
+         * @request GET:/api/case/types/dataType/mapping
+         */
+        getCaseTypesDatatypeMapping: (params: RequestParams = {}) =>
+            this.request<ResultListMTFieldTypeMapping, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/dataType/mapping`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name GetCaseTablesId
+         * @summary Retrieve detail of case table and include associated data structures
+         * @request GET:/api/case/tables/{id}
+         */
+        getCaseTablesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultCaseTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/tables/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name DeleteCaseTablesId
+         * @request DELETE:/api/case/tables/{id}
+         */
+        deleteCaseTablesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/tables/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name GetCaseTablesCasetypeCasetypeid
+         * @summary Retrieve a list of case tables that belong to the specified case type
+         * @request GET:/api/case/tables/caseType/{caseTypeId}
+         */
+        getCaseTablesCasetypeCasetypeid: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultListCaseTable, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/tables/caseType/${caseTypeId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name GetCaseTablesCasequery
+         * @request GET:/api/case/tables/caseQuery
+         */
+        getCaseTablesCasequery: (
+            query: {
+                tableName: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/tables/caseQuery`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceCasetypeidStarttaskundefined
+         * @summary Retrieve start humanTask of production version of case definition
+         * @request GET:/api/case/instance/{caseTypeId}/startTask
+         */
+        getCaseInstanceCasetypeidStarttaskundefined: (
+            caseTypeId: string,
+            query?: {
+                startMatchSign?: string;
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListPlanItemDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/${caseTypeId}/startTask`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceCasetypeidStarttaskDownloadExceltemplateundefined
+         * @summary Download an Excel template file of a case type. Excel is used to import data to start case instances.
+         * @request GET:/api/case/instance/{caseTypeId}/startTask/download/excelTemplate
+         */
+        getCaseInstanceCasetypeidStarttaskDownloadExceltemplateundefined: (
+            caseTypeId: string,
+            query?: {
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/${caseTypeId}/startTask/download/excelTemplate`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceCaseinstanceidMilestoneStatusundefined
+         * @summary Obtain Milestone Status of a case instance
+         * @request GET:/api/case/instance/{caseInstanceId}/milestone/status
+         */
+        getCaseInstanceCaseinstanceidMilestoneStatusundefined: (caseInstanceId: string, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/${caseInstanceId}/milestone/status`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseModeController
+         * @name GetCaseInstanceCaseinstanceidFormsundefined
+         * @summary Retrieve all forms through a case instance
+         * @request GET:/api/case/instance/{caseInstanceId}/forms
+         */
+        getCaseInstanceCaseinstanceidFormsundefined: (caseInstanceId: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/${caseInstanceId}/forms`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseModeController
+         * @name GetCaseInstanceCaseinstanceidEventsundefined
+         * @summary Retrieve all events from a case instance
+         * @request GET:/api/case/instance/{caseInstanceId}/events
+         */
+        getCaseInstanceCaseinstanceidEventsundefined: (caseInstanceId: string, params: RequestParams = {}) =>
+            this.request<ResultListUserEventInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/${caseInstanceId}/events`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceTypesCasetypeidInstances
+         * @summary Retrieve all case instances of this case type
+         * @request GET:/api/case/instance/types/{caseTypeId}/instances
+         */
+        getCaseInstanceTypesCasetypeidInstances: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnInstance, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/types/${caseTypeId}/instances`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceTasksTaskidFormundefined
+         * @summary Retrieve form information of task
+         * @request GET:/api/case/instance/tasks/{taskId}/form
+         */
+        getCaseInstanceTasksTaskidFormundefined: (taskId: string, params: RequestParams = {}) =>
+            this.request<ResultCaseInstanceFormDataDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/tasks/${taskId}/form`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceSupportSubcase
+         * @summary Filter case definition to select as sub-case
+         * @request GET:/api/case/instance/support/subCase
+         */
+        getCaseInstanceSupportSubcase: (params: RequestParams = {}) =>
+            this.request<ResultListCaseDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/support/subCase`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceSupportSubcaseFields
+         * @summary Extract input field list of sub-case definition
+         * @request GET:/api/case/instance/support/subCase/fields
+         */
+        getCaseInstanceSupportSubcaseFields: (
+            query: {
+                caseDefinitionId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListPlanTableFieldDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/support/subCase/fields`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceStartImportExportFailedundefined
+         * @summary Export a batch of failed import records to an Excel file
+         * @request GET:/api/case/instance/start/import/export-failed
+         */
+        getCaseInstanceStartImportExportFailedundefined: (
+            query: {
+                importBatchId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/start/import/export-failed`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseModeController
+         * @name GetCaseInstanceProcessDefinitionsundefined
+         * @summary Retrieve process definition of this case instance through case definition key
+         * @request GET:/api/case/instance/process/definitions
+         */
+        getCaseInstanceProcessDefinitionsundefined: (
+            query: {
+                businessKey: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/process/definitions`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseModeController
+         * @name GetCaseInstancePlanitemsPlanitemidFormundefined
+         * @summary Retrieve form information of plan item instance
+         * @request GET:/api/case/instance/planItems/{planItemId}/form
+         */
+        getCaseInstancePlanitemsPlanitemidFormundefined: (
+            planItemId: string,
+            query?: {
+                caseDefinitionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/planItems/${planItemId}/form`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseModeController
+         * @name GetCaseInstanceListundefined
+         * @summary Retrieve all case instances of this case type
+         * @request GET:/api/case/instance/list
+         */
+        getCaseInstanceListundefined: (
+            query?: {
+                id?: string;
+                label?: string;
+                caseTypeId?: string;
+                /** Case definition version Id */
+                cmmnVersionId?: string;
+                /** @deprecated */
+                userGroup?: string;
+                versionNumber?: string;
+                styleJson?: string;
+                /** Fuzzy Search Parameter */
+                q?: string;
+                /** Is need to detail */
+                detail?: string;
+                businessKey?: string;
+                status?: string;
+                /** Page Number */
+                pageNum?: string;
+                /** Page Size */
+                pageSize?: string;
+                /** The sortBy fields */
+                orderBy?: string;
+                /** The sort ASC or DESC */
+                isDesc?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListCmmnInstance, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceInstanceCaseinstanceidForms
+         * @request GET:/api/case/instance/instance/{caseInstanceId}/forms
+         */
+        getCaseInstanceInstanceCaseinstanceidForms: (caseInstanceId: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/instance/${caseInstanceId}/forms`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceInstanceCaseinstanceidEvents
+         * @request GET:/api/case/instance/instance/{caseInstanceId}/events
+         */
+        getCaseInstanceInstanceCaseinstanceidEvents: (caseInstanceId: string, params: RequestParams = {}) =>
+            this.request<ResultListUserEventInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/instance/${caseInstanceId}/events`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceInstanceProcessDefinitions
+         * @summary Retrieve process definition of this case instance through case definition key
+         * @request GET:/api/case/instance/instance/process/definitions
+         */
+        getCaseInstanceInstanceProcessDefinitions: (
+            query: {
+                businessKey: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/instance/process/definitions`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceInstancePlanitemsPlanitemidForm
+         * @summary Retrieve form information of plan item instance
+         * @request GET:/api/case/instance/instance/planItems/{planItemId}/form
+         */
+        getCaseInstanceInstancePlanitemsPlanitemidForm: (
+            planItemId: string,
+            query?: {
+                caseDefinitionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/instance/planItems/${planItemId}/form`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceGenerateCaseidundefined
+         * @request GET:/api/case/instance/generate/caseId
+         */
+        getCaseInstanceGenerateCaseidundefined: (
+            query: {
+                id: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/generate/caseId`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceDefinitions
+         * @summary Retrieve all case model definitions
+         * @request GET:/api/case/instance/definitions
+         */
+        getCaseInstanceDefinitions: (params: RequestParams = {}) =>
+            this.request<ResultListCaseDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/definitions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceDefinitionsCasedefinitionkeyInstances
+         * @summary Retrieve case instances of this case model
+         * @request GET:/api/case/instance/definitions/{caseDefinitionKey}/instances
+         */
+        getCaseInstanceDefinitionsCasedefinitionkeyInstances: (caseDefinitionKey: string, params: RequestParams = {}) =>
+            this.request<ResultListCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/definitions/${caseDefinitionKey}/instances`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceDefinitionCasedefinitionkeyProcessDefinitions
+         * @summary Retrieve process definition of this case instance through case definition key
+         * @request GET:/api/case/instance/definition/{caseDefinitionKey}/process/definitions
+         */
+        getCaseInstanceDefinitionCasedefinitionkeyProcessDefinitions: (
+            caseDefinitionKey: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/definition/${caseDefinitionKey}/process/definitions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetCaseInstanceCaseidCaseidundefined
+         * @summary Retrieve form information of task
+         * @request GET:/api/case/instance/caseId/{caseId}
+         */
+        getCaseInstanceCaseidCaseidundefined: (caseId: string, params: RequestParams = {}) =>
+            this.request<ResultCmmnInstance, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/caseId/${caseId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseModeController
+         * @name GetCaseFormsundefined
+         * @summary Get the list of form properties associated with the process definition
+         * @request GET:/api/case/forms
+         */
+        getCaseFormsundefined: (
+            query?: {
+                processDefinitionKey?: string;
+                processDefinitionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListBpmnDynamicFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/forms`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseModeController
+         * @name GetCaseFormsElementkeyundefined
+         * @summary Get form properties of single element associated with the process definition
+         * @request GET:/api/case/forms/{elementKey}
+         */
+        getCaseFormsElementkeyundefined: (
+            elementKey: string,
+            query?: {
+                processDefinitionKey?: string;
+                processDefinitionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/forms/${elementKey}`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseModeController
+         * @name GetCaseDefinitionsundefined
+         * @summary Retrieve all case model definitions
+         * @request GET:/api/case/definitions
+         */
+        getCaseDefinitionsundefined: (params: RequestParams = {}) =>
+            this.request<ResultListCaseDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/definitions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseModeController
+         * @name GetCaseDefinitionsCasedefinitionkeyInstancesundefined
+         * @summary Retrieve all running case instances of this case model
+         * @request GET:/api/case/definitions/{caseDefinitionKey}/instances
+         */
+        getCaseDefinitionsCasedefinitionkeyInstancesundefined: (
+            caseDefinitionKey: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/definitions/${caseDefinitionKey}/instances`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseModeController
+         * @name GetCaseDefinitionCasedefinitionkeyProcessDefinitionsundefined
+         * @summary Retrieve process definition of this case instance through case definition key
+         * @request GET:/api/case/definition/{caseDefinitionKey}/process/definitions
+         */
+        getCaseDefinitionCasedefinitionkeyProcessDefinitionsundefined: (
+            caseDefinitionKey: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/definition/${caseDefinitionKey}/process/definitions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardIdundefined
+         * @summary Retrieve case dashboard detail
+         * @request GET:/api/case/dashboard/{id}
+         */
+        getCaseDashboardIdundefined: (id: string, params: RequestParams = {}) =>
+            this.request<ResultCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name DeleteCaseDashboardId
+         * @summary Delete the case dashboard it must not have been used yet
+         * @request DELETE:/api/case/dashboard/{id}
+         */
+        deleteCaseDashboardId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardVersionVersionidStages
+         * @summary Get stages of the current version that it is case definition
+         * @request GET:/api/case/dashboard/version/{versionId}/stages
+         */
+        getCaseDashboardVersionVersionidStages: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/version/${versionId}/stages`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardVersionVersionidPrimaryform
+         * @summary Get primary form of the current version that it is case definition
+         * @request GET:/api/case/dashboard/version/{versionId}/primaryForm
+         */
+        getCaseDashboardVersionVersionidPrimaryform: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/version/${versionId}/primaryForm`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardVersionVersionidPrimaryformData
+         * @summary Retrieve information and information data of this case version
+         * @request GET:/api/case/dashboard/version/{versionId}/primaryForm/data
+         */
+        getCaseDashboardVersionVersionidPrimaryformData: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultCaseInstanceFormDataDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/version/${versionId}/primaryForm/data`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardVersionVersionidActivity
+         * @summary Get all activity of the current version that it is case definition
+         * @request GET:/api/case/dashboard/version/{versionId}/activity
+         */
+        getCaseDashboardVersionVersionidActivity: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/version/${versionId}/activity`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardVersionVersionidActions
+         * @request GET:/api/case/dashboard/version/{versionId}/actions
+         */
+        getCaseDashboardVersionVersionidActions: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/version/${versionId}/actions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardVersionCmmnversionidPermissionundefined
+         * @summary Show all dashboard views that belong to the current user of this case type. (Case Dashboard)
+         * @request GET:/api/case/dashboard/version/{cmmnVersionId}/permission
+         */
+        getCaseDashboardVersionCmmnversionidPermissionundefined: (cmmnVersionId: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnDashboardDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/version/${cmmnVersionId}/permission`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardInstanceCaseinstanceidMilestoneStatusundefined
+         * @summary Obtain Milestone Status of a case instance
+         * @request GET:/api/case/dashboard/instance/{caseInstanceId}/milestone/status
+         */
+        getCaseDashboardInstanceCaseinstanceidMilestoneStatusundefined: (
+            caseInstanceId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/instance/${caseInstanceId}/milestone/status`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardInstanceCaseidTasksundefined
+         * @summary Retrieve all tasks of this case instance
+         * @request GET:/api/case/dashboard/instance/{caseId}/tasks
+         */
+        getCaseDashboardInstanceCaseidTasksundefined: (caseId: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/instance/${caseId}/tasks`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardInstanceCaseidStagesundefined
+         * @summary Retrieve stages of current case instance
+         * @request GET:/api/case/dashboard/instance/{caseId}/stages
+         */
+        getCaseDashboardInstanceCaseidStagesundefined: (caseId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/instance/${caseId}/stages`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardInstanceCaseidProcessInstancePageConditionsundefined
+         * @summary Obtain process instance conditions that has been used
+         * @request GET:/api/case/dashboard/instance/{caseId}/process/instance/page/conditions
+         */
+        getCaseDashboardInstanceCaseidProcessInstancePageConditionsundefined: (
+            caseId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/instance/${caseId}/process/instance/page/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardInstanceCaseidPrimaryformDataundefined
+         * @summary Retrieve information and information data of this case instance
+         * @request GET:/api/case/dashboard/instance/{caseId}/primaryForm/data
+         */
+        getCaseDashboardInstanceCaseidPrimaryformDataundefined: (caseId: string, params: RequestParams = {}) =>
+            this.request<ResultCaseInstanceFormDataDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/instance/${caseId}/primaryForm/data`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardInstanceCaseidPlanitemsundefined
+         * @summary Retrieve planItems
+         * @request GET:/api/case/dashboard/instance/{caseId}/planItems
+         */
+        getCaseDashboardInstanceCaseidPlanitemsundefined: (
+            caseId: string,
+            query: {
+                type: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/instance/${caseId}/planItems`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardInstanceCaseidPersonalTasksundefined
+         * @summary Retrieve personal tasks of this case instance
+         * @request GET:/api/case/dashboard/instance/{caseId}/personal/tasks
+         */
+        getCaseDashboardInstanceCaseidPersonalTasksundefined: (caseId: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/instance/${caseId}/personal/tasks`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardInstanceCaseidEventsundefined
+         * @summary Retrieve all events of this case instance
+         * @request GET:/api/case/dashboard/instance/{caseId}/events
+         */
+        getCaseDashboardInstanceCaseidEventsundefined: (caseId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/instance/${caseId}/events`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardInstanceCaseidActivityundefined
+         * @summary Retrieve activities of this case instance
+         * @request GET:/api/case/dashboard/instance/{caseId}/activity
+         */
+        getCaseDashboardInstanceCaseidActivityundefined: (caseId: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnActivityItem, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/instance/${caseId}/activity`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardInstanceCaseidActionsundefined
+         * @summary Retrieve activities of this case instance
+         * @request GET:/api/case/dashboard/instance/{caseId}/actions
+         */
+        getCaseDashboardInstanceCaseidActionsundefined: (
+            caseId: string,
+            query?: {
+                userId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/instance/${caseId}/actions`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardInstanceStagePlanitemsundefined
+         * @summary Retrieve all planItem instance of this case instance
+         * @request GET:/api/case/dashboard/instance/stage/planItems
+         */
+        getCaseDashboardInstanceStagePlanitemsundefined: (
+            query: {
+                /** Case Instance Id */
+                caseInstanceId: any;
+                /** Stage Plan Item Definition Id */
+                stageDefinitionId: any;
+                /** PlanItemInstanceDTO */
+                planItemInstanceDTO: PlanItemInstanceDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/instance/stage/planItems`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardCasetypeCasetypeid
+         * @summary Retrieve all Case View Dashboard
+         * @request GET:/api/case/dashboard/caseType/{caseTypeId}
+         */
+        getCaseDashboardCasetypeCasetypeid: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnDashboard, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/caseType/${caseTypeId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardCasetypeCasetypeidVersionnumberVersionnumberundefined
+         * @summary Retrieve case dashboard detail of version number
+         * @request GET:/api/case/dashboard/caseType/{caseTypeId}/versionNumber/{versionNumber}
+         */
+        getCaseDashboardCasetypeCasetypeidVersionnumberVersionnumberundefined: (
+            caseTypeId: string,
+            versionNumber: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListCmmnDashboard, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/caseType/${caseTypeId}/versionNumber/${versionNumber}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardCasetypeCasetypeidStages
+         * @summary Retrieve stages of current case instance
+         * @request GET:/api/case/dashboard/caseType/{caseTypeId}/stages
+         */
+        getCaseDashboardCasetypeCasetypeidStages: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/caseType/${caseTypeId}/stages`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardCasetypeCasetypeidRecordsPageConditionsundefined
+         * @summary Obtain all conditions that paging search data of deployed case type
+         * @request GET:/api/case/dashboard/caseType/{caseTypeId}/records/page/conditions
+         */
+        getCaseDashboardCasetypeCasetypeidRecordsPageConditionsundefined: (
+            caseTypeId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/caseType/${caseTypeId}/records/page/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardCasetypeCasetypeidPrimaryformundefined
+         * @summary Get information form of case type
+         * @request GET:/api/case/dashboard/caseType/{caseTypeId}/primaryForm
+         */
+        getCaseDashboardCasetypeCasetypeidPrimaryformundefined: (
+            caseTypeId: string,
+            query?: {
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/caseType/${caseTypeId}/primaryForm`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardCasetypeCasetypeidActivity
+         * @request GET:/api/case/dashboard/caseType/{caseTypeId}/activity
+         */
+        getCaseDashboardCasetypeCasetypeidActivity: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/caseType/${caseTypeId}/activity`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardCasetypeCasetypeidActions
+         * @request GET:/api/case/dashboard/caseType/{caseTypeId}/actions
+         */
+        getCaseDashboardCasetypeCasetypeidActions: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/caseType/${caseTypeId}/actions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags cmmn-dashboard-controller
+         * @name GetCaseDashboardCaseinstanceCaseinstanceidundefined
+         * @summary Show all dashboard views that belong to the current user of this case type. (Case Dashboard)
+         * @request GET:/api/case/dashboard/caseInstance/{caseInstanceId}
+         */
+        getCaseDashboardCaseinstanceCaseinstanceidundefined: (caseInstanceId: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnDashboardDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/dashboard/caseInstance/${caseInstanceId}`,
                 method: "GET",
                 ...params,
             }),
@@ -24050,7 +29829,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/ai/ask_ai/ai_chat/queryAiTopicId
          */
         getAiAskAiAiChatQueryaitopicid: (params: RequestParams = {}) =>
-            this.request<ResultAiTopicIdVO, ResultString | (ResultString | Result)>({
+            this.request<ResultAiTopicIdVO, Result | (ResultObject | Result | ResultString)>({
                 path: `/ai/ask_ai/ai_chat/queryAiTopicId`,
                 method: "GET",
                 ...params,
@@ -24064,7 +29843,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request GET:/api/ai/ask_ai/ai_chat/queryAiChatInitInfo
          */
         getAiAskAiAiChatQueryaichatinitinfo: (params: RequestParams = {}) =>
-            this.request<ResultAiChatInitInfoVO, ResultString | (ResultString | Result)>({
+            this.request<ResultAiChatInitInfoVO, Result | (ResultObject | Result | ResultString)>({
                 path: `/ai/ask_ai/ai_chat/queryAiChatInitInfo`,
                 method: "GET",
                 ...params,
@@ -24084,7 +29863,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             aces: string,
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/user/permission/business/${businessId}/user/${userId}/aces/${aces}`,
                 method: "DELETE",
                 ...params,
@@ -24098,7 +29877,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/nuxeo/search/delete_nested_search_log/{id}
          */
         deleteNuxeoSearchDeleteNestedSearchLogId: (id: number, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/search/delete_nested_search_log/${id}`,
                 method: "DELETE",
                 ...params,
@@ -24113,7 +29892,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/nuxeo/identity/user/{userId}
          */
         deleteNuxeoIdentityUserUserid: (userId: string, data: any, params: RequestParams = {}) =>
-            this.request<ResultUserDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/user/${userId}`,
                 method: "DELETE",
                 body: data,
@@ -24130,7 +29909,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/nuxeo/identity/group/{groupId}
          */
         deleteNuxeoIdentityGroupGroupid: (groupId: string, params: RequestParams = {}) =>
-            this.request<ResultGroupDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/group/${groupId}`,
                 method: "DELETE",
                 ...params,
@@ -24139,13 +29918,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name DeleteNuxeoDocumentDocumentid
-         * @summary Delete a document using id
+         * @summary Purge a document using id
          * @request DELETE:/api/nuxeo/document/{documentId}
          */
         deleteNuxeoDocumentDocumentid: (documentId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/${documentId}`,
                 method: "DELETE",
                 ...params,
@@ -24154,13 +29933,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name DeleteNuxeoDocumentTrashDocumentid
          * @summary Move a document to trash list
          * @request DELETE:/api/nuxeo/document/trash/{documentId}
          */
         deleteNuxeoDocumentTrashDocumentid: (documentId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/trash/${documentId}`,
                 method: "DELETE",
                 ...params,
@@ -24169,13 +29948,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name DeleteNuxeoDocumentTempfileId
          * @summary deleteTempFileById
          * @request DELETE:/api/nuxeo/document/tempFile/{id}
          */
-        deleteNuxeoDocumentTempfileId: (id: number, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+        deleteNuxeoDocumentTempfileId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/tempFile/${id}`,
                 method: "DELETE",
                 ...params,
@@ -24184,13 +29963,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name DeleteNuxeoDocumentPurge
          * @summary Purge documents
          * @request DELETE:/api/nuxeo/document/purge
          */
         deleteNuxeoDocumentPurge: (params: RequestParams = {}) =>
-            this.request<ResultListDocumentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/purge`,
                 method: "DELETE",
                 ...params,
@@ -24199,12 +29978,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Document
          * @name DeleteNuxeoDocumentDeleteAll
          * @request DELETE:/api/nuxeo/document/delete/all
+         * @deprecated
          */
         deleteNuxeoDocumentDeleteAll: (params: RequestParams = {}) =>
-            this.request<boolean, ResultString | (ResultString | Result)>({
+            this.request<boolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/document/delete/all`,
                 method: "DELETE",
                 ...params,
@@ -24219,7 +29999,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/nuxeo/comments/delete/
          */
         deleteNuxeoCommentsDeleteDeprecate: (data: CommentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/comments/delete/`,
                 method: "DELETE",
                 body: data,
@@ -24236,7 +30016,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/nuxeo/comments/delete
          */
         deleteNuxeoCommentsDelete: (data: CommentRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultCommentDTO, ResultString | (ResultString | Result)>({
+            this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/comments/delete`,
                 method: "DELETE",
                 body: data,
@@ -24247,13 +30027,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name DeleteNuxeoCollectionRemove
          * @summary Remove documents from collection
          * @request DELETE:/api/nuxeo/collection/remove
          */
         deleteNuxeoCollectionRemove: (data: DocumentCollectionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection/remove`,
                 method: "DELETE",
                 body: data,
@@ -24264,13 +30044,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name DeleteNuxeoCollectionRemoveDeprecate
          * @summary Remove documents from collection
          * @request DELETE:/api/nuxeo/collection/remove/
          */
         deleteNuxeoCollectionRemoveDeprecate: (data: DocumentCollectionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection/remove/`,
                 method: "DELETE",
                 body: data,
@@ -24281,12 +30061,12 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Collection (Nuxeo)
+         * @tags Collection
          * @name DeleteNuxeoCollectionDeleteCollectionCollectionid
          * @request DELETE:/api/nuxeo/collection/delete_collection/{collectionId}
          */
         deleteNuxeoCollectionDeleteCollectionCollectionid: (collectionId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/collection/delete_collection/${collectionId}`,
                 method: "DELETE",
                 ...params,
@@ -24300,8 +30080,8 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @summary Delete upload file by id
          * @request DELETE:/api/file/upload/file/{id}
          */
-        deleteFileUploadFileId: (id: number, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+        deleteFileUploadFileId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/file/upload/file/${id}`,
                 method: "DELETE",
                 ...params,
@@ -24316,7 +30096,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/external-drive/oauth/cloud-services/{service_id}
          */
         deleteExternalDriveOauthCloudServicesServiceId: (serviceId: string, params: RequestParams = {}) =>
-            this.request<ResultVoid, ResultString | (ResultString | Result)>({
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/external-drive/oauth/cloud-services/${serviceId}`,
                 method: "DELETE",
                 ...params,
@@ -24330,7 +30110,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/docpal/workflow/version/draftId/{draftId}
          */
         deleteWorkflowVersionDraftidDraftid: (draftId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/version/draftId/${draftId}`,
                 method: "DELETE",
                 ...params,
@@ -24350,7 +30130,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListHistoricProcessInstanceEntityImpl, ResultString | (ResultString | Result)>({
+            this.request<ResultListHistoricProcessInstanceEntityImpl, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/deleteProcessInstanceByCreator`,
                 method: "DELETE",
                 query: query,
@@ -24372,10 +30152,44 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListHistoricProcessInstanceEntityImpl, ResultString | (ResultString | Result)>({
+            this.request<ResultListHistoricProcessInstanceEntityImpl, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/workflow/process/deleteProcessInstanceByApprover`,
                 method: "DELETE",
                 query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name DeleteFormDesignId
+         * @request DELETE:/api/docpal/form/design/{id}
+         * @deprecated
+         */
+        deleteFormDesignId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name DeleteFormDesignDraftidFormresultFormresultid
+         * @request DELETE:/api/docpal/form/design/{draftId}/formResult/{formResultId}
+         * @deprecated
+         */
+        deleteFormDesignDraftidFormresultFormresultid: (
+            draftId: string,
+            formResultId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/form/design/${draftId}/formResult/${formResultId}`,
+                method: "DELETE",
                 ...params,
             }),
 
@@ -24386,9 +30200,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name DeleteContactgroupIdFieldsFieldname
          * @summary Add new field to contact Group
          * @request DELETE:/api/docpal/contactGroup/{id}/fields/{fieldName}
+         * @deprecated
          */
         deleteContactgroupIdFieldsFieldname: (id: string, fieldName: string, data: any, params: RequestParams = {}) =>
-            this.request<ResultListContactAttribute, ResultString | (ResultString | Result)>({
+            this.request<ResultListContactAttribute, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}/fields/${fieldName}`,
                 method: "DELETE",
                 body: data,
@@ -24403,9 +30218,10 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name DeleteContactgroupIdContactContactdetailid
          * @summary Physically delete contact records
          * @request DELETE:/api/docpal/contactGroup/{id}/contact/{contactDetailId}
+         * @deprecated
          */
         deleteContactgroupIdContactContactdetailid: (id: string, contactDetailId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/contactGroup/${id}/contact/${contactDetailId}`,
                 method: "DELETE",
                 ...params,
@@ -24420,8 +30236,212 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/docpal/case/types/{caseTypeId}/instance/{caseId}
          */
         deleteCaseTypesCasetypeidInstanceCaseid: (caseTypeId: string, caseId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/case/types/${caseTypeId}/instance/${caseId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name DeleteDmsMasterTableIdRecordBatch
+         * @summary Batch delete record by id array
+         * @request DELETE:/api/dms/master-table/{id}/record/batch
+         */
+        deleteDmsMasterTableIdRecordBatch: (
+            id: string,
+            query: {
+                recordIds: string[];
+            },
+            data: any,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}/record/batch`,
+                method: "DELETE",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name DeleteDmsMasterTableIdFields
+         * @summary Delete field when not data (Master Table)
+         * @request DELETE:/api/dms/master-table/{id}/fields
+         */
+        deleteDmsMasterTableIdFields: (
+            id: string,
+            query: {
+                columnName: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/master-table/${id}/fields`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name DeleteDmsEasyFormId
+         * @request DELETE:/api/dms/easy-form/{id}
+         */
+        deleteDmsEasyFormId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EasyFormController
+         * @name DeleteDmsEasyFormDraftidFormresultFormresultid
+         * @request DELETE:/api/dms/easy-form/{draftId}/formResult/{formResultId}
+         */
+        deleteDmsEasyFormDraftidFormresultFormresultid: (
+            draftId: string,
+            formResultId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/easy-form/${draftId}/formResult/${formResultId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name DeleteDmsContactGroupIdFieldsFieldname
+         * @summary Add new field to contact Group
+         * @request DELETE:/api/dms/contact-group/{id}/fields/{fieldName}
+         */
+        deleteDmsContactGroupIdFieldsFieldname: (
+            id: string,
+            fieldName: string,
+            data: any,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListContactAttribute, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}/fields/${fieldName}`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name DeleteDmsContactGroupIdContactContactdetailid
+         * @summary Physically delete contact records
+         * @request DELETE:/api/dms/contact-group/{id}/contact/{contactDetailId}
+         */
+        deleteDmsContactGroupIdContactContactdetailid: (
+            id: string,
+            contactDetailId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/contact-group/${id}/contact/${contactDetailId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CabinetController
+         * @name DeleteDmsCabinetAll
+         * @summary Delete folder cabinet template and all sub folder cabinet
+         * @request DELETE:/api/dms/cabinet/all
+         */
+        deleteDmsCabinetAll: (params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/dms/cabinet/all`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name DeleteCaseTypesId
+         * @summary Delete the case type it must not have been used yet
+         * @request DELETE:/api/case/types/{id}
+         */
+        deleteCaseTypesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name DeleteCaseTypesCasetypeidInstanceCaseidundefined
+         * @summary Delete case instance of this case type
+         * @request DELETE:/api/case/types/{caseTypeId}/instance/{caseId}
+         */
+        deleteCaseTypesCasetypeidInstanceCaseidundefined: (
+            caseTypeId: string,
+            caseId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/types/${caseTypeId}/instance/${caseId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name DeleteCaseInstanceInstance
+         * @request DELETE:/api/case/instance/instance
+         */
+        deleteCaseInstanceInstance: (
+            query?: {
+                caseId?: string;
+                caseInstanceId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/instance`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name DeleteCaseInstanceInstanceCaseid
+         * @request DELETE:/api/case/instance/instance/{caseId}
+         */
+        deleteCaseInstanceInstanceCaseid: (caseId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/case/instance/instance/${caseId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -24435,7 +30455,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request DELETE:/api/block/permission/document/{docId}/path/{docPath}
          */
         deleteBlockPermissionDocumentDocidPathDocpath: (docId: string, docPath: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/block/permission/document/${docId}/path/${docPath}`,
                 method: "DELETE",
                 ...params,
@@ -24455,7 +30475,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/isCanModified`,
                 method: "GET",
                 query: query,
@@ -24476,7 +30496,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/isCanModified`,
                 method: "PUT",
                 query: query,
@@ -24497,7 +30517,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/isCanModified`,
                 method: "POST",
                 query: query,
@@ -24518,7 +30538,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/isCanModified`,
                 method: "DELETE",
                 query: query,
@@ -24539,7 +30559,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/isCanModified`,
                 method: "OPTIONS",
                 query: query,
@@ -24560,7 +30580,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/isCanModified`,
                 method: "HEAD",
                 query: query,
@@ -24581,7 +30601,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultBoolean, ResultString | (ResultString | Result)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/nuxeo/identity/isCanModified`,
                 method: "PATCH",
                 query: query,
