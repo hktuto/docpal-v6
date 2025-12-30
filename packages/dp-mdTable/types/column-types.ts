@@ -63,7 +63,7 @@ export interface EditRenderFunctionParams<T = any> {
 
 
 // 分离模式组件配置
-export interface SeparateComponentConfig<T = any> {
+export interface RenderComponentConfig<T = any> {
   name?: string  // 基础名称
   titleConfig?: {
     icon?: string
@@ -95,7 +95,7 @@ export interface SeparateComponentConfig<T = any> {
 
 // 组件注册模式
 export type ComponentConfig<T = any> = 
-  | SeparateComponentConfig<T>
+  | RenderComponentConfig<T>
 
 // 选项接口定义
 export interface SelectOption {

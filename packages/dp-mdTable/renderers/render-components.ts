@@ -1,13 +1,12 @@
 // renderers/separate-components.ts
 import { h } from 'vue'
 import type { VNode } from 'vue'
-import { ColumnFieldType } from '../types/column-types'
 import { ElRate,ElInput } from 'element-plus'
 import { EditPen } from '@element-plus/icons-vue'
-import type { SeparateComponentConfig, ViewRenderFunctionParams, EditRenderFunctionParams, SelectOption } from '../types/column-types'
+import type { RenderComponentConfig, ViewRenderFunctionParams } from '../types/column-types'
 
 // 分离模式组件配置
-export const MDTableComponents: Record<string, SeparateComponentConfig> = {
+export const MDTableComponents: Record<string, RenderComponentConfig> = {
   Text: {
     edit: { name: 'VxeInput' },
     // titleConfig: {

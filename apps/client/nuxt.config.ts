@@ -70,7 +70,7 @@ export default defineNuxtConfig({
         '../../pages/public-upload',
         '../../pages/public-easy-form',
         '../../packages/dp-contact',
-        '../../packages/dp-multiDimentionTable',
+        '../../packages/dp-mdTable',
         // demo packages
     ],
     features: {

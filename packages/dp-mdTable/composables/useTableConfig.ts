@@ -176,7 +176,12 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         showIcon: false
       },
       // 分组配置
-      aggregateConfig: aggregateConfig.value
+      aggregateConfig: aggregateConfig.value,
+      showFooter: true,
+      footerData: [
+        { type: 'footerAdd' },
+        { type: 'footerData' },
+      ]
     }
     // 编辑配置
     // 检查是否有列配置了 editRender

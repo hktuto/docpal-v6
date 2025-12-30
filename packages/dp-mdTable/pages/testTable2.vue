@@ -3,19 +3,19 @@
   <div class="test-container">
     <h1>MultiDimensionTable 组件测试</h1>
 
-    <MultiDimentionTable ref="tableRef" tableName="test_table">
+    <MdTable ref="tableRef" tableName="test_table">
       <!-- 自定义工具栏左侧 -->
       <template #toolbar-left>
       </template>
 
       <!-- 自定义工具栏右侧 -->
       <template #toolbar-right>
-        <el-button @click="handleExport">导出Excel</el-button>
+        <!-- <el-button @click="handleExport">导出Excel</el-button>
         <el-button @click="getAllRowData">获取数据</el-button>
         <el-button type="warning" @click="handleTestDeleteColumn">测试删除列</el-button>
-        <el-button type="info" @click="handleTestUpdateColumn">测试更新列</el-button>
+        <el-button type="info" @click="handleTestUpdateColumn">测试更新列</el-button> -->
       </template>
-    </MultiDimentionTable>
+    </MdTable>
   </div>
 </template>
 

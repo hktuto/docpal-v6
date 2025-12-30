@@ -2,8 +2,8 @@
 import { h } from 'vue'
 import { VxeUI } from 'vxe-pc-ui'
 import { ColumnFieldType } from '../types/column-types'
-import type { ComponentConfig, SeparateComponentConfig } from '../types/column-types'
-import { MDTableComponents } from './separate-components'
+import type { ComponentConfig, RenderComponentConfig } from '../types/column-types'
+import { MDTableComponents } from './render-components'
 
 export interface FieldConfig {
   field: string
@@ -35,7 +35,7 @@ export interface ColumnConfig {
 }
 
 export class RendererRegistryManager {
-  private componentMap = new Map<string, SeparateComponentConfig>()
+  private componentMap = new Map<string, RenderComponentConfig>()
 
   constructor() {
     this.componentMap = new Map(Object.entries(MDTableComponents))
@@ -52,7 +52,7 @@ export class RendererRegistryManager {
       }
     })
   }
-  private registerRenderer(config: SeparateComponentConfig, name: string): void {
+  private registerRenderer(config: RenderComponentConfig, name: string): void {
     const { both, view, edit } = config
 
     // 创建渲染器函数的公共方法
@@ -102,7 +102,7 @@ export class RendererRegistryManager {
     editOptions = editOptions || {}
 
     const fieldName = ColumnFieldType[type]
-    let config: SeparateComponentConfig | undefined = this.getComponentConfig(fieldName)
+    let config: RenderComponentConfig | undefined = this.getComponentConfig(fieldName)
 
     if (!config) {
       console.error(`字段类型 ${fieldName} 的组件配置未找到`)

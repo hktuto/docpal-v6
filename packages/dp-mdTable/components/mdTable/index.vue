@@ -23,6 +23,11 @@
           <template v-for="(_, slotName) in filteredSlots" #[slotName]="slotProps">
             <slot :name="slotName" v-bind="slotProps" />
           </template>
+          <template #footer="footerProps">
+            <div class="footer-footerAdd">
+              111
+            </div>
+          </template>
         </vxe-grid>
       </div>
       <!-- 右侧区域 -->
