@@ -65,6 +65,11 @@ export interface EditRenderFunctionParams<T = any> {
 // 分离模式组件配置
 export interface SeparateComponentConfig<T = any> {
   name?: string  // 基础名称
+  titleConfig?: {
+    icon?: string
+    useHTML?: boolean
+    content?: string
+  }
   both?: {
     render?: (params: UnifiedRenderFunctionParams<T>) => any
     defaultOptions?: Record<string, any>

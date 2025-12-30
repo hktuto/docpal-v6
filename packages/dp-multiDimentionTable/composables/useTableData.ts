@@ -1,7 +1,7 @@
 // composables/useTableData.ts
 import { ref, computed, watch } from 'vue'
 import { clientApi } from 'api'
-
+// import { createGroupTree } from '../utils/treeDataHelper'
 export interface UseTableDataOptions {
   /** 查询参数（SQL字符串或对象） */
   queryParams?: string | Record<string, any>
@@ -16,7 +16,7 @@ function createMockData({ page }: any, tableName: string) {
     mockData.push({
       id: i,
       name: `name${i}`,
-      age: Math.floor(Math.random() * 100),
+      age: Math.floor(Math.random() * 5) + 10,
       gender: Math.floor(Math.random() * 2) === 0 ? 'male' : 'female',
       email: `email${i}@example.com`,
       phone: `phone${i}`,
@@ -43,13 +43,17 @@ function createMockData({ page }: any, tableName: string) {
  * 表格数据管理 Composable
  * 通过 tableName 获取和管理表格数据
  */
-export function useTableData(tableName: string, options: UseTableDataOptions = {}) {
+export function useTableData(tableName: string, gridRef: any, options: UseTableDataOptions = {}) {
   const { queryParams = '', autoLoad = true, transform } = options
 
   const tableData = ref<any[]>([])
   const rawData = ref<any[]>([]) // 原始数据，用于行数据管理
   const loading = ref(false)
   const error = ref<Error | null>(null)
+  const groupOptions = ref<any[]>([
+    { key: 'gender', asc: true },
+    { key: 'age', asc: true }
+  ])
 
   /**
    * 从数据推断列类型
@@ -68,6 +72,8 @@ export function useTableData(tableName: string, options: UseTableDataOptions = {
   const getTableData = async (params?: any) => {
     if (tableName) {
       tableData.value = createMockData(tableName, params)
+      // const data = createGroupTree(tableData.value, groupOptions.value)
+      // console.log('data', data)
       return tableData.value
     }
     if (!!tableName) {
@@ -77,56 +83,6 @@ export function useTableData(tableName: string, options: UseTableDataOptions = {
 
     loading.value = true
     error.value = null
-
-    try {
-      // 构建查询参数
-      let query: any = ''
-      if (params) {
-        if (typeof params === 'string') {
-          query = params
-        } else {
-          // 将对象转换为查询字符串
-          const searchParams = new URLSearchParams()
-          Object.entries(params).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
-              searchParams.append(key, String(value))
-            }
-          })
-          query = searchParams.toString()
-        }
-      } else if (typeof queryParams === 'string') {
-        query = queryParams
-      } else if (queryParams) {
-        const searchParams = new URLSearchParams()
-        Object.entries(queryParams).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            searchParams.append(key, String(value))
-          }
-        })
-        query = searchParams.toString()
-      }
-
-      const url = query ? `${tableName}?${query}` : tableName
-      const response: any = await clientApi.api.getPostgrestTable(url)
-
-      let data = Array.isArray(response.data) ? response.data : []
-
-      // 应用数据转换函数
-      if (transform && typeof transform === 'function') {
-        data = transform(data)
-      }
-
-      rawData.value = data
-      tableData.value = data
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err : new Error('获取数据失败')
-      error.value = errorMessage
-      console.error('获取表格数据失败:', errorMessage)
-      tableData.value = []
-      rawData.value = []
-    } finally {
-      loading.value = false
-    }
   }
 
   /**
@@ -196,6 +152,7 @@ export function useTableData(tableName: string, options: UseTableDataOptions = {
     return index >= 0 && index < rawData.value.length ? rawData.value[index] : null
   }
 
+  
   /**
    * 获取所有行数据
    */
@@ -236,6 +193,6 @@ export function useTableData(tableName: string, options: UseTableDataOptions = {
     clearData,
     getRowData,
     getAllRowData,
-    inferColumnType
+    inferColumnType,
   }
 }

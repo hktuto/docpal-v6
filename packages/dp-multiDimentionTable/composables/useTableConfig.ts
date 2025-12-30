@@ -39,8 +39,7 @@ export interface TableConfigOptions {
  * 表格配置管理 Composable
  * 封装 VxeGrid 的配置逻辑
  */
-export function useTableConfig(options: TableConfigOptions) {
-  const gridRef = ref<VxeGridInstance>()
+export function useTableConfig(options: TableConfigOptions, gridRef: any) {
   const {
     height = '100%',
     autoResize = true,
@@ -50,12 +49,38 @@ export function useTableConfig(options: TableConfigOptions) {
     keepSource = true,
     rowId = 'id',
     editConfig,
-    groupBy = [],
     columns,
     loading,
-    apiMethod
+    apiMethod,
+    groupBy
   } = options
-
+  const aggregateConfig = ref<any>({
+    groupFields: [],
+    expandGroupFields: [],
+    calcValuesMethod(params: any) {
+      const { column, children } = params
+      if (column.field === 'num') {
+        let numSum = 0
+        children.forEach((item: any) => {
+          numSum += item.num
+        })
+        return numSum
+      }
+      if (column.field === 'age') {
+        let ageCount = 0
+        let noData = false
+        children.forEach((item: any) => {
+          if(!item.age) {
+            noData = true
+          } else {
+            ageCount += item.age || 0
+          }
+        })
+        return noData ? '' : Math.floor(ageCount / children.length)
+      }
+      return ''
+    }
+  })
   /**
    * 计算表格高度
    */
@@ -73,27 +98,57 @@ export function useTableConfig(options: TableConfigOptions) {
    * 处理列配置（添加默认编辑配置）
    */
   const processedColumns = computed(() => {
-    return columns.value.map((col) => {
+    let _columns: any[] = JSON.parse(JSON.stringify(columns.value))
+    return _columns.map((col) => {
       if (!col.type) col.type = ColumnFieldType.Text
-      const colConfig = { ...col, ...rendererManager.getColumnConfig(col.type as ColumnFieldType, col.property, col.property) }
+      if (col.field === 'name') col.rowGroupNode = true
+      const colConfig = { ...col,aggFunc: true, ...rendererManager.getColumnConfig(col.type as ColumnFieldType, col.property, col.property) }
+
       return colConfig
     })
   })
-
-  /**
-   * 计算分组字段
-   */
-  const computedGroupBy = computed(() => {
-    if (!groupBy) return undefined
-    const groupByValue = groupBy instanceof Array ? groupBy : groupBy.value
-    return groupByValue.length > 0 ? groupByValue : undefined
-  })
-
+  function updateAggregateConfig(newGroupBy: any) {
+    if (!newGroupBy) {
+      aggregateConfig.value.groupFields = []
+      aggregateConfig.value.expandGroupFields = []
+    } else {
+      const _newGroupBy = newGroupBy instanceof Array ? newGroupBy : newGroupBy.value
+      const _group = JSON.parse(JSON.stringify(_newGroupBy))
+      const _groupFields = _group[0] instanceof String ? _group : _group.map((field: any) => field.field)
+      aggregateConfig.value.groupFields = _groupFields
+      aggregateConfig.value.expandGroupFields = _groupFields
+      if (gridRef.value) {
+        gridRef.value.setRowGroups(_groupFields)
+      }
+    }
+    if (gridRef.value) {
+      gridRef.value.commitProxy('reload')
+    }
+  }
+  // function updateColumns(newRules: any, _columns: any[]) {
+  //   const _newRules = newRules instanceof Array ? newRules : newRules.value
+  //   const columnIndexs: number[] = []
+  //   if (_newRules) {
+  //     _columns.forEach((col, index) => {
+  //       const rule = _newRules.find((rule: any) => rule.field === col.field)
+  //       if (rule) {
+  //         col.rowGroupNode = true
+  //         columnIndexs.push(index)
+  //       } else {
+  //         col.rowGroupNode = false
+  //       }
+  //     })
+  //   }
+  //   columnIndexs.forEach((colIndex, index) => {
+  //     const _col = _columns.splice(colIndex, 1)[0]
+  //     _columns.splice(index, 0, _col)
+  //   })
+  //   return _columns
+  // }
   /**
    * 表格配置
    */
   const gridOptions = computed<VxeGridProps>(() => {
-    console.log('processedColumns', processedColumns.value)
     const options: VxeGridProps | any = {
       height: computedHeight.value,
       autoResize,
@@ -117,10 +172,12 @@ export function useTableConfig(options: TableConfigOptions) {
       toolbarConfig: {
         visible: false
       },
+      sortConfig: {
+        showIcon: false
+      },
       // 分组配置
-      groupBy: computedGroupBy.value
+      aggregateConfig: aggregateConfig.value
     }
-
     // 编辑配置
     // 检查是否有列配置了 editRender
     const hasEditRender = processedColumns.value.some((col) => col.editRender)
@@ -133,10 +190,11 @@ export function useTableConfig(options: TableConfigOptions) {
           ...editConfigObj,
           // 默认每行可编辑
           trigger: editConfigObj.trigger || 'click',
-          mode: editConfigObj.mode || 'cell'
+          mode: editConfigObj.mode || 'cell',
+          showIcon: false
         }
       } else {
-        options.editConfig = { trigger: 'click', mode: 'cell' }
+        options.editConfig = { trigger: 'click', mode: 'cell', showIcon: false }
       }
     }
     if (apiMethod) {
@@ -152,9 +210,14 @@ export function useTableConfig(options: TableConfigOptions) {
     return options
   })
 
+  watch(
+    () => options.groupBy,
+    (newGroupBy) => {
+      updateAggregateConfig(newGroupBy)
+    },
+    { immediate: true, deep: true }
+  )
   return {
-    gridRef,
-    gridOptions,
-    processedColumns
+    gridOptions
   }
 }

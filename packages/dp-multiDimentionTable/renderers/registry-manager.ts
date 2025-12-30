@@ -19,6 +19,11 @@ export interface ColumnConfig {
   field: string
   title: string
   width?: number
+  titlePrefix?: {
+    icon?: string
+    useHTML?: boolean
+    content?: string
+  }
   cellRender: {
     name: string
     options?: Record<string, any>
@@ -97,17 +102,18 @@ export class RendererRegistryManager {
     editOptions = editOptions || {}
 
     const fieldName = ColumnFieldType[type]
-
-    // 2. 提前处理配置获取，减少重复代码
     let config: SeparateComponentConfig | undefined = this.getComponentConfig(fieldName)
-    console.log('config', fieldName, config)
+
     if (!config) {
       console.error(`字段类型 ${fieldName} 的组件配置未找到`)
       config = this.getComponentConfig('Text')
     }
-
-    const result: Partial<Pick<ColumnConfig, 'cellRender' | 'editRender'>> = {}
-
+    const titleConfig = config?.titleConfig || {}
+    const result: Partial<Pick<ColumnConfig, 'cellRender' | 'editRender' | 'titlePrefix'>> = {
+    }
+    if (config?.titleConfig) {
+      result.titlePrefix = config.titleConfig
+    }
     // 3. 重构判断逻辑，提取重复代码为函数
     const createRenderConfig = (name: string, options: Record<string, any>) => ({ name, options })
 
@@ -122,9 +128,9 @@ export class RendererRegistryManager {
       }
       const baseOptions = { ...bothConfig.defaultOptions }
       const name = bothConfig.render ? fieldName : bothConfig.name
-      const viewRender = createRenderConfig(name!, { ...baseOptions, ...viewOptions })
-      const editRender = createRenderConfig(name!, { ...baseOptions, ...editOptions })
-      return { cellRender: viewRender, editRender: editRender }
+      result.cellRender = createRenderConfig(name!, { ...baseOptions, ...viewOptions })
+      result.editRender = createRenderConfig(name!, { ...baseOptions, ...editOptions })
+      return result as Pick<ColumnConfig, 'cellRender' | 'editRender' | 'titlePrefix'>
     }
 
     // 5. 分离处理 view 和 edit 配置
@@ -150,8 +156,7 @@ export class RendererRegistryManager {
       }
     }
 
-    console.log('result', type, result)
-    return result as Pick<ColumnConfig, 'cellRender' | 'editRender'>
+    return result as Pick<ColumnConfig, 'cellRender' | 'editRender' | 'titlePrefix'>
   }
 
   /**
@@ -159,7 +164,6 @@ export class RendererRegistryManager {
    */
   public generateColumnFromField(fieldConfig: FieldConfig): ColumnConfig {
     const { field, title, type, options = {} } = fieldConfig
-
     const renderConfig = this.getColumnConfig(type, options.viewOptions, options.editOptions)
 
     const columnConfig: ColumnConfig = {

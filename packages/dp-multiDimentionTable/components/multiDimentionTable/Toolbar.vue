@@ -1,24 +1,8 @@
 <template>
   <div v-if="showToolbar" class="table-toolbar">
     <div class="toolbar-left">
+      <ToolsGroupingButton :groupableColumns="groupableColumns" @grouping-change="emit('grouping-change', $event)"/>
       <slot name="toolbar-left">
-        <!-- 分组功能 -->
-        <el-dropdown trigger="click" @command="handleGroupCommand">
-          <el-button size="small">
-            <el-icon><Operation /></el-icon>
-            分组
-          </el-button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item v-for="col in groupableColumns" :key="col.field" :command="col.field">
-                <el-checkbox :model-value="activeGroupFields.includes(col.field)" @click.stop="toggleGroup(col.field)">
-                  {{ col.title }}
-                </el-checkbox>
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-
         <el-button v-if="showRefresh" size="small" @click="handleRefresh">
           <el-icon><Refresh /></el-icon>
           刷新
@@ -74,6 +58,7 @@ interface Emits {
   (e: 'export'): void
   (e: 'group-toggle', field: string): void
   (e: 'update:activeGroupFields', fields: string[]): void
+  (e: 'grouping-change', rules: GroupingRule[]): void
 }
 
 const props = withDefaults(defineProps<Props>(), {

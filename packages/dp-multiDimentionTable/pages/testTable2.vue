@@ -6,8 +6,6 @@
     <MultiDimentionTable ref="tableRef" tableName="test_table">
       <!-- 自定义工具栏左侧 -->
       <template #toolbar-left>
-        <el-button type="primary" @click="handleAddProduct"> 新增产品 </el-button>
-        <el-button type="success" @click="handleBatchAdd"> 批量添加 </el-button>
       </template>
 
       <!-- 自定义工具栏右侧 -->
@@ -22,7 +20,8 @@
 </template>
 
 <script setup lang="ts">
-
+import { ref } from 'vue'
+const tableRef = ref<any>()
 </script>
 
 <style scoped lang="scss">

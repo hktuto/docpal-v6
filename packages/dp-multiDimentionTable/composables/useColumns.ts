@@ -2,31 +2,31 @@
 import { ref, type Ref } from 'vue'
 // 基础字段类型定义
 export enum ColumnFieldType {
-  SingleText = 1,      // 多行文本
-  Number = 2,          // 数字
-  SingleSelect = 3,    // 单选
-  MultiSelect = 4,     // 多选
-  DateTime = 5,        // 日期
-  Attachment = 6,      // 附件
-  TwoWayLink = 7,      // 双向关联
-  URL = 8,             // 网址
-  Email = 9,           // 邮箱
-  Phone = 10,          // 电话
-  Checkbox = 11,       // 勾选
-  Rating = 12,         // 评分
-  Member = 13,         // 成员
-  MagicLink = 14,      // 神奇引用/关联
-  MagicLookUp = 15,    // 神奇引用/查找
-  Formula = 16,        // 智能公式
-  Currency = 17,       // 货币
-  Percent = 18,        // 百分比
-  Text = 19,           // 标题/单行文本
-  AutoNumber = 20,     // 自增数字
-  CreatedTime = 21,    // 创建时间
+  SingleText = 1, // 多行文本
+  Number = 2, // 数字
+  SingleSelect = 3, // 单选
+  MultiSelect = 4, // 多选
+  DateTime = 5, // 日期
+  Attachment = 6, // 附件
+  TwoWayLink = 7, // 双向关联
+  URL = 8, // 网址
+  Email = 9, // 邮箱
+  Phone = 10, // 电话
+  Checkbox = 11, // 勾选
+  Rating = 12, // 评分
+  Member = 13, // 成员
+  MagicLink = 14, // 神奇引用/关联
+  MagicLookUp = 15, // 神奇引用/查找
+  Formula = 16, // 智能公式
+  Currency = 17, // 货币
+  Percent = 18, // 百分比
+  Text = 19, // 标题/单行文本
+  AutoNumber = 20, // 自增数字
+  CreatedTime = 21, // 创建时间
   LastModifiedTime = 22, // 修改时间
-  CreatedBy = 23,      // 创建人
+  CreatedBy = 23, // 创建人
   LastModifiedBy = 24, // 修改人
-  OneWayLink = 26,     // 单向关联
+  OneWayLink = 26 // 单向关联
 }
 export interface ColumnConfig {
   field: string
@@ -64,7 +64,7 @@ const inferColumnsFromData = (data: any[]): ColumnConfig[] => {
   const firstRow = data[0]
   const fields = Object.keys(firstRow)
 
-  return fields.map(field => {
+  return fields.map((field) => {
     const value = firstRow[field]
     let type: 'number' | 'integer' | 'string' = 'string'
 
@@ -89,30 +89,30 @@ const inferColumnsFromData = (data: any[]): ColumnConfig[] => {
 function createMockColumns(tableName: string) {
   const mockColumns = []
   const names = ['name', 'age', 'gender', 'email', 'phone', 'address', 'city', 'state', 'zip', 'country', 'url', 'rate']
-  for(let i = 0; i < names.length; i++) {
+  for (let i = 0; i < names.length; i++) {
     let type = ColumnFieldType.Text
     let property = {}
-    if(names[i] === 'age') {
+    if (names[i] === 'age') {
       type = ColumnFieldType.Number
     }
-    if(names[i] === 'gender') {
+    if (names[i] === 'gender') {
       type = ColumnFieldType.SingleSelect
     }
-    if(names[i] === 'email') {
+    if (names[i] === 'email') {
       type = ColumnFieldType.Email
     }
-    if(names[i] === 'phone') {
+    if (names[i] === 'phone') {
       type = ColumnFieldType.Phone
     }
-    if(names[i] === 'url') {
+    if (names[i] === 'url') {
       type = ColumnFieldType.URL
     }
-    if(names[i] === 'rate') {
-      type = ColumnFieldType.Rating,
-      property = {
-        allowHalf: true,
-        max: 3
-      }
+    if (names[i] === 'rate') {
+      ;(type = ColumnFieldType.Rating),
+        (property = {
+          allowHalf: true,
+          max: 3
+        })
     }
     mockColumns.push({
       field: names[i],
@@ -131,18 +131,16 @@ function createMockColumns(tableName: string) {
  * 列管理 Composable
  * 提供列的增删改查功能，支持从数据自动推断列配置
  */
-export function useColumns(
-  tableName: string,
-  options: UseColumnsOptions = {}
-) {
+export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
   const columns = ref<ColumnConfig[]>([])
+  const columnGroupRules = ref<any[]>([])
   /**
    * 获取列
    * @param field 字段名
    * @returns 列配置或 undefined
    */
   const getColumn = (field: string): ColumnConfig | undefined => {
-    return columns.value.find(col => col.field === field)
+    return columns.value.find((col) => col.field === field)
   }
 
   /**
@@ -150,10 +148,10 @@ export function useColumns(
    * @returns 所有列配置
    */
   const getAllColumns = (): ColumnConfig[] => {
-    if(tableName) {
+    if (tableName) {
       columns.value = createMockColumns(tableName)
       return columns.value
-    } 
+    }
     return [...columns.value]
   }
 
@@ -163,7 +161,7 @@ export function useColumns(
    * @returns 是否存在
    */
   const hasColumn = (field: string): boolean => {
-    return columns.value.some(col => col.field === field)
+    return columns.value.some((col) => col.field === field)
   }
 
   /**
@@ -220,8 +218,8 @@ export function useColumns(
    * @returns 是否删除成功
    */
   const deleteColumn = (field: string): boolean => {
-    const index = columns.value.findIndex(col => col.field === field)
-    
+    const index = columns.value.findIndex((col) => col.field === field)
+
     if (index === -1) {
       console.error(`删除列失败: 字段名 "${field}" 不存在`)
       return false
@@ -243,8 +241,8 @@ export function useColumns(
    * @returns 是否更新成功
    */
   const updateColumn = (field: string, updates: Partial<ColumnConfig>): boolean => {
-    const index = columns.value.findIndex(col => col.field === field)
-    
+    const index = columns.value.findIndex((col) => col.field === field)
+
     if (index === -1) {
       console.error(`更新列失败: 字段名 "${field}" 不存在`)
       return false
@@ -256,7 +254,7 @@ export function useColumns(
         console.error(`更新列失败: 新字段名 "${updates.field}" 已存在`)
         return false
       }
-      
+
       // 验证新字段名格式
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(updates.field)) {
         console.error('更新列失败: 新字段名只能包含字母、数字和下划线，且不能以数字开头')
@@ -294,7 +292,7 @@ export function useColumns(
    */
   const addColumns = (columnList: ColumnConfig[]): number => {
     let successCount = 0
-    columnList.forEach(column => {
+    columnList.forEach((column) => {
       if (addColumn(column)) {
         successCount++
       }
@@ -309,7 +307,7 @@ export function useColumns(
    */
   const deleteColumns = (fields: string[]): number => {
     let successCount = 0
-    fields.forEach(field => {
+    fields.forEach((field) => {
       if (deleteColumn(field)) {
         successCount++
       }
@@ -322,9 +320,7 @@ export function useColumns(
    * @returns 字段名数组
    */
   const getExistingFields = (): string[] => {
-    return columns.value
-      .filter(col => col.field && col.field !== '__add_button__')
-      .map(col => col.field)
+    return columns.value.filter((col) => col.field && col.field !== '__add_button__').map((col) => col.field)
   }
 
   /**
@@ -352,9 +348,9 @@ export function useColumns(
     if (!data || data.length === 0) return
 
     const inferredColumns = inferColumnsFromData(data)
-    const existingFields = columns.value.map(col => col.field)
+    const existingFields = columns.value.map((col) => col.field)
 
-    inferredColumns.forEach(col => {
+    inferredColumns.forEach((col) => {
       if (!existingFields.includes(col.field)) {
         columns.value.push(col)
       }
@@ -380,7 +376,7 @@ export function useColumns(
     inferColumns,
     mergeColumnsFromData,
     // 原始引用（只读）
-    columns: columns as Readonly<Ref<ColumnConfig[]>>
+    columns: columns as Readonly<Ref<ColumnConfig[]>>,
+    columnGroupRules
   }
 }
-

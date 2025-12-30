@@ -2,11 +2,10 @@
   <div class="multi-dimension-table" :style="{ height: props.height || '100%' }">
     <!-- 工具栏 -->
     <Toolbar
-      :groupable-columns="groupableColumns"
-      v-model:active-group-fields="activeGroupFields"
+      :groupable-columns="columns"
       @refresh="handleRefresh"
       @search="handleSearch"
-      @group-toggle="handleGroupToggle"
+      @grouping-change="handleGroupToggle"
     >
       <template #toolbar-left>
         <slot name="toolbar-left" />
@@ -37,7 +36,6 @@
           ref="addColumnPopoverRef"
           :existing-fields="existingFields"
           :virtual-ref="addColumnTriggerRef"
-          :width="addColumnPopoverWidth"
           placement="left-start"
           :popper-class="addColumnPopoverClass"
           @submit="addColumn"
@@ -53,7 +51,6 @@ import type { VxeGridProps, VxeGridListeners, VxeGridInstance } from 'vxe-table'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { useTableData } from '../../composables/useTableData'
-import { useColumns, type ColumnConfig, ColumnFieldType } from '../../composables/useColumns'
 import { useTableConfig } from '../../composables/useTableConfig'
 import Toolbar from './Toolbar.vue'
 import AddColumnPopover from './AddColumnPopover.vue'
@@ -63,7 +60,6 @@ const slots = useSlots()
 interface Props {
   tableName: string
   /** 查询参数 */
-  queryParams?: string | Record<string, any>
   /** 表格高度 */
   height?: string | number
   /** 是否自动调整大小 */
@@ -80,8 +76,6 @@ interface Props {
   rowId?: string
   /** 编辑配置 */
   editConfig?: boolean | object
-  /** AddColumnPopover 宽度 */
-  addColumnPopoverWidth?: number | string
   /** AddColumnPopover 类名 */
   addColumnPopoverClass?: string
 }
@@ -95,7 +89,6 @@ const props = withDefaults(defineProps<Props>(), {
   resizable: true,
   keepSource: true,
   rowId: 'id',
-  addColumnPopoverWidth: 300,
   addColumnPopoverClass: 'add-popover-content'
 })
 
@@ -113,48 +106,7 @@ const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
 const addColumnPopoverRef = ref()
 const addColumnTriggerRef = ref<HTMLElement>()
-
-// 1. 表格数据模块（通过 tableName 获取数据）
-const {
-  loading,
-  refresh: refreshTableData,
-  addRow: addTableRow,
-  updateRow: updateTableRow,
-  deleteRow: deleteTableRow,
-  getTableData
-} = useTableData(props.tableName, {
-  queryParams: props.queryParams,
-  autoLoad: true
-})
-
-// 2. 列模块（从数据自动推断列配置）
-const { columns, getExistingFields, addColumn, inferColumns, mergeColumnsFromData } = useColumns(props.tableName)
-
-// 可分组列
-const groupableColumns = computed(() => {
-  return columns.value.filter((col) => col.field && col.type !== 'action')
-})
-
-// 已存在的字段列表（用于添加列时的验证）
-const existingFields = computed(() => {
-  return getExistingFields()
-})
-
-// 3. 表格配置模块
-const { gridOptions, gridRef, processedColumns } = useTableConfig({
-  height: props.height,
-  autoResize: props.autoResize,
-  stripe: props.stripe,
-  border: props.border,
-  resizable: props.resizable,
-  keepSource: props.keepSource,
-  rowId: props.rowId,
-  editConfig: props.editConfig,
-  groupBy: activeGroupFields,
-  columns,
-  loading,
-  apiMethod: getTableData
-})
+const { columns, addColumn, columnGroupRules, gridOptions, gridRef, refreshTableData } = useMDTable(props.tableName, props)
 
 // 表格事件
 const gridEvents = computed<VxeGridListeners>(() => ({
@@ -188,26 +140,20 @@ const handleSearch = (value: string) => {
   emit('search', value)
 }
 
-const handleGroupToggle = (field: string) => {
-  console.log('handleGroupToggle', field)
-  nextTick(() => {
-    if (gridRef.value) {
-      gridRef.value.reloadData()
-    }
-  })
+const handleGroupToggle = (rules: GroupingRule[]) => {
+  columnGroupRules.value = rules
 }
 
 // 处理添加列
 const handleAddColumn = () => {
   if (addColumnPopoverRef.value) {
-    // 使用虚拟触发时，手动控制显示/隐藏
     addColumnPopoverRef.value.show()
   }
 }
-
 // 暴露方法
 defineExpose({
-  gridRef
+  gridRef,
+  columns,
 })
 
 // 监听 tableName 变化，重新加载数据
