@@ -1,6 +1,6 @@
 <template>
   <el-card>
-    <h3 class="title">{{ $t("easyForm.formSetting") }}</h3>
+    <h3 class="title">{{ $t('easyForm.formSetting') }}</h3>
     <el-form ref="FormRef" label-position="top" :model="form" @submit.prevent>
       <el-formItem
         :label="$t('easyForm.name')"
@@ -21,32 +21,32 @@
   </el-card>
 </template>
 <script lang="ts" setup>
-import {adminApi} from 'api'
-import {ElMessage} from 'element-plus'
+import { clientApi } from 'api'
+
 const routerProvider = inject(MenuRouterKey)
-const props = defineProps(["detail"]);
-const emits = defineEmits(["refresh"])
-const {t} = useI18n()
+const props = defineProps(['detail'])
+const emits = defineEmits(['refresh'])
+const { t } = useI18n()
 const route = useRoute()
 const state = reactive<any>({
   publishLoading: false
 })
 const form = ref({
-  name: "",
-});
-const FormRef = ref();
+  name: ''
+})
+const FormRef = ref()
 
 async function handleChange(value: string) {
   try {
     if (value === props.detail.name) return
     form.value.name = value
-    await adminApi.api.patchFormDesignName({
+    await clientApi.api.patchDmsEasyFormName({
       id: props.detail.id,
       name: value
     })
     props.detail.name = value
-    console.log('??????????????',routerProvider);
-    
+    console.log('??????????????', routerProvider)
+
     routerProvider?.message.success(t('dpMsg_success'))
   } catch (error) {
     form.value.name = props.detail.name
@@ -57,7 +57,7 @@ async function handleChange(value: string) {
 async function handlePublish() {
   try {
     state.publishLoading = true
-    await adminApi.api.postFormDesignPublish({id: props.detail.id})
+    await clientApi.api.postDmsEasyFormPublish({ id: props.detail.id })
     routerProvider?.message.success(t('dpMsg_success'))
     emits('refresh')
   } catch (error) {

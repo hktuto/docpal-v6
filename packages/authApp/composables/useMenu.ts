@@ -2587,5 +2587,30 @@ export const allMenuItem: Record<string, menuTypeSetting> = {
       return oldSetting.props.id == newSetting.props.id &&
         oldSetting.props.workflowType == newSetting.props.workflowType
     }
+  },
+  'public/public-form': {
+    id: `public-form-${Date.now()}`,
+    name: 'public-form',
+    icon: 'dp-icon:flow-outline',
+    label: 'public-form',
+    component: 'LazyPublicPublicEasyForm',
+    props: {
+      id: ''
+    },
+    createRouteItem: async ({ id }) => {
+      return {
+        id: `public-form-${Date.now()}`,
+        name: 'public-form',
+        icon: 'dp-icon:flow-outline',
+        label: 'public-form',
+        component: 'LazyPublicPublicEasyForm',
+        props: {
+          id: id
+        }
+      }
+    },
+    shouldReplace: (oldSetting: any, newSetting: any) => {
+      return oldSetting.props.id == newSetting.props.id
+    }
   }
 }

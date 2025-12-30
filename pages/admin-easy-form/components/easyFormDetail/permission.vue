@@ -22,8 +22,13 @@
   </el-card>
 </template>
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
+import {
+  convertPermissionObjectByPermissions,
+  convertPermissionsByPermissionObject,
+  getRoleAndGroupPermissionSelectOption
+} from '#imports'
+
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const props = defineProps(['detail'])
@@ -34,21 +39,16 @@ const state = reactive<any>({
   options: []
 })
 const form = ref({
-  permission: ''
+  permission: []
 })
 
 async function handleChange() {
   try {
     state.loading = true
     if (form.value.permission.length === 0) return
-    const groups = state.options[0].options.filter((item: any) => form.value.permission.includes(item.value))
-    const roles = state.options[1].options.filter((item: any) => form.value.permission.includes(item.value))
-    await adminApi.api.postFormDesignSavePermission({
+    await clientApi.api.postDmsEasyFormSavePermission({
       id: props.detail.id,
-      permissions: {
-        group: groups.map((item: any) => item.value),
-        role: roles.map((item: any) => item.value)
-      }
+      permissions: convertPermissionObjectByPermissions(form.value.permission)
     })
     routerProvider?.message.success(t('dpMsg_success'))
   } catch (error) {
@@ -56,33 +56,19 @@ async function handleChange() {
     state.loading = false
   }
 }
-const { flatRole } = useRBAC()
 
 async function init() {
-  const groupList = await adminApi.api.postNuxeoIdentityGroups().then((res) => res.data)
-  state.options =[
-    {
-      label: t('user_groups'),
-      options: groupList.map((item: any) => ({
-        label: item.name,
-        value: item.id
-      }))
-    },
-    {
-      label: t('user_role'),
-      options: flatRole.value.map((item: any) => ({
-        label: item.name,
-        value: item.id
-      }))
-    }
-  ]
+  state.options = await getRoleAndGroupPermissionSelectOption()
 }
+
 onMounted(() => init())
 watch(
   () => props.detail,
   (newValue, oldValue) => {
     if (!!oldValue && oldValue.permission === newValue.permission) return
-    if (!!newValue.permission) form.value.permission = newValue.permission.split(',')
+    if (!!newValue.permissions) {
+      form.value.permission = convertPermissionsByPermissionObject(newValue.permissions)
+    }
   },
   {
     immediate: true

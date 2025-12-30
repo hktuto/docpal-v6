@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { clientApi } from 'api'
-import { useEditor } from '#imports'
+import { useEditor } from "~/composables/useEditorjs";
 
 const { t } = useI18n()
 const props = defineProps<{

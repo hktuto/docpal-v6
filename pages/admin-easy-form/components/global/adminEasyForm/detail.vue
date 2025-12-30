@@ -18,7 +18,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi } from "api";
+import { clientApi } from "api";
 const { id } = defineProps<{
   id: string;
 }>();
@@ -27,7 +27,7 @@ const state = reactive<any>({
 });
 async function getDetail() {
   try {
-    state.detail = await adminApi.api.getFormDesignDraftId(id).then((res) => res.data);
+    state.detail = await clientApi.api.getDmsEasyFormDraftId(id).then((res) => res.data);
     
     setTimeout(() => {
       handleEmailUpdate();

@@ -1,7 +1,8 @@
 <template>
   <el-card style="--icon-size: 1.2rem">
     <h3 class="title">{{ $t('easyForm.actions') }}</h3>
-    <div v-for="item in detail.formResult" :key="item.id" :class="['action', `action_${item.status}`]" @dblclick="handleAdd(item)">
+    <div v-for="item in detail.formResult" :key="item.id" :class="['action', `action_${item.status}`]"
+         @dblclick="handleAdd(item)">
       <div class="flex-x-start">
         <SvgIcon class="el-icon--left el-icon--right" :src="iconMap[item.actionType]" />
         {{ item.actionName }}
@@ -34,9 +35,10 @@
   </el-card>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { clientApi } from 'api'
+import { ElMessageBox } from 'element-plus'
 import type { EasyFormResult } from 'api/src/generate/admin'
+
 const routerProvider = inject(MenuRouterKey)
 const props = defineProps(['detail'])
 const emits = defineEmits(['refresh', 'delete'])
@@ -80,17 +82,17 @@ function handleAction(command: string, row: EasyFormResult) {
 
 async function handleActive(row: EasyFormResult) {
   try {
-    const action = await adminApi.api
-      .postFormDesignSaveFormresultAppend({
-        id: props.detail.id,
-        formResult: {
-          ...row,
-          status: row.status === 'D' ? 'A' : 'D'
-        }
-      })
-      .then((res) => res.data)
+    const action = await clientApi.api.postDmsEasyFormSaveFormresultAppend({
+      id: props.detail.id,
+      formResult: {
+        ...row,
+        status: row.status === 'D' ? 'A' : 'D'
+      }
+    }).then((res) => res.data)
     emits('refresh', action)
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 async function handleDelete(id: string) {
@@ -103,7 +105,7 @@ async function handleDelete(id: string) {
     if (action !== 'confirm') return
     // const index = list.value.findIndex(item => item.id === id)
     // list.value.splice(index, 1)
-    await adminApi.api.deleteFormDesignDraftidFormresultFormresultid(props.detail.id, id)
+    await clientApi.api.deleteDmsEasyFormDraftidFormresultFormresultid(props.detail.id, id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('tip_SelectedMsg') + t('easyForm_formAction') }))
     emits('delete', id)
   } catch (error) {
