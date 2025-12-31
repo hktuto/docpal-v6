@@ -17,7 +17,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi, adminApi } from 'api'
 import formJson from './addDialog.vform.json'
 import { ElMessage } from 'element-plus'
 
@@ -37,13 +37,13 @@ async function handleSubmit() {
   try {
     const data = await FormRendererRef.value.getFormData()
     if (state.oldName != data.name) {
-      const { data: checkName } = await adminApi.api.postCabinetTemplateDuplicateName({ label: data.label })
+      const { data: checkName } = await clientApi.api.postDmsCabinetTemplateDuplicateName({ label: data.label })
       if (checkName) {
         ElMessage.error(t('common_nameExists'))
         return
       }
     }
-  
+
     const params = {
       ...data,
       binds: data.userGroups.map((value: string) => {
@@ -58,14 +58,14 @@ async function handleSubmit() {
     let response
     if (state.isEdit) {
       params.id = state.setting.id
-      const { data: patchData } = await adminApi.api.patchCabinetTemplate({
+      const { data: patchData } = await clientApi.api.patchDmsCabinetTemplate({
         ...params,
         rootId: data.cabinetRoot.pop()
       })
 
       response = patchData
     } else {
-      const { data: createData } = await adminApi.api.postCabinetTemplate({
+      const { data: createData } = await clientApi.api.postDmsCabinetTemplate({
         documentType: 'Folder',
         ...params,
         rootId: data.cabinetRoot.pop(),

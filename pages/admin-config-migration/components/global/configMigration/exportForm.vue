@@ -177,7 +177,7 @@ async function handleDocumentTemplateExport(documentTemplateId: string) {
 }
 
 async function handleFolderCabinetExport(folderCabinetId: string) {
-  const { data: folderCabinetDetail } = await adminApi.api.getCabinetTemplateId(folderCabinetId)
+  const { data: folderCabinetDetail } = await clientApi.api.getDmsCabinetTemplateId(folderCabinetId)
   exportData.value.folderCabinet[folderCabinetId] = folderCabinetDetail
   const userGroups = folderCabinetDetail?.binds?.filter((bind:any) => bind.type === 'group') || []
   userGroups.forEach((bind: any) => {

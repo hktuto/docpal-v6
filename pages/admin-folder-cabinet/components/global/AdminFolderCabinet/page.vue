@@ -17,7 +17,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { routeFolderCabinetDetail } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -37,7 +37,7 @@ function handleUpdateOrCreate({ edit, response }: any) {
 
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-folder-cabinet',
-  api: (pageParams: any) => adminApi.api.postCabinetTemplatePage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => clientApi.api.postDmsCabinetTemplatePage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'label', title: 'folderCabinet.name', fixed: 'left' },
     {
@@ -118,7 +118,7 @@ async function handleDelete(row: any) {
       confirmButtonText: t('common_confirmDelete')
     })
     if (action !== 'confirm') return
-    const result = await adminApi.api.deleteCabinetId(row.id).then((res) => res.data)
+    const result = await clientApi.api.deleteDmsCabinetId(row.id).then((res) => res.data)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('tip_SelectedMsg') + t('menus_folderCabinet') }))
     query()
   } catch (error) {}

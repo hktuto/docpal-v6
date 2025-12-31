@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 
 const { node } = defineProps<{
   node: Node
@@ -86,7 +86,7 @@ async function getCabinetDetail(id: string) {
   }
   detailLoading.value = true
   try {
-    cabinetDetail.value = await adminApi.api.getCabinetTemplateId(id).then((res) => res.data)
+    cabinetDetail.value = await clientApi.api.getDmsCabinetTemplateId(id).then((res) => res.data)
   } catch (e) {
     // When the selected “folder cabinet” is deleted, subsequent steps are not executed.
     detailLoading.value = false
@@ -204,7 +204,7 @@ async function setData() {
 
 async function getList() {
   try {
-    cabinetOptions.value = await adminApi.api.getCabinetList().then((res) => res.data)
+    cabinetOptions.value = await clientApi.api.getDmsCabinetList().then((res) => res.data)
   } catch (e) {
     console.log(e)
   }

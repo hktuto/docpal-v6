@@ -1,19 +1,24 @@
 import { adminApi, clientApi } from 'api'
 
-const userList = ref([])
-const roleList = ref([])
-const groupList = ref([])
-const appPlatform = useAppPlatform()
-export const usePermissionOption = () => useState('permission', () => ([]))
+interface PermissionOption {
+  label: string;
+  value: number;
+  type: string;
+  options: any[];
+}
+
+const userList = ref<any[]>([])
+const roleList = ref<any[]>([])
+const groupList = ref<any[]>([])
+export const usePermissionOption = () => useState<PermissionOption[]>('permission', () => ([]))
 
 export const getFromServer = async function(loadUserList: boolean, loadRoleList: boolean, loadGroupList: boolean) {
   const options = usePermissionOption()
   options.value = []
-  const api = appPlatform.value === 'admin' ? adminApi : clientApi
 
   try {
     if (loadUserList) {
-      const user = await api.api.postNuxeoIdentityUsers().then((res) => res.data)
+      const user = await clientApi.api.postNuxeoIdentityUsers().then((res: any) => res.data)
       userList.value = user || []
       if (userList.value.length > 0) {
         options.value.push(
@@ -28,11 +33,11 @@ export const getFromServer = async function(loadUserList: boolean, loadRoleList:
     }
 
     if (loadRoleList) {
-      const role = await api.api.postAclRoleList([{
+      const role = await adminApi.api.postAclRoleList([{
         column: 'status',
         type: 'EQ',
         values: '1'
-      }]).then((res) => res.data)
+      }]).then((res: any) => res.data)
       roleList.value = role || []
       if (roleList.value.length > 0) {
         options.value.push(
@@ -47,9 +52,9 @@ export const getFromServer = async function(loadUserList: boolean, loadRoleList:
     }
 
     if (loadGroupList) {
-      const group = await api.api.postNuxeoIdentityGroups().then((res) => res.data)
+      const group = await clientApi.api.postNuxeoIdentityGroups().then((res) => res.data)
       groupList.value = group || []
-      if (groupList.value.length > 0) {
+      if (groupList.value.length > 0 && !!group) {
         options.value.push(
           {
             label: 'Group',
@@ -72,6 +77,15 @@ export const getPermissionSelectOption = async () => {
   const options = usePermissionOption()
   if (options.value.length === 0) {
     await getFromServer(true, true, true)
+  }
+  return convertId(options.value)
+}
+
+// User, Group Select option
+export const getUserAndGroupPermissionSelectOption = async () => {
+  const options = usePermissionOption()
+  if (options.value.length === 0) {
+    await getFromServer(true, false, true)
   }
   return convertId(options.value)
 }
@@ -109,8 +123,8 @@ function convertId(options: any) {
 
 // From the select array, convert permissions to objects. format: { "user": ["joshua"], "group": ['group_IT'], "role": ['role_cxv']}
 export const convertPermissionObjectByPermissions = (permissions: any) => {
-  if(!permissions) return {}
-  const item: {} = {}
+  if (!permissions) return {}
+  const item: Record<string, string[]> = {}
   permissions.forEach((key: string) => {
     const match = key.match(/^(user|role|group)_(.+)$/)
     if (match) {
@@ -216,12 +230,12 @@ export const getCachePermissionOptions = async () => {
 }
 
 export const getUserSelectOption = async () => {
-  const list: any = await adminApi.api.postNuxeoIdentityUsers().then((res) => res.data)
+  const list: any = await clientApi.api.postNuxeoIdentityUsers().then((res) => res.data)
   if (list.length === 0) return []
 
   return list.map((item: any) => ({
-    id: item.userId,
-    name: item.username,
+    value: item.userId,
+    label: item.username,
     email: item.email
   }))
 }
@@ -234,18 +248,18 @@ export const getRoleSelectOption = async () => {
   }]).then((res) => res.data)
   if (list.length === 0) return []
 
-  return list.map((item) => ({
-    id: item.id,
-    name: item.name
+  return list.map((item: any) => ({
+    value: item.id,
+    label: item.name
   }))
 }
 
 export const getGroupsSelectOption = async () => {
-  let list = await adminApi.api.postNuxeoIdentityGroups().then((res) => res.data)
+  let list: any = await clientApi.api.postNuxeoIdentityGroups().then((res) => res.data)
   if (list.length === 0) return []
 
-  return list.map((item) => ({
-    id: item.id,
-    name: item.name
+  return list.map((item: any) => ({
+    value: item.id,
+    label: item.name
   }))
 }

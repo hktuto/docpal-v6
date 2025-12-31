@@ -14,9 +14,10 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import formJson from './permissionAddDialog.vform.json'
 import { ElMessage } from 'element-plus'
+import { getUserAndGroupPermissionSelectOption, getUserSelectOption, getGroupsSelectOption } from '#imports'
 
 const props = defineProps<{
   id: string;
@@ -32,10 +33,12 @@ const state = reactive<any>({
   groupList: []
 })
 const FormRendererRef = ref()
+const permissionList = ref()
 
 async function handleSubmit() {
   try {
     const data = await FormRendererRef.value.getFormData()
+    // TODO：data.userId 是被選中的權限名稱，但是沒有區分是user還是group
     const params: any = {
       id: props.id,
       userId: data.userId
@@ -50,10 +53,10 @@ async function handleSubmit() {
       params.endDate = data.dateRange[1]
     }
     state.loading = true
-    await adminApi.api.postCabinetTemplatePermission(params)
+    await clientApi.api.postDmsCabinetTemplatePermission(params)
     state.visible = false
-    const modelName =  props.isFolder === 'folder' ? t('folder_cabinetLocalPermissionOfFolder') : t('folder_cabinetLocalPermissionOfFile')
-    ElMessage.success(t('tip_createdMsg', { modelName: t('folder_cabinetLocalPermissionOfFolder'), name: null }))
+    const modelName = props.isFolder === 'folder' ? t('folder_cabinetLocalPermissionOfFolder') : t('folder_cabinetLocalPermissionOfFile')
+    ElMessage.success(t('tip_createdMsg', { modelName: modelName, name: null }))
     emits('refresh')
   } catch (error) {
     console.log(error)
@@ -71,12 +74,18 @@ function handleOpen() {
 
 function handleOptions() {
   const userIdRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('userId')
+  // TODO 需要檢查 props.exitList 的數據
+  const list = permissionList.value.filter((allItem: any) => !props.exitList.some((exitItem: any) => allItem.userId.split('_')[1] === exitItem.userId))
+  console.log(222, list, props.exitList)
+
+  // TODO 移除該數據加載
   const options = [
     { value: 'user_groups', label: t('user_groups'), options: groupListFilter() },
     { value: 'user_users', label: t('user_users'), options: userListFilter() }
   ]
   userIdRef.loadOptions(options)
 
+  // TODO 移除下面兩個方法
   function userListFilter() {
     return state.userList.filter(
       (allItem: any) =>
@@ -93,22 +102,16 @@ function handleOptions() {
 }
 
 async function init() {
-  state.userList = await adminApi.api.postNuxeoIdentityUsers({}).then(res => res.data)
-  state.userList.forEach((item: any) => {
-    item.value = item.userId
-    item.label = item.username
-  })
-  state.groupList = await adminApi.api.postNuxeoIdentityGroups().then(res => res.data)
-  state.groupList.forEach((item: any) => {
-    item.value = item.id
-    item.label = item.name
-  })
+  // TODO 移除該獲取數據列表
+  state.userList = await getUserSelectOption()
+  state.groupList = await getGroupsSelectOption()
+
+  permissionList.value = await getUserAndGroupPermissionSelectOption()
 }
 
 onMounted(async () => {
-  init()
+  await init()
 })
 defineExpose({ handleOpen })
 </script>
 <style lang="scss" scoped></style>
- 

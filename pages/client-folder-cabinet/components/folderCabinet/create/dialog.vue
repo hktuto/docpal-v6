@@ -92,8 +92,7 @@ async function handleSubmit() {
 
     const idOrPath = `${state.cabinetTemplate.documentPath}/${fileName}`
     // 上传最上层数据
-    const res = await clientApi.api
-      .postCabinetCreate({
+    const res = await clientApi.api.postDmsCabinetCreate({
         ...formData,
         title: fileName,
         type: state.cabinetTemplate.documentType,
@@ -147,7 +146,7 @@ async function handleOpen(id: string) {
   state.visible = true
   try {
     let defaultValue = {}
-    state.cabinetTemplate = await clientApi.api.getCabinetTemplateId(id).then((res) => res.data)
+    state.cabinetTemplate = await clientApi.api.getDmsCabinetTemplateId(id).then((res) => res.data)
     if (state.cabinetTemplate.metadataValue) {
       defaultValue = JSON.parse(state.cabinetTemplate.metadataValue)
     }

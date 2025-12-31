@@ -68,7 +68,7 @@ function tabChange(tab: string) {
 async function init() {
   state.loading = true
   try {
-    state.tabList = await clientApi.api.getCabinetLoginuserList().then((res) => res.data)
+    state.tabList = await clientApi.api.getDmsCabinetLoginuserList().then((res) => res.data)
   } catch (error) {
   }
   state.loading = false
