@@ -145,7 +145,7 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
       localStorage.setItem('access_token', refreshToken as string)
 
       const { data } = await axiosInstance.post(
-        '/auth/nuxeo/token',
+        '/auth/token',
         {},
         {
           headers: {

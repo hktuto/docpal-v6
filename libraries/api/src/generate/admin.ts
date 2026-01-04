@@ -8142,6 +8142,38 @@ export interface ResultMapStringListMapStringString {
     locale?: string;
 }
 
+/** Process Instance Information */
+export interface ProcessInstanceDTO {
+    /** process Instance ID */
+    processInstanceId?: string;
+    /** Business Key */
+    businessKey?: string;
+    /** Task ID */
+    taskId?: string;
+    /** is complete state */
+    complete?: boolean;
+    /** process Instance state */
+    state?: string;
+    /** Assigned user of current task */
+    assignedUser?: string;
+    /** Error Message */
+    errorMsg?: string;
+    /** Process Instance */
+    instance?: InstanceDTO;
+    tasks?: TaskDTO[];
+}
+
+export interface ResultProcessInstanceDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Process Instance Information */
+    data?: ProcessInstanceDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 /** Form Property */
 export interface FormPropertiesDTO {
     /** Property Key */
@@ -8566,41 +8598,6 @@ export interface ResultListMasterTableResponseDTO {
     data?: MasterTableResponseDTO[];
     messageKey?: string;
     locale?: string;
-}
-
-export interface MTRelationOptionDTO {
-    value?: object;
-    label?: string;
-}
-
-export interface MTRelationResponseDTO {
-    key?: string;
-    options?: MTRelationOptionDTO[];
-}
-
-export interface ResultListMTRelationResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: MTRelationResponseDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListSelectOptionDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: SelectOptionDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface SelectOptionDTO {
-    value?: object;
-    label?: string;
 }
 
 export interface MTFieldTypeMapping {
@@ -9353,6 +9350,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate
          * @summary Retrieve task candidates by process task definition
          * @request GET:/api/docpal/workflow/task/candidatesByTaskDefinitionKey/
+         * @deprecated
          */
         getWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate: (
             query: {
@@ -9375,6 +9373,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate
          * @summary Retrieve task candidates by process task definition
          * @request POST:/api/docpal/workflow/task/candidatesByTaskDefinitionKey/
+         * @deprecated
          */
         postWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate: (
             query: {
@@ -9397,6 +9396,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowTaskCandidatesbytaskdefinitionkey
          * @summary Retrieve task candidates by process task definition
          * @request GET:/api/docpal/workflow/task/candidatesByTaskDefinitionKey
+         * @deprecated
          */
         getWorkflowTaskCandidatesbytaskdefinitionkey: (
             query: {
@@ -9419,6 +9419,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowTaskCandidatesbytaskdefinitionkey
          * @summary Retrieve task candidates by process task definition
          * @request POST:/api/docpal/workflow/task/candidatesByTaskDefinitionKey
+         * @deprecated
          */
         postWorkflowTaskCandidatesbytaskdefinitionkey: (
             query: {
@@ -9441,6 +9442,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetContactgroupIdContactdetaillist
          * @summary Get contact detail list include filter and sort by
          * @request GET:/api/docpal/contactGroup/{id}/contactDetailList
+         * @deprecated
          */
         getContactgroupIdContactdetaillist: (id: string, data: any, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -9458,6 +9460,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostContactgroupIdContactdetaillist
          * @summary Get contact detail list include filter and sort by
          * @request POST:/api/docpal/contactGroup/{id}/contactDetailList
+         * @deprecated
          */
         postContactgroupIdContactdetaillist: (id: string, data: any, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -9475,6 +9478,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetContactgroupList
          * @summary Query all contact group without filter condition
          * @request GET:/api/docpal/contactGroup/list
+         * @deprecated
          */
         getContactgroupList: (
             query: {
@@ -9496,6 +9500,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostContactgroupList
          * @summary Query all contact group without filter condition
          * @request POST:/api/docpal/contactGroup/list
+         * @deprecated
          */
         postContactgroupList: (
             query: {
@@ -9696,6 +9701,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name GetNuxeoAdminVirtualfolderSetting
          * @request GET:/api/nuxeo/admin/virtualfolder/setting
+         * @deprecated
          */
         getNuxeoAdminVirtualfolderSetting: (params: RequestParams = {}) =>
             this.request<ResultListVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -9710,6 +9716,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name PutNuxeoAdminVirtualfolderSetting
          * @request PUT:/api/nuxeo/admin/virtualfolder/setting
+         * @deprecated
          */
         putNuxeoAdminVirtualfolderSetting: (data: VirtualFolderSettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -9726,6 +9733,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name PostNuxeoAdminVirtualfolderSetting
          * @request POST:/api/nuxeo/admin/virtualfolder/setting
+         * @deprecated
          */
         postNuxeoAdminVirtualfolderSetting: (data: VirtualFolderSettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -9742,6 +9750,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name GetNuxeoAdminSetting
          * @request GET:/api/nuxeo/admin/setting
+         * @deprecated
          */
         getNuxeoAdminSetting: (systemId: string, params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
@@ -9756,6 +9765,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name PutNuxeoAdminSetting
          * @request PUT:/api/nuxeo/admin/setting
+         * @deprecated
          */
         putNuxeoAdminSetting: (systemId: string, data: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
@@ -9772,6 +9782,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name PostNuxeoAdminSetting
          * @request POST:/api/nuxeo/admin/setting
+         * @deprecated
          */
         postNuxeoAdminSetting: (data: SystemSetting, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
@@ -9788,6 +9799,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name GetNuxeoAdminSettingSystemId
          * @request GET:/api/nuxeo/admin/setting/{system_id}
+         * @deprecated
          */
         getNuxeoAdminSettingSystemId: (systemId: string, params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
@@ -9802,6 +9814,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name PutNuxeoAdminSettingSystemId
          * @request PUT:/api/nuxeo/admin/setting/{system_id}
+         * @deprecated
          */
         putNuxeoAdminSettingSystemId: (systemId: string, data: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
@@ -9818,6 +9831,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name GetNuxeoAdminIcon
          * @request GET:/api/nuxeo/admin/icon
+         * @deprecated
          */
         getNuxeoAdminIcon: (
             query: {
@@ -9839,6 +9853,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name PutNuxeoAdminIcon
          * @request PUT:/api/nuxeo/admin/icon
+         * @deprecated
          */
         putNuxeoAdminIcon: (
             data: {
@@ -9876,6 +9891,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetImportjobsId
          * @summary Get import job details
          * @request GET:/api/importJobs/{id}
+         * @deprecated
          */
         getImportjobsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
@@ -9891,6 +9907,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutImportjobsId
          * @summary Update import job
          * @request PUT:/api/importJobs/{id}
+         * @deprecated
          */
         putImportjobsId: (id: string, data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
@@ -9908,6 +9925,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteImportjobsId
          * @summary Delete import job
          * @request DELETE:/api/importJobs/{id}
+         * @deprecated
          */
         deleteImportjobsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -9923,6 +9941,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetExternalstorageId
          * @summary Get External Storage Detail
          * @request GET:/api/externalStorage/{id}
+         * @deprecated
          */
         getExternalstorageId: (id: string, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
@@ -9938,6 +9957,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutExternalstorageId
          * @summary Update an existing external storage configuration
          * @request PUT:/api/externalStorage/{id}
+         * @deprecated
          */
         putExternalstorageId: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
@@ -9955,6 +9975,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteExternalstorageId
          * @summary Delete External Storage
          * @request DELETE:/api/externalStorage/{id}
+         * @deprecated
          */
         deleteExternalstorageId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -9970,6 +9991,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetExternalstorageIdProfilesProfileid
          * @summary Get a external profile in external storage id
          * @request GET:/api/externalStorage/{id}/profiles/{profileId}
+         * @deprecated
          */
         getExternalstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
@@ -9985,6 +10007,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutExternalstorageIdProfilesProfileid
          * @summary Update a external profile in external storage id
          * @request PUT:/api/externalStorage/{id}/profiles/{profileId}
+         * @deprecated
          */
         putExternalstorageIdProfilesProfileid: (
             id: string,
@@ -10007,6 +10030,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteExternalstorageIdProfilesProfileid
          * @summary Delete a external profile in external storage id
          * @request DELETE:/api/externalStorage/{id}/profiles/{profileId}
+         * @deprecated
          */
         deleteExternalstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -10022,6 +10046,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetEventCalendarsSettingId
          * @summary Get Event Calendar Setting by ID
          * @request GET:/api/event/calendars/setting/{id}
+         * @deprecated
          */
         getEventCalendarsSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
@@ -10037,6 +10062,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutEventCalendarsSettingId
          * @summary Update Event Calendar Setting
          * @request PUT:/api/event/calendars/setting/{id}
+         * @deprecated
          */
         putEventCalendarsSettingId: (id: string, data: EventCalendarSetting, params: RequestParams = {}) =>
             this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
@@ -10054,6 +10080,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteEventCalendarsSettingId
          * @summary Remove Event Calendar Setting
          * @request DELETE:/api/event/calendars/setting/{id}
+         * @deprecated
          */
         deleteEventCalendarsSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -10155,6 +10182,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetUserSetting
          * @summary Get User Setting
          * @request GET:/api/docpal/user/setting
+         * @deprecated
          */
         getUserSetting: (params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
@@ -10169,6 +10197,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags UserSettingController
          * @name PutUserSetting
          * @request PUT:/api/docpal/user/setting
+         * @deprecated
          */
         putUserSetting: (data: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
@@ -10185,6 +10214,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags UserSettingController
          * @name PatchUserSetting
          * @request PATCH:/api/docpal/user/setting
+         * @deprecated
          */
         patchUserSetting: (data: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
@@ -10202,6 +10232,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetUserProfileSetting
          * @summary Get Global User Profile Setting
          * @request GET:/api/docpal/user/profile/setting
+         * @deprecated
          */
         getUserProfileSetting: (params: RequestParams = {}) =>
             this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
@@ -10217,6 +10248,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutUserProfileSetting
          * @summary Save Global User Profile Setting
          * @request PUT:/api/docpal/user/profile/setting
+         * @deprecated
          */
         putUserProfileSetting: (data: UserProfileSettingDTO, params: RequestParams = {}) =>
             this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
@@ -10234,6 +10266,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostUserProfileSetting
          * @summary Save Global User Profile Setting
          * @request POST:/api/docpal/user/profile/setting
+         * @deprecated
          */
         postUserProfileSetting: (data: UserProfileSettingDTO, params: RequestParams = {}) =>
             this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
@@ -10251,6 +10284,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutTemplateEmail
          * @summary Modify (Email Template)
          * @request PUT:/api/docpal/template/email
+         * @deprecated
          */
         putTemplateEmail: (data: EmailTemplate, params: RequestParams = {}) =>
             this.request<ResultEmailTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -10268,6 +10302,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostTemplateEmail
          * @summary Create Email Template
          * @request POST:/api/docpal/template/email
+         * @deprecated
          */
         postTemplateEmail: (data: EmailTemplate, params: RequestParams = {}) =>
             this.request<ResultEmailTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -10285,6 +10320,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteTemplateEmail
          * @summary Delete email template by id
          * @request DELETE:/api/docpal/template/email
+         * @deprecated
          */
         deleteTemplateEmail: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -10300,6 +10336,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutTemplateEmailTemplate
          * @summary Modify (Email Template)
          * @request PUT:/api/docpal/template/email/template
+         * @deprecated
          */
         putTemplateEmailTemplate: (data: EmailTemplate, params: RequestParams = {}) =>
             this.request<ResultEmailTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -10317,6 +10354,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostTemplateEmailTemplate
          * @summary Create Email Template
          * @request POST:/api/docpal/template/email/template
+         * @deprecated
          */
         postTemplateEmailTemplate: (data: EmailTemplate, params: RequestParams = {}) =>
             this.request<ResultEmailTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -10334,6 +10372,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutTemplateEmailLayout
          * @summary Update (Email Layout)
          * @request PUT:/api/docpal/template/email/layout
+         * @deprecated
          */
         putTemplateEmailLayout: (data: EmailLayout, params: RequestParams = {}) =>
             this.request<ResultEmailLayout, Result | (ResultObject | Result | ResultString)>({
@@ -10351,6 +10390,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostTemplateEmailLayout
          * @summary Create (Email Layout)
          * @request POST:/api/docpal/template/email/layout
+         * @deprecated
          */
         postTemplateEmailLayout: (data: EmailLayout, params: RequestParams = {}) =>
             this.request<ResultEmailLayout, Result | (ResultObject | Result | ResultString)>({
@@ -10452,6 +10492,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags system-feature-controller
          * @name PutSystemfeatureUser
          * @request PUT:/api/docpal/systemfeature/user
+         * @deprecated
          */
         putSystemfeatureUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
@@ -10553,6 +10594,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetMasterTables
          * @summary Get all master tables
          * @request GET:/api/docpal/master/tables
+         * @deprecated
          */
         getMasterTables: (params: RequestParams = {}) =>
             this.request<ResultListMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -10568,6 +10610,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutMasterTables
          * @summary Update information (Master Table)
          * @request PUT:/api/docpal/master/tables
+         * @deprecated
          */
         putMasterTables: (data: MasterTable, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -10585,6 +10628,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTables
          * @summary Creation (Master Table)
          * @request POST:/api/docpal/master/tables
+         * @deprecated
          */
         postMasterTables: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -10602,6 +10646,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutMasterTablesIdRecord
          * @summary update data (master table)
          * @request PUT:/api/docpal/master/tables/{id}/record
+         * @deprecated
          */
         putMasterTablesIdRecord: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -10619,6 +10664,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteMasterTablesIdRecord
          * @summary Delete record
          * @request DELETE:/api/docpal/master/tables/{id}/record
+         * @deprecated
          */
         deleteMasterTablesIdRecord: (
             id: string,
@@ -10640,26 +10686,11 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags MasterTableController
-         * @name PutMasterTablesIdBatchRecord
-         * @request PUT:/api/docpal/master/tables/{id}/batch/record
-         */
-        putMasterTablesIdBatchRecord: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/${id}/batch/record`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags IdTemplateController
          * @name GetIdTemplatesId
          * @summary Get detail of ID template
          * @request GET:/api/docpal/id-templates/{id}
+         * @deprecated
          */
         getIdTemplatesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultIdTemplate, Result | (ResultObject | Result | ResultString)>({
@@ -10675,6 +10706,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutIdTemplatesId
          * @summary Update ID template
          * @request PUT:/api/docpal/id-templates/{id}
+         * @deprecated
          */
         putIdTemplatesId: (id: string, data: IdTemplate, params: RequestParams = {}) =>
             this.request<ResultIdTemplate, Result | (ResultObject | Result | ResultString)>({
@@ -10692,6 +10724,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteIdTemplatesId
          * @summary Delete ID template
          * @request DELETE:/api/docpal/id-templates/{id}
+         * @deprecated
          */
         deleteIdTemplatesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -10723,6 +10756,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags DAMSettingController
          * @name PutDamSetting
          * @request PUT:/api/docpal/dam/setting
+         * @deprecated
          */
         putDamSetting: (data: DAMConversionSettingRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
@@ -10740,6 +10774,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetContactgroupId
          * @summary Get contact group by id
          * @request GET:/api/docpal/contactGroup/{id}
+         * @deprecated
          */
         getContactgroupId: (id: string, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -10755,6 +10790,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutContactgroupId
          * @summary Update contact group
          * @request PUT:/api/docpal/contactGroup/{id}
+         * @deprecated
          */
         putContactgroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -10772,6 +10808,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteContactgroupId
          * @summary Delete contact group by id
          * @request DELETE:/api/docpal/contactGroup/{id}
+         * @deprecated
          */
         deleteContactgroupId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -10787,6 +10824,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchContactgroupId
          * @summary Reference to update contact group
          * @request PATCH:/api/docpal/contactGroup/{id}
+         * @deprecated
          */
         patchContactgroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -10804,6 +10842,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetContactgroupIdContactdetailContactdetailid
          * @summary Get contact detail by id
          * @request GET:/api/docpal/contactGroup/{id}/contactDetail/{contactDetailId}
+         * @deprecated
          */
         getContactgroupIdContactdetailContactdetailid: (
             id: string,
@@ -10822,6 +10861,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags ContactController
          * @name PutContactgroupIdContactdetailContactdetailid
          * @request PUT:/api/docpal/contactGroup/{id}/contactDetail/{contactDetailId}
+         * @deprecated
          */
         putContactgroupIdContactdetailContactdetailid: (
             id: string,
@@ -10844,6 +10884,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteContactgroupIdContactdetailContactdetailid
          * @summary Delete contact record
          * @request DELETE:/api/docpal/contactGroup/{id}/contactDetail/{contactDetailId}
+         * @deprecated
          */
         deleteContactgroupIdContactdetailContactdetailid: (
             id: string,
@@ -10866,6 +10907,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchContactgroupIdContactdetailContactdetailid
          * @summary Edit contact record with the specified information
          * @request PATCH:/api/docpal/contactGroup/{id}/contactDetail/{contactDetailId}
+         * @deprecated
          */
         patchContactgroupIdContactdetailContactdetailid: (
             id: string,
@@ -10888,6 +10930,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCompanyprofilesCompanyid
          * @summary Get company details
          * @request GET:/api/docpal/companyProfiles/{companyId}
+         * @deprecated
          */
         getCompanyprofilesCompanyid: (companyId: string, params: RequestParams = {}) =>
             this.request<ResultCompany, Result | (ResultObject | Result | ResultString)>({
@@ -10903,6 +10946,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutCompanyprofilesCompanyid
          * @summary Update existing company profile
          * @request PUT:/api/docpal/companyProfiles/{companyId}
+         * @deprecated
          */
         putCompanyprofilesCompanyid: (companyId: string, data: Company, params: RequestParams = {}) =>
             this.request<ResultCompany, Result | (ResultObject | Result | ResultString)>({
@@ -10920,6 +10964,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteCompanyprofilesCompanyid
          * @summary Remove a company profile (logical deletion)
          * @request DELETE:/api/docpal/companyProfiles/{companyId}
+         * @deprecated
          */
         deleteCompanyprofilesCompanyid: (companyId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -10935,6 +10980,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCompanyprofilesCompanyidChopsCompanychopid
          * @summary Retrieve details of a single chop
          * @request GET:/api/docpal/companyProfiles/{companyId}/chops/{companyChopId}
+         * @deprecated
          */
         getCompanyprofilesCompanyidChopsCompanychopid: (
             companyId: string,
@@ -10954,6 +11000,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutCompanyprofilesCompanyidChopsCompanychopid
          * @summary Update existing chop details
          * @request PUT:/api/docpal/companyProfiles/{companyId}/chops/{companyChopId}
+         * @deprecated
          */
         putCompanyprofilesCompanyidChopsCompanychopid: (
             companyId: string,
@@ -11001,6 +11048,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteCompanyprofilesCompanyidChopsCompanychopid
          * @summary Remove a company chop
          * @request DELETE:/api/docpal/companyProfiles/{companyId}/chops/{companyChopId}
+         * @deprecated
          */
         deleteCompanyprofilesCompanyidChopsCompanychopid: (
             companyId: string,
@@ -11020,6 +11068,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutCompanyprofilesCompanyidChopsCompanychopidStatus
          * @summary Change status of a chop
          * @request PUT:/api/docpal/companyProfiles/{companyId}/chops/{companyChopId}/status
+         * @deprecated
          */
         putCompanyprofilesCompanyidChopsCompanychopidStatus: (
             companyId: string,
@@ -11042,6 +11091,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseTypes
          * @summary Retrieve all case types
          * @request GET:/api/docpal/case/types
+         * @deprecated
          */
         getCaseTypes: (
             query?: {
@@ -11064,6 +11114,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutCaseTypes
          * @summary Update case type
          * @request PUT:/api/docpal/case/types
+         * @deprecated
          */
         putCaseTypes: (data: CaseType, params: RequestParams = {}) =>
             this.request<ResultCaseType, Result | (ResultObject | Result | ResultString)>({
@@ -11081,6 +11132,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTypes
          * @summary Create a new case type
          * @request POST:/api/docpal/case/types
+         * @deprecated
          */
         postCaseTypes: (data: CaseType, params: RequestParams = {}) =>
             this.request<ResultCaseType, Result | (ResultObject | Result | ResultString)>({
@@ -11098,6 +11150,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutCaseTypesEnable
          * @summary Enable or Disable case type
          * @request PUT:/api/docpal/case/types/enable
+         * @deprecated
          */
         putCaseTypesEnable: (data: CaseType, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -11115,6 +11168,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutCaseDashboard
          * @summary Update case dashboard
          * @request PUT:/api/docpal/case/dashboard
+         * @deprecated
          */
         putCaseDashboard: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -11132,6 +11186,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseDashboard
          * @summary Create a new case dashboard
          * @request POST:/api/docpal/case/dashboard
+         * @deprecated
          */
         postCaseDashboard: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -11149,6 +11204,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutCaseDashboardStatus
          * @summary Update status of case dashboard
          * @request PUT:/api/docpal/case/dashboard/status
+         * @deprecated
          */
         putCaseDashboardStatus: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -11166,6 +11222,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutCalendars
          * @summary Update Event Task
          * @request PUT:/api/docpal/calendars
+         * @deprecated
          */
         putCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
             this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
@@ -11183,6 +11240,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCalendars
          * @summary Create a new event task
          * @request POST:/api/docpal/calendars
+         * @deprecated
          */
         postCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
             this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
@@ -11356,6 +11414,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow Manager
          * @name PostWorkflowManagerUpdateVariables
          * @request POST:/api/workflow/manager/update_variables
+         * @deprecated
          */
         postWorkflowManagerUpdateVariables: (data: WorkflowInstanceDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
@@ -11372,6 +11431,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow Manager
          * @name PostWorkflowManagerStartMiddleWorkflow
          * @request POST:/api/workflow/manager/start_middle_workflow
+         * @deprecated
          */
         postWorkflowManagerStartMiddleWorkflow: (data: WorkflowInstanceRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -11388,6 +11448,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow Manager
          * @name PostWorkflowManagerStartFirstWorkflow
          * @request POST:/api/workflow/manager/start_first_workflow
+         * @deprecated
          */
         postWorkflowManagerStartFirstWorkflow: (data: WorkflowInstanceDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
@@ -11404,6 +11465,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow Manager
          * @name PostWorkflowManagerChangeWorkflowStateForSubmit
          * @request POST:/api/workflow/manager/change_workflow_state_for_submit
+         * @deprecated
          */
         postWorkflowManagerChangeWorkflowStateForSubmit: (data: WorkflowInstanceDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
@@ -11420,6 +11482,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow Manager
          * @name PostWorkflowManagerChangeWorkflowState
          * @request POST:/api/workflow/manager/change_workflow_state
+         * @deprecated
          */
         postWorkflowManagerChangeWorkflowState: (data: WorkflowInstanceDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -11436,6 +11499,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow Manager
          * @name PostWorkflowManagerCalendars
          * @request POST:/api/workflow/manager/calendars
+         * @deprecated
          */
         postWorkflowManagerCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
@@ -12179,6 +12243,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostNuxeoSfolderPage
          * @summary Pagination Search (Smart Folder)
          * @request POST:/api/nuxeo/sfolder/page
+         * @deprecated
          */
         postNuxeoSfolderPage: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -12983,6 +13048,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name PostNuxeoAdminInitworkflowdefinition
          * @request POST:/api/nuxeo/admin/initWorkflowDefinition
+         * @deprecated
          */
         postNuxeoAdminInitworkflowdefinition: (params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
@@ -12997,6 +13063,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name GetNuxeoAdminFeature
          * @request GET:/api/nuxeo/admin/feature
+         * @deprecated
          */
         getNuxeoAdminFeature: (
             query: {
@@ -13018,6 +13085,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name PostNuxeoAdminFeature
          * @request POST:/api/nuxeo/admin/feature
+         * @deprecated
          */
         postNuxeoAdminFeature: (data: FeatureSaveRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringMapStringBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -13035,6 +13103,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetNuxeoAdminActiveUsersConfiguration
          * @summary Query active users configuration
          * @request GET:/api/nuxeo/admin/active-users/configuration
+         * @deprecated
          */
         getNuxeoAdminActiveUsersConfiguration: (
             query: {
@@ -13056,6 +13125,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostNuxeoAdminActiveUsersConfiguration
          * @summary Save active users configuration
          * @request POST:/api/nuxeo/admin/active-users/configuration
+         * @deprecated
          */
         postNuxeoAdminActiveUsersConfiguration: (data: ActiveUserConfigDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -13124,6 +13194,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostImportjobsPage
          * @summary Paginated query for import jobs
          * @request POST:/api/importJobs/page
+         * @deprecated
          */
         postImportjobsPage: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
             this.request<
@@ -13144,6 +13215,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostImportjobsJobqueueFirst
          * @summary Place a task in the first queue
          * @request POST:/api/importJobs/jobQueue/first
+         * @deprecated
          */
         postImportjobsJobqueueFirst: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -13161,6 +13233,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostImportjobsAdd
          * @summary Save import job record
          * @request POST:/api/importJobs/add
+         * @deprecated
          */
         postImportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
@@ -13178,6 +13251,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetImportjobs
          * @summary Get all import jobs list
          * @request GET:/api/importJobs
+         * @deprecated
          */
         getImportjobs: (
             query: {
@@ -13200,6 +13274,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostImportjobs
          * @summary Save import job record
          * @request POST:/api/importJobs
+         * @deprecated
          */
         postImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
@@ -13217,6 +13292,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetExternalstorage
          * @summary Get External Storage Detail List
          * @request GET:/api/externalStorage
+         * @deprecated
          */
         getExternalstorage: (
             query: {
@@ -13239,6 +13315,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostExternalstorage
          * @summary Create a new external storage
          * @request POST:/api/externalStorage
+         * @deprecated
          */
         postExternalstorage: (data: ExternalStorageDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
@@ -13256,6 +13333,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostExternalstorageIdProfiles
          * @summary Create a new external profile in external storage id
          * @request POST:/api/externalStorage/{id}/profiles
+         * @deprecated
          */
         postExternalstorageIdProfiles: (id: string, data: ExternalProfileDTO, params: RequestParams = {}) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
@@ -13273,6 +13351,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostExternalstorageIdProfilesPage
          * @summary Paging query external storage profiles by external storage id
          * @request POST:/api/externalStorage/{id}/profiles/page
+         * @deprecated
          */
         postExternalstorageIdProfilesPage: (id: string, data: ExternalProfileRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
@@ -13290,6 +13369,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostExternalstorageIdConnectionTest
          * @summary Testing SMB connection is correct
          * @request POST:/api/externalStorage/{id}/connection/test
+         * @deprecated
          */
         postExternalstorageIdConnectionTest: (id: string, data: Record<string, string>, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -13307,6 +13387,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostExternalstorageProfilesProfileidOutputrecord
          * @summary Create External Profile Output
          * @request POST:/api/externalStorage/profiles/{profileId}/outputRecord
+         * @deprecated
          */
         postExternalstorageProfilesProfileidOutputrecord: (
             profileId: string,
@@ -13327,6 +13408,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags ExternalStorageController
          * @name GetExternalstorageProfilesProfileidOutputrecordOutputrecordid
          * @request GET:/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @deprecated
          */
         getExternalstorageProfilesProfileidOutputrecordOutputrecordid: (
             profileId: string,
@@ -13346,6 +13428,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostExternalstorageProfilesProfileidOutputrecordOutputrecordid
          * @summary Duplicate (Copy) a exist External Profile Output
          * @request POST:/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @deprecated
          */
         postExternalstorageProfilesProfileidOutputrecordOutputrecordid: (
             profileId: string,
@@ -13364,6 +13447,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags ExternalStorageController
          * @name DeleteExternalstorageProfilesProfileidOutputrecordOutputrecordid
          * @request DELETE:/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @deprecated
          */
         deleteExternalstorageProfilesProfileidOutputrecordOutputrecordid: (
             profileId: string,
@@ -13383,6 +13467,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchExternalstorageProfilesProfileidOutputrecordOutputrecordid
          * @summary Update a external profile output record
          * @request PATCH:/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @deprecated
          */
         patchExternalstorageProfilesProfileidOutputrecordOutputrecordid: (
             profileId: string,
@@ -13405,6 +13490,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostExternalstoragePage
          * @summary Paging query External Storage
          * @request POST:/api/externalStorage/page
+         * @deprecated
          */
         postExternalstoragePage: (data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
@@ -13422,6 +13508,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostEventCalendarsSetting
          * @summary Create Event Calendar Setting
          * @request POST:/api/event/calendars/setting
+         * @deprecated
          */
         postEventCalendarsSetting: (data: EventCalendarSetting, params: RequestParams = {}) =>
             this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
@@ -13439,6 +13526,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostEventCalendarsSettingPage
          * @summary Paging query Event Calendar Settings
          * @request POST:/api/event/calendars/setting/page
+         * @deprecated
          */
         postEventCalendarsSettingPage: (data: BasePageRequest, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
@@ -13850,6 +13938,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowVersionVersionidDeploy
          * @summary Promote to Production - Deploy the current version to production for used it
          * @request POST:/api/docpal/workflow/version/{versionId}/deploy
+         * @deprecated
          */
         postWorkflowVersionVersionidDeploy: (
             versionId: string,
@@ -13880,6 +13969,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowVersionReplaceDraft
          * @summary Save to Draft
          * @request POST:/api/docpal/workflow/version/replace/draft
+         * @deprecated
          */
         postWorkflowVersionReplaceDraft: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -13897,6 +13987,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowVersionPage
          * @summary Pagination search of process definition version
          * @request POST:/api/docpal/workflow/version/page
+         * @deprecated
          */
         postWorkflowVersionPage: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
@@ -13914,6 +14005,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowVersionNew
          * @summary Save New Version of process definition
          * @request POST:/api/docpal/workflow/version/new
+         * @deprecated
          */
         postWorkflowVersionNew: (
             query: {
@@ -13961,6 +14053,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow
          * @name PostWorkflowTasks
          * @request POST:/api/docpal/workflow/tasks
+         * @deprecated
          */
         postWorkflowTasks: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
@@ -13977,6 +14070,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow
          * @name PostWorkflowTasksUser
          * @request POST:/api/docpal/workflow/tasks/user
+         * @deprecated
          */
         postWorkflowTasksUser: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOTaskDTO, Result | (ResultObject | Result | ResultString)>({
@@ -13993,6 +14087,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow
          * @name PostWorkflowTaskUnclaim
          * @request POST:/api/docpal/workflow/task/unclaim
+         * @deprecated
          */
         postWorkflowTaskUnclaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
@@ -14009,6 +14104,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow
          * @name PostWorkflowTaskMove
          * @request POST:/api/docpal/workflow/task/move
+         * @deprecated
          */
         postWorkflowTaskMove: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -14025,6 +14121,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow
          * @name PostWorkflowTaskClaim
          * @request POST:/api/docpal/workflow/task/claim
+         * @deprecated
          */
         postWorkflowTaskClaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
@@ -14073,6 +14170,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow
          * @name PostWorkflowRetryFailWorkflow
          * @request POST:/api/docpal/workflow/retry_fail_workflow
+         * @deprecated
          */
         postWorkflowRetryFailWorkflow: (data: WorkflowRetryManagerDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
@@ -14089,6 +14187,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow
          * @name PostWorkflowQueryWorkflowRetryPage
          * @request POST:/api/docpal/workflow/query_workflow_retry_page
+         * @deprecated
          */
         postWorkflowQueryWorkflowRetryPage: (data: QueryWorkflowJobRequest, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOWorkflowRetryManagerDTO, Result | (ResultObject | Result | ResultString)>({
@@ -14105,6 +14204,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow
          * @name PostWorkflowProperties
          * @request POST:/api/docpal/workflow/properties
+         * @deprecated
          */
         postWorkflowProperties: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
@@ -14122,6 +14222,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowProcessModel
          * @summary Retrieve process model (BPMN) XML
          * @request POST:/api/docpal/workflow/process/model
+         * @deprecated
          */
         postWorkflowProcessModel: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
@@ -14139,6 +14240,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowProcessList
          * @summary Retrieve process definition
          * @request POST:/api/docpal/workflow/process/list
+         * @deprecated
          */
         postWorkflowProcessList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListProcessDTO, Result | (ResultObject | Result | ResultString)>({
@@ -14155,6 +14257,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow
          * @name PostWorkflowProcessInstance
          * @request POST:/api/docpal/workflow/process/instance
+         * @deprecated
          */
         postWorkflowProcessInstance: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListInstanceDTO, Result | (ResultObject | Result | ResultString)>({
@@ -14172,6 +14275,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowProcessDefinitionValidate
          * @summary Validate BPMN 2.0 XML file whether process definition grammatical
          * @request POST:/api/docpal/workflow/process/definition/validate
+         * @deprecated
          */
         postWorkflowProcessDefinitionValidate: (
             query: {
@@ -14194,6 +14298,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowProcessDefinitionUpload
          * @summary Create new workflow (process definition)
          * @request POST:/api/docpal/workflow/process/definition/upload
+         * @deprecated
          */
         postWorkflowProcessDefinitionUpload: (
             query: {
@@ -14236,6 +14341,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowProcessDefinitionSave
          * @summary Save workflow of someone version
          * @request POST:/api/docpal/workflow/process/definition/save
+         * @deprecated
          */
         postWorkflowProcessDefinitionSave: (
             query: {
@@ -14275,6 +14381,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowProcessDefinitionParse
          * @summary Validate BPMN 2.0 XML file whether process definition grammatical
          * @request POST:/api/docpal/workflow/process/definition/parse
+         * @deprecated
          */
         postWorkflowProcessDefinitionParse: (
             query: {
@@ -14297,6 +14404,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowProcessDefinitionDraftDraftidJson
          * @summary Get json of process definition
          * @request GET:/api/docpal/workflow/process/definition/draft/{draftId}/json
+         * @deprecated
          */
         getWorkflowProcessDefinitionDraftDraftidJson: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -14312,6 +14420,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowProcessDefinitionDraftDraftidJson
          * @summary Update json of process definition, please use string json
          * @request POST:/api/docpal/workflow/process/definition/draft/{draftId}/json
+         * @deprecated
          */
         postWorkflowProcessDefinitionDraftDraftidJson: (
             draftId: string,
@@ -14333,6 +14442,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowProcessDefinitionDraftDraftidImport
          * @summary Import zip file for create new process definition
          * @request POST:/api/docpal/workflow/process/definition/draft/{draftId}/import
+         * @deprecated
          */
         postWorkflowProcessDefinitionDraftDraftidImport: (
             draftId: string,
@@ -14366,6 +14476,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowProcessDefinitionDraftDraftidExport
          * @summary Export process definition
          * @request POST:/api/docpal/workflow/process/definition/draft/{draftId}/export
+         * @deprecated
          */
         postWorkflowProcessDefinitionDraftDraftidExport: (
             draftId: string,
@@ -14388,6 +14499,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowProcessDefinitionDraftPage
          * @summary Pagination search of process definition model
          * @request POST:/api/docpal/workflow/process/definition/draft/page
+         * @deprecated
          */
         postWorkflowProcessDefinitionDraftPage: (data: ProcessDefinitionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOProcessDefinitionDraft, Result | (ResultObject | Result | ResultString)>({
@@ -14405,6 +14517,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowProcessDefinitionCopyCopiedkey
          * @summary Copy workflow (process definition)
          * @request POST:/api/docpal/workflow/process/definition/copy/{copiedKey}
+         * @deprecated
          */
         postWorkflowProcessDefinitionCopyCopiedkey: (
             copiedKey: string,
@@ -14426,6 +14539,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWorkflowProcessDefinitionCopyFromFlowable
          * @summary Data Patch API
          * @request POST:/api/docpal/workflow/process/definition/copy/from/flowable
+         * @deprecated
          */
         postWorkflowProcessDefinitionCopyFromFlowable: (data: string[], params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -14442,6 +14556,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow Process Definition Controller
          * @name PostWorkflowProcessDefinitionActiveDraftid
          * @request POST:/api/docpal/workflow/process/definition/active/{draftId}
+         * @deprecated
          */
         postWorkflowProcessDefinitionActiveDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -14456,6 +14571,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow
          * @name PostWorkflowProcessConditionValidate
          * @request POST:/api/docpal/workflow/process/condition/validate
+         * @deprecated
          */
         postWorkflowProcessConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -14537,6 +14653,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWatermarkTemplates
          * @summary Create watermark template and watermark setting list
          * @request POST:/api/docpal/watermark/templates
+         * @deprecated
          */
         postWatermarkTemplates: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
@@ -14554,6 +14671,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchWatermarkTemplates
          * @summary Modify watermark template and watermark setting list
          * @request PATCH:/api/docpal/watermark/templates
+         * @deprecated
          */
         patchWatermarkTemplates: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
@@ -14571,6 +14689,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWatermarkTemplatesPage
          * @summary Watermark template page query
          * @request POST:/api/docpal/watermark/templates/page
+         * @deprecated
          */
         postWatermarkTemplatesPage: (
             query: {
@@ -14597,6 +14716,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Watermark Template
          * @name PostWatermarkTemplatesAppend
          * @request POST:/api/docpal/watermark/templates/append
+         * @deprecated
          */
         postWatermarkTemplatesAppend: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -14614,6 +14734,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostWatermarkSettings
          * @summary create single watermark settings
          * @request POST:/api/docpal/watermark/settings
+         * @deprecated
          */
         postWatermarkSettings: (data: WatermarkSettingsDTO, params: RequestParams = {}) =>
             this.request<ResultWatermarkSettingsDTO, Result | (ResultObject | Result | ResultString)>({
@@ -14631,6 +14752,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchWatermarkSettings
          * @summary update single watermark settings
          * @request PATCH:/api/docpal/watermark/settings
+         * @deprecated
          */
         patchWatermarkSettings: (data: WatermarkSettingsDTO, params: RequestParams = {}) =>
             this.request<ResultWatermarkSettingsDTO, Result | (ResultObject | Result | ResultString)>({
@@ -14715,6 +14837,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostTemplateEmailPage
          * @summary Pagination search (Email Template)
          * @request POST:/api/docpal/template/email/page
+         * @deprecated
          */
         postTemplateEmailPage: (data: EmailTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEmailTemplate, Result | (ResultObject | Result | ResultString)>({
@@ -14732,6 +14855,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostTemplateEmailTemplatePage
          * @summary Pagination search (Email Template)
          * @request POST:/api/docpal/template/email/template/page
+         * @deprecated
          */
         postTemplateEmailTemplatePage: (data: EmailTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEmailTemplate, Result | (ResultObject | Result | ResultString)>({
@@ -14749,6 +14873,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostTemplateEmailSend
          * @summary Send test email using email template
          * @request POST:/api/docpal/template/email/send
+         * @deprecated
          */
         postTemplateEmailSend: (data: MailSendRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -14766,6 +14891,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostTemplateEmailSendCustomize
          * @summary Send Customize Email
          * @request POST:/api/docpal/template/email/send/customize
+         * @deprecated
          */
         postTemplateEmailSendCustomize: (data: MailSendRequest, params: RequestParams = {}) =>
             this.request<ResultSendEmailResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -14783,6 +14909,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostTemplateEmailLayoutPage
          * @summary Pagination search (Email Layout)
          * @request POST:/api/docpal/template/email/layout/page
+         * @deprecated
          */
         postTemplateEmailLayoutPage: (data: EmailLayoutRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEmailLayout, Result | (ResultObject | Result | ResultString)>({
@@ -14885,6 +15012,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags system-feature-controller
          * @name PostSystemfeatureUsersMembers
          * @request POST:/api/docpal/systemfeature/users/members
+         * @deprecated
          */
         postSystemfeatureUsersMembers: (data: UserDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
@@ -14901,6 +15029,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags system-feature-controller
          * @name PostSystemfeatureCreateuser
          * @request POST:/api/docpal/systemfeature/createUser
+         * @deprecated
          */
         postSystemfeatureCreateuser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
@@ -14917,6 +15046,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name PostRelationUpdatelanguage
          * @request POST:/api/docpal/relation/updateLanguage
+         * @deprecated
          */
         postRelationUpdatelanguage: (data: LanguageEntity, params: RequestParams = {}) =>
             this.request<ResultLanguageEntity, Result | (ResultObject | Result | ResultString)>({
@@ -14933,6 +15063,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name PostRelationSave
          * @request POST:/api/docpal/relation/save
+         * @deprecated
          */
         postRelationSave: (data: FormPropertiesRelation, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -14949,6 +15080,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name PostRelationErrorenumSave
          * @request POST:/api/docpal/relation/errorEnum/save
+         * @deprecated
          */
         postRelationErrorenumSave: (data: ErrorEnumEntityDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
@@ -14965,6 +15097,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name PostRelationErrorenumQuerybyentity
          * @request POST:/api/docpal/relation/errorEnum/queryByEntity
+         * @deprecated
          */
         postRelationErrorenumQuerybyentity: (data: ErrorEnumEntityDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
@@ -14981,6 +15114,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name PostRelationTasksQuerybyentityDeprecate
          * @request POST:/api/docpal/relation/tasks/queryByEntity/
+         * @deprecated
          */
         postRelationTasksQuerybyentityDeprecate: (data: ErrorEnumEntityDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
@@ -14997,6 +15131,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name PostRelationDeletelanguage
          * @request POST:/api/docpal/relation/deleteLanguage
+         * @deprecated
          */
         postRelationDeletelanguage: (
             query: {
@@ -15018,6 +15153,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name PostRelationAddlanguage
          * @request POST:/api/docpal/relation/addLanguage
+         * @deprecated
          */
         postRelationAddlanguage: (data: LanguageEntity, params: RequestParams = {}) =>
             this.request<ResultLanguageEntity, Result | (ResultObject | Result | ResultString)>({
@@ -15129,6 +15265,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetOauth2Setting
          * @summary Query mail OAuth2.0 Setting of current login user
          * @request GET:/api/docpal/oauth2/setting
+         * @deprecated
          */
         getOauth2Setting: (params: RequestParams = {}) =>
             this.request<ResultOAuth2SettingRequestDTO, Result | (ResultObject | Result | ResultString)>({
@@ -15144,6 +15281,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostOauth2Setting
          * @summary Obtain authorization url of OAuth2.0
          * @request POST:/api/docpal/oauth2/setting
+         * @deprecated
          */
         postOauth2Setting: (data: OAuth2SettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
@@ -15161,6 +15299,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostOauth2Refresh
          * @summary Refresh the credential of OAuth2.0
          * @request POST:/api/docpal/oauth2/refresh
+         * @deprecated
          */
         postOauth2Refresh: (data: OAuth2SettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
@@ -15201,6 +15340,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostOauth2Code
          * @summary Get the credential of OAuth2.0 by code and state
          * @request POST:/api/docpal/oauth2/code
+         * @deprecated
          */
         postOauth2Code: (data: OAuth2SettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -15331,6 +15471,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTablesIdStructureExport
          * @summary Export table structure
          * @request POST:/api/docpal/master/tables/{id}/structure/export
+         * @deprecated
          */
         postMasterTablesIdStructureExport: (
             id: string,
@@ -15357,6 +15498,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTablesIdRecordExport
          * @summary Export data of a master table
          * @request POST:/api/docpal/master/tables/{id}/record/export
+         * @deprecated
          */
         postMasterTablesIdRecordExport: (
             id: string,
@@ -15379,6 +15521,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTablesIdField
          * @summary Add single field to master table
          * @request POST:/api/docpal/master/tables/{id}/field
+         * @deprecated
          */
         postMasterTablesIdField: (id: string, data: MTFieldInfo, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -15396,6 +15539,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTablesStructureImport
          * @summary Import Excel to create master table
          * @request POST:/api/docpal/master/tables/structure/import
+         * @deprecated
          */
         postMasterTablesStructureImport: (
             data: {
@@ -15424,6 +15568,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetMasterTablesRecords
          * @summary query records with related fields of master table
          * @request GET:/api/docpal/master/tables/records
+         * @deprecated
          */
         getMasterTablesRecords: (
             query: {
@@ -15447,6 +15592,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTablesRecords
          * @summary Query all records of master table
          * @request POST:/api/docpal/master/tables/records
+         * @deprecated
          */
         postMasterTablesRecords: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -15461,31 +15607,10 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * No description
          *
          * @tags MasterTableController
-         * @name GetMasterTablesRecord
-         * @summary query record with related fields of master table
-         * @request GET:/api/docpal/master/tables/record
-         */
-        getMasterTablesRecord: (
-            query: {
-                id: string;
-                recordId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/record`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags MasterTableController
          * @name PostMasterTablesRecord
          * @summary Insert data into a master table
          * @request POST:/api/docpal/master/tables/record
+         * @deprecated
          */
         postMasterTablesRecord: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -15500,25 +15625,9 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * No description
          *
          * @tags MasterTableController
-         * @name PostMasterTablesRecordPage
-         * @summary Pagination Search (Master Table Record)
-         * @request POST:/api/docpal/master/tables/record/page
-         */
-        postMasterTablesRecordPage: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/record/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags MasterTableController
          * @name PostMasterTablesRecordPageNonpermission
          * @request POST:/api/docpal/master/tables/record/page/nonPermission
+         * @deprecated
          */
         postMasterTablesRecordPageNonpermission: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -15536,6 +15645,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTablesRecordImport
          * @summary Upload json for import data into a master table
          * @request POST:/api/docpal/master/tables/record/import
+         * @deprecated
          */
         postMasterTablesRecordImport: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -15553,6 +15663,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTablesRecordImportFile
          * @summary Upload .csv file for import data into a master table
          * @request POST:/api/docpal/master/tables/record/import/file
+         * @deprecated
          */
         postMasterTablesRecordImportFile: (
             query: {
@@ -15584,6 +15695,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTablesPage
          * @summary Pagination search (Master Table)
          * @request POST:/api/docpal/master/tables/page
+         * @deprecated
          */
         postMasterTablesPage: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -15601,6 +15713,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTablesLogs
          * @summary Pagination Search (Audit Logs of master table)
          * @request POST:/api/docpal/master/tables/logs
+         * @deprecated
          */
         postMasterTablesLogs: (data: MTAuditLogRequestDTO, params: RequestParams = {}) =>
             this.request<
@@ -15620,6 +15733,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags MasterTableController
          * @name PostMasterTablesLogsPageConditions
          * @request POST:/api/docpal/master/tables/logs/page/conditions
+         * @deprecated
          */
         postMasterTablesLogsPageConditions: (data: MTAuditLogRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -15636,6 +15750,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags MasterTableController
          * @name PostMasterTablesInit
          * @request POST:/api/docpal/master/tables/init
+         * @deprecated
          */
         postMasterTablesInit: (params: RequestParams = {}) =>
             this.request<void, Result | (ResultObject | Result | ResultString)>({
@@ -15651,6 +15766,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTablesFields
          * @summary Add multiple fields to master table
          * @request POST:/api/docpal/master/tables/fields
+         * @deprecated
          */
         postMasterTablesFields: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -15668,6 +15784,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTablesColumnAdd
          * @summary For master table adding column
          * @request POST:/api/docpal/master/tables/column/add
+         * @deprecated
          */
         postMasterTablesColumnAdd: (data: MTAddColumnRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -15685,6 +15802,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTablesBatchDelete
          * @summary delete master table record
          * @request POST:/api/docpal/master/tables/batch/delete
+         * @deprecated
          */
         postMasterTablesBatchDelete: (data: DeleteMTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -15702,6 +15820,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTablesAclsRemove
          * @summary Remove permission of current master table
          * @request POST:/api/docpal/master/tables/acls/remove
+         * @deprecated
          */
         postMasterTablesAclsRemove: (data: MTPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -15719,6 +15838,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTablesAclsUpdate
          * @summary Remove permission of current master table
          * @request POST:/api/docpal/master/tables/acls/update
+         * @deprecated
          */
         postMasterTablesAclsUpdate: (data: MTPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -15736,6 +15856,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTablesAclsDelete
          * @summary Delete permission of current master table
          * @request POST:/api/docpal/master/tables/acls/delete
+         * @deprecated
          */
         postMasterTablesAclsDelete: (data: MTPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -15753,6 +15874,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostMasterTablesAclsAdd
          * @summary Add permission of current master table
          * @request POST:/api/docpal/master/tables/acls/add
+         * @deprecated
          */
         postMasterTablesAclsAdd: (data: MTPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -15892,6 +16014,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetIdTemplates
          * @summary Get all ID templates
          * @request GET:/api/docpal/id-templates
+         * @deprecated
          */
         getIdTemplates: (params: RequestParams = {}) =>
             this.request<ResultListIdTemplate, Result | (ResultObject | Result | ResultString)>({
@@ -15907,6 +16030,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostIdTemplates
          * @summary Create a ID template
          * @request POST:/api/docpal/id-templates
+         * @deprecated
          */
         postIdTemplates: (data: IdTemplate, params: RequestParams = {}) =>
             this.request<ResultIdTemplate, Result | (ResultObject | Result | ResultString)>({
@@ -15924,6 +16048,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostIdTemplatesValidate
          * @summary Verify id templates
          * @request POST:/api/docpal/id-templates/validate
+         * @deprecated
          */
         postIdTemplatesValidate: (data: IdTemplate, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
@@ -15941,6 +16066,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostIdTemplatesPage
          * @summary Paging query id templates
          * @request POST:/api/docpal/id-templates/page
+         * @deprecated
          */
         postIdTemplatesPage: (data: IdTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOIdTemplate, Result | (ResultObject | Result | ResultString)>({
@@ -15958,6 +16084,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostIdTemplatesGenerate
          * @summary Generated ID using id template
          * @request POST:/api/docpal/id-templates/generate
+         * @deprecated
          */
         postIdTemplatesGenerate: (data: GenerateIdReq, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
@@ -16364,6 +16491,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags DAMSettingController
          * @name PostDamGetallsetting
          * @request POST:/api/docpal/dam/getAllSetting
+         * @deprecated
          */
         postDamGetallsetting: (params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
@@ -16378,6 +16506,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags DAMSettingController
          * @name PostDamEditsetting
          * @request POST:/api/docpal/dam/editSetting
+         * @deprecated
          */
         postDamEditsetting: (data: DAMConversionSettingRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
@@ -16394,6 +16523,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags DAMSettingController
          * @name PostDamDeletesettings
          * @request POST:/api/docpal/dam/deleteSettings
+         * @deprecated
          */
         postDamDeletesettings: (data: number[], params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
@@ -16411,6 +16541,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostContactgroup
          * @summary Create a new contact group
          * @request POST:/api/docpal/contactGroup
+         * @deprecated
          */
         postContactgroup: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -16428,6 +16559,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostContactgroupIdPermission
          * @summary Add the contact permission
          * @request POST:/api/docpal/contactGroup/{id}/permission
+         * @deprecated
          */
         postContactgroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
             this.request<ResultListBasicField, Result | (ResultObject | Result | ResultString)>({
@@ -16445,6 +16577,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchContactgroupIdPermission
          * @summary Remove the contact permission
          * @request PATCH:/api/docpal/contactGroup/{id}/permission
+         * @deprecated
          */
         patchContactgroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
             this.request<ResultListBasicField, Result | (ResultObject | Result | ResultString)>({
@@ -16462,6 +16595,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostContactgroupIdNewfields
          * @summary Add new field to contact Group
          * @request POST:/api/docpal/contactGroup/{id}/newFields
+         * @deprecated
          */
         postContactgroupIdNewfields: (id: string, data: ContactAttribute, params: RequestParams = {}) =>
             this.request<ResultListContactAttribute, Result | (ResultObject | Result | ResultString)>({
@@ -16479,6 +16613,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostContactgroupIdContactdetail
          * @summary Adding a new contact record
          * @request POST:/api/docpal/contactGroup/{id}/contactDetail
+         * @deprecated
          */
         postContactgroupIdContactdetail: (id: string, data: Record<string, object>, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -16496,6 +16631,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostContactgroupIdContactdetailPage
          * @summary Page query contact detail list
          * @request POST:/api/docpal/contactGroup/{id}/contactDetail/page
+         * @deprecated
          */
         postContactgroupIdContactdetailPage: (id: string, data: ContactRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -16513,6 +16649,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostContactgroupIdContactdetailImport
          * @summary Import contacts from file
          * @request POST:/api/docpal/contactGroup/{id}/contactDetail/import
+         * @deprecated
          */
         postContactgroupIdContactdetailImport: (
             id: string,
@@ -16548,6 +16685,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostContactgroupIdContactdetailExport
          * @summary Export contact record for file type include excel, csv, vcf
          * @request POST:/api/docpal/contactGroup/{id}/contactDetail/export
+         * @deprecated
          */
         postContactgroupIdContactdetailExport: (
             id: string,
@@ -16571,6 +16709,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostContactgroupReadTitle
          * @summary Get header list through read the file
          * @request POST:/api/docpal/contactGroup/read/title
+         * @deprecated
          */
         postContactgroupReadTitle: (
             data: {
@@ -16594,6 +16733,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostContactgroupPage
          * @summary Page query contact group
          * @request POST:/api/docpal/contactGroup/page
+         * @deprecated
          */
         postContactgroupPage: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -16611,6 +16751,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCompanyprofiles
          * @summary Create a new company profile by filling out required fields
          * @request POST:/api/docpal/companyProfiles
+         * @deprecated
          */
         postCompanyprofiles: (data: Company, params: RequestParams = {}) =>
             this.request<ResultCompany, Result | (ResultObject | Result | ResultString)>({
@@ -16628,6 +16769,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCompanyprofilesCompanyidChops
          * @summary Retrieve list of all chops in one company
          * @request GET:/api/docpal/companyProfiles/{companyId}/chops
+         * @deprecated
          */
         getCompanyprofilesCompanyidChops: (
             companyId: string,
@@ -16651,6 +16793,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCompanyprofilesCompanyidChops
          * @summary Create a new company chop
          * @request POST:/api/docpal/companyProfiles/{companyId}/chops
+         * @deprecated
          */
         postCompanyprofilesCompanyidChops: (
             companyId: string,
@@ -16697,6 +16840,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCompanyprofilesCompanyidChopsPage
          * @summary Retrieve list of all chops in one company
          * @request POST:/api/docpal/companyProfiles/{companyId}/chops/page
+         * @deprecated
          */
         postCompanyprofilesCompanyidChopsPage: (
             companyId: string,
@@ -16718,6 +16862,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCompanyprofilesPage
          * @summary Paginated query for fetch list of all company Profiles
          * @request POST:/api/docpal/companyProfiles/page
+         * @deprecated
          */
         postCompanyprofilesPage: (data: CompanyRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOCompany, Result | (ResultObject | Result | ResultString)>({
@@ -16763,6 +16908,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTypesIdDraftSave
          * @summary Save draft cmmn xml
          * @request POST:/api/docpal/case/types/{id}/draft/save
+         * @deprecated
          */
         postCaseTypesIdDraftSave: (
             id: string,
@@ -16795,6 +16941,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTypesIdDraftDownload
          * @summary Download draft cmmn xml (case model definition)
          * @request POST:/api/docpal/case/types/{id}/draft/download
+         * @deprecated
          */
         postCaseTypesIdDraftDownload: (id: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
@@ -16810,6 +16957,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTypesIdDownloadDraft
          * @summary Download draft cmmn xml (case model definition)
          * @request POST:/api/docpal/case/types/{id}/download/draft
+         * @deprecated
          */
         postCaseTypesIdDownloadDraft: (id: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
@@ -16825,6 +16973,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTypesIdCopy
          * @summary New Case for new case type
          * @request POST:/api/docpal/case/types/{id}/copy
+         * @deprecated
          */
         postCaseTypesIdCopy: (id: string, data: CopyCaseTypeRequest, params: RequestParams = {}) =>
             this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -16841,6 +16990,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags CaseTypeController
          * @name PostCaseTypesVersionVersionidRefresh
          * @request POST:/api/docpal/case/types/version/{versionId}/refresh
+         * @deprecated
          */
         postCaseTypesVersionVersionidRefresh: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -16856,6 +17006,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTypesVersionVersionidNew
          * @summary Create a new version of case type
          * @request POST:/api/docpal/case/types/version/{versionId}/new
+         * @deprecated
          */
         postCaseTypesVersionVersionidNew: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultCmmnVersion, Result | (ResultObject | Result | ResultString)>({
@@ -16871,6 +17022,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTypesVersionVersionidActive
          * @summary Deploy a version case type
          * @request POST:/api/docpal/case/types/version/{versionId}/active
+         * @deprecated
          */
         postCaseTypesVersionVersionidActive: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -16886,6 +17038,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTypesVersionPage
          * @summary Paging query case-model version
          * @request POST:/api/docpal/case/types/version/page
+         * @deprecated
          */
         postCaseTypesVersionPage: (data: CmmnVersionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOCmmnVersion, Result | (ResultObject | Result | ResultString)>({
@@ -16903,6 +17056,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTypesStylejsonSave
          * @summary Save style json of cmmn xml
          * @request POST:/api/docpal/case/types/styleJson/save
+         * @deprecated
          */
         postCaseTypesStylejsonSave: (data: CmmnVersionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCmmnVersion, Result | (ResultObject | Result | ResultString)>({
@@ -16919,6 +17073,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags CaseTypeController
          * @name PostCaseTypesRefresh
          * @request POST:/api/docpal/case/types/refresh
+         * @deprecated
          */
         postCaseTypesRefresh: (
             query: {
@@ -16940,6 +17095,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTypesRecordsList
          * @summary Get all case instance data of deployed case type without permission
          * @request POST:/api/docpal/case/types/records/list
+         * @deprecated
          */
         postCaseTypesRecordsList: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListLinkedHashMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -16957,6 +17113,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTypesPage
          * @summary Pagination search (Case Type)
          * @request POST:/api/docpal/case/types/page
+         * @deprecated
          */
         postCaseTypesPage: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOCaseType, Result | (ResultObject | Result | ResultString)>({
@@ -16974,6 +17131,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTypesList
          * @summary Retrieve case list through the list of case id
          * @request POST:/api/docpal/case/types/list
+         * @deprecated
          */
         postCaseTypesList: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -16991,6 +17149,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTriggerEvent
          * @summary Trigger event for completed
          * @request POST:/api/docpal/case/trigger/event
+         * @deprecated
          */
         postCaseTriggerEvent: (data: CmmnTriggerEventReqDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -17008,6 +17167,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseTables
          * @summary Retrieve all case tables
          * @request GET:/api/docpal/case/tables
+         * @deprecated
          */
         getCaseTables: (params: RequestParams = {}) =>
             this.request<ResultListCaseTable, Result | (ResultObject | Result | ResultString)>({
@@ -17023,6 +17183,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTables
          * @summary Create (Case Table)
          * @request POST:/api/docpal/case/tables
+         * @deprecated
          */
         postCaseTables: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCaseTable, Result | (ResultObject | Result | ResultString)>({
@@ -17040,6 +17201,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTablesIdField
          * @summary Add single field to Case Table
          * @request POST:/api/docpal/case/tables/{id}/field
+         * @deprecated
          */
         postCaseTablesIdField: (id: string, data: MTFieldInfo, params: RequestParams = {}) =>
             this.request<ResultCaseTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -17057,6 +17219,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteCaseTablesIdField
          * @summary Delete field when not data (Case Table)
          * @request DELETE:/api/docpal/case/tables/{id}/field
+         * @deprecated
          */
         deleteCaseTablesIdField: (
             id: string,
@@ -17079,6 +17242,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTablesRecord
          * @summary Insert data into a Case Table
          * @request POST:/api/docpal/case/tables/record
+         * @deprecated
          */
         postCaseTablesRecord: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -17096,6 +17260,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseTablesRecordPage
          * @summary Pagination Search (Case Table Record)
          * @request POST:/api/docpal/case/tables/record/page
+         * @deprecated
          */
         postCaseTablesRecordPage: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -17113,6 +17278,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseInstanceTasks
          * @summary Retrieve all tasks of this case instance
          * @request POST:/api/docpal/case/instance/tasks
+         * @deprecated
          */
         postCaseInstanceTasks: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
             this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
@@ -17130,6 +17296,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseInstanceTasksComplete
          * @summary Complete task
          * @request POST:/api/docpal/case/instance/tasks/complete
+         * @deprecated
          */
         postCaseInstanceTasksComplete: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -17147,6 +17314,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseInstanceStart
          * @summary Start a case model definition to get a case instance
          * @request POST:/api/docpal/case/instance/start
+         * @deprecated
          */
         postCaseInstanceStart: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
@@ -17164,6 +17332,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseInstancePlanitems
          * @summary Retrieve all or activated planItem instances of this case instance
          * @request POST:/api/docpal/case/instance/planItems
+         * @deprecated
          */
         postCaseInstancePlanitems: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
@@ -17181,6 +17350,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseInstancePlanitemsPlanitemidEnable
          * @summary Enable plan item instance
          * @request POST:/api/docpal/case/instance/planItems/{planItemId}/enable
+         * @deprecated
          */
         postCaseInstancePlanitemsPlanitemidEnable: (planItemId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -17196,6 +17366,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseInstancePlanitemsComplete
          * @summary Complete PlanItem instance
          * @request POST:/api/docpal/case/instance/planItems/complete
+         * @deprecated
          */
         postCaseInstancePlanitemsComplete: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -17213,6 +17384,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseDashboardSaveStyle
          * @summary Save dashboard Json
          * @request POST:/api/docpal/case/dashboard/save/style
+         * @deprecated
          */
         postCaseDashboardSaveStyle: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCmmnDashboard, Result | (ResultObject | Result | ResultString)>({
@@ -17230,6 +17402,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseDashboardPage
          * @summary Pagination search (Case Dashboard)
          * @request POST:/api/docpal/case/dashboard/page
+         * @deprecated
          */
         postCaseDashboardPage: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -17247,6 +17420,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseDashboardInstanceCaseidProcessInstanceTasks
          * @summary Query sub-process tasks of this case instance
          * @request POST:/api/docpal/case/dashboard/instance/{caseId}/process/instance/tasks
+         * @deprecated
          */
         postCaseDashboardInstanceCaseidProcessInstanceTasks: (
             caseId: string,
@@ -17268,6 +17442,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCaseDashboardInstanceCaseidProcessInstancePage
          * @summary Pagination Search process instance of this case instance
          * @request POST:/api/docpal/case/dashboard/instance/{caseId}/process/instance/page
+         * @deprecated
          */
         postCaseDashboardInstanceCaseidProcessInstancePage: (
             caseId: string,
@@ -17288,6 +17463,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags CmmnDashboardController
          * @name PostCaseDashboardDatapatchRolepermission
          * @request POST:/api/docpal/case/dashboard/dataPatch/rolePermission
+         * @deprecated
          */
         postCaseDashboardDatapatchRolepermission: (params: RequestParams = {}) =>
             this.request<void, Result | (ResultObject | Result | ResultString)>({
@@ -17303,6 +17479,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCalendarsWidgetSetting
          * @summary Obtain calendar widget settings
          * @request GET:/api/docpal/calendars/widget/setting
+         * @deprecated
          */
         getCalendarsWidgetSetting: (params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -17318,6 +17495,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCalendarsWidgetSetting
          * @summary Save calendar settings
          * @request POST:/api/docpal/calendars/widget/setting
+         * @deprecated
          */
         postCalendarsWidgetSetting: (data: Record<string, object>, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -17335,6 +17513,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCalendarsSetting
          * @summary Obtain calendar settings
          * @request GET:/api/docpal/calendars/setting
+         * @deprecated
          */
         getCalendarsSetting: (params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -17350,6 +17529,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCalendarsSetting
          * @summary Save calendar settings
          * @request POST:/api/docpal/calendars/setting
+         * @deprecated
          */
         postCalendarsSetting: (data: Record<string, object>, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -17367,6 +17547,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostCalendarsList
          * @summary Query list
          * @request POST:/api/docpal/calendars/list
+         * @deprecated
          */
         postCalendarsList: (data: CalendarTaskReq, params: RequestParams = {}) =>
             this.request<ResultListCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
@@ -17933,6 +18114,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags SmartFolderController
          * @name GetNuxeoSfolderDeprecate
          * @request GET:/api/nuxeo/sfolder/
+         * @deprecated
          */
         getNuxeoSfolderDeprecate: (
             query?: {
@@ -17955,6 +18137,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchNuxeoSfolderDeprecate
          * @summary Save Smart Folder
          * @request PATCH:/api/nuxeo/sfolder/
+         * @deprecated
          */
         patchNuxeoSfolderDeprecate: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
             this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -17971,6 +18154,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags SmartFolderController
          * @name GetNuxeoSfolder
          * @request GET:/api/nuxeo/sfolder
+         * @deprecated
          */
         getNuxeoSfolder: (
             query?: {
@@ -17993,6 +18177,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchNuxeoSfolder
          * @summary Save Smart Folder
          * @request PATCH:/api/nuxeo/sfolder
+         * @deprecated
          */
         patchNuxeoSfolder: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
             this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -18009,6 +18194,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags ViewSettingController
          * @name GetNuxeoSettingView
          * @request GET:/api/nuxeo/setting/view
+         * @deprecated
          */
         getNuxeoSettingView: (params: RequestParams = {}) =>
             this.request<ResultViewSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -18023,6 +18209,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags ViewSettingController
          * @name PatchNuxeoSettingView
          * @request PATCH:/api/nuxeo/setting/view
+         * @deprecated
          */
         patchNuxeoSettingView: (data: ViewSettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultViewSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -18062,6 +18249,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchImportjobsIdStatus
          * @summary Update import job status
          * @request PATCH:/api/importJobs/{id}/status
+         * @deprecated
          */
         patchImportjobsIdStatus: (id: string, data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -18079,6 +18267,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchExternalstorageIdStatus
          * @summary Active/Inactive a external storage
          * @request PATCH:/api/externalStorage/{id}/status
+         * @deprecated
          */
         patchExternalstorageIdStatus: (id: string, data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -18096,6 +18285,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchExternalstorageIdProfilesProfileidStatus
          * @summary Active/Inactive a external profile
          * @request PATCH:/api/externalStorage/{id}/profiles/{profileId}/status
+         * @deprecated
          */
         patchExternalstorageIdProfilesProfileidStatus: (
             id: string,
@@ -18118,6 +18308,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchExternalstorageIdProfilesProfileidProcess
          * @summary Update an setting of existing external profile for a specific external storage
          * @request PATCH:/api/externalStorage/{id}/profiles/{profileId}/process
+         * @deprecated
          */
         patchExternalstorageIdProfilesProfileidProcess: (
             id: string,
@@ -18140,6 +18331,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchExternalstorageIdProfilesProfileidImport
          * @summary Update an import setting of existing external profile for a specific external storage
          * @request PATCH:/api/externalStorage/{id}/profiles/{profileId}/import
+         * @deprecated
          */
         patchExternalstorageIdProfilesProfileidImport: (
             id: string,
@@ -18162,6 +18354,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchExternalstorageIdProfilesProfileidGeneral
          * @summary Update an general setting of existing external profile for a specific external storage
          * @request PATCH:/api/externalStorage/{id}/profiles/{profileId}/general
+         * @deprecated
          */
         patchExternalstorageIdProfilesProfileidGeneral: (
             id: string,
@@ -18184,6 +18377,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchExternalstorageIdProfilesProfileidCapture
          * @summary Update an capture setting of existing external profile for a specific external storage
          * @request PATCH:/api/externalStorage/{id}/profiles/{profileId}/capture
+         * @deprecated
          */
         patchExternalstorageIdProfilesProfileidCapture: (
             id: string,
@@ -18206,6 +18400,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchExternalstorageProfilesProfileidOutputrecordOutputrecordidStatus
          * @summary Active/Inactive a external profile output record
          * @request PATCH:/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}/status
+         * @deprecated
          */
         patchExternalstorageProfilesProfileidOutputrecordOutputrecordidStatus: (
             profileId: string,
@@ -18228,6 +18423,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchEventCalendarsSettingIdStatus
          * @summary Update Event Calendar Setting Status
          * @request PATCH:/api/event/calendars/setting/{id}/status
+         * @deprecated
          */
         patchEventCalendarsSettingIdStatus: (id: string, data: StatusRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -18293,6 +18489,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchWatermarkTemplatesDeprecate
          * @summary Modify watermark template and watermark setting list
          * @request PATCH:/api/docpal/watermark/templates/
+         * @deprecated
          */
         patchWatermarkTemplatesDeprecate: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
@@ -18310,6 +18507,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchWatermarkSettingsDeprecate
          * @summary update single watermark settings
          * @request PATCH:/api/docpal/watermark/settings/
+         * @deprecated
          */
         patchWatermarkSettingsDeprecate: (data: WatermarkSettingsDTO, params: RequestParams = {}) =>
             this.request<ResultWatermarkSettingsDTO, Result | (ResultObject | Result | ResultString)>({
@@ -18382,26 +18580,11 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchMasterTablesIdRecordStatus
          * @summary Enable or Disable Record
          * @request PATCH:/api/docpal/master/tables/{id}/record/status
+         * @deprecated
          */
         patchMasterTablesIdRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/docpal/master/tables/${id}/record/status`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags MasterTableController
-         * @name PatchMasterTablesIdBatchRecordStatus
-         * @request PATCH:/api/docpal/master/tables/{id}/batch/record/status
-         */
-        patchMasterTablesIdBatchRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/${id}/batch/record/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -18465,6 +18648,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchCompanyprofilesCompanyidStatus
          * @summary Update company status [Active or Unactive]
          * @request PATCH:/api/docpal/companyProfiles/{companyId}/status
+         * @deprecated
          */
         patchCompanyprofilesCompanyidStatus: (companyId: string, data: Company, params: RequestParams = {}) =>
             this.request<ResultCompany, Result | (ResultObject | Result | ResultString)>({
@@ -18482,6 +18666,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchCaseTypesVersionVersionidSave
          * @summary Edit XML file [cmmn.xml] of version
          * @request PATCH:/api/docpal/case/types/version/{versionId}/save
+         * @deprecated
          */
         patchCaseTypesVersionVersionidSave: (
             versionId: string,
@@ -18541,6 +18726,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchCaseTablesFields
          * @summary The Case Table has been augmented with the addition of multiple columns.
          * @request PATCH:/api/docpal/case/tables/fields
+         * @deprecated
          */
         patchCaseTablesFields: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCaseTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -18558,6 +18744,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchCalendarsIdStatusStatus
          * @summary Modify status by id
          * @request PATCH:/api/docpal/calendars/{id}/status/{status}
+         * @deprecated
          */
         patchCalendarsIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -19025,6 +19212,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags SmartFolderController
          * @name GetNuxeoSfolderId
          * @request GET:/api/nuxeo/sfolder/{id}
+         * @deprecated
          */
         getNuxeoSfolderId: (id: string, params: RequestParams = {}) =>
             this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -19039,6 +19227,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags SmartFolderController
          * @name DeleteNuxeoSfolderId
          * @request DELETE:/api/nuxeo/sfolder/{id}
+         * @deprecated
          */
         deleteNuxeoSfolderId: (id: string, params: RequestParams = {}) =>
             this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -19054,6 +19243,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetNuxeoSfolderPageConditions
          * @summary Obtain all conditions that has been used
          * @request GET:/api/nuxeo/sfolder/page/conditions
+         * @deprecated
          */
         getNuxeoSfolderPageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -19130,6 +19320,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name GetNuxeoAdminVirtualfolderSettingId
          * @request GET:/api/nuxeo/admin/virtualfolder/setting/{id}
+         * @deprecated
          */
         getNuxeoAdminVirtualfolderSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -19144,6 +19335,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name DeleteNuxeoAdminVirtualfolderSettingId
          * @request DELETE:/api/nuxeo/admin/virtualfolder/setting/{id}
+         * @deprecated
          */
         deleteNuxeoAdminVirtualfolderSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -19158,6 +19350,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name GetNuxeoAdminSettingLanguage
          * @request GET:/api/nuxeo/admin/setting/language
+         * @deprecated
          */
         getNuxeoAdminSettingLanguage: (params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
@@ -19172,6 +19365,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags NuxeoAdminController
          * @name GetNuxeoAdminIcons
          * @request GET:/api/nuxeo/admin/icons
+         * @deprecated
          */
         getNuxeoAdminIcons: (params: RequestParams = {}) =>
             this.request<ResultListCustomIconDTO, Result | (ResultObject | Result | ResultString)>({
@@ -19187,6 +19381,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetNuxeoAdminConcurrentSession
          * @summary Query concurrent session configuration
          * @request GET:/api/nuxeo/admin/concurrent-session
+         * @deprecated
          */
         getNuxeoAdminConcurrentSession: (
             query: {
@@ -19322,6 +19517,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags ExternalStorageImportJobController
          * @name GetImportjobsPageConditions
          * @request GET:/api/importJobs/page/conditions
+         * @deprecated
          */
         getImportjobsPageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -19337,6 +19533,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetExternalstorageIdProfilesList
          * @summary Get all profile by external storage id
          * @request GET:/api/externalStorage/{id}/profiles/list
+         * @deprecated
          */
         getExternalstorageIdProfilesList: (id: string, params: RequestParams = {}) =>
             this.request<ResultListExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
@@ -19352,6 +19549,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetExternalstorageProfilesProfileidOutputrecordList
          * @summary Retrieve all output settings of specific profile
          * @request GET:/api/externalStorage/profiles/{profileId}/outputRecord/list
+         * @deprecated
          */
         getExternalstorageProfilesProfileidOutputrecordList: (profileId: string, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -19367,6 +19565,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetEventCalendarsSettings
          * @summary Get All Event Calendar Settings
          * @request GET:/api/event/calendars/settings
+         * @deprecated
          */
         getEventCalendarsSettings: (
             query: {
@@ -19510,6 +19709,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowVersion
          * @summary Get Version Data
          * @request GET:/api/docpal/workflow/version
+         * @deprecated
          */
         getWorkflowVersion: (
             query: {
@@ -19532,6 +19732,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowVersionVersionid
          * @summary Get Version Data
          * @request GET:/api/docpal/workflow/version/{versionId}
+         * @deprecated
          */
         getWorkflowVersionVersionid: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
@@ -19546,6 +19747,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow Version Controller
          * @name DeleteWorkflowVersionVersionid
          * @request DELETE:/api/docpal/workflow/version/{versionId}
+         * @deprecated
          */
         deleteWorkflowVersionVersionid: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -19561,6 +19763,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowVersionVersionidBpmnxml
          * @summary Download BPMN20.xml through version id of a workflow
          * @request GET:/api/docpal/workflow/version/{versionId}/bpmnXml
+         * @deprecated
          */
         getWorkflowVersionVersionidBpmnxml: (versionId: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
@@ -19576,6 +19779,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowVersionKeyProcessdefinitionkey
          * @summary Get Latest Version Data by process definition key
          * @request GET:/api/docpal/workflow/version/key/{processDefinitionKey}
+         * @deprecated
          */
         getWorkflowVersionKeyProcessdefinitionkey: (processDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
@@ -19591,6 +19795,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowVersionJson
          * @summary Download Json through version number and draft id
          * @request GET:/api/docpal/workflow/version/json
+         * @deprecated
          */
         getWorkflowVersionJson: (
             query: {
@@ -19613,6 +19818,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowVersionBpmnxml
          * @summary Download BPMN20.xml through version number and draft id
          * @request GET:/api/docpal/workflow/version/bpmnXml
+         * @deprecated
          */
         getWorkflowVersionBpmnxml: (
             query: {
@@ -19635,6 +19841,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow
          * @name GetWorkflowVariablesInstanceid
          * @request GET:/api/docpal/workflow/variables/{instanceId}
+         * @deprecated
          */
         getWorkflowVariablesInstanceid: (instanceId: string, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -19649,6 +19856,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow
          * @name GetWorkflowStartFormProperties
          * @request GET:/api/docpal/workflow/start-form/properties
+         * @deprecated
          */
         getWorkflowStartFormProperties: (
             query: {
@@ -19784,8 +19992,24 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * No description
          *
          * @tags Workflow
+         * @name GetWorkflowProcessInstanceProcessinstanceid
+         * @request GET:/api/docpal/workflow/process/instance/{processInstanceId}
+         * @deprecated
+         */
+        getWorkflowProcessInstanceProcessinstanceid: (processInstanceId: string, params: RequestParams = {}) =>
+            this.request<ResultProcessInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/workflow/process/instance/${processInstanceId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
          * @name GetWorkflowProcessGetprocessdefinitionlist
          * @request GET:/api/docpal/workflow/process/getProcessDefinitionList
+         * @deprecated
          */
         getWorkflowProcessGetprocessdefinitionlist: (
             query?: {
@@ -19807,6 +20031,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowProcessDefinitionProcessdefinitionkey
          * @summary Get deployed process definition through process definition key
          * @request GET:/api/docpal/workflow/process/definition/{processDefinitionKey}
+         * @deprecated
          */
         getWorkflowProcessDefinitionProcessdefinitionkey: (processDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
@@ -19822,6 +20047,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowProcessDefinitionProcessdefinitionkeyHistory
          * @summary Find historical process definitions through process definition key
          * @request GET:/api/docpal/workflow/process/definition/{processDefinitionKey}/history
+         * @deprecated
          */
         getWorkflowProcessDefinitionProcessdefinitionkeyHistory: (
             processDefinitionKey: string,
@@ -19840,6 +20066,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowProcessDefinitionForms
          * @summary Get the list of form properties associated with the process definition
          * @request GET:/api/docpal/workflow/process/definition/forms
+         * @deprecated
          */
         getWorkflowProcessDefinitionForms: (
             query?: {
@@ -19862,6 +20089,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowProcessDefinitionFormsElementkey
          * @summary Get form properties of single element associated with the process definition
          * @request GET:/api/docpal/workflow/process/definition/forms/{elementKey}
+         * @deprecated
          */
         getWorkflowProcessDefinitionFormsElementkey: (
             elementKey: string,
@@ -19885,6 +20113,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowProcessDefinitionFormsStart
          * @summary Get start-form properties associated with the process definition
          * @request GET:/api/docpal/workflow/process/definition/forms/start
+         * @deprecated
          */
         getWorkflowProcessDefinitionFormsStart: (
             query: {
@@ -19907,6 +20136,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowProcessDefinitionDraftDraftid
          * @summary Get draft through process definition key
          * @request GET:/api/docpal/workflow/process/definition/draft/{draftId}
+         * @deprecated
          */
         getWorkflowProcessDefinitionDraftDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -19922,6 +20152,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteWorkflowProcessDefinitionDraftDraftid
          * @summary Delete process definition through process definition draft id
          * @request DELETE:/api/docpal/workflow/process/definition/draft/{draftId}
+         * @deprecated
          */
         deleteWorkflowProcessDefinitionDraftDraftid: (
             draftId: string,
@@ -19944,6 +20175,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowProcessDefinitionDraftDraftidDownloadXml
          * @summary Get draft BPMN2.0 XML file through draft id
          * @request GET:/api/docpal/workflow/process/definition/draft/{draftId}/download/xml
+         * @deprecated
          */
         getWorkflowProcessDefinitionDraftDraftidDownloadXml: (draftId: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
@@ -19958,6 +20190,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow Process Definition Controller
          * @name GetWorkflowProcessDefinitionDraftAll
          * @request GET:/api/docpal/workflow/process/definition/draft/all
+         * @deprecated
          */
         getWorkflowProcessDefinitionDraftAll: (params: RequestParams = {}) =>
             this.request<ResultListProcessDefinitionDraft, Result | (ResultObject | Result | ResultString)>({
@@ -19973,6 +20206,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowProcessDefinitionDownloadXml
          * @summary Download BPMN2.0 XML file through process definition ID
          * @request GET:/api/docpal/workflow/process/definition/download/xml
+         * @deprecated
          */
         getWorkflowProcessDefinitionDownloadXml: (
             query: {
@@ -19994,6 +20228,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowForms
          * @summary Get the list of form properties associated with the process definition
          * @request GET:/api/docpal/workflow/forms
+         * @deprecated
          */
         getWorkflowForms: (
             query?: {
@@ -20016,6 +20251,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWorkflowFormsElementkey
          * @summary Get form properties of single element associated with the process definition
          * @request GET:/api/docpal/workflow/forms/{elementKey}
+         * @deprecated
          */
         getWorkflowFormsElementkey: (
             elementKey: string,
@@ -20067,6 +20303,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWatermarkTemplatesId
          * @summary Query watermark template by ID
          * @request GET:/api/docpal/watermark/templates/{id}
+         * @deprecated
          */
         getWatermarkTemplatesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
@@ -20082,6 +20319,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteWatermarkTemplatesId
          * @summary Delete watermark template by id
          * @request DELETE:/api/docpal/watermark/templates/{id}
+         * @deprecated
          */
         deleteWatermarkTemplatesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -20097,6 +20335,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWatermarkTemplatesNameName
          * @summary Query watermark template by name
          * @request GET:/api/docpal/watermark/templates/name/{name}
+         * @deprecated
          */
         getWatermarkTemplatesNameName: (name: string, params: RequestParams = {}) =>
             this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
@@ -20112,6 +20351,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteWatermarkTemplatesNameName
          * @summary Delete watermark template by name
          * @request DELETE:/api/docpal/watermark/templates/name/{name}
+         * @deprecated
          */
         deleteWatermarkTemplatesNameName: (name: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -20127,6 +20367,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWatermarkTemplatesAll
          * @summary Query all watermark template
          * @request GET:/api/docpal/watermark/templates/all
+         * @deprecated
          */
         getWatermarkTemplatesAll: (params: RequestParams = {}) =>
             this.request<ResultListWatermarkSettingsTemplate, Result | (ResultObject | Result | ResultString)>({
@@ -20142,6 +20383,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWatermarkSettingsId
          * @summary query watermark settings
          * @request GET:/api/docpal/watermark/settings/{id}
+         * @deprecated
          */
         getWatermarkSettingsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultWatermarkSettingsDTO, Result | (ResultObject | Result | ResultString)>({
@@ -20157,6 +20399,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteWatermarkSettingsId
          * @summary Delete watermark settings by id
          * @request DELETE:/api/docpal/watermark/settings/{id}
+         * @deprecated
          */
         deleteWatermarkSettingsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -20172,6 +20415,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWatermarkSettingsTemplateTemplateid
          * @summary Query list of watermark settings by template id
          * @request GET:/api/docpal/watermark/settings/template/{templateId}
+         * @deprecated
          */
         getWatermarkSettingsTemplateTemplateid: (templateId: string, params: RequestParams = {}) =>
             this.request<ResultListWatermarkSettingsDTO, Result | (ResultObject | Result | ResultString)>({
@@ -20186,6 +20430,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Watermark Settings
          * @name GetWatermarkSettingsRepairdata
          * @request GET:/api/docpal/watermark/settings/repairData
+         * @deprecated
          */
         getWatermarkSettingsRepairdata: (params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -20201,6 +20446,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWatermarkSettingsPreviewId
          * @summary preview watermark settings to return byte array
          * @request GET:/api/docpal/watermark/settings/preview/{id}
+         * @deprecated
          */
         getWatermarkSettingsPreviewId: (id: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
@@ -20216,6 +20462,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetWatermarkSettingsContenttype
          * @summary Get list of content type of watermark setting
          * @request GET:/api/docpal/watermark/settings/contentType
+         * @deprecated
          */
         getWatermarkSettingsContenttype: (params: RequestParams = {}) =>
             this.request<ResultListWMContentTypeDTO, Result | (ResultObject | Result | ResultString)>({
@@ -20275,6 +20522,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetUserSystemFields
          * @summary Get system fields
          * @request GET:/api/docpal/user/system/fields
+         * @deprecated
          */
         getUserSystemFields: (params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -20286,10 +20534,11 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
-         * @tags User Management APIs
+         * @tags User Management APIs, UserSettingController
          * @name GetUserGetapplication
          * @summary Get current user information
          * @request GET:/api/docpal/user/getApplication
+         * @deprecated
          */
         getUserGetapplication: (params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
@@ -20377,6 +20626,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetTemplateEmailId
          * @summary Obtain email template detail
          * @request GET:/api/docpal/template/email/{id}
+         * @deprecated
          */
         getTemplateEmailId: (id: string, params: RequestParams = {}) =>
             this.request<ResultEmailTemplate, Result | (ResultObject | Result | ResultString)>({
@@ -20392,6 +20642,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetTemplateEmailTemplateId
          * @summary Obtain email template detail
          * @request GET:/api/docpal/template/email/template/{id}
+         * @deprecated
          */
         getTemplateEmailTemplateId: (id: string, params: RequestParams = {}) =>
             this.request<ResultEmailTemplate, Result | (ResultObject | Result | ResultString)>({
@@ -20407,6 +20658,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteTemplateEmailTemplateId
          * @summary Delete email template by id
          * @request DELETE:/api/docpal/template/email/template/{id}
+         * @deprecated
          */
         deleteTemplateEmailTemplateId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -20422,6 +20674,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetTemplateEmailTemplateLayouts
          * @summary Obtain all layouts used by email template
          * @request GET:/api/docpal/template/email/template/layouts
+         * @deprecated
          */
         getTemplateEmailTemplateLayouts: (params: RequestParams = {}) =>
             this.request<ResultListEmailLayout, Result | (ResultObject | Result | ResultString)>({
@@ -20437,6 +20690,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetTemplateEmailLayouts
          * @summary Obtain all layouts used by email template
          * @request GET:/api/docpal/template/email/layouts
+         * @deprecated
          */
         getTemplateEmailLayouts: (params: RequestParams = {}) =>
             this.request<ResultListEmailLayout, Result | (ResultObject | Result | ResultString)>({
@@ -20452,6 +20706,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetTemplateEmailLayoutId
          * @summary Obtain email layout by id
          * @request GET:/api/docpal/template/email/layout/{id}
+         * @deprecated
          */
         getTemplateEmailLayoutId: (id: number, params: RequestParams = {}) =>
             this.request<ResultEmailLayout, Result | (ResultObject | Result | ResultString)>({
@@ -20467,6 +20722,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteTemplateEmailLayoutId
          * @summary Delete email layout by id
          * @request DELETE:/api/docpal/template/email/layout/{id}
+         * @deprecated
          */
         deleteTemplateEmailLayoutId: (id: number, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -20482,6 +20738,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetTemplateEmailLayoutAll
          * @summary Obtain all email layout
          * @request GET:/api/docpal/template/email/layout/all
+         * @deprecated
          */
         getTemplateEmailLayoutAll: (params: RequestParams = {}) =>
             this.request<ResultListEmailLayout, Result | (ResultObject | Result | ResultString)>({
@@ -20496,6 +20753,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags EmailController
          * @name GetTemplateEmailAll
          * @request GET:/api/docpal/template/email/all
+         * @deprecated
          */
         getTemplateEmailAll: (params: RequestParams = {}) =>
             this.request<ResultListEmailTemplate, Result | (ResultObject | Result | ResultString)>({
@@ -20599,6 +20857,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags system-feature-controller
          * @name GetSystemfeatureUsers
          * @request GET:/api/docpal/systemfeature/users
+         * @deprecated
          */
         getSystemfeatureUsers: (params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
@@ -20613,6 +20872,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags system-feature-controller
          * @name GetSystemfeatureUsersNameUsername
          * @request GET:/api/docpal/systemfeature/users/name/{username}
+         * @deprecated
          */
         getSystemfeatureUsersNameUsername: (username: string, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
@@ -20627,6 +20887,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags system-feature-controller
          * @name GetSystemfeatureKeycloakTokenVerification
          * @request GET:/api/docpal/systemfeature/keycloak-token-verification
+         * @deprecated
          */
         getSystemfeatureKeycloakTokenVerification: (params: RequestParams = {}) =>
             this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
@@ -20641,6 +20902,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags system-feature-controller
          * @name GetSystemfeatureGetfeatures
          * @request GET:/api/docpal/systemfeature/getFeatures
+         * @deprecated
          */
         getSystemfeatureGetfeatures: (params: RequestParams = {}) =>
             this.request<ResultMapStringBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -20655,6 +20917,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags GlobalSettingController
          * @name GetSettingWorkflowConditionSetting
          * @request GET:/api/docpal/setting/workflow/condition/setting
+         * @deprecated
          */
         getSettingWorkflowConditionSetting: (params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -20669,6 +20932,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags GlobalSettingController
          * @name GetSettingFeaturerolemapping
          * @request GET:/api/docpal/setting/featureRoleMapping
+         * @deprecated
          */
         getSettingFeaturerolemapping: (params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -20712,6 +20976,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name GetRelationInitelanguagecache
          * @request GET:/api/docpal/relation/initeLanguageCache
+         * @deprecated
          */
         getRelationInitelanguagecache: (params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
@@ -20727,6 +20992,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetRelationGetkeycloakproperty
          * @summary get keyCloakProperty
          * @request GET:/api/docpal/relation/getKeyCloakProperty
+         * @deprecated
          */
         getRelationGetkeycloakproperty: (params: RequestParams = {}) =>
             this.request<ResultKeyCloakPropertyVO, Result | (ResultObject | Result | ResultString)>({
@@ -20869,6 +21135,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetOauth2Authenticationmethod
          * @summary Get all authentication way of OAuth2.0
          * @request GET:/api/docpal/oauth2/authenticationMethod
+         * @deprecated
          */
         getOauth2Authenticationmethod: (params: RequestParams = {}) =>
             this.request<ResultOAuth2AuthenticationMethod, Result | (ResultObject | Result | ResultString)>({
@@ -20997,6 +21264,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetMasterTablesId
          * @summary Get all fields of master table and include associated data structures
          * @request GET:/api/docpal/master/tables/{id}
+         * @deprecated
          */
         getMasterTablesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -21011,6 +21279,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags MasterTableController
          * @name DeleteMasterTablesId
          * @request DELETE:/api/docpal/master/tables/{id}
+         * @deprecated
          */
         deleteMasterTablesId: (
             id: string,
@@ -21033,6 +21302,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetMasterTablesIdStructure
          * @summary Get data structure of master table，but not relation fields
          * @request GET:/api/docpal/master/tables/{id}/structure
+         * @deprecated
          */
         getMasterTablesIdStructure: (id: string, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -21048,6 +21318,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetMasterTablesIdRecordRecordid
          * @summary Query row data record in single master table
          * @request GET:/api/docpal/master/tables/{id}/record/{recordId}
+         * @deprecated
          */
         getMasterTablesIdRecordRecordid: (id: string, recordId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -21063,6 +21334,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetMasterTablesIdRecordTemplate
          * @summary Download excel template file of master table for use import data
          * @request GET:/api/docpal/master/tables/{id}/record/template
+         * @deprecated
          */
         getMasterTablesIdRecordTemplate: (
             id: string,
@@ -21085,6 +21357,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetMasterTablesIdAcls
          * @summary Obtain all permission of current master table
          * @request GET:/api/docpal/master/tables/{id}/acls
+         * @deprecated
          */
         getMasterTablesIdAcls: (id: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -21097,37 +21370,9 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * No description
          *
          * @tags MasterTableController
-         * @name GetMasterTablesRelationId
-         * @summary query relation of master table
-         * @request GET:/api/docpal/master/tables/relation/{id}
-         */
-        getMasterTablesRelationId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultListMTRelationResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/relation/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags MasterTableController
-         * @name GetMasterTablesRecordSortOptionTableid
-         * @request GET:/api/docpal/master/tables/record/sort-option/{tableId}
-         */
-        getMasterTablesRecordSortOptionTableid: (tableId: string, params: RequestParams = {}) =>
-            this.request<ResultListSelectOptionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/record/sort-option/${tableId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags MasterTableController
          * @name GetMasterTablesPageConditions
          * @request GET:/api/docpal/master/tables/page/conditions
+         * @deprecated
          */
         getMasterTablesPageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -21143,6 +21388,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetMasterTablesNameName
          * @summary Obtain structure of master table through table label
          * @request GET:/api/docpal/master/tables/name/{name}
+         * @deprecated
          */
         getMasterTablesNameName: (name: string, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -21158,6 +21404,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetMasterTablesDownloadFailure
          * @summary Download data that failed to upload .csv file
          * @request GET:/api/docpal/master/tables/download/failure
+         * @deprecated
          */
         getMasterTablesDownloadFailure: (
             query: {
@@ -21179,6 +21426,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetMasterTablesDatatypeMapping
          * @summary Obtain dataType mapping of master table
          * @request GET:/api/docpal/master/tables/dataType/mapping
+         * @deprecated
          */
         getMasterTablesDatatypeMapping: (params: RequestParams = {}) =>
             this.request<ResultListMTFieldTypeMapping, Result | (ResultObject | Result | ResultString)>({
@@ -21374,6 +21622,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetIdTemplatesNameName
          * @summary Find ID template by name
          * @request GET:/api/docpal/id-templates/name/{name}
+         * @deprecated
          */
         getIdTemplatesNameName: (name: string, params: RequestParams = {}) =>
             this.request<ResultIdTemplate, Result | (ResultObject | Result | ResultString)>({
@@ -21389,6 +21638,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetIdTemplatesList
          * @summary Find all id templates
          * @request GET:/api/docpal/id-templates/list
+         * @deprecated
          */
         getIdTemplatesList: (params: RequestParams = {}) =>
             this.request<ResultListIdTemplate, Result | (ResultObject | Result | ResultString)>({
@@ -21524,6 +21774,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags DAMSettingController
          * @name GetDamGetsupportedformat
          * @request GET:/api/docpal/dam/getSupportedFormat
+         * @deprecated
          */
         getDamGetsupportedformat: (params: RequestParams = {}) =>
             this.request<
@@ -21542,6 +21793,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetContactgroupIdUserUseridPermission
          * @summary Get permission of contact group
          * @request GET:/api/docpal/contactGroup/{id}/user/{userId}/permission
+         * @deprecated
          */
         getContactgroupIdUserUseridPermission: (id: string, userId: string, params: RequestParams = {}) =>
             this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
@@ -21557,6 +21809,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCompanyprofilesCompanyidChopsCompanychopidFile
          * @summary Download company chop file
          * @request GET:/api/docpal/companyProfiles/{companyId}/chops/{companyChopId}/file
+         * @deprecated
          */
         getCompanyprofilesCompanyidChopsCompanychopidFile: (
             companyId: string,
@@ -21573,46 +21826,10 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * No description
          *
          * @tags CaseTypeController
-         * @name GetCaseTypesId
-         * @summary Retrieve case type detail
-         * @request GET:/api/docpal/case/types/{id}
-         */
-        getCaseTypesId: (
-            id: string,
-            query?: {
-                versionNumber?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/${id}`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
-         * @name DeleteCaseTypesId
-         * @summary Delete the case type it must not have been used yet
-         * @request DELETE:/api/docpal/case/types/{id}
-         */
-        deleteCaseTypesId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaseTypeController
          * @name GetCaseTypesIdVersions
          * @summary Create a new version case type
          * @request GET:/api/docpal/case/types/{id}/versions
+         * @deprecated
          */
         getCaseTypesIdVersions: (id: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnVersion, Result | (ResultObject | Result | ResultString)>({
@@ -21628,6 +21845,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseTypesIdStylejson
          * @summary Query style json of cmmn xml
          * @request GET:/api/docpal/case/types/{id}/styleJson
+         * @deprecated
          */
         getCaseTypesIdStylejson: (
             id: string,
@@ -21650,6 +21868,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseTypesIdStarttask
          * @summary Retrieve startup task for the case definition of the latest version
          * @request GET:/api/docpal/case/types/{id}/startTask
+         * @deprecated
          */
         getCaseTypesIdStarttask: (
             id: string,
@@ -21672,6 +21891,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseTypesIdExport
          * @summary 导出Case数据，包含CaseType、CaseModelDraft、CmmnVersion和cmmn.xml文件
          * @request GET:/api/docpal/case/types/{id}/export
+         * @deprecated
          */
         getCaseTypesIdExport: (
             id: string,
@@ -21694,6 +21914,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseTypesIdDownloadXml
          * @summary Download cmmn.xml of version (case model definition)
          * @request GET:/api/docpal/case/types/{id}/download/xml
+         * @deprecated
          */
         getCaseTypesIdDownloadXml: (
             id: string,
@@ -21716,6 +21937,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseTypesIdDownloadDeployVersion
          * @summary Download latest version cmmn xml (case model definition)
          * @request GET:/api/docpal/case/types/{id}/download/deploy/version
+         * @deprecated
          */
         getCaseTypesIdDownloadDeployVersion: (id: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
@@ -21731,6 +21953,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseTypesIdCaseinfo
          * @summary Get form fields of deployed version based on this case type
          * @request GET:/api/docpal/case/types/{id}/caseInfo
+         * @deprecated
          */
         getCaseTypesIdCaseinfo: (id: string, params: RequestParams = {}) =>
             this.request<ResultListPlanTableFieldDTO, Result | (ResultObject | Result | ResultString)>({
@@ -21743,8 +21966,32 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * No description
          *
          * @tags CaseTypeController
+         * @name GetCaseTypesCasetypeid
+         * @summary Retrieve case type detail
+         * @request GET:/api/docpal/case/types/{caseTypeId}
+         * @deprecated
+         */
+        getCaseTypesCasetypeid: (
+            caseTypeId: string,
+            query?: {
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/case/types/${caseTypeId}`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
          * @name GetCaseTypesCasetypeidPermissions
          * @request GET:/api/docpal/case/types/{caseTypeId}/permissions
+         * @deprecated
          */
         getCaseTypesCasetypeidPermissions: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -21759,6 +22006,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags CaseTypeController
          * @name GetCaseTypesCasetypeidPermissionsUserid
          * @request GET:/api/docpal/case/types/{caseTypeId}/permissions/{userId}
+         * @deprecated
          */
         getCaseTypesCasetypeidPermissionsUserid: (caseTypeId: string, userId: string, params: RequestParams = {}) =>
             this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
@@ -21774,6 +22022,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseTypesCasetypeidInstances
          * @summary Retrieve all case instances of this case type
          * @request GET:/api/docpal/case/types/{caseTypeId}/instances
+         * @deprecated
          */
         getCaseTypesCasetypeidInstances: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnInstance, Result | (ResultObject | Result | ResultString)>({
@@ -21788,6 +22037,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags CaseTypeController
          * @name GetCaseTypesCasedefinitionkeyDeployment
          * @request GET:/api/docpal/case/types/{caseDefinitionKey}/deployment
+         * @deprecated
          */
         getCaseTypesCasedefinitionkeyDeployment: (caseDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultCmmnDeploymentDTO, Result | (ResultObject | Result | ResultString)>({
@@ -21803,6 +22053,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseTypesVersionVersionid
          * @summary Retrieve detail of case model version
          * @request GET:/api/docpal/case/types/version/{versionId}
+         * @deprecated
          */
         getCaseTypesVersionVersionid: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultCmmnVersion, Result | (ResultObject | Result | ResultString)>({
@@ -21818,6 +22069,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseTypesVersionVersionidStarttask
          * @summary Retrieve startup task for the case definition of the specified version
          * @request GET:/api/docpal/case/types/version/{versionId}/startTask
+         * @deprecated
          */
         getCaseTypesVersionVersionidStarttask: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
@@ -21833,6 +22085,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseTypesPermissionsRules
          * @summary Retrieve case type permission rules
          * @request GET:/api/docpal/case/types/permissions/rules
+         * @deprecated
          */
         getCaseTypesPermissionsRules: (params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -21848,6 +22101,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseTypesDatatypeMapping
          * @summary Obtain support column mapping
          * @request GET:/api/docpal/case/types/dataType/mapping
+         * @deprecated
          */
         getCaseTypesDatatypeMapping: (params: RequestParams = {}) =>
             this.request<ResultListMTFieldTypeMapping, Result | (ResultObject | Result | ResultString)>({
@@ -21863,6 +22117,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseTablesId
          * @summary Retrieve detail of case table and include associated data structures
          * @request GET:/api/docpal/case/tables/{id}
+         * @deprecated
          */
         getCaseTablesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultCaseTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -21877,6 +22132,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags CaseTableController
          * @name DeleteCaseTablesId
          * @request DELETE:/api/docpal/case/tables/{id}
+         * @deprecated
          */
         deleteCaseTablesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -21891,6 +22147,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags CaseTableController
          * @name GetCaseTablesNameExist
          * @request GET:/api/docpal/case/tables/name/exist
+         * @deprecated
          */
         getCaseTablesNameExist: (
             query: {
@@ -21912,6 +22169,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseTablesCasetypeCasetypeid
          * @summary Retrieve a list of case tables that belong to the specified case type
          * @request GET:/api/docpal/case/tables/caseType/{caseTypeId}
+         * @deprecated
          */
         getCaseTablesCasetypeCasetypeid: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListCaseTable, Result | (ResultObject | Result | ResultString)>({
@@ -21926,6 +22184,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags CaseTableController
          * @name GetCaseTablesCasequery
          * @request GET:/api/docpal/case/tables/caseQuery
+         * @deprecated
          */
         getCaseTablesCasequery: (
             query: {
@@ -21947,6 +22206,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseSupportSubcase
          * @summary Filter case definition to select as sub-case
          * @request GET:/api/docpal/case/support/subCase
+         * @deprecated
          */
         getCaseSupportSubcase: (params: RequestParams = {}) =>
             this.request<ResultListCaseDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
@@ -21962,6 +22222,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseSupportSubcaseFields
          * @summary Extract input field list of sub-case definition
          * @request GET:/api/docpal/case/support/subCase/fields
+         * @deprecated
          */
         getCaseSupportSubcaseFields: (
             query: {
@@ -21982,6 +22243,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags CaseInstanceController
          * @name GetCaseInstanceCaseinstanceidForms
          * @request GET:/api/docpal/case/instance/{caseInstanceId}/forms
+         * @deprecated
          */
         getCaseInstanceCaseinstanceidForms: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
@@ -21996,6 +22258,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags CaseInstanceController
          * @name GetCaseInstanceCaseinstanceidEvents
          * @request GET:/api/docpal/case/instance/{caseInstanceId}/events
+         * @deprecated
          */
         getCaseInstanceCaseinstanceidEvents: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultListUserEventInstanceDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22011,6 +22274,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseInstanceTasksTaskidForm
          * @summary Retrieve form information of task
          * @request GET:/api/docpal/case/instance/tasks/{taskId}/form
+         * @deprecated
          */
         getCaseInstanceTasksTaskidForm: (taskId: string, params: RequestParams = {}) =>
             this.request<ResultCaseInstanceFormDataDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22026,6 +22290,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseInstanceProcessDefinitions
          * @summary Retrieve process definition of this case instance through case definition key
          * @request GET:/api/docpal/case/instance/process/definitions
+         * @deprecated
          */
         getCaseInstanceProcessDefinitions: (
             query: {
@@ -22047,6 +22312,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseInstancePlanitemsPlanitemidForm
          * @summary Retrieve form information of plan item instance
          * @request GET:/api/docpal/case/instance/planItems/{planItemId}/form
+         * @deprecated
          */
         getCaseInstancePlanitemsPlanitemidForm: (
             planItemId: string,
@@ -22069,6 +22335,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDefinitions
          * @summary Retrieve all case model definitions
          * @request GET:/api/docpal/case/definitions
+         * @deprecated
          */
         getCaseDefinitions: (params: RequestParams = {}) =>
             this.request<ResultListCaseDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22084,6 +22351,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDefinitionsCasedefinitionkeyInstances
          * @summary Retrieve case instances of this case model
          * @request GET:/api/docpal/case/definitions/{caseDefinitionKey}/instances
+         * @deprecated
          */
         getCaseDefinitionsCasedefinitionkeyInstances: (caseDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultListCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22099,6 +22367,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDefinitionCasedefinitionkeyProcessDefinitions
          * @summary Retrieve process definition of this case instance through case definition key
          * @request GET:/api/docpal/case/definition/{caseDefinitionKey}/process/definitions
+         * @deprecated
          */
         getCaseDefinitionCasedefinitionkeyProcessDefinitions: (caseDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22114,6 +22383,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardId
          * @summary Retrieve case dashboard detail
          * @request GET:/api/docpal/case/dashboard/{id}
+         * @deprecated
          */
         getCaseDashboardId: (id: string, params: RequestParams = {}) =>
             this.request<ResultCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22129,6 +22399,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteCaseDashboardId
          * @summary Delete the case dashboard it must not have been used yet
          * @request DELETE:/api/docpal/case/dashboard/{id}
+         * @deprecated
          */
         deleteCaseDashboardId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -22144,6 +22415,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardVersionVersionidStages
          * @summary Get stages of the current version that it is case definition
          * @request GET:/api/docpal/case/dashboard/version/{versionId}/stages
+         * @deprecated
          */
         getCaseDashboardVersionVersionidStages: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22159,6 +22431,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardVersionVersionidPrimaryform
          * @summary Get primary form of the current version that it is case definition
          * @request GET:/api/docpal/case/dashboard/version/{versionId}/primaryForm
+         * @deprecated
          */
         getCaseDashboardVersionVersionidPrimaryform: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22174,6 +22447,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardVersionVersionidPrimaryformData
          * @summary Retrieve information and information data of this case version
          * @request GET:/api/docpal/case/dashboard/version/{versionId}/primaryForm/data
+         * @deprecated
          */
         getCaseDashboardVersionVersionidPrimaryformData: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultCaseInstanceFormDataDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22189,6 +22463,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardVersionVersionidActivity
          * @summary Get all activity of the current version that it is case definition
          * @request GET:/api/docpal/case/dashboard/version/{versionId}/activity
+         * @deprecated
          */
         getCaseDashboardVersionVersionidActivity: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22203,6 +22478,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags CmmnDashboardController
          * @name GetCaseDashboardVersionVersionidActions
          * @request GET:/api/docpal/case/dashboard/version/{versionId}/actions
+         * @deprecated
          */
         getCaseDashboardVersionVersionidActions: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22218,6 +22494,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardInstanceCaseinstanceidMilestoneStatus
          * @summary Obtain Milestone Status of a case instance
          * @request GET:/api/docpal/case/dashboard/instance/{caseInstanceId}/milestone/status
+         * @deprecated
          */
         getCaseDashboardInstanceCaseinstanceidMilestoneStatus: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
@@ -22233,6 +22510,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardInstanceCaseidTasks
          * @summary Retrieve all tasks of this case instance
          * @request GET:/api/docpal/case/dashboard/instance/{caseId}/tasks
+         * @deprecated
          */
         getCaseDashboardInstanceCaseidTasks: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22248,6 +22526,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardInstanceCaseidStages
          * @summary Retrieve stages of current case instance
          * @request GET:/api/docpal/case/dashboard/instance/{caseId}/stages
+         * @deprecated
          */
         getCaseDashboardInstanceCaseidStages: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22263,6 +22542,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardInstanceCaseidPrimaryformData
          * @summary Retrieve primary form data (Case Dashboard) structure
          * @request GET:/api/docpal/case/dashboard/instance/{caseId}/primaryForm/data
+         * @deprecated
          */
         getCaseDashboardInstanceCaseidPrimaryformData: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultCaseInstanceFormDataDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22278,6 +22558,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardInstanceCaseidPlanitems
          * @summary Retrieve planItems
          * @request GET:/api/docpal/case/dashboard/instance/{caseId}/planItems
+         * @deprecated
          */
         getCaseDashboardInstanceCaseidPlanitems: (
             caseId: string,
@@ -22300,6 +22581,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardInstanceCaseidPersonalTasks
          * @summary Retrieve personal tasks of this case instance
          * @request GET:/api/docpal/case/dashboard/instance/{caseId}/personal/tasks
+         * @deprecated
          */
         getCaseDashboardInstanceCaseidPersonalTasks: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22315,6 +22597,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardInstanceCaseidEvents
          * @summary Retrieve all events of this case instance
          * @request GET:/api/docpal/case/dashboard/instance/{caseId}/events
+         * @deprecated
          */
         getCaseDashboardInstanceCaseidEvents: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22330,6 +22613,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardInstanceCaseidActivity
          * @summary Retrieve activities of this case instance
          * @request GET:/api/docpal/case/dashboard/instance/{caseId}/activity
+         * @deprecated
          */
         getCaseDashboardInstanceCaseidActivity: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnActivityItem, Result | (ResultObject | Result | ResultString)>({
@@ -22345,6 +22629,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardInstanceCaseidActions
          * @summary Retrieve activities of this case instance
          * @request GET:/api/docpal/case/dashboard/instance/{caseId}/actions
+         * @deprecated
          */
         getCaseDashboardInstanceCaseidActions: (
             caseId: string,
@@ -22367,6 +22652,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardInstanceStagePlanitems
          * @summary Retrieve all planItem instance of this case instance
          * @request GET:/api/docpal/case/dashboard/instance/stage/planItems
+         * @deprecated
          */
         getCaseDashboardInstanceStagePlanitems: (
             query: {
@@ -22393,6 +22679,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardCasetypeCasetypeid
          * @summary Retrieve all Case View Dashboard
          * @request GET:/api/docpal/case/dashboard/caseType/{caseTypeId}
+         * @deprecated
          */
         getCaseDashboardCasetypeCasetypeid: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnDashboard, Result | (ResultObject | Result | ResultString)>({
@@ -22408,6 +22695,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardCasetypeCasetypeidVersionnumberVersionnumber
          * @summary Retrieve case dashboard detail
          * @request GET:/api/docpal/case/dashboard/caseType/{caseTypeId}/versionNumber/{versionNumber}
+         * @deprecated
          */
         getCaseDashboardCasetypeCasetypeidVersionnumberVersionnumber: (
             caseTypeId: string,
@@ -22427,6 +22715,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardCasetypeCasetypeidStages
          * @summary Retrieve stages of current case instance
          * @request GET:/api/docpal/case/dashboard/caseType/{caseTypeId}/stages
+         * @deprecated
          */
         getCaseDashboardCasetypeCasetypeidStages: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22442,6 +22731,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCaseDashboardCasetypeCasetypeidPrimaryform
          * @summary Retrieve primary form (Case Dashboard)
          * @request GET:/api/docpal/case/dashboard/caseType/{caseTypeId}/primaryForm
+         * @deprecated
          */
         getCaseDashboardCasetypeCasetypeidPrimaryform: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22456,6 +22746,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags CmmnDashboardController
          * @name GetCaseDashboardCasetypeCasetypeidActivity
          * @request GET:/api/docpal/case/dashboard/caseType/{caseTypeId}/activity
+         * @deprecated
          */
         getCaseDashboardCasetypeCasetypeidActivity: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22470,6 +22761,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags CmmnDashboardController
          * @name GetCaseDashboardCasetypeCasetypeidActions
          * @request GET:/api/docpal/case/dashboard/caseType/{caseTypeId}/actions
+         * @deprecated
          */
         getCaseDashboardCasetypeCasetypeidActions: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22484,6 +22776,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags CalendarController
          * @name GetCalendarsId
          * @request GET:/api/docpal/calendars/{id}
+         * @deprecated
          */
         getCalendarsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22499,6 +22792,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteCalendarsId
          * @summary Delete the Task  it must not have been used yet
          * @request DELETE:/api/docpal/calendars/{id}
+         * @deprecated
          */
         deleteCalendarsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -22514,6 +22808,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetCalendarsSettingTables
          * @summary Obtain calendar tables
          * @request GET:/api/docpal/calendars/setting/tables
+         * @deprecated
          */
         getCalendarsSettingTables: (params: RequestParams = {}) =>
             this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
@@ -22528,6 +22823,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags CalendarController
          * @name GetCalendarsActive
          * @request GET:/api/docpal/calendars/active
+         * @deprecated
          */
         getCalendarsActive: (params: RequestParams = {}) =>
             this.request<ResultListCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
@@ -22792,6 +23088,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags system-admin-controller
          * @name DeleteSystemAdminClean
          * @request DELETE:/api/system_admin/clean
+         * @deprecated
          */
         deleteSystemAdminClean: (params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -22936,6 +23233,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow Version Controller
          * @name DeleteWorkflowVersionDraftidDraftid
          * @request DELETE:/api/docpal/workflow/version/draftId/{draftId}
+         * @deprecated
          */
         deleteWorkflowVersionDraftidDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -22950,6 +23248,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Workflow
          * @name DeleteWorkflowProcess
          * @request DELETE:/api/docpal/workflow/process
+         * @deprecated
          */
         deleteWorkflowProcess: (
             query?: {
@@ -22976,6 +23275,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteWorkflowProcessUser
          * @summary Delete process instance by user id
          * @request DELETE:/api/docpal/workflow/process/user
+         * @deprecated
          */
         deleteWorkflowProcessUser: (
             query: {
@@ -23001,6 +23301,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteWorkflowProcessDefinitionSuspendDraftid
          * @summary Suspend a process definition
          * @request DELETE:/api/docpal/workflow/process/definition/suspend/{draftId}
+         * @deprecated
          */
         deleteWorkflowProcessDefinitionSuspendDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -23016,6 +23317,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteWorkflowProcessDefinitionRemoveDraftid
          * @summary Remove process definition from workflow list
          * @request DELETE:/api/docpal/workflow/process/definition/remove/{draftId}
+         * @deprecated
          */
         deleteWorkflowProcessDefinitionRemoveDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -23066,6 +23368,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteMasterTablesIdRecordBatch
          * @summary Batch delete record by id array
          * @request DELETE:/api/docpal/master/tables/{id}/record/batch
+         * @deprecated
          */
         deleteMasterTablesIdRecordBatch: (
             id: string,
@@ -23091,6 +23394,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteMasterTablesIdFields
          * @summary Delete field when not data (Master Table)
          * @request DELETE:/api/docpal/master/tables/{id}/fields
+         * @deprecated
          */
         deleteMasterTablesIdFields: (
             id: string,
@@ -23163,6 +23467,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteContactgroupIdFieldsFieldname
          * @summary Add new field to contact Group
          * @request DELETE:/api/docpal/contactGroup/{id}/fields/{fieldName}
+         * @deprecated
          */
         deleteContactgroupIdFieldsFieldname: (id: string, fieldName: string, data: any, params: RequestParams = {}) =>
             this.request<ResultListContactAttribute, Result | (ResultObject | Result | ResultString)>({
@@ -23180,6 +23485,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteContactgroupIdContactContactdetailid
          * @summary Physically delete contact records
          * @request DELETE:/api/docpal/contactGroup/{id}/contact/{contactDetailId}
+         * @deprecated
          */
         deleteContactgroupIdContactContactdetailid: (id: string, contactDetailId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -23191,9 +23497,26 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
         /**
          * No description
          *
+         * @tags CaseTypeController
+         * @name DeleteCaseTypesId
+         * @summary Delete the case type it must not have been used yet
+         * @request DELETE:/api/docpal/case/types/{id}
+         * @deprecated
+         */
+        deleteCaseTypesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/docpal/case/types/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags CaseInstanceController
          * @name DeleteCaseInstance
          * @request DELETE:/api/docpal/case/instance
+         * @deprecated
          */
         deleteCaseInstance: (
             query?: {
@@ -23215,6 +23538,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags CaseInstanceController
          * @name DeleteCaseInstanceCaseid
          * @request DELETE:/api/docpal/case/instance/{caseId}
+         * @deprecated
          */
         deleteCaseInstanceCaseid: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -23423,6 +23747,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name GetRelationQuery
          * @request GET:/api/docpal/relation/query
+         * @deprecated
          */
         getRelationQuery: (
             query?: {
@@ -23448,6 +23773,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name PutRelationQuery
          * @request PUT:/api/docpal/relation/query
+         * @deprecated
          */
         putRelationQuery: (
             query?: {
@@ -23473,6 +23799,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name PostRelationQuery
          * @request POST:/api/docpal/relation/query
+         * @deprecated
          */
         postRelationQuery: (
             query?: {
@@ -23498,6 +23825,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name DeleteRelationQuery
          * @request DELETE:/api/docpal/relation/query
+         * @deprecated
          */
         deleteRelationQuery: (
             query?: {
@@ -23523,6 +23851,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name OptionsRelationQuery
          * @request OPTIONS:/api/docpal/relation/query
+         * @deprecated
          */
         optionsRelationQuery: (
             query?: {
@@ -23548,6 +23877,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name HeadRelationQuery
          * @request HEAD:/api/docpal/relation/query
+         * @deprecated
          */
         headRelationQuery: (
             query?: {
@@ -23573,6 +23903,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name PatchRelationQuery
          * @request PATCH:/api/docpal/relation/query
+         * @deprecated
          */
         patchRelationQuery: (
             query?: {
@@ -23598,6 +23929,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name GetRelationQuerylanguage
          * @request GET:/api/docpal/relation/queryLanguage
+         * @deprecated
          */
         getRelationQuerylanguage: (
             query?: {
@@ -23622,6 +23954,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name PutRelationQuerylanguage
          * @request PUT:/api/docpal/relation/queryLanguage
+         * @deprecated
          */
         putRelationQuerylanguage: (
             query?: {
@@ -23646,6 +23979,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name PostRelationQuerylanguage
          * @request POST:/api/docpal/relation/queryLanguage
+         * @deprecated
          */
         postRelationQuerylanguage: (
             query?: {
@@ -23670,6 +24004,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name DeleteRelationQuerylanguage
          * @request DELETE:/api/docpal/relation/queryLanguage
+         * @deprecated
          */
         deleteRelationQuerylanguage: (
             query?: {
@@ -23694,6 +24029,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name OptionsRelationQuerylanguage
          * @request OPTIONS:/api/docpal/relation/queryLanguage
+         * @deprecated
          */
         optionsRelationQuerylanguage: (
             query?: {
@@ -23718,6 +24054,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name HeadRelationQuerylanguage
          * @request HEAD:/api/docpal/relation/queryLanguage
+         * @deprecated
          */
         headRelationQuerylanguage: (
             query?: {
@@ -23742,6 +24079,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags form-properties-relation-controller
          * @name PatchRelationQuerylanguage
          * @request PATCH:/api/docpal/relation/queryLanguage
+         * @deprecated
          */
         patchRelationQuerylanguage: (
             query?: {
@@ -23767,6 +24105,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name GetRelationIsldapmode
          * @summary is Ldap Mode
          * @request GET:/api/docpal/relation/isLdapMode
+         * @deprecated
          */
         getRelationIsldapmode: (params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -23782,6 +24121,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PutRelationIsldapmode
          * @summary is Ldap Mode
          * @request PUT:/api/docpal/relation/isLdapMode
+         * @deprecated
          */
         putRelationIsldapmode: (params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -23797,6 +24137,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PostRelationIsldapmode
          * @summary is Ldap Mode
          * @request POST:/api/docpal/relation/isLdapMode
+         * @deprecated
          */
         postRelationIsldapmode: (params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -23812,6 +24153,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name DeleteRelationIsldapmode
          * @summary is Ldap Mode
          * @request DELETE:/api/docpal/relation/isLdapMode
+         * @deprecated
          */
         deleteRelationIsldapmode: (params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -23827,6 +24169,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name OptionsRelationIsldapmode
          * @summary is Ldap Mode
          * @request OPTIONS:/api/docpal/relation/isLdapMode
+         * @deprecated
          */
         optionsRelationIsldapmode: (params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -23842,6 +24185,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name HeadRelationIsldapmode
          * @summary is Ldap Mode
          * @request HEAD:/api/docpal/relation/isLdapMode
+         * @deprecated
          */
         headRelationIsldapmode: (params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -23857,6 +24201,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @name PatchRelationIsldapmode
          * @summary is Ldap Mode
          * @request PATCH:/api/docpal/relation/isLdapMode
+         * @deprecated
          */
         patchRelationIsldapmode: (params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -23872,6 +24217,7 @@ export class Admin<SecurityDataType extends unknown> extends HttpClient<Security
          * @tags Public Application Version
          * @name GetPublicVersion
          * @request GET:/public/version
+         * @deprecated
          */
         getPublicVersion: (params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({

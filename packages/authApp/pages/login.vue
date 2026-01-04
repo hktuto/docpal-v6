@@ -16,21 +16,21 @@ const rules = {
         { required: true, message: 'Please input Password', trigger: 'blur' },
     ],
 }
+
 async function submit() {
-    const router = useRouter()
-    try {
-        loading.value = true;
-        errorMessage.value = '';
-        const {data} = await clientApi.instance.post('/auth/nuxeo/login', {
-            username: form.username,
-            password: form.password,
-        }).then(res => res.data);
-        localStorage.setItem('access_token', data.access_token)
-        localStorage.setItem('token', data.access_token)
-        localStorage.setItem('refresh_token', data.refresh_token)
-        const token = useToken()
-        token.value = data.access_token
-        // console.log(data)
+  try {
+    loading.value = true
+    errorMessage.value = ''
+    const { data } = await clientApi.instance.post('/auth/login', {
+      username: form.username,
+      password: form.password
+    }).then(res => res.data)
+    localStorage.setItem('access_token', data.access_token)
+    localStorage.setItem('token', data.access_token)
+    localStorage.setItem('refresh_token', data.refresh_token)
+    const token = useToken()
+    token.value = data.access_token
+    // console.log(data)
     //    const {isRequired2FA} = await userStore.login(form.username, form.password);
         form.username = "";
         form.password = "";
@@ -66,7 +66,6 @@ onMounted(async() => {
     })
 });
 </script>
-
 
 <template>
     <div class="login-page">
@@ -105,7 +104,6 @@ onMounted(async() => {
     <LoadingBg />
     </div>
 </template>
-
 
 <style lang="scss" scoped>
 .login-page{
