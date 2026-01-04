@@ -41,7 +41,7 @@ import { Check, CaretBottom } from '@element-plus/icons-vue'
 import type { ColumnConfig } from '../../composables/useColumns'
 import { ColumnFieldType } from '../../composables/useColumns'
 import { useMDTableReJect } from '../../composables/useMDTable'
-import { calculateCount, type CountMethod } from '../../utils/tableCount'
+import { calculateCount, type CountMethod, flattenAggregatedData } from '../../utils/tableCount'
 
 const { t } = useI18n()
 
@@ -125,7 +125,8 @@ const displayValue = computed(() => {
   const method = props.column.countMethod || 'none'
   const tableData = getTableData()
   const field = props.column.field || ''
-  return calculateCount(method as CountMethod, field, tableData)
+  const sumData = tableData.filter((item: any) => !item.isAggregate)
+  return calculateCount(method as CountMethod, field, sumData)
 })
 
 // 处理统计方法选择

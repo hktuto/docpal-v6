@@ -4,7 +4,7 @@ import type { VxeGridProps, VxeGridInstance } from 'vxe-table'
 import { VxeUI } from 'vxe-pc-ui'
 import type { ColumnConfig } from './useColumns'
 import { ColumnFieldType } from './useColumns'
-import { calculateCount, type CountMethod } from '../utils/tableCount'
+import { calculateCount, type CountMethod, flattenAggregatedData } from '../utils/tableCount'
 // 初始化注册管理器
 import { rendererManager } from '../renderers/registry-manager'
 
@@ -61,10 +61,12 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     calcValuesMethod(params: any) {
       const { column, children } = params
       // 优先使用 column.countMethod 进行计数
-      if (column.countMethod) {
-        return calculateCount(column.countMethod as CountMethod, column.field, children)
+      if (column.countMethod && column.countMethod !== 'none') {
+        const flattenedData = flattenAggregatedData(children)
+        return calculateCount(column.countMethod as CountMethod, column.field, flattenedData)
       }
       return ''
+      
     }
   })
   /**
@@ -88,16 +90,31 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     return _columns.map((col) => {
       if (!col.type) col.type = ColumnFieldType.Text
       if (col.field === 'name') col.rowGroupNode = true
-      const colConfig = { ...col,aggFunc: true, ...rendererManager.getColumnConfig(col.type as ColumnFieldType, col.property, col.property) }
+      const colConfig = { ...col, aggFunc: true, ...rendererManager.getColumnConfig(col.type as ColumnFieldType, col.property, col.property) }
       colConfig.slots = {
         footer: 'footerCount'
       }
       // 数字类型默认右对齐
-      if (col.type === ColumnFieldType.Number || col.type === ColumnFieldType.Currency || col.type === ColumnFieldType.Percent || col.type === ColumnFieldType.AutoNumber) {
+      if (
+        col.type === ColumnFieldType.Number ||
+        col.type === ColumnFieldType.Currency ||
+        col.type === ColumnFieldType.Percent ||
+        col.type === ColumnFieldType.AutoNumber
+      ) {
         colConfig.align = 'right'
       }
       return colConfig
     })
+  })
+  const processedEditRules = computed(() => {
+    let _columns: any[] = JSON.parse(JSON.stringify(columns.value))
+    return _columns.reduce((acc, col) => {
+      acc[col.field] = rendererManager.getRules(col.type as ColumnFieldType)
+      if (col.isRequired) {
+        acc[col.field].push({ required: true, message: '必填项' })
+      }
+      return acc
+    }, {})
   })
   function updateAggregateConfig(newGroupBy: any) {
     if (!newGroupBy) {
@@ -151,6 +168,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       rowId,
       loading: loading.value,
       columns: processedColumns.value as any,
+      editRules: processedEditRules.value,
       // 虚拟滚动配置 - 性能优化
       scrollY: {
         enabled: true,
@@ -170,9 +188,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       // 分组配置
       aggregateConfig: aggregateConfig.value,
       showFooter: true,
-      footerData: [
-        { type: 'footerData' },
-      ],
+      footerData: [{ type: 'footerData' }]
     }
     // 编辑配置
     // 检查是否有列配置了 editRender

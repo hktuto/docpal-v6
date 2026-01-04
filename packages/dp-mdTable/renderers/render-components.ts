@@ -27,11 +27,10 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
             row[column.field] = value
             // $table.updateStatus(row)  // 如果需要触发表格的更新事件
           },
-          max: props.max || 5,
+          max: props.max || 4,
           ...props
         })
       },
-      defaultOptions: {}
     }
   },
   URL: {

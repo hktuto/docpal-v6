@@ -94,4 +94,16 @@ export function calculateCount(
       return '-'
   }
 }
+export function flattenAggregatedData(items: any[]): any[] {
+  if (!items) return []
 
+  return items.reduce((result: any[], item: any): any[] => {
+    if (item.isAggregate && item._X_ROW_CHILDREN) {
+      // 如果是聚合项，递归处理其子项
+      return result.concat(flattenAggregatedData(item._X_ROW_CHILDREN))
+    } else {
+      // 否则直接添加当前项
+      return result.concat(item)
+    }
+  }, [] as any[])
+}

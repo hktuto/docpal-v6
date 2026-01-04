@@ -67,7 +67,7 @@ export class RendererRegistryManager {
 
     // 注册 both 渲染器
     if (both?.render) {
-      const render = createRenderFunction(both.render, both.defaultOptions)
+      const render = createRenderFunction(both.render, both.props)
       VxeUI.renderer.add(name, {
         renderTableCell: render,
         renderEdit: render
@@ -75,10 +75,10 @@ export class RendererRegistryManager {
     }
     const renderConfig: any = {}
     if (view?.render) {
-      renderConfig.renderTableCell = createRenderFunction(view.render, view.defaultOptions)
+      renderConfig.renderTableCell = createRenderFunction(view.render, view.props)
     }
     if (edit?.render) {
-      renderConfig.renderEdit = createRenderFunction(edit.render, edit.defaultOptions)
+      renderConfig.renderEdit = createRenderFunction(edit.render, edit.props)
     }
     VxeUI.renderer.add(name, {
       ...renderConfig
@@ -109,13 +109,18 @@ export class RendererRegistryManager {
       config = this.getComponentConfig('Text')
     }
     const titleConfig = config?.titleConfig || {}
-    const result: Partial<Pick<ColumnConfig, 'cellRender' | 'editRender' | 'titlePrefix'>> = {
-    }
+    const result: Partial<Pick<ColumnConfig, 'cellRender' | 'editRender' | 'titlePrefix'>> = {}
     if (config?.titleConfig) {
       result.titlePrefix = config.titleConfig
     }
     // 3. 重构判断逻辑，提取重复代码为函数
-    const createRenderConfig = (name: string, options: Record<string, any>) => ({ name, options })
+    const createRenderConfig = (name: string, options: Record<string, any>, props: Record<string, any> = {}) => ({
+      name,
+      props: {
+        ...options,
+        ...props
+      }
+    })
 
     // 4. 处理 both 配置的情况
     if (config?.both) {
@@ -126,10 +131,10 @@ export class RendererRegistryManager {
       if (bothConfig.renderer) {
         return { cellRender: bothConfig.renderer, editRender: bothConfig.renderer }
       }
-      const baseOptions = { ...bothConfig.defaultOptions }
+      const baseOptions = { ...bothConfig.props }
       const name = bothConfig.render ? fieldName : bothConfig.name
-      result.cellRender = createRenderConfig(name!, { ...baseOptions, ...viewOptions })
-      result.editRender = createRenderConfig(name!, { ...baseOptions, ...editOptions })
+      result.cellRender = createRenderConfig(name!, { ...baseOptions, ...viewOptions }, bothConfig.props)
+      result.editRender = createRenderConfig(name!, { ...baseOptions, ...editOptions }, bothConfig.props)
       return result as Pick<ColumnConfig, 'cellRender' | 'editRender' | 'titlePrefix'>
     }
 
@@ -138,10 +143,13 @@ export class RendererRegistryManager {
       const viewConfig = config.view
       if (viewConfig.render || (viewConfig.name && viewConfig.name !== '')) {
         const name = viewConfig.render ? fieldName : viewConfig.name
-        result.cellRender = createRenderConfig(name!, {
-          ...viewConfig.defaultOptions,
-          ...viewOptions
-        })
+        result.cellRender = createRenderConfig(
+          name!,
+          {
+            ...viewOptions
+          },
+          viewConfig.props
+        )
       }
     }
 
@@ -149,16 +157,29 @@ export class RendererRegistryManager {
       const editConfig = config.edit
       if (editConfig.render || (editConfig.name && editConfig.name !== '')) {
         const name = editConfig.render ? fieldName : editConfig.name
-        result.editRender = createRenderConfig(name!, {
-          ...editConfig.defaultOptions,
-          ...editOptions
-        })
+        result.editRender = createRenderConfig(
+          name!,
+          {
+            ...editOptions
+          },
+          editConfig.props
+        )
       }
     }
-
+    console.log('result', result)
     return result as Pick<ColumnConfig, 'cellRender' | 'editRender' | 'titlePrefix'>
   }
+  public getRules(type: ColumnFieldType): any[] {
+    const fieldName = ColumnFieldType[type]
+    let config: RenderComponentConfig | undefined = this.getComponentConfig(fieldName)
 
+    if (!config) {
+      console.error(`字段类型 ${fieldName} 的组件配置未找到`)
+      config = this.getComponentConfig('Text')
+    }
+    const rules = config?.both?.rules || config?.edit?.rules || []
+    return rules
+  }
   /**
    * 根据字段配置自动生成列定义
    */
