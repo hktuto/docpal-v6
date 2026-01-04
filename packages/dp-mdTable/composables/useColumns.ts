@@ -45,6 +45,8 @@ export interface ColumnConfig {
   fixed?: 'left' | 'right'
   /** 列设置，用于传递额外的配置参数给渲染器 */
   property?: Record<string, any>
+  /** 统计方法 */
+  countMethod?: 'sum' | 'max' | 'min' | 'avg' | 'count' | 'empty' | 'filled' | 'unique' | 'emptyPercent' | 'filledPercent' | 'none'
   [key: string]: any
 }
 

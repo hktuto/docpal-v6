@@ -23,10 +23,8 @@
           <template v-for="(_, slotName) in filteredSlots" #[slotName]="slotProps">
             <slot :name="slotName" v-bind="slotProps" />
           </template>
-          <template #footer="footerProps">
-            <div class="footer-footerAdd">
-              111
-            </div>
+          <template #footerCount="footerProps">
+            <ToolsFooterCount :column="footerProps.column" :row="footerProps.row" />
           </template>
         </vxe-grid>
       </div>
@@ -42,7 +40,7 @@
           :existing-fields="existingFields"
           :virtual-ref="addColumnTriggerRef"
           placement="left-start"
-          :popper-class="addColumnPopoverClass"
+          popper-class="add-popover-content"
           @submit="addColumn"
         />
       </div>
@@ -64,37 +62,10 @@ const slots = useSlots()
 
 interface Props {
   tableName: string
-  /** 查询参数 */
-  /** 表格高度 */
-  height?: string | number
-  /** 是否自动调整大小 */
-  autoResize?: boolean
-  /** 是否显示斑马纹 */
-  stripe?: boolean
-  /** 是否显示边框 */
-  border?: boolean
-  /** 是否可调整列宽 */
-  resizable?: boolean
-  /** 是否保持原始数据 */
-  keepSource?: boolean
-  /** 行ID字段 */
-  rowId?: string
-  /** 编辑配置 */
-  editConfig?: boolean | object
-  /** AddColumnPopover 类名 */
-  addColumnPopoverClass?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  tableName: '',
-  height: '100%',
-  autoResize: true,
-  stripe: true,
-  border: true,
-  resizable: true,
-  keepSource: true,
-  rowId: 'id',
-  addColumnPopoverClass: 'add-popover-content'
+  tableName: ''
 })
 
 const emit = defineEmits<{

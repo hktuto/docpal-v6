@@ -2245,6 +2245,23 @@
     "showSchema": "Show schema",
     "table": "Table"
   },
+  "mdTable": {
+    "countMethod": {
+      "statistics": "Statistics",
+      "none": "Don't Show",
+      "sum": "Sum",
+      "max": "Max",
+      "min": "Min",
+      "avg": "Average",
+      "count": "Total Records",
+      "empty": "Empty",
+      "filled": "Filled",
+      "unique": "Unique Values",
+      "emptyPercent": "Empty Percentage",
+      "filledPercent": "Filled Percentage",
+      "getDataError": "Failed to get table data"
+    }
+  },
   "masterTable_active": "Active Master Table",
   "masterTable_create": "Create New Master Table",
   "masterTable_createAddColumn": "Add New Column",

@@ -1,7 +1,12 @@
 // useApi.ts
-import { provide, inject } from 'vue'
+import { provide, inject, ref, type Ref } from 'vue'
 import type { VxeGridInstance } from 'vxe-table'
-interface mdTable {}
+interface mdTable {
+  columns: any
+  addColumn: any
+  columnGroupRules: any
+  gridRef: Ref<VxeGridInstance | undefined>
+}
 
 export function useMDTable(tableName: string, props: any) {
   const gridRef = ref<VxeGridInstance<any>>()
@@ -31,7 +36,8 @@ export function useMDTable(tableName: string, props: any) {
   provide<mdTable>('mdTable', {
     columns,
     addColumn,
-    columnGroupRules
+    columnGroupRules,
+    gridRef
   })
   return {
     columns,

@@ -1,9 +1,10 @@
 // composables/useTableConfig.ts
-import { ref, computed, type Ref, type ComputedRef } from 'vue'
+import { ref, computed, watch, type Ref, type ComputedRef } from 'vue'
 import type { VxeGridProps, VxeGridInstance } from 'vxe-table'
 import { VxeUI } from 'vxe-pc-ui'
 import type { ColumnConfig } from './useColumns'
 import { ColumnFieldType } from './useColumns'
+import { calculateCount, type CountMethod } from '../utils/tableCount'
 // 初始化注册管理器
 import { rendererManager } from '../renderers/registry-manager'
 
@@ -59,24 +60,9 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     expandGroupFields: [],
     calcValuesMethod(params: any) {
       const { column, children } = params
-      if (column.field === 'num') {
-        let numSum = 0
-        children.forEach((item: any) => {
-          numSum += item.num
-        })
-        return numSum
-      }
-      if (column.field === 'age') {
-        let ageCount = 0
-        let noData = false
-        children.forEach((item: any) => {
-          if(!item.age) {
-            noData = true
-          } else {
-            ageCount += item.age || 0
-          }
-        })
-        return noData ? '' : Math.floor(ageCount / children.length)
+      // 优先使用 column.countMethod 进行计数
+      if (column.countMethod) {
+        return calculateCount(column.countMethod as CountMethod, column.field, children)
       }
       return ''
     }
@@ -103,7 +89,13 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       if (!col.type) col.type = ColumnFieldType.Text
       if (col.field === 'name') col.rowGroupNode = true
       const colConfig = { ...col,aggFunc: true, ...rendererManager.getColumnConfig(col.type as ColumnFieldType, col.property, col.property) }
-
+      colConfig.slots = {
+        footer: 'footerCount'
+      }
+      // 数字类型默认右对齐
+      if (col.type === ColumnFieldType.Number || col.type === ColumnFieldType.Currency || col.type === ColumnFieldType.Percent || col.type === ColumnFieldType.AutoNumber) {
+        colConfig.align = 'right'
+      }
       return colConfig
     })
   })
@@ -179,9 +171,8 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       aggregateConfig: aggregateConfig.value,
       showFooter: true,
       footerData: [
-        { type: 'footerAdd' },
         { type: 'footerData' },
-      ]
+      ],
     }
     // 编辑配置
     // 检查是否有列配置了 editRender

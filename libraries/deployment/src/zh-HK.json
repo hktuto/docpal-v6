@@ -2242,6 +2242,23 @@
     "showSchema": "顯示架構",
     "table": "表格"
   },
+  "mdTable": {
+    "countMethod": {
+      "statistics": "統計",
+      "none": "不展示",
+      "sum": "求和",
+      "max": "最大值",
+      "min": "最小值",
+      "avg": "平均值",
+      "count": "記錄總數",
+      "empty": "未填寫",
+      "filled": "已填寫",
+      "unique": "唯一值",
+      "emptyPercent": "未填寫佔比",
+      "filledPercent": "已填寫佔比",
+      "getDataError": "獲取表格數據失敗"
+    }
+  },
   "masterTable_active": "激活主表格",
   "masterTable_create": "建立新主表格",
   "masterTable_createAddColumn": "新增欄位",

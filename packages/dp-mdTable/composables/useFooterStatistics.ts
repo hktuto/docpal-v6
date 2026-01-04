@@ -76,7 +76,7 @@ export function useFooterStatistics(
   // 生成 footer 方法
   const createFooterMethod = () => {
     return ({ columns: footerColumns }: any) => {
-      const tableData = gridRef.value?.getTableData().tableData || data.value
+      const tableData = (gridRef.value as any)?.getTableData()?.tableData || data.value
       const footerData: any[] = []
 
       // 创建统计行

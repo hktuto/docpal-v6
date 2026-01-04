@@ -3,10 +3,7 @@
     <div class="toolbar-left">
       <ToolsGroupingButton :groupableColumns="groupableColumns" @grouping-change="emit('grouping-change', $event)"/>
       <slot name="toolbar-left">
-        <el-button v-if="showRefresh" size="small" @click="handleRefresh">
-          <el-icon><Refresh /></el-icon>
-          刷新
-        </el-button>
+
       </slot>
     </div>
     <div class="toolbar-right">
