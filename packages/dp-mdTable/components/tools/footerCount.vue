@@ -104,7 +104,7 @@ const getTableData = (): any[] => {
   if (gridRef?.value) {
     try {
       const result = (gridRef.value as any).getTableData()
-      return result?.tableData || []
+      return result?.fullData || []
     } catch (error) {
       console.error(t('mdTable.countMethod.getDataError'), error)
       return []
