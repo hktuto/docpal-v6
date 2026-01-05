@@ -435,8 +435,11 @@ function calculatePosition(target: HTMLElement, content: HTMLElement) {
 /**
  * Open popover
  */
-async function open(target?: HTMLElement, highlight?: HTMLElement) {
+async function open(target?: any, highlight?: HTMLElement) {
   // check if target is a Vue component or a DOM element
+  if(target && !(target instanceof HTMLElement)) {
+    target = target.$el as HTMLElement || null
+  }
   targetElement.value = target || null
   highlightElement.value = highlight || null
   
