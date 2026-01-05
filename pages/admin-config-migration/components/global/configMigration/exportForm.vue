@@ -132,8 +132,8 @@ async function handleWorkflowExport(workflowKey: string) {
 }
 
 async function handleMasterTableExport(masterTableId: string) {
-  const { data: masterTableDetail } = await adminApi.api.getMasterTablesId(masterTableId)
-  const aclsData = await adminApi.api.getMasterTablesIdAcls(masterTableId) as any
+  const { data: masterTableDetail } = await clientApi.api.getDmsMasterTableId(masterTableId)
+  const aclsData = await clientApi.api.getDmsMasterTableIdAcls(masterTableId) as any
   // loop acls data and remove user permission
   if(!aclsData || !aclsData?.data ) {
     return

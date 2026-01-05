@@ -48,7 +48,7 @@ export const responseErrorHelper = async (error: any, axiosInstance: any) => {
       const refreshToken = localStorage.getItem('refresh_token');
       localStorage.setItem('access_token', refreshToken as string);
 
-      const { data } = await axiosInstance.post('/auth/token', {}, {
+      const { data } = await axiosInstance.post('/api/auth/token', {}, {
         headers: {
           Authorization: 'Bearer ' + refreshToken
         }

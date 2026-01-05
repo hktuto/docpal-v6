@@ -4,7 +4,6 @@ import formJson from './setting.vform.json'
 import Cards from './cards.vue'
 import { formSlotOrderDisplayColumns } from '../../../../../packages/dp-dashboard/components/formSlot/displayColumn/reorderColumn'
 
-
 const tabProvider = inject(TabManagerKey)
 const emits = defineEmits(['delete', 'refreshSetting'])
 const props = withDefaults(
@@ -39,8 +38,7 @@ const { settingRef, cardRef, refresh, loading } = useDashboardCard({
 
 async function getMasterTableDetail(id: string) {
   try {
-    const res = await clientApi.api.getMasterTablesId(id).then((res) => res.data)
-    return res
+    return  await clientApi.api.getDmsMasterTableId(id).then((res) => res.data)
   } catch (error) {
     console.log('get cast type error', error)
     return {}

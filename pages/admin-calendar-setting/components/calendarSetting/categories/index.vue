@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
@@ -113,7 +113,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
         code: 'delete',
         name: 'delete',
         action: async ({ row }: any) => {
-          await adminApi.api.deleteMasterTablesIdRecord(setting.value.category.master_table, { recordId: row.id }, {})
+          await clientApi.api.deleteDmsMasterTableIdRecord(setting.value.category.master_table, { recordId: row.id }, {})
           routerProvider?.message.success(t('tip_deleteSuccessMsg', {
             modelName: null,
             name: row.name

@@ -46,8 +46,8 @@
   </el-card>
 </template>
 <script setup lang="ts">
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
+import { ElMessageBox } from 'element-plus'
+import { clientApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const props = defineProps(['table', 'tableId'])
 const { t } = useI18n()
@@ -64,7 +64,7 @@ function handleAdd() {
 async function handlePermissionChange(boo: boolean, permission: string, row: any) {
   row.loading = true
   try {
-    await adminApi.api.postMasterTablesAclsRemove({
+    await clientApi.api.postDmsMasterTableAclsRemove({
       ...row,
       [permission]: boo
     })
@@ -85,7 +85,7 @@ async function handleRemove(row: any) {
     })
     if (action !== 'confirm') return
     row.loading = true
-    await adminApi.api.postMasterTablesAclsDelete({
+    await clientApi.api.postDmsMasterTableAclsDelete({
       masterTableId: row.masterTableId,
       userId: row.userId
     })
@@ -100,7 +100,7 @@ async function handleRemove(row: any) {
 async function init() {
   try {
     state.loading = true
-    state.tableData = await adminApi.api.getMasterTablesIdAcls(props.tableId).then((res) => res.data)
+    state.tableData = await clientApi.api.getDmsMasterTableIdAcls(props.tableId).then((res) => res.data)
   } catch (error) {
   } finally {
     state.loading = false

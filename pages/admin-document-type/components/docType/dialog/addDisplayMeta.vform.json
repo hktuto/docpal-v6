@@ -647,9 +647,9 @@
                 "labelIconPosition": "rear",
                 "labelTooltip": null,
                 "onCreated": "",
-                "onMounted": "const _this = this\ngetMasterTable()\nasync function getMasterTable() {\n  const data = await $api.post('/docpal/master/tables/page', {\n    pageSize: 10000,\n    pageNum: 0\n  }).then(res => res = res.data.data.entryList)\n  const reponse = data.map(item => ({\n    value: item.id,\n    label: item.name\n  }))\n  _this.loadOptions(reponse)\n}",
+                "onMounted": "const _this = this\ngetMasterTable()\nasync function getMasterTable() {\n  const data = await $api.post('/dms/master-tables/page', {\n    pageSize: 10000,\n    pageNum: 0\n  }).then(res => res = res.data.data.entryList)\n  const reponse = data.map(item => ({\n    value: item.id,\n    label: item.name\n  }))\n  _this.loadOptions(reponse)\n}",
                 "onRemoteQuery": "",
-                "onChange": "const masterTableColumn = this.getWidgetRef('masterTableColumn')\nif(this.getWidgetRef('ready').getValue()) {\n  masterTableColumn.setValue('')\n}\nif(!value) return\n\nconst _this = this\ngetMasterTableDetail()\nasync function getMasterTableDetail() {\n  const data = await $api.get(`/docpal/master/tables/${value}`).then(res => res = res.data.data.fields)\n  const reponse = data.map(item => ({\n    value: item.columnName,\n    label: item.columnName\n  }))\n  masterTableColumn.loadOptions(reponse)\n}",
+                "onChange": "const masterTableColumn = this.getWidgetRef('masterTableColumn')\nif(this.getWidgetRef('ready').getValue()) {\n  masterTableColumn.setValue('')\n}\nif(!value) return\n\nconst _this = this\ngetMasterTableDetail()\nasync function getMasterTableDetail() {\n  const data = await $api.get(`/dms/master-tables/${value}`).then(res => res = res.data.data.fields)\n  const reponse = data.map(item => ({\n    value: item.columnName,\n    label: item.columnName\n  }))\n  masterTableColumn.loadOptions(reponse)\n}",
                 "onFocus": "",
                 "onBlur": "",
                 "onValidate": ""

@@ -62,15 +62,12 @@ async function init() {
 }
 
 onMounted(() => init())
-watch(
-  () => props.detail,
-  (newValue, oldValue) => {
+watch(() => props.detail, (newValue, oldValue) => {
     if (!!oldValue && oldValue.permission === newValue.permission) return
     if (!!newValue.permissions) {
       form.value.permission = convertPermissionsByPermissionObject(newValue.permissions)
     }
-  },
-  {
+  }, {
     immediate: true
   }
 )

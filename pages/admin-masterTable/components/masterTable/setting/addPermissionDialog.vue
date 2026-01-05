@@ -10,10 +10,15 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
-import type { GroupDTO, UserDTO } from 'api/src/generate/admin'
+import { clientApi } from 'api'
 import formJson from './addPermissionDialog.vform.json'
-import { ElMessage } from 'element-plus'
+import {
+  getGroupsSelectOption,
+  getRoleSelectOption,
+  getUserSelectOption,
+  getPermissionSelectOption,
+  excludeItemSelectList
+} from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
 const props = defineProps<{
@@ -27,8 +32,10 @@ const state = reactive<any>({
   loading: false,
   visible: false
 })
-let userList: UserDTO[] | any = []
-let groupList: GroupDTO[] | any = []
+const userList = ref([])
+const groupList = ref([])
+const roleList = ref([])
+const permissionList = ref([])
 const FormRendererRef = ref()
 
 async function handleSubmit() {
@@ -40,9 +47,8 @@ async function handleSubmit() {
       ...data
     }
     state.loading = true
-    await adminApi.api.postMasterTablesAclsAdd(params)
-    ElMessage.success(
-      t('tip_createdMsg', {
+    await clientApi.api.postDmsMasterTableAclsAdd(params)
+    routerProvider?.message.success(t('tip_createdMsg', {
         modelName: t('masterTable_permissionForMaster', { name: props.exitList[0]?.masterTableName }),
         name: null
       })
@@ -63,50 +69,48 @@ async function handleOpen() {
   handleOptions()
 }
 
-const { flatRole } = useRBAC()
-
 function handleOptions() {
   const userIdRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('userId')
+
+  // 排除了數據的結果集
+  // const options = excludeItemSelectList(props.exitList, permissionList.value)
+  // userIdRef.loadOptions(options)
+
+  // TODO：刪除下面全面内容
   const options = [
     {
       key: 'role',
       label: t('user_role'),
       type: 'string',
       isMultiple: false,
-      options: flatRole.value.map((item) => ({
-        label: item.name,
-        value: item.id
-      }))
+      options: roleList.value
     },
     { value: 'user_groups', label: t('user_groups'), options: groupListFilter() },
     { value: 'user_users', label: t('user_users'), options: userListFilter() }
   ]
   userIdRef.loadOptions(options)
 
+  // TODO：不生效，無法移除已添加過的 Permission
   function userListFilter() {
-    return userList?.filter((allItem: any) => !props.exitList.some((exitItem: any) => exitItem.userId === allItem.userId))
+    return userList.value.filter((allItem: any) => !props.exitList.some((exitItem: any) => exitItem.userId === allItem.userId))
   }
 
   function groupListFilter() {
-    return groupList?.filter((allItem: any) => !props.exitList.some((exitItem: any) => exitItem.userId === allItem.id))
+    return groupList.value.filter((allItem: any) => !props.exitList.some((exitItem: any) => exitItem.userId === allItem.id))
   }
 }
 
 onMounted(async () => {
+  // permissionList.value = getPermissionSelectOption()
+
+  // TODO: 刪除
+  userList.value = await getUserSelectOption()
+  groupList.value = await getGroupsSelectOption()
   try {
-    userList = await adminApi.api.postNuxeoIdentityUsers({}).then((res) => res.data)
-    userList?.forEach((item: any) => {
-      item.value = item.userId
-      item.label = item.username
-    })
-    const _groupList: any = await adminApi.api.postNuxeoIdentityGroups().then((res) => res.data)
-    // groupList = _groupList.filter((item: any) => item.id !== 'administrators') // backend fixed
-    groupList = _groupList
-    groupList?.forEach((item: any) => {
-      item.value = item.id
-      item.label = item.name
-    })
-  } catch (error) {}
+    // roleList.value = await getRoleSelectOption()
+  } catch (e) {
+    roleList.value = []
+  }
 })
 defineExpose({ handleOpen })
 </script>

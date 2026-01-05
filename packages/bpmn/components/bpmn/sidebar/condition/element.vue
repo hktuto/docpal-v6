@@ -98,7 +98,7 @@ const masterTableLoading = ref(false)
 const selectedMasterTableOption = ref<any[]>([])
 async function masterTableChange(masterTableId:string) {
     masterTableLoading.value = true
-    const data = await adminApi.api.getMasterTablesId(masterTableId);
+    const data = await clientApi.api.getDmsMasterTableId(masterTableId);
     if(data.data && data.data.fields){
         selectedMasterTableOption.value = data.data.fields
     }else{

@@ -37,7 +37,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     if (platform.value === 'admin') {
       return []
     }
-    const { data } = await clientApi.api.postMasterTablesRecordPageNonpermission({
+    const { data } = await clientApi.api.postDmsMasterTableRecordPageNonpermission({
       name: name,
       ...pageParams,
       ...extraParams

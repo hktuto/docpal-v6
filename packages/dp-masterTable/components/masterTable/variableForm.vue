@@ -185,12 +185,8 @@ async function turnFields(fields: any, initData: any, flexible: boolean = false)
   await Promise.all(pList);
   return resultFields;
   async function getRelationOptions(params: any, field: any): Promise<any> {
-    const appPlatform = useAppPlatform()
-    const api = appPlatform.value === 'admin' ? adminApi : clientApi
     try {
-      const data: any = await api.api
-        .getMasterTablesRecords(params)
-        .then((res) => res.data);
+      const data: any = await clientApi.api.getDmsMasterTableRecords(params).then((res) => res.data);
 
       if (props.isAddRelation)
         data.push({
@@ -256,9 +252,7 @@ async function turnFields(fields: any, initData: any, flexible: boolean = false)
     field: any
   ): Promise<any> {
     // displayField: displayField
-    const record: any = await adminApi.api
-      .postMasterTablesRecordPageNonpermission(params)
-      .then((res) => res.data);
+    const record: any = await adminApi.api.postDmsMasterTableRecordPageNonpermission(params).then((res) => res.data);
     const options = record.map((item: any) => ({
       label: item[displayField],
       value: item[displayField],
@@ -305,9 +299,7 @@ function handleRenderFlexibleList(formModel: any) {
 async function getRelationFields(tableId: string, fieldName: string) {
   try {
     if (!state.relationfieldsDetail[fieldName].fields) {
-      const relationDeatil: any = await adminApi.api
-        .getMasterTablesId(tableId)
-        .then((res) => res.data);
+      const relationDeatil: any = await clientApi.api.getDmsMasterTableId(tableId).then((res) => res.data);
       console.log("relationDeatil", relationDeatil);
       state.relationfieldsDetail[fieldName].fields = relationDeatil.fields;
       state.relationfieldsDetail[fieldName].read = relationDeatil.read;

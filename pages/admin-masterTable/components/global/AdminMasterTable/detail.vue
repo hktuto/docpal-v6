@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElNotification } from 'element-plus'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import type { MasterTableResponseDTO } from 'api/src/generate/admin'
 import { getIgnoreSchemas } from '~/utils/masterTableProvider'
 import { onMounted } from 'vue'
@@ -33,6 +33,7 @@ const permission = {
   edit: true,
   enable: true
 }
+
 function handleClick(tab: any) {
   state.activeName = tab.name
 }
@@ -40,7 +41,7 @@ function handleClick(tab: any) {
 const MasterTableTabRecordsRef = ref()
 
 async function init() {
-  const res = await adminApi.api.getMasterTablesId(id)
+  const res = await clientApi.api.getDmsMasterTableId(id)
   const detail = res.data
   state.masterTable = detail
 
@@ -50,7 +51,7 @@ async function init() {
 async function handleTemplateDownload() {
   try {
     state.templateLoading = true
-    const res = await adminApi.api.getMasterTablesIdRecordTemplate(
+    const res = await clientApi.api.getDmsMasterTableIdRecordTemplate(
       id,
       {},
       {
@@ -85,7 +86,7 @@ async function handleFile(event: any) {
   formData.append('file', event.target.files[0])
   formData.append('id', id)
 
-  const data: any = await adminApi.api.postMasterTablesRecordImportFile(formData, formData).then((res) => res.data)
+  const data: any = await clientApi.api.postDmsMasterTableRecordImportFile(formData, formData).then((res) => res.data)
   if (data?.failureNumber > 0) downloadFailList()
   event.target.value = ''
   handleRefresh()
@@ -102,7 +103,7 @@ async function downloadFailList() {
     duration: 0,
     type: 'warning'
   })
-  const res = await adminApi.api.getMasterTablesDownloadFailure(
+  const res = await clientApi.api.getDmsMasterTableDownloadFailure(
     { id },
     {
       format: 'blob',
@@ -115,7 +116,7 @@ async function downloadFailList() {
 async function handleExport() {
   try {
     state.exportLoading = true
-    const res = await adminApi.api.postMasterTablesIdRecordExport(
+    const res = await clientApi.api.postDmsMasterTableIdRecordExport(
       id,
       {},
       {
@@ -152,30 +153,37 @@ onMounted(() => {
         <MasterTableRecords ref="MasterTableTabRecordsRef" :tableId="id" :permission="permission"></MasterTableRecords>
       </el-tab-pane>
       <el-tab-pane :label="$t('masterTable.schema')" name="schema">
-        <MasterTableTabSchema ref="MasterTableTabSchemaRef" :masterTableDetail="state.masterTable" :tableId="id" @refresh="init"></MasterTableTabSchema>
+        <MasterTableTabSchema ref="MasterTableTabSchemaRef" :masterTableDetail="state.masterTable" :tableId="id"
+                              @refresh="init"></MasterTableTabSchema>
       </el-tab-pane>
       <el-tab-pane :label="$t('masterTable.log')" name="log">
-        <MasterTableTabLog v-if="state.masterTable?.name" :tableName="state.masterTable.name" :isDetail="true"></MasterTableTabLog>
+        <MasterTableTabLog v-if="state.masterTable?.name" :tableName="state.masterTable.name"
+                           :isDetail="true"></MasterTableTabLog>
       </el-tab-pane>
       <el-tab-pane :label="$t('masterTable.setting')" name="setting">
-        <MasterTableTabSetting v-if="state.masterTable && state.masterTable.id" :table="state.masterTable" :tableId="id"></MasterTableTabSetting>
+        <MasterTableTabSetting v-if="state.masterTable && state.masterTable.id" :table="state.masterTable"
+                               :tableId="id"></MasterTableTabSetting>
       </el-tab-pane>
     </el-tabs>
     <div class="absolute-btns">
-      <el-button id="MasterTable__Tables__Detail__DownloadTemplate" :loading="state.templateLoading" type="info" @click="handleTemplateDownload()">
+      <el-button id="MasterTable__Tables__Detail__DownloadTemplate" :loading="state.templateLoading" type="info"
+                 @click="handleTemplateDownload()">
         {{ $t('button.templateDownload') }}
       </el-button>
-      <el-button id="MasterTable__Tables__Detail__Import" :loading="state.importLoading" type="info" @click="handleImport()">
+      <el-button id="MasterTable__Tables__Detail__Import" :loading="state.importLoading" type="info"
+                 @click="handleImport()">
         {{ $t('button.importXLXS') }}
       </el-button>
-      <el-button id="MasterTable__Tables__Detail__Export" :loading="state.exportLoading" type="info" @click="handleExport()">
+      <el-button id="MasterTable__Tables__Detail__Export" :loading="state.exportLoading" type="info"
+                 @click="handleExport()">
         {{ $t('button.export') }}
       </el-button>
       <el-button id="MasterTable__Tables__Detail__Add" type="primary" @click="handleAddRow()">
         {{ $t('button.add') }}
       </el-button>
     </div>
-    <MasterTableRecordAddDialog ref="MasterTableNewRowDialogRef" :ignoreList="ignoreList" :tableId="id" @refresh="handleRefresh()" />
+    <MasterTableRecordAddDialog ref="MasterTableNewRowDialogRef" :ignoreList="ignoreList" :tableId="id"
+                                @refresh="handleRefresh()" />
     <input v-show="false" ref="inputRef" type="file" accept=".xlsx,.xls" @change="handleFile" />
   </div>
 </template>

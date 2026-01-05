@@ -6,13 +6,14 @@
       <el-option :label="$t('actions.active')" value="A" />
       <el-option :label="$t('actions.inactive')" value="D" />
     </el-select>
-    <el-button id="MasterTable__Tables__Detail__Setting__Active__Save" type="primary" :loading="state.loading" @click="handleSave">
+    <el-button id="MasterTable__Tables__Detail__Setting__Active__Save" type="primary" :loading="state.loading"
+               @click="handleSave">
       {{ $t('common_save') }}
     </el-button>
   </el-card>
 </template>
 <script setup lang="ts">
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 
 const props = defineProps(['table', 'tableId'])
 const state = reactive<any>({
@@ -23,21 +24,19 @@ const state = reactive<any>({
 async function handleSave() {
   state.loading = true
   try {
-    await adminApi.api.putMasterTables({
+    await clientApi.api.putDmsMasterTable({
       id: props.tableId,
       status: state.isActive
     })
   } catch (error) {
     state.isActive = state.isActive === 'A' ? 'D' : 'A'
   } finally {
-    await new Promise(resolve => setTimeout(resolve, 300)); 
+    await new Promise(resolve => setTimeout(resolve, 300))
     state.loading = false
   }
 }
 
-watch(
-  () => props.table,
-  (newVal) => {
+watch(() => props.table, (newVal) => {
     state.isActive = props.table.status
   }
 )

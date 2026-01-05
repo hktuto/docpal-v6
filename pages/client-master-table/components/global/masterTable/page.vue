@@ -32,7 +32,7 @@ function handleClick(id: any, permission: any) {
 async function initColumns(id: string) {
   try {
     state.curTable.columnLoading = true
-    const res = await clientApi.api.getMasterTablesId(id).then((res) => res.data)
+    const res = await clientApi.api.getDmsMasterTableId(id).then((res) => res.data)
     state.curTable = {
       ...state.curTable,
       name: res.name,
@@ -49,9 +49,7 @@ async function initColumns(id: string) {
 
 async function init() {
   try {
-    state.masterTables = await clientApi.api
-      .getMasterTablesFindAllByUser()
-      .then((res) => res.data)
+    state.masterTables = await clientApi.api.getDmsMasterTableListWithPermission().then((res) => res.data)
     if (!!curTableId && '' !== curTableId) {
       const find = state.masterTables.find((item: any) => item.id === curTableId)
       if (!!find) {

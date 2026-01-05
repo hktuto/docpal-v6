@@ -1,6 +1,7 @@
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 
 interface PermissionOption {
+  id: string;
   label: string;
   value: number;
   type: string;
@@ -23,7 +24,8 @@ export const getFromServer = async function(loadUserList: boolean, loadRoleList:
       if (userList.value.length > 0) {
         options.value.push(
           {
-            label: 'User',
+            id: 'user',
+            label: $t('user_users'),
             value: 1,
             type: 'select',
             options: user.map((item: any) => item)
@@ -33,7 +35,7 @@ export const getFromServer = async function(loadUserList: boolean, loadRoleList:
     }
 
     if (loadRoleList) {
-      const role = await adminApi.api.postAclRoleList([{
+      const role = await clientApi.api.postAclRoleList([{
         column: 'status',
         type: 'EQ',
         values: '1'
@@ -42,7 +44,8 @@ export const getFromServer = async function(loadUserList: boolean, loadRoleList:
       if (roleList.value.length > 0) {
         options.value.push(
           {
-            label: 'Role',
+            id: 'role',
+            label: $t('user_role'),
             value: 2,
             type: 'select',
             options: role.map((item: any) => item)
@@ -57,7 +60,8 @@ export const getFromServer = async function(loadUserList: boolean, loadRoleList:
       if (groupList.value.length > 0 && !!group) {
         options.value.push(
           {
-            label: 'Group',
+            id: 'group',
+            label: $t('user_groups'),
             value: 3,
             type: 'select',
             options: group.map((item: any) => item)
@@ -65,7 +69,6 @@ export const getFromServer = async function(loadUserList: boolean, loadRoleList:
         )
       }
     }
-
   } catch (e) {
     console.log(e)
   }
@@ -105,15 +108,15 @@ function convertId(options: any) {
     options: item.options.map((option: any) => {
       const name = option.name || option.userName || option.username || ''
       let id = option.id
-      switch (item.label) {
-        case 'User':
-          id = 'user_' + option.userId
+      switch (item.id) {
+        case 'user':
+          id = `user_${option.userId}`
           break
-        case 'Role':
-          id = 'role_' + id
+        case 'role':
+          id = `role_${id}`
           break
-        case 'Group':
-          id = 'group_' + id
+        case 'group':
+          id = `group_${id}`
           break
       }
       return { value: id, label: name }
@@ -126,14 +129,15 @@ export const convertPermissionObjectByPermissions = (permissions: any) => {
   if (!permissions) return {}
   const item: Record<string, string[]> = {}
   permissions.forEach((key: string) => {
-    const match = key.match(/^(user|role|group)_(.+)$/)
-    if (match) {
-      const [_, type, value] = match
-      if (!item[type]) {
-        item[type] = []
-      }
-      item[type].push(value)
+    const segments = key.split('_')
+
+    if (segments.length < 1) {
+      return item
     }
+    if (!item[segments[0]]) {
+      item[segments[0]] = []
+    }
+    item[segments[0]].push(segments.slice(1).join('_'))
   })
   return item
 }
@@ -147,6 +151,20 @@ export const convertPermissionsByPermissionObject = (permissions: {
   return Object.entries(permissions).flatMap(([key, values]) =>
     values.map(value => `${key}_${value}`)
   )
+}
+
+// Exclude the permission content that has been selected
+export const excludeItemSelectList = (permission: any, permissionOptionList: any[]) => {
+  const userIdsToRemove = new Set(permission.exitList.map((item: any) => item.userId))
+  return permissionOptionList.reduce((acc: any[], allItem: any) => {
+    const newOptions = allItem.options.filter((option: any) => {
+      return !userIdsToRemove.has(option.value.split('_').slice(1).join('_'))
+    })
+    if (newOptions.length > 0) {
+      acc.push({ ...allItem, options: newOptions })
+    }
+    return acc
+  }, [])
 }
 
 // To Select Options. output Data
@@ -241,17 +259,22 @@ export const getUserSelectOption = async () => {
 }
 
 export const getRoleSelectOption = async () => {
-  const list: any = await adminApi.api.postAclRoleList([{
-    column: 'status',
-    type: 'EQ',
-    values: '1'
-  }]).then((res) => res.data)
-  if (list.length === 0) return []
+  try {
+    const list: any = await clientApi.api.postAclRoleList([{
+      column: 'status',
+      type: 'EQ',
+      values: '1'
+    }]).then((res: any) => res.data)
+    if (list.length === 0) return []
 
-  return list.map((item: any) => ({
-    value: item.id,
-    label: item.name
-  }))
+    return list.map((item: any) => ({
+      value: item.id,
+      label: item.name
+    }))
+  } catch (e) {
+    console.log(e)
+    return []
+  }
 }
 
 export const getGroupsSelectOption = async () => {
