@@ -433,6 +433,42 @@ function calculatePosition(target: HTMLElement, content: HTMLElement) {
 }
 
 /**
+ * Find and focus the first focusable form element in the content
+ */
+function focusFirstFormElement(container: HTMLElement) {
+  // List of focusable form elements
+  const focusableSelectors = [
+    'input:not([type="hidden"]):not([disabled]):not([readonly])',
+    'textarea:not([disabled]):not([readonly])',
+    'select:not([disabled])',
+    'button:not([disabled])',
+    '[contenteditable="true"]',
+    '[tabindex]:not([tabindex="-1"])',
+  ].join(', ')
+  
+  // Find first focusable element
+  const firstFocusable = container.querySelector(focusableSelectors) as HTMLElement | null
+  
+  if (firstFocusable) {
+    // Use setTimeout to ensure the element is fully rendered and focusable
+    setTimeout(() => {
+      try {
+        firstFocusable.focus()
+        // If it's an input/textarea, select the text if it has a value
+        if (firstFocusable instanceof HTMLInputElement || firstFocusable instanceof HTMLTextAreaElement) {
+          if (firstFocusable.value) {
+            firstFocusable.select()
+          }
+        }
+      } catch (e) {
+        // Silently fail if focus is not possible (e.g., element not visible)
+        console.debug('Could not focus element:', e)
+      }
+    }, 0)
+  }
+}
+
+/**
  * Open popover
  */
 async function open(target?: any, highlight?: any) {
@@ -451,6 +487,13 @@ async function open(target?: any, highlight?: any) {
     visible.value = true
     emit('open')
     await nextTick()
+    // Focus first form element in dialog after it's fully rendered
+    setTimeout(() => {
+      const dialogElement = document.querySelector('.el-dialog__body') as HTMLElement
+      if (dialogElement) {
+        focusFirstFormElement(dialogElement)
+      }
+    }, 100)
     emit('opened')
     return
   }
@@ -481,6 +524,10 @@ async function open(target?: any, highlight?: any) {
     left: position.arrowLeft,
     side: position.arrowSide,
   }
+  
+  // Focus first form element in content
+  focusFirstFormElement(contentRef.value)
+  
   // the contentRef just render, so we need to recalculate the position after the content is rendered
   setTimeout(() => {
     recalculate()
