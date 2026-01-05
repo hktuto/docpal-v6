@@ -1,12 +1,7 @@
 <template>
-  <el-popover
+  <UiPopoverDialog
     ref="popoverRef"
     :width="width"
-    trigger="click"
-    :placement="placement"
-    :popper-class="popperClass"
-    :virtual-ref="virtualRef"
-    virtual-triggering
   >
     <template #default>
       <div class="add-column-popover">
@@ -77,7 +72,7 @@
         </el-form>
       </div>
     </template>
-  </el-popover>
+  </UiPopoverDialog>
 </template>
 
 <script setup lang="ts">
@@ -119,6 +114,12 @@ const emit = defineEmits<{
 }>()
 
 const popoverRef = ref()
+const triggerRef = ref()
+function show(targetParams: any) {
+  // check if targetParams is a html element, or is a vue component ref
+
+  popoverRef.value.open(targetParams)
+}
 const formRef = ref<FormInstance>()
 const formData = reactive<ColumnConfig>({
   field: '',
@@ -214,23 +215,11 @@ const handleCancel = () => {
   hide()
 }
 
-// 显示 popover
-const show = () => {
-  popoverRef.value?.show?.()
-}
+
 
 // 隐藏 popover
 const hide = () => {
   popoverRef.value?.hide?.()
-}
-
-// 处理下拉选择框的选择事件，确保选择后 popover 不会关闭
-const handleSelectChange = async () => {
-  // 选择后确保 popover 保持显示
-  await nextTick()
-  if (popoverRef.value) {
-    popoverRef.value.show?.()
-  }
 }
 
 // 暴露方法

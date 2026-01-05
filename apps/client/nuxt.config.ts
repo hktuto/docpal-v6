@@ -72,6 +72,7 @@ export default defineNuxtConfig({
         '../../packages/dp-contact',
         '../../packages/dp-mdTable',
         // demo packages
+        "../../demo/database",
     ],
     features: {
         inlineStyles: true,
