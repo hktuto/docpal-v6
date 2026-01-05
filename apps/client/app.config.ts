@@ -291,6 +291,9 @@ export default defineAppConfig({
 
     {
       name: 'admin-database-list'
+    },
+    {
+      name: 'demo-workspaces'
     }
 
     // {

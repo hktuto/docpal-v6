@@ -9,7 +9,7 @@ export default defineAppConfig({
       label: "Demo Workspaces",
       icon: "icon-park-outline:database-forbid",
       hoverIcon: "icon-park-outline:database-forbid",
-      component: "LazyDemoWorkspaceslist",
+      component: "LazyWorkspacesList",
       feature: "CORE",
       props: {},
     }
