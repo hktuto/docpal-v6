@@ -525,12 +525,14 @@ async function open(target?: any, highlight?: any) {
     side: position.arrowSide,
   }
   
-  // Focus first form element in content
-  focusFirstFormElement(contentRef.value)
+  // Focus first form element in content after it's fully rendered
   
   // the contentRef just render, so we need to recalculate the position after the content is rendered
   setTimeout(() => {
     recalculate()
+    if (contentRef.value) {
+      focusFirstFormElement(contentRef.value)
+    }
   }, 100)
   emit('opened')
 }
