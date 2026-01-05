@@ -30,7 +30,7 @@
       </div>
       <!-- 右侧区域 -->
       <div class="table-right-panel">
-        <div ref="addColumnTriggerRef" class="table-right-panel-header" @click="handleAddColumn">
+        <div ref="addColumnTriggerRef" class="table-right-panel-header" @click="(e) => handleAddColumn(e)">
           <slot name="right-panel">
             <el-icon><Plus /></el-icon>
           </slot>
@@ -121,9 +121,9 @@ const handleGroupToggle = (rules: GroupingRule[]) => {
 }
 
 // 处理添加列
-const handleAddColumn = () => {
+const handleAddColumn = (e: MouseEvent) => {
   if (addColumnPopoverRef.value) {
-    addColumnPopoverRef.value.show()
+    addColumnPopoverRef.value.show(e.target || null)
   }
 }
 // 暴露方法
