@@ -1,0 +1,410 @@
+{
+  "_instructions": "Edit this file to configure column types and settings. Then run convert-with-config.js",
+  "sheets": {
+    "Contact": {
+      "tableName": "Contact",
+      "tableId": "tbl-contact",
+      "icon": "user",
+      "views":[
+        {
+          "id": "view-contact-table",
+          "name": "All Contacts",
+          "type": "table",
+          "isDefault": true
+        }
+      ],
+      "columns": [
+        {
+          "id": "col-1",
+          "field": "companyId",
+          "title": "Company ID",
+          "type": "relation",
+          "width": 150,
+          "relationConfig": {
+            "tableId": "tbl-company",
+            "displayField": "companyName",
+            "multiple": false
+          }
+        },
+        {
+          "id": "col-3",
+          "field": "contactPerson",
+          "title": "Contact Person",
+          "type": "text",
+          "width": 150,
+          "required": false
+        },
+        {
+          "id": "col-4",
+          "field": "department",
+          "title": "Department",
+          "type": "text",
+          "width": 150,
+          "required": false
+        },
+        {
+          "id": "col-5",
+          "field": "jobTitle",
+          "title": "Job Title",
+          "type": "text",
+          "width": 150,
+          "required": false
+        },
+        {
+          "id": "col-6",
+          "field": "contactNumber",
+          "title": "Contact Number",
+          "type": "text",
+          "width": 150,
+          "required": false
+        },
+        {
+          "id": "col-7",
+          "field": "mobileNumber",
+          "title": "Mobile Number",
+          "type": "text",
+          "width": 150,
+          "required": false
+        },
+        {
+          "id": "col-8",
+          "field": "email",
+          "title": "Email",
+          "type": "email",
+          "width": 150,
+          "required": false
+        }
+      ]
+    },
+    "Company": {
+      "tableName": "Company",
+      "tableId": "tbl-company",
+      "icon": "building",
+      "views":[
+        {
+          "id": "view-company-table",
+          "name": "All Companies",
+          "type": "table",
+          "isDefault": true
+        }
+      ],
+      "columns": [
+        {
+          "id": "col-1",
+          "field": "companyId",
+          "title": "Company ID",
+          "type": "text",
+          "width": 150,
+          "required": false
+        },
+        {
+          "id": "col-2",
+          "field": "companyName",
+          "title": "Company Name",
+          "type": "text",
+          "width": 150,
+          "required": false
+        },
+        {
+          "id": "col-3",
+          "field": "salesperson",
+          "title": "Salesperson",
+          "type": "user",
+          "width": 150
+        },
+        {
+          "id": "col-4",
+          "field": "address",
+          "title": "Address",
+          "type": "text",
+          "width": 150,
+          "required": false
+        },
+        {
+          "id": "col-5",
+          "field": "paymentTerms",
+          "title": "Payment Terms",
+          "type": "text",
+          "width": 150,
+          "required": false,
+          "_sampleValues": [
+            "30 days",
+            "60 days",
+            "90 days"
+          ],
+          "_hint": "If this should be single-select, change type to 'single-select' and add 'options' array"
+        },
+        {
+          "id": "col-6",
+          "field": "currency",
+          "title": "Currency",
+          "type": "single-select",
+          "width": 150,
+          "required": false,
+          "options": [
+            {
+              "id": "opt-1",
+              "label": "HKD",
+              "color": "#8b5cf6"
+            },
+            {
+              "id": "opt-2",
+              "label": "USD",
+              "color": "#3b82f6"
+            }
+          ]
+        },
+        {
+          "id": "col-7",
+          "field": "contactPerson",
+          "title": "Contact Person",
+          "type": "text",
+          "relationConfig": {
+            "tableId": "tbl-contact",
+            "displayField": "contactPerson",
+            "multiple": true
+          }
+        },
+        {
+          "id": "col-8",
+          "field": "quotations",
+          "title": "Quotations",
+          "type": "relation",
+          "width": 200,
+          "relationConfig": {
+            "tableId": "tbl-quotation",
+            "displayField": "quotationNumber",
+            "multiple": true
+          }
+        },
+        {
+          "id": "col-9",
+          "field": "contracts",
+          "title": "Contracts",
+          "type": "relation",
+          "width": 200,
+          "relationConfig": {
+            "tableId": "tbl-contract",
+            "displayField": "contractNumber",
+            "multiple": true
+          }
+        }
+      ]
+    },
+    "Case": {
+      "tableName": "Case",
+      "tableId": "tbl-case",
+      "icon": "document",
+      "views":[
+        {
+          "id": "view-case-table",
+          "name": "All Cases",
+          "type": "table",
+          "isDefault": true
+        }
+      ],
+      "columns": [
+        {
+          "id": "col-1",
+          "field": "caseId",
+          "title": "Case ID",
+          "type": "text",
+          "width": 150,
+          "required": false
+        },
+        {
+          "id": "col-8",
+          "field": "projectName",
+          "title": "Project Name",
+          "type": "text",
+          "width": 150,
+          "required": false
+        },
+        {
+          "id": "col-2",
+          "field": "salesPerson",
+              "title": "Sales Person",
+              "type": "user",
+              "width": 150
+        },
+        {
+          "id": "col-3",
+          "field": "caseStatus",
+          "title": "Case Status",
+          "type": "text",
+          "width": 150,
+          "required": false,
+          "options": [
+            {
+              "id": "opt-1",
+              "label": "Closed-Lost",
+              "color": "#8b5cf6"
+            },
+            {
+              "id": "opt-2",
+              "label": "Closed-Won",
+              "color": "#3b82f6"
+            },
+            {
+              "id": "opt-3",
+              "label": "Disqualify",
+              "color": "#3b82f6"
+            },
+            {
+              "id": "opt-4",
+              "label": "Lead",
+              "color": "#3b82f6"
+            },
+            {
+              "id": "opt-5",
+              "label": "Opportunity",
+              "color": "#3b82f6"
+            },
+            {
+              "id": "opt-6",
+              "label": "Pipeline",
+              "color": "#3b82f6"
+            }
+          ]
+        },
+        {
+          "id": "col-4",
+          "field": "caseStatusLastUpdateDate",
+          "title": "Case Status Last Update Date",
+          "type": "date",
+          "width": 150,
+          "required": false,
+          "dateFormat": "YYYY-MM-DD"
+        },
+        {
+          "id": "col-5",
+          "field": "estimateTotalContractValueHkd",
+          "title": "Estimate Total Contract Value (HKD)",
+          "type": "number",
+          "width": 150,
+          "required": false,
+          "decimalPlaces": 2
+        },
+        {
+          "id": "col-7",
+          "field": "estimateBookedDate",
+          "title": "Estimate Booked Date",
+          "type": "date",
+          "width": 150,
+          "required": false,
+          "dateFormat": "YYYY-MM-DD"
+        }
+      ]
+    },
+    "Quotation": {
+      "tableName": "Quotation",
+      "tableId": "tbl-quotation",
+      "icon": "document",
+      "columns": [
+        {
+          "id": "col-1",
+          "field": "caseId",
+          "title": "Case ID",
+          "type": "relation",
+          "width": 150,
+          "required": false,
+          "relationConfig": {
+            "tableId": "tbl-case",
+            "displayField": "caseId",
+            "multiple": false
+          }
+        },
+        {
+          "id": "col-2",
+          "field": "quotationNo",
+          "title": "Quotation No.",
+          "type": "text",
+          "width": 150,
+          "required": false
+        },
+        {
+          "id": "col-3",
+          "field": "itemNo",
+          "title": "Item No.",
+          "type": "number",
+          "width": 150,
+          "required": false,
+          "_sampleValues": [
+            1,
+            2,
+            3
+          ],
+          "_hint": "Set decimalPlaces for decimal numbers",
+          "decimalPlaces": 0
+        },
+        {
+          "id": "col-4",
+          "field": "description",
+          "title": "Description",
+          "type": "text",
+          "width": 150,
+          "required": false
+        },
+        {
+          "id": "col-5",
+          "field": "quantity",
+          "title": "Quantity",
+          "type": "number",
+          "width": 150,
+          "required": false,
+          "decimalPlaces": 0,
+          "_hint": "Set decimalPlaces for decimal numbers"
+        },
+        {
+          "id": "col-6",
+          "field": "unitPriceHkd",
+          "title": "Unit Price (HKD)",
+          "type": "number",
+          "width": 150,
+          "required": false,
+          "decimalPlaces": 0,
+          "_hint": "Set decimalPlaces for decimal numbers"
+        },
+        {
+          "id": "col-7",
+          "field": "netPriceHkd",
+          "title": "Net Price (HKD)",
+          "type": "number",
+          "width": 150,
+          "required": false,
+          "decimalPlaces": 0,
+          "_hint": "Set decimalPlaces for decimal numbers"
+        },
+        {
+          "id": "col-8",
+          "field": "totalAmountHkd",
+          "title": "Total Amount (HKD)",
+          "type": "number",
+          "width": 150,
+          "required": false,
+          "decimalPlaces": 0,
+          "_hint": "Set decimalPlaces for decimal numbers"
+        },
+        {
+          "id": "col-9",
+          "field": "specialNotes",
+          "title": "Special Notes",
+          "type": "text",
+          "width": 150,
+          "required": false
+        },
+        {
+          "id": "col-10",
+          "field": "tcvLookupFromCase",
+          "title": "TCV Lookup From Case",
+          "type": "number",
+          "width": 150,
+          "required": false,
+          "decimalPlaces": 0,
+          "_hint": "Set decimalPlaces for decimal numbers"
+        }
+      ]
+    },
+    "Quotaion_line":{}
+  }
+}
