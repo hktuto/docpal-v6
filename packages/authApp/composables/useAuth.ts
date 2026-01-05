@@ -154,8 +154,7 @@ async function checkPassword() {
 
 export function getOCRSetting() {
   const ocrSetting = useOcrSetting()
-  // ocrSetting.value = clientApi.instance.get('/nuxeo/admin/setting/OCR').then((res) => res.data)
-  ocrSetting.value = clientApi.instance.get('/dms/setting/system/OCR').then((res) => res.data)
+  ocrSetting.value = clientApi.instance.get('/api/dms/setting/system/OCR').then((res) => res.data)
 }
 
 export function canOCR(extension: string): boolean {

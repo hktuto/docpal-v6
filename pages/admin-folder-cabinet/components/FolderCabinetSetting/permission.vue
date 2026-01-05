@@ -46,7 +46,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi,adminApi } from 'api'
+import { clientApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 
 const { t } = useI18n()
@@ -143,8 +143,7 @@ async function removeLocalAcl(row: any) {
       confirmButtonText: t('common_confirmRemove')
     })
     if (action !== 'confirm') throw new Error('cancel')
-    await adminApi.api.deleteCabinetTemplatePermission({ id: props.id, userId: row.userId }, {})
-    // await clientApi.api.deleteDmsCabinetTemplatePermission({ id: props.id, userId: row.userId }, {})
+    await clientApi.api.deleteDmsCabinetTemplatePermission({ id: props.id, userId: row.userId }, {})
     routerProvider?.message.success(t('folder_cabinetDetailLocalPermissionRemoveSuccessMsg'))
     emits('refresh')
   } catch (error) {

@@ -101,7 +101,6 @@ export const requestErrorHelper = (error: any, axiosInstance: AxiosInstance) => 
 }
 
 export const responseSuccessHelper = (response: any, axiosInstance: AxiosInstance) => {
-
   return response
 }
 
@@ -145,7 +144,7 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
       localStorage.setItem('access_token', refreshToken as string)
 
       const { data } = await axiosInstance.post(
-        '/auth/token',
+        '/api/auth/token',
         {},
         {
           headers: {

@@ -27,7 +27,7 @@ const argv = parseArgv();
 const { SUPERADMIN, PASSWORD, ADMINURL } = argv;
 
 async function loginAdmin() {
-  const data = await fetch(`${ADMINURL}/auth/login`, {
+  const data = await fetch(`${ADMINURL}/api/auth/login`, {
     method: 'POST',
     body: JSON.stringify({
       username: SUPERADMIN,

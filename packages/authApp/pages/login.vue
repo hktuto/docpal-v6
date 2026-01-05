@@ -21,7 +21,7 @@ async function submit() {
   try {
     loading.value = true
     errorMessage.value = ''
-    const { data } = await clientApi.instance.post('/auth/login', {
+    const { data } = await clientApi.instance.post('/api/auth/login', {
       username: form.username,
       password: form.password
     }).then(res => res.data)

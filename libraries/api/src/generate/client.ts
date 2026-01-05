@@ -5297,7 +5297,7 @@ export interface Offset {
 
 export interface WMKTemplateRequestDTO {
     id?: string;
-    name?: string;
+    name: string;
     enabled?: boolean;
     createdBy?: string;
     modifiedBy?: string;
@@ -11082,7 +11082,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/types`,
+                path: `/api/nuxeo/types`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -11104,7 +11104,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/types`,
+                path: `/api/nuxeo/types`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -11126,7 +11126,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/types/`,
+                path: `/api/nuxeo/types/`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -11148,7 +11148,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/types/`,
+                path: `/api/nuxeo/types/`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -11172,7 +11172,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/`,
+                path: `/api/nuxeo/collection/`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -11196,7 +11196,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/`,
+                path: `/api/nuxeo/collection/`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -11211,7 +11211,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchNuxeoCollectionDeprecate: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/`,
+                path: `/api/nuxeo/collection/`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -11236,7 +11236,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection`,
+                path: `/api/nuxeo/collection`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -11260,7 +11260,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection`,
+                path: `/api/nuxeo/collection`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -11275,7 +11275,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchNuxeoCollection: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection`,
+                path: `/api/nuxeo/collection`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -11298,7 +11298,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/candidatesByTaskDefinitionKey/`,
+                path: `/api/docpal/workflow/task/candidatesByTaskDefinitionKey/`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -11320,7 +11320,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/candidatesByTaskDefinitionKey/`,
+                path: `/api/docpal/workflow/task/candidatesByTaskDefinitionKey/`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -11342,7 +11342,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/candidatesByTaskDefinitionKey`,
+                path: `/api/docpal/workflow/task/candidatesByTaskDefinitionKey`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -11364,7 +11364,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/candidatesByTaskDefinitionKey`,
+                path: `/api/docpal/workflow/task/candidatesByTaskDefinitionKey`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -11385,7 +11385,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/candidates/`,
+                path: `/api/docpal/workflow/task/candidates/`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -11406,7 +11406,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/candidates/`,
+                path: `/api/docpal/workflow/task/candidates/`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -11427,7 +11427,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/candidates`,
+                path: `/api/docpal/workflow/task/candidates`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -11448,7 +11448,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/candidates`,
+                path: `/api/docpal/workflow/task/candidates`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -11469,7 +11469,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/attachment`,
+                path: `/api/docpal/workflow/task/attachment`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -11491,7 +11491,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultFileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/attachment`,
+                path: `/api/docpal/workflow/task/attachment`,
                 method: "PUT",
                 body: data,
                 type: ContentType.FormData,
@@ -11513,7 +11513,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/attachment`,
+                path: `/api/docpal/workflow/task/attachment`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -11534,7 +11534,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/attachment`,
+                path: `/api/docpal/workflow/task/attachment`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -11555,7 +11555,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/attachment/preview`,
+                path: `/api/docpal/workflow/task/attachment/preview`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -11576,7 +11576,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/attachment/preview`,
+                path: `/api/docpal/workflow/task/attachment/preview`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -11597,7 +11597,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultFileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/attachment/info`,
+                path: `/api/docpal/workflow/task/attachment/info`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -11618,7 +11618,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultFileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/attachment/info`,
+                path: `/api/docpal/workflow/task/attachment/info`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -11627,14 +11627,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * @description Get detailed information of an import job by ID
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name GetRegisteredServerImportjobsId
          * @summary Get import job details
          * @request GET:/api/registered-server/importJobs/{id}
          */
         getRegisteredServerImportjobsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/importJobs/${id}`,
+                path: `/api/registered-server/importJobs/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -11642,14 +11642,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PutRegisteredServerImportjobsId
          * @summary Update import job of external storage
          * @request PUT:/api/registered-server/importJobs/{id}
          */
         putRegisteredServerImportjobsId: (id: string, data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/importJobs/${id}`,
+                path: `/api/registered-server/importJobs/${id}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -11659,7 +11659,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name GetRegisteredServerContactgroupId
          * @summary Get contact group by id
          * @request GET:/api/registered-server/contactGroup/{id}
@@ -11672,7 +11672,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}`,
+                path: `/api/registered-server/contactGroup/${id}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -11681,13 +11681,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PutRegisteredServerContactgroupId
          * @request PUT:/api/registered-server/contactGroup/{id}
          */
         putRegisteredServerContactgroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}`,
+                path: `/api/registered-server/contactGroup/${id}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -11697,7 +11697,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * @description Delete a contact group by ContactGroupId
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name DeleteRegisteredServerContactgroupId
          * @summary Delete contact group by id
          * @request DELETE:/api/registered-server/contactGroup/{id}
@@ -11710,7 +11710,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}`,
+                path: `/api/registered-server/contactGroup/${id}`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -11719,13 +11719,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PatchRegisteredServerContactgroupId
          * @request PATCH:/api/registered-server/contactGroup/{id}
          */
         patchRegisteredServerContactgroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}`,
+                path: `/api/registered-server/contactGroup/${id}`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -11735,7 +11735,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name GetRegisteredServerContactgroupIdContactdetailContactdetailid
          * @summary Get contact detail by id
          * @request GET:/api/registered-server/contactGroup/{id}/contactDetail/{contactDetailId}
@@ -11749,7 +11749,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}/contactDetail/${contactDetailId}`,
+                path: `/api/registered-server/contactGroup/${id}/contactDetail/${contactDetailId}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -11758,7 +11758,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PutRegisteredServerContactgroupIdContactdetailContactdetailid
          * @summary Edit contact record with the specified information
          * @request PUT:/api/registered-server/contactGroup/{id}/contactDetail/{contactDetailId}
@@ -11773,7 +11773,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}/contactDetail/${contactDetailId}`,
+                path: `/api/registered-server/contactGroup/${id}/contactDetail/${contactDetailId}`,
                 method: "PUT",
                 query: query,
                 body: data,
@@ -11784,7 +11784,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name DeleteRegisteredServerContactgroupIdContactdetailContactdetailid
          * @summary Delete contact record
          * @request DELETE:/api/registered-server/contactGroup/{id}/contactDetail/{contactDetailId}
@@ -11798,7 +11798,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}/contactDetail/${contactDetailId}`,
+                path: `/api/registered-server/contactGroup/${id}/contactDetail/${contactDetailId}`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -11813,7 +11813,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoAdminVirtualfolderSetting: (params: RequestParams = {}) =>
             this.request<ResultListVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/admin/virtualfolder/setting`,
+                path: `/api/nuxeo/admin/virtualfolder/setting`,
                 method: "GET",
                 ...params,
             }),
@@ -11827,7 +11827,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putNuxeoAdminVirtualfolderSetting: (data: VirtualFolderSettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/admin/virtualfolder/setting`,
+                path: `/api/nuxeo/admin/virtualfolder/setting`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -11843,7 +11843,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoAdminSetting: (systemId: string, params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/admin/setting`,
+                path: `/api/nuxeo/admin/setting`,
                 method: "GET",
                 ...params,
             }),
@@ -11857,7 +11857,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putNuxeoAdminSetting: (data: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/admin/setting`,
+                path: `/api/nuxeo/admin/setting`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -11878,7 +11878,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/admin/icon`,
+                path: `/api/nuxeo/admin/icon`,
                 method: "GET",
                 query: query,
                 format: "blob",
@@ -11914,7 +11914,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/admin/icon`,
+                path: `/api/nuxeo/admin/icon`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -11931,7 +11931,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getImportjobsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/importJobs/${id}`,
+                path: `/api/importJobs/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -11946,7 +11946,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putImportjobsId: (id: string, data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/importJobs/${id}`,
+                path: `/api/importJobs/${id}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -11963,7 +11963,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteImportjobsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/importJobs/${id}`,
+                path: `/api/importJobs/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -11978,7 +11978,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getExternalstorageId: (id: string, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/${id}`,
+                path: `/api/externalStorage/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -11993,7 +11993,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putExternalstorageId: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/${id}`,
+                path: `/api/externalStorage/${id}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12010,7 +12010,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteExternalstorageId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/${id}`,
+                path: `/api/externalStorage/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -12025,7 +12025,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getExternalstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/${id}/profiles/${profileId}`,
+                path: `/api/externalStorage/${id}/profiles/${profileId}`,
                 method: "GET",
                 ...params,
             }),
@@ -12045,7 +12045,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/${id}/profiles/${profileId}`,
+                path: `/api/externalStorage/${id}/profiles/${profileId}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12062,7 +12062,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteExternalstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/${id}/profiles/${profileId}`,
+                path: `/api/externalStorage/${id}/profiles/${profileId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -12077,7 +12077,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getExternalDriveSyncTasksTaskId: (taskId: string, params: RequestParams = {}) =>
             this.request<ResultSyncTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/sync-tasks/${taskId}`,
+                path: `/api/external-drive/sync-tasks/${taskId}`,
                 method: "GET",
                 ...params,
             }),
@@ -12092,7 +12092,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putExternalDriveSyncTasksTaskId: (taskId: string, data: UpdateSyncTaskRequest, params: RequestParams = {}) =>
             this.request<ResultSyncTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/sync-tasks/${taskId}`,
+                path: `/api/external-drive/sync-tasks/${taskId}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12109,7 +12109,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteExternalDriveSyncTasksTaskId: (taskId: string, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/sync-tasks/${taskId}`,
+                path: `/api/external-drive/sync-tasks/${taskId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -12124,7 +12124,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getExternalDriveOauthAppsAppId: (appId: string, params: RequestParams = {}) =>
             this.request<ResultOAuthAppDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/oauth/apps/${appId}`,
+                path: `/api/external-drive/oauth/apps/${appId}`,
                 method: "GET",
                 ...params,
             }),
@@ -12139,7 +12139,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putExternalDriveOauthAppsAppId: (appId: string, data: UpdateOAuthAppRequest, params: RequestParams = {}) =>
             this.request<ResultOAuthAppDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/oauth/apps/${appId}`,
+                path: `/api/external-drive/oauth/apps/${appId}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12156,7 +12156,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteExternalDriveOauthAppsAppId: (appId: string, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/oauth/apps/${appId}`,
+                path: `/api/external-drive/oauth/apps/${appId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -12171,7 +12171,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getEventCalendarsSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/event/calendars/setting/${id}`,
+                path: `/api/event/calendars/setting/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -12186,7 +12186,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putEventCalendarsSettingId: (id: string, data: EventCalendarSetting, params: RequestParams = {}) =>
             this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/event/calendars/setting/${id}`,
+                path: `/api/event/calendars/setting/${id}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12203,7 +12203,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteEventCalendarsSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/event/calendars/setting/${id}`,
+                path: `/api/event/calendars/setting/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -12219,7 +12219,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getUserSetting: (params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/user/setting`,
+                path: `/api/docpal/user/setting`,
                 method: "GET",
                 ...params,
             }),
@@ -12234,7 +12234,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putUserSetting: (data: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/user/setting`,
+                path: `/api/docpal/user/setting`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12251,7 +12251,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchUserSetting: (data: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/user/setting`,
+                path: `/api/docpal/user/setting`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -12273,7 +12273,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/user/profile`,
+                path: `/api/docpal/user/profile`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -12290,7 +12290,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putUserProfile: (data: UserProfileSettingDTO, params: RequestParams = {}) =>
             this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/user/profile`,
+                path: `/api/docpal/user/profile`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12308,7 +12308,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postUserProfile: (data: UserProfileSettingDTO, params: RequestParams = {}) =>
             this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/user/profile`,
+                path: `/api/docpal/user/profile`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -12326,7 +12326,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getUserProfileUseridSignature: (userId: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/user/profile/${userId}/signature`,
+                path: `/api/docpal/user/profile/${userId}/signature`,
                 method: "GET",
                 ...params,
             }),
@@ -12350,7 +12350,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/user/profile/${userId}/signature`,
+                path: `/api/docpal/user/profile/${userId}/signature`,
                 method: "PUT",
                 query: query,
                 ...params,
@@ -12375,7 +12375,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/user/profile/${userId}/signature`,
+                path: `/api/docpal/user/profile/${userId}/signature`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -12392,7 +12392,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteUserProfileUseridSignature: (userId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/user/profile/${userId}/signature`,
+                path: `/api/docpal/user/profile/${userId}/signature`,
                 method: "DELETE",
                 ...params,
             }),
@@ -12407,7 +12407,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putSystemfeatureUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/systemfeature/user`,
+                path: `/api/docpal/systemfeature/user`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12423,7 +12423,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putPersonalLandingSave: (data: PersonalLandingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPersonalLanding, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/personal/landing/save`,
+                path: `/api/docpal/personal/landing/save`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12439,7 +12439,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putPersonalDashboardUpdate: (data: PersonalDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/personal/dashboard/update`,
+                path: `/api/docpal/personal/dashboard/update`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12456,7 +12456,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putNotificationIdStatusStatus: (id: number, status: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/${id}/status/${status}`,
+                path: `/api/docpal/notification/${id}/status/${status}`,
                 method: "PUT",
                 ...params,
             }),
@@ -12471,7 +12471,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putNotificationStatus: (data: NotificationRecordDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/status`,
+                path: `/api/docpal/notification/status`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12488,7 +12488,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putNotificationSettingStatus: (data: NotificationSetting[], params: RequestParams = {}) =>
             this.request<ResultListNotificationSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/setting/status`,
+                path: `/api/docpal/notification/setting/status`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12504,7 +12504,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putNotificationDissmissByType: (data: NotificationManageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/dissmiss_by_type`,
+                path: `/api/docpal/notification/dissmiss_by_type`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12520,7 +12520,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putNotificationDissmissByIds: (data: NotificationManageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/dissmiss_by_ids`,
+                path: `/api/docpal/notification/dissmiss_by_ids`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12538,7 +12538,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putMasterTablesIdRecord: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/${id}/record`,
+                path: `/api/docpal/master/tables/${id}/record`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12555,7 +12555,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putMasterTablesIdRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/${id}/record/status`,
+                path: `/api/docpal/master/tables/${id}/record/status`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12573,7 +12573,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchMasterTablesIdRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/${id}/record/status`,
+                path: `/api/docpal/master/tables/${id}/record/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -12590,7 +12590,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putMasterTablesIdBatchRecord: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/${id}/batch/record`,
+                path: `/api/docpal/master/tables/${id}/batch/record`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12607,7 +12607,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putMasterTablesForAdminIdBatchRecord: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/for_admin/${id}/batch/record`,
+                path: `/api/docpal/master/tables/for_admin/${id}/batch/record`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12624,7 +12624,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getIdTemplatesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultIdTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/id-templates/${id}`,
+                path: `/api/docpal/id-templates/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -12639,7 +12639,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putIdTemplatesId: (id: string, data: IdTemplate, params: RequestParams = {}) =>
             this.request<ResultIdTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/id-templates/${id}`,
+                path: `/api/docpal/id-templates/${id}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12656,7 +12656,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteIdTemplatesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/id-templates/${id}`,
+                path: `/api/docpal/id-templates/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -12671,7 +12671,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putFormDesignDraftidFormresultStatus: (draftId: string, data: EasyFormResult, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/${draftId}/formResult/status`,
+                path: `/api/docpal/form/design/${draftId}/formResult/status`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12688,7 +12688,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDocTemplateSignatureId: (id: string, params: RequestParams = {}) =>
             this.request<ResultDocTemplateSignatureResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/doc/template/signature/${id}`,
+                path: `/api/docpal/doc/template/signature/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -12703,7 +12703,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDocTemplateSignatureId: (id: string, data: DocTemplateSignatureRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocTemplateSignatureResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/doc/template/signature/${id}`,
+                path: `/api/docpal/doc/template/signature/${id}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12720,7 +12720,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteDocTemplateSignatureId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/doc/template/signature/${id}`,
+                path: `/api/docpal/doc/template/signature/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -12734,7 +12734,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDamSetting: (data: DAMConversionSettingRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dam/setting`,
+                path: `/api/docpal/dam/setting`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12752,7 +12752,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getContactgroupId: (id: string, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}`,
+                path: `/api/docpal/contactGroup/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -12768,7 +12768,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putContactgroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}`,
+                path: `/api/docpal/contactGroup/${id}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12786,7 +12786,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteContactgroupId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}`,
+                path: `/api/docpal/contactGroup/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -12802,7 +12802,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchContactgroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}`,
+                path: `/api/docpal/contactGroup/${id}`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -12824,7 +12824,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}/contactDetail/${contactDetailId}`,
+                path: `/api/docpal/contactGroup/${id}/contactDetail/${contactDetailId}`,
                 method: "GET",
                 ...params,
             }),
@@ -12845,7 +12845,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}/contactDetail/${contactDetailId}`,
+                path: `/api/docpal/contactGroup/${id}/contactDetail/${contactDetailId}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12867,7 +12867,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}/contactDetail/${contactDetailId}`,
+                path: `/api/docpal/contactGroup/${id}/contactDetail/${contactDetailId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -12883,7 +12883,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
             this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/calendars`,
+                path: `/api/docpal/calendars`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12901,7 +12901,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
             this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/calendars`,
+                path: `/api/docpal/calendars`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -12918,7 +12918,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putAclRole: (data: RoleRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/acl/role`,
+                path: `/api/docpal/acl/role`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -12935,7 +12935,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postAclRole: (data: RoleRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/acl/role`,
+                path: `/api/docpal/acl/role`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -12952,7 +12952,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsUserprofileUseridSignature: (userId: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/userProfile/${userId}/signature`,
+                path: `/api/dms/userProfile/${userId}/signature`,
                 method: "GET",
                 ...params,
             }),
@@ -12981,7 +12981,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/userProfile/${userId}/signature`,
+                path: `/api/dms/userProfile/${userId}/signature`,
                 method: "PUT",
                 query: query,
                 body: data,
@@ -13013,7 +13013,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/userProfile/${userId}/signature`,
+                path: `/api/dms/userProfile/${userId}/signature`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -13031,7 +13031,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteDmsUserprofileUseridSignature: (userId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/userProfile/${userId}/signature`,
+                path: `/api/dms/userProfile/${userId}/signature`,
                 method: "DELETE",
                 ...params,
             }),
@@ -13046,7 +13046,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsUserSetting: (params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/setting`,
+                path: `/api/dms/user/setting`,
                 method: "GET",
                 ...params,
             }),
@@ -13060,7 +13060,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsUserSetting: (data: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/setting`,
+                path: `/api/dms/user/setting`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13076,7 +13076,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchDmsUserSetting: (data: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/setting`,
+                path: `/api/dms/user/setting`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -13097,7 +13097,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/profile`,
+                path: `/api/dms/user/profile`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -13113,7 +13113,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsUserProfile: (data: UserProfileSettingDTO, params: RequestParams = {}) =>
             this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/profile`,
+                path: `/api/dms/user/profile`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13130,7 +13130,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsUserProfile: (data: UserProfileSettingDTO, params: RequestParams = {}) =>
             this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/profile`,
+                path: `/api/dms/user/profile`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -13147,7 +13147,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsUserProfileUseridSignature: (userId: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/profile/${userId}/signature`,
+                path: `/api/dms/user/profile/${userId}/signature`,
                 method: "GET",
                 ...params,
             }),
@@ -13170,7 +13170,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/profile/${userId}/signature`,
+                path: `/api/dms/user/profile/${userId}/signature`,
                 method: "PUT",
                 query: query,
                 ...params,
@@ -13194,7 +13194,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/profile/${userId}/signature`,
+                path: `/api/dms/user/profile/${userId}/signature`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -13210,7 +13210,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteDmsUserProfileUseridSignature: (userId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/profile/${userId}/signature`,
+                path: `/api/dms/user/profile/${userId}/signature`,
                 method: "DELETE",
                 ...params,
             }),
@@ -13225,7 +13225,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsUserProfileSetting: (params: RequestParams = {}) =>
             this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/profile/setting`,
+                path: `/api/dms/user/profile/setting`,
                 method: "GET",
                 ...params,
             }),
@@ -13240,7 +13240,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsUserProfileSetting: (data: UserProfileSettingDTO, params: RequestParams = {}) =>
             this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/profile/setting`,
+                path: `/api/dms/user/profile/setting`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13257,7 +13257,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsUserProfileSetting: (data: UserProfileSettingDTO, params: RequestParams = {}) =>
             this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/profile/setting`,
+                path: `/api/dms/user/profile/setting`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -13274,7 +13274,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsTemplateEmailTemplate: (data: EmailTemplate, params: RequestParams = {}) =>
             this.request<ResultEmailTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/template`,
+                path: `/api/dms/template/email/template`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13291,7 +13291,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsTemplateEmailTemplate: (data: EmailTemplate, params: RequestParams = {}) =>
             this.request<ResultEmailTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/template`,
+                path: `/api/dms/template/email/template`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -13308,7 +13308,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsTemplateEmail: (data: EmailTemplate, params: RequestParams = {}) =>
             this.request<ResultEmailTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email`,
+                path: `/api/dms/template/email`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13325,7 +13325,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsTemplateEmail: (data: EmailTemplate, params: RequestParams = {}) =>
             this.request<ResultEmailTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email`,
+                path: `/api/dms/template/email`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -13342,7 +13342,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteDmsTemplateEmail: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email`,
+                path: `/api/dms/template/email`,
                 method: "DELETE",
                 ...params,
             }),
@@ -13357,7 +13357,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsTemplateEmailLayout: (data: EmailLayout, params: RequestParams = {}) =>
             this.request<ResultEmailLayout, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/layout`,
+                path: `/api/dms/template/email/layout`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13374,7 +13374,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsTemplateEmailLayout: (data: EmailLayout, params: RequestParams = {}) =>
             this.request<ResultEmailLayout, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/layout`,
+                path: `/api/dms/template/email/layout`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -13390,7 +13390,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsSettingVirtualFolder: (params: RequestParams = {}) =>
             this.request<ResultListVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/virtual-folder`,
+                path: `/api/dms/setting/virtual-folder`,
                 method: "GET",
                 ...params,
             }),
@@ -13404,7 +13404,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsSettingVirtualFolder: (data: VirtualFolderSettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/virtual-folder`,
+                path: `/api/dms/setting/virtual-folder`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13420,7 +13420,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsSettingVirtualFolder: (data: VirtualFolderSettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/virtual-folder`,
+                path: `/api/dms/setting/virtual-folder`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -13436,7 +13436,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsSettingSystem: (systemId: string, params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/system`,
+                path: `/api/dms/setting/system`,
                 method: "GET",
                 ...params,
             }),
@@ -13450,7 +13450,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsSettingSystem: (systemId: string, data: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/system`,
+                path: `/api/dms/setting/system`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13466,7 +13466,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsSettingSystem: (data: SystemSetting, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/system`,
+                path: `/api/dms/setting/system`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -13482,7 +13482,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsSettingSystemSystemid: (systemId: string, params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/system/${systemId}`,
+                path: `/api/dms/setting/system/${systemId}`,
                 method: "GET",
                 ...params,
             }),
@@ -13496,7 +13496,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsSettingSystemSystemid: (systemId: string, data: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/system/${systemId}`,
+                path: `/api/dms/setting/system/${systemId}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13517,7 +13517,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/icon`,
+                path: `/api/dms/setting/icon`,
                 method: "GET",
                 query: query,
                 format: "blob",
@@ -13553,7 +13553,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/icon`,
+                path: `/api/dms/setting/icon`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13570,7 +13570,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsMasterTable: (params: RequestParams = {}) =>
             this.request<ResultListMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table`,
+                path: `/api/dms/master-table`,
                 method: "GET",
                 ...params,
             }),
@@ -13585,7 +13585,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsMasterTable: (data: MasterTable, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table`,
+                path: `/api/dms/master-table`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13602,7 +13602,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTable: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table`,
+                path: `/api/dms/master-table`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -13619,7 +13619,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsMasterTableIdRecord: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}/record`,
+                path: `/api/dms/master-table/${id}/record`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13643,7 +13643,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}/record`,
+                path: `/api/dms/master-table/${id}/record`,
                 method: "DELETE",
                 query: query,
                 body: data,
@@ -13660,7 +13660,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsMasterTableIdRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}/record/status`,
+                path: `/api/dms/master-table/${id}/record/status`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13677,7 +13677,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchDmsMasterTableIdRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}/record/status`,
+                path: `/api/dms/master-table/${id}/record/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -13693,7 +13693,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsMasterTableIdBatchRecord: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}/batch/record`,
+                path: `/api/dms/master-table/${id}/batch/record`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13709,7 +13709,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsFeatureUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/feature/user`,
+                path: `/api/dms/feature/user`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13725,7 +13725,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsEasyFormDraftidFormresultStatus: (draftId: string, data: EasyFormResult, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/${draftId}/formResult/status`,
+                path: `/api/dms/easy-form/${draftId}/formResult/status`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13742,7 +13742,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsContactGroupId: (id: string, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}`,
+                path: `/api/dms/contact-group/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -13757,7 +13757,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsContactGroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}`,
+                path: `/api/dms/contact-group/${id}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13774,7 +13774,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteDmsContactGroupId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}`,
+                path: `/api/dms/contact-group/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -13789,7 +13789,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchDmsContactGroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}`,
+                path: `/api/dms/contact-group/${id}`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -13810,7 +13810,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}/contactDetail/${contactDetailId}`,
+                path: `/api/dms/contact-group/${id}/contactDetail/${contactDetailId}`,
                 method: "GET",
                 ...params,
             }),
@@ -13830,7 +13830,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}/contactDetail/${contactDetailId}`,
+                path: `/api/dms/contact-group/${id}/contactDetail/${contactDetailId}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13851,7 +13851,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}/contactDetail/${contactDetailId}`,
+                path: `/api/dms/contact-group/${id}/contactDetail/${contactDetailId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -13866,7 +13866,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCompanyprofilesCompanyid: (companyId: string, params: RequestParams = {}) =>
             this.request<ResultCompany, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/companyProfiles/${companyId}`,
+                path: `/api/dms/companyProfiles/${companyId}`,
                 method: "GET",
                 ...params,
             }),
@@ -13881,7 +13881,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsCompanyprofilesCompanyid: (companyId: string, data: Company, params: RequestParams = {}) =>
             this.request<ResultCompany, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/companyProfiles/${companyId}`,
+                path: `/api/dms/companyProfiles/${companyId}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13898,7 +13898,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteDmsCompanyprofilesCompanyid: (companyId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/companyProfiles/${companyId}`,
+                path: `/api/dms/companyProfiles/${companyId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -13917,7 +13917,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCompanyChop, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/companyProfiles/${companyId}/chops/${companyChopId}`,
+                path: `/api/dms/companyProfiles/${companyId}/chops/${companyChopId}`,
                 method: "GET",
                 ...params,
             }),
@@ -13961,7 +13961,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCompanyChop, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/companyProfiles/${companyId}/chops/${companyChopId}`,
+                path: `/api/dms/companyProfiles/${companyId}/chops/${companyChopId}`,
                 method: "PUT",
                 query: query,
                 body: data,
@@ -13983,7 +13983,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/companyProfiles/${companyId}/chops/${companyChopId}`,
+                path: `/api/dms/companyProfiles/${companyId}/chops/${companyChopId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -14003,7 +14003,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/companyProfiles/${companyId}/chops/${companyChopId}/status`,
+                path: `/api/dms/companyProfiles/${companyId}/chops/${companyChopId}/status`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -14020,7 +14020,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
             this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars`,
+                path: `/api/dms/calendars`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -14037,7 +14037,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
             this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars`,
+                path: `/api/dms/calendars`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14054,7 +14054,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCalendarsEventSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/event/setting/${id}`,
+                path: `/api/dms/calendars/event/setting/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -14069,7 +14069,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putDmsCalendarsEventSettingId: (id: string, data: EventCalendarSetting, params: RequestParams = {}) =>
             this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/event/setting/${id}`,
+                path: `/api/dms/calendars/event/setting/${id}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -14086,7 +14086,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteDmsCalendarsEventSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/event/setting/${id}`,
+                path: `/api/dms/calendars/event/setting/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -14107,7 +14107,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListCaseType, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types`,
+                path: `/api/case/types`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -14123,7 +14123,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putCaseTypes: (data: CaseType, params: RequestParams = {}) =>
             this.request<ResultCaseType, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types`,
+                path: `/api/case/types`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -14140,7 +14140,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypes: (data: CaseType, params: RequestParams = {}) =>
             this.request<ResultCaseType, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types`,
+                path: `/api/case/types`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14157,7 +14157,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putCaseTypesEnable: (data: CaseType, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/enable`,
+                path: `/api/case/types/enable`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -14174,7 +14174,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putCaseDashboard: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard`,
+                path: `/api/case/dashboard`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -14191,7 +14191,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseDashboard: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard`,
+                path: `/api/case/dashboard`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14208,7 +14208,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         putCaseDashboardStatus: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/status`,
+                path: `/api/case/dashboard/status`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -14224,7 +14224,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowManagerUpdateVariables: (data: WorkflowInstanceDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/workflow/manager/update_variables`,
+                path: `/api/workflow/manager/update_variables`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14240,7 +14240,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowManagerStartMiddleWorkflow: (data: WorkflowInstanceRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/workflow/manager/start_middle_workflow`,
+                path: `/api/workflow/manager/start_middle_workflow`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14256,7 +14256,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowManagerStartFirstWorkflow: (data: WorkflowInstanceDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/workflow/manager/start_first_workflow`,
+                path: `/api/workflow/manager/start_first_workflow`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14272,7 +14272,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowManagerChangeWorkflowStateForSubmit: (data: WorkflowInstanceDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/workflow/manager/change_workflow_state_for_submit`,
+                path: `/api/workflow/manager/change_workflow_state_for_submit`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14288,7 +14288,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowManagerChangeWorkflowState: (data: WorkflowInstanceDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/workflow/manager/change_workflow_state`,
+                path: `/api/workflow/manager/change_workflow_state`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14304,7 +14304,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowManagerCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/workflow/manager/calendars`,
+                path: `/api/workflow/manager/calendars`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14328,7 +14328,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<WOPIFileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/wopi/files/${id}`,
+                path: `/api/wopi/files/${id}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -14351,7 +14351,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<WOPIFileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/wopi/files/${id}`,
+                path: `/api/wopi/files/${id}`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -14373,7 +14373,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/wopi/files/${id}/contents`,
+                path: `/api/wopi/files/${id}/contents`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -14411,7 +14411,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<JsonNode, Result | (ResultObject | Result | ResultString)>({
-                path: `/wopi/files/${id}/contents`,
+                path: `/api/wopi/files/${id}/contents`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -14429,7 +14429,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postVerificationPermission: (data: VerificationPermissionReq, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/verification/permission`,
+                path: `/api/verification/permission`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14466,7 +14466,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<PageSearchHistory, Result | (ResultObject | Result | ResultString)>({
-                path: `/v1/search-history`,
+                path: `/api/v1/search-history`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -14482,7 +14482,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postV1SearchHistory: (data: SearchHistory, params: RequestParams = {}) =>
             this.request<SearchHistory, Result | (ResultObject | Result | ResultString)>({
-                path: `/v1/search-history`,
+                path: `/api/v1/search-history`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14506,7 +14506,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultAclUserPermission, Result | (ResultObject | Result | ResultString)>({
-                path: `/user/permission`,
+                path: `/api/user/permission`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -14522,7 +14522,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postUserPermission: (data: AclUserPermission, params: RequestParams = {}) =>
             this.request<ResultAclUserPermission, Result | (ResultObject | Result | ResultString)>({
-                path: `/user/permission`,
+                path: `/api/user/permission`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14539,7 +14539,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteUserPermission: (data: AclUserPermission, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/user/permission`,
+                path: `/api/user/permission`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -14555,7 +14555,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postUserPermissionReplace: (data: AclUserPermission, params: RequestParams = {}) =>
             this.request<ResultAclUserPermission, Result | (ResultObject | Result | ResultString)>({
-                path: `/user/permission/replace`,
+                path: `/api/user/permission/replace`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14565,13 +14565,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerSendWhatsappMessage
          * @request POST:/api/registered-server/send_whatsapp_message
          */
         postRegisteredServerSendWhatsappMessage: (data: WhatsAppMessageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultSendMessageResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/send_whatsapp_message`,
+                path: `/api/registered-server/send_whatsapp_message`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14581,7 +14581,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerPolicyRetentionsDocumentsApproval
          * @request POST:/api/registered-server/policy/retentions/documents/approval
          */
@@ -14593,7 +14593,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/policy/retentions/documents/approval`,
+                path: `/api/registered-server/policy/retentions/documents/approval`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -14602,7 +14602,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerPolicyDocumentsApproval
          * @request POST:/api/registered-server/policy/documents/approval
          */
@@ -14615,7 +14615,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/policy/documents/approval`,
+                path: `/api/registered-server/policy/documents/approval`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -14624,14 +14624,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerNotificationSend
          * @summary Send subscribe notification using customize message body
          * @request POST:/api/registered-server/notification/send
          */
         postRegisteredServerNotificationSend: (data: SubNotificationRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/notification/send`,
+                path: `/api/registered-server/notification/send`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14641,13 +14641,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerJudgeSaveProcessName
          * @request POST:/api/registered-server/judge_save_process_name
          */
         postRegisteredServerJudgeSaveProcessName: (data: WhatsAppUsageDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/judge_save_process_name`,
+                path: `/api/registered-server/judge_save_process_name`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14657,14 +14657,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * @description Create a new external storage import job
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PostRegisteredServerImportjobs
          * @summary Create new import job of external storage
          * @request POST:/api/registered-server/importJobs
          */
         postRegisteredServerImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/importJobs`,
+                path: `/api/registered-server/importJobs`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14674,14 +14674,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * @description Create a new external storage import job
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PostRegisteredServerImportjobsAdd
          * @summary Create new import job of external storage
          * @request POST:/api/registered-server/importJobs/add
          */
         postRegisteredServerImportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/importJobs/add`,
+                path: `/api/registered-server/importJobs/add`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14691,13 +14691,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerFormDesignSubmitData
          * @request POST:/api/registered-server/form/design/submit/data
          */
         postRegisteredServerFormDesignSubmitData: (data: FormDesignDataDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/form/design/submit/data`,
+                path: `/api/registered-server/form/design/submit/data`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14707,13 +14707,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerFoldercabinetCreateDocuments
          * @request POST:/api/registered-server/folderCabinet/create/documents
          */
         postRegisteredServerFoldercabinetCreateDocuments: (data: FCCreateDocsRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/folderCabinet/create/documents`,
+                path: `/api/registered-server/folderCabinet/create/documents`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14723,13 +14723,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerFilingDocument
          * @request POST:/api/registered-server/filing/document
          */
         postRegisteredServerFilingDocument: (data: FilingCreateDocRequestDTO[], params: RequestParams = {}) =>
             this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/filing/document`,
+                path: `/api/registered-server/filing/document`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14739,13 +14739,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerFilingCreateDocument
          * @request POST:/api/registered-server/filing/create/document
          */
         postRegisteredServerFilingCreateDocument: (data: FilingCreateDocRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/filing/create/document`,
+                path: `/api/registered-server/filing/create/document`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14755,13 +14755,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerDocumentTemplateValidate
          * @request POST:/api/registered-server/document/template/validate
          */
         postRegisteredServerDocumentTemplateValidate: (data: GenerateDocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/document/template/validate`,
+                path: `/api/registered-server/document/template/validate`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14771,13 +14771,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerDocumentTemplateGenerate
          * @request POST:/api/registered-server/document/template/generate
          */
         postRegisteredServerDocumentTemplateGenerate: (data: WorkflowGenerateDocumentReq, params: RequestParams = {}) =>
             this.request<DocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/document/template/generate`,
+                path: `/api/registered-server/document/template/generate`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14787,14 +14787,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerDocumentCreatefolderDeprecate
          * @summary Create folder from registered server side
          * @request POST:/api/registered-server/document/createFolder/
          */
         postRegisteredServerDocumentCreatefolderDeprecate: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<DocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/document/createFolder/`,
+                path: `/api/registered-server/document/createFolder/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14804,14 +14804,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerDocumentCreatefolder
          * @summary Create folder from registered server side
          * @request POST:/api/registered-server/document/createFolder
          */
         postRegisteredServerDocumentCreatefolder: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<DocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/document/createFolder`,
+                path: `/api/registered-server/document/createFolder`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14821,7 +14821,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerDocumentCreatedocument
          * @summary Create document without authentication request from registered server side
          * @request POST:/api/registered-server/document/createDocument
@@ -14834,7 +14834,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<DocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/document/createDocument`,
+                path: `/api/registered-server/document/createDocument`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14844,14 +14844,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerDocumentCreateStructure
          * @summary Create structure from registered server side
          * @request POST:/api/registered-server/document/create/structure
          */
         postRegisteredServerDocumentCreateStructure: (data: DocStructureRequestDTO, params: RequestParams = {}) =>
             this.request<DocStructureResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/document/create/structure`,
+                path: `/api/registered-server/document/create/structure`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14861,13 +14861,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerDocumentCopy
          * @request POST:/api/registered-server/document/copy
          */
         postRegisteredServerDocumentCopy: (data: DocumentCopyDTO, params: RequestParams = {}) =>
             this.request<DocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/document/copy`,
+                path: `/api/registered-server/document/copy`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14877,13 +14877,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PostRegisteredServerContactgroup
          * @request POST:/api/registered-server/contactGroup
          */
         postRegisteredServerContactgroup: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup`,
+                path: `/api/registered-server/contactGroup`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -14893,7 +14893,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PostRegisteredServerContactgroupIdPermission
          * @request POST:/api/registered-server/contactGroup/{id}/permission
          */
@@ -14906,7 +14906,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListBasicField, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}/permission`,
+                path: `/api/registered-server/contactGroup/${id}/permission`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -14917,7 +14917,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PatchRegisteredServerContactgroupIdPermission
          * @request PATCH:/api/registered-server/contactGroup/{id}/permission
          */
@@ -14930,7 +14930,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListBasicField, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}/permission`,
+                path: `/api/registered-server/contactGroup/${id}/permission`,
                 method: "PATCH",
                 query: query,
                 body: data,
@@ -14941,7 +14941,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PostRegisteredServerContactgroupIdNewfields
          * @request POST:/api/registered-server/contactGroup/{id}/newFields
          */
@@ -14954,7 +14954,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListContactAttribute, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}/newFields`,
+                path: `/api/registered-server/contactGroup/${id}/newFields`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -14965,7 +14965,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PostRegisteredServerContactgroupIdContactdetail
          * @summary Adding a new contact record
          * @request POST:/api/registered-server/contactGroup/{id}/contactDetail
@@ -14979,7 +14979,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}/contactDetail`,
+                path: `/api/registered-server/contactGroup/${id}/contactDetail`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -14990,7 +14990,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PostRegisteredServerContactgroupIdContactdetaillist
          * @summary Get contact detail list include filter and sort by
          * @request POST:/api/registered-server/contactGroup/{id}/contactDetailList
@@ -15004,7 +15004,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}/contactDetailList`,
+                path: `/api/registered-server/contactGroup/${id}/contactDetailList`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -15015,7 +15015,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PostRegisteredServerContactgroupIdContactdetailPage
          * @summary Page query contact detail list
          * @request POST:/api/registered-server/contactGroup/{id}/contactDetail/page
@@ -15029,7 +15029,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultPaginationDTOMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}/contactDetail/page`,
+                path: `/api/registered-server/contactGroup/${id}/contactDetail/page`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -15040,7 +15040,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PostRegisteredServerContactgroupIdContactdetailImport
          * @request POST:/api/registered-server/contactGroup/{id}/contactDetail/import
          */
@@ -15052,7 +15052,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultImportResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}/contactDetail/import`,
+                path: `/api/registered-server/contactGroup/${id}/contactDetail/import`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -15061,7 +15061,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PostRegisteredServerContactgroupIdContactdetailExport
          * @summary Export contact record for file type include excel, csv, vcf
          * @request POST:/api/registered-server/contactGroup/{id}/contactDetail/export
@@ -15076,7 +15076,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}/contactDetail/export`,
+                path: `/api/registered-server/contactGroup/${id}/contactDetail/export`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -15087,7 +15087,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PostRegisteredServerContactgroupReadTitle
          * @request POST:/api/registered-server/contactGroup/read/title
          */
@@ -15099,7 +15099,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringInteger, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/read/title`,
+                path: `/api/registered-server/contactGroup/read/title`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
@@ -15109,13 +15109,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PostRegisteredServerContactgroupPage
          * @request POST:/api/registered-server/contactGroup/page
          */
         postRegisteredServerContactgroupPage: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/page`,
+                path: `/api/registered-server/contactGroup/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15125,14 +15125,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerCaseinstanceStart
          * @summary Start a case model definition to get a case instance
          * @request POST:/api/registered-server/caseInstance/start
          */
         postRegisteredServerCaseinstanceStart: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/caseInstance/start`,
+                path: `/api/registered-server/caseInstance/start`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15142,14 +15142,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerCaseinstanceSavetabledata
          * @summary Start a case model definition to get a case instance
          * @request POST:/api/registered-server/caseInstance/saveTableData
          */
         postRegisteredServerCaseinstanceSavetabledata: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/caseInstance/saveTableData`,
+                path: `/api/registered-server/caseInstance/saveTableData`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15159,13 +15159,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerCalendar
          * @request POST:/api/registered-server/calendar
          */
         postRegisteredServerCalendar: (data: CalendarTaskReq, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/calendar`,
+                path: `/api/registered-server/calendar`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15175,13 +15175,13 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document (Nuxeo)
+         * @tags Facade API
          * @name PostRegisteredServerAuditLogAdd
          * @request POST:/api/registered-server/audit-log/add
          */
         postRegisteredServerAuditLogAdd: (data: Record<string, object>, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/audit-log/add`,
+                path: `/api/registered-server/audit-log/add`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15205,7 +15205,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/postgrest/rpc/${func}`,
+                path: `/api/postgrest/rpc/${func}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -15221,7 +15221,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPostgrestRpcFunc: (func: string, data: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/postgrest/rpc/${func}`,
+                path: `/api/postgrest/rpc/${func}`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15238,7 +15238,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPermissions: (data: AccessControlPermission, params: RequestParams = {}) =>
             this.request<ResultAccessControlPermission, Result | (ResultObject | Result | ResultString)>({
-                path: `/permissions`,
+                path: `/api/permissions`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15255,7 +15255,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deletePermissions: (data: AclPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/permissions`,
+                path: `/api/permissions`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -15271,7 +15271,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPermissionsNames: (data: string[], params: RequestParams = {}) =>
             this.request<ResultListAccessControlPermission, Result | (ResultObject | Result | ResultString)>({
-                path: `/permissions/names`,
+                path: `/api/permissions/names`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15288,7 +15288,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPermissionsEntries: (data: string[], params: RequestParams = {}) =>
             this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/permissions/entries`,
+                path: `/api/permissions/entries`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15305,7 +15305,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPermissionsBatchEntry: (data: AclPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultAclPermissionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/permissions/batch/entry`,
+                path: `/api/permissions/batch/entry`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15322,7 +15322,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPermissionUsers: (data: AclUserInformation, params: RequestParams = {}) =>
             this.request<ResultAclUserInformation, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/users`,
+                path: `/api/permission/users`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15339,7 +15339,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPermissionUserRelationships: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/user/relationships`,
+                path: `/api/permission/user/relationships`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15356,7 +15356,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deletePermissionUserRelationships: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/user/relationships`,
+                path: `/api/permission/user/relationships`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -15373,7 +15373,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPermissionUserGroup: (data: AclUserGroup, params: RequestParams = {}) =>
             this.request<ResultAclUserGroup, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/user/group`,
+                path: `/api/permission/user/group`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15390,7 +15390,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deletePermissionUserGroup: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/user/group`,
+                path: `/api/permission/user/group`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -15407,7 +15407,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPermissionUserGroupUsers: (data: AclUserGroupDTO, params: RequestParams = {}) =>
             this.request<ResultAclUserGroup, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/user/group/users`,
+                path: `/api/permission/user/group/users`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15423,7 +15423,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPermissionUserGroupGroups: (data: AclUserGroupDTO, params: RequestParams = {}) =>
             this.request<ResultListAclUserGroup, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/user/group/groups`,
+                path: `/api/permission/user/group/groups`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15440,7 +15440,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPermissionUserGroupAddUsers: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/user/group/add/users`,
+                path: `/api/permission/user/group/add/users`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15457,7 +15457,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPermissionEntry: (data: AccessControlEntry, params: RequestParams = {}) =>
             this.request<ResultAccessControlEntry, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/entry`,
+                path: `/api/permission/entry`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15474,7 +15474,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deletePermissionEntry: (data: AclEntryDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/entry`,
+                path: `/api/permission/entry`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -15490,7 +15490,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPasswordInitPassword: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/password/init-password`,
+                path: `/api/password/init-password`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15506,7 +15506,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoUserResetpassword: (data: PasswordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/user/resetPassword`,
+                path: `/api/nuxeo/user/resetPassword`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15527,7 +15527,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/user/forgetPassword`,
+                path: `/api/nuxeo/user/forgetPassword`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -15543,7 +15543,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoTemplateSummitanddownloadfile: (data: GenerateTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/template/summitAndDownloadFile`,
+                path: `/api/nuxeo/template/summitAndDownloadFile`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15560,7 +15560,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoTemplateGettemplateparams: (data: GenerateTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/template/getTemplateParams`,
+                path: `/api/nuxeo/template/getTemplateParams`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15582,7 +15582,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/template/getTemplateList`,
+                path: `/api/nuxeo/template/getTemplateList`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -15598,7 +15598,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoTagsLabel: (data: TagRequestDTO, params: RequestParams = {}) =>
             this.request<ResultSetString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/tags/label`,
+                path: `/api/nuxeo/tags/label`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15614,7 +15614,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoTagsGetalltags: (params: RequestParams = {}) =>
             this.request<ResultSetString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/tags/getAllTags`,
+                path: `/api/nuxeo/tags/getAllTags`,
                 method: "POST",
                 ...params,
             }),
@@ -15629,7 +15629,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoTagsDeprecate: (data: TagRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListTagResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/tags/`,
+                path: `/api/nuxeo/tags/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15646,7 +15646,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoTagsDeprecate: (data: TagRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListTagResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/tags/`,
+                path: `/api/nuxeo/tags/`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -15663,7 +15663,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchNuxeoTagsDeprecate: (data: TagRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListTagResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/tags/`,
+                path: `/api/nuxeo/tags/`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -15680,7 +15680,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoTags: (data: TagRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListTagResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/tags`,
+                path: `/api/nuxeo/tags`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15697,7 +15697,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoTags: (data: TagRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListTagResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/tags`,
+                path: `/api/nuxeo/tags`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -15714,7 +15714,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchNuxeoTags: (data: TagRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListTagResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/tags`,
+                path: `/api/nuxeo/tags`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -15731,7 +15731,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoSharePrepareDownload: (data: string[], params: RequestParams = {}) =>
             this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/share/prepare/download`,
+                path: `/api/nuxeo/share/prepare/download`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15747,7 +15747,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoSharePage: (data: SharePageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/share/page`,
+                path: `/api/nuxeo/share/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15764,7 +15764,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoShareNew: (data: ShareRequestDTO, params: RequestParams = {}) =>
             this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/share/new`,
+                path: `/api/nuxeo/share/new`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15780,7 +15780,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoShareGet: (data: SharePageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/share/get`,
+                path: `/api/nuxeo/share/get`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15796,7 +15796,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoSearchSaveNestedSearchLog: (data: NestedSearchLogRequestDTO, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/search/save_nested_search_log`,
+                path: `/api/nuxeo/search/save_nested_search_log`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15813,7 +15813,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoSearchOpenSearch: (data: SearchRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/search/open-search`,
+                path: `/api/nuxeo/search/open-search`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15830,7 +15830,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoSearchNestedsearchV2: (data: SearchRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/search/nestedSearch_v2`,
+                path: `/api/nuxeo/search/nestedSearch_v2`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15847,7 +15847,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoSearchManticoreSearch: (data: DocpalSearchRequest, params: RequestParams = {}) =>
             this.request<ResultSearchResponse, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/search/manticore-search`,
+                path: `/api/nuxeo/search/manticore-search`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15863,7 +15863,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoSearchDocument: (data: SearchFilterDTO, params: RequestParams = {}) =>
             this.request<ResultListSearchDocumentVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/search/document`,
+                path: `/api/nuxeo/search/document`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15879,7 +15879,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoSearchDocumentPaths: (data: SearchFilterDTO, params: RequestParams = {}) =>
             this.request<ResultListSearchDocumentVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/search/document/paths`,
+                path: `/api/nuxeo/search/document/paths`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15896,7 +15896,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoSearchAdminOpenSearch: (data: SearchRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/search/admin-open-search`,
+                path: `/api/nuxeo/search/admin-open-search`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15913,7 +15913,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoRestoreversion: (data: VersioningRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/restoreVersion`,
+                path: `/api/nuxeo/restoreVersion`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15934,7 +15934,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/public/filerequest`,
+                path: `/api/nuxeo/public/filerequest`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -15956,7 +15956,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/public/filerequest`,
+                path: `/api/nuxeo/public/filerequest`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
@@ -15973,7 +15973,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/user`,
+                path: `/api/nuxeo/identity/user`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -15990,7 +15990,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchNuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/user`,
+                path: `/api/nuxeo/identity/user`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -16007,7 +16007,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoIdentityMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/membership`,
+                path: `/api/nuxeo/identity/membership`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16024,7 +16024,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoIdentityMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/membership`,
+                path: `/api/nuxeo/identity/membership`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -16041,7 +16041,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoIdentityMember: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/member`,
+                path: `/api/nuxeo/identity/member`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16058,7 +16058,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoIdentityMembergroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/memberGroup`,
+                path: `/api/nuxeo/identity/memberGroup`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16075,7 +16075,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoIdentityGroups: (params: RequestParams = {}) =>
             this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/groups`,
+                path: `/api/nuxeo/identity/groups`,
                 method: "POST",
                 ...params,
             }),
@@ -16090,7 +16090,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/group`,
+                path: `/api/nuxeo/identity/group`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16107,7 +16107,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchNuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/group`,
+                path: `/api/nuxeo/identity/group`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -16124,7 +16124,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoIdentityUsers: (params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/users`,
+                path: `/api/nuxeo/identity/users`,
                 method: "POST",
                 ...params,
             }),
@@ -16139,7 +16139,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoIdentityGetkeycloakallusers: (params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/getKeyCloakAllUsers`,
+                path: `/api/nuxeo/identity/getKeyCloakAllUsers`,
                 method: "POST",
                 ...params,
             }),
@@ -16153,7 +16153,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoIdentityCopyusers: (params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/copyUsers`,
+                path: `/api/nuxeo/identity/copyUsers`,
                 method: "POST",
                 ...params,
             }),
@@ -16168,7 +16168,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoGetversions: (data: VersioningRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringInstant, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/getVersions`,
+                path: `/api/nuxeo/getVersions`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16185,7 +16185,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoGetversionnum: (data: VersioningRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/getVersionNum`,
+                path: `/api/nuxeo/getVersionNum`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16202,7 +16202,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoGetspecificversion: (data: VersioningRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/getSpecificVersion`,
+                path: `/api/nuxeo/getSpecificVersion`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16219,7 +16219,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoGetlatestversion: (data: VersioningRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/getLatestVersion`,
+                path: `/api/nuxeo/getLatestVersion`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16243,7 +16243,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/filerequest`,
+                path: `/api/nuxeo/filerequest`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -16259,7 +16259,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoFilerequest: (data: UploadRequestRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUploadRequestResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/filerequest`,
+                path: `/api/nuxeo/filerequest`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16280,7 +16280,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultUploadRequestResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/filerequest`,
+                path: `/api/nuxeo/filerequest`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -16295,7 +16295,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoFilerequestApprove: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/filerequest/approve`,
+                path: `/api/nuxeo/filerequest/approve`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16311,7 +16311,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoFilerequestApproveDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/filerequest/approve/`,
+                path: `/api/nuxeo/filerequest/approve/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16334,7 +16334,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document`,
+                path: `/api/nuxeo/document`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -16350,7 +16350,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocument: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document`,
+                path: `/api/nuxeo/document`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16367,7 +16367,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoDocument: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document`,
+                path: `/api/nuxeo/document`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -16384,7 +16384,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchNuxeoDocument: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document`,
+                path: `/api/nuxeo/document`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -16401,7 +16401,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentUploadFolder: (data: UploadTempFileRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/upload/folder`,
+                path: `/api/nuxeo/document/upload/folder`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16418,7 +16418,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentUploadtempfolder: (data: UploadTempFileRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/uploadTempFolder`,
+                path: `/api/nuxeo/document/uploadTempFolder`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16446,7 +16446,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/uploadTempFile`,
+                path: `/api/nuxeo/document/uploadTempFile`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -16464,7 +16464,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentCheckfileexist: (data: FileCheckRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFileCheckResultDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/checkFileExist`,
+                path: `/api/nuxeo/document/checkFileExist`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16481,7 +16481,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentUploadValidate: (data: FileCheckRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFileCheckResultDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/upload/validate`,
+                path: `/api/nuxeo/document/upload/validate`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16526,7 +16526,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/upload/file`,
+                path: `/api/nuxeo/document/upload/file`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -16544,7 +16544,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentTrash: (data: TrashRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTODocumentThumbnailDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/trash`,
+                path: `/api/nuxeo/document/trash`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16561,7 +16561,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoDocumentTrash: (data: DocumentRequestDTO[], params: RequestParams = {}) =>
             this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/trash`,
+                path: `/api/nuxeo/document/trash`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -16578,7 +16578,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentThumbnail: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/thumbnail`,
+                path: `/api/nuxeo/document/thumbnail`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16595,7 +16595,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentTemplatesGenerateDocument: (data: WorkflowGenerateDocumentReq, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/templates/generate/document`,
+                path: `/api/nuxeo/document/templates/generate/document`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16614,7 +16614,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/templates/folderCabinet/create/documents`,
+                path: `/api/nuxeo/document/templates/folderCabinet/create/documents`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16631,7 +16631,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentSaveuploadfileoverview: (data: SaveFileOverviewRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/saveUploadFileOverview`,
+                path: `/api/nuxeo/document/saveUploadFileOverview`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16648,7 +16648,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentUploadBatch: (data: SaveFileOverviewRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/upload/batch`,
+                path: `/api/nuxeo/document/upload/batch`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16665,7 +16665,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentRestore: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/restore`,
+                path: `/api/nuxeo/document/restore`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16688,7 +16688,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListUploadBatchItemDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/queryUploadFileDetailDTOList`,
+                path: `/api/nuxeo/document/queryUploadFileDetailDTOList`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -16704,7 +16704,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentUploadPage: (data: QueryFileOverviewRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPageUploadBatchDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/upload/page`,
+                path: `/api/nuxeo/document/upload/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16721,7 +16721,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentQueryuploadfiledtopage: (data: QueryFileOverviewRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPageUploadBatchDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/queryUploadFileDTOPage`,
+                path: `/api/nuxeo/document/queryUploadFileDTOPage`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16740,7 +16740,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
                 ResultPaginationDTOAuditTemplateResponseExtendDTO,
                 Result | (ResultObject | Result | ResultString)
             >({
-                path: `/nuxeo/document/queryAuditEvent`,
+                path: `/api/nuxeo/document/queryAuditEvent`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16756,7 +16756,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentProperties: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/properties`,
+                path: `/api/nuxeo/document/properties`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16773,7 +16773,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentPreview: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/preview`,
+                path: `/api/nuxeo/document/preview`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16789,7 +16789,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentOfficeCreate: (data: OfficeFileCreateDTO, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/office/create`,
+                path: `/api/nuxeo/document/office/create`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16806,7 +16806,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentMove: (data: DocumentRequestDTO[], params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/move`,
+                path: `/api/nuxeo/document/move`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16824,7 +16824,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentIsduplicatename: (data: DuplicateNameRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDuplicateNameRespDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/isDuplicateName`,
+                path: `/api/nuxeo/document/isDuplicateName`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16841,7 +16841,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentDuplicateName: (data: CheckDuplicateNameReqDTO, params: RequestParams = {}) =>
             this.request<ResultDuplicateNameRespDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/duplicate/name`,
+                path: `/api/nuxeo/document/duplicate/name`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16858,7 +16858,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentDownload: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/download`,
+                path: `/api/nuxeo/document/download`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16875,7 +16875,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentDownloadNonpermission: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/download/nonPermission`,
+                path: `/api/nuxeo/document/download/nonPermission`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16901,7 +16901,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/create`,
+                path: `/api/nuxeo/document/create`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -16919,7 +16919,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentCreatefolders: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/createFolders`,
+                path: `/api/nuxeo/document/createFolders`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16944,7 +16944,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/createDocument`,
+                path: `/api/nuxeo/document/createDocument`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
@@ -16960,7 +16960,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentCreateStructure: (data: DocStructureRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocStructureResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/create/structure`,
+                path: `/api/nuxeo/document/create/structure`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16977,7 +16977,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentCreateFolderTree: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/create/folder/tree`,
+                path: `/api/nuxeo/document/create/folder/tree`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16994,7 +16994,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentCopy: (data: DocumentRequestDTO[], params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/copy`,
+                path: `/api/nuxeo/document/copy`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17011,7 +17011,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentCopyWatermark: (data: WatermarkDocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/copy/watermark`,
+                path: `/api/nuxeo/document/copy/watermark`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17028,7 +17028,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentCollections: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/collections`,
+                path: `/api/nuxeo/document/collections`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17045,7 +17045,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentCollectionsDeprecate: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/collections/`,
+                path: `/api/nuxeo/document/collections/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17062,7 +17062,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentChildrenThumbnail: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTODocumentThumbnailDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/children/thumbnail`,
+                path: `/api/nuxeo/document/children/thumbnail`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17079,7 +17079,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentChildrenThumbnailV2: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTODocumentThumbnailDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/children/thumbnail_v2`,
+                path: `/api/nuxeo/document/children/thumbnail_v2`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17096,7 +17096,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentBreadcrumb: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/breadcrumb`,
+                path: `/api/nuxeo/document/breadcrumb`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17113,7 +17113,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentBatchconfirm: (data: FileConfirmRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFileConfirmResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/batchConfirm`,
+                path: `/api/nuxeo/document/batchConfirm`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17142,7 +17142,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/batchCancel`,
+                path: `/api/nuxeo/document/batchCancel`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -17160,7 +17160,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentAddWatermark: (data: WatermarkDocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/add/watermark`,
+                path: `/api/nuxeo/document/add/watermark`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17177,7 +17177,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentAcls: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListAccessControlListDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/acls`,
+                path: `/api/nuxeo/document/acls`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17194,7 +17194,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoDocumentAcl: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListAccessControlListDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/acl`,
+                path: `/api/nuxeo/document/acl`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17211,7 +17211,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoCreateversion: (data: VersioningRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/createVersion`,
+                path: `/api/nuxeo/createVersion`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17228,7 +17228,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoCommentsAdd: (data: CommentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/comments/add`,
+                path: `/api/nuxeo/comments/add`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17245,7 +17245,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoCommentsAddDeprecate: (data: CommentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/comments/add/`,
+                path: `/api/nuxeo/comments/add/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17262,7 +17262,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoComments: (data: CommentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/comments`,
+                path: `/api/nuxeo/comments`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17279,7 +17279,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoCommentsDeprecate: (data: CommentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/comments/`,
+                path: `/api/nuxeo/comments/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17296,7 +17296,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoCollectionDocumentsDeprecate: (data: CollectionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/documents/`,
+                path: `/api/nuxeo/collection/documents/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17313,7 +17313,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoCollectionDocuments: (data: CollectionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/documents`,
+                path: `/api/nuxeo/collection/documents`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17330,7 +17330,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoCollectionCreate: (data: CollectionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/create`,
+                path: `/api/nuxeo/collection/create`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17347,7 +17347,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoCollectionCreateDeprecate: (data: CollectionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/create/`,
+                path: `/api/nuxeo/collection/create/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17363,7 +17363,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoCollectionAlldocumentsDeprecate: (data: CollectionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultEntityVODocumentThumbnailDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/allDocuments/`,
+                path: `/api/nuxeo/collection/allDocuments/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17379,7 +17379,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoCollectionAlldocuments: (data: CollectionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultEntityVODocumentThumbnailDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/allDocuments`,
+                path: `/api/nuxeo/collection/allDocuments`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17396,7 +17396,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoCollectionAddDeprecate: (data: DocumentCollectionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/add/`,
+                path: `/api/nuxeo/collection/add/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17413,7 +17413,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoCollectionAdd: (data: DocumentCollectionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/add`,
+                path: `/api/nuxeo/collection/add`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17437,7 +17437,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListAnnotationDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/annotation`,
+                path: `/api/nuxeo/annotation`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -17453,7 +17453,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoAnnotation: (data: AnnotationRequestDTO[], params: RequestParams = {}) =>
             this.request<ResultListAnnotationDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/annotation`,
+                path: `/api/nuxeo/annotation`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17477,7 +17477,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListAnnotationDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/annotation/`,
+                path: `/api/nuxeo/annotation/`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -17493,7 +17493,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNuxeoAnnotationDeprecate: (data: AnnotationRequestDTO[], params: RequestParams = {}) =>
             this.request<ResultListAnnotationDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/annotation/`,
+                path: `/api/nuxeo/annotation/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17510,7 +17510,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postMessageQueueMessageidReinvoke: (messageId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/message/queue/${messageId}/reinvoke`,
+                path: `/api/message/queue/${messageId}/reinvoke`,
                 method: "POST",
                 ...params,
             }),
@@ -17531,7 +17531,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/message/queue/${messageId}/reSubmit`,
+                path: `/api/message/queue/${messageId}/reSubmit`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -17556,7 +17556,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultPageBusinessResultRecord, Result | (ResultObject | Result | ResultString)>({
-                path: `/message/queue/page`,
+                path: `/api/message/queue/page`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -17577,7 +17577,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
                 ResultPaginationDTOExternalStorageImportJobDTO,
                 Result | (ResultObject | Result | ResultString)
             >({
-                path: `/importJobs/page`,
+                path: `/api/importJobs/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17594,7 +17594,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postImportjobsJobqueueFirst: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/importJobs/jobQueue/first`,
+                path: `/api/importJobs/jobQueue/first`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17611,7 +17611,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postImportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/importJobs/add`,
+                path: `/api/importJobs/add`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17634,7 +17634,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/importJobs`,
+                path: `/api/importJobs`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -17650,7 +17650,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/importJobs`,
+                path: `/api/importJobs`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17678,7 +17678,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/file/uploadTempFile`,
+                path: `/api/file/uploadTempFile`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -17696,7 +17696,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFileUploadPage: (data: QueryFileOverviewRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPageUploadBatchDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/file/upload/page`,
+                path: `/api/file/upload/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17713,7 +17713,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFileUploadFolder: (data: UploadTempFileRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUploadBatchItem, Result | (ResultObject | Result | ResultString)>({
-                path: `/file/upload/folder`,
+                path: `/api/file/upload/folder`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17758,7 +17758,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/file/upload/file`,
+                path: `/api/file/upload/file`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -17776,7 +17776,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFileUploadConfirm: (data: FileConfirmRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFileConfirmResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/file/upload/confirm`,
+                path: `/api/file/upload/confirm`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17793,7 +17793,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFileUploadConfirmValidate: (data: FileCheckRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFileCheckResultDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/file/upload/confirm/validate`,
+                path: `/api/file/upload/confirm/validate`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17822,7 +17822,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/file/upload/cancel`,
+                path: `/api/file/upload/cancel`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -17840,7 +17840,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFileUploadBatch: (data: SaveFileOverviewRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/file/upload/batch`,
+                path: `/api/file/upload/batch`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17863,7 +17863,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListUploadBatchItemDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/file/list`,
+                path: `/api/file/list`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -17885,7 +17885,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage`,
+                path: `/api/externalStorage`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -17901,7 +17901,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postExternalstorage: (data: ExternalStorageDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage`,
+                path: `/api/externalStorage`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17918,7 +17918,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postExternalstorageIdProfiles: (id: string, data: ExternalProfileDTO, params: RequestParams = {}) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/${id}/profiles`,
+                path: `/api/externalStorage/${id}/profiles`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17935,7 +17935,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postExternalstorageIdProfilesPage: (id: string, data: ExternalProfileRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/${id}/profiles/page`,
+                path: `/api/externalStorage/${id}/profiles/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17952,7 +17952,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postExternalstorageIdConnectionTest: (id: string, data: Record<string, string>, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/${id}/connection/test`,
+                path: `/api/externalStorage/${id}/connection/test`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17973,7 +17973,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/profiles/${profileId}/outputRecord`,
+                path: `/api/externalStorage/profiles/${profileId}/outputRecord`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17993,7 +17993,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                path: `/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
                 method: "GET",
                 ...params,
             }),
@@ -18012,7 +18012,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                path: `/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
                 method: "POST",
                 ...params,
             }),
@@ -18030,7 +18030,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                path: `/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -18050,7 +18050,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                path: `/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -18067,7 +18067,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postExternalstoragePage: (data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/page`,
+                path: `/api/externalStorage/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18084,7 +18084,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getExternalDriveSyncTasks: (params: RequestParams = {}) =>
             this.request<ResultListSyncTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/sync-tasks`,
+                path: `/api/external-drive/sync-tasks`,
                 method: "GET",
                 ...params,
             }),
@@ -18099,7 +18099,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postExternalDriveSyncTasks: (data: CreateSyncTaskRequest, params: RequestParams = {}) =>
             this.request<ResultSyncTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/sync-tasks`,
+                path: `/api/external-drive/sync-tasks`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18116,7 +18116,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postExternalDriveSyncTasksTaskIdTrigger: (taskId: string, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/sync-tasks/${taskId}/trigger`,
+                path: `/api/external-drive/sync-tasks/${taskId}/trigger`,
                 method: "POST",
                 ...params,
             }),
@@ -18131,7 +18131,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postExternalDriveOauthCloudServicesServiceIdReauthorize: (serviceId: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/oauth/cloud-services/${serviceId}/reauthorize`,
+                path: `/api/external-drive/oauth/cloud-services/${serviceId}/reauthorize`,
                 method: "POST",
                 ...params,
             }),
@@ -18146,7 +18146,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getExternalDriveOauthApps: (params: RequestParams = {}) =>
             this.request<ResultListOAuthAppDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/oauth/apps`,
+                path: `/api/external-drive/oauth/apps`,
                 method: "GET",
                 ...params,
             }),
@@ -18161,7 +18161,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postExternalDriveOauthApps: (data: CreateOAuthAppRequest, params: RequestParams = {}) =>
             this.request<ResultOAuthAppDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/oauth/apps`,
+                path: `/api/external-drive/oauth/apps`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18178,7 +18178,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postEventCalendarsSetting: (data: EventCalendarSetting, params: RequestParams = {}) =>
             this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/event/calendars/setting`,
+                path: `/api/event/calendars/setting`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18195,7 +18195,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postEventCalendarsSettingPage: (data: BasePageRequest, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/event/calendars/setting/page`,
+                path: `/api/event/calendars/setting/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18224,7 +18224,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/version/${versionId}/deploy`,
+                path: `/api/docpal/workflow/version/${versionId}/deploy`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -18242,7 +18242,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowVersionReplaceDraft: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/version/replace/draft`,
+                path: `/api/docpal/workflow/version/replace/draft`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18259,7 +18259,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowVersionPage: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/version/page`,
+                path: `/api/docpal/workflow/version/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18290,7 +18290,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/version/new`,
+                path: `/api/docpal/workflow/version/new`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -18314,7 +18314,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/upload/files`,
+                path: `/api/docpal/workflow/upload/files`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18338,7 +18338,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/upload/file`,
+                path: `/api/docpal/workflow/upload/file`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
@@ -18360,7 +18360,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/tasks`,
+                path: `/api/docpal/workflow/tasks`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -18376,7 +18376,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTasks: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/tasks`,
+                path: `/api/docpal/workflow/tasks`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18393,7 +18393,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTasksUser: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/tasks/user`,
+                path: `/api/docpal/workflow/tasks/user`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18410,7 +18410,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTasksUnassigned: (params: RequestParams = {}) =>
             this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/tasks/unassigned`,
+                path: `/api/docpal/workflow/tasks/unassigned`,
                 method: "POST",
                 ...params,
             }),
@@ -18425,7 +18425,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTasksUnassignedDeprecate: (params: RequestParams = {}) =>
             this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/tasks/unassigned/`,
+                path: `/api/docpal/workflow/tasks/unassigned/`,
                 method: "POST",
                 ...params,
             }),
@@ -18440,7 +18440,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTasksPersonal: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/tasks/personal`,
+                path: `/api/docpal/workflow/tasks/personal`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18457,7 +18457,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTasksGroupDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/tasks/group/`,
+                path: `/api/docpal/workflow/tasks/group/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18474,7 +18474,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTasksGroup: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/tasks/group`,
+                path: `/api/docpal/workflow/tasks/group`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18490,7 +18490,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTasksGetusersexportheader: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/tasks/getUsersExportHeader`,
+                path: `/api/docpal/workflow/tasks/getUsersExportHeader`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18506,7 +18506,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTasksExporttasksuser: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/tasks/exportTasksUser`,
+                path: `/api/docpal/workflow/tasks/exportTasksUser`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18529,7 +18529,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task`,
+                path: `/api/docpal/workflow/task`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -18545,7 +18545,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTask: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task`,
+                path: `/api/docpal/workflow/task`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18568,7 +18568,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task`,
+                path: `/api/docpal/workflow/task`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -18584,7 +18584,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTaskUnclaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/unclaim`,
+                path: `/api/docpal/workflow/task/unclaim`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18600,7 +18600,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTaskMove: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/move`,
+                path: `/api/docpal/workflow/task/move`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18617,7 +18617,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTaskDuedate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/dueDate`,
+                path: `/api/docpal/workflow/task/dueDate`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18634,7 +18634,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTaskDuedateDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/dueDate/`,
+                path: `/api/docpal/workflow/task/dueDate/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18656,7 +18656,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/delegate`,
+                path: `/api/docpal/workflow/task/delegate`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -18672,7 +18672,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTaskComplete: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/complete`,
+                path: `/api/docpal/workflow/task/complete`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18689,7 +18689,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTaskClaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/claim`,
+                path: `/api/docpal/workflow/task/claim`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18706,7 +18706,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowTaskAssign: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/task/assign`,
+                path: `/api/docpal/workflow/task/assign`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18722,7 +18722,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowAdhocApproval: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/adhoc/approval`,
+                path: `/api/docpal/workflow/adhoc/approval`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18738,7 +18738,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowSubmitadhocapproval: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/submitAdhocApproval`,
+                path: `/api/docpal/workflow/submitAdhocApproval`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18754,7 +18754,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowRetryFailWorkflow: (data: WorkflowRetryManagerDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/retry_fail_workflow`,
+                path: `/api/docpal/workflow/retry_fail_workflow`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18770,7 +18770,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowQueryWorkflowRetryPage: (data: QueryWorkflowJobRequest, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOWorkflowRetryManagerDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/query_workflow_retry_page`,
+                path: `/api/docpal/workflow/query_workflow_retry_page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18786,7 +18786,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowQueryadhocapprovalpage: (data: AdhocApprovalDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOAdhocApproval, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/queryAdhocApprovalPage`,
+                path: `/api/docpal/workflow/queryAdhocApprovalPage`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18803,7 +18803,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowProperties: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/properties`,
+                path: `/api/docpal/workflow/properties`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18820,7 +18820,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowPropertiesSave: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/properties/save`,
+                path: `/api/docpal/workflow/properties/save`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18837,7 +18837,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowPropertiesSaveDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/properties/save/`,
+                path: `/api/docpal/workflow/properties/save/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18854,7 +18854,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowProcess: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultProcessDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process`,
+                path: `/api/docpal/workflow/process`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18880,7 +18880,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process`,
+                path: `/api/docpal/workflow/process`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -18900,7 +18900,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/triggerByProcessInstanceId`,
+                path: `/api/docpal/workflow/process/triggerByProcessInstanceId`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -18922,7 +18922,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/start`,
+                path: `/api/docpal/workflow/process/start`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -18940,7 +18940,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowProcessModel: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/model`,
+                path: `/api/docpal/workflow/process/model`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18956,7 +18956,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowProcessMessage: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/message`,
+                path: `/api/docpal/workflow/process/message`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18973,7 +18973,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowProcessList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListProcessDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/list`,
+                path: `/api/docpal/workflow/process/list`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18989,7 +18989,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowProcessInstance: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/instance`,
+                path: `/api/docpal/workflow/process/instance`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19012,7 +19012,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListHistoricProcessInstanceEntityImpl, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/instance`,
+                path: `/api/docpal/workflow/process/instance`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -19028,7 +19028,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowProcessDiagram: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/diagram`,
+                path: `/api/docpal/workflow/process/diagram`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19051,7 +19051,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/validate`,
+                path: `/api/docpal/workflow/process/definition/validate`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -19091,7 +19091,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/upload`,
+                path: `/api/docpal/workflow/process/definition/upload`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -19130,7 +19130,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/save`,
+                path: `/api/docpal/workflow/process/definition/save`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -19154,7 +19154,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/parse`,
+                path: `/api/docpal/workflow/process/definition/parse`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -19170,7 +19170,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWorkflowProcessDefinitionDraftDraftidJson: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/draft/${draftId}/json`,
+                path: `/api/docpal/workflow/process/definition/draft/${draftId}/json`,
                 method: "GET",
                 ...params,
             }),
@@ -19189,7 +19189,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/draft/${draftId}/json`,
+                path: `/api/docpal/workflow/process/definition/draft/${draftId}/json`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19221,7 +19221,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/draft/${draftId}/import`,
+                path: `/api/docpal/workflow/process/definition/draft/${draftId}/import`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -19245,7 +19245,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/draft/${draftId}/export`,
+                path: `/api/docpal/workflow/process/definition/draft/${draftId}/export`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -19261,7 +19261,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowProcessDefinitionDraftPage: (data: ProcessDefinitionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOProcessDefinitionDraft, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/draft/page`,
+                path: `/api/docpal/workflow/process/definition/draft/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19282,7 +19282,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/copy/${copiedKey}`,
+                path: `/api/docpal/workflow/process/definition/copy/${copiedKey}`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19299,7 +19299,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowProcessDefinitionCopyFromFlowable: (data: string[], params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/copy/from/flowable`,
+                path: `/api/docpal/workflow/process/definition/copy/from/flowable`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19315,7 +19315,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowProcessDefinitionActiveDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/active/${draftId}`,
+                path: `/api/docpal/workflow/process/definition/active/${draftId}`,
                 method: "POST",
                 ...params,
             }),
@@ -19329,7 +19329,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowProcessConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/condition/validate`,
+                path: `/api/docpal/workflow/process/condition/validate`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19346,7 +19346,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowProcessBpmn: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/bpmn`,
+                path: `/api/docpal/workflow/process/bpmn`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19371,7 +19371,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/addFileForBulkUpload`,
+                path: `/api/docpal/workflow/process/addFileForBulkUpload`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -19388,7 +19388,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowProcessActive: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/active`,
+                path: `/api/docpal/workflow/process/active`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19405,7 +19405,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowHistoryVariable: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/history/variable`,
+                path: `/api/docpal/workflow/history/variable`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19422,7 +19422,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowHistoryTask: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/history/task`,
+                path: `/api/docpal/workflow/history/task`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19439,7 +19439,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowHistoryTasklog: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/history/taskLog`,
+                path: `/api/docpal/workflow/history/taskLog`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19458,7 +19458,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
                 ResultPaginationDTOHistoricProcessInstanceEntityImpl,
                 Result | (ResultObject | Result | ResultString)
             >({
-                path: `/docpal/workflow/history/process_without_variables`,
+                path: `/api/docpal/workflow/history/process_without_variables`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19478,7 +19478,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
                 ResultPaginationDTOHistoricProcessInstanceEntityImpl,
                 Result | (ResultObject | Result | ResultString)
             >({
-                path: `/docpal/workflow/history/process`,
+                path: `/api/docpal/workflow/history/process`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19494,7 +19494,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowHistoryExportprocesshistory: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/history/exportProcessHistory`,
+                path: `/api/docpal/workflow/history/exportProcessHistory`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19510,7 +19510,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowHistoryDetailproperties: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/history/detailProperties`,
+                path: `/api/docpal/workflow/history/detailProperties`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19526,7 +19526,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowHistoryDetailpropertiesDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/history/detailProperties/`,
+                path: `/api/docpal/workflow/history/detailProperties/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19543,7 +19543,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowHistoryDetail: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/history/detail`,
+                path: `/api/docpal/workflow/history/detail`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19560,7 +19560,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowHistoryDetailDeprecate: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/history/detail/`,
+                path: `/api/docpal/workflow/history/detail/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19577,7 +19577,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowHistoryActivity: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/history/activity`,
+                path: `/api/docpal/workflow/history/activity`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19594,7 +19594,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWorkflowFormSubmit: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/form/submit`,
+                path: `/api/docpal/workflow/form/submit`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19617,7 +19617,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/files/upload`,
+                path: `/api/docpal/workflow/files/upload`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
@@ -19639,7 +19639,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/data/submit`,
+                path: `/api/docpal/workflow/data/submit`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19661,7 +19661,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/data/save`,
+                path: `/api/docpal/workflow/data/save`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19683,7 +19683,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/comment/task`,
+                path: `/api/docpal/workflow/comment/task`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -19706,7 +19706,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/comment/task`,
+                path: `/api/docpal/workflow/comment/task`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -19729,7 +19729,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/comment/task/`,
+                path: `/api/docpal/workflow/comment/task/`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -19750,7 +19750,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/comment/process`,
+                path: `/api/docpal/workflow/comment/process`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -19773,7 +19773,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/comment/process`,
+                path: `/api/docpal/workflow/comment/process`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -19796,7 +19796,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/comment/process/`,
+                path: `/api/docpal/workflow/comment/process/`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -19819,7 +19819,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/addCommentByTaskId`,
+                path: `/api/docpal/workflow/addCommentByTaskId`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -19839,7 +19839,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/whatsapp/webhook`,
+                path: `/api/docpal/whatsapp/webhook`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -19854,7 +19854,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWhatsappWebhook: (data: JSONObject, params: RequestParams = {}) =>
             this.request<void, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/whatsapp/webhook`,
+                path: `/api/docpal/whatsapp/webhook`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19870,7 +19870,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWhatsappSendMessage: (data: WhatsAppMessageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultSendMessageResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/whatsapp/send_message`,
+                path: `/api/docpal/whatsapp/send_message`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19887,7 +19887,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWatermarkTemplates: (params: RequestParams = {}) =>
             this.request<ResultListWatermarkSettingsTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/watermark/templates`,
+                path: `/api/docpal/watermark/templates`,
                 method: "GET",
                 ...params,
             }),
@@ -19902,7 +19902,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWatermarkTemplates: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/watermark/templates`,
+                path: `/api/docpal/watermark/templates`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19919,7 +19919,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchWatermarkTemplates: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/watermark/templates`,
+                path: `/api/docpal/watermark/templates`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -19945,7 +19945,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultPageWatermarkSettingsTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/watermark/templates/page`,
+                path: `/api/docpal/watermark/templates/page`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -19962,7 +19962,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postWatermarkTemplatesAppend: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/watermark/templates/append`,
+                path: `/api/docpal/watermark/templates/append`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -19985,7 +19985,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/watermark/document/template`,
+                path: `/api/docpal/watermark/document/template`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -20007,7 +20007,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/watermark/document/multiple/template/`,
+                path: `/api/docpal/watermark/document/multiple/template/`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -20022,7 +20022,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postTypesMetadataValidateJsonSchema: (data: ValidateJsonSchemaRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/types/metadata/validate/json-schema`,
+                path: `/api/docpal/types/metadata/validate/json-schema`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20038,7 +20038,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postTemplateEmail: (data: TemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/template/email`,
+                path: `/api/docpal/template/email`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20054,7 +20054,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postTemplateEmailSend: (data: MailSendRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/template/email/send`,
+                path: `/api/docpal/template/email/send`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20077,7 +20077,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/template/document`,
+                path: `/api/docpal/template/document`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
@@ -20094,7 +20094,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postSystemfeatureUsersMembers: (data: UserDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/systemfeature/users/members`,
+                path: `/api/docpal/systemfeature/users/members`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20111,7 +20111,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postSystemfeatureCreateuser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/systemfeature/createUser`,
+                path: `/api/docpal/systemfeature/createUser`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20127,7 +20127,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postRelationUpdatelanguage: (data: LanguageEntity, params: RequestParams = {}) =>
             this.request<ResultLanguageEntity, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/relation/updateLanguage`,
+                path: `/api/docpal/relation/updateLanguage`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20143,7 +20143,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postRelationSave: (data: FormPropertiesRelation, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/relation/save`,
+                path: `/api/docpal/relation/save`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20165,7 +20165,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/relation/deleteLanguage`,
+                path: `/api/docpal/relation/deleteLanguage`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -20180,7 +20180,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postRelationAddlanguage: (data: LanguageEntity, params: RequestParams = {}) =>
             this.request<ResultLanguageEntity, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/relation/addLanguage`,
+                path: `/api/docpal/relation/addLanguage`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20197,7 +20197,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPolicyRetentionsSubmitevent: (data: RetentionPolicyDocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultRetentionDocument, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/retentions/submitEvent`,
+                path: `/api/docpal/policy/retentions/submitEvent`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20214,7 +20214,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPolicyRetentionsDocumentPage: (data: RetentionPolicyDocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTORetentionDocument, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/retentions/document/page`,
+                path: `/api/docpal/policy/retentions/document/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20231,7 +20231,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPolicyDocumentsRemove: (data: HoldDocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultHoldDocument, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/documents/remove`,
+                path: `/api/docpal/policy/documents/remove`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20248,7 +20248,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPolicyDocumentsPage: (data: HoldDocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOHoldDocument, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/documents/page`,
+                path: `/api/docpal/policy/documents/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20265,7 +20265,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPolicyDocumentsAdd: (data: HoldDocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultHoldDocument, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/documents/add`,
+                path: `/api/docpal/policy/documents/add`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20281,7 +20281,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPersonalDashboard: (data: PersonalDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOPersonalDashboard, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/personal/dashboard`,
+                path: `/api/docpal/personal/dashboard`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20297,7 +20297,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postPersonalDashboardSave: (data: PersonalDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPersonalDashboard, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/personal/dashboard/save`,
+                path: `/api/docpal/personal/dashboard/save`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20314,7 +20314,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getOauth2Setting: (params: RequestParams = {}) =>
             this.request<ResultOAuth2SettingRequestDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/oauth2/setting`,
+                path: `/api/docpal/oauth2/setting`,
                 method: "GET",
                 ...params,
             }),
@@ -20329,7 +20329,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postOauth2Setting: (data: OAuth2SettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/oauth2/setting`,
+                path: `/api/docpal/oauth2/setting`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20346,7 +20346,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postOauth2Refresh: (data: OAuth2SettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/oauth2/refresh`,
+                path: `/api/docpal/oauth2/refresh`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20370,7 +20370,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/oauth2/code`,
+                path: `/api/docpal/oauth2/code`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -20386,7 +20386,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postOauth2Code: (data: OAuth2SettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/oauth2/code`,
+                path: `/api/docpal/oauth2/code`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20403,7 +20403,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNotification: (data: NotificationRecord, params: RequestParams = {}) =>
             this.request<ResultNotificationRecord, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification`,
+                path: `/api/docpal/notification`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20420,7 +20420,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNotification: (data: NotificationRecordDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification`,
+                path: `/api/docpal/notification`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -20437,7 +20437,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNotificationSubscriber: (data: NotificationSubscriberRequestDTO, params: RequestParams = {}) =>
             this.request<ResultNotificationSubscriber, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/subscriber`,
+                path: `/api/docpal/notification/subscriber`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20454,7 +20454,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNotificationSubscriberDocument: (data: NotificationSubscriber, params: RequestParams = {}) =>
             this.request<ResultNotificationSubscriber, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/subscriber/document`,
+                path: `/api/docpal/notification/subscriber/document`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20471,7 +20471,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNotificationSetting: (data: NotificationSetting, params: RequestParams = {}) =>
             this.request<ResultNotificationSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/setting`,
+                path: `/api/docpal/notification/setting`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20488,7 +20488,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNotificationSettingUserUseridPreferences: (userId: string, params: RequestParams = {}) =>
             this.request<ResultListUserNotifyPreference, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/setting/user/${userId}/preferences`,
+                path: `/api/docpal/notification/setting/user/${userId}/preferences`,
                 method: "GET",
                 ...params,
             }),
@@ -20507,7 +20507,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListUserNotifyPreference, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/setting/user/${userId}/preferences`,
+                path: `/api/docpal/notification/setting/user/${userId}/preferences`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20528,7 +20528,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListNotificationSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/setting/type/${type}/module/${moduleName}`,
+                path: `/api/docpal/notification/setting/type/${type}/module/${moduleName}`,
                 method: "POST",
                 ...params,
             }),
@@ -20543,7 +20543,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNotificationSend: (data: SubNotificationRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/send`,
+                path: `/api/docpal/notification/send`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20560,7 +20560,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNotificationReadAll: (params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/read/all`,
+                path: `/api/docpal/notification/read/all`,
                 method: "POST",
                 ...params,
             }),
@@ -20574,7 +20574,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postNotificationQueryNotificationList: (data: QueryNotificationRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTONotificationInfoDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/query_notification_list`,
+                path: `/api/docpal/notification/query_notification_list`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20600,7 +20600,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultPageNotificationRecord, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/page`,
+                path: `/api/docpal/notification/page`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -20626,7 +20626,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/records`,
+                path: `/api/docpal/master/tables/records`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -20643,7 +20643,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postMasterTablesRecords: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/records`,
+                path: `/api/docpal/master/tables/records`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20667,7 +20667,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/record`,
+                path: `/api/docpal/master/tables/record`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -20684,7 +20684,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postMasterTablesRecord: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/record`,
+                path: `/api/docpal/master/tables/record`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20702,7 +20702,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postMasterTablesRecordPage: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/record/page`,
+                path: `/api/docpal/master/tables/record/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20719,7 +20719,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postMasterTablesRecordPageNonpermission: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/record/page/nonPermission`,
+                path: `/api/docpal/master/tables/record/page/nonPermission`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20737,7 +20737,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postMasterTablesBatchDelete: (data: DeleteMTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/batch/delete`,
+                path: `/api/docpal/master/tables/batch/delete`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20753,7 +20753,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postLogsRecentSearchPageV2: (data: BasePageRequest, params: RequestParams = {}) =>
             this.request<ResultPaginationDTONestedSearchLogV2, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/logs/recent/search/page_v2`,
+                path: `/api/docpal/logs/recent/search/page_v2`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20769,7 +20769,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postInternalsharePageDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
             this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare/page/`,
+                path: `/api/docpal/internalShare/page/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20785,7 +20785,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postInternalsharePage: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
             this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare/page`,
+                path: `/api/docpal/internalShare/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20801,7 +20801,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postInternalshareOthersDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
             this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare/others/`,
+                path: `/api/docpal/internalShare/others/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20817,7 +20817,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postInternalshareOthers: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
             this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare/others`,
+                path: `/api/docpal/internalShare/others`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20833,7 +20833,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postInternalshareMeDeprecate: (data: InternalShareToMePageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare/me/`,
+                path: `/api/docpal/internalShare/me/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20849,7 +20849,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteInternalshareMeDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare/me/`,
+                path: `/api/docpal/internalShare/me/`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -20865,7 +20865,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postInternalshareMe: (data: InternalShareToMePageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare/me`,
+                path: `/api/docpal/internalShare/me`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20881,7 +20881,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteInternalshareMe: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare/me`,
+                path: `/api/docpal/internalShare/me`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -20897,7 +20897,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postInternalshareGroups: (data: InternalShareByGroupsRequestDTO, params: RequestParams = {}) =>
             this.request<ResultInternalShare, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare/groups`,
+                path: `/api/docpal/internalShare/groups`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20913,7 +20913,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postInternalshareCheckdocumentisinshareDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare/checkDocumentIsInShare/`,
+                path: `/api/docpal/internalShare/checkDocumentIsInShare/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20929,7 +20929,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postInternalshareCheckdocumentisinshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare/checkDocumentIsInShare`,
+                path: `/api/docpal/internalShare/checkDocumentIsInShare`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20950,7 +20950,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare`,
+                path: `/api/docpal/internalShare`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -20965,7 +20965,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postInternalshare: (data: InternalShareRequestDTO, params: RequestParams = {}) =>
             this.request<ResultInternalShareAudit, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare`,
+                path: `/api/docpal/internalShare`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20981,7 +20981,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteInternalshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare`,
+                path: `/api/docpal/internalShare`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -20997,7 +20997,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postInternalshareDeprecate: (data: InternalShareRequestDTO, params: RequestParams = {}) =>
             this.request<ResultInternalShareAudit, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare/`,
+                path: `/api/docpal/internalShare/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21014,7 +21014,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getIdTemplates: (params: RequestParams = {}) =>
             this.request<ResultListIdTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/id-templates`,
+                path: `/api/docpal/id-templates`,
                 method: "GET",
                 ...params,
             }),
@@ -21029,7 +21029,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postIdTemplates: (data: IdTemplate, params: RequestParams = {}) =>
             this.request<ResultIdTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/id-templates`,
+                path: `/api/docpal/id-templates`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21046,7 +21046,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postIdTemplatesValidate: (data: IdTemplate, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/id-templates/validate`,
+                path: `/api/docpal/id-templates/validate`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21063,7 +21063,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postIdTemplatesPage: (data: IdTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOIdTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/id-templates/page`,
+                path: `/api/docpal/id-templates/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21080,7 +21080,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postIdTemplatesGenerate: (data: GenerateIdReq, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/id-templates/generate`,
+                path: `/api/docpal/id-templates/generate`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21096,7 +21096,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postGenerateXApiKey: (data: GenerateXApiKeyRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/generate_x_api_key`,
+                path: `/api/docpal/generate_x_api_key`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21119,7 +21119,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design`,
+                path: `/api/docpal/form/design`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -21136,7 +21136,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFormDesign: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design`,
+                path: `/api/docpal/form/design`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21159,7 +21159,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<JsonNode, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design`,
+                path: `/api/docpal/form/design`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -21176,7 +21176,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFormDesignSubmitData: (data: FormDesignDataDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/submit/data`,
+                path: `/api/docpal/form/design/submit/data`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21193,7 +21193,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFormDesignSendEmail: (data: EasyFormEmailDTO, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/send_email`,
+                path: `/api/docpal/form/design/send_email`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21211,7 +21211,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFormDesignSavePreview: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/save/preview`,
+                path: `/api/docpal/form/design/save/preview`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21229,7 +21229,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFormDesignSavePermission: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/save/permission`,
+                path: `/api/docpal/form/design/save/permission`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21247,7 +21247,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFormDesignSaveInformation: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/save/information`,
+                path: `/api/docpal/form/design/save/information`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21265,7 +21265,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFormDesignSaveFormresult: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/save/formResult`,
+                path: `/api/docpal/form/design/save/formResult`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21282,7 +21282,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFormDesignSaveFormresultAppend: (data: EasyFormResultRequestDTO, params: RequestParams = {}) =>
             this.request<ResultEasyFormResult, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/save/formResult/append`,
+                path: `/api/docpal/form/design/save/formResult/append`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21299,7 +21299,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFormDesignRecords: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListLinkedHashMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/records`,
+                path: `/api/docpal/form/design/records`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21317,7 +21317,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFormDesignRecordPage: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/record/page`,
+                path: `/api/docpal/form/design/record/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21335,7 +21335,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFormDesignPublish: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/publish`,
+                path: `/api/docpal/form/design/publish`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21352,7 +21352,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFormDesignPageEmailLog: (data: EasyFormEmailQueryRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEasyFormEmailLogDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/page_email_log`,
+                path: `/api/docpal/form/design/page_email_log`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21370,7 +21370,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postFormDesignPage: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/page`,
+                path: `/api/docpal/form/design/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21386,7 +21386,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postEmailTemplateSend: (data: MailSendRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/email/template/send`,
+                path: `/api/docpal/email/template/send`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21403,7 +21403,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postEmailSend: (data: MailSendRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/email/send`,
+                path: `/api/docpal/email/send`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21425,7 +21425,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/email/send/from`,
+                path: `/api/docpal/email/send/from`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -21440,7 +21440,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postEmailCustomizeSend: (data: MailSendRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/email/customize/send`,
+                path: `/api/docpal/email/customize/send`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21456,7 +21456,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postEmailBatchSend: (data: BatchMailSendRequest, params: RequestParams = {}) =>
             this.request<ResultBatchSendEmailResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/email/batch/send`,
+                path: `/api/docpal/email/batch/send`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21480,7 +21480,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBatchSendEmailResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/email/batch-send`,
+                path: `/api/docpal/email/batch-send`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -21498,7 +21498,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDocTemplateSignature: (data: DocTemplateSignatureRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocTemplateSignatureResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/doc/template/signature`,
+                path: `/api/docpal/doc/template/signature`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21514,7 +21514,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDamGetallsetting: (params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dam/getAllSetting`,
+                path: `/api/docpal/dam/getAllSetting`,
                 method: "POST",
                 ...params,
             }),
@@ -21528,7 +21528,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDamEditsetting: (data: DAMConversionSettingRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dam/editSetting`,
+                path: `/api/docpal/dam/editSetting`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21544,7 +21544,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDamDeletesettings: (data: number[], params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dam/deleteSettings`,
+                path: `/api/docpal/dam/deleteSettings`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21561,7 +21561,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postConversionSubmitexportrequest: (data: ConversionFileRequestDTO[], params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/conversion/submitExportRequest`,
+                path: `/api/docpal/conversion/submitExportRequest`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21578,7 +21578,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postConversionFormatSubmit: (data: ConversionFileRequestDTO[], params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/conversion/format/submit`,
+                path: `/api/docpal/conversion/format/submit`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21595,7 +21595,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postConversionDownload: (data: string[], params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/conversion/download`,
+                path: `/api/docpal/conversion/download`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21612,7 +21612,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postConversionDownloadfile: (data: string[], params: RequestParams = {}) =>
             this.request<void, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/conversion/downloadFile`,
+                path: `/api/docpal/conversion/downloadFile`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21630,7 +21630,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postContactgroup: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup`,
+                path: `/api/docpal/contactGroup`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21648,7 +21648,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postContactgroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
             this.request<ResultListBasicField, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}/permission`,
+                path: `/api/docpal/contactGroup/${id}/permission`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21666,7 +21666,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchContactgroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
             this.request<ResultListBasicField, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}/permission`,
+                path: `/api/docpal/contactGroup/${id}/permission`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -21684,7 +21684,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postContactgroupIdNewfields: (id: string, data: ContactAttribute, params: RequestParams = {}) =>
             this.request<ResultListContactAttribute, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}/newFields`,
+                path: `/api/docpal/contactGroup/${id}/newFields`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21702,7 +21702,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postContactgroupIdContactdetail: (id: string, data: Record<string, object>, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}/contactDetail`,
+                path: `/api/docpal/contactGroup/${id}/contactDetail`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21720,7 +21720,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postContactgroupIdContactdetailPage: (id: string, data: Record<string, object>, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}/contactDetail/page`,
+                path: `/api/docpal/contactGroup/${id}/contactDetail/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21755,7 +21755,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultImportResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}/contactDetail/import`,
+                path: `/api/docpal/contactGroup/${id}/contactDetail/import`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -21781,7 +21781,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}/contactDetail/export`,
+                path: `/api/docpal/contactGroup/${id}/contactDetail/export`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -21804,7 +21804,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringInteger, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/read/title`,
+                path: `/api/docpal/contactGroup/read/title`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
@@ -21822,7 +21822,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postContactgroupPage: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/page`,
+                path: `/api/docpal/contactGroup/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21845,7 +21845,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCfUserTableConfigResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cf/table/user-config`,
+                path: `/api/docpal/cf/table/user-config`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -21861,7 +21861,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCfTableUserConfig: (data: CfUserTableConfigRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCfUserTableConfigResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cf/table/user-config`,
+                path: `/api/docpal/cf/table/user-config`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21882,7 +21882,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/${caseTypeId}/records/page`,
+                path: `/api/docpal/case/types/${caseTypeId}/records/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21899,7 +21899,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypesTablePage: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/table/page`,
+                path: `/api/docpal/case/types/table/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21916,7 +21916,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypesRecordsList: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListLinkedHashMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/records/list`,
+                path: `/api/docpal/case/types/records/list`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21933,7 +21933,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypesPage: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOCaseType, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/page`,
+                path: `/api/docpal/case/types/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21950,7 +21950,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypesList: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/list`,
+                path: `/api/docpal/case/types/list`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21966,7 +21966,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceCaseinstanceidVariables: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<Record<string, object>, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/${caseInstanceId}/variables`,
+                path: `/api/docpal/case/instance/${caseInstanceId}/variables`,
                 method: "GET",
                 ...params,
             }),
@@ -21984,7 +21984,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<Record<string, object>, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/${caseInstanceId}/variables`,
+                path: `/api/docpal/case/instance/${caseInstanceId}/variables`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22002,7 +22002,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstanceTriggerEvent: (data: CmmnTriggerEventReqDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/trigger/event`,
+                path: `/api/docpal/case/instance/trigger/event`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22020,7 +22020,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstanceTasks: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
             this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/tasks`,
+                path: `/api/docpal/case/instance/tasks`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22038,7 +22038,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstanceTasksComplete: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/tasks/complete`,
+                path: `/api/docpal/case/instance/tasks/complete`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22055,7 +22055,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstanceSubmitStart: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/submit-start`,
+                path: `/api/docpal/case/instance/submit-start`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22079,7 +22079,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/start`,
+                path: `/api/docpal/case/instance/start`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -22107,7 +22107,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCaseImportResponse, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/start/import`,
+                path: `/api/docpal/case/instance/start/import`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -22124,7 +22124,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstanceProcessStart: (data: PlanItemInstanceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/process/start`,
+                path: `/api/docpal/case/instance/process/start`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22142,7 +22142,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstancePlanitems: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/planItems`,
+                path: `/api/docpal/case/instance/planItems`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22159,7 +22159,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstancePlanitemsPlanitemidEnable: (planItemId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/planItems/${planItemId}/enable`,
+                path: `/api/docpal/case/instance/planItems/${planItemId}/enable`,
                 method: "POST",
                 ...params,
             }),
@@ -22174,7 +22174,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstancePlanitemsComplete: (data: PlanItemInstanceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/planItems/complete`,
+                path: `/api/docpal/case/instance/planItems/complete`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22192,7 +22192,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstancePlanitemsActive: (data: PlanItemInstanceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/planItems/active`,
+                path: `/api/docpal/case/instance/planItems/active`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22210,7 +22210,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstanceAuditlog: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOAuditTemplateDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/auditLog`,
+                path: `/api/docpal/case/instance/auditLog`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22227,7 +22227,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseDashboardPage: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/page`,
+                path: `/api/docpal/case/dashboard/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22249,7 +22249,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultPaginationDTOCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/instance/${caseId}/process/instance/page`,
+                path: `/api/docpal/case/dashboard/instance/${caseId}/process/instance/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22267,7 +22267,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseDashboardInstanceActionPreRequisite: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/instance/action/pre-requisite`,
+                path: `/api/docpal/case/dashboard/instance/action/pre-requisite`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22289,7 +22289,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/caseType/${caseTypeId}/records/page`,
+                path: `/api/docpal/case/dashboard/caseType/${caseTypeId}/records/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22307,7 +22307,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCalendarsWidgetSetting: (params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/calendars/widget/setting`,
+                path: `/api/docpal/calendars/widget/setting`,
                 method: "GET",
                 ...params,
             }),
@@ -22323,7 +22323,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCalendarsWidgetSetting: (data: Record<string, object>, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/calendars/widget/setting`,
+                path: `/api/docpal/calendars/widget/setting`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22340,7 +22340,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCalendarsValidate: (params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/calendars/validate`,
+                path: `/api/docpal/calendars/validate`,
                 method: "POST",
                 ...params,
             }),
@@ -22356,7 +22356,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCalendarsSetting: (params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/calendars/setting`,
+                path: `/api/docpal/calendars/setting`,
                 method: "GET",
                 ...params,
             }),
@@ -22372,7 +22372,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCalendarsSetting: (data: Record<string, object>, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/calendars/setting`,
+                path: `/api/docpal/calendars/setting`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22390,7 +22390,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCalendarsList: (data: CalendarTaskReq, params: RequestParams = {}) =>
             this.request<ResultListCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/calendars/list`,
+                path: `/api/docpal/calendars/list`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22408,7 +22408,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCabinetVerificationComplete: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/verification/complete`,
+                path: `/api/docpal/cabinet/verification/complete`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22435,7 +22435,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/upload/file`,
+                path: `/api/docpal/cabinet/upload/file`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
@@ -22453,7 +22453,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCabinetPage: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/page`,
+                path: `/api/docpal/cabinet/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22471,7 +22471,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCabinetItem: (data: DFCRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentFolderCabinet, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/item`,
+                path: `/api/docpal/cabinet/item`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22494,7 +22494,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/generate/document`,
+                path: `/api/docpal/cabinet/generate/document`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -22512,7 +22512,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCabinetExport: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<void, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/export`,
+                path: `/api/docpal/cabinet/export`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22530,7 +22530,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCabinetCreate: (data: DFCRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/create`,
+                path: `/api/docpal/cabinet/create`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22552,7 +22552,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/auto/crId`,
+                path: `/api/docpal/auto/crId`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -22573,7 +22573,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/auto/crId`,
+                path: `/api/docpal/auto/crId`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -22588,7 +22588,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getAutoCaseid: (params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/auto/caseId`,
+                path: `/api/docpal/auto/caseId`,
                 method: "GET",
                 ...params,
             }),
@@ -22602,7 +22602,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postAutoCaseid: (params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/auto/caseId`,
+                path: `/api/docpal/auto/caseId`,
                 method: "POST",
                 ...params,
             }),
@@ -22616,7 +22616,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postAuditLogWorkflowPage: (data: AuditLogQueryRequest, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/audit-log/workflow/page`,
+                path: `/api/docpal/audit-log/workflow/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22633,7 +22633,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postAuditLogQuery: (data: AuditLogQueryRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result>({
-                path: `/docpal/audit-log/query`,
+                path: `/api/docpal/audit-log/query`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22650,7 +22650,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postAuditLogAdd: (data: AuditLogQueryRequest, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/audit-log/add`,
+                path: `/api/docpal/audit-log/add`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22667,7 +22667,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postAuditLogDeprecate: (data: AuditLogCreateRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result>({
-                path: `/docpal/audit-log/`,
+                path: `/api/docpal/audit-log/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22685,7 +22685,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postAclUserRolesAndGroups: (data: string[], params: RequestParams = {}) =>
             this.request<ResultMapStringUserRoleGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/acl/user/roles-and-groups`,
+                path: `/api/docpal/acl/user/roles-and-groups`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22702,7 +22702,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postAclRoleUsers: (data: RoleUsersRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/acl/role/users`,
+                path: `/api/docpal/acl/role/users`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22719,7 +22719,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteAclRoleUsers: (data: number[], params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/acl/role/users`,
+                path: `/api/docpal/acl/role/users`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -22736,7 +22736,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postAclRoleUsersPage: (data: BasePageDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTORoleUsersVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/acl/role/users/page`,
+                path: `/api/docpal/acl/role/users/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22753,7 +22753,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postAclRolePage: (data: BasePageDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTORoleVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/acl/role/page`,
+                path: `/api/docpal/acl/role/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22770,7 +22770,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postAclRoleHierarchy: (data: string[], params: RequestParams = {}) =>
             this.request<ResultListRoleDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/acl/role/hierarchy`,
+                path: `/api/docpal/acl/role/hierarchy`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22787,7 +22787,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsTemplateEmailTemplatePage: (data: EmailTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEmailTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/template/page`,
+                path: `/api/dms/template/email/template/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22804,7 +22804,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsTemplateEmailPage: (data: EmailTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEmailTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/page`,
+                path: `/api/dms/template/email/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22821,7 +22821,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsTemplateEmailSend: (data: MailSendRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/send`,
+                path: `/api/dms/template/email/send`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22838,7 +22838,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsTemplateEmailSendCustomize: (data: MailSendRequest, params: RequestParams = {}) =>
             this.request<ResultSendEmailResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/send/customize`,
+                path: `/api/dms/template/email/send/customize`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22855,7 +22855,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsTemplateEmailLayoutPage: (data: EmailLayoutRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEmailLayout, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/layout/page`,
+                path: `/api/dms/template/email/layout/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22872,7 +22872,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsSmartFolderPage: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/smart-folder/page`,
+                path: `/api/dms/smart-folder/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22894,7 +22894,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringMapStringBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/feature`,
+                path: `/api/dms/setting/feature`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -22909,7 +22909,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsSettingFeature: (data: FeatureSaveRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringMapStringBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/feature`,
+                path: `/api/dms/setting/feature`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22931,7 +22931,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultAccountPropertyDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/active-users/configuration`,
+                path: `/api/dms/setting/active-users/configuration`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -22947,7 +22947,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsSettingActiveUsersConfiguration: (data: ActiveUserConfigDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/active-users/configuration`,
+                path: `/api/dms/setting/active-users/configuration`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22972,7 +22972,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}/structure/export`,
+                path: `/api/dms/master-table/${id}/structure/export`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -22996,7 +22996,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}/record/export`,
+                path: `/api/dms/master-table/${id}/record/export`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -23012,7 +23012,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTableIdField: (id: string, data: MTFieldInfo, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}/field`,
+                path: `/api/dms/master-table/${id}/field`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23039,7 +23039,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/structure/import`,
+                path: `/api/dms/master-table/structure/import`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -23064,7 +23064,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/records`,
+                path: `/api/dms/master-table/records`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -23080,7 +23080,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTableRecords: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/records`,
+                path: `/api/dms/master-table/records`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23103,7 +23103,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/record`,
+                path: `/api/dms/master-table/record`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -23119,7 +23119,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTableRecord: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/record`,
+                path: `/api/dms/master-table/record`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23136,7 +23136,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTableRecordPage: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/record/page`,
+                path: `/api/dms/master-table/record/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23152,7 +23152,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTableRecordPageNonpermission: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/record/page/nonPermission`,
+                path: `/api/dms/master-table/record/page/nonPermission`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23169,7 +23169,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTableRecordImport: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/record/import`,
+                path: `/api/dms/master-table/record/import`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23199,7 +23199,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/record/import/file`,
+                path: `/api/dms/master-table/record/import/file`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -23217,7 +23217,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTablePage: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/page`,
+                path: `/api/dms/master-table/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23237,7 +23237,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
                 ResultPaginationDTOAuditTemplateResponseExtendDTO,
                 Result | (ResultObject | Result | ResultString)
             >({
-                path: `/dms/master-table/logs`,
+                path: `/api/dms/master-table/logs`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23253,7 +23253,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTableLogsPageConditions: (data: MTAuditLogRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/logs/page/conditions`,
+                path: `/api/dms/master-table/logs/page/conditions`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23269,7 +23269,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTableInit: (params: RequestParams = {}) =>
             this.request<void, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/init`,
+                path: `/api/dms/master-table/init`,
                 method: "POST",
                 ...params,
             }),
@@ -23284,7 +23284,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTableFields: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/fields`,
+                path: `/api/dms/master-table/fields`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23301,7 +23301,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTableColumnAdd: (data: MTAddColumnRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/column/add`,
+                path: `/api/dms/master-table/column/add`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23318,7 +23318,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTableBatchDelete: (data: DeleteMTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/batch/delete`,
+                path: `/api/dms/master-table/batch/delete`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23335,7 +23335,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTableAclsRemove: (data: MTPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/acls/remove`,
+                path: `/api/dms/master-table/acls/remove`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23352,7 +23352,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTableAclsUpdate: (data: MTPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/acls/update`,
+                path: `/api/dms/master-table/acls/update`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23369,7 +23369,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTableAclsDelete: (data: MTPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/acls/delete`,
+                path: `/api/dms/master-table/acls/delete`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23386,7 +23386,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsMasterTableAclsAdd: (data: MTPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/acls/add`,
+                path: `/api/dms/master-table/acls/add`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23402,7 +23402,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsFeatureUsersMembers: (data: UserDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/feature/users/members`,
+                path: `/api/dms/feature/users/members`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23418,7 +23418,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsFeatureCreateuser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/feature/createUser`,
+                path: `/api/dms/feature/createUser`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23440,7 +23440,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form`,
+                path: `/api/dms/easy-form`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -23456,7 +23456,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsEasyForm: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form`,
+                path: `/api/dms/easy-form`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23478,7 +23478,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<JsonNode, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form`,
+                path: `/api/dms/easy-form`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -23494,7 +23494,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsEasyFormSubmitData: (data: FormDesignDataDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/submit/data`,
+                path: `/api/dms/easy-form/submit/data`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23511,7 +23511,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsEasyFormSavePreview: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/save/preview`,
+                path: `/api/dms/easy-form/save/preview`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23528,7 +23528,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsEasyFormSavePermission: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/save/permission`,
+                path: `/api/dms/easy-form/save/permission`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23545,7 +23545,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsEasyFormSaveInformation: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/save/information`,
+                path: `/api/dms/easy-form/save/information`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23562,7 +23562,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsEasyFormSaveFormresult: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/save/formResult`,
+                path: `/api/dms/easy-form/save/formResult`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23578,7 +23578,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsEasyFormSaveFormresultAppend: (data: EasyFormResultRequestDTO, params: RequestParams = {}) =>
             this.request<ResultEasyFormResult, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/save/formResult/append`,
+                path: `/api/dms/easy-form/save/formResult/append`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23594,7 +23594,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsEasyFormRecords: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListLinkedHashMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/records`,
+                path: `/api/dms/easy-form/records`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23611,7 +23611,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsEasyFormRecordPage: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/record/page`,
+                path: `/api/dms/easy-form/record/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23628,7 +23628,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsEasyFormPublish: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/publish`,
+                path: `/api/dms/easy-form/publish`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23645,7 +23645,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsEasyFormPage: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/page`,
+                path: `/api/dms/easy-form/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23661,7 +23661,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsEasyFormEmailSend: (data: EasyFormEmailDTO, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/email/send`,
+                path: `/api/dms/easy-form/email/send`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23677,7 +23677,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsEasyFormEmailLogPage: (data: EasyFormEmailQueryRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEasyFormEmailLogDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/email-log/page`,
+                path: `/api/dms/easy-form/email-log/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23694,7 +23694,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsConversionFormatSubmit: (data: ConversionFileRequestDTO[], params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/conversion/format/submit`,
+                path: `/api/dms/conversion/format/submit`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23711,7 +23711,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsConversionFormatDownload: (data: string[], params: RequestParams = {}) =>
             this.request<void, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/conversion/format/download`,
+                path: `/api/dms/conversion/format/download`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23728,7 +23728,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsConversionDownload: (data: string[], params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/conversion/download`,
+                path: `/api/dms/conversion/download`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23745,7 +23745,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsContactGroup: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group`,
+                path: `/api/dms/contact-group`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23762,7 +23762,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsContactGroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
             this.request<ResultListBasicField, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}/permission`,
+                path: `/api/dms/contact-group/${id}/permission`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23779,7 +23779,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchDmsContactGroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
             this.request<ResultListBasicField, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}/permission`,
+                path: `/api/dms/contact-group/${id}/permission`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -23796,7 +23796,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsContactGroupIdNewfields: (id: string, data: ContactAttribute, params: RequestParams = {}) =>
             this.request<ResultListContactAttribute, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}/newFields`,
+                path: `/api/dms/contact-group/${id}/newFields`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23813,7 +23813,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsContactGroupIdContactdetail: (id: string, data: Record<string, object>, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}/contactDetail`,
+                path: `/api/dms/contact-group/${id}/contactDetail`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23834,7 +23834,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultPaginationDTOMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}/contactDetail/page`,
+                path: `/api/dms/contact-group/${id}/contactDetail/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23868,7 +23868,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultImportResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}/contactDetail/import`,
+                path: `/api/dms/contact-group/${id}/contactDetail/import`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -23893,7 +23893,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}/contactDetail/export`,
+                path: `/api/dms/contact-group/${id}/contactDetail/export`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -23915,7 +23915,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringInteger, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/read/title`,
+                path: `/api/dms/contact-group/read/title`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
@@ -23932,7 +23932,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsContactGroupPage: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/page`,
+                path: `/api/dms/contact-group/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23949,7 +23949,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsContactGroupList: (params: RequestParams = {}) =>
             this.request<ResultListContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/list`,
+                path: `/api/dms/contact-group/list`,
                 method: "GET",
                 ...params,
             }),
@@ -23969,7 +23969,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/list`,
+                path: `/api/dms/contact-group/list`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -23985,7 +23985,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCompanyprofiles: (data: Company, params: RequestParams = {}) =>
             this.request<ResultCompany, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/companyProfiles`,
+                path: `/api/dms/companyProfiles`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24009,7 +24009,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListCompanyChop, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/companyProfiles/${companyId}/chops`,
+                path: `/api/dms/companyProfiles/${companyId}/chops`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -24053,7 +24053,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCompanyChop, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/companyProfiles/${companyId}/chops`,
+                path: `/api/dms/companyProfiles/${companyId}/chops`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -24075,7 +24075,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultPaginationDTOCompanyChop, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/companyProfiles/${companyId}/chops/page`,
+                path: `/api/dms/companyProfiles/${companyId}/chops/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24092,7 +24092,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCompanyprofilesPage: (data: CompanyRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOCompany, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/companyProfiles/page`,
+                path: `/api/dms/companyProfiles/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24109,7 +24109,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCalendarsWidgetSetting: (params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/widget/setting`,
+                path: `/api/dms/calendars/widget/setting`,
                 method: "GET",
                 ...params,
             }),
@@ -24124,7 +24124,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCalendarsWidgetSetting: (data: Record<string, object>, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/widget/setting`,
+                path: `/api/dms/calendars/widget/setting`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24140,7 +24140,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCalendarsValidate: (params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/validate`,
+                path: `/api/dms/calendars/validate`,
                 method: "POST",
                 ...params,
             }),
@@ -24155,7 +24155,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCalendarsSetting: (params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/setting`,
+                path: `/api/dms/calendars/setting`,
                 method: "GET",
                 ...params,
             }),
@@ -24170,7 +24170,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCalendarsSetting: (data: Record<string, object>, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/setting`,
+                path: `/api/dms/calendars/setting`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24187,7 +24187,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCalendarsList: (data: CalendarTaskReq, params: RequestParams = {}) =>
             this.request<ResultListCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/list`,
+                path: `/api/dms/calendars/list`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24204,7 +24204,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCalendarsEventSetting: (data: EventCalendarSetting, params: RequestParams = {}) =>
             this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/event/setting`,
+                path: `/api/dms/calendars/event/setting`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24221,7 +24221,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCalendarsEventSettingPage: (data: BasePageRequest, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/event/setting/page`,
+                path: `/api/dms/calendars/event/setting/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24238,7 +24238,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCabinetVerificationComplete: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/verification/complete`,
+                path: `/api/dms/cabinet/verification/complete`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24264,7 +24264,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/upload/file`,
+                path: `/api/dms/cabinet/upload/file`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
@@ -24281,7 +24281,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCabinetTemplate: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/template`,
+                path: `/api/dms/cabinet/template`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24298,7 +24298,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchDmsCabinetTemplate: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/template`,
+                path: `/api/dms/cabinet/template`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -24319,7 +24319,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListDocumentACLEntryDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/template/permission`,
+                path: `/api/dms/cabinet/template/permission`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -24335,7 +24335,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCabinetTemplatePermission: (data: DocumentACLEntryDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/template/permission`,
+                path: `/api/dms/cabinet/template/permission`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24360,7 +24360,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/template/permission`,
+                path: `/api/dms/cabinet/template/permission`,
                 method: "DELETE",
                 query: query,
                 body: data,
@@ -24378,7 +24378,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCabinetTemplatePage: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/template/page`,
+                path: `/api/dms/cabinet/template/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24395,7 +24395,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCabinetTemplateDuplicateName: (data: FolderCabinet, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/template/duplicate/name`,
+                path: `/api/dms/cabinet/template/duplicate/name`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24412,7 +24412,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCabinetPage: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/page`,
+                path: `/api/dms/cabinet/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24429,7 +24429,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCabinetItem: (data: DFCRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentFolderCabinet, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/item`,
+                path: `/api/dms/cabinet/item`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24453,7 +24453,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultFolderCabinet, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/import`,
+                path: `/api/dms/cabinet/import`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -24474,7 +24474,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/generate/document`,
+                path: `/api/dms/cabinet/generate/document`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -24491,7 +24491,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCabinetExport: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<void, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/export`,
+                path: `/api/dms/cabinet/export`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24513,7 +24513,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/exportToJson`,
+                path: `/api/dms/cabinet/exportToJson`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -24529,7 +24529,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postDmsCabinetCreate: (data: DFCRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/create`,
+                path: `/api/dms/cabinet/create`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24545,7 +24545,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postClearupexpireddocument: (params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/clearUpExpiredDocument`,
+                path: `/api/clearUpExpiredDocument`,
                 method: "POST",
                 ...params,
             }),
@@ -24571,7 +24571,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${id}/publish`,
+                path: `/api/case/types/${id}/publish`,
                 method: "POST",
                 body: data,
                 type: ContentType.FormData,
@@ -24602,7 +24602,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCaseModelDraft, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${id}/draft/save`,
+                path: `/api/case/types/${id}/draft/save`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -24620,7 +24620,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypesIdDownloadDraft: (id: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${id}/download/draft`,
+                path: `/api/case/types/${id}/download/draft`,
                 method: "POST",
                 ...params,
             }),
@@ -24635,7 +24635,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypesIdDraftDownload: (id: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${id}/draft/download`,
+                path: `/api/case/types/${id}/draft/download`,
                 method: "POST",
                 ...params,
             }),
@@ -24650,7 +24650,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypesIdCopy: (id: string, data: CopyCaseTypeRequest, params: RequestParams = {}) =>
             this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${id}/copy`,
+                path: `/api/case/types/${id}/copy`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24671,7 +24671,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${caseTypeId}/records/page`,
+                path: `/api/case/types/${caseTypeId}/records/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24687,7 +24687,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypesVersionVersionidRefresh: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/version/${versionId}/refresh`,
+                path: `/api/case/types/version/${versionId}/refresh`,
                 method: "POST",
                 ...params,
             }),
@@ -24702,7 +24702,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypesVersionVersionidNew: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultCmmnVersion, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/version/${versionId}/new`,
+                path: `/api/case/types/version/${versionId}/new`,
                 method: "POST",
                 ...params,
             }),
@@ -24717,7 +24717,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypesVersionVersionidActive: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/version/${versionId}/active`,
+                path: `/api/case/types/version/${versionId}/active`,
                 method: "POST",
                 ...params,
             }),
@@ -24732,7 +24732,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypesVersionPage: (data: CmmnVersionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOCmmnVersion, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/version/page`,
+                path: `/api/case/types/version/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24749,7 +24749,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypesTablePageundefined: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/table/page`,
+                path: `/api/case/types/table/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24766,7 +24766,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypesStylejsonSave: (data: CmmnVersionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCmmnVersion, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/styleJson/save`,
+                path: `/api/case/types/styleJson/save`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24787,7 +24787,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/refresh`,
+                path: `/api/case/types/refresh`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -24803,7 +24803,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypesRecordsListundefined: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListLinkedHashMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/records/list`,
+                path: `/api/case/types/records/list`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24820,7 +24820,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypesPageundefined: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOCaseType, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/page`,
+                path: `/api/case/types/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24837,7 +24837,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTypesListundefined: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/list`,
+                path: `/api/case/types/list`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24854,7 +24854,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTables: (params: RequestParams = {}) =>
             this.request<ResultListCaseTable, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/tables`,
+                path: `/api/case/tables`,
                 method: "GET",
                 ...params,
             }),
@@ -24869,7 +24869,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTables: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCaseTable, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/tables`,
+                path: `/api/case/tables`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24886,7 +24886,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTablesIdField: (id: string, data: MTFieldInfo, params: RequestParams = {}) =>
             this.request<ResultCaseTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/tables/${id}/field`,
+                path: `/api/case/tables/${id}/field`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24909,7 +24909,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/tables/${id}/field`,
+                path: `/api/case/tables/${id}/field`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -24925,7 +24925,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTablesRecord: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/tables/record`,
+                path: `/api/case/tables/record`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24942,7 +24942,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseTablesRecordPage: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/tables/record/page`,
+                path: `/api/case/tables/record/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24958,7 +24958,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceCaseinstanceidVariablesundefined: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<Record<string, object>, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/${caseInstanceId}/variables`,
+                path: `/api/case/instance/${caseInstanceId}/variables`,
                 method: "GET",
                 ...params,
             }),
@@ -24976,7 +24976,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<Record<string, object>, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/${caseInstanceId}/variables`,
+                path: `/api/case/instance/${caseInstanceId}/variables`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -24993,7 +24993,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstanceTypesRecordsList: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListLinkedHashMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/types/records/list`,
+                path: `/api/case/instance/types/records/list`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25010,7 +25010,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstanceTriggerEventundefined: (data: CmmnTriggerEventReqDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/trigger/event`,
+                path: `/api/case/instance/trigger/event`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25027,7 +25027,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstanceTasksundefined: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
             this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/tasks`,
+                path: `/api/case/instance/tasks`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25044,7 +25044,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstanceTasksCompleteundefined: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/tasks/complete`,
+                path: `/api/case/instance/tasks/complete`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25060,7 +25060,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstanceSubmitStartundefined: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/submit-start`,
+                path: `/api/case/instance/submit-start`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25083,7 +25083,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/start`,
+                path: `/api/case/instance/start`,
                 method: "POST",
                 query: query,
                 body: data,
@@ -25110,7 +25110,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCaseImportResponse, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/start/import`,
+                path: `/api/case/instance/start/import`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -25126,7 +25126,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstanceProcessStartundefined: (data: PlanItemInstanceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/process/start`,
+                path: `/api/case/instance/process/start`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25143,7 +25143,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstancePlanitemsundefined: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/planItems`,
+                path: `/api/case/instance/planItems`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25160,7 +25160,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstancePlanitemsPlanitemidEnableundefined: (planItemId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/planItems/${planItemId}/enable`,
+                path: `/api/case/instance/planItems/${planItemId}/enable`,
                 method: "POST",
                 ...params,
             }),
@@ -25175,7 +25175,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstancePlanitemsCompleteundefined: (data: PlanItemInstanceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/planItems/complete`,
+                path: `/api/case/instance/planItems/complete`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25192,7 +25192,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstancePlanitemsActiveundefined: (data: PlanItemInstanceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/planItems/active`,
+                path: `/api/case/instance/planItems/active`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25209,7 +25209,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstanceInstancePlanitems: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/instance/planItems`,
+                path: `/api/case/instance/instance/planItems`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25226,7 +25226,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstanceInstancePlanitemsPlanitemidEnable: (planItemId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/instance/planItems/${planItemId}/enable`,
+                path: `/api/case/instance/instance/planItems/${planItemId}/enable`,
                 method: "POST",
                 ...params,
             }),
@@ -25241,7 +25241,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstanceInstancePlanitemsComplete: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/instance/planItems/complete`,
+                path: `/api/case/instance/instance/planItems/complete`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25258,7 +25258,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseInstanceAuditlogundefined: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOAuditTemplateDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/auditLog`,
+                path: `/api/case/instance/auditLog`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25275,7 +25275,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseDashboardSaveStyle: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCmmnDashboard, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/save/style`,
+                path: `/api/case/dashboard/save/style`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25292,7 +25292,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseDashboardPageundefined: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/page`,
+                path: `/api/case/dashboard/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25313,7 +25313,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultPaginationDTOTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/instance/${caseId}/process/instance/tasks`,
+                path: `/api/case/dashboard/instance/${caseId}/process/instance/tasks`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25334,7 +25334,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultPaginationDTOCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/instance/${caseId}/process/instance/page`,
+                path: `/api/case/dashboard/instance/${caseId}/process/instance/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25351,7 +25351,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postCaseDashboardInstanceActionPreRequisiteundefined: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/instance/action/pre-requisite`,
+                path: `/api/case/dashboard/instance/action/pre-requisite`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25372,7 +25372,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/caseType/${caseTypeId}/records/page`,
+                path: `/api/case/dashboard/caseType/${caseTypeId}/records/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25389,7 +25389,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postBlockPermission: (data: BlockInheritedPermission, params: RequestParams = {}) =>
             this.request<ResultBlockInheritedPermission, Result | (ResultObject | Result | ResultString)>({
-                path: `/block/permission`,
+                path: `/api/block/permission`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25406,7 +25406,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postBlockPermissionFilter: (data: DocDTO, params: RequestParams = {}) =>
             this.request<ResultListDocDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/block/permission/filter`,
+                path: `/api/block/permission/filter`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25422,7 +25422,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postAiDocumentClassification: (data: DocumentClassificationRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentClassificationResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/ai/document-classification`,
+                path: `/api/ai/document-classification`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25438,7 +25438,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postAiAskAiAiChatAskquestion: (data: AiSearchRequestDTO, params: RequestParams = {}) =>
             this.request<ResultAiChatAnswerResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/ai/ask_ai/ai_chat/askQuestion`,
+                path: `/api/ai/ask_ai/ai_chat/askQuestion`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25454,7 +25454,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         postAiAskAiAiChatAddaicomment: (data: AddAiCommentRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/ai/ask_ai/ai_chat/addAiComment`,
+                path: `/api/ai/ask_ai/ai_chat/addAiComment`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25464,7 +25464,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * @description Update the status of an import job
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name PatchRegisteredServerImportjobsIdStatus
          * @summary Update import job status
          * @request PATCH:/api/registered-server/importJobs/{id}/status
@@ -25475,7 +25475,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/importJobs/${id}/status`,
+                path: `/api/registered-server/importJobs/${id}/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25492,7 +25492,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchPermissionsUpdateEntry: (data: AclPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultAclPermissionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/permissions/update/entry`,
+                path: `/api/permissions/update/entry`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25508,7 +25508,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchPasswordUpdatePassword: (data: UpdatePasswordDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/password/update-password`,
+                path: `/api/password/update-password`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25524,7 +25524,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoShare: (data: string[], params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/share`,
+                path: `/api/nuxeo/share`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -25540,7 +25540,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchNuxeoShare: (data: ShareSaveRequestDTO, params: RequestParams = {}) =>
             this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/share`,
+                path: `/api/nuxeo/share`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25556,7 +25556,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchNuxeoDocumentUpdateaidocument: (data: UpdateAiDocumentRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/updateAiDocument`,
+                path: `/api/nuxeo/document/updateAiDocument`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25587,7 +25587,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/replaceFile`,
+                path: `/api/nuxeo/document/replaceFile`,
                 method: "PATCH",
                 query: query,
                 body: data,
@@ -25619,7 +25619,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/replaceFile/v2`,
+                path: `/api/nuxeo/document/replaceFile/v2`,
                 method: "PATCH",
                 query: query,
                 body: data,
@@ -25637,7 +25637,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchNuxeoDocumentChangeType: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/change/docpal/type`,
+                path: `/api/nuxeo/document/change/docpal/type`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25654,7 +25654,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchNuxeoCommentsUpdateDeprecate: (data: CommentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/comments/update/`,
+                path: `/api/nuxeo/comments/update/`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25671,7 +25671,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchNuxeoCommentsUpdate: (data: CommentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/comments/update`,
+                path: `/api/nuxeo/comments/update`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25688,7 +25688,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchImportjobsIdStatus: (id: string, data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/importJobs/${id}/status`,
+                path: `/api/importJobs/${id}/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25704,7 +25704,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchFileUpdateaidocument: (data: UpdateAiDocumentRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/file/updateAiDocument`,
+                path: `/api/file/updateAiDocument`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25721,7 +25721,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchExternalstorageIdStatus: (id: string, data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/${id}/status`,
+                path: `/api/externalStorage/${id}/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25743,7 +25743,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/${id}/profiles/${profileId}/status`,
+                path: `/api/externalStorage/${id}/profiles/${profileId}/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25765,7 +25765,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/${id}/profiles/${profileId}/process`,
+                path: `/api/externalStorage/${id}/profiles/${profileId}/process`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25787,7 +25787,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/${id}/profiles/${profileId}/import`,
+                path: `/api/externalStorage/${id}/profiles/${profileId}/import`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25809,7 +25809,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/${id}/profiles/${profileId}/general`,
+                path: `/api/externalStorage/${id}/profiles/${profileId}/general`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25831,7 +25831,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/${id}/profiles/${profileId}/capture`,
+                path: `/api/externalStorage/${id}/profiles/${profileId}/capture`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25853,7 +25853,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}/status`,
+                path: `/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25870,7 +25870,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchEventCalendarsSettingIdStatus: (id: string, data: StatusRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/event/calendars/setting/${id}/status`,
+                path: `/api/event/calendars/setting/${id}/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25892,7 +25892,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/comment/`,
+                path: `/api/docpal/workflow/comment/`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -25914,7 +25914,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/comment/`,
+                path: `/api/docpal/workflow/comment/`,
                 method: "PATCH",
                 query: query,
                 ...params,
@@ -25935,7 +25935,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/comment`,
+                path: `/api/docpal/workflow/comment`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -25957,7 +25957,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/comment`,
+                path: `/api/docpal/workflow/comment`,
                 method: "PATCH",
                 query: query,
                 ...params,
@@ -25973,7 +25973,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchWatermarkTemplatesDeprecate: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/watermark/templates/`,
+                path: `/api/docpal/watermark/templates/`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25990,7 +25990,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchPolicyRetentionsIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/retentions/${id}/status/${status}`,
+                path: `/api/docpal/policy/retentions/${id}/status/${status}`,
                 method: "PATCH",
                 ...params,
             }),
@@ -26005,7 +26005,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchPolicyRetentionsIdApprovalApproved: (id: string, approved: boolean, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/retentions/${id}/approval/${approved}`,
+                path: `/api/docpal/policy/retentions/${id}/approval/${approved}`,
                 method: "PATCH",
                 ...params,
             }),
@@ -26020,7 +26020,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchPolicyDocumentsIdStatusStatus: (id: string, status: boolean, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/documents/${id}/status/${status}`,
+                path: `/api/docpal/policy/documents/${id}/status/${status}`,
                 method: "PATCH",
                 ...params,
             }),
@@ -26035,7 +26035,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchMasterTablesIdBatchRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/${id}/batch/record/status`,
+                path: `/api/docpal/master/tables/${id}/batch/record/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26056,7 +26056,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/for_admin/${id}/batch/record/status`,
+                path: `/api/docpal/master/tables/for_admin/${id}/batch/record/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26074,7 +26074,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchFormDesignName: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/name`,
+                path: `/api/docpal/form/design/name`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26092,7 +26092,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchFormDesignEnableId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/enable/${id}`,
+                path: `/api/docpal/form/design/enable/${id}`,
                 method: "PATCH",
                 ...params,
             }),
@@ -26108,7 +26108,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchFormDesignDisableId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/disable/${id}`,
+                path: `/api/docpal/form/design/disable/${id}`,
                 method: "PATCH",
                 ...params,
             }),
@@ -26128,7 +26128,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/caseId/${caseId}/updateInformation`,
+                path: `/api/docpal/case/instance/caseId/${caseId}/updateInformation`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26146,7 +26146,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchCalendarsIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/calendars/${id}/status/${status}`,
+                path: `/api/docpal/calendars/${id}/status/${status}`,
                 method: "PATCH",
                 ...params,
             }),
@@ -26162,7 +26162,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchCabinet: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet`,
+                path: `/api/docpal/cabinet`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26179,7 +26179,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchDmsSmartFolderDeprecate: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
             this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/smart-folder/`,
+                path: `/api/dms/smart-folder/`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26201,7 +26201,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/smart-folder`,
+                path: `/api/dms/smart-folder`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -26217,7 +26217,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchDmsSmartFolder: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
             this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/smart-folder`,
+                path: `/api/dms/smart-folder`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26233,7 +26233,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsSettingView: (params: RequestParams = {}) =>
             this.request<ResultViewSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/view`,
+                path: `/api/dms/setting/view`,
                 method: "GET",
                 ...params,
             }),
@@ -26247,7 +26247,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchDmsSettingView: (data: ViewSettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultViewSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/view`,
+                path: `/api/dms/setting/view`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26263,7 +26263,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchDmsMasterTableIdBatchRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}/batch/record/status`,
+                path: `/api/dms/master-table/${id}/batch/record/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26280,7 +26280,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchDmsEasyFormName: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/name`,
+                path: `/api/dms/easy-form/name`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26297,7 +26297,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchDmsEasyFormEnableId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/enable/${id}`,
+                path: `/api/dms/easy-form/enable/${id}`,
                 method: "PATCH",
                 ...params,
             }),
@@ -26312,7 +26312,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchDmsEasyFormDisableId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/disable/${id}`,
+                path: `/api/dms/easy-form/disable/${id}`,
                 method: "PATCH",
                 ...params,
             }),
@@ -26327,7 +26327,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchDmsCompanyprofilesCompanyidStatus: (companyId: string, data: Company, params: RequestParams = {}) =>
             this.request<ResultCompany, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/companyProfiles/${companyId}/status`,
+                path: `/api/dms/companyProfiles/${companyId}/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26344,7 +26344,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchDmsCalendarsIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/${id}/status/${status}`,
+                path: `/api/dms/calendars/${id}/status/${status}`,
                 method: "PATCH",
                 ...params,
             }),
@@ -26359,7 +26359,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchDmsCalendarsEventSettingIdStatus: (id: string, data: StatusRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/event/setting/${id}/status`,
+                path: `/api/dms/calendars/event/setting/${id}/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26376,7 +26376,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchDmsCabinet: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet`,
+                path: `/api/dms/cabinet`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26404,7 +26404,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCmmnVersion, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/version/${versionId}/save`,
+                path: `/api/case/types/version/${versionId}/save`,
                 method: "PATCH",
                 query: query,
                 body: data,
@@ -26434,7 +26434,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/version/${versionId}/saveAll`,
+                path: `/api/case/types/version/${versionId}/saveAll`,
                 method: "PATCH",
                 query: query,
                 body: data,
@@ -26452,7 +26452,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         patchCaseTablesFields: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCaseTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/tables/fields`,
+                path: `/api/case/tables/fields`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26473,7 +26473,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/caseId/${caseId}/updateInformation`,
+                path: `/api/case/instance/caseId/${caseId}/updateInformation`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26489,7 +26489,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getVerificationPermissionBusinessBusinessid: (businessId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/verification/permission/business/${businessId}`,
+                path: `/api/verification/permission/business/${businessId}`,
                 method: "GET",
                 ...params,
             }),
@@ -26509,7 +26509,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/verification/permission/acl/permission/`,
+                path: `/api/verification/permission/acl/permission/`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -26530,7 +26530,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/verification/permission/acl/permission`,
+                path: `/api/verification/permission/acl/permission`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -26546,7 +26546,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getUserPermissionId: (id: string, params: RequestParams = {}) =>
             this.request<ResultAclUserPermission, Result | (ResultObject | Result | ResultString)>({
-                path: `/user/permission/${id}`,
+                path: `/api/user/permission/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -26561,7 +26561,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getUserPermissionAllUserid: (userId: string, params: RequestParams = {}) =>
             this.request<ResultListAclPermissionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/user/permission/all/${userId}`,
+                path: `/api/user/permission/all/${userId}`,
                 method: "GET",
                 ...params,
             }),
@@ -26569,7 +26569,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name GetRegisteredServerContactgroupIdUserUseridPermission
          * @summary Get permission of contact group
          * @request GET:/api/registered-server/contactGroup/{id}/user/{userId}/permission
@@ -26580,7 +26580,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}/user/${userId}/permission`,
+                path: `/api/registered-server/contactGroup/${id}/user/${userId}/permission`,
                 method: "GET",
                 ...params,
             }),
@@ -26588,7 +26588,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name GetRegisteredServerContactgroupList
          * @summary Query all contact group without filter condition
          * @request GET:/api/registered-server/contactGroup/list
@@ -26600,7 +26600,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/list`,
+                path: `/api/registered-server/contactGroup/list`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -26609,14 +26609,14 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name GetRegisteredServerContactgroupHistorical
          * @summary Query all historical contact group without filter condition
          * @request GET:/api/registered-server/contactGroup/historical
          */
         getRegisteredServerContactgroupHistorical: (params: RequestParams = {}) =>
             this.request<ResultListContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/historical`,
+                path: `/api/registered-server/contactGroup/historical`,
                 method: "GET",
                 ...params,
             }),
@@ -26638,7 +26638,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/postgrest/${table}`,
+                path: `/api/postgrest/${table}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -26654,7 +26654,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPermissionsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultAclPermissionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/permissions/${id}`,
+                path: `/api/permissions/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -26669,7 +26669,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deletePermissionsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/permissions/${id}`,
+                path: `/api/permissions/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -26684,7 +26684,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPermissionsNameName: (name: string, params: RequestParams = {}) =>
             this.request<ResultAclPermissionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/permissions/name/${name}`,
+                path: `/api/permissions/name/${name}`,
                 method: "GET",
                 ...params,
             }),
@@ -26699,7 +26699,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deletePermissionsNameName: (name: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/permissions/name/${name}`,
+                path: `/api/permissions/name/${name}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -26714,7 +26714,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPermissionUsersId: (id: string, params: RequestParams = {}) =>
             this.request<ResultAclUserInformation, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/users/${id}`,
+                path: `/api/permission/users/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -26729,7 +26729,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deletePermissionUsersId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/users/${id}`,
+                path: `/api/permission/users/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -26744,7 +26744,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPermissionUserRelationshipsGroupidGroupid: (groupId: string, params: RequestParams = {}) =>
             this.request<ResultListAclUserRelationshipWithUserGroup, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/user/relationships/groupId/${groupId}`,
+                path: `/api/permission/user/relationships/groupId/${groupId}`,
                 method: "GET",
                 ...params,
             }),
@@ -26759,7 +26759,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPermissionUserGroupId: (id: string, params: RequestParams = {}) =>
             this.request<ResultAclUserGroup, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/user/group/${id}`,
+                path: `/api/permission/user/group/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -26774,7 +26774,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deletePermissionUserGroupId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/user/group/${id}`,
+                path: `/api/permission/user/group/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -26789,7 +26789,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPermissionUserGroupGroupidUsers: (groupId: string, params: RequestParams = {}) =>
             this.request<ResultAclUserGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/user/group/${groupId}/users`,
+                path: `/api/permission/user/group/${groupId}/users`,
                 method: "GET",
                 ...params,
             }),
@@ -26808,7 +26808,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/user/group/groups/all`,
+                path: `/api/permission/user/group/groups/all`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -26828,7 +26828,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/user/group/all`,
+                path: `/api/permission/user/group/all`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -26844,7 +26844,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPermissionEntryId: (id: string, params: RequestParams = {}) =>
             this.request<ResultAccessControlEntry, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/entry/${id}`,
+                path: `/api/permission/entry/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -26859,7 +26859,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deletePermissionEntryId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/permission/entry/${id}`,
+                path: `/api/permission/entry/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -26873,7 +26873,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPasswordUserStatus: (params: RequestParams = {}) =>
             this.request<ResultUserStatusDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/password/user-status`,
+                path: `/api/password/user-status`,
                 method: "GET",
                 ...params,
             }),
@@ -26887,7 +26887,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPasswordHasLockUserid: (userId: string, params: RequestParams = {}) =>
             this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/password/has-lock/${userId}`,
+                path: `/api/password/has-lock/${userId}`,
                 method: "GET",
                 ...params,
             }),
@@ -26901,7 +26901,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPasswordConfig: (params: RequestParams = {}) =>
             this.request<ResultPasswordConfigDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/password/config`,
+                path: `/api/password/config`,
                 method: "GET",
                 ...params,
             }),
@@ -26915,7 +26915,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPasswordCheckOldPasswordPassword: (password: string, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/password/check-old-password/${password}`,
+                path: `/api/password/check-old-password/${password}`,
                 method: "GET",
                 ...params,
             }),
@@ -26935,7 +26935,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/password/check-lock-user/${userId}`,
+                path: `/api/password/check-lock-user/${userId}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -26950,7 +26950,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPasswordCheckExpire: (params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/password/check-expire`,
+                path: `/api/password/check-expire`,
                 method: "GET",
                 ...params,
             }),
@@ -26965,7 +26965,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoUserUserid: (userId: string, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/user/${userId}`,
+                path: `/api/nuxeo/user/${userId}`,
                 method: "GET",
                 ...params,
             }),
@@ -26979,7 +26979,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoUserVirtualfolder2Setting: (params: RequestParams = {}) =>
             this.request<ResultListVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/user/virtualfolder2/setting`,
+                path: `/api/nuxeo/user/virtualfolder2/setting`,
                 method: "GET",
                 ...params,
             }),
@@ -26994,7 +26994,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoUserVirtualfolderSetting: (params: RequestParams = {}) =>
             this.request<ResultListVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/user/virtualfolder/setting`,
+                path: `/api/nuxeo/user/virtualfolder/setting`,
                 method: "GET",
                 ...params,
             }),
@@ -27008,7 +27008,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoUserVirtualfolderSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/user/virtualfolder/setting/${id}`,
+                path: `/api/nuxeo/user/virtualfolder/setting/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -27023,7 +27023,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoUserListheaders: (params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/user/listHeaders`,
+                path: `/api/nuxeo/user/listHeaders`,
                 method: "GET",
                 ...params,
             }),
@@ -27038,7 +27038,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoUserGetapplication: (params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/user/getApplication`,
+                path: `/api/nuxeo/user/getApplication`,
                 method: "GET",
                 ...params,
             }),
@@ -27057,7 +27057,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/user/confirmReset`,
+                path: `/api/nuxeo/user/confirmReset`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27073,7 +27073,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoTemplateTemplateid: (templateId: string, params: RequestParams = {}) =>
             this.request<ResultDocumentTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/template/${templateId}`,
+                path: `/api/nuxeo/template/${templateId}`,
                 method: "GET",
                 ...params,
             }),
@@ -27088,7 +27088,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoTemplateAll: (params: RequestParams = {}) =>
             this.request<ResultListDocumentTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/template/all`,
+                path: `/api/nuxeo/template/all`,
                 method: "GET",
                 ...params,
             }),
@@ -27109,7 +27109,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/share/preview`,
+                path: `/api/nuxeo/share/preview`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27130,7 +27130,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/share/preview/retry`,
+                path: `/api/nuxeo/share/preview/retry`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27146,7 +27146,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoSharePrepareDownloadDocid: (docId: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/share/prepare/download/${docId}`,
+                path: `/api/nuxeo/share/prepare/download/${docId}`,
                 method: "GET",
                 ...params,
             }),
@@ -27167,7 +27167,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/share/download`,
+                path: `/api/nuxeo/share/download`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27188,7 +27188,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/share/download/retry`,
+                path: `/api/nuxeo/share/download/retry`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27210,7 +27210,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListEasyShareDocumentResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/share/documents`,
+                path: `/api/nuxeo/share/documents`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27226,7 +27226,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoSettingView: (params: RequestParams = {}) =>
             this.request<ResultViewSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/setting/view`,
+                path: `/api/nuxeo/setting/view`,
                 method: "GET",
                 ...params,
             }),
@@ -27246,7 +27246,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/search/searchAllParent`,
+                path: `/api/nuxeo/search/searchAllParent`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27261,7 +27261,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoSearchQueryNestedSearchLog: (params: RequestParams = {}) =>
             this.request<ResultListNestedSearchLogRecord, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/search/query_nested_search_log`,
+                path: `/api/nuxeo/search/query_nested_search_log`,
                 method: "GET",
                 ...params,
             }),
@@ -27276,7 +27276,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoSearchOpenSearchDocumentid: (documentId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/search/open-search/${documentId}`,
+                path: `/api/nuxeo/search/open-search/${documentId}`,
                 method: "GET",
                 ...params,
             }),
@@ -27291,7 +27291,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoSearchGetexportheader: (params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/search/getExportHeader`,
+                path: `/api/nuxeo/search/getExportHeader`,
                 method: "GET",
                 ...params,
             }),
@@ -27311,7 +27311,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/public/share/preview`,
+                path: `/api/nuxeo/public/share/preview`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27332,7 +27332,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/public/share/download`,
+                path: `/api/nuxeo/public/share/download`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27354,7 +27354,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultEasyShareDocumentResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/public/share/document/${documentId}`,
+                path: `/api/nuxeo/public/share/document/${documentId}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27376,7 +27376,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultEasyShareDocumentResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/public/document/${documentId}`,
+                path: `/api/nuxeo/public/document/${documentId}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27397,7 +27397,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListEasyShareDocumentResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/public/document`,
+                path: `/api/nuxeo/public/document`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27418,7 +27418,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListEasyShareDocumentResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/public/share/document`,
+                path: `/api/nuxeo/public/share/document`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27433,7 +27433,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoMqStreams: (params: RequestParams = {}) =>
             this.request<ResultMapStringMQProperties, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/mq/streams`,
+                path: `/api/nuxeo/mq/streams`,
                 method: "GET",
                 ...params,
             }),
@@ -27447,7 +27447,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoJobWriteaitrainingdata: (params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/job/writeAiTrainingData`,
+                path: `/api/nuxeo/job/writeAiTrainingData`,
                 method: "GET",
                 ...params,
             }),
@@ -27462,7 +27462,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoIdentityUserUseridInformation: (userId: string, params: RequestParams = {}) =>
             this.request<ResultVerifyPermission, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/user/${userId}/information`,
+                path: `/api/nuxeo/identity/user/${userId}/information`,
                 method: "GET",
                 ...params,
             }),
@@ -27482,7 +27482,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/getOfficeToken/${id}`,
+                path: `/api/nuxeo/getOfficeToken/${id}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27505,7 +27505,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/filerequest/`,
+                path: `/api/nuxeo/filerequest/`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27525,7 +27525,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultUploadRequestResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/filerequest/`,
+                path: `/api/nuxeo/filerequest/`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -27546,7 +27546,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/versions`,
+                path: `/api/nuxeo/document/versions`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27561,7 +27561,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoDocumentTemplates: (params: RequestParams = {}) =>
             this.request<ResultListDocumentTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/templates`,
+                path: `/api/nuxeo/document/templates`,
                 method: "GET",
                 ...params,
             }),
@@ -27575,7 +27575,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoDocumentTemplatesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultDocumentTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/templates/${id}`,
+                path: `/api/nuxeo/document/templates/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -27594,7 +27594,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListSearchDocumentVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/search`,
+                path: `/api/nuxeo/document/search`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27609,7 +27609,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoDocumentRetryClassificationUploadidDeprecate: (uploadId: string, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/retry_classification/${uploadId}/`,
+                path: `/api/nuxeo/document/retry_classification/${uploadId}/`,
                 method: "GET",
                 ...params,
             }),
@@ -27623,7 +27623,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoDocumentRetryClassificationUploadid: (uploadId: string, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/retry_classification/${uploadId}`,
+                path: `/api/nuxeo/document/retry_classification/${uploadId}`,
                 method: "GET",
                 ...params,
             }),
@@ -27637,7 +27637,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoDocumentQueryaianalyzeIdorpath: (idOrPath: string, params: RequestParams = {}) =>
             this.request<ResultAiAnalysisDocumentVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/queryAiAnalyze/${idOrPath}`,
+                path: `/api/nuxeo/document/queryAiAnalyze/${idOrPath}`,
                 method: "GET",
                 ...params,
             }),
@@ -27656,7 +27656,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListSearchDocumentVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/list`,
+                path: `/api/nuxeo/document/list`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27671,7 +27671,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoDocumentDownloadTempFileId: (id: string, params: RequestParams = {}) =>
             this.request<string, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/download_temp_file/${id}`,
+                path: `/api/nuxeo/document/download_temp_file/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -27690,7 +27690,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/children`,
+                path: `/api/nuxeo/document/children`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27705,7 +27705,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoDocumentAdditionalFormatDocumentid: (documentId: string, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/additional/format/${documentId}`,
+                path: `/api/nuxeo/document/additional/format/${documentId}`,
                 method: "GET",
                 ...params,
             }),
@@ -27725,7 +27725,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/additional/format/download`,
+                path: `/api/nuxeo/document/additional/format/download`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27747,7 +27747,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/acl/permission`,
+                path: `/api/nuxeo/document/acl/permission`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27762,7 +27762,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoCollectionAllDeprecate: (params: RequestParams = {}) =>
             this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/all/`,
+                path: `/api/nuxeo/collection/all/`,
                 method: "GET",
                 ...params,
             }),
@@ -27776,7 +27776,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoCollectionAll: (params: RequestParams = {}) =>
             this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/all`,
+                path: `/api/nuxeo/collection/all`,
                 method: "GET",
                 ...params,
             }),
@@ -27790,7 +27790,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoAdminVirtualfolderSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/admin/virtualfolder/setting/${id}`,
+                path: `/api/nuxeo/admin/virtualfolder/setting/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -27804,7 +27804,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoAdminVirtualfolderSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/admin/virtualfolder/setting/${id}`,
+                path: `/api/nuxeo/admin/virtualfolder/setting/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -27818,7 +27818,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoAdminSettingLanguage: (params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/admin/setting/language`,
+                path: `/api/nuxeo/admin/setting/language`,
                 method: "GET",
                 ...params,
             }),
@@ -27832,7 +27832,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoAdminSettingSystemId: (systemId: string, params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/admin/setting/${systemId}`,
+                path: `/api/nuxeo/admin/setting/${systemId}`,
                 method: "GET",
                 ...params,
             }),
@@ -27846,7 +27846,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNuxeoAdminIcons: (params: RequestParams = {}) =>
             this.request<ResultListCustomIconDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/admin/icons`,
+                path: `/api/nuxeo/admin/icons`,
                 method: "GET",
                 ...params,
             }),
@@ -27861,7 +27861,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getMessageQueueDocumentidMessage: (documentId: string, params: RequestParams = {}) =>
             this.request<ResultListBusinessResultRecord, Result | (ResultObject | Result | ResultString)>({
-                path: `/message/queue/${documentId}/message`,
+                path: `/api/message/queue/${documentId}/message`,
                 method: "GET",
                 ...params,
             }),
@@ -27881,7 +27881,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListMQMessageTotalDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/message/queue/total`,
+                path: `/api/message/queue/total`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27897,7 +27897,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getMessageQueueReportStatusgroup: (params: RequestParams = {}) =>
             this.request<ResultListMQConsumeGroupStatusDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/message/queue/report/statusGroup`,
+                path: `/api/message/queue/report/statusGroup`,
                 method: "GET",
                 ...params,
             }),
@@ -27918,7 +27918,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListMQDayTotalDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/message/queue/report/hoursGroup`,
+                path: `/api/message/queue/report/hoursGroup`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27939,7 +27939,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListMQDayTotalDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/message/queue/report/dayGroup`,
+                path: `/api/message/queue/report/dayGroup`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -27955,7 +27955,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getMessageQueueConsumes: (params: RequestParams = {}) =>
             this.request<ResultListMQConfigurationInfo, Result | (ResultObject | Result | ResultString)>({
-                path: `/message/queue/consumes`,
+                path: `/api/message/queue/consumes`,
                 method: "GET",
                 ...params,
             }),
@@ -27969,7 +27969,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getImportjobsPageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/importJobs/page/conditions`,
+                path: `/api/importJobs/page/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -27983,7 +27983,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getFileRetryClassificationUploadid: (uploadId: string, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/file/retry_classification/${uploadId}`,
+                path: `/api/file/retry_classification/${uploadId}`,
                 method: "GET",
                 ...params,
             }),
@@ -27997,7 +27997,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getFileQueryaianalyzeIdorpath: (idOrPath: string, params: RequestParams = {}) =>
             this.request<ResultAiAnalysisDocumentVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/file/queryAiAnalyze/${idOrPath}`,
+                path: `/api/file/queryAiAnalyze/${idOrPath}`,
                 method: "GET",
                 ...params,
             }),
@@ -28011,7 +28011,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getFileDownloadFileId: (id: string, params: RequestParams = {}) =>
             this.request<string, Result | (ResultObject | Result | ResultString)>({
-                path: `/file/download/file/${id}`,
+                path: `/api/file/download/file/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -28026,7 +28026,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getExternalstorageIdProfilesList: (id: string, params: RequestParams = {}) =>
             this.request<ResultListExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/${id}/profiles/list`,
+                path: `/api/externalStorage/${id}/profiles/list`,
                 method: "GET",
                 ...params,
             }),
@@ -28041,7 +28041,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getExternalstorageProfilesProfileidOutputrecordList: (profileId: string, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/externalStorage/profiles/${profileId}/outputRecord/list`,
+                path: `/api/externalStorage/profiles/${profileId}/outputRecord/list`,
                 method: "GET",
                 ...params,
             }),
@@ -28056,7 +28056,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getExternalDriveRcloneTestRemoteName: (remoteName: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/rclone/test/${remoteName}`,
+                path: `/api/external-drive/rclone/test/${remoteName}`,
                 method: "GET",
                 ...params,
             }),
@@ -28071,7 +28071,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getExternalDriveRcloneTestAll: (params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/rclone/test-all`,
+                path: `/api/external-drive/rclone/test-all`,
                 method: "GET",
                 ...params,
             }),
@@ -28086,7 +28086,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getExternalDriveRcloneConfig: (params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/rclone/config`,
+                path: `/api/external-drive/rclone/config`,
                 method: "GET",
                 ...params,
             }),
@@ -28101,7 +28101,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getExternalDriveOauthCloudServices: (params: RequestParams = {}) =>
             this.request<ResultListCloudServiceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/oauth/cloud-services`,
+                path: `/api/external-drive/oauth/cloud-services`,
                 method: "GET",
                 ...params,
             }),
@@ -28122,7 +28122,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/oauth/callback`,
+                path: `/api/external-drive/oauth/callback`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28138,7 +28138,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getExternalDriveOauthAppsAppIdAuthorize: (appId: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/oauth/apps/${appId}/authorize`,
+                path: `/api/external-drive/oauth/apps/${appId}/authorize`,
                 method: "GET",
                 ...params,
             }),
@@ -28153,7 +28153,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getExternalDriveOauthAppsDeprecate: (params: RequestParams = {}) =>
             this.request<ResultListOAuthAppDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/oauth/apps/`,
+                path: `/api/external-drive/oauth/apps/`,
                 method: "GET",
                 ...params,
             }),
@@ -28174,7 +28174,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/event/calendars/settings`,
+                path: `/api/event/calendars/settings`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28190,7 +28190,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getEventCalendarsSettingsIdUsers: (id: string, params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/event/calendars/settings/${id}/users`,
+                path: `/api/event/calendars/settings/${id}/users`,
                 method: "GET",
                 ...params,
             }),
@@ -28211,7 +28211,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/version`,
+                path: `/api/docpal/workflow/version`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28227,7 +28227,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWorkflowVersionVersionid: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/version/${versionId}`,
+                path: `/api/docpal/workflow/version/${versionId}`,
                 method: "GET",
                 ...params,
             }),
@@ -28241,7 +28241,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteWorkflowVersionVersionid: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/version/${versionId}`,
+                path: `/api/docpal/workflow/version/${versionId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -28256,7 +28256,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWorkflowVersionVersionidBpmnxml: (versionId: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/version/${versionId}/bpmnXml`,
+                path: `/api/docpal/workflow/version/${versionId}/bpmnXml`,
                 method: "GET",
                 ...params,
             }),
@@ -28271,7 +28271,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWorkflowVersionKeyProcessdefinitionkey: (processDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/version/key/${processDefinitionKey}`,
+                path: `/api/docpal/workflow/version/key/${processDefinitionKey}`,
                 method: "GET",
                 ...params,
             }),
@@ -28292,7 +28292,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/version/json`,
+                path: `/api/docpal/workflow/version/json`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28315,7 +28315,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/version/bpmnXml`,
+                path: `/api/docpal/workflow/version/bpmnXml`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28330,7 +28330,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWorkflowVariablesInstanceid: (instanceId: string, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/variables/${instanceId}`,
+                path: `/api/docpal/workflow/variables/${instanceId}`,
                 method: "GET",
                 ...params,
             }),
@@ -28351,7 +28351,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/start/properties`,
+                path: `/api/docpal/workflow/start/properties`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28371,7 +28371,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/start-form/properties`,
+                path: `/api/docpal/workflow/start-form/properties`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28391,7 +28391,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/getProcessDefinitionList`,
+                path: `/api/docpal/workflow/process/getProcessDefinitionList`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28411,7 +28411,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListUserTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/getProcessByProcDefId`,
+                path: `/api/docpal/workflow/process/getProcessByProcDefId`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28427,7 +28427,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWorkflowProcessDefinitionProcessdefinitionkey: (processDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/${processDefinitionKey}`,
+                path: `/api/docpal/workflow/process/definition/${processDefinitionKey}`,
                 method: "GET",
                 ...params,
             }),
@@ -28445,7 +28445,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/${processDefinitionKey}/history`,
+                path: `/api/docpal/workflow/process/definition/${processDefinitionKey}/history`,
                 method: "GET",
                 ...params,
             }),
@@ -28466,7 +28466,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListBpmnDynamicFormDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/forms`,
+                path: `/api/docpal/workflow/process/definition/forms`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28489,7 +28489,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/forms/${elementKey}`,
+                path: `/api/docpal/workflow/process/definition/forms/${elementKey}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28511,7 +28511,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBpmnDynamicFormDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/forms/start`,
+                path: `/api/docpal/workflow/process/definition/forms/start`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28527,7 +28527,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWorkflowProcessDefinitionDraftDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/draft/${draftId}`,
+                path: `/api/docpal/workflow/process/definition/draft/${draftId}`,
                 method: "GET",
                 ...params,
             }),
@@ -28548,7 +28548,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/draft/${draftId}`,
+                path: `/api/docpal/workflow/process/definition/draft/${draftId}`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -28564,7 +28564,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWorkflowProcessDefinitionDraftDraftidDownloadXml: (draftId: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/draft/${draftId}/download/xml`,
+                path: `/api/docpal/workflow/process/definition/draft/${draftId}/download/xml`,
                 method: "GET",
                 ...params,
             }),
@@ -28578,7 +28578,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWorkflowProcessDefinitionDraftAll: (params: RequestParams = {}) =>
             this.request<ResultListProcessDefinitionDraft, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/draft/all`,
+                path: `/api/docpal/workflow/process/definition/draft/all`,
                 method: "GET",
                 ...params,
             }),
@@ -28598,7 +28598,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/download/xml`,
+                path: `/api/docpal/workflow/process/definition/download/xml`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28613,7 +28613,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWorkflowHistoryGethistoryexportheader: (params: RequestParams = {}) =>
             this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/history/getHistoryExportHeader`,
+                path: `/api/docpal/workflow/history/getHistoryExportHeader`,
                 method: "GET",
                 ...params,
             }),
@@ -28634,7 +28634,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/getCommentByProcessInstanceId`,
+                path: `/api/docpal/workflow/getCommentByProcessInstanceId`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28654,7 +28654,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultLinkedHashSetString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/getBusinessKeyList`,
+                path: `/api/docpal/workflow/getBusinessKeyList`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28676,7 +28676,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListBpmnDynamicFormDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/forms`,
+                path: `/api/docpal/workflow/forms`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28699,7 +28699,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/forms/${elementKey}`,
+                path: `/api/docpal/workflow/forms/${elementKey}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28720,7 +28720,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/form/properties`,
+                path: `/api/docpal/workflow/form/properties`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28742,7 +28742,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultAdhocApprovalResp, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/adhoc/list`,
+                path: `/api/docpal/workflow/adhoc/list`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28762,7 +28762,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/adhoc/canStart`,
+                path: `/api/docpal/workflow/adhoc/canStart`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28778,7 +28778,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWhatsappGetMessageTemplates: (params: RequestParams = {}) =>
             this.request<ResultListMessageTemplateDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/whatsapp/get_message_templates`,
+                path: `/api/docpal/whatsapp/get_message_templates`,
                 method: "GET",
                 ...params,
             }),
@@ -28793,7 +28793,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWatermarkTemplatesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/watermark/templates/${id}`,
+                path: `/api/docpal/watermark/templates/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -28808,7 +28808,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteWatermarkTemplatesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/watermark/templates/${id}`,
+                path: `/api/docpal/watermark/templates/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -28823,7 +28823,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWatermarkTemplatesNameName: (name: string, params: RequestParams = {}) =>
             this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/watermark/templates/name/${name}`,
+                path: `/api/docpal/watermark/templates/name/${name}`,
                 method: "GET",
                 ...params,
             }),
@@ -28838,7 +28838,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteWatermarkTemplatesNameName: (name: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/watermark/templates/name/${name}`,
+                path: `/api/docpal/watermark/templates/name/${name}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -28853,7 +28853,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWatermarkTemplatesAll: (params: RequestParams = {}) =>
             this.request<ResultListWatermarkSettingsTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/watermark/templates/all`,
+                path: `/api/docpal/watermark/templates/all`,
                 method: "GET",
                 ...params,
             }),
@@ -28868,7 +28868,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWatermarkTemplateTemplateid: (templateId: string, params: RequestParams = {}) =>
             this.request<ResultListWatermarkSettingsDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/watermark/template/${templateId}`,
+                path: `/api/docpal/watermark/template/${templateId}`,
                 method: "GET",
                 ...params,
             }),
@@ -28882,7 +28882,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getWatermarkSettingsPreviewId: (id: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/watermark/settings/preview/${id}`,
+                path: `/api/docpal/watermark/settings/preview/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -28902,7 +28902,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/watermark/document/preview`,
+                path: `/api/docpal/watermark/document/preview`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -28918,7 +28918,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getUserRoles: (params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/user/roles`,
+                path: `/api/docpal/user/roles`,
                 method: "GET",
                 ...params,
             }),
@@ -28934,7 +28934,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getUserProfileUseridSignatureInfo: (userId: string, params: RequestParams = {}) =>
             this.request<ResultUserSignature, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/user/profile/${userId}/signature/info`,
+                path: `/api/docpal/user/profile/${userId}/signature/info`,
                 method: "GET",
                 ...params,
             }),
@@ -28950,7 +28950,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getUserProfileSetting: (params: RequestParams = {}) =>
             this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/user/profile/setting`,
+                path: `/api/docpal/user/profile/setting`,
                 method: "GET",
                 ...params,
             }),
@@ -28965,7 +28965,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getUserList: (params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/user/list`,
+                path: `/api/docpal/user/list`,
                 method: "GET",
                 ...params,
             }),
@@ -28980,7 +28980,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getUserGroups: (params: RequestParams = {}) =>
             this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/user/groups`,
+                path: `/api/docpal/user/groups`,
                 method: "GET",
                 ...params,
             }),
@@ -28996,7 +28996,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getUserGetapplication: (params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/user/getApplication`,
+                path: `/api/docpal/user/getApplication`,
                 method: "GET",
                 ...params,
             }),
@@ -29010,7 +29010,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getTypesMetadataGenerateJsonSchemaDocpaltypename: (docpalTypeName: string, params: RequestParams = {}) =>
             this.request<ResultObjectNode, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/types/metadata/generate/json-schema/${docpalTypeName}`,
+                path: `/api/docpal/types/metadata/generate/json-schema/${docpalTypeName}`,
                 method: "GET",
                 ...params,
             }),
@@ -29025,7 +29025,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getTypesMetadataV2Docpaltypename: (docpalTypeName: string, params: RequestParams = {}) =>
             this.request<ResultListMetadataValidDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/types/metadata-v2/${docpalTypeName}`,
+                path: `/api/docpal/types/metadata-v2/${docpalTypeName}`,
                 method: "GET",
                 ...params,
             }),
@@ -29039,7 +29039,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getTypesMetadataV2QueryCache: (params: RequestParams = {}) =>
             this.request<ResultListMetadataResponseVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/types/metadata-v2/query-cache`,
+                path: `/api/docpal/types/metadata-v2/query-cache`,
                 method: "GET",
                 ...params,
             }),
@@ -29054,7 +29054,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getTypesActive: (params: RequestParams = {}) =>
             this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/types/active`,
+                path: `/api/docpal/types/active`,
                 method: "GET",
                 ...params,
             }),
@@ -29069,7 +29069,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getSystemfeatureUsers: (params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/systemfeature/users`,
+                path: `/api/docpal/systemfeature/users`,
                 method: "GET",
                 ...params,
             }),
@@ -29084,7 +29084,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getSystemfeatureUsersNameUsername: (username: string, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/systemfeature/users/name/${username}`,
+                path: `/api/docpal/systemfeature/users/name/${username}`,
                 method: "GET",
                 ...params,
             }),
@@ -29099,7 +29099,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getSystemfeatureKeycloakTokenVerification: (params: RequestParams = {}) =>
             this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/systemfeature/keycloak-token-verification`,
+                path: `/api/docpal/systemfeature/keycloak-token-verification`,
                 method: "GET",
                 ...params,
             }),
@@ -29114,7 +29114,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getSystemfeatureGetfeatures: (params: RequestParams = {}) =>
             this.request<ResultMapStringBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/systemfeature/getFeatures`,
+                path: `/api/docpal/systemfeature/getFeatures`,
                 method: "GET",
                 ...params,
             }),
@@ -29129,7 +29129,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getSettingWorkflowConditionSetting: (params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/setting/workflow/condition/setting`,
+                path: `/api/docpal/setting/workflow/condition/setting`,
                 method: "GET",
                 ...params,
             }),
@@ -29153,7 +29153,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFormPropertiesRelation, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/relation/query`,
+                path: `/api/docpal/relation/query`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -29177,7 +29177,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListLanguageEntity, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/relation/queryLanguage`,
+                path: `/api/docpal/relation/queryLanguage`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -29193,7 +29193,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getRelationQuerylanguagelocale: (params: RequestParams = {}) =>
             this.request<ResultSetString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/relation/queryLanguageLocale`,
+                path: `/api/docpal/relation/queryLanguageLocale`,
                 method: "GET",
                 ...params,
             }),
@@ -29208,7 +29208,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getRelationIsldapmode: (params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/relation/isLdapMode`,
+                path: `/api/docpal/relation/isLdapMode`,
                 method: "GET",
                 ...params,
             }),
@@ -29222,7 +29222,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getRelationInitelanguagecache: (params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/relation/initeLanguageCache`,
+                path: `/api/docpal/relation/initeLanguageCache`,
                 method: "GET",
                 ...params,
             }),
@@ -29237,7 +29237,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getRelationGetkeycloakproperty: (params: RequestParams = {}) =>
             this.request<ResultKeyCloakPropertyVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/relation/getKeyCloakProperty`,
+                path: `/api/docpal/relation/getKeyCloakProperty`,
                 method: "GET",
                 ...params,
             }),
@@ -29252,7 +29252,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPolicyRetentions: (params: RequestParams = {}) =>
             this.request<ResultListRetentionPolicy, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/retentions`,
+                path: `/api/docpal/policy/retentions`,
                 method: "GET",
                 ...params,
             }),
@@ -29267,7 +29267,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPolicyRetentionsRetentionpolicyidEvents: (retentionPolicyId: string, params: RequestParams = {}) =>
             this.request<ResultListRetentionEvent, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/retentions/${retentionPolicyId}/events`,
+                path: `/api/docpal/policy/retentions/${retentionPolicyId}/events`,
                 method: "GET",
                 ...params,
             }),
@@ -29281,7 +29281,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPolicyRetentionsPolicyidScanExpired: (policyId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/retentions/${policyId}/scan/expired`,
+                path: `/api/docpal/policy/retentions/${policyId}/scan/expired`,
                 method: "GET",
                 ...params,
             }),
@@ -29296,7 +29296,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPolicyRetentionsPolicyidScanDocument: (policyId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/retentions/${policyId}/scan/document`,
+                path: `/api/docpal/policy/retentions/${policyId}/scan/document`,
                 method: "GET",
                 ...params,
             }),
@@ -29311,7 +29311,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPolicyRetentionsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultRetentionPolicyResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/retentions/${id}`,
+                path: `/api/docpal/policy/retentions/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -29326,7 +29326,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPolicyRetentionsScanExpired: (params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/retentions/scan/expired`,
+                path: `/api/docpal/policy/retentions/scan/expired`,
                 method: "GET",
                 ...params,
             }),
@@ -29341,7 +29341,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPolicyRetentionsScanDocument: (params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/retentions/scan/document`,
+                path: `/api/docpal/policy/retentions/scan/document`,
                 method: "GET",
                 ...params,
             }),
@@ -29356,7 +29356,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPolicyRetentionsEvents: (params: RequestParams = {}) =>
             this.request<ResultMapStringListRetentionEvent, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/retentions/events`,
+                path: `/api/docpal/policy/retentions/events`,
                 method: "GET",
                 ...params,
             }),
@@ -29371,7 +29371,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPolicyRetentionsDocumentId: (id: string, params: RequestParams = {}) =>
             this.request<ResultRetentionDocument, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/retentions/document/${id}`,
+                path: `/api/docpal/policy/retentions/document/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -29386,7 +29386,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPolicyRetentionsDocumentPageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/retentions/document/page/conditions`,
+                path: `/api/docpal/policy/retentions/document/page/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -29401,7 +29401,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPolicyHolds: (params: RequestParams = {}) =>
             this.request<ResultListHoldPolicy, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/holds`,
+                path: `/api/docpal/policy/holds`,
                 method: "GET",
                 ...params,
             }),
@@ -29416,7 +29416,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPolicyHoldsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultHoldPolicy, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/holds/${id}`,
+                path: `/api/docpal/policy/holds/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -29431,7 +29431,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPolicyDocumentsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultHoldDocument, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/documents/${id}`,
+                path: `/api/docpal/policy/documents/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -29445,7 +29445,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deletePolicyDocumentsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/documents/${id}`,
+                path: `/api/docpal/policy/documents/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -29460,7 +29460,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPolicyDocumentsPageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/documents/page/conditions`,
+                path: `/api/docpal/policy/documents/page/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -29475,7 +29475,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPolicyDocumentsDocumentDocumentid: (documentId: string, params: RequestParams = {}) =>
             this.request<ResultHoldDocument, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/documents/document/${documentId}`,
+                path: `/api/docpal/policy/documents/document/${documentId}`,
                 method: "GET",
                 ...params,
             }),
@@ -29490,7 +29490,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPolicyDocumentsDocumentDocumentidApproval: (documentId: string, params: RequestParams = {}) =>
             this.request<ResultHoldDocument, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/policy/documents/document/${documentId}/approval`,
+                path: `/api/docpal/policy/documents/document/${documentId}/approval`,
                 method: "GET",
                 ...params,
             }),
@@ -29504,7 +29504,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPersonalLanding: (params: RequestParams = {}) =>
             this.request<ResultPersonalLandingResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/personal/landing`,
+                path: `/api/docpal/personal/landing`,
                 method: "GET",
                 ...params,
             }),
@@ -29518,7 +29518,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPersonalLandingDashboardId: (id: number, params: RequestParams = {}) =>
             this.request<ResultPersonalDashboard, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/personal/landing/dashboard/${id}`,
+                path: `/api/docpal/personal/landing/dashboard/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -29532,7 +29532,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPersonalLandingDashboardList: (params: RequestParams = {}) =>
             this.request<ResultListPersonalDashboard, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/personal/landing/dashboard/list`,
+                path: `/api/docpal/personal/landing/dashboard/list`,
                 method: "GET",
                 ...params,
             }),
@@ -29547,7 +29547,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getPersonalDashboardId: (id: number, params: RequestParams = {}) =>
             this.request<ResultPersonalDashboard, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/personal/dashboard/${id}`,
+                path: `/api/docpal/personal/dashboard/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -29561,7 +29561,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deletePersonalDashboardId: (id: number, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/personal/dashboard/${id}`,
+                path: `/api/docpal/personal/dashboard/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -29576,7 +29576,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getOauth2Authenticationmethod: (params: RequestParams = {}) =>
             this.request<ResultOAuth2AuthenticationMethod, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/oauth2/authenticationMethod`,
+                path: `/api/docpal/oauth2/authenticationMethod`,
                 method: "GET",
                 ...params,
             }),
@@ -29591,7 +29591,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getOauth2AccesstokenSenderaddressSenderaddress: (senderAddress: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/oauth2/accessToken/senderAddress/${senderAddress}`,
+                path: `/api/docpal/oauth2/accessToken/senderAddress/${senderAddress}`,
                 method: "GET",
                 ...params,
             }),
@@ -29606,7 +29606,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNotificationUnreadNumber: (params: RequestParams = {}) =>
             this.request<ResultObject | ResultString, Result | (ResultObject | Result | ResultString) | void>({
-                path: `/docpal/notification/unRead/number`,
+                path: `/api/docpal/notification/unRead/number`,
                 method: "GET",
                 ...params,
             }),
@@ -29621,7 +29621,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNotificationSubscriberSubscriberFolders: (subscriber: string, params: RequestParams = {}) =>
             this.request<ResultListDocumentThumbnailDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/subscriber/${subscriber}/folders`,
+                path: `/api/docpal/notification/subscriber/${subscriber}/folders`,
                 method: "GET",
                 ...params,
             }),
@@ -29640,7 +29640,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultNotificationSubscriber, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/subscriber/subscriber/${subscriber}/idOrPath/${idOrPath}`,
+                path: `/api/docpal/notification/subscriber/subscriber/${subscriber}/idOrPath/${idOrPath}`,
                 method: "GET",
                 ...params,
             }),
@@ -29659,7 +29659,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/subscriber/subscriber/${subscriber}/idOrPath/${idOrPath}`,
+                path: `/api/docpal/notification/subscriber/subscriber/${subscriber}/idOrPath/${idOrPath}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -29674,7 +29674,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNotificationSettingTypeTypeAll: (type: "SUB_DOCUMENT" | "SUBSCRIPTION", params: RequestParams = {}) =>
             this.request<ResultListNotificationSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/setting/type/${type}/all`,
+                path: `/api/docpal/notification/setting/type/${type}/all`,
                 method: "GET",
                 ...params,
             }),
@@ -29689,7 +29689,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNotificationSettingPreferences: (params: RequestParams = {}) =>
             this.request<ResultMapStringListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/setting/preferences`,
+                path: `/api/docpal/notification/setting/preferences`,
                 method: "GET",
                 ...params,
             }),
@@ -29704,7 +29704,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNotificationSettingModuleName: (params: RequestParams = {}) =>
             this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/setting/module_name`,
+                path: `/api/docpal/notification/setting/module_name`,
                 method: "GET",
                 ...params,
             }),
@@ -29719,7 +29719,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNotificationQueryOperatorList: (params: RequestParams = {}) =>
             this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/query_operator_list`,
+                path: `/api/docpal/notification/query_operator_list`,
                 method: "GET",
                 ...params,
             }),
@@ -29733,7 +29733,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNotificationQueryNotificationUnreadCountList: (params: RequestParams = {}) =>
             this.request<ResultListNotificationUnreadCountDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/query_notification_unread_count_list`,
+                path: `/api/docpal/notification/query_notification_unread_count_list`,
                 method: "GET",
                 ...params,
             }),
@@ -29747,7 +29747,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getNotificationQueryNotificationFilter: (params: RequestParams = {}) =>
             this.request<ResultListCheckBoxDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/notification/query_notification_filter`,
+                path: `/api/docpal/notification/query_notification_filter`,
                 method: "GET",
                 ...params,
             }),
@@ -29763,7 +29763,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getMasterTables: (params: RequestParams = {}) =>
             this.request<ResultListMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables`,
+                path: `/api/docpal/master/tables`,
                 method: "GET",
                 ...params,
             }),
@@ -29779,7 +29779,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getMasterTablesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/${id}`,
+                path: `/api/docpal/master/tables/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -29795,7 +29795,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getMasterTablesIdStructure: (id: string, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/${id}/structure`,
+                path: `/api/docpal/master/tables/${id}/structure`,
                 method: "GET",
                 ...params,
             }),
@@ -29811,7 +29811,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getMasterTablesIdAcls: (id: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/${id}/acls`,
+                path: `/api/docpal/master/tables/${id}/acls`,
                 method: "GET",
                 ...params,
             }),
@@ -29826,7 +29826,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getMasterTablesTest: (params: RequestParams = {}) =>
             this.request<void, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/test`,
+                path: `/api/docpal/master/tables/test`,
                 method: "GET",
                 ...params,
             }),
@@ -29842,7 +29842,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getMasterTablesRelationId: (id: string, params: RequestParams = {}) =>
             this.request<ResultListMTRelationResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/relation/${id}`,
+                path: `/api/docpal/master/tables/relation/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -29857,7 +29857,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getMasterTablesRecordSortOptionTableid: (tableId: string, params: RequestParams = {}) =>
             this.request<ResultListSelectOptionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/record/sort-option/${tableId}`,
+                path: `/api/docpal/master/tables/record/sort-option/${tableId}`,
                 method: "GET",
                 ...params,
             }),
@@ -29873,7 +29873,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getMasterTablesNameName: (name: string, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/name/${name}`,
+                path: `/api/docpal/master/tables/name/${name}`,
                 method: "GET",
                 ...params,
             }),
@@ -29889,7 +29889,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getMasterTablesForAdminRelationId: (id: string, params: RequestParams = {}) =>
             this.request<ResultListMTRelationResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/for_admin/relation/${id}`,
+                path: `/api/docpal/master/tables/for_admin/relation/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -29911,7 +29911,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/for_admin/record`,
+                path: `/api/docpal/master/tables/for_admin/record`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -29928,7 +29928,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getMasterTablesFindAllByUser: (params: RequestParams = {}) =>
             this.request<ResultListMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/master/tables/find_all_by_user`,
+                path: `/api/docpal/master/tables/find_all_by_user`,
                 method: "GET",
                 ...params,
             }),
@@ -29948,7 +29948,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare/initScheduler`,
+                path: `/api/docpal/internalShare/initScheduler`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -29969,7 +29969,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/internalShare/initScheduler/`,
+                path: `/api/docpal/internalShare/initScheduler/`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -29985,7 +29985,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getIdTemplatesNameName: (name: string, params: RequestParams = {}) =>
             this.request<ResultIdTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/id-templates/name/${name}`,
+                path: `/api/docpal/id-templates/name/${name}`,
                 method: "GET",
                 ...params,
             }),
@@ -30000,7 +30000,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getIdTemplatesList: (params: RequestParams = {}) =>
             this.request<ResultListIdTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/id-templates/list`,
+                path: `/api/docpal/id-templates/list`,
                 method: "GET",
                 ...params,
             }),
@@ -30016,7 +30016,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getFormDesignIdDetail: (id: string, params: RequestParams = {}) =>
             this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/${id}/detail`,
+                path: `/api/docpal/form/design/${id}/detail`,
                 method: "GET",
                 ...params,
             }),
@@ -30031,7 +30031,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getFormDesignProcessDefinitions: (params: RequestParams = {}) =>
             this.request<ResultListPDResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/process/definitions`,
+                path: `/api/docpal/form/design/process/definitions`,
                 method: "GET",
                 ...params,
             }),
@@ -30046,7 +30046,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getFormDesignEmailId: (id: string, params: RequestParams = {}) =>
             this.request<ResultEasyFormBaseEmailDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/email/${id}`,
+                path: `/api/docpal/form/design/email/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -30061,7 +30061,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getFormDesignEmailHistoryLogId: (id: number, params: RequestParams = {}) =>
             this.request<ResultEasyFormBaseEmailDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/email/history/log/${id}`,
+                path: `/api/docpal/form/design/email/history/log/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -30077,7 +30077,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getFormDesignDraftId: (id: string, params: RequestParams = {}) =>
             this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/draft/${id}`,
+                path: `/api/docpal/form/design/draft/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -30093,7 +30093,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getFormDesignDatatypeMapping: (params: RequestParams = {}) =>
             this.request<ResultListMTFieldTypeMapping, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/dataType/mapping`,
+                path: `/api/docpal/form/design/dataType/mapping`,
                 method: "GET",
                 ...params,
             }),
@@ -30107,7 +30107,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getEmailTemplateList: (params: RequestParams = {}) =>
             this.request<ResultListDocPalEmailTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/email/template/list`,
+                path: `/api/docpal/email/template/list`,
                 method: "GET",
                 ...params,
             }),
@@ -30122,7 +30122,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDocTemplateDoctemplateidSignature: (docTemplateId: string, params: RequestParams = {}) =>
             this.request<ResultListDocTemplateSignatureResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/doc/template/${docTemplateId}/signature`,
+                path: `/api/docpal/doc/template/${docTemplateId}/signature`,
                 method: "GET",
                 ...params,
             }),
@@ -30136,7 +30136,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDamSettings: (params: RequestParams = {}) =>
             this.request<ResultMapStringListDAMConversionSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/dam/settings`,
+                path: `/api/docpal/dam/settings`,
                 method: "GET",
                 ...params,
             }),
@@ -30153,7 +30153,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
                 ResultHashMapStringListConversionSupportDestType,
                 Result | (ResultObject | Result | ResultString)
             >({
-                path: `/docpal/dam/getSupportedFormat`,
+                path: `/api/docpal/dam/getSupportedFormat`,
                 method: "GET",
                 ...params,
             }),
@@ -30168,7 +30168,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getConversionGettemplatefilepath: (params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/conversion/getTemplateFilePath`,
+                path: `/api/docpal/conversion/getTemplateFilePath`,
                 method: "GET",
                 ...params,
             }),
@@ -30183,7 +30183,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getConversionGetsupportedformat: (params: RequestParams = {}) =>
             this.request<ResultMapStringListObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/conversion/getSupportedFormat`,
+                path: `/api/docpal/conversion/getSupportedFormat`,
                 method: "GET",
                 ...params,
             }),
@@ -30203,7 +30203,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFileConversionRecord, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/conversion/getConversionHistory`,
+                path: `/api/docpal/conversion/getConversionHistory`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -30220,7 +30220,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getContactgroupIdUserUseridPermission: (id: string, userId: string, params: RequestParams = {}) =>
             this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}/user/${userId}/permission`,
+                path: `/api/docpal/contactGroup/${id}/user/${userId}/permission`,
                 method: "GET",
                 ...params,
             }),
@@ -30236,7 +30236,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getContactgroupIdContactdetaillist: (id: string, data: any, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}/contactDetailList`,
+                path: `/api/docpal/contactGroup/${id}/contactDetailList`,
                 method: "GET",
                 body: data,
                 type: ContentType.Json,
@@ -30254,7 +30254,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getContactgroupList: (params: RequestParams = {}) =>
             this.request<ResultListContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/list`,
+                path: `/api/docpal/contactGroup/list`,
                 method: "GET",
                 ...params,
             }),
@@ -30275,7 +30275,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListCaseType, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types`,
+                path: `/api/docpal/case/types`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -30291,7 +30291,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesIdStylejson: (id: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/${id}/styleJson`,
+                path: `/api/docpal/case/types/${id}/styleJson`,
                 method: "GET",
                 ...params,
             }),
@@ -30313,7 +30313,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListPlanItemDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/${id}/startTask`,
+                path: `/api/docpal/case/types/${id}/startTask`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -30335,7 +30335,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/${id}/primaryForm`,
+                path: `/api/docpal/case/types/${id}/primaryForm`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -30351,7 +30351,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesIdCaseinfo: (id: string, params: RequestParams = {}) =>
             this.request<ResultListPlanTableFieldDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/${id}/caseInfo`,
+                path: `/api/docpal/case/types/${id}/caseInfo`,
                 method: "GET",
                 ...params,
             }),
@@ -30372,7 +30372,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/${caseTypeId}`,
+                path: `/api/docpal/case/types/${caseTypeId}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -30388,7 +30388,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesCasetypeidTables: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListCaseTable, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/${caseTypeId}/tables`,
+                path: `/api/docpal/case/types/${caseTypeId}/tables`,
                 method: "GET",
                 ...params,
             }),
@@ -30403,7 +30403,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesCasetypeidRecordsPageConditions: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/${caseTypeId}/records/page/conditions`,
+                path: `/api/docpal/case/types/${caseTypeId}/records/page/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -30417,7 +30417,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesCasetypeidPermissions: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/${caseTypeId}/permissions`,
+                path: `/api/docpal/case/types/${caseTypeId}/permissions`,
                 method: "GET",
                 ...params,
             }),
@@ -30431,7 +30431,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesCasetypeidPermissionsUserid: (caseTypeId: string, userId: string, params: RequestParams = {}) =>
             this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/${caseTypeId}/permissions/${userId}`,
+                path: `/api/docpal/case/types/${caseTypeId}/permissions/${userId}`,
                 method: "GET",
                 ...params,
             }),
@@ -30446,7 +30446,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesCasetypeidInstances: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnInstance, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/${caseTypeId}/instances`,
+                path: `/api/docpal/case/types/${caseTypeId}/instances`,
                 method: "GET",
                 ...params,
             }),
@@ -30461,7 +30461,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesCasetypeidDeployVersion: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultCaseModelDraft, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/${caseTypeId}/deploy/version`,
+                path: `/api/docpal/case/types/${caseTypeId}/deploy/version`,
                 method: "GET",
                 ...params,
             }),
@@ -30479,7 +30479,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/version/${cmmnVersionId}/permissions/${userId}`,
+                path: `/api/docpal/case/types/version/${cmmnVersionId}/permissions/${userId}`,
                 method: "GET",
                 ...params,
             }),
@@ -30494,7 +30494,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesPermissionsRules: (params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/permissions/rules`,
+                path: `/api/docpal/case/types/permissions/rules`,
                 method: "GET",
                 ...params,
             }),
@@ -30509,7 +30509,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesMy: (params: RequestParams = {}) =>
             this.request<ResultListCaseType, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/my`,
+                path: `/api/docpal/case/types/my`,
                 method: "GET",
                 ...params,
             }),
@@ -30524,7 +30524,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesDeploymentidDeploymentid: (deploymentId: string, params: RequestParams = {}) =>
             this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/deploymentId/${deploymentId}`,
+                path: `/api/docpal/case/types/deploymentId/${deploymentId}`,
                 method: "GET",
                 ...params,
             }),
@@ -30547,7 +30547,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListPlanItemDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/${caseTypeId}/startTask`,
+                path: `/api/docpal/case/instance/${caseTypeId}/startTask`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -30570,7 +30570,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/${caseTypeId}/startTask/download/excelTemplate`,
+                path: `/api/docpal/case/instance/${caseTypeId}/startTask/download/excelTemplate`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -30587,7 +30587,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceCaseinstanceidMilestoneStatus: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/${caseInstanceId}/milestone/status`,
+                path: `/api/docpal/case/instance/${caseInstanceId}/milestone/status`,
                 method: "GET",
                 ...params,
             }),
@@ -30602,7 +30602,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceCaseinstanceidForms: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/${caseInstanceId}/forms`,
+                path: `/api/docpal/case/instance/${caseInstanceId}/forms`,
                 method: "GET",
                 ...params,
             }),
@@ -30617,7 +30617,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceCaseinstanceidEvents: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultListUserEventInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/${caseInstanceId}/events`,
+                path: `/api/docpal/case/instance/${caseInstanceId}/events`,
                 method: "GET",
                 ...params,
             }),
@@ -30633,7 +30633,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceTasksTaskidForm: (taskId: string, params: RequestParams = {}) =>
             this.request<ResultCaseInstanceFormDataDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/tasks/${taskId}/form`,
+                path: `/api/docpal/case/instance/tasks/${taskId}/form`,
                 method: "GET",
                 ...params,
             }),
@@ -30654,7 +30654,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/start/import/export-failed`,
+                path: `/api/docpal/case/instance/start/import/export-failed`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -30675,7 +30675,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/process/definitions`,
+                path: `/api/docpal/case/instance/process/definitions`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -30697,7 +30697,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/planItems/${planItemId}/form`,
+                path: `/api/docpal/case/instance/planItems/${planItemId}/form`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -30740,7 +30740,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListCmmnInstance, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/list`,
+                path: `/api/docpal/case/instance/list`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -30761,7 +30761,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/generate/caseId`,
+                path: `/api/docpal/case/instance/generate/caseId`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -30778,7 +30778,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceCaseidCaseid: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultCmmnInstance, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/instance/caseId/${caseId}`,
+                path: `/api/docpal/case/instance/caseId/${caseId}`,
                 method: "GET",
                 ...params,
             }),
@@ -30799,7 +30799,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListBpmnDynamicFormDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/forms`,
+                path: `/api/docpal/case/forms`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -30822,7 +30822,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/forms/${elementKey}`,
+                path: `/api/docpal/case/forms/${elementKey}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -30838,7 +30838,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDefinitions: (params: RequestParams = {}) =>
             this.request<ResultListCaseDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/definitions`,
+                path: `/api/docpal/case/definitions`,
                 method: "GET",
                 ...params,
             }),
@@ -30853,7 +30853,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDefinitionsCasedefinitionkeyInstances: (caseDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultListCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/definitions/${caseDefinitionKey}/instances`,
+                path: `/api/docpal/case/definitions/${caseDefinitionKey}/instances`,
                 method: "GET",
                 ...params,
             }),
@@ -30868,7 +30868,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDefinitionCasedefinitionkeyProcessDefinitions: (caseDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/definition/${caseDefinitionKey}/process/definitions`,
+                path: `/api/docpal/case/definition/${caseDefinitionKey}/process/definitions`,
                 method: "GET",
                 ...params,
             }),
@@ -30884,7 +30884,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardId: (id: string, params: RequestParams = {}) =>
             this.request<ResultCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/${id}`,
+                path: `/api/docpal/case/dashboard/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -30900,7 +30900,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardVersionCmmnversionidPermission: (cmmnVersionId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnDashboardDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/version/${cmmnVersionId}/permission`,
+                path: `/api/docpal/case/dashboard/version/${cmmnVersionId}/permission`,
                 method: "GET",
                 ...params,
             }),
@@ -30915,7 +30915,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardInstanceCaseinstanceidMilestoneStatus: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/instance/${caseInstanceId}/milestone/status`,
+                path: `/api/docpal/case/dashboard/instance/${caseInstanceId}/milestone/status`,
                 method: "GET",
                 ...params,
             }),
@@ -30931,7 +30931,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardInstanceCaseidTasks: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/instance/${caseId}/tasks`,
+                path: `/api/docpal/case/dashboard/instance/${caseId}/tasks`,
                 method: "GET",
                 ...params,
             }),
@@ -30947,7 +30947,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardInstanceCaseidStages: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/instance/${caseId}/stages`,
+                path: `/api/docpal/case/dashboard/instance/${caseId}/stages`,
                 method: "GET",
                 ...params,
             }),
@@ -30963,7 +30963,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardInstanceCaseidProcessInstancePageConditions: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/instance/${caseId}/process/instance/page/conditions`,
+                path: `/api/docpal/case/dashboard/instance/${caseId}/process/instance/page/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -30979,7 +30979,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardInstanceCaseidPrimaryformData: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultCaseInstanceFormDataDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/instance/${caseId}/primaryForm/data`,
+                path: `/api/docpal/case/dashboard/instance/${caseId}/primaryForm/data`,
                 method: "GET",
                 ...params,
             }),
@@ -31001,7 +31001,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/instance/${caseId}/planItems`,
+                path: `/api/docpal/case/dashboard/instance/${caseId}/planItems`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -31017,7 +31017,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardInstanceCaseidPersonalTasks: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/instance/${caseId}/personal/tasks`,
+                path: `/api/docpal/case/dashboard/instance/${caseId}/personal/tasks`,
                 method: "GET",
                 ...params,
             }),
@@ -31032,7 +31032,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardInstanceCaseidEvents: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/instance/${caseId}/events`,
+                path: `/api/docpal/case/dashboard/instance/${caseId}/events`,
                 method: "GET",
                 ...params,
             }),
@@ -31048,7 +31048,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardInstanceCaseidActivity: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnActivityItem, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/instance/${caseId}/activity`,
+                path: `/api/docpal/case/dashboard/instance/${caseId}/activity`,
                 method: "GET",
                 ...params,
             }),
@@ -31064,7 +31064,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardInstanceCaseidActions: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/instance/${caseId}/actions`,
+                path: `/api/docpal/case/dashboard/instance/${caseId}/actions`,
                 method: "GET",
                 ...params,
             }),
@@ -31089,7 +31089,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/instance/stage/planItems`,
+                path: `/api/docpal/case/dashboard/instance/stage/planItems`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -31110,7 +31110,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListCmmnDashboard, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/caseType/${caseTypeId}/versionNumber/${versionNumber}`,
+                path: `/api/docpal/case/dashboard/caseType/${caseTypeId}/versionNumber/${versionNumber}`,
                 method: "GET",
                 ...params,
             }),
@@ -31126,7 +31126,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardCasetypeCasetypeidRecordsPageConditions: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/caseType/${caseTypeId}/records/page/conditions`,
+                path: `/api/docpal/case/dashboard/caseType/${caseTypeId}/records/page/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -31148,7 +31148,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/caseType/${caseTypeId}/primaryForm`,
+                path: `/api/docpal/case/dashboard/caseType/${caseTypeId}/primaryForm`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -31165,7 +31165,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardCaseinstanceCaseinstanceid: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnDashboardDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/dashboard/caseInstance/${caseInstanceId}`,
+                path: `/api/docpal/case/dashboard/caseInstance/${caseInstanceId}`,
                 method: "GET",
                 ...params,
             }),
@@ -31180,7 +31180,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCalendarsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/calendars/${id}`,
+                path: `/api/docpal/calendars/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -31196,7 +31196,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteCalendarsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/calendars/${id}`,
+                path: `/api/docpal/calendars/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -31212,7 +31212,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCalendarsSettingTables: (params: RequestParams = {}) =>
             this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/calendars/setting/tables`,
+                path: `/api/docpal/calendars/setting/tables`,
                 method: "GET",
                 ...params,
             }),
@@ -31227,7 +31227,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCalendarsActive: (params: RequestParams = {}) =>
             this.request<ResultListCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/calendars/active`,
+                path: `/api/docpal/calendars/active`,
                 method: "GET",
                 ...params,
             }),
@@ -31243,7 +31243,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCabinetTemplateidPageConditions: (templateId: string, params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/${templateId}/page/conditions`,
+                path: `/api/docpal/cabinet/${templateId}/page/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -31259,7 +31259,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCabinetId: (id: string, params: RequestParams = {}) =>
             this.request<ResultDocFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/${id}`,
+                path: `/api/docpal/cabinet/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -31275,7 +31275,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteCabinetId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/${id}`,
+                path: `/api/docpal/cabinet/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -31291,7 +31291,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCabinetIdTree: (id: string, params: RequestParams = {}) =>
             this.request<ResultDocumentFolderCabinet, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/${id}/tree`,
+                path: `/api/docpal/cabinet/${id}/tree`,
                 method: "GET",
                 ...params,
             }),
@@ -31312,7 +31312,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/${id}/prefix`,
+                path: `/api/docpal/cabinet/${id}/prefix`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -31328,7 +31328,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCabinetIdList: (id: string, params: RequestParams = {}) =>
             this.request<ResultListDocumentFolderCabinet, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/${id}/list`,
+                path: `/api/docpal/cabinet/${id}/list`,
                 method: "GET",
                 ...params,
             }),
@@ -31343,7 +31343,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCabinetIdDownloadSummaryReport: (id: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/${id}/download/summary/report`,
+                path: `/api/docpal/cabinet/${id}/download/summary/report`,
                 method: "GET",
                 ...params,
             }),
@@ -31359,7 +31359,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCabinetTemplateId: (id: string, params: RequestParams = {}) =>
             this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/template/${id}`,
+                path: `/api/docpal/cabinet/template/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -31375,7 +31375,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCabinetTemplateIdTree: (id: string, params: RequestParams = {}) =>
             this.request<ResultListFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/template/${id}/tree`,
+                path: `/api/docpal/cabinet/template/${id}/tree`,
                 method: "GET",
                 ...params,
             }),
@@ -31396,7 +31396,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/template/list`,
+                path: `/api/docpal/cabinet/template/list`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -31412,7 +31412,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCabinetRefreshStatusDocumentid: (documentId: string, params: RequestParams = {}) =>
             this.request<void, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/refresh/status/${documentId}`,
+                path: `/api/docpal/cabinet/refresh/status/${documentId}`,
                 method: "GET",
                 ...params,
             }),
@@ -31427,7 +31427,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCabinetRefreshCompletestatusFoldercabinetid: (folderCabinetId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/refresh/completeStatus/${folderCabinetId}`,
+                path: `/api/docpal/cabinet/refresh/completeStatus/${folderCabinetId}`,
                 method: "GET",
                 ...params,
             }),
@@ -31442,7 +31442,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCabinetRefreshcompletestatusId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/refreshCompleteStatus/${id}`,
+                path: `/api/docpal/cabinet/refreshCompleteStatus/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -31457,7 +31457,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCabinetRefreshCompleteStatusId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/refresh/complete/status/${id}`,
+                path: `/api/docpal/cabinet/refresh/complete/status/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -31472,7 +31472,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCabinetNotification: (params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/notification`,
+                path: `/api/docpal/cabinet/notification`,
                 method: "GET",
                 ...params,
             }),
@@ -31493,7 +31493,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/loginUser/list`,
+                path: `/api/docpal/cabinet/loginUser/list`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -31515,7 +31515,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/cabinet/header/list`,
+                path: `/api/docpal/cabinet/header/list`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -31535,7 +31535,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/azure/ocr/judgeAndSendAlertEmail`,
+                path: `/api/docpal/azure/ocr/judgeAndSendAlertEmail`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -31558,7 +31558,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/auto/crId/accepted`,
+                path: `/api/docpal/auto/crId/accepted`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -31574,7 +31574,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getAclUserUserid: (userId: string, params: RequestParams = {}) =>
             this.request<ResultUserDetailDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/acl/user/${userId}`,
+                path: `/api/docpal/acl/user/${userId}`,
                 method: "GET",
                 ...params,
             }),
@@ -31589,7 +31589,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getAclRoleUsersDropdown: (params: RequestParams = {}) =>
             this.request<ResultListAclUserInformation, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/acl/role/users/dropdown`,
+                path: `/api/docpal/acl/role/users/dropdown`,
                 method: "GET",
                 ...params,
             }),
@@ -31604,7 +31604,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getAclRoleRoot: (params: RequestParams = {}) =>
             this.request<ResultRoleDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/acl/role/root`,
+                path: `/api/docpal/acl/role/root`,
                 method: "GET",
                 ...params,
             }),
@@ -31619,7 +31619,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getAclRoleHierarchyRoleid: (roleId: string, params: RequestParams = {}) =>
             this.request<ResultRoleDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/acl/role/hierarchy/${roleId}`,
+                path: `/api/docpal/acl/role/hierarchy/${roleId}`,
                 method: "GET",
                 ...params,
             }),
@@ -31633,7 +31633,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getAclResourceResourceid: (resourceId: string, params: RequestParams = {}) =>
             this.request<ResultListPermissionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/acl/resource/${resourceId}`,
+                path: `/api/docpal/acl/resource/${resourceId}`,
                 method: "GET",
                 ...params,
             }),
@@ -31648,7 +31648,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsUserprofileUseridSignatureInfo: (userId: string, params: RequestParams = {}) =>
             this.request<ResultUserSignature, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/userProfile/${userId}/signature/info`,
+                path: `/api/dms/userProfile/${userId}/signature/info`,
                 method: "GET",
                 ...params,
             }),
@@ -31663,7 +31663,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsUserSystemFields: (params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/system/fields`,
+                path: `/api/dms/user/system/fields`,
                 method: "GET",
                 ...params,
             }),
@@ -31677,7 +31677,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsUserRoles: (params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/roles`,
+                path: `/api/dms/user/roles`,
                 method: "GET",
                 ...params,
             }),
@@ -31692,7 +31692,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsUserProfileUseridSignatureInfo: (userId: string, params: RequestParams = {}) =>
             this.request<ResultUserSignature, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/profile/${userId}/signature/info`,
+                path: `/api/dms/user/profile/${userId}/signature/info`,
                 method: "GET",
                 ...params,
             }),
@@ -31706,7 +31706,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsUserList: (params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/list`,
+                path: `/api/dms/user/list`,
                 method: "GET",
                 ...params,
             }),
@@ -31720,7 +31720,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsUserGroups: (params: RequestParams = {}) =>
             this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/groups`,
+                path: `/api/dms/user/groups`,
                 method: "GET",
                 ...params,
             }),
@@ -31735,7 +31735,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsUserGetapplication: (params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/user/getApplication`,
+                path: `/api/dms/user/getApplication`,
                 method: "GET",
                 ...params,
             }),
@@ -31750,7 +31750,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsTemplateEmailTemplateId: (id: string, params: RequestParams = {}) =>
             this.request<ResultEmailTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/template/${id}`,
+                path: `/api/dms/template/email/template/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -31765,7 +31765,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteDmsTemplateEmailTemplateId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/template/${id}`,
+                path: `/api/dms/template/email/template/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -31780,7 +31780,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsTemplateEmailId: (id: string, params: RequestParams = {}) =>
             this.request<ResultEmailTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/${id}`,
+                path: `/api/dms/template/email/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -31795,7 +31795,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsTemplateEmailLayouts: (params: RequestParams = {}) =>
             this.request<ResultListEmailLayout, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/layouts`,
+                path: `/api/dms/template/email/layouts`,
                 method: "GET",
                 ...params,
             }),
@@ -31810,7 +31810,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsTemplateEmailTemplateLayouts: (params: RequestParams = {}) =>
             this.request<ResultListEmailLayout, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/template/layouts`,
+                path: `/api/dms/template/email/template/layouts`,
                 method: "GET",
                 ...params,
             }),
@@ -31825,7 +31825,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsTemplateEmailLayoutId: (id: number, params: RequestParams = {}) =>
             this.request<ResultEmailLayout, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/layout/${id}`,
+                path: `/api/dms/template/email/layout/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -31840,7 +31840,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteDmsTemplateEmailLayoutId: (id: number, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/layout/${id}`,
+                path: `/api/dms/template/email/layout/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -31855,7 +31855,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsTemplateEmailLayoutAll: (params: RequestParams = {}) =>
             this.request<ResultListEmailLayout, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/layout/all`,
+                path: `/api/dms/template/email/layout/all`,
                 method: "GET",
                 ...params,
             }),
@@ -31869,7 +31869,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsTemplateEmailAll: (params: RequestParams = {}) =>
             this.request<ResultListEmailTemplate, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/template/email/all`,
+                path: `/api/dms/template/email/all`,
                 method: "GET",
                 ...params,
             }),
@@ -31883,7 +31883,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsSmartFolderId: (id: string, params: RequestParams = {}) =>
             this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/smart-folder/${id}`,
+                path: `/api/dms/smart-folder/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -31897,7 +31897,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteDmsSmartFolderId: (id: string, params: RequestParams = {}) =>
             this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/smart-folder/${id}`,
+                path: `/api/dms/smart-folder/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -31912,7 +31912,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsSmartFolderPageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/smart-folder/page/conditions`,
+                path: `/api/dms/smart-folder/page/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -31926,7 +31926,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsSettingWorkflowCondition: (params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/workflow/condition`,
+                path: `/api/dms/setting/workflow/condition`,
                 method: "GET",
                 ...params,
             }),
@@ -31940,7 +31940,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsSettingVirtualFolderId: (id: string, params: RequestParams = {}) =>
             this.request<ResultVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/virtual-folder/${id}`,
+                path: `/api/dms/setting/virtual-folder/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -31954,7 +31954,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsSettingSystemLanguage: (params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/system/language`,
+                path: `/api/dms/setting/system/language`,
                 method: "GET",
                 ...params,
             }),
@@ -31973,7 +31973,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultLoginCredentialInfo, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/parse`,
+                path: `/api/dms/setting/parse`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -31988,7 +31988,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsSettingIcons: (params: RequestParams = {}) =>
             this.request<ResultListCustomIconDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/icons`,
+                path: `/api/dms/setting/icons`,
                 method: "GET",
                 ...params,
             }),
@@ -32002,7 +32002,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsSettingFeatureRoleMapping: (params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/feature/role-mapping`,
+                path: `/api/dms/setting/feature/role-mapping`,
                 method: "GET",
                 ...params,
             }),
@@ -32022,7 +32022,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultInteger, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/concurrent-session`,
+                path: `/api/dms/setting/concurrent-session`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -32038,7 +32038,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsMasterTableId: (id: string, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}`,
+                path: `/api/dms/master-table/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -32058,7 +32058,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}`,
+                path: `/api/dms/master-table/${id}`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -32074,7 +32074,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsMasterTableIdStructure: (id: string, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}/structure`,
+                path: `/api/dms/master-table/${id}/structure`,
                 method: "GET",
                 ...params,
             }),
@@ -32089,7 +32089,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsMasterTableIdRecordRecordid: (id: string, recordId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}/record/${recordId}`,
+                path: `/api/dms/master-table/${id}/record/${recordId}`,
                 method: "GET",
                 ...params,
             }),
@@ -32110,7 +32110,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}/record/template`,
+                path: `/api/dms/master-table/${id}/record/template`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -32126,7 +32126,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsMasterTableIdAcls: (id: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}/acls`,
+                path: `/api/dms/master-table/${id}/acls`,
                 method: "GET",
                 ...params,
             }),
@@ -32141,7 +32141,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsMasterTableRelationId: (id: string, params: RequestParams = {}) =>
             this.request<ResultListMTRelationResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/relation/${id}`,
+                path: `/api/dms/master-table/relation/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -32155,7 +32155,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsMasterTableRecordSortOptionTableid: (tableId: string, params: RequestParams = {}) =>
             this.request<ResultListSelectOptionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/record/sort-option/${tableId}`,
+                path: `/api/dms/master-table/record/sort-option/${tableId}`,
                 method: "GET",
                 ...params,
             }),
@@ -32169,7 +32169,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsMasterTablePageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/page/conditions`,
+                path: `/api/dms/master-table/page/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -32184,7 +32184,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsMasterTableNameName: (name: string, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/name/${name}`,
+                path: `/api/dms/master-table/name/${name}`,
                 method: "GET",
                 ...params,
             }),
@@ -32199,7 +32199,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsMasterTableListWithPermission: (params: RequestParams = {}) =>
             this.request<ResultListMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/list/with-permission`,
+                path: `/api/dms/master-table/list/with-permission`,
                 method: "GET",
                 ...params,
             }),
@@ -32219,7 +32219,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/download/failure`,
+                path: `/api/dms/master-table/download/failure`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -32235,7 +32235,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsMasterTableDatatypeMapping: (params: RequestParams = {}) =>
             this.request<ResultListMTFieldTypeMapping, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/dataType/mapping`,
+                path: `/api/dms/master-table/dataType/mapping`,
                 method: "GET",
                 ...params,
             }),
@@ -32249,7 +32249,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsFeatureUsers: (params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/feature/users`,
+                path: `/api/dms/feature/users`,
                 method: "GET",
                 ...params,
             }),
@@ -32263,7 +32263,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsFeatureUsersNameUsername: (username: string, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/feature/users/name/${username}`,
+                path: `/api/dms/feature/users/name/${username}`,
                 method: "GET",
                 ...params,
             }),
@@ -32277,7 +32277,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsFeatureKeycloakTokenVerification: (params: RequestParams = {}) =>
             this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/feature/keycloak-token-verification`,
+                path: `/api/dms/feature/keycloak-token-verification`,
                 method: "GET",
                 ...params,
             }),
@@ -32291,7 +32291,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsFeatureGetfeatures: (params: RequestParams = {}) =>
             this.request<ResultMapStringBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/feature/getFeatures`,
+                path: `/api/dms/feature/getFeatures`,
                 method: "GET",
                 ...params,
             }),
@@ -32306,7 +32306,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsEasyFormIdDetail: (id: string, params: RequestParams = {}) =>
             this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/${id}/detail`,
+                path: `/api/dms/easy-form/${id}/detail`,
                 method: "GET",
                 ...params,
             }),
@@ -32320,7 +32320,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsEasyFormProcessDefinitions: (params: RequestParams = {}) =>
             this.request<ResultListPDResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/process/definitions`,
+                path: `/api/dms/easy-form/process/definitions`,
                 method: "GET",
                 ...params,
             }),
@@ -32334,7 +32334,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsEasyFormEmailId: (id: string, params: RequestParams = {}) =>
             this.request<ResultEasyFormBaseEmailDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/email/${id}`,
+                path: `/api/dms/easy-form/email/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -32348,7 +32348,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsEasyFormEmailLogId: (id: number, params: RequestParams = {}) =>
             this.request<ResultEasyFormBaseEmailDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/email-log/${id}`,
+                path: `/api/dms/easy-form/email-log/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -32363,7 +32363,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsEasyFormDraftId: (id: string, params: RequestParams = {}) =>
             this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/draft/${id}`,
+                path: `/api/dms/easy-form/draft/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -32378,7 +32378,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsEasyFormDatatypeMapping: (params: RequestParams = {}) =>
             this.request<ResultListMTFieldTypeMapping, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/dataType/mapping`,
+                path: `/api/dms/easy-form/dataType/mapping`,
                 method: "GET",
                 ...params,
             }),
@@ -32393,7 +32393,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsConversionTemplateFilepath: (params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/conversion/template/filePath`,
+                path: `/api/dms/conversion/template/filePath`,
                 method: "GET",
                 ...params,
             }),
@@ -32413,7 +32413,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFileConversionRecord, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/conversion/list`,
+                path: `/api/dms/conversion/list`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -32429,7 +32429,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsConversionFormatSupport: (params: RequestParams = {}) =>
             this.request<ResultMapStringListObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/conversion/format/support`,
+                path: `/api/dms/conversion/format/support`,
                 method: "GET",
                 ...params,
             }),
@@ -32444,7 +32444,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsContactGroupIdUserUseridPermission: (id: string, userId: string, params: RequestParams = {}) =>
             this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}/user/${userId}/permission`,
+                path: `/api/dms/contact-group/${id}/user/${userId}/permission`,
                 method: "GET",
                 ...params,
             }),
@@ -32459,7 +32459,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsContactGroupIdContactdetaillist: (id: string, data: any, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}/contactDetailList`,
+                path: `/api/dms/contact-group/${id}/contactDetailList`,
                 method: "GET",
                 body: data,
                 type: ContentType.Json,
@@ -32480,7 +32480,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/companyProfiles/${companyId}/chops/${companyChopId}/file`,
+                path: `/api/dms/companyProfiles/${companyId}/chops/${companyChopId}/file`,
                 method: "GET",
                 ...params,
             }),
@@ -32495,7 +32495,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCompanyprofilesChopsCompanychopidFile: (companyChopId: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/companyProfiles/chops/${companyChopId}/file`,
+                path: `/api/dms/companyProfiles/chops/${companyChopId}/file`,
                 method: "GET",
                 ...params,
             }),
@@ -32509,7 +32509,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCalendarsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/${id}`,
+                path: `/api/dms/calendars/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -32524,7 +32524,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteDmsCalendarsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/${id}`,
+                path: `/api/dms/calendars/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -32539,7 +32539,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCalendarsSettingTables: (params: RequestParams = {}) =>
             this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/setting/tables`,
+                path: `/api/dms/calendars/setting/tables`,
                 method: "GET",
                 ...params,
             }),
@@ -32560,7 +32560,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/event/settings`,
+                path: `/api/dms/calendars/event/settings`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -32576,7 +32576,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCalendarsEventSettingsIdUsers: (id: string, params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/event/settings/${id}/users`,
+                path: `/api/dms/calendars/event/settings/${id}/users`,
                 method: "GET",
                 ...params,
             }),
@@ -32590,7 +32590,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCalendarsActive: (params: RequestParams = {}) =>
             this.request<ResultListCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/calendars/active`,
+                path: `/api/dms/calendars/active`,
                 method: "GET",
                 ...params,
             }),
@@ -32605,7 +32605,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCabinetTemplateidPageConditions: (templateId: string, params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/${templateId}/page/conditions`,
+                path: `/api/dms/cabinet/${templateId}/page/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -32620,7 +32620,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCabinetId: (id: string, params: RequestParams = {}) =>
             this.request<ResultDocFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/${id}`,
+                path: `/api/dms/cabinet/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -32635,7 +32635,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteDmsCabinetId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/${id}`,
+                path: `/api/dms/cabinet/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -32650,7 +32650,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCabinetIdUseWorkflow: (id: string, params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/${id}/use/workflow`,
+                path: `/api/dms/cabinet/${id}/use/workflow`,
                 method: "GET",
                 ...params,
             }),
@@ -32665,7 +32665,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCabinetIdTree: (id: string, params: RequestParams = {}) =>
             this.request<ResultDocumentFolderCabinet, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/${id}/tree`,
+                path: `/api/dms/cabinet/${id}/tree`,
                 method: "GET",
                 ...params,
             }),
@@ -32685,7 +32685,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/${id}/prefix`,
+                path: `/api/dms/cabinet/${id}/prefix`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -32700,7 +32700,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCabinetIdList: (id: string, params: RequestParams = {}) =>
             this.request<ResultListDocumentFolderCabinet, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/${id}/list`,
+                path: `/api/dms/cabinet/${id}/list`,
                 method: "GET",
                 ...params,
             }),
@@ -32714,7 +32714,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCabinetIdDownloadSummaryReport: (id: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/${id}/download/summary/report`,
+                path: `/api/dms/cabinet/${id}/download/summary/report`,
                 method: "GET",
                 ...params,
             }),
@@ -32729,7 +32729,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCabinetTemplateId: (id: string, params: RequestParams = {}) =>
             this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/template/${id}`,
+                path: `/api/dms/cabinet/template/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -32744,7 +32744,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteDmsCabinetTemplateId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/template/${id}`,
+                path: `/api/dms/cabinet/template/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -32759,7 +32759,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCabinetTemplateIdTree: (id: string, params: RequestParams = {}) =>
             this.request<ResultListFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/template/${id}/tree`,
+                path: `/api/dms/cabinet/template/${id}/tree`,
                 method: "GET",
                 ...params,
             }),
@@ -32773,7 +32773,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCabinetTemplateIdInformation: (id: string, params: RequestParams = {}) =>
             this.request<ResultFolderCabinet, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/template/${id}/information`,
+                path: `/api/dms/cabinet/template/${id}/information`,
                 method: "GET",
                 ...params,
             }),
@@ -32788,7 +32788,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCabinetTemplateIdDetail: (id: string, params: RequestParams = {}) =>
             this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/template/${id}/detail`,
+                path: `/api/dms/cabinet/template/${id}/detail`,
                 method: "GET",
                 ...params,
             }),
@@ -32808,7 +32808,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/template/list`,
+                path: `/api/dms/cabinet/template/list`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -32823,7 +32823,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCabinetRefreshStatusDocumentid: (documentId: string, params: RequestParams = {}) =>
             this.request<void, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/refresh/status/${documentId}`,
+                path: `/api/dms/cabinet/refresh/status/${documentId}`,
                 method: "GET",
                 ...params,
             }),
@@ -32837,7 +32837,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCabinetRefreshCompletestatusFoldercabinetid: (folderCabinetId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/refresh/completeStatus/${folderCabinetId}`,
+                path: `/api/dms/cabinet/refresh/completeStatus/${folderCabinetId}`,
                 method: "GET",
                 ...params,
             }),
@@ -32851,7 +32851,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCabinetRefreshCompleteStatusId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/refresh/complete/status/${id}`,
+                path: `/api/dms/cabinet/refresh/complete/status/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -32865,7 +32865,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCabinetRefreshcompletestatusId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/refreshCompleteStatus/${id}`,
+                path: `/api/dms/cabinet/refreshCompleteStatus/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -32885,7 +32885,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/loginUser/list`,
+                path: `/api/dms/cabinet/loginUser/list`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -32901,7 +32901,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getDmsCabinetList: (params: RequestParams = {}) =>
             this.request<ResultListFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/list`,
+                path: `/api/dms/cabinet/list`,
                 method: "GET",
                 ...params,
             }),
@@ -32921,7 +32921,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/header/list`,
+                path: `/api/dms/cabinet/header/list`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -32937,7 +32937,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesIdVersions: (id: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnVersion, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${id}/versions`,
+                path: `/api/case/types/${id}/versions`,
                 method: "GET",
                 ...params,
             }),
@@ -32958,7 +32958,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${id}/styleJson`,
+                path: `/api/case/types/${id}/styleJson`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -32981,7 +32981,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListPlanItemDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${id}/startTask`,
+                path: `/api/case/types/${id}/startTask`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33003,7 +33003,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${id}/primaryForm`,
+                path: `/api/case/types/${id}/primaryForm`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33025,7 +33025,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${id}/export`,
+                path: `/api/case/types/${id}/export`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33047,7 +33047,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${id}/download/xml`,
+                path: `/api/case/types/${id}/download/xml`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33063,7 +33063,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesIdDownloadDeployVersion: (id: string, params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${id}/download/deploy/version`,
+                path: `/api/case/types/${id}/download/deploy/version`,
                 method: "GET",
                 ...params,
             }),
@@ -33078,7 +33078,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesIdCaseinfoundefined: (id: string, params: RequestParams = {}) =>
             this.request<ResultListPlanTableFieldDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${id}/caseInfo`,
+                path: `/api/case/types/${id}/caseInfo`,
                 method: "GET",
                 ...params,
             }),
@@ -33099,7 +33099,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${caseTypeId}`,
+                path: `/api/case/types/${caseTypeId}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33115,7 +33115,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesCasetypeidTablesundefined: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListCaseTable, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${caseTypeId}/tables`,
+                path: `/api/case/types/${caseTypeId}/tables`,
                 method: "GET",
                 ...params,
             }),
@@ -33130,7 +33130,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesCasetypeidRecordsPageConditionsundefined: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${caseTypeId}/records/page/conditions`,
+                path: `/api/case/types/${caseTypeId}/records/page/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -33144,7 +33144,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesCasetypeidPermissionsundefined: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${caseTypeId}/permissions`,
+                path: `/api/case/types/${caseTypeId}/permissions`,
                 method: "GET",
                 ...params,
             }),
@@ -33162,7 +33162,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${caseTypeId}/permissions/${userId}`,
+                path: `/api/case/types/${caseTypeId}/permissions/${userId}`,
                 method: "GET",
                 ...params,
             }),
@@ -33177,7 +33177,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesCasetypeidInstancesundefined: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnInstance, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${caseTypeId}/instances`,
+                path: `/api/case/types/${caseTypeId}/instances`,
                 method: "GET",
                 ...params,
             }),
@@ -33192,7 +33192,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesCasetypeidDeployVersionundefined: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultCaseModelDraft, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${caseTypeId}/deploy/version`,
+                path: `/api/case/types/${caseTypeId}/deploy/version`,
                 method: "GET",
                 ...params,
             }),
@@ -33206,7 +33206,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesCasedefinitionkeyDeployment: (caseDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultCmmnDeploymentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${caseDefinitionKey}/deployment`,
+                path: `/api/case/types/${caseDefinitionKey}/deployment`,
                 method: "GET",
                 ...params,
             }),
@@ -33221,7 +33221,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesVersionVersionid: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultCmmnVersion, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/version/${versionId}`,
+                path: `/api/case/types/version/${versionId}`,
                 method: "GET",
                 ...params,
             }),
@@ -33236,7 +33236,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesVersionVersionidStarttask: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/version/${versionId}/startTask`,
+                path: `/api/case/types/version/${versionId}/startTask`,
                 method: "GET",
                 ...params,
             }),
@@ -33254,7 +33254,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/version/${cmmnVersionId}/permissions/${userId}`,
+                path: `/api/case/types/version/${cmmnVersionId}/permissions/${userId}`,
                 method: "GET",
                 ...params,
             }),
@@ -33269,7 +33269,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesPermissionsRulesundefined: (params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/permissions/rules`,
+                path: `/api/case/types/permissions/rules`,
                 method: "GET",
                 ...params,
             }),
@@ -33284,7 +33284,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesMyundefined: (params: RequestParams = {}) =>
             this.request<ResultListCaseType, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/my`,
+                path: `/api/case/types/my`,
                 method: "GET",
                 ...params,
             }),
@@ -33299,7 +33299,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesDeploymentidDeploymentidundefined: (deploymentId: string, params: RequestParams = {}) =>
             this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/deploymentId/${deploymentId}`,
+                path: `/api/case/types/deploymentId/${deploymentId}`,
                 method: "GET",
                 ...params,
             }),
@@ -33314,7 +33314,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTypesDatatypeMapping: (params: RequestParams = {}) =>
             this.request<ResultListMTFieldTypeMapping, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/dataType/mapping`,
+                path: `/api/case/types/dataType/mapping`,
                 method: "GET",
                 ...params,
             }),
@@ -33329,7 +33329,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTablesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultCaseTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/tables/${id}`,
+                path: `/api/case/tables/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -33343,7 +33343,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteCaseTablesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/tables/${id}`,
+                path: `/api/case/tables/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -33358,7 +33358,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseTablesCasetypeCasetypeid: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListCaseTable, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/tables/caseType/${caseTypeId}`,
+                path: `/api/case/tables/caseType/${caseTypeId}`,
                 method: "GET",
                 ...params,
             }),
@@ -33377,7 +33377,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/tables/caseQuery`,
+                path: `/api/case/tables/caseQuery`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33400,7 +33400,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListPlanItemDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/${caseTypeId}/startTask`,
+                path: `/api/case/instance/${caseTypeId}/startTask`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33422,7 +33422,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/${caseTypeId}/startTask/download/excelTemplate`,
+                path: `/api/case/instance/${caseTypeId}/startTask/download/excelTemplate`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33438,7 +33438,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceCaseinstanceidMilestoneStatusundefined: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/${caseInstanceId}/milestone/status`,
+                path: `/api/case/instance/${caseInstanceId}/milestone/status`,
                 method: "GET",
                 ...params,
             }),
@@ -33453,7 +33453,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceCaseinstanceidFormsundefined: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/${caseInstanceId}/forms`,
+                path: `/api/case/instance/${caseInstanceId}/forms`,
                 method: "GET",
                 ...params,
             }),
@@ -33468,7 +33468,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceCaseinstanceidEventsundefined: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultListUserEventInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/${caseInstanceId}/events`,
+                path: `/api/case/instance/${caseInstanceId}/events`,
                 method: "GET",
                 ...params,
             }),
@@ -33483,7 +33483,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceTypesCasetypeidInstances: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnInstance, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/types/${caseTypeId}/instances`,
+                path: `/api/case/instance/types/${caseTypeId}/instances`,
                 method: "GET",
                 ...params,
             }),
@@ -33498,7 +33498,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceTasksTaskidFormundefined: (taskId: string, params: RequestParams = {}) =>
             this.request<ResultCaseInstanceFormDataDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/tasks/${taskId}/form`,
+                path: `/api/case/instance/tasks/${taskId}/form`,
                 method: "GET",
                 ...params,
             }),
@@ -33513,7 +33513,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceSupportSubcase: (params: RequestParams = {}) =>
             this.request<ResultListCaseDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/support/subCase`,
+                path: `/api/case/instance/support/subCase`,
                 method: "GET",
                 ...params,
             }),
@@ -33533,7 +33533,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListPlanTableFieldDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/support/subCase/fields`,
+                path: `/api/case/instance/support/subCase/fields`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33554,7 +33554,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/start/import/export-failed`,
+                path: `/api/case/instance/start/import/export-failed`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33575,7 +33575,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/process/definitions`,
+                path: `/api/case/instance/process/definitions`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33597,7 +33597,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/planItems/${planItemId}/form`,
+                path: `/api/case/instance/planItems/${planItemId}/form`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33640,7 +33640,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListCmmnInstance, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/list`,
+                path: `/api/case/instance/list`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33655,7 +33655,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceInstanceCaseinstanceidForms: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/instance/${caseInstanceId}/forms`,
+                path: `/api/case/instance/instance/${caseInstanceId}/forms`,
                 method: "GET",
                 ...params,
             }),
@@ -33669,7 +33669,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceInstanceCaseinstanceidEvents: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultListUserEventInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/instance/${caseInstanceId}/events`,
+                path: `/api/case/instance/instance/${caseInstanceId}/events`,
                 method: "GET",
                 ...params,
             }),
@@ -33689,7 +33689,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/instance/process/definitions`,
+                path: `/api/case/instance/instance/process/definitions`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33711,7 +33711,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/instance/planItems/${planItemId}/form`,
+                path: `/api/case/instance/instance/planItems/${planItemId}/form`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33731,7 +33731,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/generate/caseId`,
+                path: `/api/case/instance/generate/caseId`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33747,7 +33747,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceDefinitions: (params: RequestParams = {}) =>
             this.request<ResultListCaseDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/definitions`,
+                path: `/api/case/instance/definitions`,
                 method: "GET",
                 ...params,
             }),
@@ -33762,7 +33762,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceDefinitionsCasedefinitionkeyInstances: (caseDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultListCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/definitions/${caseDefinitionKey}/instances`,
+                path: `/api/case/instance/definitions/${caseDefinitionKey}/instances`,
                 method: "GET",
                 ...params,
             }),
@@ -33780,7 +33780,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/definition/${caseDefinitionKey}/process/definitions`,
+                path: `/api/case/instance/definition/${caseDefinitionKey}/process/definitions`,
                 method: "GET",
                 ...params,
             }),
@@ -33795,7 +33795,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseInstanceCaseidCaseidundefined: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultCmmnInstance, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/caseId/${caseId}`,
+                path: `/api/case/instance/caseId/${caseId}`,
                 method: "GET",
                 ...params,
             }),
@@ -33816,7 +33816,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListBpmnDynamicFormDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/forms`,
+                path: `/api/case/forms`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33839,7 +33839,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/forms/${elementKey}`,
+                path: `/api/case/forms/${elementKey}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -33855,7 +33855,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDefinitionsundefined: (params: RequestParams = {}) =>
             this.request<ResultListCaseDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/definitions`,
+                path: `/api/case/definitions`,
                 method: "GET",
                 ...params,
             }),
@@ -33873,7 +33873,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/definitions/${caseDefinitionKey}/instances`,
+                path: `/api/case/definitions/${caseDefinitionKey}/instances`,
                 method: "GET",
                 ...params,
             }),
@@ -33891,7 +33891,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/definition/${caseDefinitionKey}/process/definitions`,
+                path: `/api/case/definition/${caseDefinitionKey}/process/definitions`,
                 method: "GET",
                 ...params,
             }),
@@ -33906,7 +33906,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardIdundefined: (id: string, params: RequestParams = {}) =>
             this.request<ResultCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/${id}`,
+                path: `/api/case/dashboard/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -33921,7 +33921,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteCaseDashboardId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/${id}`,
+                path: `/api/case/dashboard/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -33936,7 +33936,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardVersionVersionidStages: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/version/${versionId}/stages`,
+                path: `/api/case/dashboard/version/${versionId}/stages`,
                 method: "GET",
                 ...params,
             }),
@@ -33951,7 +33951,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardVersionVersionidPrimaryform: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/version/${versionId}/primaryForm`,
+                path: `/api/case/dashboard/version/${versionId}/primaryForm`,
                 method: "GET",
                 ...params,
             }),
@@ -33966,7 +33966,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardVersionVersionidPrimaryformData: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultCaseInstanceFormDataDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/version/${versionId}/primaryForm/data`,
+                path: `/api/case/dashboard/version/${versionId}/primaryForm/data`,
                 method: "GET",
                 ...params,
             }),
@@ -33981,7 +33981,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardVersionVersionidActivity: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/version/${versionId}/activity`,
+                path: `/api/case/dashboard/version/${versionId}/activity`,
                 method: "GET",
                 ...params,
             }),
@@ -33995,7 +33995,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardVersionVersionidActions: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/version/${versionId}/actions`,
+                path: `/api/case/dashboard/version/${versionId}/actions`,
                 method: "GET",
                 ...params,
             }),
@@ -34010,7 +34010,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardVersionCmmnversionidPermissionundefined: (cmmnVersionId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnDashboardDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/version/${cmmnVersionId}/permission`,
+                path: `/api/case/dashboard/version/${cmmnVersionId}/permission`,
                 method: "GET",
                 ...params,
             }),
@@ -34028,7 +34028,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/instance/${caseInstanceId}/milestone/status`,
+                path: `/api/case/dashboard/instance/${caseInstanceId}/milestone/status`,
                 method: "GET",
                 ...params,
             }),
@@ -34043,7 +34043,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardInstanceCaseidTasksundefined: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/instance/${caseId}/tasks`,
+                path: `/api/case/dashboard/instance/${caseId}/tasks`,
                 method: "GET",
                 ...params,
             }),
@@ -34058,7 +34058,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardInstanceCaseidStagesundefined: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/instance/${caseId}/stages`,
+                path: `/api/case/dashboard/instance/${caseId}/stages`,
                 method: "GET",
                 ...params,
             }),
@@ -34076,7 +34076,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/instance/${caseId}/process/instance/page/conditions`,
+                path: `/api/case/dashboard/instance/${caseId}/process/instance/page/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -34091,7 +34091,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardInstanceCaseidPrimaryformDataundefined: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultCaseInstanceFormDataDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/instance/${caseId}/primaryForm/data`,
+                path: `/api/case/dashboard/instance/${caseId}/primaryForm/data`,
                 method: "GET",
                 ...params,
             }),
@@ -34112,7 +34112,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/instance/${caseId}/planItems`,
+                path: `/api/case/dashboard/instance/${caseId}/planItems`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -34128,7 +34128,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardInstanceCaseidPersonalTasksundefined: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/instance/${caseId}/personal/tasks`,
+                path: `/api/case/dashboard/instance/${caseId}/personal/tasks`,
                 method: "GET",
                 ...params,
             }),
@@ -34143,7 +34143,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardInstanceCaseidEventsundefined: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/instance/${caseId}/events`,
+                path: `/api/case/dashboard/instance/${caseId}/events`,
                 method: "GET",
                 ...params,
             }),
@@ -34158,7 +34158,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardInstanceCaseidActivityundefined: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnActivityItem, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/instance/${caseId}/activity`,
+                path: `/api/case/dashboard/instance/${caseId}/activity`,
                 method: "GET",
                 ...params,
             }),
@@ -34179,7 +34179,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/instance/${caseId}/actions`,
+                path: `/api/case/dashboard/instance/${caseId}/actions`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -34205,7 +34205,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/instance/stage/planItems`,
+                path: `/api/case/dashboard/instance/stage/planItems`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -34221,7 +34221,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardCasetypeCasetypeid: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnDashboard, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/caseType/${caseTypeId}`,
+                path: `/api/case/dashboard/caseType/${caseTypeId}`,
                 method: "GET",
                 ...params,
             }),
@@ -34240,7 +34240,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListCmmnDashboard, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/caseType/${caseTypeId}/versionNumber/${versionNumber}`,
+                path: `/api/case/dashboard/caseType/${caseTypeId}/versionNumber/${versionNumber}`,
                 method: "GET",
                 ...params,
             }),
@@ -34255,7 +34255,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardCasetypeCasetypeidStages: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/caseType/${caseTypeId}/stages`,
+                path: `/api/case/dashboard/caseType/${caseTypeId}/stages`,
                 method: "GET",
                 ...params,
             }),
@@ -34273,7 +34273,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/caseType/${caseTypeId}/records/page/conditions`,
+                path: `/api/case/dashboard/caseType/${caseTypeId}/records/page/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -34294,7 +34294,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/caseType/${caseTypeId}/primaryForm`,
+                path: `/api/case/dashboard/caseType/${caseTypeId}/primaryForm`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -34309,7 +34309,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardCasetypeCasetypeidActivity: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/caseType/${caseTypeId}/activity`,
+                path: `/api/case/dashboard/caseType/${caseTypeId}/activity`,
                 method: "GET",
                 ...params,
             }),
@@ -34323,7 +34323,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardCasetypeCasetypeidActions: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/caseType/${caseTypeId}/actions`,
+                path: `/api/case/dashboard/caseType/${caseTypeId}/actions`,
                 method: "GET",
                 ...params,
             }),
@@ -34338,7 +34338,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getCaseDashboardCaseinstanceCaseinstanceidundefined: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnDashboardDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/dashboard/caseInstance/${caseInstanceId}`,
+                path: `/api/case/dashboard/caseInstance/${caseInstanceId}`,
                 method: "GET",
                 ...params,
             }),
@@ -34352,7 +34352,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getAiAskAiAiChatQueryaitopicid: (params: RequestParams = {}) =>
             this.request<ResultAiTopicIdVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/ai/ask_ai/ai_chat/queryAiTopicId`,
+                path: `/api/ai/ask_ai/ai_chat/queryAiTopicId`,
                 method: "GET",
                 ...params,
             }),
@@ -34366,7 +34366,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         getAiAskAiAiChatQueryaichatinitinfo: (params: RequestParams = {}) =>
             this.request<ResultAiChatInitInfoVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/ai/ask_ai/ai_chat/queryAiChatInitInfo`,
+                path: `/api/ai/ask_ai/ai_chat/queryAiChatInitInfo`,
                 method: "GET",
                 ...params,
             }),
@@ -34386,7 +34386,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/user/permission/business/${businessId}/user/${userId}/aces/${aces}`,
+                path: `/api/user/permission/business/${businessId}/user/${userId}/aces/${aces}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34394,7 +34394,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name DeleteRegisteredServerContactgroupIdFieldsFieldname
          * @request DELETE:/api/registered-server/contactGroup/{id}/fields/{fieldName}
          */
@@ -34407,7 +34407,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListContactAttribute, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}/fields/${fieldName}`,
+                path: `/api/registered-server/contactGroup/${id}/fields/${fieldName}`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -34416,7 +34416,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Document
+         * @tags Admin Facade API
          * @name DeleteRegisteredServerContactgroupIdContactContactdetailid
          * @summary Physically delete contact records
          * @request DELETE:/api/registered-server/contactGroup/{id}/contact/{contactDetailId}
@@ -34430,7 +34430,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/registered-server/contactGroup/${id}/contact/${contactDetailId}`,
+                path: `/api/registered-server/contactGroup/${id}/contact/${contactDetailId}`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -34445,7 +34445,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoSearchDeleteNestedSearchLogId: (id: number, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/search/delete_nested_search_log/${id}`,
+                path: `/api/nuxeo/search/delete_nested_search_log/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34460,7 +34460,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoIdentityUserUserid: (userId: string, data: any, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/user/${userId}`,
+                path: `/api/nuxeo/identity/user/${userId}`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -34477,7 +34477,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoIdentityGroupGroupid: (groupId: string, params: RequestParams = {}) =>
             this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/group/${groupId}`,
+                path: `/api/nuxeo/identity/group/${groupId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34492,7 +34492,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoDocumentDocumentid: (documentId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/${documentId}`,
+                path: `/api/nuxeo/document/${documentId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34507,7 +34507,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoDocumentTrashDocumentid: (documentId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/trash/${documentId}`,
+                path: `/api/nuxeo/document/trash/${documentId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34522,7 +34522,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoDocumentTempfileId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/tempFile/${id}`,
+                path: `/api/nuxeo/document/tempFile/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34537,7 +34537,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoDocumentPurge: (params: RequestParams = {}) =>
             this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/purge`,
+                path: `/api/nuxeo/document/purge`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34552,7 +34552,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoDocumentDeleteAll: (params: RequestParams = {}) =>
             this.request<boolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/document/delete/all`,
+                path: `/api/nuxeo/document/delete/all`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34567,7 +34567,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoCommentsDeleteDeprecate: (data: CommentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/comments/delete/`,
+                path: `/api/nuxeo/comments/delete/`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -34584,7 +34584,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoCommentsDelete: (data: CommentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCommentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/comments/delete`,
+                path: `/api/nuxeo/comments/delete`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -34601,7 +34601,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoCollectionRemove: (data: DocumentCollectionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/remove`,
+                path: `/api/nuxeo/collection/remove`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -34618,7 +34618,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoCollectionRemoveDeprecate: (data: DocumentCollectionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/remove/`,
+                path: `/api/nuxeo/collection/remove/`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -34634,7 +34634,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteNuxeoCollectionDeleteCollectionCollectionid: (collectionId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/collection/delete_collection/${collectionId}`,
+                path: `/api/nuxeo/collection/delete_collection/${collectionId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34649,7 +34649,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteFileUploadFileId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/file/upload/file/${id}`,
+                path: `/api/file/upload/file/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34664,7 +34664,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteExternalDriveOauthCloudServicesServiceId: (serviceId: string, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/external-drive/oauth/cloud-services/${serviceId}`,
+                path: `/api/external-drive/oauth/cloud-services/${serviceId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34678,7 +34678,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteWorkflowVersionDraftidDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/version/draftId/${draftId}`,
+                path: `/api/docpal/workflow/version/draftId/${draftId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34700,7 +34700,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/user`,
+                path: `/api/docpal/workflow/process/user`,
                 method: "DELETE",
                 query: query,
                 body: data,
@@ -34723,7 +34723,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListHistoricProcessInstanceEntityImpl, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/deleteProcessInstanceByCreator`,
+                path: `/api/docpal/workflow/process/deleteProcessInstanceByCreator`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -34745,7 +34745,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListHistoricProcessInstanceEntityImpl, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/deleteProcessInstanceByApprover`,
+                path: `/api/docpal/workflow/process/deleteProcessInstanceByApprover`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -34761,7 +34761,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteWorkflowProcessDefinitionSuspendDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/suspend/${draftId}`,
+                path: `/api/docpal/workflow/process/definition/suspend/${draftId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34776,7 +34776,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteWorkflowProcessDefinitionRemoveDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/workflow/process/definition/remove/${draftId}`,
+                path: `/api/docpal/workflow/process/definition/remove/${draftId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34791,7 +34791,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteFormDesignId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/${id}`,
+                path: `/api/docpal/form/design/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34810,7 +34810,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/form/design/${draftId}/formResult/${formResultId}`,
+                path: `/api/docpal/form/design/${draftId}/formResult/${formResultId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34826,7 +34826,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteContactgroupIdFieldsFieldname: (id: string, fieldName: string, data: any, params: RequestParams = {}) =>
             this.request<ResultListContactAttribute, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}/fields/${fieldName}`,
+                path: `/api/docpal/contactGroup/${id}/fields/${fieldName}`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -34844,7 +34844,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteContactgroupIdContactContactdetailid: (id: string, contactDetailId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/contactGroup/${id}/contact/${contactDetailId}`,
+                path: `/api/docpal/contactGroup/${id}/contact/${contactDetailId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34859,7 +34859,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteCaseTypesCasetypeidInstanceCaseid: (caseTypeId: string, caseId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/docpal/case/types/${caseTypeId}/instance/${caseId}`,
+                path: `/api/docpal/case/types/${caseTypeId}/instance/${caseId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34873,7 +34873,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteDmsSettingVirtualFolderSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/setting/virtual-folder/setting/${id}`,
+                path: `/api/dms/setting/virtual-folder/setting/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34895,7 +34895,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}/record/batch`,
+                path: `/api/dms/master-table/${id}/record/batch`,
                 method: "DELETE",
                 query: query,
                 body: data,
@@ -34919,7 +34919,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/master-table/${id}/fields`,
+                path: `/api/dms/master-table/${id}/fields`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -34934,7 +34934,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteDmsEasyFormId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/${id}`,
+                path: `/api/dms/easy-form/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34952,7 +34952,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/easy-form/${draftId}/formResult/${formResultId}`,
+                path: `/api/dms/easy-form/${draftId}/formResult/${formResultId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34972,7 +34972,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultListContactAttribute, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}/fields/${fieldName}`,
+                path: `/api/dms/contact-group/${id}/fields/${fieldName}`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -34993,7 +34993,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/contact-group/${id}/contact/${contactDetailId}`,
+                path: `/api/dms/contact-group/${id}/contact/${contactDetailId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -35008,7 +35008,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteDmsCabinetAll: (params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/dms/cabinet/all`,
+                path: `/api/dms/cabinet/all`,
                 method: "DELETE",
                 ...params,
             }),
@@ -35023,7 +35023,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteCaseTypesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${id}`,
+                path: `/api/case/types/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -35042,7 +35042,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/types/${caseTypeId}/instance/${caseId}`,
+                path: `/api/case/types/${caseTypeId}/instance/${caseId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -35062,7 +35062,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/instance`,
+                path: `/api/case/instance/instance`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -35077,7 +35077,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteCaseInstanceInstanceCaseid: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/case/instance/instance/${caseId}`,
+                path: `/api/case/instance/instance/${caseId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -35092,7 +35092,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          */
         deleteBlockPermissionDocumentDocidPathDocpath: (docId: string, docPath: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/block/permission/document/${docId}/path/${docPath}`,
+                path: `/api/block/permission/document/${docId}/path/${docPath}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -35112,7 +35112,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/isCanModified`,
+                path: `/api/nuxeo/identity/isCanModified`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -35133,7 +35133,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/isCanModified`,
+                path: `/api/nuxeo/identity/isCanModified`,
                 method: "PUT",
                 query: query,
                 ...params,
@@ -35154,7 +35154,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/isCanModified`,
+                path: `/api/nuxeo/identity/isCanModified`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -35175,7 +35175,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/isCanModified`,
+                path: `/api/nuxeo/identity/isCanModified`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -35196,7 +35196,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/isCanModified`,
+                path: `/api/nuxeo/identity/isCanModified`,
                 method: "OPTIONS",
                 query: query,
                 ...params,
@@ -35217,7 +35217,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/isCanModified`,
+                path: `/api/nuxeo/identity/isCanModified`,
                 method: "HEAD",
                 query: query,
                 ...params,
@@ -35238,7 +35238,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/nuxeo/identity/isCanModified`,
+                path: `/api/nuxeo/identity/isCanModified`,
                 method: "PATCH",
                 query: query,
                 ...params,

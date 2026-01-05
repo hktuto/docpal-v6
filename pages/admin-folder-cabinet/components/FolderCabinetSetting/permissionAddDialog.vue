@@ -17,7 +17,12 @@
 import { clientApi } from 'api'
 import formJson from './permissionAddDialog.vform.json'
 import { ElMessage } from 'element-plus'
-import { getUserAndGroupPermissionSelectOption, getUserSelectOption, getGroupsSelectOption } from '#imports'
+import {
+  getUserAndGroupPermissionSelectOption,
+  getUserSelectOption,
+  getGroupsSelectOption,
+  excludeItemSelectList
+} from '#imports'
 
 const props = defineProps<{
   id: string;
@@ -75,8 +80,7 @@ function handleOpen() {
 function handleOptions() {
   const userIdRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('userId')
   // TODO 需要檢查 props.exitList 的數據
-  const list = permissionList.value.filter((allItem: any) => !props.exitList.some((exitItem: any) => allItem.userId.split('_')[1] === exitItem.userId))
-  console.log(222, list, props.exitList)
+  excludeItemSelectList(props.exitList, permissionList.value)
 
   // TODO 移除該數據加載
   const options = [

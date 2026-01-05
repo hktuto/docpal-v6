@@ -8,13 +8,11 @@ import setting from './setting.json'
 dotenv.config()
 
 const clientUrl = process.env.CLIENTURL || setting.CLIENT_URL
-const adminUrl = process.env.ADMINURL || setting.ADMIN_URL
 const publicUrl = process.env.PUBLIC_URL || setting.PUBLIC_URL
 const templateUrl = process.env.OPEN_PROXY || setting.TEMPLATE_URL
 
 const endpoint = [
     {name: 'client', url:`${clientUrl}/v3/api-docs`, className:"Client"},
-    {name: 'admin', url:`${adminUrl}/v3/api-docs`, className:"Admin"},
     {name: 'public', url:`${publicUrl}/v3/api-docs`, className:"Public"},
     {name: 'template', url:`${templateUrl}/docs/swagger.json`, className:"Template"},
 ]
@@ -59,14 +57,9 @@ async function generate(){
                         },
                         hooks:{
                             onCreateRoute:(routeData) => {
-                                // if routeData.route start with /api, remove it
-                                // console.log("onCreateRoute", routeData.request.path)
-                                // @ts-ignore
-                                if(routeData.request.path && routeData.request.path.startsWith('/api')){
-                                    // @ts-ignore
-                                    routeData.request.path = routeData.request.path.replace('/api','')
-                                }
-                                return routeData
+                              // if routeData.route start with /api, remove it
+                              // console.log("onCreateRoute", routeData.request.path)
+                              return routeData
                             },
                             onCreateRouteName:(routeNameInfo, rawRouteInfo) => {
                                 return routeNameInfo
