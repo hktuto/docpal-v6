@@ -26,6 +26,9 @@
           <template #footerCount="footerProps">
             <ToolsFooterCount :column="footerProps.column" :row="footerProps.row" />
           </template>
+          <template #header="headerProps">
+            <MdTableHeader v-if="headerProps.column.field" :column="headerProps.column" />
+          </template>
         </vxe-grid>
       </div>
       <!-- 右侧区域 -->
