@@ -38,6 +38,11 @@ function handleWorkspaceSelected(workspace: WorkspaceType) {
   // Handle workspace selection (e.g., navigate to workspace)
 }
 
+function clearData() {
+  workspaces.value = []
+  query(`DELETE FROM workspaces`)
+}
+
 onMounted(() => {
   getWorkspaces()
 })
@@ -84,6 +89,7 @@ onMounted(() => {
           </template>
         </template>
       </UiSearchableList>
+      <ElButton @click="clearData">Clear Data</ElButton>
     </div>
   </div>
   <UiPopoverDialog ref="createWorkspacePopover" title="Create Workspace">

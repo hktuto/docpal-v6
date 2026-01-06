@@ -15,6 +15,7 @@ const { tableRef, tableConfig, tableEvent, reload } = useVxeTable({
     { field: 'createdDate', title: 'Created Date' },
     { field: 'updatedDate', title: 'Updated Date' },
   ],
+  virtualScroll:true,
   optionalConfig:{
     rowClassName({row}) {
       if(row.__dim) {
@@ -27,7 +28,11 @@ const { tableRef, tableConfig, tableEvent, reload } = useVxeTable({
       custom:false,
       refresh:false,
       export:false,
-    }
+    },
+    virtualYConfig: {
+      enabled: true,
+      gt: 0
+    },
   }
 })
 
