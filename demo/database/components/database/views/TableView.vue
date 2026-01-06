@@ -155,10 +155,11 @@ const visibleColumns = computed(() => {
     _uniqueField: string
   })[]
 })
+const { highlightText } = useTextHighlight()
+const vxeColumns = ref<any[]>([])
+function setColumns() {
 
-// Build columns for useVxeTable
-const vxeColumns = computed(() => {
-  return visibleColumns.value.map(col => {
+  const columnData = visibleColumns.value.map(col => {
     // Use custom title if set, otherwise use column title
     const displayTitle = (col as any)._displayTitle
     let titleWithIcon = displayTitle || col.title
@@ -171,7 +172,7 @@ const vxeColumns = computed(() => {
     }
     
     const colWidth = (col as any)._width
-    return {
+    const columnData:any = {
       field: (col as any)._uniqueField, // Use unique field name for related columns
       title: titleWithIcon,
       width: colWidth || col.width,
@@ -182,8 +183,19 @@ const vxeColumns = computed(() => {
         default: `cell_${(col as any)._uniqueField}`
       }
     }
+    if(searchQuery.value.q && col.type === 'text' || col.type === 'textarea'){
+      columnData.type = 'html';
+      columnData.formatter = ({ cellValue, row }: any) => {
+        return highlightText(cellValue, searchQuery.value.q)
+      }
+      delete columnData.slots
+    }
+    return columnData
   })
-})
+  vxeColumns.value = columnData
+  tableConfig.columns = columnData
+}
+
 
 // Resolve a related field value from a row
 function resolveRelatedFieldValue(row: Row, relationField: string, field: string): any {
@@ -305,7 +317,7 @@ function calculateAggregation(rows: Row[], field: string, type: 'sum' | 'avg' | 
 // Format aggregation label
 function formatAggregationLabel(type: 'sum' | 'avg' | 'min' | 'max' | 'count'): string {
   const labels = {
-    sum: 'Σ',
+    sum: ' ',
     avg: '⌀',
     min: 'Min',
     max: 'Max',
@@ -584,7 +596,7 @@ function toggleGroupCollapse(groupValue: string) {
 // Use project standard useVxeTable
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: `database-table-${props.table.id}`,
-  columns: vxeColumns.value,
+  columns: [],
   api: mockTableApi,
   headerActions: [
     [
@@ -645,7 +657,8 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 
 // Watch search query to reload table
 const debouncedReload = useDebounceFn(reload, 300)
-watch(searchQuery, () => {
+watch(searchQuery, async() => {
+  await setColumns()
   debouncedReload()
 }, { deep: true })
 
@@ -662,6 +675,7 @@ watch(
 watch(
   () => props.view.columns,
   () => {
+    setColumns()
     // Force re-render of the grid when columns change
     debouncedReload()
   },
@@ -670,6 +684,7 @@ watch(
 
 // Initialize filters on mount
 onMounted(() => {
+  setColumns()
   initializeFilters()
 })
 
@@ -1546,7 +1561,12 @@ function formatRollupValue(column: Column, row: Row): string {
         <template v-else-if="column.type === 'user'">
           <div v-if="row[column.field]" class="user-cell">
             <el-avatar :size="24" :src="resolveUser(row[column.field])?.avatar" />
-            <span>{{ resolveUser(row[column.field])?.name }}</span>
+            <template v-if="searchQuery && searchQuery.q">
+              <span v-html="highlightText(resolveUser(row[column.field])?.name || '', searchQuery.q || '')"></span>
+            </template>
+            <template v-else>
+              {{ resolveUser(row[column.field])?.name }}
+            </template>
           </div>
           <span v-else>-</span>
         </template>
@@ -1608,7 +1628,12 @@ function formatRollupValue(column: Column, row: Row): string {
         <!-- Email -->
         <template v-else-if="column.type === 'email'">
           <el-link v-if="row[column.field]" :href="`mailto:${row[column.field]}`" type="primary">
-            {{ row[column.field] }}
+            <template v-if="searchQuery && searchQuery.q">
+              <span v-html="highlightText(row[column.field], searchQuery.q)"></span>
+            </template>
+            <template v-else>
+              {{ row[column.field] }}
+            </template>
           </el-link>
           <span v-else>-</span>
         </template>

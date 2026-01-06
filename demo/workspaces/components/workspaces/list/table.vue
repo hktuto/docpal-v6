@@ -3,17 +3,29 @@ import type{ WorkspaceType } from '../../../utils/db/schema/workspaces';
 
 const props = defineProps<{
   items: WorkspaceType[]
+  keyword?: string
 }>()
 const {items} = toRefs(props)
+
+const { highlightText } = useTextHighlight()
 
 const { tableRef, tableConfig, tableEvent, reload } = useVxeTable({
   id: 'workspaces-table',
   columns: [
     { field: 'icon', title: '', slots: { default: 'icon' }, width: 50 },
-    { field: 'name', title: 'Name' },
-    { field: 'description', title: 'Description' },
-    { field: 'createdDate', title: 'Created Date' },
-    { field: 'updatedDate', title: 'Updated Date' },
+    { field: 'name', title: 'Name',
+      type:'html',
+      formatter: ({row}) => {
+        return highlightText(row.name, props.keyword || '')
+      }, },
+    { field: 'description', title: 'Description', 
+      type:'html',
+      formatter: ({row}) => {
+        return highlightText(row.description, props.keyword || '')
+      },
+    },
+    { field: 'created_at', title: 'Created Date' },
+    { field: 'updated_at', title: 'Updated Date' },
   ],
   virtualScroll:true,
   optionalConfig:{
@@ -37,12 +49,22 @@ const { tableRef, tableConfig, tableEvent, reload } = useVxeTable({
 })
 
 watch(items, (newItems) => {
-  console.log('newItems', newItems)
   if(tableRef.value) {
     (tableRef.value as any)?.reloadData(newItems)
-    // tableRef.value.reload()
+    // tableRef.value.reload()o
   }
 }, { deep: true})
+// Expose scroll method to parent
+function scrollToTop() {
+  if (tableRef.value) {
+    (tableRef.value as any)?.scrollTo(0, 0)
+  }
+}
+
+defineExpose({
+  scrollToTop
+})
+
 onMounted(() => {
   if(tableRef.value) {
     (tableRef.value as any)?.reloadData(props.items)
@@ -55,13 +77,24 @@ onMounted(() => {
     <template #icon="{ row }">
       <Icon :name="row.icon" />
     </template>
+
+    <template #description="{ row }">
+      <span v-html="highlightText(row.description || '', keyword || '')"></span>
+    </template>
   </VxeGrid>
 </template>
 
 <style lang="scss" scoped>
-
   :deep(.dimmed-row){
     opacity: 0.5;
     // cursor: not-allowed;
+  }
+
+  :deep(mark.highlight) {
+    background-color: yellow;
+    color: var(--app-primary);
+    font-weight: 600;
+    border-radius: var(--app-border-radius-xs);
+    padding: 0 2px;
   }
 </style>

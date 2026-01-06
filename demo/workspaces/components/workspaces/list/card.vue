@@ -1,31 +1,34 @@
 <script setup lang="ts">
 import type { WorkspaceType } from '../../../utils/db/schema';
 
-  const props = defineProps<{
-    workspace: WorkspaceType
-  }>()
-  const emits = defineEmits(['selected'])
-  function handleSelected() {
-    emits('selected', props.workspace)
-  }
+const props = defineProps<{
+  workspace: WorkspaceType
+  keyword?: string
+}>()
+
+const emits = defineEmits(['selected'])
+
+const { highlightText } = useTextHighlight()
+
+function handleSelected() {
+  emits('selected', props.workspace)
+}
 </script>
 
 <template>
   <div :class="{'cardContainer': true, 'dim': (workspace as any)?.__dim}" @click="handleSelected">
     <div class="iconContainer">
-        <Icon v-if="workspace.icon" :name="workspace.icon" />
-      </div>
-      <div class="cardTitle">
-        {{ workspace.name }}
-      </div>
-      <div class="cardDescription">
-        {{ workspace.description }}
-      </div>
+      <Icon v-if="workspace.icon" :name="workspace.icon" />
+    </div>
+    <div class="cardTitle" v-html="highlightText(workspace.name, keyword || '')"></div>
+    <div class="cardDescription" v-html="highlightText(workspace.description || '', keyword || '')"></div>
   </div>
 </template>
 
 <style lang="scss" scoped>
   .cardContainer{
+    width: 100%;
+    margin: var(--app-space-xs);
     background-color: var(--app-paper);
     padding: var(--app-space-s);
     border-radius: var(--app-border-radius-m);
@@ -49,6 +52,23 @@ import type { WorkspaceType } from '../../../utils/db/schema';
   .cardTitle{
     font-size: var(--app-font-size-l);
     font-weight: 900;
+    
+    :deep(mark.highlight) {
+      background-color: yellow;
+      color: var(--app-primary);
+      font-weight: 600;
+      border-radius: var(--app-border-radius-xs);
+      padding: 0 2px;
+    }
+  }
+  .cardDescription{
+    :deep(mark.highlight) {
+      background-color: yellow;
+      color: var(--app-primary);
+      font-weight: 600;
+      border-radius: var(--app-border-radius-xs);
+      padding: 0 2px;
+    }
   }
   .iconContainer{
     padding: var(--app-space-s);

@@ -12,7 +12,7 @@
     <el-form-item>
       <div style="display: flex; gap: var(--app-space-xs);">
         <ElButton type="primary" @click="handleCreateWorkspace" :loading="loading">Create Workspace</ElButton>
-        <ElButton type="success" @click="handleBatchInsert(100)" :loading="batchLoading">Generate 1000 Records</ElButton>
+        <ElButton type="success" @click="handleBatchInsert(10000)" :loading="batchLoading">Generate 10000 Records</ElButton>
       </div>
     </el-form-item>
   </el-form>
@@ -64,7 +64,7 @@ async function handleCreateWorkspace() {
     }
     // make the object pure 
     const newId = uuidv7()
-    const now = new Date().toISOString()
+    const now = Date.now()
     // create workspace with createdAt and updatedAt
     await query(
       `INSERT INTO workspaces (id, name, slug, description, icon, menu, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, 
@@ -111,13 +111,16 @@ async function handleBatchInsert(batchCount: number = 1000) {
     const types = [
       'Hub', 'Lab', 'Studio', 'Center', 'Space',
       'Workspace', 'Platform', 'Environment', 'Portal', 'Zone',
-      'Sphere', 'Domain', 'Arena', 'Nexus', 'Base'
+      'Sphere', 'Domain', 'Arena', 'Nexus', 'Base',
+      'Hub', 'Lab', 'Studio', 'Center', 'Space',
     ]
     
     const departments = [
       'Marketing', 'Sales', 'Engineering', 'Design', 'Operations',
       'Finance', 'HR', 'Product', 'Support', 'Analytics',
-      'Research', 'Development', 'Strategy', 'Quality', 'Security'
+      'Research', 'Development', 'Strategy', 'Quality', 'Security',
+      'Customer Success', 'Product', 'Analytics', 'Research', 'Development', 'Strategy', 'Quality', 'Security',
+
     ]
     
     const descriptions = [
@@ -155,26 +158,14 @@ async function handleBatchInsert(batchCount: number = 1000) {
         
         // Generate varied workspace names
         let name = ''
-        const namePattern = index % 4
-        if (namePattern === 0) {
-          // Pattern: "Department Type"
-          name = `${departments[index % departments.length]} ${types[index % types.length]}`
-        } else if (namePattern === 1) {
-          // Pattern: "Prefix Department"
-          name = `${prefixes[index % prefixes.length]} ${departments[index % departments.length]}`
-        } else if (namePattern === 2) {
-          // Pattern: "Prefix Type Number"
-          name = `${prefixes[index % prefixes.length]} ${types[index % types.length]} ${Math.floor(index / 4) + 1}`
-        } else {
-          // Pattern: "Department Prefix Type"
-          name = `${departments[index % departments.length]} ${prefixes[index % prefixes.length]} ${types[index % types.length]}`
-        }
+        name = `${prefixes[index % prefixes.length]} ${departments[(index+1) % departments.length]} ${types[(index+2) % types.length]} ${Math.floor(index / 4) + 1} ${index}`
+
         
         const slug = name.toLowerCase().replaceAll(' ', '-')
         const description = descriptions[index % descriptions.length]
         const icon = icons[index % icons.length]
         const menu: MenuItem[] = []
-        const now = new Date().toISOString()
+        const now = Date.now()
 
         placeholders.push(
           `($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4}, $${paramIndex + 5}, $${paramIndex + 6}, $${paramIndex + 7})`
@@ -187,10 +178,10 @@ async function handleBatchInsert(batchCount: number = 1000) {
       const insertQuery = `INSERT INTO workspaces (id, name, slug, description, icon, menu, created_at, updated_at) VALUES ${placeholders.join(', ')}`
       await query(insertQuery, values)
       
-      ElMessage.info(`Inserted batch ${batch + 1}/${batches} (${(batch + 1) * batchSize} / ${totalRecords})`)
+      // ElMessage.info(`Inserted batch ${batch + 1}/${batches} (${(batch + 1) * batchSize} / ${totalRecords})`)
     }
 
-    ElMessage.success('Successfully generated 1000 records!')
+    ElMessage.success(`Successfully generated ${batchCount} records!`)
     emits('created')
   } catch (error) {
     console.error(error)
