@@ -166,7 +166,6 @@ export class RendererRegistryManager {
         )
       }
     }
-    console.log('result', result)
     return result as Pick<ColumnConfig, 'cellRender' | 'editRender' | 'titlePrefix'>
   }
   public getRules(type: ColumnFieldType): any[] {

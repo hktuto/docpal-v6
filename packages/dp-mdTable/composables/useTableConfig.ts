@@ -59,11 +59,12 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     groupFields: [],
     expandGroupFields: [],
     calcValuesMethod(params: any) {
-      const { column, children } = params
+      const { column, children, groupValue, groupField } = params
       // 优先使用 column.countMethod 进行计数
       if (column.countMethod && column.countMethod !== 'none') {
         const flattenedData = flattenAggregatedData(children)
-        return calculateCount(column.countMethod as CountMethod, column.field, flattenedData)
+        const total = calculateCount(column.countMethod as CountMethod, column.field, flattenedData)
+        return total
       }
       return ''
       
@@ -199,6 +200,17 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         isShiftKey: true,
         range: true
       },
+      'footer-cell-config': {
+        height: 32
+      },
+      'sort-config': {
+        multiple: true,
+        showIcon: false,
+        defaultSort: {
+          field: 'age',
+          order: 'asc'
+        }
+      }
     }
     // 编辑配置
     // 检查是否有列配置了 editRender

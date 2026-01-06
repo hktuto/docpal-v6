@@ -112,22 +112,36 @@ const emit = defineEmits<{
   submit: [column: ColumnConfig]
   cancel: []
 }>()
-
+const state = reactive({
+  column: null,
+  isEdit: false
+})
 const popoverRef = ref()
 const triggerRef = ref()
-function show(targetParams: any) {
-  // check if targetParams is a html element, or is a vue component ref
-
-  popoverRef.value.open(targetParams)
-}
-const formRef = ref<FormInstance>()
-const formData = reactive<ColumnConfig>({
+const formData = reactive({
   field: '',
   title: '',
   type: 'string',
   width: 150,
   minWidth: undefined
 })
+function show(targetParams: any, column: any) {
+  // check if targetParams is a html element, or is a vue component ref
+  popoverRef.value.open(targetParams)
+  state.column = null
+  state.isEdit = false
+  if(!!column) {
+    state.column = column
+    state.isEdit = true
+    formData.field = column.field
+    formData.title = column.title
+    formData.type = column.type
+    formData.width = column.width
+    formData.minWidth = column.minWidth
+  }
+}
+const formRef = ref<FormInstance>()
+
 
 // 验证规则
 const validateField = (rule: any, value: any, callback: any) => {
@@ -202,7 +216,6 @@ const handleSubmit = async () => {
     
     emit('submit', columnConfig)
     resetForm()
-    hide()
   } catch (error) {
     console.error('表单验证失败:', error)
   }
@@ -211,22 +224,15 @@ const handleSubmit = async () => {
 // 取消
 const handleCancel = () => {
   resetForm()
+  popoverRef.value.close()
   emit('cancel')
-  hide()
-}
-
-
-
-// 隐藏 popover
-const hide = () => {
-  popoverRef.value?.hide?.()
 }
 
 // 暴露方法
 defineExpose({
   resetForm,
   show,
-  hide
+  
 })
 </script>
 

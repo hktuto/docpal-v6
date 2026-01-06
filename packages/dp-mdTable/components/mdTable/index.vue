@@ -1,12 +1,7 @@
 <template>
   <div class="multi-dimension-table" :style="{ height: props.height || '100%' }">
     <!-- 工具栏 -->
-    <Toolbar
-      :groupable-columns="columns"
-      @refresh="handleRefresh"
-      @search="handleSearch"
-      @grouping-change="handleGroupToggle"
-    >
+    <Toolbar :groupable-columns="columns" @refresh="handleRefresh" @search="handleSearch" @grouping-change="handleGroupToggle">
       <template #toolbar-left>
         <slot name="toolbar-left" />
       </template>
@@ -33,7 +28,7 @@
       </div>
       <!-- 右侧区域 -->
       <div class="table-right-panel">
-        <div ref="addColumnTriggerRef" class="table-right-panel-header" @click="(e) => handleAddColumn(e)">
+        <div class="table-right-panel-header" @click="(e) => handleAddColumn(e)">
           <slot name="right-panel">
             <el-icon><Plus /></el-icon>
           </slot>
@@ -41,12 +36,12 @@
         <AddColumnPopover
           ref="addColumnPopoverRef"
           :existing-fields="existingFields"
-          :virtual-ref="addColumnTriggerRef"
           placement="left-start"
           popper-class="add-popover-content"
           @submit="addColumn"
         />
       </div>
+      <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" @headerClick="handleHeaderClick" />
     </div>
   </div>
 </template>
@@ -84,7 +79,6 @@ const emit = defineEmits<{
 const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
 const addColumnPopoverRef = ref()
-const addColumnTriggerRef = ref<HTMLElement>()
 const { columns, addColumn, columnGroupRules, gridOptions, gridRef, refreshTableData } = useMDTable(props.tableName, props)
 
 // 表格事件
@@ -129,10 +123,30 @@ const handleAddColumn = (e: MouseEvent) => {
     addColumnPopoverRef.value.show(e.target || null)
   }
 }
+const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) => {
+  switch (type) {
+    case 'edit':
+      console.log('edit', {triggerEl}, column)
+      addColumnPopoverRef.value.show(triggerEl, column)
+      break
+    case 'sortAz': 
+      gridRef.value.sort(column.field, 'asc')
+      break
+    case 'sortZa':
+      gridRef.value.sort(column.field, 'desc')
+      break
+    case 'editDescription':
+      break
+    case 'permission':
+      break
+  }
+}
+const mdTableHeaderPopoverRef = ref()
+provide('mdTableHeaderPopover', mdTableHeaderPopoverRef)
 // 暴露方法
 defineExpose({
   gridRef,
-  columns,
+  columns
 })
 
 // 监听 tableName 变化，重新加载数据
@@ -240,19 +254,19 @@ watch(
     box-shadow: none !important;
     padding: 0 !important;
   }
-  
+
   .el-input__inner {
     padding: 0 !important;
     color: #409eff;
     text-decoration: underline;
   }
-  
+
   &:focus-within {
     .el-input__wrapper {
       background-color: #fff !important;
       box-shadow: 0 0 0 1px #409eff inset !important;
     }
-    
+
     .el-input__inner {
       color: #606266;
       text-decoration: none;
