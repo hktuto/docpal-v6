@@ -112,7 +112,7 @@ function isExpanded(itemId: string): boolean {
     <template #item="{ element, index }">
       <div class="draggable-item">
         <!-- Menu Item -->
-        <WorkspaceMenuItem
+        <WorkspacesMenuItem
           :item="element"
           :is-admin="isAdmin"
         />
@@ -122,7 +122,7 @@ function isExpanded(itemId: string): boolean {
           v-if="element.type === 'folder' && isExpanded(element.id)"
           class="nested-children"
         >
-          <WorkspaceMenuDraggableList
+          <WorkspacesMenuDraggableList
             :model-value="element.children || []"
             :level="level + 1"
             :parent-id="element.id"

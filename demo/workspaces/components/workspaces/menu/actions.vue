@@ -1,39 +1,43 @@
 <script setup lang="ts">
 import type { MenuItem } from '../../../utils/db/schema/workspaces'
-import { useWorkspaceMenu } from '../../../composables/useWorkspaceMenuState'
+import { useWorkspaceMenuContext } from '../../../composables/useWorkspaceMenuState'
 import { ElMessageBox } from 'element-plus'
-interface Props {
-  item: MenuItem
-  isAdmin: boolean
-}
 
-const props = defineProps<Props>()
-const menuContext = useWorkspaceMenuContext()
-const popoverRef = ref()
-
-function open(target: HTMLElement, highlight?: HTMLElement) {
+const item = ref<MenuItem | null>(null)
+const isAdmin = ref(false)
+const open = (data: {item: MenuItem, isAdmin: boolean}, target?: HTMLElement, highlight?: HTMLElement) => {
+  item.value = data.item
+  isAdmin.value = data.isAdmin
   popoverRef.value?.open(target, highlight)
 }
 
+const menuContext = useWorkspaceMenuContext()
+const popoverRef = ref()
+
+
 function close() {
   popoverRef.value?.close()
+  item.value = null
+  isAdmin.value = false
 }
 
 async function handleEdit() {
-  menuContext.startEdit(props.item.id)
-  close()
+  if(!item.value) return
+  menuContext.startEdit(item.value?.id)
+  close() 
 }
 
 async function handleDelete() {
+  if(!item.value) return
   // Customize message based on item type
-  let message = `Are you sure you want to delete "${props.item.label}"?`
+  let message = `Are you sure you want to delete "${item.value.label}"?`
   let confirmText = 'Delete'
   
-  if (props.item.type === 'table') {
-    message = `Are you sure you want to delete the table "${props.item.label}"?\n\nThis will permanently delete:\n• The physical database table\n• All columns\n• All data records\n\nThis action cannot be undone.`
+  if (item.value?.type === 'table') {
+    message = `Are you sure you want to delete the table "${item.value.label}"?\n\nThis will permanently delete:\n• The physical database table\n• All columns\n• All data records\n\nThis action cannot be undone.`
     confirmText = 'Delete Table'
-  } else if (props.item.type === 'folder' && props.item.children && props.item.children.length > 0) {
-    message = `Are you sure you want to delete the folder "${props.item.label}" and all its contents?`
+  } else if (item.value?.type === 'folder' && item.value?.children && item.value?.children.length > 0) {
+    message = `Are you sure you want to delete the folder "${item.value.label}" and all its contents?`
   }
   
   ElMessageBox.confirm(message, 'Delete Item', {
@@ -42,19 +46,21 @@ async function handleDelete() {
     type: 'warning',
     dangerouslyUseHTMLString: true,
   }).then(async () => {
-    await menuContext.deleteItem(props.item.id)
+    if(!item.value) return
+    await menuContext.deleteItem(item.value.id)
     close()
   }).catch(() => {
     // User cancelled
   })
 }
 async function handleEditSetting(type: MenuItem['type']) {
-  
-  await menuContext.openSetting(props.item.slug, type)
+  if(!item.value) return
+  await menuContext.openSetting(item.value.slug, type)
   close()
 }
 async function handleAddItem(type: MenuItem['type']) {
-  await menuContext.addItem(props.item.id, type)
+
+  await menuContext.addItem(item.value?.id || null, type)
   close()
 }
 
@@ -62,20 +68,20 @@ defineExpose({ open, close })
 </script>
 
 <template>
-  <CommonPopoverDialog
+  <UiPopoverDialog
     ref="popoverRef"
     placement="bottom-start"
     :width="180"
   >
     <div class="item-actions-menu">
       <!-- Edit -->
-      <div v-if="isAdmin" class="action-item" @click="handleEdit">
+      <div v-if="isAdmin && item" class="action-item" @click="handleEdit">
         <Icon name="material-symbols:edit-outline" />
         <span>Rename</span>
       </div>
 
       <!-- Add submenu (only for folders) -->
-      <template v-if="isAdmin && item.type === 'folder'">
+      <template v-if="isAdmin && (!item || item && item.type === 'folder')">
         <div class="action-divider" />
         <div class="action-item" @click="handleAddItem('folder')">
           <Icon name="material-symbols:folder-outline" />
@@ -94,14 +100,14 @@ defineExpose({ open, close })
           <span>Add Dashboard</span>
         </div>
       </template>
-      <template v-if="item.type === 'table'">
+      <template v-if="item && item.type === 'table'">
         <div class="action-item" @click="handleEditSetting('table')">
           <Icon name="material-symbols:settings-outline" />
           <span>table settings</span>
         </div>
       </template>
       <!-- Delete -->
-      <template v-if="isAdmin">
+      <template v-if="isAdmin && item">
         <div class="action-divider" />
         <div class="action-item danger" @click="handleDelete">
           <Icon name="material-symbols:delete-outline" />
@@ -109,7 +115,7 @@ defineExpose({ open, close })
         </div>
       </template>
     </div>
-  </CommonPopoverDialog>
+  </UiPopoverDialog>
 </template>
 
 <style scoped lang="scss">

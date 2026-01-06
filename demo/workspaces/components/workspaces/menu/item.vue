@@ -10,7 +10,6 @@ interface Props {
 const props = defineProps<Props>()
 
 const menuContext = useWorkspaceMenuContext()
-const actionsPopover = ref()
 const isHovered = ref(false)
 
 // Check if this item is being edited
@@ -62,7 +61,7 @@ const itemContentRef = ref<HTMLElement>()
 // Handle actions menu
 function handleActionsClick(event: MouseEvent) {
   event.stopPropagation()
-  actionsPopover.value?.open(event.currentTarget as HTMLElement, itemContentRef.value as HTMLElement)
+  // actionsPopover.value?.open(event.currentTarget as HTMLElement, itemContentRef.value as HTMLElement)
 }
 
 // Handle save from label editor
@@ -137,12 +136,6 @@ function handleCancelEdit() {
       </div>
     </div>
 
-    <!-- Actions Popover -->
-    <WorkspaceMenuItemActions
-      ref="actionsPopover"
-      :item="item"
-      :is-admin="isAdmin"
-    />
   </div>
 </template>
 
