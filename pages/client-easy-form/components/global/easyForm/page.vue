@@ -39,7 +39,7 @@ const {
 } = useVxeTable({
   id: 'a-easyForm',
   api: (pageParams: any) => {
-    return clientApi.api.postFormDesignPage({ ...pageParams, ...extraParams })
+    return clientApi.api.postDmsEasyFormPage({ ...pageParams, ...extraParams })
   },
   columns: [
     { field: 'name', title: 'easyForm.name', fixed: 'left' },

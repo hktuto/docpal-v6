@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { getIgnoreSchemas } from '~/utils/masterTableProvider'
 
 const emits = defineEmits(['refresh'])
@@ -81,7 +81,7 @@ const tableConfig = ref<any>({
 
 async function handleAddSchama(schema: any) {
   try {
-    await adminApi.api.postMasterTablesColumnAdd({
+    await clientApi.api.postDmsMasterTableColumnAdd({
       id: props.tableId,
       ...schema
     })

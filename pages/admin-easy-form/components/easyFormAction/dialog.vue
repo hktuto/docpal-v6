@@ -124,8 +124,9 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi, adminApi } from 'api'
 import { ElMessage } from 'element-plus'
+
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const props = defineProps(['detail'])
@@ -169,7 +170,7 @@ function getTargetLabel(value) {
   return index === -1 ? value : state.targetList[index].label
 }
 
-function handleOpen(setting) {
+function handleOpen(setting: any) {
   if (setting && setting.id) {
     state.editMode = true
     state.setting = JSON.parse(JSON.stringify(setting))
@@ -222,12 +223,11 @@ async function handleSubmit() {
     if (state.editMode) {
       params.formResult.id = state.setting.id
     }
-    const action = await adminApi.api
-      .postFormDesignSaveFormresultAppend(params)
-      .then((res) => res.data)
+    const action = await clientApi.api.postDmsEasyFormSaveFormresultAppend(params).then((res) => res.data)
     ElMessage.success(t('tip_createdMsg', { modelName: t('tip_newMsg') + t('easyForm_formAction'), name: null }))
     emits('refresh', action)
   } catch (error) {
+    console.log(error)
   } finally {
     state.visible = false
     state.loading = false
@@ -275,9 +275,7 @@ async function handleChange(key, isInit = false) {
 
 async function getWorkflow() {
   if (workflowList.length === 0) {
-    const res = await adminApi.api
-      .getFormDesignProcessDefinitions()
-      .then((res) => res.data)
+    const res = await clientApi.api.getDmsEasyFormProcessDefinitions().then((res) => res.data)
     workflowList = res.map((item) => ({
       label: item.label,
       value: item.key
@@ -302,7 +300,7 @@ async function getCase() {
 
 async function getEmail() {
   if (emailList.length === 0) {
-    const res = await adminApi.api.getTemplateEmailAll().then((res) => res.data)
+    const res = await clientApi.api.getDmsTemplateEmailAll().then((res) => res.data)
     emailList = res.map((item) => ({
       label: item.label,
       value: item.id
@@ -330,6 +328,7 @@ async function handleKeyChange(value: string, isInit = false) {
     default:
       break
   }
+
   state.targetList.forEach((item) => {
     const index = form.value.dataMapping.findIndex(
       (fItem) => fItem.target === item.value
@@ -347,6 +346,9 @@ async function getWorkflowProps(processKey: string) {
     .postWorkflowProperties({ processKey })
     .then((res) => res.data)
   console.log('getWorkflowProps', options)
+  if (!options || options.length == 0) {
+    return []
+  }
   return options.map((item) => ({
     label: item.name,
     value: item.id
@@ -355,12 +357,12 @@ async function getWorkflowProps(processKey: string) {
 
 async function getEmailProps(id: string) {
   try {
-    const options = await adminApi.api
-      .getTemplateEmailTemplateId(id)
-      .then((res) => res.data)
-    const variable = options.emailTemplateVariable
-      ? JSON.parse(options.emailTemplateVariable)
-      : []
+    const options = await clientApi.api.getDmsTemplateEmailTemplateId(id).then((res) => res.data)
+    if (!options || options.length == 0) {
+      return []
+    }
+
+    const variable = options.emailTemplateVariable ? JSON.parse(options.emailTemplateVariable) : []
     return variable.map((item) => ({
       label: item,
       value: item
@@ -374,9 +376,11 @@ async function getCaseProps(key: string) {
   try {
     const caseItem = caseList.find(item => item.value === key)
 
-    const options = await adminApi.api
-      .getCaseDashboardVersionVersionidPrimaryform(caseItem.productionVersionId)
-      .then((res) => res.data)
+    const options = await adminApi.api.getCaseDashboardVersionVersionidPrimaryform(caseItem.productionVersionId).then((res) => res.data)
+    if (!options || options.length == 0) {
+      return []
+    }
+
     return options.fields.map((item) => ({
       label: item.name,
       value: item.id
@@ -386,32 +390,24 @@ async function getCaseProps(key: string) {
   }
 }
 
-let userListStore = []
+const userListStore = ref([])
 
 async function getUserList() {
-  if (userListStore.length > 0) {
-    state.userList = userListStore
+  if (userListStore.value.length > 0) {
+    state.userList = userListStore.value
     return
   }
   const userList = await adminApi.api.postNuxeoIdentityUsers().then((res) => res.data)
-  const _userList = userList
-    .map((item) => ({
-      label:
-        (item.firstName && item.lastName && item.firstName !== item.lastName
-          ? item.firstName + ' ' + item.lastName
-          : item.username) +
-        ' <' +
-        item.email +
-        '>',
-      value: item.userId
-    }))
-    .filter((item) => item.value !== userId)
+  const _userList = userList.map((item) => ({
+    label: (item.firstName && item.lastName && item.firstName !== item.lastName ? `${item.firstName} ${item.lastName}` : item.username) + ` <${item.email}>`,
+    value: item.userId
+  })).filter((item) => item.value !== userId)
   // state.userList.unshift(...sourceList.value)
   state.userList = [
     { label: t('easyForm.formInfomation'), value: '', options: sourceList.value },
     { label: t('dataField.type.user'), value: '', options: _userList }
   ]
-  userListStore = state.userList
+  userListStore.value = state.userList
 }
 
 // #endregion

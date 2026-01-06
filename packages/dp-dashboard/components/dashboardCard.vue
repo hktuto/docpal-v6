@@ -11,13 +11,15 @@ const props = withDefaults(
     title?: string,
     settingRef?: any,
     setting?: any,
+    mode?: 'mock' | 'real',
     extraParams?: any[] // add extra params to setting handleOpen function, and it use spread operator
   }>(),
   {
     showSkeleton: false,
     hideSetting: false,
     title: '',
-    extraParams: []
+    extraParams: [],
+    mode: 'real'
   }
 )
 const cardRef = ref<any>()
@@ -93,8 +95,8 @@ defineExpose({
           <!-- FUll screen toggle button -->
           <SvgIcon id="refresh" src="/icons/refresh.svg" @click="handleRefresh" />
           <Icon :name="fullscreen ? 'material-symbols:fullscreen-exit-rounded' : 'material-symbols:fullscreen'" @click="toggleFullscreen" />
-          <SvgIcon v-if="!hideSetting && settingRef" class="" id="setting" src="/icons/setting.svg" @click="openSetting" />
-          <SvgIcon v-if="!hideSetting && !fullscreen" class="setting--icon" id="delete" src="/icons/delete.svg" @click="handleDelete" />
+          <SvgIcon v-if="!hideSetting && settingRef && mode === 'real'" class="" id="setting" src="/icons/setting.svg" @click="openSetting" />
+          <SvgIcon v-if="!hideSetting && !fullscreen && mode === 'real'" class="setting--icon" id="delete" src="/icons/delete.svg" @click="handleDelete" />
         </div>
       </slot>
     </template>

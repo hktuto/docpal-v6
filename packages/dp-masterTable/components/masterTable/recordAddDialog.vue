@@ -13,7 +13,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 
 const { t } = useI18n()
 const props = withDefaults(defineProps<{
@@ -39,14 +39,14 @@ async function handleSubmit() {
     state.loading = true
     const data = await FormVariablesRenderer.value.getData(true)
     if (state.edit) {
-      await adminApi.api.putMasterTablesIdRecord(props.tableId, {
+      await clientApi.api.putDmsMasterTableIdRecord(props.tableId, {
         data: [data],
         where: {
           id: state.setting.id
         }
       })
     } else {
-      await adminApi.api.postMasterTablesRecord({
+      await clientApi.api.postDmsMasterTableRecord({
         id: props.tableId,
         data: [data]
       })

@@ -112,7 +112,7 @@ async function getMasterTableData() {
     state.caseRecord = data
     const masterTableRecordId = state.caseRecord.rows.find((item: any) => item.id === props.setting.relatedField)?.value
     if (!masterTableRecordId) throw new Error('Master table record not found')
-    const { data: masterTableRecord } = await clientApi.api.postMasterTablesRecordPageNonpermission({
+    const { data: masterTableRecord } = await clientApi.api.postDmsMasterTableRecordPageNonpermission({
       name: props.setting.masterTableName,
       where: {
         id: masterTableRecordId

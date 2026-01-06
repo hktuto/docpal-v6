@@ -37,9 +37,9 @@
       <SearchGroupBarFilterMetaform ref="metaForm" :config="state.metadataType" @formChange="handleMetaValueChange" />
     </el-form-item>
     <el-form-item v-if="isQuertType('keyword')" :label="$t('search.synonyms')">
-      <el-switch v-model="state.form.synonyms" size="small" @change="handleChangeKeyword" />
+      <el-switch v-model="state.form.synonyms" size="small" @change="handleChangeKeyword('synonyms')" />
     </el-form-item>
-    <el-form-item v-if="!state.form.synonyms && isQuertType('keyword')" :label="$t('search.includeLanguages')">
+    <el-form-item v-if="state.form.synonyms && isQuertType('keyword')" :label="$t('search.includeLanguages')">
       <el-select-v2
         v-if="options.languages"
         v-model="state.form.includeLanguages"
@@ -293,7 +293,10 @@ function handleChange(key: string = '') {
   emits('formChange')
 }
 
-function handleChangeKeyword() {
+function handleChangeKeyword(key: string) {
+  if (key === 'synonyms') {
+    state.form.includeLanguages = []
+  }
   if (state.form.keyword && state.form.keyword.length > 0) {
     emits('formChange')
   }

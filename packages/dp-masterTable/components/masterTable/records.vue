@@ -78,10 +78,9 @@
 </template>
 
 <script lang="ts" setup>
-import { adminApi, globalApi } from 'api'
+import { clientApi } from 'api'
 import type { MTColumnInfo } from 'api/src/generate/admin'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { onMounted } from 'vue'
 
 const emits = defineEmits(['filter-change'])
 const routerProvider = inject(MenuRouterKey)
@@ -143,7 +142,7 @@ const { tableConfig, tableEvent, tableRef, reload, query, cleanSelectedRows } = 
           totalSize: 0
         }
       }
-    const { data } = await globalApi.api.postMasterTablesRecordPage({
+    const { data } = await clientApi.api.postDmsMasterTableRecordPage({
       ...pageParams,
       ...state.extraParams,
       id: props.tableId
@@ -240,7 +239,7 @@ async function handleDelete(row: any) {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    const result = await globalApi.api.deleteMasterTablesIdRecord(props.tableId, { recordId: row.id }, {})
+    const result = await clientApi.api.deleteDmsMasterTableIdRecord(props.tableId, { recordId: row.id }, {})
     if (!result) {
       routerProvider?.message.error(t('dpTip.deleteFailed'))
       return
@@ -267,7 +266,7 @@ function handleAddRow(row?: any) {
 async function handleBatchActive(status: boolean) {
   try {
     const ids = state.selectList.map((item: any) => item.id)
-    await globalApi.api.patchMasterTablesIdBatchRecordStatus(props.tableId, {
+    await clientApi.api.patchDmsMasterTableIdBatchRecordStatus(props.tableId, {
       in: {
         id: ids
       },
@@ -284,13 +283,13 @@ async function handleActive(row, status: boolean) {
   try {
     row.loading = true
     row.status = status
-    await globalApi.api.patchMasterTablesIdRecordStatus(props.tableId, {
+    await clientApi.api.patchDmsMasterTableIdRecordStatus(props.tableId, {
       id: row.id,
       status
     })
     ElMessage.success(t('dpMsg_success'))
   } catch (error) {
-    row.status = row.status ? false : true
+    row.status = !row.status
   } finally {
     row.loading = false
   }
@@ -379,7 +378,7 @@ async function handleDeleteSelected() {
     })
     if (action !== 'confirm') return
     const ids = state.selectList.map((item: any) => item.id)
-    await globalApi.api.postMasterTablesBatchDelete({
+    await clientApi.api.postDmsMasterTableBatchDelete({
       tableId: props.tableId,
       recordIds: ids
     })
@@ -419,7 +418,7 @@ async function getFilter() {
       ]
     }
   ]
-  const { data: filterData } = await globalApi.api.getMasterTablesRecordSortOptionTableid(props.tableId)
+  const { data: filterData } = await clientApi.api.getDmsMasterTableRecordSortOptionTableid(props.tableId)
   data[0].options = filterData
   ResponsiveFilterRef.value.init(data)
 }

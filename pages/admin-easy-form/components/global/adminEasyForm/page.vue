@@ -23,7 +23,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { routeEasyFormDetail } from '~/util/easyFormRouterHelper'
 
 const ResponsiveFilterRef = ref()
@@ -43,7 +43,7 @@ const {
 } = useVxeTable({
   id: 'a-easyForm',
   api: (pageParams: any) =>
-    adminApi.api.postFormDesignPage({ ...pageParams, ...extraParams }),
+    clientApi.api.postDmsEasyFormPage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'name', title: 'easyForm.name', fixed: 'left', type: 'checkbox' },
     {
@@ -133,8 +133,8 @@ function handleDblclick(row: any) {
 
 async function handleActive(row: any, isActive: boolean) {
   try {
-    const type = isActive ? 'patchFormDesignEnableId' : 'patchFormDesignDisableId'
-    const result = await adminApi.api[type](row.id).then((res) => res.data)
+    const type = isActive ? 'patchDmsEasyFormEnableId' : 'patchDmsEasyFormDisableId'
+    const result = await clientApi.api[type](row.id).then((res) => res.data)
     if (!!result) {
       row.enable = isActive
     }

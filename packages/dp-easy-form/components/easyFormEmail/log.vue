@@ -40,8 +40,8 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ElMessageBox, ElNotification } from 'element-plus'
 import { clientApi } from 'api'
+
 const emits = defineEmits(['email-update'])
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -73,7 +73,7 @@ const {
           totalSize: 0
         }
       }
-    return clientApi.api.postFormDesignPageEmailLog({
+    return clientApi.api.postDmsEasyFormEmailLogPage({
       ...pageParams,
       ...extraParams,
       ...filterParams
@@ -143,8 +143,8 @@ const {
 const ResponsiveFilterRef = ref()
 
 async function initCondition() {
-  console.log('initCondition',ResponsiveFilterRef);
-  
+  console.log('initCondition', ResponsiveFilterRef)
+
   const data = [
     {
       key: 'status',
@@ -192,7 +192,7 @@ function handleFilterFormChange(formModel: any) {
   try {
     reload()
   } catch (error) {
-    
+    console.log(error)
   }
 }
 

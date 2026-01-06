@@ -10,8 +10,7 @@
   </el-card>
 </template>
 <script setup lang="ts">
-import { adminApi } from 'api'
-import { ElMessage } from 'element-plus'
+import { clientApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const props = defineProps(['table', 'tableId'])
 const state = reactive<{ name: string; loading: boolean }>({
@@ -28,7 +27,7 @@ async function handleSave() {
   }
   try {
     state.loading = true
-    const data = await adminApi.api.putMasterTables({
+    const data = await clientApi.api.putDmsMasterTable({
       id: props.tableId,
       name: state.name
     })

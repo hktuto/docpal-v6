@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 
 const props = defineProps<{
   masterTableList: any[]
@@ -62,7 +62,7 @@ async function handleCreateMasterTable() {
       }
     })
 
-    const data = await adminApi.api.postMasterTables({
+    const data = await clientApi.api.postDmsMasterTable({
       name: item.name,
       fields: createFields
     }).then(r => r.data)

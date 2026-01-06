@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import {adminApi} from "api";
-import {useEditor} from "~/composables/useEditorjs";
+import { clientApi } from 'api'
+import { useEditor } from "~/composables/useEditorjs";
 
-const {t} = useI18n()
+const { t } = useI18n()
 const props = defineProps<{
   options: any,
   data: any,
   id: string,
-}>();
-const {variables} = useEditor()
+}>()
+const { variables } = useEditor()
 
 const testForm = ref({
   tos: [],
@@ -18,50 +18,50 @@ const testForm = ref({
   variables: variables.value.reduce((acc: any, cur: any) => {
     if (!cur.includes(',')) {
       console.log(cur)
-      acc[cur] = '';
+      acc[cur] = ''
     } else {
-      const obj = cur.split(',');
-      const key = obj.shift();
+      const obj = cur.split(',')
+      const key = obj.shift()
 
       acc[key] = [
         obj.reduce((oAcc: any, oCur: string) => {
-          oAcc[oCur.replaceAll(" ", "")] = "";
+          oAcc[oCur.replaceAll(' ', '')] = ''
           return oAcc
         }, {})
       ]
     }
-    return acc;
+    return acc
   }, {})
 })
 
 
 async function send() {
-  const body = testForm.value;
+  const body = testForm.value
   // templateId may be null in init state, so set it later
-  body.templateId = props.id;
-  console.log("body", body)
+  body.templateId = props.id
+  console.log('body', body)
   // loop variables in body , and replace /n with <br>
   Object.keys(body.variables).forEach((key) => {
     // remove line break to <br/>
     //if body.variable[key] is string
     if (typeof body.variables[key] === 'string') {
-      body.variables[key] = body.variables[key].replace(/(?:\r\n|\r|\n)/g, '<br/>');
+      body.variables[key] = body.variables[key].replace(/(?:\r\n|\r|\n)/g, '<br/>')
     }
   })
-  const res = await adminApi.api.postTemplateEmailSend(body);
+  const res = await clientApi.api.postDmsTemplateEmailSend(body)
 }
 
 function addRow(key: string) {
-  const data = {...testForm.value.variables[key][0]}
+  const data = { ...testForm.value.variables[key][0] }
   // reset all value to empty in data
   Object.keys(data).forEach(item => {
-    data[item] = ""
+    data[item] = ''
   })
   testForm.value.variables[key].push(data)
 }
 
 function removeRow(key: string, index: number) {
-  testForm.value.variables[key].splice(index, 1);
+  testForm.value.variables[key].splice(index, 1)
 }
 
 defineExpose({
@@ -101,7 +101,7 @@ defineExpose({
 
               <div class="subTitle">{{ key }}</div>
               <div class="action">
-                <SvgIcon src="/icons/add.svg" @click="addRow(key)"/>
+                <SvgIcon src="/icons/add.svg" @click="addRow(key)" />
               </div>
             </div>
             <div class="tableAction">
@@ -115,7 +115,7 @@ defineExpose({
                   </template>
                 </div>
                 <div class="action">
-                  <SvgIcon v-if="index !== 0" src="/icons/close.svg" @click="removeRow(key,index)"/>
+                  <SvgIcon v-if="index !== 0" src="/icons/close.svg" @click="removeRow(key,index)" />
                 </div>
               </template>
             </div>

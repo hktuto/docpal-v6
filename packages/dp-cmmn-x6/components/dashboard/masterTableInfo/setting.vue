@@ -77,9 +77,8 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { ElMessageBox } from 'element-plus'
 import draggable from 'vuedraggable'
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 const emits = defineEmits(['refresh', 'delete'])
 const { t } = useI18n()
 const caseProvider: any = inject(CaseManagementDashboardKey)
@@ -124,7 +123,7 @@ async function handleSubmit() {
   }
 }
 async function initOptions() {
-  const { data } = await adminApi.api.getMasterTables({
+  const { data } = await clientApi.api.getDmsMasterTable({
     data: {
       type: 'all'
     }
@@ -154,7 +153,7 @@ async function handleMasterTableChange(value: string, isInit: boolean = false) {
     state.setting.masterTableName = curItem.label
     state.setting.title = curItem.label
   }
-  const { data } = await adminApi.api.getMasterTablesId(value)
+  const { data } = await clientApi.api.getDmsMasterTableId(value)
   state.masterTableFields = data.fields
     .map((item: any) => ({
       ...item,

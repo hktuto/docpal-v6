@@ -1,16 +1,14 @@
 import { useState, createError } from '#imports'
 import { EventType, emitBus } from 'eventbus'
-import { clientApi, adminApi } from 'api'
+import { clientApi } from 'api'
 import type Keycloak from 'keycloak-js'
 
 import type { UserDTO } from 'api/src/generate/client'
 
-
-
 export const useDesktopMode = () => useState<boolean>('is-desktop')
 export const useUserState = () => useState<UserDTO | null>('auth-user')
 
-export const usePublicPageState = () => useState<string[]>('auth-public-page', () => ['/forgetPassword', '/forgetPassword/', '/resetPassword/','/resetPassword','/login/', '/login', '/initPassword/', '/initPassword'])
+export const usePublicPageState = () => useState<string[]>('auth-public-page', () => ['/forgetPassword', '/forgetPassword/', '/resetPassword/', '/resetPassword', '/login/', '/login', '/initPassword/', '/initPassword'])
 export const useLoginHook = () => useState<any>(() => shallowRef([]))
 
 export const useUserId = () => useState<string>(() => '')
@@ -38,6 +36,7 @@ export const userDisplayTimeSetting = () => {
   const userPreference = useUserPreference()
   return userPreference.value?.metaDateFormat ? userPreference.value.metaDateFormat : 'YYYY-MM-DD'
 }
+
 export async function verifly() {
 
   const logedIn = useLoginState()
@@ -50,7 +49,7 @@ export async function verifly() {
   logedIn.value = true
   const token = localStorage.getItem('access_token') || ''
   const decodedToken = parseJwt(token)
-  if(decodedToken && decodedToken.roles) {
+  if (decodedToken && decodedToken.roles) {
     console.log('decodedToken', decodedToken)
     const isAdmin = useIsAdmin()
     const isSuperAdmin = useIsSuperAdmin()
@@ -62,13 +61,13 @@ export async function verifly() {
   // check if user in in db
   const userId = useUserId()
   const user = useUserState()
-  
+
   const {
     create,
     findOne,
-    deleteTable,
+    deleteTable
   } = useSqliteTable({
-    schema:{
+    schema: {
       name: 'auth_user',
       columns: [
         {
@@ -80,17 +79,16 @@ export async function verifly() {
           name: 'username',
           type: 'TEXT',
           primaryKey: false
-        },
-        
+        }
       ]
     }
-  })  
-  try{
+  })
+  try {
     console.log('user in db', userId.value)
     await findOne({
       id: userId.value
     })
-  }catch(err){
+  } catch (err) {
     console.log('user not in db')
     await deleteTable('docpal_documents')
     await create({
@@ -109,33 +107,35 @@ export async function verifly() {
 
 function parseJwt(token: string) {
   if (!token) {
-    return;
+    return
   }
-  const base64Url = token.split('.')[1];
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  return JSON.parse(window.atob(base64));
+  const base64Url = token.split('.')[1]
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+  return JSON.parse(window.atob(base64))
 }
+
 export async function login() {
   // const keyCloakState = useKeyCloakState()
-  
-  
+
+
   // check route is superAdmin
   try {
     // get access token from local storage
     const storageToken = localStorage.getItem('access_token')
-    if(!storageToken){
+    if (!storageToken) {
       throw new Error('access token not found')
     }
     const token = useToken()
     token.value = storageToken
     await verifly()
     await checkPassword()
-    
+
   } catch (error) {
     console.log('login error', error)
     logout()
   }
 }
+
 async function checkPassword() {
   // let result = {
   //   accountExpire: false,
@@ -148,11 +148,13 @@ async function checkPassword() {
       const router = useRouter()
       router.push('/resetPassword')
     }
-  } catch (error) {}
+  } catch (error) {
+  }
 }
+
 export function getOCRSetting() {
   const ocrSetting = useOcrSetting()
-  ocrSetting.value = clientApi.instance.get('/nuxeo/admin/setting/OCR').then((res) => res.data)
+  ocrSetting.value = clientApi.instance.get('/api/dms/setting/system/OCR').then((res) => res.data)
 }
 
 export function canOCR(extension: string): boolean {
@@ -162,7 +164,7 @@ export function canOCR(extension: string): boolean {
 }
 
 export function logout() {
-  
+
   const logedIn = useLoginState()
 
   const userState = useUserState()
@@ -177,8 +179,8 @@ export function logout() {
     }
   })
   // clean up local storage
-  
-  localStorage.clear();
+
+  localStorage.clear()
   logedIn.value = false
 
 }
@@ -188,9 +190,7 @@ export function logout() {
  */
 async function getFeature() {
   const features = useFeature()
-  const appPlatform = useAppPlatform()
-  const api = appPlatform.value === 'admin' ? adminApi : clientApi
-  const { data } = await api.api.getSystemfeatureGetfeatures()
+  const data = await clientApi.api.getDmsFeatureGetfeatures().then(r => r.data)
   if (!data) throw new Error('get license feature error')
   features.value = data
 }
@@ -244,6 +244,7 @@ const uiSize = [
     value: '20px'
   }
 ]
+
 /**
  *  從後台拿回 user 的 setting, 包括文字大小，color mode ...
  */
@@ -298,7 +299,7 @@ async function getUser() {
   const user = useUserState()
   const userId = useUserId()
   const userRole = useUserRole()
-  const { data } = (await clientApi.api.getNuxeoUserGetapplication()) as any
+  const { data } = (await clientApi.api.getDmsUserGetapplication()) as any
   userId.value = data.userId
   userRole.value = data.aclUserDetail?.roleId
   localStorage.setItem('docpal-user', JSON.stringify(data))

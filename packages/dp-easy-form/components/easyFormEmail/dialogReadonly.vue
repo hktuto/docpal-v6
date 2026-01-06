@@ -27,50 +27,51 @@
         </el-select>
       </el-form-item>
       <el-form-item :label="$t('tableHeader_subject')" prop="subject">
-        <el-input ref="subjectRef" v-model="form.subject" disabled/>
+        <el-input ref="subjectRef" v-model="form.subject" disabled />
       </el-form-item>
       <el-form-item :label="$t('dpEmail.content')" prop="body">
         <div class="email-body" v-html="form.body"></div>
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button id="EasyForm__Detail__EmailLogs__ViewDetails__Close" :loading="state.loading" @click="state.visible = false">
-        {{ $t("button.close") }}
+      <el-button id="EasyForm__Detail__EmailLogs__ViewDetails__Close" :loading="state.loading"
+                 @click="state.visible = false">
+        {{ $t('button.close') }}
       </el-button>
     </template>
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import {clientApi} from "api";
+import { clientApi } from 'api'
 
-const emits = defineEmits(["email-update"]);
-const props = defineProps(["detail"]);
-const {t} = useI18n();
+const emits = defineEmits(['email-update'])
+const props = defineProps(['detail'])
+const { t } = useI18n()
 const {
-  public: {endPoint},
-} = useRuntimeConfig();
+  public: { endPoint }
+} = useRuntimeConfig()
 const state = reactive<any>({
-  visible: false,
-});
+  visible: false
+})
 const form = ref({
-  emails: ["1299962367@qq.com"],
-  subject: "subject",
-  body: "Dear ",
-});
+  emails: [],
+  subject: 'subject',
+  body: 'Dear '
+})
 
 async function handleOpen(row) {
-  state.visible = true;
-  const email = await clientApi.api.getFormDesignEmailHistoryLogId(row.id).then((res) => res.data);
-  if (!email.body) email.body = "";
-  if (!email.subject) email.subject = "";
-  if (!email.userEmails) email.userEmails = [];
-  form.value.body = email.body;
-  form.value.subject = email.subject;
+  state.visible = true
+  const email = await clientApi.api.getDmsEasyFormEmailLogId(row.id).then((res) => res.data)
+  if (!email.body) email.body = ''
+  if (!email.subject) email.subject = ''
+  if (!email.userEmails) email.userEmails = []
+  form.value.body = email.body
+  form.value.subject = email.subject
   form.value.emails = email.userEmails.map(item => item.email)
 }
 
 // #endregion
-defineExpose({handleOpen});
+defineExpose({ handleOpen })
 </script>
 <style lang="scss" scoped>
 .email-body {

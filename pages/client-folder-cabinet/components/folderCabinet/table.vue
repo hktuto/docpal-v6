@@ -88,7 +88,7 @@ const {
         }
       }
     initFilter(props.id)
-    return await clientApi.api.postCabinetPage({
+    return await clientApi.api.postDmsCabinetPage({
       ...pageParams,
       ...extraParams,
       templateId: props.id

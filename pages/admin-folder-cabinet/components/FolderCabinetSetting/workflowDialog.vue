@@ -11,30 +11,30 @@
     <template #footer>
       <el-button id="FolderCabinetSetting__Info__Save__Confirm" type="primary" :loading="state.loading"
                  @click="state.visible = false">
-        {{ $t("confirm") }}
+        {{ $t('confirm') }}
       </el-button>
     </template>
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import {adminApi} from "api";
+import { clientApi } from 'api'
 
 const props = defineProps<{
   id: string;
-}>();
+}>()
 const state = reactive<any>({
   loading: false,
   visible: false,
   list: []
-});
+})
 
 function handleOpen() {
-  state.visible = true;
+  state.visible = true
 }
 
 async function handleCheck() {
   try {
-    const res = await adminApi.api.getCabinetIdUseWorkflow(props.id).then(res => res.data)
+    const res = await clientApi.api.getDmsCabinetIdUseWorkflow(props.id).then(res => res.data)
     if (!!res) state.list = res
   } catch (error) {
 
@@ -43,6 +43,6 @@ async function handleCheck() {
   }
 }
 
-defineExpose({handleOpen, handleCheck});
+defineExpose({ handleOpen, handleCheck })
 </script>
 <style lang="scss" scoped></style>

@@ -25,7 +25,6 @@ async function getTabsFromServer() {
   const userStoreTab = preference.value.userStoreTab
   
   let storageTabs = userStoreTab ? userStoreTab[appPlatform.value] : null
-  console.log('preference', storageTabs)
   try {
     if (storageTabs) {
       

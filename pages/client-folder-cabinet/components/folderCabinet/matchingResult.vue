@@ -86,14 +86,14 @@ async function init(docItem: any, templateId: string) {
   state.activeDoc = docItem
   state.templateId = templateId
   try {
-    const data: any = await clientApi.api.postCabinetVerificationComplete({ id: docItem.id }).then((res) => res.data)
+    const data: any = await clientApi.api.postDmsCabinetVerificationComplete({ id: docItem.id }).then((res) => res.data)
     state.lastModifiedDate = data.modifiedDate
     if (data.children && data.children.length > 0) {
       addDocToChildren(data.children, data.documentPath)
       state.treeData = data.children
     } else {
       state.treeData = []
-      state.cabinetTemplate = await clientApi.api.getCabinetTemplateId(templateId).then((res) => res.data)
+      state.cabinetTemplate = await clientApi.api.getDmsCabinetTemplateId(templateId).then((res) => res.data)
     }
   } catch (error) {
     state.treeData = []
@@ -198,7 +198,7 @@ function handleOpenReplaceDialog(doc: any) {
 async function refreshCabinet() {
   if (state.refreshLoading) return
   state.refreshLoading = true
-  await clientApi.api.getCabinetRefreshcompletestatusId(state.activeDoc.id)
+  await clientApi.api.getDmsCabinetRefreshcompletestatusId(state.activeDoc.id)
   setTimeout(() => {
     state.refreshLoading = false
     routerProvider?.message.success(t('dpMsg_success'))

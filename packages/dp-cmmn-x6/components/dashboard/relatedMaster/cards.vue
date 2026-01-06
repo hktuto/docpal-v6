@@ -1,7 +1,5 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
-import { MoreFilled } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 import { rendererFunction } from '../../../../../packages/dp-dashboard/components/formSlot/displayColumn/vxeTableRender'
 const platform = useAppPlatform()
 const { name, detail, relatedField } = defineProps<{
@@ -54,7 +52,7 @@ async function getList() {
     list.value = []
     return
   }
-  const { data } = await clientApi.api.postMasterTablesRecordPageNonpermission({
+  const { data } = await clientApi.api.postDmsMasterTableRecordPageNonpermission({
     name: name,
     ...pageParams,
     ...extraParams

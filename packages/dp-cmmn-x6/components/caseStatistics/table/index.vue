@@ -175,6 +175,7 @@ function groupTree(data: any[]) {
     Object.values(groupData).forEach((item: any) => {
       treeData.push(item)
     })
+    treeData.sort((a: any, b: any) => b[setting.countField] - a[setting.countField])
   } else {
     treeData = data
   }

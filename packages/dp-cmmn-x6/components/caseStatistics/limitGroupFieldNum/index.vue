@@ -6,6 +6,7 @@
     :hideSetting="hideSetting"
     :setting="setting"
     :settingRef="settingRef"
+    :mode="mode"
     @delete="handleDelete"
     @refresh="handleInitCard"
   >

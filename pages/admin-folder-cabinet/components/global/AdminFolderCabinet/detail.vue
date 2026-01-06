@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Loading } from '@element-plus/icons-vue'
 import { ElMessageBox, ElNotification } from 'element-plus'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 
 const { t } = useI18n()
 const { id } = defineProps<{
@@ -16,25 +16,31 @@ const state = reactive<{
   setting: {},
   currentRow: {}
 })
+
 async function getData() {
   state.loading = true
   try {
-    state.setting = await adminApi.api.getCabinetTemplateId(id).then((res) => res.data)
+    state.setting = await clientApi.api.getDmsCabinetTemplateId(id).then((res) => res.data)
     state.setting.folder = true
   } catch (error) {
   } finally {
     state.loading = false
   }
 }
+
 const detailRef = ref()
+
 function handleCurrentChange(row: any, node: any) {
   state.currentRow = row
   detailRef.value.init(row)
 }
+
 const FolderCabinetAddChildDialogRef = ref()
+
 function handleAddChild(data: any, isFolder: boolean) {
   FolderCabinetAddChildDialogRef.value.handleOpen(data, data.children, isFolder)
 }
+
 async function handleDeleteChild(setting: any) {
   let noti: any
   try {
@@ -51,7 +57,7 @@ async function handleDeleteChild(setting: any) {
       duration: 0,
       position: 'bottom-right'
     })
-    await adminApi.api.deleteCabinetId(setting.id)
+    await clientApi.api.deleteDmsCabinetId(setting.id)
     await getData()
     ElNotification({
       title: 'Success',
@@ -88,8 +94,10 @@ onUnmounted(() => {
 </script>
 <template>
   <div class="pageContainer--padding main">
-    <FolderCabinetSettingTree v-if="state.setting" :data="state.setting" :id="state.currentRow?.id" @current-change="handleCurrentChange" />
-    <FolderCabinetSettingDetail ref="detailRef" :tree="state.setting" :data="state.currentRow" :isRoot="state.currentRow?.id === id" @update="getData" />
+    <FolderCabinetSettingTree v-if="state.setting" :data="state.setting" :id="state.currentRow?.id"
+                              @current-change="handleCurrentChange" />
+    <FolderCabinetSettingDetail ref="detailRef" :tree="state.setting" :data="state.currentRow"
+                                :isRoot="state.currentRow?.id === id" @update="getData" />
     <FolderCabinetSettingAddChildDialog ref="FolderCabinetAddChildDialogRef" @update="getData" />
   </div>
 </template>
@@ -101,11 +109,13 @@ onUnmounted(() => {
   grid-template-columns: 400px 1fr;
   gap: var(--app-space-s);
 }
+
 .FolderCabinetCard {
   height: 100%;
   background-color: #f1f1f1;
   overflow: auto;
 }
+
 .doc-container {
   display: grid;
   grid-template-columns: min-content 1fr;

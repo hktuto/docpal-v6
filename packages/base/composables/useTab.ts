@@ -1,16 +1,14 @@
-
-import {useState} from '#imports'
+import { useState } from '#imports'
 import type { MenuItem } from '#imports'
-import type {TabPanel,TabItem} from '../utils/tabType'
+import type { TabItem, TabPanel } from '../utils/tabType'
 
 export const useTabLayout = () => useState<TabPanel[]>('tabs', () => ([]))
-export const useDropEventCallback = () => useState<Record<symbol, any>>('tab-panel-drop-event-callback', ()=>({}))
-export const useCurrentTargetPanel = () => useState<string>('tab-current-target-panel',() => "")
+export const useDropEventCallback = () => useState<Record<symbol, any>>('tab-panel-drop-event-callback', () => ({}))
+export const useCurrentTargetPanel = () => useState<string>('tab-current-target-panel', () => '')
 export const useTabComponent = () => useState<TabItem[]>('tab-component', () => ([]))
-export const useCurrentTargetRouter = () => useState<string>('tab-current-target-router',() => "")
+export const useCurrentTargetRouter = () => useState<string>('tab-current-target-router', () => '')
 export const useAllComponentRef = () => useState('all-component-ref', () => ([]))
 export const useTabsManager = () => {
-
     const layout = useTabLayout()
     const allComponents = useTabComponent()
     const allComponentRef = useAllComponentRef()
@@ -33,7 +31,7 @@ export const useTabsManager = () => {
               })
         })
         // loop thought layout and push all components
-        
+
     }
 
     return {
@@ -108,7 +106,6 @@ export function closePanelTab(panelId:string, tabIndex: number | string[], delet
     }else{
         throw new Error(`data not found. tabIndex ${tabIndex} is not correct in ${panelId}`)
     }
-
 }
 
 export function reorderWithEdge(parent:TabPanel, sourceData:TabItem, targetData:TabItem, direction: 'left' | 'right') {
@@ -158,7 +155,6 @@ export function moveTabBetweenPanel(sourceData:TabItem, targetData:TabItem, dire
     nextTick(() => {
         panelTabFocus(targetData.id, newItemIndex)
     })
-
 }
 
 export function splitViewToDirection(sourceData:TabItem, targetData:TabPanel, direction:  "left" | "right" | 'center') {
@@ -215,11 +211,8 @@ export function splitViewToDirection(sourceData:TabItem, targetData:TabPanel, di
             })
         }
 
-        // get component and update parent and teleport id
-        
-            
+  // get component and update parent and teleport id
 }
-
 
 export function addMenuItemToPanel(sourceData:MenuItem, targetData:TabPanel, direction:  "left" | "right" | 'center') {
     const layout = useTabLayout();
@@ -227,7 +220,6 @@ export function addMenuItemToPanel(sourceData:MenuItem, targetData:TabPanel, dir
     const targetParentId = layout.value.findIndex(tab => tab.id === targetData.id)
     const newPanelId = "newPanel-" + new Date().getTime()
     sourceData.id +=  new Date().getTime();
-    
 
     if(direction === 'center') {
         console.log(targetData)
@@ -251,7 +243,6 @@ export function addMenuItemToPanel(sourceData:MenuItem, targetData:TabPanel, dir
             }
         })
     }else{
-
         const newData:TabPanel = {
             id: newPanelId,
             parent: targetData.id,
@@ -281,7 +272,7 @@ export function addMenuItemToPanel(sourceData:MenuItem, targetData:TabPanel, dir
                 })
             }
         })
-}
+  }
 }
 
 export function addTabToPanel(panelId:string, newTab: TabItem ) {
@@ -312,7 +303,7 @@ export function panelRouteUpdate(panelId:string, lastTabId:string, newTabItem:Ta
         layout.value[panelIndex].tabs[index] = deepCopy(newTabItem)
         const indexInAllComponent = allComponents.value.findIndex(item => item.id === newTabItem.id)
         if(indexInAllComponent !== -1) {
-            
+
             allComponents.value[indexInAllComponent] = newTabItem
         }
     }
@@ -334,4 +325,61 @@ export function addTabInCurrentPanel(newTab: TabItem ) {
             allComponents.value.push(newTab)
         })
     }
+}
+
+/**
+ * system message receiver
+ * TODO：該方法需要抽到一個 dialog 頁面中，再重新調 checkTabIsRouterExist 方法
+ * 打開彈窗根據 message Id 重新渲染 HTML 内容
+ */
+window.addEventListener('urlToRouterObject', async (messageId: any) => {
+  console.log('urlToRouterObject', messageId)
+  // TODO 根據 message ID 獲取對應的站内 HTML，點擊站内的 html 進行 router 跳轉
+
+  try {
+    // const allMenu: any = allMenuItem
+    // const routerObject = allMenu[event.detail.path]
+    // checkTabIsRouterExist(routerObject.createRouteItem(event.detail.data))
+  } catch (e) {
+    console.log(e)
+  }
+})
+
+/**
+ * Check if pagination exists in the route; if so,
+ * Check whether a new pagination needs to be opened according to the routing rules.
+ * @param menuItem RouterObject
+ * @return Current tab | home
+ */
+export function checkTabIsRouterExist(menuItem: any) {
+  if (!menuItem) {
+    return
+  }
+
+  const allComponents = useTabComponent()
+  const layout = useTabLayout()
+  const tabItem: TabItem = {
+    ...menuItem,
+    initized: true
+  }
+
+  // 尝试聚焦已存在的 tab
+  const existingTab = allComponents.value.find(item => item.name === tabItem.name)
+  if (existingTab) {
+    const panelIndex = layout.value.findIndex(panel => panel.id === existingTab.parent)
+    if (panelIndex !== -1) {
+      const tabIndex = layout.value[panelIndex].tabs.findIndex(item => item.name === existingTab.name)
+      if (tabIndex !== -1) {
+        layout.value[panelIndex].showingTabIndex = tabIndex
+        if (!layout.value[panelIndex].tabs[tabIndex].initized) {
+          layout.value[panelIndex].tabs[tabIndex].initized = true
+        }
+        panelTabFocus(layout.value[panelIndex].id, tabIndex)
+        return
+      }
+    }
+  }
+
+  // 如果不存在，则添加新 tab
+  addTabInCurrentPanel(tabItem)
 }

@@ -12,7 +12,7 @@
 </template>
 <script lang="ts" setup>
 import formJson from './newDialog.vform.json'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { ElMessage } from 'element-plus'
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -29,8 +29,8 @@ async function handleSubmit() {
   try {
     const data = await FormRendererRef.value.getFormData()
     state.loading = true
-    data.permission = 'members'
-    const result = await adminApi.api.postFormDesign(data)
+    data.permission = 'group_members'
+    const result = await clientApi.api.postDmsEasyForm(data)
     ElMessage.success(t('tip_createdMsg', { modelName: t('tip_newMsg') + t('workflow_form'), name: null }))
     state.visible = false
     emits('refresh')

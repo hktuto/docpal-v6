@@ -73,11 +73,17 @@ function init() {
         info.value = item['flowable:expression'].__cdata
         break
       case 'variables':
-        const json = JSON.parse(item['flowable:expression'].__cdata)
-        variables.value = Object.entries(json).map(([label, value]) => ({
-          label,
-          value
-        }))
+        console.log(item['flowable:expression'].__cdata)
+        const varList= item['flowable:expression'].__cdata
+        if(varList) {
+          const json = JSON.parse(item['flowable:expression'].__cdata)
+          variables.value = Object.entries(json).map(([label, value]) => ({
+            label,
+            value
+          }))
+        }else{
+          variables.value = []
+        }
         break
     }
   })

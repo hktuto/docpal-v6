@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi, adminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -75,7 +75,7 @@ async function getWorkflowList() {
 }
 
 async function handleExportEmailTemplate(emailTemplateId: string) {
-  const emailTemplateDetail = await adminApi.api.getTemplateEmailTemplateId(emailTemplateId)
+  const emailTemplateDetail = await clientApi.api.getDmsTemplateEmailTemplateId(emailTemplateId)
   exportData.value.emailTemplate[emailTemplateId] = emailTemplateDetail.data
 }
 
@@ -132,8 +132,8 @@ async function handleWorkflowExport(workflowKey: string) {
 }
 
 async function handleMasterTableExport(masterTableId: string) {
-  const { data: masterTableDetail } = await adminApi.api.getMasterTablesId(masterTableId)
-  const aclsData = await adminApi.api.getMasterTablesIdAcls(masterTableId) as any
+  const { data: masterTableDetail } = await clientApi.api.getDmsMasterTableId(masterTableId)
+  const aclsData = await clientApi.api.getDmsMasterTableIdAcls(masterTableId) as any
   // loop acls data and remove user permission
   if(!aclsData || !aclsData?.data ) {
     return
@@ -177,7 +177,7 @@ async function handleDocumentTemplateExport(documentTemplateId: string) {
 }
 
 async function handleFolderCabinetExport(folderCabinetId: string) {
-  const { data: folderCabinetDetail } = await adminApi.api.getCabinetTemplateId(folderCabinetId)
+  const { data: folderCabinetDetail } = await clientApi.api.getDmsCabinetTemplateId(folderCabinetId)
   exportData.value.folderCabinet[folderCabinetId] = folderCabinetDetail
   const userGroups = folderCabinetDetail?.binds?.filter((bind:any) => bind.type === 'group') || []
   userGroups.forEach((bind: any) => {

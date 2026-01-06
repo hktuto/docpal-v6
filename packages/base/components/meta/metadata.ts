@@ -440,8 +440,7 @@ export const getMasterTableOptions = async ({
   valueColumn: string
 }): Promise<any> => {
   try {
-    const record: any = await clientApi.api
-      .postMasterTablesRecordPageNonpermission({
+    const record: any = await clientApi.api.postDmsMasterTableRecordPageNonpermission({
         name: masterTableName
       })
       .then((res) => res.data)

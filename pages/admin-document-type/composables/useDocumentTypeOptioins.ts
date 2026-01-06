@@ -1,4 +1,4 @@
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 
 export const masterTableOpts = useState('masterTableOpts', () => [])
 export const metadataOpts = useState('metadataOpts', () => [])
@@ -6,8 +6,7 @@ export const userRulesOpts = useState<any>('userRulesOpts', () => [])
 export const categoryOpts = useState('categoryOpts', () => [])
 export async function initMasterTableOpts() {
   if (masterTableOpts.value.length > 0) return masterTableOpts.value
-  const data = await adminApi.api
-    .postMasterTablesPage({
+  const data = await clientApi.api.postDmsMasterTablePage({
       pageSize: 10000,
       pageNum: 0
     })
@@ -26,7 +25,7 @@ export async function initCategoryOpts() {
 }
 export async function getMasterTableDisplayOpts(masterTableId: string) {
   // if(masterTableOpts.value.length > 0) return masterTableOpts.value
-  const data = await adminApi.api.getMasterTablesId(masterTableId).then((res: any) => res.data)
+  const data = await clientApi.api.getDmsMasterTableId(masterTableId).then((res: any) => res.data)
   return data.fields.map((item: any) => ({ label: item.columnName, value: item.columnName }))
 }
 const { flatRole } = useRBAC()
