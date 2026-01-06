@@ -1,4 +1,5 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
+import { useDebounceFn } from '@vueuse/core'
 
 interface FilterSchema<T = any> {
   key: keyof T
@@ -18,13 +19,16 @@ interface Props {
   defaultSortBy?: keyof T
   defaultSortOrder?: 'asc' | 'desc'
   containerClass?: string
+  customFilterFn?: (item: T, filters: Record<string, any>, keyword: string) => boolean
+  debounceMs?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   searchKeys: () => [],
   excludeKeys: () => [],
   customLabels: () => ({} as Partial<Record<keyof T, string>>),
-  defaultSortOrder: () => 'asc'
+  defaultSortOrder: () => 'asc',
+  debounceMs: 300
 })
 
 const emit = defineEmits<{
@@ -36,8 +40,10 @@ const sortPopover = ref()
 
 // State management
 const keyword = ref<string>('')
+const debouncedKeyword = ref<string>('')
 const filterOptions = ref<{ [key in keyof T]?: any }>({})
 const tempFilterOptions = ref<{ [key in keyof T]?: any }>({})
+const debouncedTempFilterOptions = ref<{ [key in keyof T]?: any }>({})
 const isFilterStage = ref<boolean>(false)
 const sortBy = ref<keyof T | undefined>(props.defaultSortBy)
 const sortOrder = ref<'asc' | 'desc'>(props.defaultSortOrder)
@@ -159,7 +165,7 @@ function generatePlaceholder(label: string, type: string): string {
 }
 
 // Helper function to check if an item matches all filters
-function itemMatchesFilters(item: T, filters: { [key in keyof T]?: any }): boolean {
+function defaultItemMatchesFilters(item: T, filters: { [key in keyof T]?: any }, keywordValue: string): boolean {
   // Check filter options
   if (filters && Object.keys(filters).length > 0) {
     const matchesFilterOptions = Object.entries(filters).every(([key, value]) => {
@@ -192,8 +198,8 @@ function itemMatchesFilters(item: T, filters: { [key in keyof T]?: any }): boole
   }
 
   // Check keyword search
-  if (keyword.value) {
-    const searchTerm = keyword.value.toLowerCase()
+  if (keywordValue) {
+    const searchTerm = keywordValue.toLowerCase()
     const keysToSearch = props.searchKeys.length > 0 ? props.searchKeys : Object.keys(item)
     
     const matchesKeyword = keysToSearch.some((key) => {
@@ -210,9 +216,17 @@ function itemMatchesFilters(item: T, filters: { [key in keyof T]?: any }): boole
   return true
 }
 
+// Use custom filter function if provided, otherwise use default
+function itemMatchesFilters(item: T, filters: { [key in keyof T]?: any }, keywordValue: string): boolean {
+  if (props.customFilterFn) {
+    return props.customFilterFn(item, filters, keywordValue)
+  }
+  return defaultItemMatchesFilters(item, filters, keywordValue)
+}
+
 // Computed filtered list
 const filteredList = computed(() => {
-  const hasActiveFilters = keyword.value || Object.keys(tempFilterOptions.value).length > 0
+  const hasActiveFilters = debouncedKeyword.value || Object.keys(debouncedTempFilterOptions.value).length > 0
 
   let result: T[]
 
@@ -221,7 +235,7 @@ const filteredList = computed(() => {
   } else if (isFilterStage.value) {
     // During filter stage (typing/selecting), show all items with __dim
     result = props.data.map((item) => {
-      const matches = itemMatchesFilters(item, tempFilterOptions.value)
+      const matches = itemMatchesFilters(item, debouncedTempFilterOptions.value, debouncedKeyword.value)
       return {
         ...item,
         __dim: !matches
@@ -229,7 +243,7 @@ const filteredList = computed(() => {
     })
   } else {
     // After confirmation, filter the list
-    result = props.data.filter((item) => itemMatchesFilters(item, filterOptions.value))
+    result = props.data.filter((item) => itemMatchesFilters(item, filterOptions.value, keyword.value))
   }
 
   // Sort the results
@@ -317,6 +331,15 @@ function handleSortClick(event: MouseEvent) {
   sortPopover.value?.open(event.currentTarget)
 }
 
+// Debounced update functions
+const debouncedUpdateKeyword = useDebounceFn(() => {
+  debouncedKeyword.value = keyword.value
+}, props.debounceMs)
+
+const debouncedUpdateFilters = useDebounceFn(() => {
+  debouncedTempFilterOptions.value = { ...tempFilterOptions.value }
+}, props.debounceMs)
+
 // Handle filter input changes
 function handleFilterChange(key: keyof T, value: any) {
   isFilterStage.value = true
@@ -324,18 +347,24 @@ function handleFilterChange(key: keyof T, value: any) {
     ...tempFilterOptions.value,
     [key]: value
   }
+  debouncedUpdateFilters()
 }
 
 // Handle keyword input
 function handleKeywordInput() {
   isFilterStage.value = true
+  debouncedUpdateKeyword()
 }
 
 // Handle confirmation (Enter or explicit confirm)
 function handleConfirm() {
+  // Immediately apply any pending debounced changes
+  debouncedKeyword.value = keyword.value
+  debouncedTempFilterOptions.value = { ...tempFilterOptions.value }
+  
   // Count matching items (including keyword)
   const matchingItems = props.data.filter((item) => 
-    itemMatchesFilters(item, tempFilterOptions.value)
+    itemMatchesFilters(item, tempFilterOptions.value, keyword.value)
   )
 
   // Apply the filters first
@@ -372,8 +401,10 @@ function handleEscapeKey() {
 // Reset filters
 function resetFilters() {
   keyword.value = ''
+  debouncedKeyword.value = ''
   filterOptions.value = {}
   tempFilterOptions.value = {}
+  debouncedTempFilterOptions.value = {}
   isFilterStage.value = false
 }
 
@@ -383,6 +414,8 @@ watch([keyword, tempFilterOptions], () => {
   if (!hasFilters) {
     isFilterStage.value = false
     filterOptions.value = {}
+    debouncedKeyword.value = ''
+    debouncedTempFilterOptions.value = {}
   }
 }, { deep: true })
 
