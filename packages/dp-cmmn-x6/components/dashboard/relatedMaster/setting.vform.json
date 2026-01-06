@@ -135,7 +135,7 @@
         "labelTooltip": null,
         "onCreatedSetting": "async-select",
         "onChangeSetting": true,
-        "onCreated": "const _this = this\nasync function getList() {\n  const data = await $api.get('/docpal/master-tables?type=all').then(res => res.data.data)\n  return data.reduce((prev, item) => {\n    if(!item.id || !item.name) return prev \n    const resultItem = {\n      value: item.id,\n      label: item.name || '' \n    }\n    prev.push(resultItem) \n    return prev\n  }, []).sort((a,b)=> (a.label.localeCompare(b.label) ))\n\n}\nasync function init() {\n  const options = await getList()\n  console.log(options)\n  _this.loadOptions(options)\n}\ninit()",
+        "onCreated": "const _this = this\nasync function getList() {\n  const data = await $api.get('/dms/master-tables?type=all').then(res => res.data.data)\n  return data.reduce((prev, item) => {\n    if(!item.id || !item.name) return prev \n    const resultItem = {\n      value: item.id,\n      label: item.name || '' \n    }\n    prev.push(resultItem) \n    return prev\n  }, []).sort((a,b)=> (a.label.localeCompare(b.label) ))\n\n}\nasync function init() {\n  const options = await getList()\n  console.log(options)\n  _this.loadOptions(options)\n}\ninit()",
         "onCreatedPlus": "",
         "onMounted": "",
         "onRemoteQuery": "",
