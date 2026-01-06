@@ -19,7 +19,6 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     both: {
       render({ options, params }) {
         const { $table, row, column } = params
-        console.log(row, column)
         const props = options.options || {}
         return h(ElRate, {
           modelValue: Number(row[column.field]) || 0,
