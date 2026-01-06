@@ -75,7 +75,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { CopyDocument } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
 import { Base64 } from 'js-base64'
@@ -204,8 +204,7 @@ function handleCopy(copyContent: string) {
   copy(copyContent, t('common_copySuccess'))
 }
 async function getContactList() {
-  const contactList = await clientApi.api.getContactgroupList().then((res) => res.data)
-  state.contactList = contactList
+  state.contactList = await clientApi.api.getDmsContactGroupList().then((res) => res.data)
 }
 const selectRef = ref()
 function handleSelectChange() {

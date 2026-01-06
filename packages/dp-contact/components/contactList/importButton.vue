@@ -9,7 +9,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { globalApi } from 'api'
+import { clientApi } from 'api'
 
 const props = defineProps<{
   id: string
@@ -39,7 +39,7 @@ async function handleSubmit() {
     formData.append('file', data.file)
     formData.append('columns', JSON.stringify(data.dataMapping))
     formData.append('replace', data.replace)
-    const result = await globalApi.api.postContactgroupIdContactdetailImport(props.id, {}, formData).then((res) => res.data)
+    const result = await clientApi.api.postDmsContactGroupIdContactdetailImport(props.id, {}, formData).then((res) => res.data)
 
     if (result.failureNumber > 0) {
       ElMessage.error(t('dpTip.importFailed', { num: result.failureNumber }))

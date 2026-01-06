@@ -39,50 +39,6 @@ export interface ResultObject {
     locale?: string;
 }
 
-/** Document Type */
-export interface DocumentTypeDTO {
-    /** Document Type Name */
-    name?: string;
-    /** Is Folder Type */
-    isFolder?: boolean;
-    /** Document Type keywords */
-    keywords?: KeywordDTO[];
-}
-
-/** Keyword */
-export interface KeywordDTO {
-    /** Keyword Name */
-    name?: string;
-    /** Keyword Type */
-    type?: string;
-    /** Keyword Value */
-    value?: object;
-    /** Schema That Belong To Keyword */
-    schema?: string;
-    /** Keyword Is Multiple Value */
-    isMultiValue?: boolean;
-    /** Keyword Default Value */
-    defaultValue?: object;
-    /** Value Scope Of This Keyword */
-    valueScope?: KeywordValueScope;
-}
-
-/** Value Scope Of This Keyword */
-export interface KeywordValueScope {
-    scope?: string;
-    scopeName?: string;
-}
-
-export interface ResultListDocumentTypeDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocumentTypeDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
 /** Document */
 export interface DocumentDTO {
     /** Document ID */
@@ -168,25 +124,69 @@ export interface FileContentDTO {
     minio_file_version?: string;
 }
 
-export interface PaginableEntityDTODocumentDTO {
+export interface PaginationDTODocumentDTO {
     entryList?: DocumentDTO[];
+    /** @format int32 */
+    totalSize?: number;
     /** @format int32 */
     currentPageSize?: number;
     /** @format int32 */
-    currentPageIndex?: number;
-    /** @format int32 */
-    totalSize?: number;
+    pageNum?: number;
     /** @format int32 */
     pageCount?: number;
     isNextPageAvailable?: boolean;
 }
 
-export interface ResultPaginableEntityDTODocumentDTO {
+export interface ResultPaginationDTODocumentDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: PaginableEntityDTODocumentDTO;
+    data?: PaginationDTODocumentDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Document Type */
+export interface DocumentTypeDTO {
+    /** Document Type Name */
+    name?: string;
+    /** Is Folder Type */
+    isFolder?: boolean;
+    /** Document Type keywords */
+    keywords?: KeywordDTO[];
+}
+
+/** Keyword */
+export interface KeywordDTO {
+    /** Keyword Name */
+    name?: string;
+    /** Keyword Type */
+    type?: string;
+    /** Keyword Value */
+    value?: object;
+    /** Schema That Belong To Keyword */
+    schema?: string;
+    /** Keyword Is Multiple Value */
+    isMultiValue?: boolean;
+    /** Keyword Default Value */
+    defaultValue?: object;
+    /** Value Scope Of This Keyword */
+    valueScope?: KeywordValueScope;
+}
+
+/** Value Scope Of This Keyword */
+export interface KeywordValueScope {
+    scope?: string;
+    scopeName?: string;
+}
+
+export interface ResultListDocumentTypeDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocumentTypeDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -386,50 +386,12 @@ export interface ResultFileDTO {
     locale?: string;
 }
 
-/** Updated import job information */
-export interface ExternalStorageImportJobDTO {
-    /** Unique identifier for the import job */
-    id?: string;
-    /**
-     * Type of the job
-     * @example "import_job"
-     */
-    type?: string;
-    /** Profile ID associated with the job */
-    profileId?: string;
-    /** Name of the file being imported */
-    fileName?: string;
-    /** Name of the profile */
-    profileName?: string;
-    /** Source of the import */
-    source?: string;
-    /** Batch ID for grouping related jobs */
-    batchId?: string;
-    /** Status of the import job */
-    status?: string;
-    /** @format int64 */
-    queue_order?: number;
-    /** Activity log in JSON format */
-    activityLog?: Record<string, object>[];
-    /**
-     * Creation timestamp
-     * @format date-time
-     */
-    createdDate?: string;
-    /**
-     * Last modification timestamp
-     * @format date-time
-     */
-    modifiedDate?: string;
-}
-
-export interface ResultExternalStorageImportJobDTO {
+export interface ResultListMapStringObject {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    /** Updated import job information */
-    data?: ExternalStorageImportJobDTO;
+    data?: Record<string, object>[];
     messageKey?: string;
     locale?: string;
 }
@@ -509,6 +471,64 @@ export interface ContactGroupResponseDTO {
     permissions?: Record<string, BasicField[]>;
     attributes?: ContactAttribute[];
     hasPermissions?: string[];
+}
+
+export interface ResultListContactGroupResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ContactGroupResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Updated import job information */
+export interface ExternalStorageImportJobDTO {
+    /** Unique identifier for the import job */
+    id?: string;
+    /**
+     * Type of the job
+     * @example "import_job"
+     */
+    type?: string;
+    /** Profile ID associated with the job */
+    profileId?: string;
+    /** Name of the file being imported */
+    fileName?: string;
+    /** Name of the profile */
+    profileName?: string;
+    /** Source of the import */
+    source?: string;
+    /** Batch ID for grouping related jobs */
+    batchId?: string;
+    /** Status of the import job */
+    status?: string;
+    /** @format int64 */
+    queue_order?: number;
+    /** Activity log in JSON format */
+    activityLog?: Record<string, object>[];
+    /**
+     * Creation timestamp
+     * @format date-time
+     */
+    createdDate?: string;
+    /**
+     * Last modification timestamp
+     * @format date-time
+     */
+    modifiedDate?: string;
+}
+
+export interface ResultExternalStorageImportJobDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Updated import job information */
+    data?: ExternalStorageImportJobDTO;
+    messageKey?: string;
+    locale?: string;
 }
 
 export interface ResultContactGroupResponseDTO {
@@ -764,6 +784,87 @@ export interface ResultEventCalendarSetting {
     message?: string;
     /** Event Calendar Setting */
     data?: EventCalendarSetting;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface UserDashboard {
+    /** @format int64 */
+    id?: number;
+    name?: string;
+    access?: string;
+    styleJson?: string;
+    status?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface ResultUserDashboard {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: UserDashboard;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface Plugin {
+    /** @format int64 */
+    id?: number;
+    name?: string;
+    status?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface ResultPlugin {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: Plugin;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ActiveUserRequestDTO {
+    /** Id */
+    id?: string;
+    kcUserId?: string;
+    /** User Id */
+    userId?: string;
+    /** User Name */
+    username?: string;
+    /** User First Name */
+    firstName?: string;
+    /** User Last Name */
+    lastName?: string;
+    /** User Email Address */
+    email?: string;
+    /** User Status */
+    status?: string;
+    /** Group Id List */
+    groups?: GroupDTO[];
+    /** User Properties */
+    properties?: Record<string, object>;
+}
+
+export interface ResultUserDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** User */
+    data?: UserDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -1692,6 +1793,490 @@ export interface ResultCmmnDashboardResponseDTO {
     locale?: string;
 }
 
+export interface WhatsAppSettingDTO {
+    accessToken?: string;
+    phoneNum?: string;
+    accountNum?: string;
+    whatsAppSwitch?: boolean;
+}
+
+/** Validation Rule Request DTO */
+export interface ValidationRuleRequestDTO {
+    /** Validation Rule ID */
+    id?: string;
+    /** Draft ID */
+    draftId: string;
+    /**
+     * Version number
+     * @format int32
+     */
+    version: number;
+    /** Node name */
+    nodeName: string;
+    /** JSON Schema validation rules */
+    validationRules: object;
+}
+
+export interface ResultValidationRuleResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Validation Rule Response DTO */
+    data?: ValidationRuleResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Validation Rule Response DTO */
+export interface ValidationRuleResponseDTO {
+    /** Validation Rule ID */
+    id?: string;
+    /** Draft ID */
+    draftId?: string;
+    /**
+     * Version number
+     * @format int32
+     */
+    version?: number;
+    /** Node name */
+    nodeName?: string;
+    /** JSON Schema validation rules */
+    validationRules?: object;
+    /** Created by */
+    createdBy?: string;
+    /** Modified by */
+    modifiedBy?: string;
+    /**
+     * Created date
+     * @format date-time
+     */
+    createdDate?: string;
+    /**
+     * Modified date
+     * @format date-time
+     */
+    modifiedDate?: string;
+}
+
+/** Document Template RequestDTO */
+export interface DocumentTemplateRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** id */
+    id?: string;
+    /** Document Template Name */
+    name?: string;
+    /** Nuxeo Document Id */
+    documentId?: string;
+    /** Document Template File Type */
+    fileType?: string;
+    /** Document Template Source */
+    source?: string;
+    /** Document Template Variable */
+    templateVariable?: string;
+    /** Document Template Description */
+    description?: string;
+    /** Document Template CreatedBy */
+    createdBy?: string;
+    /** Document Template ModifiedBy */
+    modifiedBy?: string;
+    /**
+     * Document Template CreatedDate
+     * @format date-time
+     */
+    createdDate?: string;
+    /**
+     * Document Template ModifiedDate
+     * @format date-time
+     */
+    modifiedDate?: string;
+    /** @format binary */
+    file?: File;
+    fileTypes?: string[];
+    createdBys?: string[];
+    variables?: Record<string, object>;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+/** Document Template ResponseDTO */
+export interface DocumentTemplateResponseDTO {
+    /** id */
+    id?: string;
+    /** Document Template Name */
+    name?: string;
+    /** Nuxeo Document Id */
+    documentId?: string;
+    /** Document Template File Type */
+    fileType?: string;
+    /** Document Template Variable */
+    templateVariable?: string;
+    /** Document Template Description */
+    description?: string;
+    /** Document Template CreatedBy */
+    createdBy?: string;
+    /** Document Template ModifiedBy */
+    modifiedBy?: string;
+    /**
+     * Document Template CreatedDate
+     * @format date-time
+     */
+    createdDate?: string;
+    /**
+     * Document Template ModifiedDate
+     * @format date-time
+     */
+    modifiedDate?: string;
+}
+
+export interface ResultDocumentTemplateResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Document Template ResponseDTO */
+    data?: DocumentTemplateResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** RetentionPolicy event */
+export interface RetentionEvent {
+    id?: string;
+    policyRetentionId?: string;
+    eventType?: string;
+    eventLabel?: string;
+    eventValue?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+/** Retention Policy RequestDTO */
+export interface RetentionPolicyRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** RetentionPolicy ID */
+    id?: string;
+    /** the name of retention policy */
+    policyName?: string;
+    /** the status of retention policy */
+    status?: string;
+    /** Is Auto */
+    isAuto?: boolean;
+    /** the approval user */
+    approvalId?: string;
+    /**
+     * the period number
+     * @format int32
+     */
+    periodNum?: number;
+    /** the period unit */
+    periodUnit?: string;
+    /** the action type */
+    actionType?: string;
+    /**
+     * the action delay day
+     * @format int32
+     */
+    actionDelayDay?: number;
+    /** RetentionPolicy trigger list */
+    triggers?: RetentionTrigger[];
+    /** RetentionPolicy event */
+    events?: RetentionEvent[];
+    /** Document Type list */
+    documentTypes?: string[];
+    /** ApprovalId list */
+    approvalIds?: string[];
+    /** the list of retention policy id */
+    ids?: string[];
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+/** RetentionPolicy trigger list */
+export interface RetentionTrigger {
+    id?: string;
+    policyRetentionId?: string;
+    documentType?: string;
+    triggerMetaData?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface ResultRetentionPolicyResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Retention Policy ResponseDTO */
+    data?: RetentionPolicyResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Retention Policy ResponseDTO */
+export interface RetentionPolicyResponseDTO {
+    /** RetentionPolicy ID */
+    id?: string;
+    /** the name of retention policy */
+    policyName?: string;
+    /** the status of retention policy */
+    status?: string;
+    /** Is Auto */
+    isAuto?: boolean;
+    /** the approval user */
+    approvalId?: string;
+    /**
+     * the period number
+     * @format int32
+     */
+    periodNum?: number;
+    /** the period unit */
+    periodUnit?: string;
+    /** the action type */
+    actionType?: string;
+    /**
+     * the action delay day
+     * @format int32
+     */
+    actionDelayDay?: number;
+    /** RetentionPolicy trigger list */
+    triggers?: RetentionTrigger[];
+    /** RetentionPolicy event */
+    events?: RetentionEvent[];
+}
+
+export interface HoldPolicy {
+    id?: string;
+    policyName?: string;
+    holdApprovalId?: string;
+    removeApprovalId?: string;
+    status?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    holdAuto?: boolean;
+    holdReasonReq?: boolean;
+    removeAuto?: boolean;
+    removeReasonReq?: boolean;
+}
+
+export interface ResultHoldPolicy {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: HoldPolicy;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface AzureOcrSettingDTO {
+    cutOffTime?: string;
+    /** @format int32 */
+    readThreshold?: number;
+    /** @format int32 */
+    preBuildThreshold?: number;
+    /** @format int32 */
+    customModelThreshold?: number;
+    alertEmail?: string;
+    emailTemplate?: string;
+}
+
+export interface ProfileMappingRequestDTO {
+    /** @format int64 */
+    id?: number;
+    name?: string;
+    scanProfile?: string;
+    normalizeSetting?: string;
+    status?: string;
+}
+
+export interface AzureOcrApiKeyDTO {
+    apiKey?: string;
+    description?: string;
+}
+
+/** Resource permission data transfer object */
+export interface ResourcePermissionDTO {
+    /** Permission ID */
+    id?: string;
+    /** Resource ID (e.g., document ID) */
+    resourceId?: string;
+    /**
+     * Resource type (1=Document)
+     * @format int32
+     */
+    resourceType?: number;
+    /**
+     * Target type (1=User, 2=Role, 3=Group, 4=User Set)
+     * @format int32
+     */
+    targetType?: number;
+    /** Target ID (user/role/group/user set ID) */
+    targetId?: string;
+    /**
+     * Permission level (1=Read, 2=ReadWrite, 3=Manage, 4=Custom, 5=Config)
+     * @format int32
+     */
+    permissionLevel?: number;
+    /** List of permission IDs (used when permissionLevel=4/5) */
+    permissionIds?: number[];
+    /** Configuration rule name */
+    configurationRuleName?: string;
+    /** List of members */
+    members?: MemberDTO[];
+    /** List of rules */
+    rules?: RuleDTO[];
+    /**
+     * Create time
+     * @format date-time
+     */
+    createTime?: string;
+    /**
+     * Update time
+     * @format date-time
+     */
+    updateTime?: string;
+}
+
+export interface ResourcePermissionRequest {
+    id?: string;
+    resourceId?: string;
+    /** @format int32 */
+    resourceType?: number;
+    /** @format int32 */
+    targetType?: number;
+    targetId?: string;
+    /** @format int32 */
+    permissionLevel?: number;
+    permissionIds?: string[];
+    configurationRuleName?: string;
+    members?: MemberDTO[];
+    rules?: RuleDTO[];
+}
+
+/** Resource permission view object */
+export interface ResourcePermissionVO {
+    /** Permission ID */
+    id?: string;
+    /** Resource ID (e.g., document ID) */
+    resourceId?: string;
+    /**
+     * Resource type (1=Document, 2=Folder)
+     * @format int32
+     */
+    resourceType?: number;
+    /**
+     * Target type (1=User, 2=Role, 3=Group, 4=User Set)
+     * @format int32
+     */
+    targetType?: number;
+    /** Target ID (user/role/group/user set ID) */
+    targetId?: string;
+    /**
+     * Permission level (1=Read, 2=ReadWrite, 3=Manage, 4=Custom, 5=Config)
+     * @format int32
+     */
+    permissionLevel?: number;
+    /** List of permission IDs (used when permissionLevel=4/5) */
+    permissionIds?: number[];
+    /** Configuration rule name */
+    configurationRuleName?: string;
+    /** List of members */
+    members?: MemberDTO[];
+    /** List of rules */
+    rules?: RuleDTO[];
+    /**
+     * Create time
+     * @format date-time
+     */
+    createTime?: string;
+    /**
+     * Update time
+     * @format date-time
+     */
+    updateTime?: string;
+    /** Whether the permission is inherited */
+    isInherit?: boolean;
+    /** Inherited from which resource */
+    inheritFrom?: string;
+    /** Target name (user/role/group name) */
+    targetName?: string;
+    /** Inheritance path */
+    inheritFromPath?: string;
+    /** Whether copy inherit is enabled */
+    isEnableCopyInherit?: boolean;
+}
+
+export interface ResultResourcePermissionVO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Resource permission view object */
+    data?: ResourcePermissionVO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultResourcePermissionDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Resource permission data transfer object */
+    data?: ResourcePermissionDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface JSONObject {
     empty?: boolean;
     innerMap?: Record<string, object>;
@@ -2126,16 +2711,6 @@ export interface ResultListContactAttribute {
     code?: number;
     message?: string;
     data?: ContactAttribute[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListMapStringObject {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: Record<string, object>[];
     messageKey?: string;
     locale?: string;
 }
@@ -2777,6 +3352,17 @@ export interface EasyShareDocumentDetails {
 
 /** EasyShare (Request) */
 export interface ShareRequestDTO {
+    /** PATH Size */
+    pathList?: string[];
+    /** Share PWD */
+    sharePWD?: string;
+    /**
+     * Token Expiration Time
+     * @format int32
+     */
+    tokenTime?: number;
+    /** Email List */
+    emailList?: string[];
     /** Password for shared document(s) */
     password?: string;
     /**
@@ -2784,8 +3370,6 @@ export interface ShareRequestDTO {
      * @format int32
      */
     tokenLiveInMinutes?: number;
-    /** Document shared to a list of email */
-    emailList?: string[];
     /** The Bind Document List */
     documentList?: EasyShareDocumentDetails[];
 }
@@ -3004,17 +3588,6 @@ export interface VersioningRequestDTO {
     versionNum?: string;
     /** Increment */
     increment?: string;
-}
-
-export interface ResultUserDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** User */
-    data?: UserDTO;
-    messageKey?: string;
-    locale?: string;
 }
 
 export interface ResultListGroupDTO {
@@ -4406,6 +4979,553 @@ export interface ResultPaginationDTOEventCalendarSetting {
     locale?: string;
 }
 
+/** Dashboard Workflow Request DTO */
+export interface DashboardWorkflowRequestDTO {
+    /** Workflow ID */
+    workflowId?: string;
+    /** User ID */
+    userId?: string;
+    /** Date range */
+    dateRange?: Record<string, string>;
+    /**
+     * Time group
+     * @uniqueItems true
+     */
+    timeGroup?: number[];
+    /**
+     * Greater than or equal date
+     * @format date-time
+     */
+    gteDate?: string;
+    /**
+     * Less than or equal date
+     * @format date-time
+     */
+    lteDate?: string;
+    /**
+     * Page number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page size
+     * @format int32
+     */
+    pageSize?: number;
+}
+
+/** Process Definition */
+export interface ProcessDTO {
+    /** Process ID */
+    id?: string;
+    /** Process Key */
+    key?: string;
+    /** Process Name */
+    name?: string;
+    /** Process Category */
+    category?: string;
+    /** Process Resource Name */
+    resourceName?: string;
+    /** Process Diagram Resource Name */
+    diagramName?: string;
+    /**
+     * Process Version
+     * @format int32
+     */
+    version?: number;
+    /** Production Version Number */
+    versionNumber?: string;
+    /** Process Version ID */
+    versionId?: string;
+    /** Production Draft ID */
+    draftId?: string;
+}
+
+export interface ResultListProcessDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ProcessDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface WorkflowDateFilterDTO {
+    filterType?: string;
+    startDate?: string;
+    endDate?: string;
+}
+
+export interface WorkflowJobRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    startCreator?: string;
+    workflowStatus?: string;
+    overallStatus?: string;
+    approver?: string;
+    dateFilter?: WorkflowDateFilterDTO;
+    variables?: {
+        empty?: boolean;
+        innerMap?: Record<string, object>;
+        [key: string]: any;
+    };
+    workflowNames?: string[];
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface PaginationDTOWorkflowJobOutlineDTO {
+    entryList?: WorkflowJobOutlineDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOWorkflowJobOutlineDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOWorkflowJobOutlineDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface WorkflowJobDetailDTO {
+    startDate?: string;
+    endDate?: string;
+    instanceId?: string;
+    workflowState?: string;
+    workflowName?: string;
+    approver?: string;
+    terminator?: string;
+    inputData?: {
+        empty?: boolean;
+        innerMap?: Record<string, object>;
+        [key: string]: any;
+    };
+    variables?: {
+        empty?: boolean;
+        innerMap?: Record<string, object>;
+        [key: string]: any;
+    };
+}
+
+export interface WorkflowJobOutlineDTO {
+    startDate?: string;
+    endDate?: string;
+    state?: string;
+    creator?: string;
+    details?: WorkflowJobDetailDTO[];
+}
+
+export interface QueryWorkflowVariablesRequestDTO {
+    processDefinitionName?: string;
+}
+
+export interface ResultListWorkflowVariableDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WorkflowVariableDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface WorkflowVariableDTO {
+    name?: string;
+    type?: string;
+}
+
+/** Dashboard Workflow Response DTO */
+export interface DashboardWorkflowResponseDTO {
+    /** Key (e.g., month) */
+    key?: string;
+    /**
+     * Count
+     * @format int32
+     */
+    count?: number;
+}
+
+export interface ResultLinkedListDashboardWorkflowResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DashboardWorkflowResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultMapStringDouble {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: Record<string, number>;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** User Dashboard RequestDTO */
+export interface UserDashboardRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** The Record Name */
+    name?: string;
+    /** The Record Creator */
+    createdBy?: string;
+    /** The Record Status (A,D,P.R) */
+    status?: string;
+    /** The User ID */
+    userId?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface PaginationDTOUserDashboardResponseDTO {
+    entryList?: UserDashboardResponseDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOUserDashboardResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOUserDashboardResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** UserDashboard ResponseDTO */
+export interface UserDashboardResponseDTO {
+    /** @format int64 */
+    id?: number;
+    name?: string;
+    access?: string;
+    styleJson?: string;
+    status?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    accessors?: string[];
+}
+
+/** Plugin RequestDTO */
+export interface PluginRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** The record creator */
+    name?: string;
+    /** The record creator */
+    createdBy?: string;
+    /** The record status (A,D,P.R) */
+    status?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface PaginationDTOPluginResponseDTO {
+    entryList?: PluginResponseDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+/** Plugin ResponseDTO */
+export interface PluginResponseDTO {
+    /** @format int64 */
+    id?: number;
+    name?: string;
+    status?: string;
+    createdBy?: string;
+    createdByName?: string;
+    modifiedBy?: string;
+    modifiedByName?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface ResultPaginationDTOPluginResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOPluginResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface OcrProcessedRequestDTO {
+    startDate?: string;
+    endDate?: string;
+    workflow?: string;
+    scanType?: string;
+}
+
+export interface OcrProcessedDetailDTO {
+    name?: string;
+    /** @format int32 */
+    pageCount?: number;
+    /** @format int32 */
+    yearMonth?: number;
+    /** @format int32 */
+    date?: number;
+}
+
+export interface ResultListOcrProcessedDetailDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: OcrProcessedDetailDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface OcrTransactionLogRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** businessName */
+    businessName?: string;
+    /** workflow */
+    workflow?: string;
+    /** state */
+    state?: string;
+    /** ocrProfileName */
+    ocrProfileName?: string;
+    /** scanType */
+    scanType?: string;
+    /**
+     * Start Date
+     * @format date-time
+     */
+    startDate?: string;
+    /**
+     * End Date
+     * @format date-time
+     */
+    endDate?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface OcrTransactionLogDTO {
+    /** @format int64 */
+    id?: number;
+    businessName?: string;
+    workflow?: string;
+    state?: string;
+    ocrProfileName?: string;
+    scanType?: string;
+    processStatus?: string;
+    /** @format date-time */
+    createdDate?: string;
+}
+
+export interface PaginationDTOOcrTransactionLogDTO {
+    entryList?: OcrTransactionLogDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOOcrTransactionLogDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOOcrTransactionLogDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface OcrThredsholdRequestDTO {
+    scanType?: string;
+    startDate?: string;
+    endDate?: string;
+}
+
+export interface OcrThresholdDTO {
+    /** @format int32 */
+    currentCount?: number;
+    /** @format int32 */
+    thresholdCount?: number;
+}
+
+export interface ResultOcrThresholdDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: OcrThresholdDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Dashboard Request DTO */
+export interface DashboardRequestDTO {
+    /** Single document type */
+    primaryType?: string;
+    /** Multiple document types */
+    primaryTypes?: string[];
+    /** Filter conditions by metadata */
+    filterByMetaDatas?: Record<string, object>;
+    /** Size unit (kb, mb, gb, tb) */
+    sizeUnit?: string;
+    /** Interval (month, week) */
+    interval?: string;
+    /** Creator */
+    creator?: string;
+    /** Metadata fields to group by */
+    groupByMetadatas?: string[];
+    /** Date range map */
+    dateRange?: Record<string, string>;
+    /**
+     * Page index
+     * @format int32
+     */
+    pageIndex?: number;
+    /**
+     * Page size
+     * @format int32
+     */
+    pageSize?: number;
+    /** Order by field */
+    orderBy?: string;
+    /** Is descending order */
+    isDesc?: boolean;
+}
+
+/** Date Range DTO */
+export interface DateRangeDTO {
+    /** From date string */
+    from?: string;
+    /** To date string */
+    to?: string;
+}
+
+/** Date Range Request DTO */
+export interface DateRangeRequestDTO {
+    /** Date Range DTO */
+    dateRange?: DateRangeDTO;
+    /** Document types to query */
+    docTypes?: string[];
+    /** Field to group by */
+    groupBy?: string;
+}
+
 export interface ProcessDefinitionDraftRequestDTO {
     /** Process Definition Draft ID */
     draftId?: string;
@@ -4923,33 +6043,6 @@ export interface ResultListFormPropertyDTO {
     locale?: string;
 }
 
-/** Process Definition */
-export interface ProcessDTO {
-    /** Process ID */
-    id?: string;
-    /** Process Key */
-    key?: string;
-    /** Process Name */
-    name?: string;
-    /** Process Category */
-    category?: string;
-    /** Process Resource Name */
-    resourceName?: string;
-    /** Process Diagram Resource Name */
-    diagramName?: string;
-    /**
-     * Process Version
-     * @format int32
-     */
-    version?: number;
-    /** Production Version Number */
-    versionNumber?: string;
-    /** Process Version ID */
-    versionId?: string;
-    /** Production Draft ID */
-    draftId?: string;
-}
-
 export interface ResultProcessDTO {
     result?: boolean;
     /** @format int32 */
@@ -4968,16 +6061,6 @@ export interface ResultInstanceDTO {
     message?: string;
     /** Process Instance */
     data?: InstanceDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListProcessDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ProcessDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -5132,6 +6215,8 @@ export interface WorkflowHistoryRequestDTO {
     executionId?: string;
     /** User ID */
     userId?: string;
+    /** Creator */
+    creator?: string;
     /** Is Completed */
     completed?: boolean;
     /** Created Date */
@@ -5385,6 +6470,16 @@ export interface WatermarkSettingsTemplate {
     createdDate?: string;
     /** @format date-time */
     modifiedDate?: string;
+}
+
+/** User batch active params */
+export interface UserBatchActiveDTO {
+    /** acl_user ids */
+    ids?: string[];
+    /** keycloak user ids */
+    userIds?: string[];
+    /** active A/D */
+    active?: string;
 }
 
 export interface ValidateJsonSchemaRequestDTO {
@@ -8262,16 +9357,6 @@ export interface MTPermissionDTO {
     enable?: boolean;
 }
 
-export interface ResultListContactGroupResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ContactGroupResponseDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface PaginationDTOCompanyChop {
     entryList?: CompanyChop[];
     /** @format int32 */
@@ -8807,12 +9892,1157 @@ export interface AddAiCommentRequestDTO {
     answerId?: number;
 }
 
+export interface PasswordConfigDTO {
+    /**
+     * @format int32
+     * @min 8
+     * @max 24
+     */
+    minPasswordLength?: number;
+    containLowerAndUppercase?: boolean;
+    containNumericDigits?: boolean;
+    containSpecialCharacters?: boolean;
+    forceResetPassword?: boolean;
+    enableExpirationTime?: boolean;
+    /**
+     * @format int32
+     * @min 1
+     * @max 2147483647
+     */
+    expirationDay?: number;
+    enableLockoutPolicy?: boolean;
+    /**
+     * @format int32
+     * @min 1
+     * @max 255
+     */
+    retryPeriod?: number;
+    /**
+     * @format int32
+     * @min 1
+     * @max 2147483647
+     */
+    lockoutPeriod?: number;
+    /**
+     * @format int32
+     * @min 1
+     * @max 255
+     */
+    lockoutCount?: number;
+    enableReusePasswordLimit?: boolean;
+    /**
+     * @format int32
+     * @min 0
+     * @max 10
+     */
+    reusePasswordCount?: number;
+}
+
+/** Batch delete users */
+export interface BatchDeleteUserDTO {
+    /** keycloak user ids */
+    userIds?: string[];
+}
+
+/** Batch delete users */
+export interface BatchAddUsersToGroupsDTO {
+    /** keycloak user ids */
+    userIds?: string[];
+    /** groups ids */
+    groupIds?: string[];
+}
+
+/** Batch add groups to user */
+export interface UserBatchAddGroupsDTO {
+    /** acl_user id */
+    userId?: string;
+    /** group ids */
+    groupIds?: string[];
+}
+
+/** Batch add users to group */
+export interface GroupBatchAddUsersDTO {
+    /** groupId */
+    groupId?: string;
+    /** keycloak user ids */
+    userIds?: string[];
+}
+
+export interface DocPalTypeMetadata {
+    id?: string;
+    docpalTypeId?: string;
+    schemaName?: string;
+    metadata?: string;
+    metaDataType?: string;
+    dataType?: string;
+    display?: boolean;
+    options?: string;
+    isRequire?: boolean;
+    status?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    docPalType?: string;
+}
+
+/** DocPalType (RequestDTO) */
+export interface DocPalTypeRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    id?: string;
+    name?: string;
+    category?: string;
+    dataType?: string;
+    enable?: boolean;
+    metadata?: DocPalTypeMetadata[];
+    types?: string[];
+    categories?: string[];
+    createBys?: string[];
+    metadataFieldMap?: Record<string, object>;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface DocPalTypeResponseDTO {
+    id?: string;
+    name?: string;
+    category?: string;
+    dataType?: string;
+    enable?: boolean;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    metadata?: DocPalTypeMetadata[];
+}
+
+export interface ResultDocPalTypeResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocPalTypeResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface DocPalType {
+    id?: string;
+    name?: string;
+    category?: string;
+    dataType?: string;
+    enable?: boolean;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface PaginationDTODocPalType {
+    entryList?: DocPalType[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTODocPalType {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTODocPalType;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface DocPalTypeRelated {
+    id?: string;
+    docPalTypeId?: string;
+    rootDocPalType?: string;
+    metaData?: string;
+    docPalType?: string;
+}
+
+export interface ResultDocPalTypeRelated {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocPalTypeRelated;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface QueryMetadataRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    metadataName?: string;
+    docpalTypeName?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export type BooleanValidation = MetadataValidation;
+
+export type CaseValidation = MetadataValidation;
+
+export type DateValidation = MetadataValidation & {
+    dateOrDateTime?: string;
+    format?: string;
+    defaultValue?: string;
+};
+
+export type DocumentValidation = MetadataValidation;
+
+export type MasterTableValidation = MetadataValidation & {
+    masterTableName?: string;
+    displayColumn?: string;
+    valueColumn?: string;
+};
+
+export interface MetadataMaskRuleDTO {
+    maskType?: string;
+    /** @format int32 */
+    maskLength?: number;
+}
+
+export interface MetadataResponseVO {
+    name?: string;
+    dataType?: string;
+    createdBy?: string;
+    lastModifiedDate?: string;
+    id?: string;
+    display?: boolean;
+    validationRule?:
+        | BooleanValidation
+        | CaseValidation
+        | DateValidation
+        | DocumentValidation
+        | MasterTableValidation
+        | NumberValidation
+        | SelectValidation
+        | TextValidation
+        | UserRoleUserGroupValidation
+        | UserValidation
+        | WorkflowValidation;
+    maskRule?: MetadataMaskRuleDTO;
+}
+
+export interface MetadataValidation {
+    validationRuleName?: string;
+    isMultiple?: boolean;
+}
+
+export type NumberValidation = MetadataValidation & {
+    /** @format int32 */
+    minimum?: number;
+    /** @format int32 */
+    maximum?: number;
+    multipleOf?: number;
+};
+
+export interface PaginationDTOMetadataResponseVO {
+    entryList?: MetadataResponseVO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOMetadataResponseVO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOMetadataResponseVO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export type SelectValidation = MetadataValidation & {
+    options?: string[];
+};
+
+export type TextValidation = MetadataValidation & {
+    /** @format int32 */
+    maxLength?: number;
+};
+
+export type UserRoleUserGroupValidation = MetadataValidation & {
+    allow?: string;
+};
+
+export type UserValidation = MetadataValidation;
+
+export type WorkflowValidation = MetadataValidation;
+
+export interface MetaDataDefinitionRequestDTO {
+    id?: string;
+    docpalType?: string;
+    name?: string;
+    validationRule?:
+        | BooleanValidation
+        | CaseValidation
+        | DateValidation
+        | DocumentValidation
+        | MasterTableValidation
+        | NumberValidation
+        | SelectValidation
+        | TextValidation
+        | UserRoleUserGroupValidation
+        | UserValidation
+        | WorkflowValidation;
+    maskRule?: MetadataMaskRuleDTO;
+    langs?: {
+        empty?: boolean;
+        [key: string]: any;
+    };
+}
+
+export interface DocpalTypeRequestV2DTO {
+    id?: string;
+    name?: string;
+    category?: string;
+    isFolder?: boolean;
+    status?: string;
+    langs?: {
+        empty?: boolean;
+        [key: string]: any;
+    };
+    metadataFields?: Record<string, object>[];
+    permission?: Permission;
+}
+
+export interface AddMetadataRequestDTO {
+    docType?: string;
+    name?: string;
+    display?: boolean;
+    metaDataDefinition?: MetaDataDefinitionRequestDTO;
+    metadataId?: string;
+    metadataPermissionRule?: MetadataPermissionRuleDTO;
+    metadataPermission?: MetadataPermissionDTO;
+}
+
+export interface MetadataPermissionCondition {
+    attribute?: string;
+    condition?: string;
+    value?: string;
+}
+
+export interface MetadataPermissionDTO {
+    hiddenPermissions?: MetadataPermissionRuleDTO[];
+    maskPermissions?: MetadataPermissionRuleDTO[];
+    readOnlyPermissions?: MetadataPermissionRuleDTO[];
+    createdDate?: string;
+    lastModifiedDate?: string;
+}
+
+export interface MetadataPermissionRuleDTO {
+    name?: string;
+    conditions?: MetadataPermissionCondition[];
+}
+
+export interface DocumentTypeResponseVO {
+    name?: string;
+    isFolder?: string;
+    category?: string;
+    active?: string;
+    createdBy?: string;
+    lastModifiedDate?: string;
+    id?: string;
+    langs?: string;
+    metadatas?: MetadataResponseVO[];
+}
+
+export interface PaginationDTODocumentTypeResponseVO {
+    entryList?: DocumentTypeResponseVO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTODocumentTypeResponseVO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTODocumentTypeResponseVO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface MoveMetadataRequestDTO {
+    docpalTypeId?: string;
+    metadataId?: string;
+    /** @format int32 */
+    moveIndex?: number;
+}
+
+export interface DocpalTypeDetailResponseVO {
+    docpalTypeName?: string;
+    category?: string;
+    isFolder?: string;
+    langs?: Record<string, object>;
+    permission?: Permission;
+    metadataList?: DocpalTypeMetadataResponseVO[];
+}
+
+export interface DocpalTypeMetadataResponseVO {
+    id?: string;
+    name?: string;
+    dataType?: string;
+    display?: boolean;
+    lastModifiedDate?: string;
+    metadataPermission?: MetadataPermissionDTO;
+}
+
+export interface ResultDocpalTypeDetailResponseVO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocpalTypeDetailResponseVO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** DocPalType (RequestDTO) */
+export interface DocPalTypeMetadataRequestDTO {
+    docType?: string;
+    metaData?: string;
+    dataType?: string;
+    display?: boolean;
+    options?: string;
+    isRequire?: boolean;
+    status?: string;
+}
+
+export interface DocumentTypeMetadataMapping {
+    /** @format int64 */
+    id?: number;
+    name?: string;
+    metaDataMapper?: string;
+    /** @format int32 */
+    version?: number;
+    createUserId?: string;
+    createUserName?: string;
+    /** @format date-time */
+    createTime?: string;
+    updateUserId?: string;
+    updateUserName?: string;
+    /** @format date-time */
+    updateTime?: string;
+}
+
+export interface DocPalDocumentType {
+    /** @format int64 */
+    id?: number;
+    name?: string;
+    metaDataMapper?: Record<string, string>;
+}
+
+export interface DocPalDocumentTypeMapping {
+    documentType?: DocPalDocumentType[];
+}
+
+export interface ResultListDocumentTypeMetadataMapping {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocumentTypeMetadataMapping[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface DocumentTypeProfileSettingRequest {
+    /** @format int64 */
+    id?: number;
+    documentType?: string;
+    profileID?: string;
+    profileName?: string;
+    rootPath?: string;
+    folder?: Folder;
+    /** @format int32 */
+    version?: number;
+    createUserId?: string;
+    createUserName?: string;
+    /** @format date-time */
+    createTime?: string;
+    updateUserId?: string;
+    updateUserName?: string;
+    /** @format date-time */
+    updateTime?: string;
+}
+
+export interface Folder {
+    name?: string;
+    title?: string;
+    folder?: Folder;
+}
+
+export interface DocumentTypeProfileSetting {
+    /** @format int64 */
+    id?: number;
+    documentType?: string;
+    profileID?: string;
+    profileName?: string;
+    rootPath?: string;
+    folder?: string;
+    /** @format int32 */
+    version?: number;
+    createUserId?: string;
+    createUserName?: string;
+    /** @format date-time */
+    createTime?: string;
+    updateUserId?: string;
+    updateUserName?: string;
+    /** @format date-time */
+    updateTime?: string;
+}
+
+export interface ResultDocumentTypeProfileSetting {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocumentTypeProfileSetting;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PaginationDTOWhatsAppLogDTO {
+    entryList?: WhatsAppLogDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultWhatsAppOverviewResponse {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WhatsAppOverviewResponse;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface WhatsAppLogDTO {
+    id?: string;
+    status?: string;
+    responseMessage?: string;
+    /** @format date-time */
+    createdDate?: string;
+}
+
+export interface WhatsAppOverviewResponse {
+    whatsAppSetting?: WhatsAppSettingDTO;
+    responseTime?: string;
+    successPercent?: string;
+    status?: string;
+    whatsAppLogDTOPage?: PaginationDTOWhatsAppLogDTO;
+}
+
+export interface ResultPaginationDTOWhatsAppLogDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOWhatsAppLogDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultWatermarkSettingsDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WatermarkSettingsDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface DocumentTemplate {
+    id?: string;
+    name?: string;
+    documentId?: string;
+    fileType?: string;
+    source?: string;
+    templateVariable?: string;
+    description?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface PaginationDTODocumentTemplate {
+    entryList?: DocumentTemplate[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTODocumentTemplate {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTODocumentTemplate;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ErrorEnumEntity {
+    /** @format int64 */
+    id?: number;
+    language?: string;
+    /** @format int32 */
+    errorCode?: number;
+    errorMessage?: string;
+    createUserId?: string;
+    createUserName?: string;
+    /** @format date-time */
+    createTime?: string;
+    updateUserId?: string;
+    updateUserName?: string;
+    /** @format date-time */
+    updateTime?: string;
+}
+
+export interface ErrorEnumEntityDTO {
+    /** @format int64 */
+    id?: number;
+    language?: string;
+    /** @format int32 */
+    errorCode?: number;
+    errorMessage?: string;
+    createUserId?: string;
+    createUserName?: string;
+    /** @format date-time */
+    createTime?: string;
+    updateUserId?: string;
+    updateUserName?: string;
+    /** @format date-time */
+    updateTime?: string;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageSize?: number;
+    entity?: ErrorEnumEntity;
+}
+
+export interface PaginationDTORetentionPolicy {
+    entryList?: RetentionPolicy[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTORetentionPolicy {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTORetentionPolicy;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface RetentionPolicy {
+    id?: string;
+    policyName?: string;
+    isAuto?: boolean;
+    approvalId?: string;
+    /** @format int32 */
+    periodNum?: number;
+    periodUnit?: string;
+    actionType?: string;
+    /** @format int32 */
+    actionDelayDay?: number;
+    status?: string;
+    lastModifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    /** @uniqueItems true */
+    triggers?: RetentionTrigger[];
+    /** @uniqueItems true */
+    events?: RetentionEvent[];
+}
+
+/** HoldPolicy RequestDTO */
+export interface HoldPolicyRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** HoldPolicy ID */
+    id?: string;
+    /** HoldPolicy name */
+    policyName?: string;
+    /** HoldPolicy status */
+    status?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface PaginationDTOHoldPolicy {
+    entryList?: HoldPolicy[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOHoldPolicy {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOHoldPolicy;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** GrpcMetadataResp */
+export interface GrpcMetadataResp {
+    id?: string;
+    name?: string;
+    remark?: string;
+    status?: string;
+    type?: string;
+    group?: string[];
+    langs?: Record<string, object>;
+    _rev?: string;
+    business_type?: string;
+    business_type_property?: Record<string, object>;
+    data_type?: string;
+    create_by?: string;
+    /** @format date-time */
+    create_date?: string;
+    last_modify_by?: string;
+    /** @format date-time */
+    modify_date?: string;
+}
+
+export interface ResultGrpcMetadataResp {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** GrpcMetadataResp */
+    data?: GrpcMetadataResp;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Metadata (RequestDTO) */
+export interface MetadataRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    id?: string;
+    name?: string;
+    group?: string;
+    dataType?: string;
+    status?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface MessageTemplateRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    templateName?: string;
+    usages?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface MessageTemplateVO {
+    /** @format int64 */
+    id?: number;
+    templateName?: string;
+    usages?: string;
+    whatsAppStatus?: string;
+    language?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    whatsAppRejectedReason?: string;
+}
+
+export interface PaginationDTOMessageTemplateVO {
+    entryList?: MessageTemplateVO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOMessageTemplateVO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOMessageTemplateVO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface TemplateMsgManageDTO {
+    name?: string;
+    header?: string;
+    body?: string;
+    footer?: string;
+    textMessage?: string;
+    language?: string;
+    needConfirm?: boolean;
+    confirmButtonName?: string;
+    headerParameters?: ParamDTO[];
+    bodyParameters?: ParamDTO[];
+    textParameters?: ParamDTO[];
+}
+
+export interface CreateMessageResponseDTO {
+    id?: string;
+    category?: string;
+    status?: string;
+    whatsAppRejectedReason?: string;
+}
+
+export interface ResultCreateMessageResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CreateMessageResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PaginationDTOInternalShareQueryDTO {
+    entryList?: InternalShareQueryDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOInternalShareQueryDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOInternalShareQueryDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ExecuteSqlDTO {
+    executeQuerySqlTemplate?: string;
+    tableName?: string;
+    taskName?: string;
+    /** @format int32 */
+    initStartDate?: number;
+    /** @format int32 */
+    initEndDate?: number;
+}
+
+/** Case Instance Process Instance Information */
+export interface CmmnProcessInstanceDTO {
+    /** process Instance ID */
+    processInstanceId?: string;
+    /** Business Key */
+    businessKey?: string;
+    /** Task ID */
+    taskId?: string;
+    /** is complete state */
+    complete?: boolean;
+    /** process Instance state */
+    state?: string;
+    /** Assigned user of current task */
+    assignedUser?: string;
+    /** Error Message */
+    errorMsg?: string;
+    /** Process Instance */
+    instance?: InstanceDTO;
+    tasks?: TaskDTO[];
+    /** process Instance ID */
+    caseInstanceId?: string;
+    /**
+     * Start Time
+     * @format date-time
+     */
+    startTime?: string;
+    /**
+     * End Time
+     * @format date-time
+     */
+    endTime?: string;
+    /** Start UserId */
+    startUserId?: string;
+    /** Process Definition Id */
+    processDefinitionId?: string;
+    /** Process Definition Key */
+    processDefinitionKey?: string;
+    /** Process Definition Name */
+    processDefinitionName?: string;
+    /** Process Definition Deployment Id */
+    deploymentId?: string;
+}
+
+export interface PaginationDTOCmmnProcessInstanceDTO {
+    entryList?: CmmnProcessInstanceDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOCmmnProcessInstanceDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOCmmnProcessInstanceDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultMapStringListUserDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: Record<string, UserDTO[]>;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListResourcePermissionVO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ResourcePermissionVO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+/** ACL document List request */
+export interface AclDocumentListRequest {
+    /** User/Role/Group/UserSet id list */
+    targetIds?: string[];
+    /** documentId */
+    documentId?: string;
+    orderBy?: string;
+    desc?: boolean;
+}
+
+/** ACL Document View Object */
+export interface AclDocumentVO {
+    /** Unique identifier for the document or folder */
+    id?: string;
+    /** Name of the document or folder */
+    name?: string;
+    /** Path of the document or folder */
+    path?: string;
+    /** Parent ID of the document or folder */
+    parentId?: string;
+    /** Type of the document (e.g., folder) */
+    documentType?: string;
+    /** Read permissions (users or groups allowed to read) */
+    read?: string;
+    /** Read-write permissions (users or groups allowed to read and write) */
+    readWrite?: string;
+    /** Management permissions (users or groups allowed to manage) */
+    manage?: string;
+    /** Custom field for additional information */
+    custom?: string;
+    /** Is folder */
+    isFolder?: boolean;
+}
+
+export interface ResultListAclDocumentVO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: AclDocumentVO[];
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface UpdatePasswordDTO {
     oldPassword?: string;
     newPassword?: string;
 }
 
-/** Easy Share */
+/** ResetEasyShare (Request) */
 export interface ShareSaveRequestDTO {
     /** Share Id */
     shareId?: string;
@@ -9002,52 +11232,6 @@ export interface ResultLockUserDTO {
     locale?: string;
 }
 
-export interface PasswordConfigDTO {
-    /**
-     * @format int32
-     * @min 8
-     * @max 24
-     */
-    minPasswordLength?: number;
-    containLowerAndUppercase?: boolean;
-    containNumericDigits?: boolean;
-    containSpecialCharacters?: boolean;
-    forceResetPassword?: boolean;
-    enableExpirationTime?: boolean;
-    /**
-     * @format int32
-     * @min 1
-     * @max 2147483647
-     */
-    expirationDay?: number;
-    enableLockoutPolicy?: boolean;
-    /**
-     * @format int32
-     * @min 1
-     * @max 255
-     */
-    retryPeriod?: number;
-    /**
-     * @format int32
-     * @min 1
-     * @max 2147483647
-     */
-    lockoutPeriod?: number;
-    /**
-     * @format int32
-     * @min 1
-     * @max 255
-     */
-    lockoutCount?: number;
-    enableReusePasswordLimit?: boolean;
-    /**
-     * @format int32
-     * @min 0
-     * @max 10
-     */
-    reusePasswordCount?: number;
-}
-
 export interface ResultPasswordConfigDTO {
     result?: boolean;
     /** @format int32 */
@@ -9056,22 +11240,6 @@ export interface ResultPasswordConfigDTO {
     data?: PasswordConfigDTO;
     messageKey?: string;
     locale?: string;
-}
-
-export interface DocumentTemplate {
-    id?: string;
-    name?: string;
-    documentId?: string;
-    fileType?: string;
-    source?: string;
-    templateVariable?: string;
-    description?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
 }
 
 export interface ResultDocumentTemplate {
@@ -9147,22 +11315,6 @@ export interface ResultEasyShareDocumentResponseDTO {
     code?: number;
     message?: string;
     data?: EasyShareDocumentResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface MQProperties {
-    name?: string;
-    consumerName?: string;
-    groupName?: string;
-}
-
-export interface ResultMapStringMQProperties {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: Record<string, MQProperties>;
     messageKey?: string;
     locale?: string;
 }
@@ -9381,6 +11533,26 @@ export interface ResultListEventCalendarSetting {
     code?: number;
     message?: string;
     data?: EventCalendarSetting[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListPlugin {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: Plugin[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultAzureOcrSettingDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: AzureOcrSettingDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -9624,24 +11796,6 @@ export interface ResultObjectNode {
     locale?: string;
 }
 
-export type BooleanValidation = MetadataValidation;
-
-export type CaseValidation = MetadataValidation;
-
-export type DateValidation = MetadataValidation & {
-    dateOrDateTime?: string;
-    format?: string;
-    defaultValue?: string;
-};
-
-export type DocumentValidation = MetadataValidation;
-
-export type MasterTableValidation = MetadataValidation & {
-    masterTableName?: string;
-    displayColumn?: string;
-    valueColumn?: string;
-};
-
 export interface MetadataValidDTO {
     id?: string;
     name?: string;
@@ -9660,19 +11814,6 @@ export interface MetadataValidDTO {
         | WorkflowValidation;
 }
 
-export interface MetadataValidation {
-    validationRuleName?: string;
-    isMultiple?: boolean;
-}
-
-export type NumberValidation = MetadataValidation & {
-    /** @format int32 */
-    minimum?: number;
-    /** @format int32 */
-    maximum?: number;
-    multipleOf?: number;
-};
-
 export interface ResultListMetadataValidDTO {
     result?: boolean;
     /** @format int32 */
@@ -9681,51 +11822,6 @@ export interface ResultListMetadataValidDTO {
     data?: MetadataValidDTO[];
     messageKey?: string;
     locale?: string;
-}
-
-export type SelectValidation = MetadataValidation & {
-    options?: string[];
-};
-
-export type TextValidation = MetadataValidation & {
-    /** @format int32 */
-    maxLength?: number;
-};
-
-export type UserRoleUserGroupValidation = MetadataValidation & {
-    allow?: string;
-};
-
-export type UserValidation = MetadataValidation;
-
-export type WorkflowValidation = MetadataValidation;
-
-export interface MetadataMaskRuleDTO {
-    maskType?: string;
-    /** @format int32 */
-    maskLength?: number;
-}
-
-export interface MetadataResponseVO {
-    name?: string;
-    dataType?: string;
-    createdBy?: string;
-    lastModifiedDate?: string;
-    id?: string;
-    display?: boolean;
-    validationRule?:
-        | BooleanValidation
-        | CaseValidation
-        | DateValidation
-        | DocumentValidation
-        | MasterTableValidation
-        | NumberValidation
-        | SelectValidation
-        | TextValidation
-        | UserRoleUserGroupValidation
-        | UserValidation
-        | WorkflowValidation;
-    maskRule?: MetadataMaskRuleDTO;
 }
 
 export interface ResultListMetadataResponseVO {
@@ -9834,52 +11930,6 @@ export interface ResultListRetentionPolicy {
     locale?: string;
 }
 
-export interface RetentionEvent {
-    id?: string;
-    policyRetentionId?: string;
-    eventType?: string;
-    eventLabel?: string;
-    eventValue?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-}
-
-export interface RetentionPolicy {
-    id?: string;
-    policyName?: string;
-    isAuto?: boolean;
-    approvalId?: string;
-    /** @format int32 */
-    periodNum?: number;
-    periodUnit?: string;
-    actionType?: string;
-    /** @format int32 */
-    actionDelayDay?: number;
-    status?: string;
-    lastModifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    /** @uniqueItems true */
-    triggers?: RetentionTrigger[];
-    /** @uniqueItems true */
-    events?: RetentionEvent[];
-}
-
-export interface RetentionTrigger {
-    id?: string;
-    policyRetentionId?: string;
-    documentType?: string;
-    triggerMetaData?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-}
-
 export interface ResultListRetentionEvent {
     result?: boolean;
     /** @format int32 */
@@ -9888,49 +11938,6 @@ export interface ResultListRetentionEvent {
     data?: RetentionEvent[];
     messageKey?: string;
     locale?: string;
-}
-
-export interface ResultRetentionPolicyResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Retention Policy ResponseDTO */
-    data?: RetentionPolicyResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Retention Policy ResponseDTO */
-export interface RetentionPolicyResponseDTO {
-    /** RetentionPolicy ID */
-    id?: string;
-    /** the name of retention policy */
-    policyName?: string;
-    /** the status of retention policy */
-    status?: string;
-    /** Is Auto */
-    isAuto?: boolean;
-    /** the approval user */
-    approvalId?: string;
-    /**
-     * the period number
-     * @format int32
-     */
-    periodNum?: number;
-    /** the period unit */
-    periodUnit?: string;
-    /** the action type */
-    actionType?: string;
-    /**
-     * the action delay day
-     * @format int32
-     */
-    actionDelayDay?: number;
-    /** RetentionPolicy trigger list */
-    triggers?: RetentionTrigger[];
-    /** RetentionPolicy event */
-    events?: RetentionEvent[];
 }
 
 export interface ResultMapStringListRetentionEvent {
@@ -9943,40 +11950,12 @@ export interface ResultMapStringListRetentionEvent {
     locale?: string;
 }
 
-export interface HoldPolicy {
-    id?: string;
-    policyName?: string;
-    holdApprovalId?: string;
-    removeApprovalId?: string;
-    status?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    holdAuto?: boolean;
-    holdReasonReq?: boolean;
-    removeAuto?: boolean;
-    removeReasonReq?: boolean;
-}
-
 export interface ResultListHoldPolicy {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
     data?: HoldPolicy[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultHoldPolicy {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: HoldPolicy;
     messageKey?: string;
     locale?: string;
 }
@@ -10851,6 +12830,274 @@ export interface ResultAiChatInitInfoVO {
     locale?: string;
 }
 
+export interface ResultDocumentTypeDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Document Type */
+    data?: DocumentTypeDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultObjects {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: object;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface AuditTemplate {
+    id?: string;
+    eventId?: string;
+    nuxeoEventId?: string;
+    documentId?: string;
+    comment?: string;
+    docPath?: string;
+    docType?: string;
+    eventType?: string;
+    eventCategory?: string;
+    label?: string;
+    /** @format date-time */
+    createTime?: string;
+    /** @format date-time */
+    updateTime?: string;
+}
+
+export interface ResultListAuditTemplate {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: AuditTemplate[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListDocPalTypeRelated {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocPalTypeRelated[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListDocPalType {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocPalType[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListLong {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: number[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListDocumentTypeProfileSetting {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocumentTypeProfileSetting[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultMapStringListMapStringString {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: Record<string, Record<string, string>[]>;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Process Instance Information */
+export interface ProcessInstanceDTO {
+    /** process Instance ID */
+    processInstanceId?: string;
+    /** Business Key */
+    businessKey?: string;
+    /** Task ID */
+    taskId?: string;
+    /** is complete state */
+    complete?: boolean;
+    /** process Instance state */
+    state?: string;
+    /** Assigned user of current task */
+    assignedUser?: string;
+    /** Error Message */
+    errorMsg?: string;
+    /** Process Instance */
+    instance?: InstanceDTO;
+    tasks?: TaskDTO[];
+}
+
+export interface ResultProcessInstanceDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Process Instance Information */
+    data?: ProcessInstanceDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface LanguageDTO {
+    name?: string;
+    code?: string;
+}
+
+export interface ResultListLanguageDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: LanguageDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListWMContentTypeDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WMContentTypeDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface WMContentTypeDTO {
+    value?: string;
+    label?: string;
+    metadata?: string;
+}
+
+export interface ResultListRetentionTrigger {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: RetentionTrigger[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultMessageTemplateDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: MessageTemplateDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface MessageTemplateListDTO {
+    templateNames?: string[];
+}
+
+export interface ResultMessageTemplateListDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: MessageTemplateListDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface MessageCountDTO {
+    name?: string;
+    /** @format int64 */
+    readCount?: number;
+    /** @format int64 */
+    sendCount?: number;
+}
+
+export interface MessageTemplateDetailDTO {
+    template?: TemplateMsgManageDTO;
+    whatsAppRejectedReason?: string;
+    messageCounts?: MessageCountDTO[];
+    templateStatuses?: TemplateStatusDTO[];
+}
+
+export interface ResultMessageTemplateDetailDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: MessageTemplateDetailDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface TemplateStatusDTO {
+    name?: string;
+    status?: string;
+}
+
+export interface ResultMapStringMapStringObject {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: Record<string, Record<string, object>>;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface AzureOcrProfileMapping {
+    /** @format int64 */
+    id?: number;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    ocrProfileName?: string;
+    scanProfile?: string;
+    normalizeSetting?: string;
+    scanType?: string;
+    status?: string;
+}
+
+export interface AzureSettingDTO {
+    azureOcrApiKey?: AzureOcrApiKeyDTO;
+    azureOcrSetting?: AzureOcrSettingDTO;
+    azureOcrProfileMappings?: AzureOcrProfileMapping[];
+    ocrTransactionLogs?: PaginationDTOOcrTransactionLogDTO;
+}
+
+export interface ResultAzureSettingDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: AzureSettingDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface AclEntryDTO {
     id?: string;
     /**
@@ -10914,6 +13161,17 @@ export interface ResultListHistoricProcessInstanceEntityImpl {
     code?: number;
     message?: string;
     data?: HistoricProcessInstanceEntityImpl[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultIdentityRequestDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Identity (Request) */
+    data?: IdentityRequestDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -11069,94 +13327,6 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Configuration (Nuxeo)
-         * @name GetNuxeoTypes
-         * @summary Get all document types
-         * @request GET:/api/nuxeo/types
-         */
-        getNuxeoTypes: (
-            query: {
-                /** @format int32 */
-                flag: number;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/types`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name PostNuxeoTypes
-         * @summary Get all document types
-         * @request POST:/api/nuxeo/types
-         */
-        postNuxeoTypes: (
-            query: {
-                /** @format int32 */
-                flag: number;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/types`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name GetNuxeoTypesDeprecate
-         * @summary Get all document types
-         * @request GET:/api/nuxeo/types/
-         */
-        getNuxeoTypesDeprecate: (
-            query: {
-                /** @format int32 */
-                flag: number;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/types/`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Configuration (Nuxeo)
-         * @name PostNuxeoTypesDeprecate
-         * @summary Get all document types
-         * @request POST:/api/nuxeo/types/
-         */
-        postNuxeoTypesDeprecate: (
-            query: {
-                /** @format int32 */
-                flag: number;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/types/`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Collection
          * @name GetNuxeoCollectionDeprecate
          * @summary Get user visible collections
@@ -11171,7 +13341,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultPaginationDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/nuxeo/collection/`,
                 method: "GET",
                 query: query,
@@ -11195,7 +13365,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultPaginationDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/nuxeo/collection/`,
                 method: "POST",
                 query: query,
@@ -11235,7 +13405,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultPaginationDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/nuxeo/collection`,
                 method: "GET",
                 query: query,
@@ -11259,7 +13429,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultPaginationDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/nuxeo/collection`,
                 method: "POST",
                 query: query,
@@ -11279,6 +13449,94 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Configuration
+         * @name GetDsbConfigTypes
+         * @summary Get all document types
+         * @request GET:/api/dsb/config/types
+         */
+        getDsbConfigTypes: (
+            query: {
+                /** @format int32 */
+                flag: number;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/config/types`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Configuration
+         * @name PostDsbConfigTypes
+         * @summary Get all document types
+         * @request POST:/api/dsb/config/types
+         */
+        postDsbConfigTypes: (
+            query: {
+                /** @format int32 */
+                flag: number;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/config/types`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Configuration
+         * @name GetDsbConfigTypesDeprecate
+         * @summary Get all document types
+         * @request GET:/api/dsb/config/types/
+         */
+        getDsbConfigTypesDeprecate: (
+            query: {
+                /** @format int32 */
+                flag: number;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/config/types/`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Configuration
+         * @name PostDsbConfigTypesDeprecate
+         * @summary Get all document types
+         * @request POST:/api/dsb/config/types/
+         */
+        postDsbConfigTypesDeprecate: (
+            query: {
+                /** @format int32 */
+                flag: number;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/config/types/`,
+                method: "POST",
+                query: query,
                 ...params,
             }),
 
@@ -11627,7 +13885,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * @description Get detailed information of an import job by ID
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name GetRegisteredServerImportjobsId
          * @summary Get import job details
          * @request GET:/api/registered-server/importJobs/{id}
@@ -11642,7 +13900,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PutRegisteredServerImportjobsId
          * @summary Update import job of external storage
          * @request PUT:/api/registered-server/importJobs/{id}
@@ -11659,7 +13917,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name GetRegisteredServerContactgroupId
          * @summary Get contact group by id
          * @request GET:/api/registered-server/contactGroup/{id}
@@ -11681,7 +13939,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PutRegisteredServerContactgroupId
          * @request PUT:/api/registered-server/contactGroup/{id}
          */
@@ -11697,7 +13955,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * @description Delete a contact group by ContactGroupId
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name DeleteRegisteredServerContactgroupId
          * @summary Delete contact group by id
          * @request DELETE:/api/registered-server/contactGroup/{id}
@@ -11719,7 +13977,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PatchRegisteredServerContactgroupId
          * @request PATCH:/api/registered-server/contactGroup/{id}
          */
@@ -11735,7 +13993,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name GetRegisteredServerContactgroupIdContactdetailContactdetailid
          * @summary Get contact detail by id
          * @request GET:/api/registered-server/contactGroup/{id}/contactDetail/{contactDetailId}
@@ -11758,7 +14016,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PutRegisteredServerContactgroupIdContactdetailContactdetailid
          * @summary Edit contact record with the specified information
          * @request PUT:/api/registered-server/contactGroup/{id}/contactDetail/{contactDetailId}
@@ -11784,7 +14042,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name DeleteRegisteredServerContactgroupIdContactdetailContactdetailid
          * @summary Delete contact record
          * @request DELETE:/api/registered-server/contactGroup/{id}/contactDetail/{contactDetailId}
@@ -11810,6 +14068,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags NuxeoAdminController
          * @name GetNuxeoAdminVirtualfolderSetting
          * @request GET:/api/nuxeo/admin/virtualfolder/setting
+         * @deprecated
          */
         getNuxeoAdminVirtualfolderSetting: (params: RequestParams = {}) =>
             this.request<ResultListVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -11824,6 +14083,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags NuxeoAdminController
          * @name PutNuxeoAdminVirtualfolderSetting
          * @request PUT:/api/nuxeo/admin/virtualfolder/setting
+         * @deprecated
          */
         putNuxeoAdminVirtualfolderSetting: (data: VirtualFolderSettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
@@ -11840,6 +14100,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags NuxeoAdminController
          * @name GetNuxeoAdminSetting
          * @request GET:/api/nuxeo/admin/setting
+         * @deprecated
          */
         getNuxeoAdminSetting: (systemId: string, params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
@@ -11854,6 +14115,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags NuxeoAdminController
          * @name PutNuxeoAdminSetting
          * @request PUT:/api/nuxeo/admin/setting
+         * @deprecated
          */
         putNuxeoAdminSetting: (data: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
@@ -11870,6 +14132,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags NuxeoAdminController
          * @name GetNuxeoAdminIcon
          * @request GET:/api/nuxeo/admin/icon
+         * @deprecated
          */
         getNuxeoAdminIcon: (
             query: {
@@ -11891,6 +14154,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags NuxeoAdminController
          * @name PutNuxeoAdminIcon
          * @request PUT:/api/nuxeo/admin/icon
+         * @deprecated
          */
         putNuxeoAdminIcon: (
             data: {
@@ -12205,6 +14469,123 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/event/calendars/setting/${id}`,
                 method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags UserDashboardController
+         * @name PutDsbUserDashboards
+         * @summary Update user dashboard
+         * @request PUT:/api/dsb/user-dashboards
+         */
+        putDsbUserDashboards: (data: UserDashboard, params: RequestParams = {}) =>
+            this.request<ResultUserDashboard, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/user-dashboards`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags UserDashboardController
+         * @name PostDsbUserDashboards
+         * @summary Create user dashboard
+         * @request POST:/api/dsb/user-dashboards
+         */
+        postDsbUserDashboards: (data: UserDashboard, params: RequestParams = {}) =>
+            this.request<ResultUserDashboard, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/user-dashboards`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags PluginController
+         * @name GetDsbPlugins
+         * @summary Obtain all dashboard plugin
+         * @request GET:/api/dsb/plugins
+         */
+        getDsbPlugins: (params: RequestParams = {}) =>
+            this.request<ResultListPlugin, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/plugins`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags PluginController
+         * @name PutDsbPlugins
+         * @summary Update plugin
+         * @request PUT:/api/dsb/plugins
+         */
+        putDsbPlugins: (data: Plugin, params: RequestParams = {}) =>
+            this.request<ResultPlugin, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/plugins`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags PluginController
+         * @name PostDsbPlugins
+         * @summary Create Dashboard Plugin
+         * @request POST:/api/dsb/plugins
+         */
+        postDsbPlugins: (data: Plugin, params: RequestParams = {}) =>
+            this.request<ResultPlugin, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/plugins`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags User Management APIs
+         * @name PutUserStatus
+         * @summary Update User State
+         * @request PUT:/api/docpal/user/status
+         */
+        putUserStatus: (data: ActiveUserRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/docpal/user/status`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags User Management APIs
+         * @name PutNuxeoUserStatus
+         * @summary Update User State
+         * @request PUT:/api/nuxeo/user/status
+         */
+        putNuxeoUserStatus: (data: ActiveUserRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/nuxeo/user/status`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
@@ -14657,7 +17038,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * @description Create a new external storage import job
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PostRegisteredServerImportjobs
          * @summary Create new import job of external storage
          * @request POST:/api/registered-server/importJobs
@@ -14674,7 +17055,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * @description Create a new external storage import job
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PostRegisteredServerImportjobsAdd
          * @summary Create new import job of external storage
          * @request POST:/api/registered-server/importJobs/add
@@ -14877,7 +17258,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PostRegisteredServerContactgroup
          * @request POST:/api/registered-server/contactGroup
          */
@@ -14893,7 +17274,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PostRegisteredServerContactgroupIdPermission
          * @request POST:/api/registered-server/contactGroup/{id}/permission
          */
@@ -14917,7 +17298,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PatchRegisteredServerContactgroupIdPermission
          * @request PATCH:/api/registered-server/contactGroup/{id}/permission
          */
@@ -14941,7 +17322,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PostRegisteredServerContactgroupIdNewfields
          * @request POST:/api/registered-server/contactGroup/{id}/newFields
          */
@@ -14965,7 +17346,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PostRegisteredServerContactgroupIdContactdetail
          * @summary Adding a new contact record
          * @request POST:/api/registered-server/contactGroup/{id}/contactDetail
@@ -14990,7 +17371,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PostRegisteredServerContactgroupIdContactdetaillist
          * @summary Get contact detail list include filter and sort by
          * @request POST:/api/registered-server/contactGroup/{id}/contactDetailList
@@ -15015,7 +17396,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PostRegisteredServerContactgroupIdContactdetailPage
          * @summary Page query contact detail list
          * @request POST:/api/registered-server/contactGroup/{id}/contactDetail/page
@@ -15040,7 +17421,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PostRegisteredServerContactgroupIdContactdetailImport
          * @request POST:/api/registered-server/contactGroup/{id}/contactDetail/import
          */
@@ -15061,7 +17442,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PostRegisteredServerContactgroupIdContactdetailExport
          * @summary Export contact record for file type include excel, csv, vcf
          * @request POST:/api/registered-server/contactGroup/{id}/contactDetail/export
@@ -15087,7 +17468,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PostRegisteredServerContactgroupReadTitle
          * @request POST:/api/registered-server/contactGroup/read/title
          */
@@ -15109,7 +17490,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PostRegisteredServerContactgroupPage
          * @request POST:/api/registered-server/contactGroup/page
          */
@@ -17295,7 +19676,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/collection/documents/
          */
         postNuxeoCollectionDocumentsDeprecate: (data: CollectionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultPaginationDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/nuxeo/collection/documents/`,
                 method: "POST",
                 body: data,
@@ -17312,7 +19693,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @request POST:/api/nuxeo/collection/documents
          */
         postNuxeoCollectionDocuments: (data: CollectionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultPaginationDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/nuxeo/collection/documents`,
                 method: "POST",
                 body: data,
@@ -18196,6 +20577,547 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         postEventCalendarsSettingPage: (data: BasePageRequest, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/event/calendars/setting/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbWorkflowSpendTime
+         * @summary Workflow spend time
+         * @request POST:/api/dsb/workflow/spend-time
+         */
+        postDsbWorkflowSpendTime: (data: DashboardWorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringInteger, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/workflow/spend-time`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WorkflowDashboard
+         * @name PostDsbWorkflowProcessListDeprecate
+         * @request POST:/api/dsb/workflow/process/list/
+         */
+        postDsbWorkflowProcessListDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListProcessDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/workflow/process/list/`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WorkflowDashboard
+         * @name PostDsbWorkflowProcessList
+         * @request POST:/api/dsb/workflow/process/list
+         */
+        postDsbWorkflowProcessList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListProcessDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/workflow/process/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WorkflowDashboard
+         * @name PostDsbWorkflowProcessCombineList
+         * @request POST:/api/dsb/workflow/process/combine/list
+         */
+        postDsbWorkflowProcessCombineList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListProcessDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/workflow/process/combine/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WorkflowDashboard
+         * @name PostDsbWorkflowJobList
+         * @request POST:/api/dsb/workflow/job/list
+         */
+        postDsbWorkflowJobList: (data: WorkflowJobRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOWorkflowJobOutlineDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/workflow/job/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WorkflowDashboard
+         * @name PostDsbWorkflowJobListDeprecate
+         * @request POST:/api/dsb/workflow/job/list/
+         */
+        postDsbWorkflowJobListDeprecate: (data: WorkflowJobRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOWorkflowJobOutlineDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/workflow/job/list/`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WorkflowDashboard
+         * @name PostDsbWorkflowJobFilterDataDeprecate
+         * @request POST:/api/dsb/workflow/job/filter-data/
+         */
+        postDsbWorkflowJobFilterDataDeprecate: (data: QueryWorkflowVariablesRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListWorkflowVariableDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/workflow/job/filter-data/`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WorkflowDashboard
+         * @name PostDsbWorkflowJobFilterData
+         * @request POST:/api/dsb/workflow/job/filter-data
+         */
+        postDsbWorkflowJobFilterData: (data: QueryWorkflowVariablesRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListWorkflowVariableDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/workflow/job/filter-data`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbWorkflowActiveList
+         * @summary Workflow active list
+         * @request POST:/api/dsb/workflow/active-list
+         */
+        postDsbWorkflowActiveList: (data: DashboardWorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/workflow/active-list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbWorkflowActivateTaskTrend
+         * @summary Workflow activate task trend
+         * @request POST:/api/dsb/workflow/activate-task-trend
+         */
+        postDsbWorkflowActivateTaskTrend: (data: DashboardWorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultLinkedListDashboardWorkflowResponseDTO, Result | (ResultObject | Result | ResultString)>(
+                {
+                    path: `/api/dsb/workflow/activate-task-trend`,
+                    method: "POST",
+                    body: data,
+                    type: ContentType.Json,
+                    ...params,
+                },
+            ),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbWorkflowActivateTaskSpendTime
+         * @summary Workflow activate task spend time
+         * @request POST:/api/dsb/workflow/activate-task-spend-time
+         */
+        postDsbWorkflowActivateTaskSpendTime: (data: DashboardWorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringDouble, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/workflow/activate-task-spend-time`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags UserDashboardController
+         * @name PostDsbUserDashboardsPage
+         * @summary Pagination search
+         * @request POST:/api/dsb/user-dashboards/page
+         */
+        postDsbUserDashboardsPage: (data: UserDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOUserDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/user-dashboards/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags PluginController
+         * @name PostDsbPluginsPage
+         * @summary Pagination Search
+         * @request POST:/api/dsb/plugins/page
+         */
+        postDsbPluginsPage: (data: PluginRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOPluginResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/plugins/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags OcrStatisticalController
+         * @name PostDsbOcrWorkflowInfo
+         * @summary Query Workflow Info
+         * @request POST:/api/dsb/ocr/workflow-info
+         */
+        postDsbOcrWorkflowInfo: (data: OcrProcessedRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListOcrProcessedDetailDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/ocr/workflow-info`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags OcrStatisticalController
+         * @name PostDsbOcrTransactionLogs
+         * @summary Query OCR Transaction Logs
+         * @request POST:/api/dsb/ocr/transaction-logs
+         */
+        postDsbOcrTransactionLogs: (data: OcrTransactionLogRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOOcrTransactionLogDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/ocr/transaction-logs`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags OcrStatisticalController
+         * @name PostDsbOcrThreshold
+         * @summary Query OCR Threshold
+         * @request POST:/api/dsb/ocr/threshold
+         */
+        postDsbOcrThreshold: (data: OcrThredsholdRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultOcrThresholdDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/ocr/threshold`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags OcrStatisticalController
+         * @name PostDsbOcrScanTypeInfo
+         * @summary Query Scan Type Info
+         * @request POST:/api/dsb/ocr/scan-type-info
+         */
+        postDsbOcrScanTypeInfo: (data: OcrProcessedRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListOcrProcessedDetailDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/ocr/scan-type-info`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags OcrStatisticalController
+         * @name PostDsbOcrDailyWorkflowInfo
+         * @summary Query Daily Workflow Info
+         * @request POST:/api/dsb/ocr/daily-workflow-info
+         */
+        postDsbOcrDailyWorkflowInfo: (data: OcrProcessedRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListOcrProcessedDetailDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/ocr/daily-workflow-info`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags OcrStatisticalController
+         * @name PostDsbOcrDailyScanTypeInfo
+         * @summary Query Daily Scan Type Info
+         * @request POST:/api/dsb/ocr/daily-scan-type-info
+         */
+        postDsbOcrDailyScanTypeInfo: (data: OcrProcessedRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListOcrProcessedDetailDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/ocr/daily-scan-type-info`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbNewWorkflowCountTrend
+         * @summary New workflow count trend
+         * @request POST:/api/dsb/new-workflow/count-trend
+         */
+        postDsbNewWorkflowCountTrend: (data: DashboardWorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultLinkedListDashboardWorkflowResponseDTO, Result | (ResultObject | Result | ResultString)>(
+                {
+                    path: `/api/dsb/new-workflow/count-trend`,
+                    method: "POST",
+                    body: data,
+                    type: ContentType.Json,
+                    ...params,
+                },
+            ),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbNewFilesUsersSizeDtypeMonthlyCumulation
+         * @summary New files of users size by document type by monthly cumulation
+         * @request POST:/api/dsb/new-files/users/size/dtype/monthly-cumulation
+         */
+        postDsbNewFilesUsersSizeDtypeMonthlyCumulation: (data: DashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/new-files/users/size/dtype/monthly-cumulation`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbNewFilesUsersMetaDtypeRange
+         * @summary New files of users metadata by document type by range
+         * @request POST:/api/dsb/new-files/users/meta/dtype/range
+         */
+        postDsbNewFilesUsersMetaDtypeRange: (data: DashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/new-files/users/meta/dtype/range`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbNewFilesUsersCountDtypeMonthlyCumulation
+         * @summary New files of users count by document type by monthly cumulation
+         * @request POST:/api/dsb/new-files/users/count/dtype/monthly-cumulation
+         */
+        postDsbNewFilesUsersCountDtypeMonthlyCumulation: (data: DashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/new-files/users/count/dtype/monthly-cumulation`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbNewFilesUserSizeDtypeMonthlyCumulation
+         * @summary New files of specify user size by document type by monthly cumulation
+         * @request POST:/api/dsb/new-files/user/size/dtype/monthly-cumulation
+         */
+        postDsbNewFilesUserSizeDtypeMonthlyCumulation: (data: DashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/new-files/user/size/dtype/monthly-cumulation`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbNewFilesUserMetaDtypeRange
+         * @summary New files of specify user metadata by document type by range
+         * @request POST:/api/dsb/new-files/user/meta/dtype/range
+         */
+        postDsbNewFilesUserMetaDtypeRange: (data: DashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/new-files/user/meta/dtype/range`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbNewFilesUserDtypeRangeFilterMetadata
+         * @summary New files of user by document type by range filter metadata
+         * @request POST:/api/dsb/new-files/user/dtype/range/filter-metadata
+         */
+        postDsbNewFilesUserDtypeRangeFilterMetadata: (data: DashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/new-files/user/dtype/range/filter-metadata`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbNewFilesUserCountDtypeMonthlyCumulation
+         * @summary New files of specify user count by document type by monthly cumulation
+         * @request POST:/api/dsb/new-files/user/count/dtype/monthly-cumulation
+         */
+        postDsbNewFilesUserCountDtypeMonthlyCumulation: (data: DashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/new-files/user/count/dtype/monthly-cumulation`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbNewFilesSpecifiedUserDtypeRangeFilterMetadata
+         * @summary New files of specify user by document type by range filter metadata
+         * @request POST:/api/dsb/new-files/specified-user/dtype/range/filter-metadata
+         */
+        postDsbNewFilesSpecifiedUserDtypeRangeFilterMetadata: (data: DashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/new-files/specified-user/dtype/range/filter-metadata`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbNewFilesList
+         * @summary New files list
+         * @request POST:/api/dsb/new-files/list
+         */
+        postDsbNewFilesList: (data: DashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/new-files/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbDocumentTypeSizeRange
+         * @summary Query document type size by range
+         * @request POST:/api/dsb/document-type/size/range
+         */
+        postDsbDocumentTypeSizeRange: (data: DateRangeRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/document-type/size/range`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbDocumentTypeSizeMonthlyRangeCumulation
+         * @summary Query document type size by monthly range cumulation
+         * @request POST:/api/dsb/document-type/size/monthly-range-cumulation
+         */
+        postDsbDocumentTypeSizeMonthlyRangeCumulation: (data: DashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/document-type/size/monthly-range-cumulation`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Dashboard
+         * @name PostDsbDocumentTypeCountRange
+         * @summary Query document type count by range
+         * @request POST:/api/dsb/document-type/count/range
+         */
+        postDsbDocumentTypeCountRange: (data: DateRangeRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/document-type/count/range`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -20016,6 +22938,56 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
+         * @tags User Management APIs
+         * @name PostUserPage
+         * @request POST:/api/docpal/user/page
+         */
+        postUserPage: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/docpal/user/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags User Management APIs
+         * @name PostUserBatchActive
+         * @summary Batch update user active status
+         * @request POST:/api/docpal/user/batch/active
+         */
+        postUserBatchActive: (data: UserBatchActiveDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/docpal/user/batch/active`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags User Management APIs
+         * @name PostNuxeoUserBatchActive
+         * @summary Batch update user active status
+         * @request POST:/api/nuxeo/user/batch/active
+         */
+        postNuxeoUserBatchActive: (data: UserBatchActiveDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/nuxeo/user/batch/active`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags DocPalTypeController
          * @name PostTypesMetadataValidateJsonSchema
          * @request POST:/api/docpal/types/metadata/validate/json-schema
@@ -21558,6 +24530,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostConversionSubmitexportrequest
          * @summary Submit Export Request
          * @request POST:/api/docpal/conversion/submitExportRequest
+         * @deprecated
          */
         postConversionSubmitexportrequest: (data: ConversionFileRequestDTO[], params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -21575,6 +24548,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostConversionFormatSubmit
          * @summary Submit Export Request
          * @request POST:/api/docpal/conversion/format/submit
+         * @deprecated
          */
         postConversionFormatSubmit: (data: ConversionFileRequestDTO[], params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -21592,6 +24566,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostConversionDownload
          * @summary Download Files
          * @request POST:/api/docpal/conversion/download
+         * @deprecated
          */
         postConversionDownload: (data: string[], params: RequestParams = {}) =>
             this.request<string[], Result | (ResultObject | Result | ResultString)>({
@@ -21609,6 +24584,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name PostConversionDownloadfile
          * @summary Download Files
          * @request POST:/api/docpal/conversion/downloadFile
+         * @deprecated
          */
         postConversionDownloadfile: (data: string[], params: RequestParams = {}) =>
             this.request<void, Result | (ResultObject | Result | ResultString)>({
@@ -22754,6 +25730,23 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         postAclRolePage: (data: BasePageDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTORoleVO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/docpal/acl/role/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Get role list
+         *
+         * @tags Role Permission Management
+         * @name PostAclRoleList
+         * @summary Role List
+         * @request POST:/api/docpal/acl/role/list
+         */
+        postAclRoleList: (data: BaseQueryConditionDTO[], params: RequestParams = {}) =>
+            this.request<ResultListRoleDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/docpal/acl/role/list`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25464,7 +28457,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * @description Update the status of an import job
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name PatchRegisteredServerImportjobsIdStatus
          * @summary Update import job status
          * @request PATCH:/api/registered-server/importJobs/{id}/status
@@ -25874,6 +28867,21 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags UserDashboardController
+         * @name PatchDsbUserDashboardsIdStatusStatus
+         * @summary Update status through id
+         * @request PATCH:/api/dsb/user-dashboards/{id}/status/{status}
+         */
+        patchDsbUserDashboardsIdStatusStatus: (id: number, status: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/user-dashboards/${id}/status/${status}`,
+                method: "PATCH",
                 ...params,
             }),
 
@@ -26569,7 +29577,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name GetRegisteredServerContactgroupIdUserUseridPermission
          * @summary Get permission of contact group
          * @request GET:/api/registered-server/contactGroup/{id}/user/{userId}/permission
@@ -26588,7 +29596,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name GetRegisteredServerContactgroupList
          * @summary Query all contact group without filter condition
          * @request GET:/api/registered-server/contactGroup/list
@@ -26609,7 +29617,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name GetRegisteredServerContactgroupHistorical
          * @summary Query all historical contact group without filter condition
          * @request GET:/api/registered-server/contactGroup/historical
@@ -26958,9 +29966,9 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags User
+         * @tags User, User Management APIs
          * @name GetNuxeoUserUserid
-         * @summary Get User
+         * @summary Get User information through user-id
          * @request GET:/api/nuxeo/user/{userId}
          */
         getNuxeoUserUserid: (userId: string, params: RequestParams = {}) =>
@@ -27031,7 +30039,22 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags User
+         * @tags User Management APIs
+         * @name GetNuxeoUserKeycloakKeycloakuserid
+         * @summary Get keycloak user through keycloak user id
+         * @request GET:/api/nuxeo/user/keycloak/{keycloakUserId}
+         */
+        getNuxeoUserKeycloakKeycloakuserid: (keycloakUserId: string, params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/nuxeo/user/keycloak/${keycloakUserId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags User, User Management APIs
          * @name GetNuxeoUserGetapplication
          * @summary Get current user information
          * @request GET:/api/nuxeo/user/getApplication
@@ -27427,20 +30450,6 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Configuration (Nuxeo)
-         * @name GetNuxeoMqStreams
-         * @request GET:/api/nuxeo/mq/streams
-         */
-        getNuxeoMqStreams: (params: RequestParams = {}) =>
-            this.request<ResultMapStringMQProperties, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/mq/streams`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Job (Nuxeo)
          * @name GetNuxeoJobWriteaitrainingdata
          * @request GET:/api/nuxeo/job/writeAiTrainingData
@@ -27787,6 +30796,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags NuxeoAdminController
          * @name GetNuxeoAdminVirtualfolderSettingId
          * @request GET:/api/nuxeo/admin/virtualfolder/setting/{id}
+         * @deprecated
          */
         getNuxeoAdminVirtualfolderSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -27801,6 +30811,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags NuxeoAdminController
          * @name DeleteNuxeoAdminVirtualfolderSettingId
          * @request DELETE:/api/nuxeo/admin/virtualfolder/setting/{id}
+         * @deprecated
          */
         deleteNuxeoAdminVirtualfolderSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
@@ -27815,6 +30826,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags NuxeoAdminController
          * @name GetNuxeoAdminSettingLanguage
          * @request GET:/api/nuxeo/admin/setting/language
+         * @deprecated
          */
         getNuxeoAdminSettingLanguage: (params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
@@ -27829,6 +30841,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags NuxeoAdminController
          * @name GetNuxeoAdminSettingSystemId
          * @request GET:/api/nuxeo/admin/setting/{system_id}
+         * @deprecated
          */
         getNuxeoAdminSettingSystemId: (systemId: string, params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
@@ -27843,6 +30856,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @tags NuxeoAdminController
          * @name GetNuxeoAdminIcons
          * @request GET:/api/nuxeo/admin/icons
+         * @deprecated
          */
         getNuxeoAdminIcons: (params: RequestParams = {}) =>
             this.request<ResultListCustomIconDTO, Result | (ResultObject | Result | ResultString)>({
@@ -28191,6 +31205,182 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         getEventCalendarsSettingsIdUsers: (id: string, params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/event/calendars/settings/${id}/users`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WorkflowDashboard
+         * @name GetDsbWorkflowJobStartCreatorListDeprecate
+         * @request GET:/api/dsb/workflow/job/start-creator-list/
+         */
+        getDsbWorkflowJobStartCreatorListDeprecate: (params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/workflow/job/start-creator-list/`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WorkflowDashboard
+         * @name GetDsbWorkflowJobStartCreatorList
+         * @request GET:/api/dsb/workflow/job/start-creator-list
+         */
+        getDsbWorkflowJobStartCreatorList: (params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/workflow/job/start-creator-list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WorkflowDashboard
+         * @name GetDsbWorkflowJobApproverList
+         * @request GET:/api/dsb/workflow/job/approver-list
+         */
+        getDsbWorkflowJobApproverList: (params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/workflow/job/approver-list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WorkflowDashboard
+         * @name GetDsbWorkflowJobApproverListDeprecate
+         * @request GET:/api/dsb/workflow/job/approver-list/
+         */
+        getDsbWorkflowJobApproverListDeprecate: (params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/workflow/job/approver-list/`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags UserDashboardController
+         * @name GetDsbUserDashboardsId
+         * @summary Obtain a dashboard detail
+         * @request GET:/api/dsb/user-dashboards/{id}
+         */
+        getDsbUserDashboardsId: (id: number, params: RequestParams = {}) =>
+            this.request<ResultUserDashboard, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/user-dashboards/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags UserDashboardController
+         * @name DeleteDsbUserDashboardsId
+         * @summary Delete through id
+         * @request DELETE:/api/dsb/user-dashboards/{id}
+         */
+        deleteDsbUserDashboardsId: (id: number, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/user-dashboards/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags PluginController
+         * @name GetDsbPluginsId
+         * @summary Obtain a plugin detail
+         * @request GET:/api/dsb/plugins/{id}
+         */
+        getDsbPluginsId: (id: number, params: RequestParams = {}) =>
+            this.request<ResultPlugin, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/plugins/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags PluginController
+         * @name DeleteDsbPluginsId
+         * @summary Delete plugin through id
+         * @request DELETE:/api/dsb/plugins/{id}
+         */
+        deleteDsbPluginsId: (id: number, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/plugins/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags OcrStatisticalController
+         * @name GetDsbOcrConditions
+         * @summary Query Conditions
+         * @request GET:/api/dsb/ocr/conditions
+         */
+        getDsbOcrConditions: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/ocr/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags OcrStatisticalController
+         * @name GetDsbOcrConditionsDeprecate
+         * @summary Query Conditions
+         * @request GET:/api/dsb/ocr/conditions/
+         */
+        getDsbOcrConditionsDeprecate: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/ocr/conditions/`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AzureOcrController
+         * @name GetDsbAzureOcrSettingDeprecate
+         * @summary Query Azure OCR Setting
+         * @request GET:/api/dsb/azure/ocr/setting/
+         */
+        getDsbAzureOcrSettingDeprecate: (params: RequestParams = {}) =>
+            this.request<ResultAzureOcrSettingDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/azure/ocr/setting/`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AzureOcrController
+         * @name GetDsbAzureOcrSetting
+         * @summary Query Azure OCR Setting
+         * @request GET:/api/dsb/azure/ocr/setting
+         */
+        getDsbAzureOcrSetting: (params: RequestParams = {}) =>
+            this.request<ResultAzureOcrSettingDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dsb/azure/ocr/setting`,
                 method: "GET",
                 ...params,
             }),
@@ -28911,6 +32101,35 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
+         * @tags User Management APIs
+         * @name GetUsers
+         * @request GET:/api/docpal/users
+         */
+        getUsers: (params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/docpal/users`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags User Management APIs
+         * @name GetUserUserid
+         * @summary Get User information through user-id
+         * @request GET:/api/docpal/user/{userId}
+         */
+        getUserUserid: (userId: string, params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/docpal/user/${userId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags DocPalUserController
          * @name GetUserRoles
          * @request GET:/api/docpal/user/roles
@@ -28988,7 +32207,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags DocPalUserController
+         * @tags User Management APIs, DocPalUserController
          * @name GetUserGetapplication
          * @summary Get current user information
          * @request GET:/api/docpal/user/getApplication
@@ -29130,6 +32349,20 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         getSettingWorkflowConditionSetting: (params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/docpal/setting/workflow/condition/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags User Management APIs
+         * @name GetRoles
+         * @request GET:/api/docpal/roles
+         */
+        getRoles: (params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/docpal/roles`,
                 method: "GET",
                 ...params,
             }),
@@ -30008,6 +33241,20 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
+         * @tags User Management APIs
+         * @name GetGroups
+         * @request GET:/api/docpal/groups
+         */
+        getGroups: (params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/docpal/groups`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags FormDesignController
          * @name GetFormDesignIdDetail
          * @summary Retrieve form design
@@ -30165,6 +33412,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetConversionGettemplatefilepath
          * @summary Get Template Path
          * @request GET:/api/docpal/conversion/getTemplateFilePath
+         * @deprecated
          */
         getConversionGettemplatefilepath: (params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
@@ -30180,6 +33428,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetConversionGetsupportedformat
          * @summary Get Supported Formats
          * @request GET:/api/docpal/conversion/getSupportedFormat
+         * @deprecated
          */
         getConversionGetsupportedformat: (params: RequestParams = {}) =>
             this.request<ResultMapStringListObject, Result | (ResultObject | Result | ResultString)>({
@@ -30195,6 +33444,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
          * @name GetConversionGetconversionhistory
          * @summary Get Conversion History
          * @request GET:/api/docpal/conversion/getConversionHistory
+         * @deprecated
          */
         getConversionGetconversionhistory: (
             query: {
@@ -34394,7 +37644,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name DeleteRegisteredServerContactgroupIdFieldsFieldname
          * @request DELETE:/api/registered-server/contactGroup/{id}/fields/{fieldName}
          */
@@ -34416,7 +37666,7 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
         /**
          * No description
          *
-         * @tags Admin Facade API
+         * @tags Document
          * @name DeleteRegisteredServerContactgroupIdContactContactdetailid
          * @summary Physically delete contact records
          * @request DELETE:/api/registered-server/contactGroup/{id}/contact/{contactDetailId}
@@ -35241,6 +38491,13319 @@ export class Client<SecurityDataType extends unknown> extends HttpClient<Securit
                 path: `/api/nuxeo/identity/isCanModified`,
                 method: "PATCH",
                 query: query,
+                ...params,
+            }),
+    };
+    admin = {
+        /**
+         * No description
+         *
+         * @tags Configuration
+         * @name GetAdminNuxeoTypes
+         * @summary Get all document types
+         * @request GET:/admin/nuxeo/types
+         */
+        getAdminNuxeoTypes: (params: RequestParams = {}) =>
+            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/types`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Configuration
+         * @name PostAdminNuxeoTypes
+         * @summary Get all document types
+         * @request POST:/admin/nuxeo/types
+         */
+        postAdminNuxeoTypes: (params: RequestParams = {}) =>
+            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/types`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Collection (Nuxeo)
+         * @name GetAdminNuxeoCollection
+         * @summary Get user visible collections
+         * @request GET:/admin/nuxeo/collection
+         */
+        getAdminNuxeoCollection: (params: RequestParams = {}) =>
+            this.request<ResultPaginationDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/collection`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Collection (Nuxeo)
+         * @name PostAdminNuxeoCollection
+         * @summary Get user visible collections
+         * @request POST:/admin/nuxeo/collection
+         */
+        postAdminNuxeoCollection: (params: RequestParams = {}) =>
+            this.request<ResultPaginationDTODocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/collection`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name GetAdminWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate
+         * @summary Retrieve task candidates by process task definition
+         * @request GET:/admin/docpal/workflow/task/candidatesByTaskDefinitionKey/
+         * @deprecated
+         */
+        getAdminWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate: (
+            query: {
+                taskDefinitionKey: string;
+                processKey: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/task/candidatesByTaskDefinitionKey/`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate
+         * @summary Retrieve task candidates by process task definition
+         * @request POST:/admin/docpal/workflow/task/candidatesByTaskDefinitionKey/
+         * @deprecated
+         */
+        postAdminWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate: (
+            query: {
+                taskDefinitionKey: string;
+                processKey: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/task/candidatesByTaskDefinitionKey/`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name GetAdminWorkflowTaskCandidatesbytaskdefinitionkey
+         * @summary Retrieve task candidates by process task definition
+         * @request GET:/admin/docpal/workflow/task/candidatesByTaskDefinitionKey
+         * @deprecated
+         */
+        getAdminWorkflowTaskCandidatesbytaskdefinitionkey: (
+            query: {
+                taskDefinitionKey: string;
+                processKey: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/task/candidatesByTaskDefinitionKey`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowTaskCandidatesbytaskdefinitionkey
+         * @summary Retrieve task candidates by process task definition
+         * @request POST:/admin/docpal/workflow/task/candidatesByTaskDefinitionKey
+         * @deprecated
+         */
+        postAdminWorkflowTaskCandidatesbytaskdefinitionkey: (
+            query: {
+                taskDefinitionKey: string;
+                processKey: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/task/candidatesByTaskDefinitionKey`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name GetAdminContactgroupIdContactdetaillist
+         * @summary Get contact detail list include filter and sort by
+         * @request GET:/admin/docpal/contactGroup/{id}/contactDetailList
+         * @deprecated
+         */
+        getAdminContactgroupIdContactdetaillist: (id: string, data: any, params: RequestParams = {}) =>
+            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}/contactDetailList`,
+                method: "GET",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostAdminContactgroupIdContactdetaillist
+         * @summary Get contact detail list include filter and sort by
+         * @request POST:/admin/docpal/contactGroup/{id}/contactDetailList
+         * @deprecated
+         */
+        postAdminContactgroupIdContactdetaillist: (id: string, data: any, params: RequestParams = {}) =>
+            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}/contactDetailList`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name GetAdminContactgroupList
+         * @summary Query all contact group without filter condition
+         * @request GET:/admin/docpal/contactGroup/list
+         * @deprecated
+         */
+        getAdminContactgroupList: (
+            query: {
+                requestDTO: ContactGroupRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostAdminContactgroupList
+         * @summary Query all contact group without filter condition
+         * @request POST:/admin/docpal/contactGroup/list
+         * @deprecated
+         */
+        postAdminContactgroupList: (
+            query: {
+                requestDTO: ContactGroupRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/list`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name GetAdminNuxeoAdminVirtualfolderSetting
+         * @request GET:/admin/nuxeo/admin/virtualfolder/setting
+         * @deprecated
+         */
+        getAdminNuxeoAdminVirtualfolderSetting: (params: RequestParams = {}) =>
+            this.request<ResultListVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/virtualfolder/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name PutAdminNuxeoAdminVirtualfolderSetting
+         * @request PUT:/admin/nuxeo/admin/virtualfolder/setting
+         * @deprecated
+         */
+        putAdminNuxeoAdminVirtualfolderSetting: (data: VirtualFolderSettingRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/virtualfolder/setting`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name PostAdminNuxeoAdminVirtualfolderSetting
+         * @request POST:/admin/nuxeo/admin/virtualfolder/setting
+         * @deprecated
+         */
+        postAdminNuxeoAdminVirtualfolderSetting: (data: VirtualFolderSettingRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/virtualfolder/setting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name GetAdminNuxeoAdminSetting
+         * @request GET:/admin/nuxeo/admin/setting
+         * @deprecated
+         */
+        getAdminNuxeoAdminSetting: (systemId: string, params: RequestParams = {}) =>
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name PutAdminNuxeoAdminSetting
+         * @request PUT:/admin/nuxeo/admin/setting
+         * @deprecated
+         */
+        putAdminNuxeoAdminSetting: (systemId: string, data: string, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/setting`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name PostAdminNuxeoAdminSetting
+         * @request POST:/admin/nuxeo/admin/setting
+         * @deprecated
+         */
+        postAdminNuxeoAdminSetting: (data: SystemSetting, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/setting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name GetAdminNuxeoAdminSettingSystemId
+         * @request GET:/admin/nuxeo/admin/setting/{system_id}
+         * @deprecated
+         */
+        getAdminNuxeoAdminSettingSystemId: (systemId: string, params: RequestParams = {}) =>
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/setting/${systemId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name PutAdminNuxeoAdminSettingSystemId
+         * @request PUT:/admin/nuxeo/admin/setting/{system_id}
+         * @deprecated
+         */
+        putAdminNuxeoAdminSettingSystemId: (systemId: string, data: string, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/setting/${systemId}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name GetAdminNuxeoAdminIcon
+         * @request GET:/admin/nuxeo/admin/icon
+         * @deprecated
+         */
+        getAdminNuxeoAdminIcon: (
+            query: {
+                docTypeId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/icon`,
+                method: "GET",
+                query: query,
+                format: "blob",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name PutAdminNuxeoAdminIcon
+         * @request PUT:/admin/nuxeo/admin/icon
+         * @deprecated
+         */
+        putAdminNuxeoAdminIcon: (
+            data: {
+                id: string;
+                image: {
+                    direct?: boolean;
+                    char?: string;
+                    /** @format int32 */
+                    short?: number;
+                    /** @format int32 */
+                    int?: number;
+                    /** @format int64 */
+                    long?: number;
+                    /** @format float */
+                    float?: number;
+                    /** @format double */
+                    double?: number;
+                    readOnly?: boolean;
+                };
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/icon`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Get detailed information of an import job by ID
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetAdminImportjobsId
+         * @summary Get import job details
+         * @request GET:/admin/importJobs/{id}
+         * @deprecated
+         */
+        getAdminImportjobsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/importJobs/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PutAdminImportjobsId
+         * @summary Update import job
+         * @request PUT:/admin/importJobs/{id}
+         * @deprecated
+         */
+        putAdminImportjobsId: (id: string, data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/importJobs/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name DeleteAdminImportjobsId
+         * @summary Delete import job
+         * @request DELETE:/admin/importJobs/{id}
+         * @deprecated
+         */
+        deleteAdminImportjobsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/importJobs/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * @description Retrieve detailed information of a specific external storage
+         *
+         * @tags ExternalStorageController
+         * @name GetAdminExternalstorageId
+         * @summary Get External Storage Detail
+         * @request GET:/admin/externalStorage/{id}
+         * @deprecated
+         */
+        getAdminExternalstorageId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PutAdminExternalstorageId
+         * @summary Update an existing external storage configuration
+         * @request PUT:/admin/externalStorage/{id}
+         * @deprecated
+         */
+        putAdminExternalstorageId: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name DeleteAdminExternalstorageId
+         * @summary Delete External Storage
+         * @request DELETE:/admin/externalStorage/{id}
+         * @deprecated
+         */
+        deleteAdminExternalstorageId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetAdminExternalstorageIdProfilesProfileid
+         * @summary Get a external profile in external storage id
+         * @request GET:/admin/externalStorage/{id}/profiles/{profileId}
+         * @deprecated
+         */
+        getAdminExternalstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/${id}/profiles/${profileId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * @description Update an existing external profile for a specific external storage
+         *
+         * @tags ExternalStorageController
+         * @name PutAdminExternalstorageIdProfilesProfileid
+         * @summary Update a external profile in external storage id
+         * @request PUT:/admin/externalStorage/{id}/profiles/{profileId}
+         * @deprecated
+         */
+        putAdminExternalstorageIdProfilesProfileid: (
+            id: string,
+            profileId: string,
+            data: ExternalProfileDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/${id}/profiles/${profileId}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name DeleteAdminExternalstorageIdProfilesProfileid
+         * @summary Delete a external profile in external storage id
+         * @request DELETE:/admin/externalStorage/{id}/profiles/{profileId}
+         * @deprecated
+         */
+        deleteAdminExternalstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/${id}/profiles/${profileId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name GetAdminEventCalendarsSettingId
+         * @summary Get Event Calendar Setting by ID
+         * @request GET:/admin/event/calendars/setting/{id}
+         * @deprecated
+         */
+        getAdminEventCalendarsSettingId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/event/calendars/setting/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name PutAdminEventCalendarsSettingId
+         * @summary Update Event Calendar Setting
+         * @request PUT:/admin/event/calendars/setting/{id}
+         * @deprecated
+         */
+        putAdminEventCalendarsSettingId: (id: string, data: EventCalendarSetting, params: RequestParams = {}) =>
+            this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/event/calendars/setting/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name DeleteAdminEventCalendarsSettingId
+         * @summary Remove Event Calendar Setting
+         * @request DELETE:/admin/event/calendars/setting/{id}
+         * @deprecated
+         */
+        deleteAdminEventCalendarsSettingId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/event/calendars/setting/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-whats-app-controller
+         * @name PutAdminWhatsappUpdateWhatsappSetting
+         * @request PUT:/admin/docpal/whatsapp/update_whatsapp_setting
+         */
+        putAdminWhatsappUpdateWhatsappSetting: (data: WhatsAppSettingDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/whatsapp/update_whatsapp_setting`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ValidationRuleController
+         * @name GetAdminValidationRulesVersiondraftid
+         * @summary Get validation rule by version:draftId
+         * @request GET:/admin/docpal/validation-rules/{versionDraftId}
+         */
+        getAdminValidationRulesVersiondraftid: (versionDraftId: string, params: RequestParams = {}) =>
+            this.request<ResultValidationRuleResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/validation-rules/${versionDraftId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ValidationRuleController
+         * @name PutAdminValidationRulesVersiondraftid
+         * @summary Update validation rule by version:draftId
+         * @request PUT:/admin/docpal/validation-rules/{versionDraftId}
+         */
+        putAdminValidationRulesVersiondraftid: (
+            versionDraftId: string,
+            data: ValidationRuleRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultValidationRuleResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/validation-rules/${versionDraftId}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags UserSettingController
+         * @name GetAdminUserSetting
+         * @summary Get User Setting
+         * @request GET:/admin/docpal/user/setting
+         * @deprecated
+         */
+        getAdminUserSetting: (params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/user/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags UserSettingController
+         * @name PutAdminUserSetting
+         * @request PUT:/admin/docpal/user/setting
+         * @deprecated
+         */
+        putAdminUserSetting: (data: string, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/user/setting`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags UserSettingController
+         * @name PatchAdminUserSetting
+         * @request PATCH:/admin/docpal/user/setting
+         * @deprecated
+         */
+        patchAdminUserSetting: (data: string, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/user/setting`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags UserSettingController
+         * @name GetAdminUserProfileSetting
+         * @summary Get Global User Profile Setting
+         * @request GET:/admin/docpal/user/profile/setting
+         * @deprecated
+         */
+        getAdminUserProfileSetting: (params: RequestParams = {}) =>
+            this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/user/profile/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags UserSettingController
+         * @name PutAdminUserProfileSetting
+         * @summary Save Global User Profile Setting
+         * @request PUT:/admin/docpal/user/profile/setting
+         * @deprecated
+         */
+        putAdminUserProfileSetting: (data: UserProfileSettingDTO, params: RequestParams = {}) =>
+            this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/user/profile/setting`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags UserSettingController
+         * @name PostAdminUserProfileSetting
+         * @summary Save Global User Profile Setting
+         * @request POST:/admin/docpal/user/profile/setting
+         * @deprecated
+         */
+        postAdminUserProfileSetting: (data: UserProfileSettingDTO, params: RequestParams = {}) =>
+            this.request<ResultUserProfileSettingDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/user/profile/setting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PutAdminTemplateEmailTemplate
+         * @summary Modify (Email Template)
+         * @request PUT:/admin/docpal/template/email/template
+         * @deprecated
+         */
+        putAdminTemplateEmailTemplate: (data: EmailTemplate, params: RequestParams = {}) =>
+            this.request<ResultEmailTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/template`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PostAdminTemplateEmailTemplate
+         * @summary Create Email Template
+         * @request POST:/admin/docpal/template/email/template
+         * @deprecated
+         */
+        postAdminTemplateEmailTemplate: (data: EmailTemplate, params: RequestParams = {}) =>
+            this.request<ResultEmailTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/template`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PutAdminTemplateEmail
+         * @summary Modify (Email Template)
+         * @request PUT:/admin/docpal/template/email
+         * @deprecated
+         */
+        putAdminTemplateEmail: (data: EmailTemplate, params: RequestParams = {}) =>
+            this.request<ResultEmailTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PostAdminTemplateEmail
+         * @summary Create Email Template
+         * @request POST:/admin/docpal/template/email
+         * @deprecated
+         */
+        postAdminTemplateEmail: (data: EmailTemplate, params: RequestParams = {}) =>
+            this.request<ResultEmailTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name DeleteAdminTemplateEmail
+         * @summary Delete email template by id
+         * @request DELETE:/admin/docpal/template/email
+         * @deprecated
+         */
+        deleteAdminTemplateEmail: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PutAdminTemplateEmailLayout
+         * @summary Update (Email Layout)
+         * @request PUT:/admin/docpal/template/email/layout
+         * @deprecated
+         */
+        putAdminTemplateEmailLayout: (data: EmailLayout, params: RequestParams = {}) =>
+            this.request<ResultEmailLayout, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/layout`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PostAdminTemplateEmailLayout
+         * @summary Create (Email Layout)
+         * @request POST:/admin/docpal/template/email/layout
+         * @deprecated
+         */
+        postAdminTemplateEmailLayout: (data: EmailLayout, params: RequestParams = {}) =>
+            this.request<ResultEmailLayout, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/layout`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocumentTemplateController
+         * @name PutAdminTemplateDocument
+         * @summary Update (Document Template)
+         * @request PUT:/admin/docpal/template/document
+         */
+        putAdminTemplateDocument: (data: DocumentTemplateRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultDocumentTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/document`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocumentTemplateController
+         * @name PostAdminTemplateDocument
+         * @summary Create (Document Template)
+         * @request POST:/admin/docpal/template/document
+         */
+        postAdminTemplateDocument: (
+            query: {
+                /** Document Template RequestDTO */
+                requestDTO: DocumentTemplateRequestDTO;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                name?: string;
+                /** @format string */
+                fileType?: string;
+                /** @format string */
+                id?: string;
+                /** @format string */
+                documentId?: string;
+                /** @format map */
+                templateVariable?: map;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultDocumentTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/document`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocumentTemplateController
+         * @name PutAdminTemplateDocumentUpload
+         * @summary Upload File (Document Template)
+         * @request PUT:/admin/docpal/template/document/upload
+         */
+        putAdminTemplateDocumentUpload: (
+            query: {
+                /** Document Template RequestDTO */
+                requestDTO: DocumentTemplateRequestDTO;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                id?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultDocumentTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/document/upload`,
+                method: "PUT",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-system-feature-controller
+         * @name PutAdminSystemfeatureUser
+         * @request PUT:/admin/docpal/systemfeature/user
+         * @deprecated
+         */
+        putAdminSystemfeatureUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/systemfeature/user`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags RetentionPolicyController
+         * @name PutAdminPolicyRetentions
+         * @summary Modify retention policy
+         * @request PUT:/admin/docpal/policy/retentions
+         */
+        putAdminPolicyRetentions: (data: RetentionPolicyRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultRetentionPolicyResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/policy/retentions`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags RetentionPolicyController
+         * @name PostAdminPolicyRetentions
+         * @summary Create a new retention policy
+         * @request POST:/admin/docpal/policy/retentions
+         */
+        postAdminPolicyRetentions: (data: RetentionPolicyRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultRetentionPolicyResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/policy/retentions`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags HoldPolicyController
+         * @name PutAdminPolicyHolds
+         * @summary Update hold policy
+         * @request PUT:/admin/docpal/policy/holds
+         */
+        putAdminPolicyHolds: (data: HoldPolicy, params: RequestParams = {}) =>
+            this.request<ResultHoldPolicy, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/policy/holds`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags HoldPolicyController
+         * @name PostAdminPolicyHolds
+         * @summary Create a new hold policy
+         * @request POST:/admin/docpal/policy/holds
+         */
+        postAdminPolicyHolds: (data: HoldPolicy, params: RequestParams = {}) =>
+            this.request<ResultHoldPolicy, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/policy/holds`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags PersonalDashboardController
+         * @name PutAdminPersonalDashboardUpdate
+         * @request PUT:/admin/docpal/personal/dashboard/update
+         */
+        putAdminPersonalDashboardUpdate: (data: PersonalDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/personal/dashboard/update`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetAdminMasterTables
+         * @summary Get all master tables
+         * @request GET:/admin/docpal/master/tables
+         * @deprecated
+         */
+        getAdminMasterTables: (params: RequestParams = {}) =>
+            this.request<ResultListMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PutAdminMasterTables
+         * @summary Update information (Master Table)
+         * @request PUT:/admin/docpal/master/tables
+         * @deprecated
+         */
+        putAdminMasterTables: (data: MasterTable, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTables
+         * @summary Creation (Master Table)
+         * @request POST:/admin/docpal/master/tables
+         * @deprecated
+         */
+        postAdminMasterTables: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PutAdminMasterTablesIdRecord
+         * @summary update data (master table)
+         * @request PUT:/admin/docpal/master/tables/{id}/record
+         * @deprecated
+         */
+        putAdminMasterTablesIdRecord: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/${id}/record`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name DeleteAdminMasterTablesIdRecord
+         * @summary Delete record
+         * @request DELETE:/admin/docpal/master/tables/{id}/record
+         * @deprecated
+         */
+        deleteAdminMasterTablesIdRecord: (
+            id: string,
+            query: {
+                recordId: string;
+            },
+            data: any,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/${id}/record`,
+                method: "DELETE",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags IdTemplateController
+         * @name GetAdminIdTemplatesId
+         * @summary Get detail of ID template
+         * @request GET:/admin/docpal/id-templates/{id}
+         * @deprecated
+         */
+        getAdminIdTemplatesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultIdTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/id-templates/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags IdTemplateController
+         * @name PutAdminIdTemplatesId
+         * @summary Update ID template
+         * @request PUT:/admin/docpal/id-templates/{id}
+         * @deprecated
+         */
+        putAdminIdTemplatesId: (id: string, data: IdTemplate, params: RequestParams = {}) =>
+            this.request<ResultIdTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/id-templates/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags IdTemplateController
+         * @name DeleteAdminIdTemplatesId
+         * @summary Delete ID template
+         * @request DELETE:/admin/docpal/id-templates/{id}
+         * @deprecated
+         */
+        deleteAdminIdTemplatesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/id-templates/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PutAdminFormDesignDraftidFormresultStatus
+         * @request PUT:/admin/docpal/form/design/{draftId}/formResult/status
+         * @deprecated
+         */
+        putAdminFormDesignDraftidFormresultStatus: (
+            draftId: string,
+            data: EasyFormResult,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/${draftId}/formResult/status`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DAMSettingController
+         * @name PutAdminDamSetting
+         * @request PUT:/admin/docpal/dam/setting
+         * @deprecated
+         */
+        putAdminDamSetting: (data: DAMConversionSettingRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/dam/setting`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name GetAdminContactgroupId
+         * @summary Get contact group by id
+         * @request GET:/admin/docpal/contactGroup/{id}
+         * @deprecated
+         */
+        getAdminContactgroupId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * @description Update contact group with the specified information
+         *
+         * @tags ContactController
+         * @name PutAdminContactgroupId
+         * @summary Update contact group
+         * @request PUT:/admin/docpal/contactGroup/{id}
+         * @deprecated
+         */
+        putAdminContactgroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Delete a contact group by ContactGroupId
+         *
+         * @tags ContactController
+         * @name DeleteAdminContactgroupId
+         * @summary Delete contact group by id
+         * @request DELETE:/admin/docpal/contactGroup/{id}
+         * @deprecated
+         */
+        deleteAdminContactgroupId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * @description Update contact group with the specified information
+         *
+         * @tags ContactController
+         * @name PatchAdminContactgroupId
+         * @summary Reference to update contact group
+         * @request PATCH:/admin/docpal/contactGroup/{id}
+         * @deprecated
+         */
+        patchAdminContactgroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name GetAdminContactgroupIdContactdetailContactdetailid
+         * @summary Get contact detail by id
+         * @request GET:/admin/docpal/contactGroup/{id}/contactDetail/{contactDetailId}
+         * @deprecated
+         */
+        getAdminContactgroupIdContactdetailContactdetailid: (
+            id: string,
+            contactDetailId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}/contactDetail/${contactDetailId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PutAdminContactgroupIdContactdetailContactdetailid
+         * @request PUT:/admin/docpal/contactGroup/{id}/contactDetail/{contactDetailId}
+         * @deprecated
+         */
+        putAdminContactgroupIdContactdetailContactdetailid: (
+            id: string,
+            contactDetailId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}/contactDetail/${contactDetailId}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name DeleteAdminContactgroupIdContactdetailContactdetailid
+         * @summary Delete contact record
+         * @request DELETE:/admin/docpal/contactGroup/{id}/contactDetail/{contactDetailId}
+         * @deprecated
+         */
+        deleteAdminContactgroupIdContactdetailContactdetailid: (
+            id: string,
+            contactDetailId: string,
+            data: any,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}/contactDetail/${contactDetailId}`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PatchAdminContactgroupIdContactdetailContactdetailid
+         * @summary Edit contact record with the specified information
+         * @request PATCH:/admin/docpal/contactGroup/{id}/contactDetail/{contactDetailId}
+         * @deprecated
+         */
+        patchAdminContactgroupIdContactdetailContactdetailid: (
+            id: string,
+            contactDetailId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}/contactDetail/${contactDetailId}`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Profile APIs
+         * @name GetAdminCompanyprofilesCompanyid
+         * @summary Get company details
+         * @request GET:/admin/docpal/companyProfiles/{companyId}
+         * @deprecated
+         */
+        getAdminCompanyprofilesCompanyid: (companyId: string, params: RequestParams = {}) =>
+            this.request<ResultCompany, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/companyProfiles/${companyId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Profile APIs
+         * @name PutAdminCompanyprofilesCompanyid
+         * @summary Update existing company profile
+         * @request PUT:/admin/docpal/companyProfiles/{companyId}
+         * @deprecated
+         */
+        putAdminCompanyprofilesCompanyid: (companyId: string, data: Company, params: RequestParams = {}) =>
+            this.request<ResultCompany, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/companyProfiles/${companyId}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Profile APIs
+         * @name DeleteAdminCompanyprofilesCompanyid
+         * @summary Remove a company profile (logical deletion)
+         * @request DELETE:/admin/docpal/companyProfiles/{companyId}
+         * @deprecated
+         */
+        deleteAdminCompanyprofilesCompanyid: (companyId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/companyProfiles/${companyId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Profile APIs
+         * @name GetAdminCompanyprofilesCompanyidChopsCompanychopid
+         * @summary Retrieve details of a single chop
+         * @request GET:/admin/docpal/companyProfiles/{companyId}/chops/{companyChopId}
+         * @deprecated
+         */
+        getAdminCompanyprofilesCompanyidChopsCompanychopid: (
+            companyId: string,
+            companyChopId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCompanyChop, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/companyProfiles/${companyId}/chops/${companyChopId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Profile APIs
+         * @name PutAdminCompanyprofilesCompanyidChopsCompanychopid
+         * @summary Update existing chop details
+         * @request PUT:/admin/docpal/companyProfiles/{companyId}/chops/{companyChopId}
+         * @deprecated
+         */
+        putAdminCompanyprofilesCompanyidChopsCompanychopid: (
+            companyId: string,
+            companyChopId: string,
+            query: {
+                /** Company Chop (Request) */
+                requestDTO: CompanyChopRequestDTO;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                name?: string;
+                /**
+                 * @format string
+                 * @default "A"
+                 */
+                status?: string;
+                /**
+                 * @format array
+                 * @default "ceo,it"
+                 */
+                roles?: stringArray;
+                /**
+                 * @format array
+                 * @default "admin,test_user"
+                 */
+                users?: stringArray;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCompanyChop, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/companyProfiles/${companyId}/chops/${companyChopId}`,
+                method: "PUT",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Profile APIs
+         * @name DeleteAdminCompanyprofilesCompanyidChopsCompanychopid
+         * @summary Remove a company chop
+         * @request DELETE:/admin/docpal/companyProfiles/{companyId}/chops/{companyChopId}
+         * @deprecated
+         */
+        deleteAdminCompanyprofilesCompanyidChopsCompanychopid: (
+            companyId: string,
+            companyChopId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/companyProfiles/${companyId}/chops/${companyChopId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Profile APIs
+         * @name PutAdminCompanyprofilesCompanyidChopsCompanychopidStatus
+         * @summary Change status of a chop
+         * @request PUT:/admin/docpal/companyProfiles/{companyId}/chops/{companyChopId}/status
+         * @deprecated
+         */
+        putAdminCompanyprofilesCompanyidChopsCompanychopidStatus: (
+            companyId: string,
+            companyChopId: string,
+            data: CompanyChop,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/companyProfiles/${companyId}/chops/${companyChopId}/status`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetAdminCaseTypes
+         * @summary Retrieve all case types
+         * @request GET:/admin/docpal/case/types
+         * @deprecated
+         */
+        getAdminCaseTypes: (
+            query?: {
+                name?: string;
+                deployed?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListCaseType, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PutAdminCaseTypes
+         * @summary Update case type
+         * @request PUT:/admin/docpal/case/types
+         * @deprecated
+         */
+        putAdminCaseTypes: (data: CaseType, params: RequestParams = {}) =>
+            this.request<ResultCaseType, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostAdminCaseTypes
+         * @summary Create a new case type
+         * @request POST:/admin/docpal/case/types
+         * @deprecated
+         */
+        postAdminCaseTypes: (data: CaseType, params: RequestParams = {}) =>
+            this.request<ResultCaseType, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PutAdminCaseTypesEnable
+         * @summary Enable or Disable case type
+         * @request PUT:/admin/docpal/case/types/enable
+         * @deprecated
+         */
+        putAdminCaseTypesEnable: (data: CaseType, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/enable`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name PutAdminCaseDashboard
+         * @summary Update case dashboard
+         * @request PUT:/admin/docpal/case/dashboard
+         */
+        putAdminCaseDashboard: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name PostAdminCaseDashboard
+         * @summary Create a new case dashboard
+         * @request POST:/admin/docpal/case/dashboard
+         */
+        postAdminCaseDashboard: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name PutAdminCaseDashboardStatus
+         * @summary Update status of case dashboard
+         * @request PUT:/admin/docpal/case/dashboard/status
+         */
+        putAdminCaseDashboardStatus: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/status`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name PutAdminCalendars
+         * @summary Update Event Task
+         * @request PUT:/admin/docpal/calendars
+         * @deprecated
+         */
+        putAdminCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
+            this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/calendars`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name PostAdminCalendars
+         * @summary Create a new event task
+         * @request POST:/admin/docpal/calendars
+         * @deprecated
+         */
+        postAdminCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
+            this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/calendars`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-ocr-controller
+         * @name PutAdminAzureOcrUpdateocrsetting
+         * @request PUT:/admin/docpal/azure/ocr/updateOcrSetting
+         */
+        putAdminAzureOcrUpdateocrsetting: (data: AzureOcrSettingDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/azure/ocr/updateOcrSetting`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-ocr-controller
+         * @name PutAdminAzureOcrUpdateocrprofilemapping
+         * @request PUT:/admin/docpal/azure/ocr/updateOcrProfileMapping
+         */
+        putAdminAzureOcrUpdateocrprofilemapping: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/azure/ocr/updateOcrProfileMapping`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-ocr-controller
+         * @name PutAdminAzureOcrUpdateapisetting
+         * @request PUT:/admin/docpal/azure/ocr/updateApiSetting
+         */
+        putAdminAzureOcrUpdateapisetting: (data: AzureOcrApiKeyDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/azure/ocr/updateApiSetting`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Update specified role information
+         *
+         * @tags Role Permission Management
+         * @name PutAdminAclRole
+         * @summary Update Role
+         * @request PUT:/admin/docpal/acl/role
+         */
+        putAdminAclRole: (data: RoleRequest, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/role`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Create a new role
+         *
+         * @tags Role Permission Management
+         * @name PostAdminAclRole
+         * @summary Add Role
+         * @request POST:/admin/docpal/acl/role
+         */
+        postAdminAclRole: (data: RoleRequest, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/role`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description get resource-permission detail by resource-permission.id
+         *
+         * @tags Resource Permission Management
+         * @name GetAdminAclResourcePermissionsId
+         * @summary get resource-permission detail by resource-permission.id
+         * @request GET:/admin/docpal/acl/resource-permissions/{id}
+         */
+        getAdminAclResourcePermissionsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultResourcePermissionVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/resource-permissions/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * @description Update existing resource permission information
+         *
+         * @tags Resource Permission Management
+         * @name PutAdminAclResourcePermissionsId
+         * @summary Update Resource Permission
+         * @request PUT:/admin/docpal/acl/resource-permissions/{id}
+         */
+        putAdminAclResourcePermissionsId: (id: string, data: ResourcePermissionRequest, params: RequestParams = {}) =>
+            this.request<ResultResourcePermissionVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/resource-permissions/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description unbind permission from resource by resource-permission.id
+         *
+         * @tags Resource Permission Management
+         * @name DeleteAdminAclResourcePermissionsId
+         * @summary unbind permission from resource
+         * @request DELETE:/admin/docpal/acl/resource-permissions/{id}
+         */
+        deleteAdminAclResourcePermissionsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/resource-permissions/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * @description Update the permission level and permission ID list of a resource permission
+         *
+         * @tags Resource Permission Management
+         * @name PutAdminAclResourcePermissionsLevelId
+         * @summary Update Permission Level
+         * @request PUT:/admin/docpal/acl/resource-permissions/level/{id}
+         */
+        putAdminAclResourcePermissionsLevelId: (
+            id: string,
+            query: {
+                /**
+                 * Permission Level (1=Read 2=Read/Write 3=Manage 4=Custom 5=Config Set)
+                 * @format int32
+                 */
+                permissionLevel: number;
+                /** Permission ID list (used when permissionLevel=4/5) */
+                permissionIds?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultResourcePermissionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/resource-permissions/level/${id}`,
+                method: "PUT",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name PostAdminPasswordSaveConfig
+         * @request POST:/admin/password/save-config
+         */
+        postAdminPasswordSaveConfig: (data: PasswordConfigDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/password/save-config`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags External Share
+         * @name PostAdminNuxeoSharePage
+         * @request POST:/admin/nuxeo/share/page
+         */
+        postAdminNuxeoSharePage: (data: SharePageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/share/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags External Share
+         * @name PostAdminNuxeoShareGet
+         * @request POST:/admin/nuxeo/share/get
+         */
+        postAdminNuxeoShareGet: (data: SharePageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/share/get`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SmartFolderController
+         * @name PostAdminNuxeoSfolderPage
+         * @summary Pagination Search (Smart Folder)
+         * @request POST:/admin/nuxeo/sfolder/page
+         * @deprecated
+         */
+        postAdminNuxeoSfolderPage: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/sfolder/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Versioning Controller
+         * @name PostAdminNuxeoRestoreversionDeprecate
+         * @summary Restores a document to the input version document
+         * @request POST:/admin/nuxeo/restoreVersion/
+         */
+        postAdminNuxeoRestoreversionDeprecate: (data: VersioningRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/restoreVersion/`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Versioning Controller
+         * @name PostAdminNuxeoRestoreversion
+         * @summary Restores a document to the input version document
+         * @request POST:/admin/nuxeo/restoreVersion
+         */
+        postAdminNuxeoRestoreversion: (data: VersioningRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/restoreVersion`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityUsers
+         * @summary List users
+         * @request POST:/admin/nuxeo/identity/users
+         */
+        postAdminNuxeoIdentityUsers: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/users`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityUsersBatchDelete
+         * @summary Batch delete users
+         * @request POST:/admin/nuxeo/identity/users/batch/delete
+         */
+        postAdminNuxeoIdentityUsersBatchDelete: (data: BatchDeleteUserDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/users/batch/delete`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityUsersBatchAddGroups
+         * @summary Batch add groups to users
+         * @request POST:/admin/nuxeo/identity/users/batch/add/groups
+         */
+        postAdminNuxeoIdentityUsersBatchAddGroups: (data: BatchAddUsersToGroupsDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/users/batch/add/groups`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityUser
+         * @request POST:/admin/nuxeo/identity/user
+         */
+        postAdminNuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/user`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name DeleteAdminNuxeoIdentityUser
+         * @request DELETE:/admin/nuxeo/identity/user
+         */
+        deleteAdminNuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/user`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PatchAdminNuxeoIdentityUser
+         * @summary Update User
+         * @request PATCH:/admin/nuxeo/identity/user
+         */
+        patchAdminNuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/user`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityUserBatchRemoveGroups
+         * @summary Batch remove groups from user
+         * @request POST:/admin/nuxeo/identity/user/batch/remove/groups
+         */
+        postAdminNuxeoIdentityUserBatchRemoveGroups: (data: UserBatchAddGroupsDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/user/batch/remove/groups`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityUserBatchAddGroups
+         * @summary Batch add groups to user
+         * @request POST:/admin/nuxeo/identity/user/batch/add/groups
+         */
+        postAdminNuxeoIdentityUserBatchAddGroups: (data: UserBatchAddGroupsDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/user/batch/add/groups`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityMembership
+         * @request POST:/admin/nuxeo/identity/membership
+         */
+        postAdminNuxeoIdentityMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/membership`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name DeleteAdminNuxeoIdentityMembership
+         * @summary Remove user from group
+         * @request DELETE:/admin/nuxeo/identity/membership
+         */
+        deleteAdminNuxeoIdentityMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultIdentityRequestDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/membership`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityMember
+         * @request POST:/admin/nuxeo/identity/member
+         */
+        postAdminNuxeoIdentityMember: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/member`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityMembergroup
+         * @request POST:/admin/nuxeo/identity/memberGroup
+         */
+        postAdminNuxeoIdentityMembergroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/memberGroup`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityGroups
+         * @request POST:/admin/nuxeo/identity/groups
+         */
+        postAdminNuxeoIdentityGroups: (params: RequestParams = {}) =>
+            this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/groups`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityGroupsActive
+         * @request POST:/admin/nuxeo/identity/groups/active
+         */
+        postAdminNuxeoIdentityGroupsActive: (params: RequestParams = {}) =>
+            this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/groups/active`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityGroup
+         * @request POST:/admin/nuxeo/identity/group
+         */
+        postAdminNuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/group`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name DeleteAdminNuxeoIdentityGroup
+         * @request DELETE:/admin/nuxeo/identity/group
+         */
+        deleteAdminNuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/group`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PatchAdminNuxeoIdentityGroup
+         * @summary Update group
+         * @request PATCH:/admin/nuxeo/identity/group
+         */
+        patchAdminNuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/group`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityGroupBatchRemoveUsers
+         * @summary Batch remove users from group
+         * @request POST:/admin/nuxeo/identity/group/batch/remove/users
+         */
+        postAdminNuxeoIdentityGroupBatchRemoveUsers: (data: GroupBatchAddUsersDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/group/batch/remove/users`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityGroupBatchAddUsers
+         * @summary Batch add users to group
+         * @request POST:/admin/nuxeo/identity/group/batch/add/users
+         */
+        postAdminNuxeoIdentityGroupBatchAddUsers: (data: GroupBatchAddUsersDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/group/batch/add/users`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityGetlicenseusernumandactivecount
+         * @request POST:/admin/nuxeo/identity/getLicenseUserNumAndActiveCount
+         */
+        postAdminNuxeoIdentityGetlicenseusernumandactivecount: (params: RequestParams = {}) =>
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/getLicenseUserNumAndActiveCount`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityGetkeycloakallusers
+         * @summary Find all active user list
+         * @request POST:/admin/nuxeo/identity/getKeyCloakAllUsers
+         */
+        postAdminNuxeoIdentityGetkeycloakallusers: (params: RequestParams = {}) =>
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/getKeyCloakAllUsers`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityGetallusers
+         * @request POST:/admin/nuxeo/identity/getAllUsers
+         */
+        postAdminNuxeoIdentityGetallusers: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/getAllUsers`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityUserPage
+         * @request POST:/admin/nuxeo/identity/user/page
+         */
+        postAdminNuxeoIdentityUserPage: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/user/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityCopyusers
+         * @request POST:/admin/nuxeo/identity/copyUsers
+         */
+        postAdminNuxeoIdentityCopyusers: (params: RequestParams = {}) =>
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/copyUsers`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Versioning Controller
+         * @name PostAdminNuxeoGetversions
+         * @summary Get All Versions by Document ID or Path
+         * @request POST:/admin/nuxeo/getVersions
+         */
+        postAdminNuxeoGetversions: (data: VersioningRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringInstant, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/getVersions`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Versioning Controller
+         * @name PostAdminNuxeoGetversionsDeprecate
+         * @summary Get All Versions by Document ID or Path
+         * @request POST:/admin/nuxeo/getVersions/
+         */
+        postAdminNuxeoGetversionsDeprecate: (data: VersioningRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringInstant, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/getVersions/`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Versioning Controller
+         * @name PostAdminNuxeoGetversionnum
+         * @summary Get Version Number by Document ID or Path
+         * @request POST:/admin/nuxeo/getVersionNum
+         */
+        postAdminNuxeoGetversionnum: (data: VersioningRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/getVersionNum`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Versioning Controller
+         * @name PostAdminNuxeoGetspecificversion
+         * @summary Get Specific Version by Document ID/Path and version number
+         * @request POST:/admin/nuxeo/getSpecificVersion
+         */
+        postAdminNuxeoGetspecificversion: (data: VersioningRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/getSpecificVersion`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Versioning Controller
+         * @name PostAdminNuxeoGetlatestversion
+         * @summary Get Latest Version by Document ID or Path
+         * @request POST:/admin/nuxeo/getLatestVersion
+         */
+        postAdminNuxeoGetlatestversion: (data: VersioningRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/getLatestVersion`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name GetAdminNuxeoDocument
+         * @summary Get document information
+         * @request GET:/admin/nuxeo/document
+         */
+        getAdminNuxeoDocument: (
+            query: {
+                idOrPath: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/document`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name PostAdminNuxeoDocument
+         * @summary Get a document
+         * @request POST:/admin/nuxeo/document
+         */
+        postAdminNuxeoDocument: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/document`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name PostAdminNuxeoDocumentQueryauditevent
+         * @request POST:/admin/nuxeo/document/queryAuditEvent
+         */
+        postAdminNuxeoDocumentQueryauditevent: (data: OpenObserveAuditLogSearchRequest, params: RequestParams = {}) =>
+            this.request<
+                ResultPaginationDTOAuditTemplateResponseExtendDTO,
+                Result | (ResultObject | Result | ResultString)
+            >({
+                path: `/admin/nuxeo/document/queryAuditEvent`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name PostAdminNuxeoDocumentPreview
+         * @summary Preview document content
+         * @request POST:/admin/nuxeo/document/preview
+         */
+        postAdminNuxeoDocumentPreview: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/document/preview`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name PostAdminNuxeoDocumentOfficeCreate
+         * @request POST:/admin/nuxeo/document/office/create
+         */
+        postAdminNuxeoDocumentOfficeCreate: (data: OfficeFileCreateDTO, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/document/office/create`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name PostAdminNuxeoDocumentDownload
+         * @summary Download a document file
+         * @request POST:/admin/nuxeo/document/download
+         */
+        postAdminNuxeoDocumentDownload: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/document/download`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name PostAdminNuxeoDocumentCreate
+         * @summary Create a document
+         * @request POST:/admin/nuxeo/document/create
+         */
+        postAdminNuxeoDocumentCreate: (
+            query: {
+                /** Document (Request) */
+                documentRequestDTO: DocumentRequestDTO;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                type?: string;
+                /** @format string */
+                idOrPath?: string;
+                /** @format string */
+                name?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/document/create`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name PostAdminNuxeoDocumentCreatefolders
+         * @summary Create folders
+         * @request POST:/admin/nuxeo/document/createFolders
+         */
+        postAdminNuxeoDocumentCreatefolders: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/document/createFolders`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name PostAdminNuxeoDocumentCreatedocument
+         * @summary Create a document
+         * @request POST:/admin/nuxeo/document/createDocument
+         */
+        postAdminNuxeoDocumentCreatedocument: (
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                ""?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/document/createDocument`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name PostAdminNuxeoDocumentCreateStructure
+         * @request POST:/admin/nuxeo/document/create/structure
+         */
+        postAdminNuxeoDocumentCreateStructure: (data: DocStructureRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultDocStructureResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/document/create/structure`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name PostAdminNuxeoDocumentCollectionsDeprecate
+         * @summary Get collections of a document is in
+         * @request POST:/admin/nuxeo/document/collections/
+         */
+        postAdminNuxeoDocumentCollectionsDeprecate: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/document/collections/`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name PostAdminNuxeoDocumentCollections
+         * @summary Get collections of a document is in
+         * @request POST:/admin/nuxeo/document/collections
+         */
+        postAdminNuxeoDocumentCollections: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/document/collections`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name PostAdminNuxeoDocumentChildrenThumbnailV2
+         * @summary Get children of thumbnail Result
+         * @request POST:/admin/nuxeo/document/children/thumbnail_v2
+         */
+        postAdminNuxeoDocumentChildrenThumbnailV2: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTODocumentThumbnailDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/document/children/thumbnail_v2`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name PostAdminNuxeoDocumentChildrenThumbnail
+         * @summary Get children of thumbnail Result
+         * @request POST:/admin/nuxeo/document/children/thumbnail
+         */
+        postAdminNuxeoDocumentChildrenThumbnail: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTODocumentThumbnailDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/document/children/thumbnail`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name PostAdminNuxeoDocumentBreadcrumb
+         * @summary Get document breadcrumb
+         * @request POST:/admin/nuxeo/document/breadcrumb
+         */
+        postAdminNuxeoDocumentBreadcrumb: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/document/breadcrumb`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name PostAdminNuxeoAdminInitworkflowdefinition
+         * @request POST:/admin/nuxeo/admin/initWorkflowDefinition
+         * @deprecated
+         */
+        postAdminNuxeoAdminInitworkflowdefinition: (params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/initWorkflowDefinition`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name GetAdminNuxeoAdminFeature
+         * @request GET:/admin/nuxeo/admin/feature
+         * @deprecated
+         */
+        getAdminNuxeoAdminFeature: (
+            query: {
+                tenantId: string;
+                terminalName?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringMapStringBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/feature`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name PostAdminNuxeoAdminFeature
+         * @request POST:/admin/nuxeo/admin/feature
+         * @deprecated
+         */
+        postAdminNuxeoAdminFeature: (data: FeatureSaveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringMapStringBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/feature`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name GetAdminNuxeoAdminActiveUsersConfiguration
+         * @summary Query active users configuration
+         * @request GET:/admin/nuxeo/admin/active-users/configuration
+         * @deprecated
+         */
+        getAdminNuxeoAdminActiveUsersConfiguration: (
+            query: {
+                tenantId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultAccountPropertyDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/active-users/configuration`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name PostAdminNuxeoAdminActiveUsersConfiguration
+         * @summary Save active users configuration
+         * @request POST:/admin/nuxeo/admin/active-users/configuration
+         * @deprecated
+         */
+        postAdminNuxeoAdminActiveUsersConfiguration: (data: ActiveUserConfigDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/active-users/configuration`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MessageQueue
+         * @name PostAdminMessageQueueMessageidResubmit
+         * @summary ReInvoke business
+         * @request POST:/admin/message/queue/{messageId}/reSubmit
+         */
+        postAdminMessageQueueMessageidResubmit: (
+            messageId: string,
+            query?: {
+                businessId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/message/queue/${messageId}/reSubmit`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MessageQueue
+         * @name PostAdminMessageQueuePage
+         * @summary The Page of BusinessResultRecord
+         * @request POST:/admin/message/queue/page
+         */
+        postAdminMessageQueuePage: (
+            query: {
+                /** @format int32 */
+                pageNum: number;
+                /** @format int32 */
+                pageSize: number;
+                orderBy: string;
+                isDesc: boolean;
+            },
+            data: BusinessResultRecord,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPageBusinessResultRecord, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/message/queue/page`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostAdminImportjobsPage
+         * @summary Paginated query for import jobs
+         * @request POST:/admin/importJobs/page
+         * @deprecated
+         */
+        postAdminImportjobsPage: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
+            this.request<
+                ResultPaginationDTOExternalStorageImportJobDTO,
+                Result | (ResultObject | Result | ResultString)
+            >({
+                path: `/admin/importJobs/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostAdminImportjobsJobqueueFirst
+         * @summary Place a task in the first queue
+         * @request POST:/admin/importJobs/jobQueue/first
+         * @deprecated
+         */
+        postAdminImportjobsJobqueueFirst: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/importJobs/jobQueue/first`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Save a external storage import job
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostAdminImportjobsAdd
+         * @summary Save import job record
+         * @request POST:/admin/importJobs/add
+         * @deprecated
+         */
+        postAdminImportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/importJobs/add`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetAdminImportjobs
+         * @summary Get all import jobs list
+         * @request GET:/admin/importJobs
+         * @deprecated
+         */
+        getAdminImportjobs: (
+            query: {
+                /** External Storage Import Job Request */
+                requestDTO: ExternalStorageImportJobRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/importJobs`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * @description Save a external storage import job
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostAdminImportjobs
+         * @summary Save import job record
+         * @request POST:/admin/importJobs
+         * @deprecated
+         */
+        postAdminImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/importJobs`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetAdminExternalstorage
+         * @summary Get External Storage Detail List
+         * @request GET:/admin/externalStorage
+         * @deprecated
+         */
+        getAdminExternalstorage: (
+            query: {
+                /** External Storage Request DTO */
+                externalStorageVO: ExternalStorageRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * @description Create a new external storage configuration
+         *
+         * @tags ExternalStorageController
+         * @name PostAdminExternalstorage
+         * @summary Create a new external storage
+         * @request POST:/admin/externalStorage
+         * @deprecated
+         */
+        postAdminExternalstorage: (data: ExternalStorageDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Create a new external profile for a specific external storage
+         *
+         * @tags ExternalStorageController
+         * @name PostAdminExternalstorageIdProfiles
+         * @summary Create a new external profile in external storage id
+         * @request POST:/admin/externalStorage/{id}/profiles
+         * @deprecated
+         */
+        postAdminExternalstorageIdProfiles: (id: string, data: ExternalProfileDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/${id}/profiles`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PostAdminExternalstorageIdProfilesPage
+         * @summary Paging query external storage profiles by external storage id
+         * @request POST:/admin/externalStorage/{id}/profiles/page
+         * @deprecated
+         */
+        postAdminExternalstorageIdProfilesPage: (
+            id: string,
+            data: ExternalProfileRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPaginationDTOExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/${id}/profiles/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PostAdminExternalstorageIdConnectionTest
+         * @summary Testing SMB connection is correct
+         * @request POST:/admin/externalStorage/{id}/connection/test
+         * @deprecated
+         */
+        postAdminExternalstorageIdConnectionTest: (
+            id: string,
+            data: Record<string, string>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/${id}/connection/test`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Create a new external profile output record
+         *
+         * @tags ExternalStorageController
+         * @name PostAdminExternalstorageProfilesProfileidOutputrecord
+         * @summary Create External Profile Output
+         * @request POST:/admin/externalStorage/profiles/{profileId}/outputRecord
+         * @deprecated
+         */
+        postAdminExternalstorageProfilesProfileidOutputrecord: (
+            profileId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/profiles/${profileId}/outputRecord`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetAdminExternalstorageProfilesProfileidOutputrecordOutputrecordid
+         * @request GET:/admin/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @deprecated
+         */
+        getAdminExternalstorageProfilesProfileidOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PostAdminExternalstorageProfilesProfileidOutputrecordOutputrecordid
+         * @summary Duplicate (Copy) a exist External Profile Output
+         * @request POST:/admin/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @deprecated
+         */
+        postAdminExternalstorageProfilesProfileidOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name DeleteAdminExternalstorageProfilesProfileidOutputrecordOutputrecordid
+         * @request DELETE:/admin/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @deprecated
+         */
+        deleteAdminExternalstorageProfilesProfileidOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PatchAdminExternalstorageProfilesProfileidOutputrecordOutputrecordid
+         * @summary Update a external profile output record
+         * @request PATCH:/admin/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @deprecated
+         */
+        patchAdminExternalstorageProfilesProfileidOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PostAdminExternalstoragePage
+         * @summary Paging query External Storage
+         * @request POST:/admin/externalStorage/page
+         * @deprecated
+         */
+        postAdminExternalstoragePage: (data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name PostAdminEventCalendarsSetting
+         * @summary Create Event Calendar Setting
+         * @request POST:/admin/event/calendars/setting
+         * @deprecated
+         */
+        postAdminEventCalendarsSetting: (data: EventCalendarSetting, params: RequestParams = {}) =>
+            this.request<ResultEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/event/calendars/setting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name PostAdminEventCalendarsSettingPage
+         * @summary Paging query Event Calendar Settings
+         * @request POST:/admin/event/calendars/setting/page
+         * @deprecated
+         */
+        postAdminEventCalendarsSettingPage: (data: BasePageRequest, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/event/calendars/setting/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettings
+         * @summary Creation DocPalType
+         * @request POST:/admin/docpalType/settings
+         */
+        postAdminDocpaltypeSettings: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultDocPalTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsPage
+         * @summary Pagination search
+         * @request POST:/admin/docpalType/settings/page
+         */
+        postAdminDocpaltypeSettingsPage: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTODocPalType, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name GetAdminDocpaltypeSettingsNameNameRelated
+         * @summary Query all related docpal type of current docpal type
+         * @request GET:/admin/docpalType/settings/name/{name}/related
+         */
+        getAdminDocpaltypeSettingsNameNameRelated: (name: string, params: RequestParams = {}) =>
+            this.request<ResultListDocPalTypeRelated, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/name/${name}/related`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsNameNameRelated
+         * @summary Create/Bound related docpal type into current docpal type
+         * @request POST:/admin/docpalType/settings/name/{name}/related
+         */
+        postAdminDocpaltypeSettingsNameNameRelated: (
+            name: string,
+            data: DocPalTypeRelated,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultDocPalTypeRelated, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/name/${name}/related`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PatchAdminDocpaltypeSettingsNameNameRelated
+         * @summary Update related docpal type
+         * @request PATCH:/admin/docpalType/settings/name/{name}/related
+         */
+        patchAdminDocpaltypeSettingsNameNameRelated: (
+            name: string,
+            data: DocPalTypeRelated,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultDocPalTypeRelated, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/name/${name}/related`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsMetadataV2Query
+         * @request POST:/admin/docpalType/settings/metadata-v2/query
+         */
+        postAdminDocpaltypeSettingsMetadataV2Query: (data: QueryMetadataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOMetadataResponseVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/metadata-v2/query`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsMetadataV2ExportMetadataCvs
+         * @request POST:/admin/docpalType/settings/metadata-v2/export-metadata-cvs
+         */
+        postAdminDocpaltypeSettingsMetadataV2ExportMetadataCvs: (
+            data: QueryMetadataRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<void, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/metadata-v2/export-metadata-cvs`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsMetadataV2Duplicate
+         * @request POST:/admin/docpalType/settings/metadata-v2/duplicate
+         */
+        postAdminDocpaltypeSettingsMetadataV2Duplicate: (
+            data: MetaDataDefinitionRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/metadata-v2/duplicate`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsMetadataV2Create
+         * @request POST:/admin/docpalType/settings/metadata-v2/create
+         */
+        postAdminDocpaltypeSettingsMetadataV2Create: (data: MetaDataDefinitionRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/metadata-v2/create`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsDocpalTypeV2Update
+         * @request POST:/admin/docpalType/settings/docpal-type-v2/update
+         */
+        postAdminDocpaltypeSettingsDocpalTypeV2Update: (data: DocpalTypeRequestV2DTO, params: RequestParams = {}) =>
+            this.request<ResultDocPalTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/docpal-type-v2/update`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsDocpalTypeV2UpdateMetadataDocpaltypeid
+         * @request POST:/admin/docpalType/settings/docpal-type-v2/update-metadata/{docpalTypeId}
+         */
+        postAdminDocpaltypeSettingsDocpalTypeV2UpdateMetadataDocpaltypeid: (
+            docpalTypeId: string,
+            data: AddMetadataRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/docpal-type-v2/update-metadata/${docpalTypeId}`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsDocpalTypeV2Query
+         * @request POST:/admin/docpalType/settings/docpal-type-v2/query
+         */
+        postAdminDocpaltypeSettingsDocpalTypeV2Query: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTODocumentTypeResponseVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/docpal-type-v2/query`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsDocpalTypeV2MoveMetadata
+         * @request POST:/admin/docpalType/settings/docpal-type-v2/move-metadata
+         */
+        postAdminDocpaltypeSettingsDocpalTypeV2MoveMetadata: (
+            data: MoveMetadataRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/docpal-type-v2/move-metadata`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsDocpalTypeV2MetadataQuery
+         * @request POST:/admin/docpalType/settings/docpal-type-v2/metadata/query
+         */
+        postAdminDocpaltypeSettingsDocpalTypeV2MetadataQuery: (
+            data: QueryMetadataRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultDocpalTypeDetailResponseVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/docpal-type-v2/metadata/query`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsDocpalTypeV2ExportMetadataCvs
+         * @request POST:/admin/docpalType/settings/docpal-type-v2/export-metadata-cvs
+         */
+        postAdminDocpaltypeSettingsDocpalTypeV2ExportMetadataCvs: (
+            data: QueryMetadataRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<void, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/docpal-type-v2/export-metadata-cvs`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsDocpalTypeV2ExportDocpalTypeCvs
+         * @request POST:/admin/docpalType/settings/docpal-type-v2/export-docpal-type-cvs
+         */
+        postAdminDocpaltypeSettingsDocpalTypeV2ExportDocpalTypeCvs: (
+            data: DocPalTypeRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<void, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/docpal-type-v2/export-docpal-type-cvs`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsDocpalTypeV2Duplicate
+         * @request POST:/admin/docpalType/settings/docpal-type-v2/duplicate
+         */
+        postAdminDocpaltypeSettingsDocpalTypeV2Duplicate: (data: DocpalTypeRequestV2DTO, params: RequestParams = {}) =>
+            this.request<ResultDocPalTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/docpal-type-v2/duplicate`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsDocpalTypeV2Create
+         * @request POST:/admin/docpalType/settings/docpal-type-v2/create
+         */
+        postAdminDocpaltypeSettingsDocpalTypeV2Create: (data: DocpalTypeRequestV2DTO, params: RequestParams = {}) =>
+            this.request<ResultDocPalTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/docpal-type-v2/create`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsDocpalTypeV2AddMetadataDocpaltypeid
+         * @request POST:/admin/docpalType/settings/docpal-type-v2/add-metadata/{docpalTypeId}
+         */
+        postAdminDocpaltypeSettingsDocpalTypeV2AddMetadataDocpaltypeid: (
+            docpalTypeId: string,
+            data: AddMetadataRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/docpal-type-v2/add-metadata/${docpalTypeId}`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsCopyName
+         * @summary Copy DocPal Type
+         * @request POST:/admin/docpalType/settings/copy/{name}
+         * @deprecated
+         */
+        postAdminDocpaltypeSettingsCopyName: (name: string, data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/copy/${name}`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsCheckDuplicate
+         * @summary Check duplicate name of docpal type
+         * @request POST:/admin/docpalType/settings/check/duplicate
+         */
+        postAdminDocpaltypeSettingsCheckDuplicate: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/check/duplicate`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsBatchMetadata
+         * @summary Batch add multiple metadata into docpal type
+         * @request POST:/admin/docpalType/settings/batch/metadata
+         * @deprecated
+         */
+        postAdminDocpaltypeSettingsBatchMetadata: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/batch/metadata`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PostAdminDocpaltypeSettingsAddMetadata
+         * @summary Add a new metadata into docpal type
+         * @request POST:/admin/docpalType/settings/add/metadata
+         */
+        postAdminDocpaltypeSettingsAddMetadata: (data: DocPalTypeMetadataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/add/metadata`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Version Controller
+         * @name PostAdminWorkflowVersionVersionidDeploy
+         * @summary Promote to Production - Deploy the current version to production for used it
+         * @request POST:/admin/docpal/workflow/version/{versionId}/deploy
+         * @deprecated
+         */
+        postAdminWorkflowVersionVersionidDeploy: (
+            versionId: string,
+            query: {
+                requestDTO: ProcessDefinitionDraftRequestDTO;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                jsonValue?: stringJson;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/version/${versionId}/deploy`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Version Controller
+         * @name PostAdminWorkflowVersionReplaceDraft
+         * @summary Save to Draft
+         * @request POST:/admin/docpal/workflow/version/replace/draft
+         * @deprecated
+         */
+        postAdminWorkflowVersionReplaceDraft: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/version/replace/draft`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Version Controller
+         * @name PostAdminWorkflowVersionPage
+         * @summary Pagination search of process definition version
+         * @request POST:/admin/docpal/workflow/version/page
+         * @deprecated
+         */
+        postAdminWorkflowVersionPage: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/version/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Version Controller
+         * @name PostAdminWorkflowVersionNew
+         * @summary Save New Version of process definition
+         * @request POST:/admin/docpal/workflow/version/new
+         * @deprecated
+         */
+        postAdminWorkflowVersionNew: (
+            query: {
+                /** Process Definition Version RequestDTO */
+                requestDTO: ProcessVersionRequestDTO;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                draftId?: string;
+                /** @format string */
+                jsonValue?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/version/new`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowUpdatemetadatamapping
+         * @request POST:/admin/docpal/workflow/updateMetadataMapping
+         */
+        postAdminWorkflowUpdatemetadatamapping: (data: DocumentTypeMetadataMapping, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/updateMetadataMapping`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowTasks
+         * @request POST:/admin/docpal/workflow/tasks
+         * @deprecated
+         */
+        postAdminWorkflowTasks: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/tasks`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowTasksUser
+         * @request POST:/admin/docpal/workflow/tasks/user
+         * @deprecated
+         */
+        postAdminWorkflowTasksUser: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/tasks/user`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowTaskUnclaim
+         * @request POST:/admin/docpal/workflow/task/unclaim
+         * @deprecated
+         */
+        postAdminWorkflowTaskUnclaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/task/unclaim`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowTaskMove
+         * @request POST:/admin/docpal/workflow/task/move
+         * @deprecated
+         */
+        postAdminWorkflowTaskMove: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/task/move`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowTaskClaim
+         * @request POST:/admin/docpal/workflow/task/claim
+         * @deprecated
+         */
+        postAdminWorkflowTaskClaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/task/claim`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowSavemetadatamapping
+         * @request POST:/admin/docpal/workflow/saveMetadataMapping
+         */
+        postAdminWorkflowSavemetadatamapping: (data: DocPalDocumentTypeMapping, params: RequestParams = {}) =>
+            this.request<ResultListDocumentTypeMetadataMapping, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/saveMetadataMapping`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowSavedocumenttypeprofile
+         * @request POST:/admin/docpal/workflow/saveDocumentTypeProfile
+         */
+        postAdminWorkflowSavedocumenttypeprofile: (
+            data: DocumentTypeProfileSettingRequest,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultDocumentTypeProfileSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/saveDocumentTypeProfile`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowRetryFailWorkflow
+         * @request POST:/admin/docpal/workflow/retry_fail_workflow
+         * @deprecated
+         */
+        postAdminWorkflowRetryFailWorkflow: (data: WorkflowRetryManagerDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/retry_fail_workflow`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowQueryWorkflowRetryPage
+         * @request POST:/admin/docpal/workflow/query_workflow_retry_page
+         * @deprecated
+         */
+        postAdminWorkflowQueryWorkflowRetryPage: (data: QueryWorkflowJobRequest, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOWorkflowRetryManagerDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/query_workflow_retry_page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowProperties
+         * @request POST:/admin/docpal/workflow/properties
+         * @deprecated
+         */
+        postAdminWorkflowProperties: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/properties`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowProcessModel
+         * @summary Retrieve process model (BPMN) XML
+         * @request POST:/admin/docpal/workflow/process/model
+         * @deprecated
+         */
+        postAdminWorkflowProcessModel: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/model`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowProcessList
+         * @summary Retrieve process definition
+         * @request POST:/admin/docpal/workflow/process/list
+         * @deprecated
+         */
+        postAdminWorkflowProcessList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListProcessDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowProcessInstance
+         * @request POST:/admin/docpal/workflow/process/instance
+         * @deprecated
+         */
+        postAdminWorkflowProcessInstance: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/instance`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostAdminWorkflowProcessDefinitionValidate
+         * @summary Validate BPMN 2.0 XML file whether process definition grammatical
+         * @request POST:/admin/docpal/workflow/process/definition/validate
+         * @deprecated
+         */
+        postAdminWorkflowProcessDefinitionValidate: (
+            query: {
+                /** @format binary */
+                file: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/validate`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostAdminWorkflowProcessDefinitionUpload
+         * @summary Create new workflow (process definition)
+         * @request POST:/admin/docpal/workflow/process/definition/upload
+         * @deprecated
+         */
+        postAdminWorkflowProcessDefinitionUpload: (
+            query: {
+                requestDTO: ProcessDefinitionDraftRequestDTO;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                draftId?: string;
+                /** @format string */
+                name?: string;
+                /** @format string */
+                key?: string;
+                /** @format boolean */
+                isDraft?: boolean;
+                /**
+                 * @format string
+                 * @default "V1"
+                 */
+                versionId?: string;
+                /** @format string */
+                jsonValue?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/upload`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostAdminWorkflowProcessDefinitionSave
+         * @summary Save workflow of someone version
+         * @request POST:/admin/docpal/workflow/process/definition/save
+         * @deprecated
+         */
+        postAdminWorkflowProcessDefinitionSave: (
+            query: {
+                requestDTO: ProcessDefinitionDraftRequestDTO;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                draftId?: string;
+                /** @format string */
+                name?: string;
+                /** @format string */
+                key?: string;
+                /** @format boolean */
+                isDraft?: boolean;
+                /** @format string */
+                versionId?: string;
+                /** @format string */
+                jsonValue?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/save`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostAdminWorkflowProcessDefinitionParse
+         * @summary Validate BPMN 2.0 XML file whether process definition grammatical
+         * @request POST:/admin/docpal/workflow/process/definition/parse
+         * @deprecated
+         */
+        postAdminWorkflowProcessDefinitionParse: (
+            query: {
+                /** @format binary */
+                file: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/parse`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetAdminWorkflowProcessDefinitionDraftDraftidJson
+         * @summary Get json of process definition
+         * @request GET:/admin/docpal/workflow/process/definition/draft/{draftId}/json
+         * @deprecated
+         */
+        getAdminWorkflowProcessDefinitionDraftDraftidJson: (draftId: string, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/draft/${draftId}/json`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostAdminWorkflowProcessDefinitionDraftDraftidJson
+         * @summary Update json of process definition, please use string json
+         * @request POST:/admin/docpal/workflow/process/definition/draft/{draftId}/json
+         * @deprecated
+         */
+        postAdminWorkflowProcessDefinitionDraftDraftidJson: (
+            draftId: string,
+            data: ProcessDefinitionDraft,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/draft/${draftId}/json`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostAdminWorkflowProcessDefinitionDraftDraftidImport
+         * @summary Import zip file for create new process definition
+         * @request POST:/admin/docpal/workflow/process/definition/draft/{draftId}/import
+         * @deprecated
+         */
+        postAdminWorkflowProcessDefinitionDraftDraftidImport: (
+            draftId: string,
+            query: {
+                /** @format binary */
+                file: File;
+                versionNumber?: string;
+            },
+            data: {
+                /** @format string */
+                draftId?: string;
+                /** @format binary */
+                file?: File;
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/draft/${draftId}/import`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostAdminWorkflowProcessDefinitionDraftDraftidExport
+         * @summary Export process definition
+         * @request POST:/admin/docpal/workflow/process/definition/draft/{draftId}/export
+         * @deprecated
+         */
+        postAdminWorkflowProcessDefinitionDraftDraftidExport: (
+            draftId: string,
+            query?: {
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/draft/${draftId}/export`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostAdminWorkflowProcessDefinitionDraftPage
+         * @summary Pagination search of process definition model
+         * @request POST:/admin/docpal/workflow/process/definition/draft/page
+         * @deprecated
+         */
+        postAdminWorkflowProcessDefinitionDraftPage: (data: ProcessDefinitionRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOProcessDefinitionDraft, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/draft/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostAdminWorkflowProcessDefinitionCopyCopiedkey
+         * @summary Copy workflow (process definition)
+         * @request POST:/admin/docpal/workflow/process/definition/copy/{copiedKey}
+         * @deprecated
+         */
+        postAdminWorkflowProcessDefinitionCopyCopiedkey: (
+            copiedKey: string,
+            data: WorkflowDraftRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/copy/${copiedKey}`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostAdminWorkflowProcessDefinitionCopyFromFlowable
+         * @summary Data Patch API
+         * @request POST:/admin/docpal/workflow/process/definition/copy/from/flowable
+         * @deprecated
+         */
+        postAdminWorkflowProcessDefinitionCopyFromFlowable: (data: string[], params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/copy/from/flowable`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostAdminWorkflowProcessDefinitionActiveDraftid
+         * @request POST:/admin/docpal/workflow/process/definition/active/{draftId}
+         * @deprecated
+         */
+        postAdminWorkflowProcessDefinitionActiveDraftid: (draftId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/active/${draftId}`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowProcessConditionValidate
+         * @request POST:/admin/docpal/workflow/process/condition/validate
+         * @deprecated
+         */
+        postAdminWorkflowProcessConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/condition/validate`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowDeletemetadatamapping
+         * @request POST:/admin/docpal/workflow/deleteMetadataMapping
+         */
+        postAdminWorkflowDeletemetadatamapping: (data: DocumentTypeMetadataMapping, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/deleteMetadataMapping`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name PostAdminWorkflowChecknameortitle
+         * @request POST:/admin/docpal/workflow/checkNameOrTitle
+         */
+        postAdminWorkflowChecknameortitle: (data: Record<string, string>, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/checkNameOrTitle`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-whats-app-controller
+         * @name PostAdminWhatsappOverview
+         * @request POST:/admin/docpal/whatsapp/overview
+         */
+        postAdminWhatsappOverview: (data: BasePageRequest, params: RequestParams = {}) =>
+            this.request<ResultWhatsAppOverviewResponse, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/whatsapp/overview`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-whats-app-controller
+         * @name PostAdminWhatsappFindWhatsappLog
+         * @request POST:/admin/docpal/whatsapp/find_whatsapp_log
+         */
+        postAdminWhatsappFindWhatsappLog: (data: BasePageRequest, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOWhatsAppLogDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/whatsapp/find_whatsapp_log`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Template
+         * @name PostAdminWatermarkTemplates
+         * @summary Create watermark template and watermark setting list
+         * @request POST:/admin/docpal/watermark/templates
+         * @deprecated
+         */
+        postAdminWatermarkTemplates: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/templates`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Template
+         * @name PatchAdminWatermarkTemplates
+         * @summary Modify watermark template and watermark setting list
+         * @request PATCH:/admin/docpal/watermark/templates
+         * @deprecated
+         */
+        patchAdminWatermarkTemplates: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/templates`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Template
+         * @name PostAdminWatermarkTemplatesPage
+         * @summary Watermark template page query
+         * @request POST:/admin/docpal/watermark/templates/page
+         * @deprecated
+         */
+        postAdminWatermarkTemplatesPage: (
+            query: {
+                /** @format int32 */
+                pageNum: number;
+                /** @format int32 */
+                pageSize: number;
+            },
+            data: WMKTemplateRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPageWatermarkSettingsTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/templates/page`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Template
+         * @name PostAdminWatermarkTemplatesAppend
+         * @request POST:/admin/docpal/watermark/templates/append
+         * @deprecated
+         */
+        postAdminWatermarkTemplatesAppend: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/templates/append`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Settings
+         * @name PostAdminWatermarkSettings
+         * @summary create single watermark settings
+         * @request POST:/admin/docpal/watermark/settings
+         * @deprecated
+         */
+        postAdminWatermarkSettings: (data: WatermarkSettingsDTO, params: RequestParams = {}) =>
+            this.request<ResultWatermarkSettingsDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/settings`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Settings
+         * @name PatchAdminWatermarkSettings
+         * @summary update single watermark settings
+         * @request PATCH:/admin/docpal/watermark/settings
+         * @deprecated
+         */
+        patchAdminWatermarkSettings: (data: WatermarkSettingsDTO, params: RequestParams = {}) =>
+            this.request<ResultWatermarkSettingsDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/settings`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ValidationRuleController
+         * @name PostAdminValidationRules
+         * @summary Create validation rule
+         * @request POST:/admin/docpal/validation-rules
+         */
+        postAdminValidationRules: (data: ValidationRuleRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultValidationRuleResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/validation-rules`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PostAdminTemplateEmailPage
+         * @summary Pagination search (Email Template)
+         * @request POST:/admin/docpal/template/email/page
+         * @deprecated
+         */
+        postAdminTemplateEmailPage: (data: EmailTemplateRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOEmailTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PostAdminTemplateEmailTemplatePage
+         * @summary Pagination search (Email Template)
+         * @request POST:/admin/docpal/template/email/template/page
+         * @deprecated
+         */
+        postAdminTemplateEmailTemplatePage: (data: EmailTemplateRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOEmailTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/template/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PostAdminTemplateEmailSend
+         * @summary Send test email using email template
+         * @request POST:/admin/docpal/template/email/send
+         * @deprecated
+         */
+        postAdminTemplateEmailSend: (data: MailSendRequest, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/send`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PostAdminTemplateEmailSendCustomize
+         * @summary Send Customize Email
+         * @request POST:/admin/docpal/template/email/send/customize
+         * @deprecated
+         */
+        postAdminTemplateEmailSendCustomize: (data: MailSendRequest, params: RequestParams = {}) =>
+            this.request<ResultSendEmailResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/send/customize`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name PostAdminTemplateEmailLayoutPage
+         * @summary Pagination search (Email Layout)
+         * @request POST:/admin/docpal/template/email/layout/page
+         * @deprecated
+         */
+        postAdminTemplateEmailLayoutPage: (data: EmailLayoutRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOEmailLayout, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/layout/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocumentTemplateController
+         * @name PostAdminTemplateDocumentParse
+         * @summary Parsing PDF File for get data
+         * @request POST:/admin/docpal/template/document/parse
+         */
+        postAdminTemplateDocumentParse: (
+            query: {
+                /** @format binary */
+                file: File;
+                id?: string;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                id?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/document/parse`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocumentTemplateController
+         * @name PostAdminTemplateDocumentPage
+         * @summary Pagination search (Document Template)
+         * @request POST:/admin/docpal/template/document/page
+         */
+        postAdminTemplateDocumentPage: (data: DocumentTemplateRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTODocumentTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/document/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocumentTemplateController
+         * @name PostAdminTemplateDocumentGenerateFile
+         * @summary Download Test File (Use Document Template)
+         * @request POST:/admin/docpal/template/document/generate/file
+         */
+        postAdminTemplateDocumentGenerateFile: (data: DocumentTemplateRequestDTO, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/document/generate/file`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocumentTemplateController
+         * @name PostAdminTemplateDocumentGeneratePdf
+         * @request POST:/admin/docpal/template/document/generate/PDF
+         */
+        postAdminTemplateDocumentGeneratePdf: (
+            query: {
+                /** Document Template RequestDTO */
+                requestDTO: DocumentTemplateRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/document/generate/PDF`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-system-feature-controller
+         * @name PostAdminSystemfeatureUsersMembers
+         * @request POST:/admin/docpal/systemfeature/users/members
+         * @deprecated
+         */
+        postAdminSystemfeatureUsersMembers: (data: UserDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/systemfeature/users/members`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-system-feature-controller
+         * @name PostAdminSystemfeatureCreateuser
+         * @request POST:/admin/docpal/systemfeature/createUser
+         * @deprecated
+         */
+        postAdminSystemfeatureCreateuser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/systemfeature/createUser`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name PostAdminRelationUpdatelanguage
+         * @request POST:/admin/docpal/relation/updateLanguage
+         * @deprecated
+         */
+        postAdminRelationUpdatelanguage: (data: LanguageEntity, params: RequestParams = {}) =>
+            this.request<ResultLanguageEntity, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/updateLanguage`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name PostAdminRelationSave
+         * @request POST:/admin/docpal/relation/save
+         * @deprecated
+         */
+        postAdminRelationSave: (data: FormPropertiesRelation, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/save`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name PostAdminRelationErrorenumSave
+         * @request POST:/admin/docpal/relation/errorEnum/save
+         * @deprecated
+         */
+        postAdminRelationErrorenumSave: (data: ErrorEnumEntityDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/errorEnum/save`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name PostAdminRelationTasksQuerybyentityDeprecate
+         * @request POST:/admin/docpal/relation/tasks/queryByEntity/
+         * @deprecated
+         */
+        postAdminRelationTasksQuerybyentityDeprecate: (data: ErrorEnumEntityDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/tasks/queryByEntity/`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name PostAdminRelationErrorenumQuerybyentity
+         * @request POST:/admin/docpal/relation/errorEnum/queryByEntity
+         * @deprecated
+         */
+        postAdminRelationErrorenumQuerybyentity: (data: ErrorEnumEntityDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/errorEnum/queryByEntity`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name PostAdminRelationDeletelanguage
+         * @request POST:/admin/docpal/relation/deleteLanguage
+         * @deprecated
+         */
+        postAdminRelationDeletelanguage: (
+            query: {
+                /** @format int64 */
+                id: number;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/deleteLanguage`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name PostAdminRelationAddlanguage
+         * @request POST:/admin/docpal/relation/addLanguage
+         * @deprecated
+         */
+        postAdminRelationAddlanguage: (data: LanguageEntity, params: RequestParams = {}) =>
+            this.request<ResultLanguageEntity, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/addLanguage`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags RetentionPolicyController
+         * @name PostAdminPolicyRetentionsPage
+         * @summary Pagination search
+         * @request POST:/admin/docpal/policy/retentions/page
+         */
+        postAdminPolicyRetentionsPage: (data: RetentionPolicyRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTORetentionPolicy, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/policy/retentions/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags RetentionPolicyController
+         * @name PostAdminPolicyRetentionsInit
+         * @request POST:/admin/docpal/policy/retentions/init
+         */
+        postAdminPolicyRetentionsInit: (params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/policy/retentions/init`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags HoldPolicyController
+         * @name PostAdminPolicyHoldsPage
+         * @summary Pagination search
+         * @request POST:/admin/docpal/policy/holds/page
+         */
+        postAdminPolicyHoldsPage: (data: HoldPolicyRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOHoldPolicy, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/policy/holds/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags HoldPolicyController
+         * @name PostAdminPolicyHoldsInit
+         * @request POST:/admin/docpal/policy/holds/init
+         */
+        postAdminPolicyHoldsInit: (params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/policy/holds/init`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags PersonalDashboardController
+         * @name PostAdminPersonalDashboard
+         * @request POST:/admin/docpal/personal/dashboard
+         */
+        postAdminPersonalDashboard: (data: PersonalDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOPersonalDashboard, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/personal/dashboard`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags PersonalDashboardController
+         * @name PostAdminPersonalDashboardSave
+         * @request POST:/admin/docpal/personal/dashboard/save
+         */
+        postAdminPersonalDashboardSave: (data: PersonalDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPersonalDashboard, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/personal/dashboard/save`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags OAuth2SettingController
+         * @name GetAdminOauth2Setting
+         * @summary Query mail OAuth2.0 Setting of current login user
+         * @request GET:/admin/docpal/oauth2/setting
+         * @deprecated
+         */
+        getAdminOauth2Setting: (params: RequestParams = {}) =>
+            this.request<ResultOAuth2SettingRequestDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/oauth2/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags OAuth2SettingController
+         * @name PostAdminOauth2Setting
+         * @summary Obtain authorization url of OAuth2.0
+         * @request POST:/admin/docpal/oauth2/setting
+         * @deprecated
+         */
+        postAdminOauth2Setting: (data: OAuth2SettingRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/oauth2/setting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags OAuth2SettingController
+         * @name PostAdminOauth2Refresh
+         * @summary Refresh the credential of OAuth2.0
+         * @request POST:/admin/docpal/oauth2/refresh
+         * @deprecated
+         */
+        postAdminOauth2Refresh: (data: OAuth2SettingRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/oauth2/refresh`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags OAuth2SettingController
+         * @name GetAdminOauth2Code
+         * @request GET:/admin/docpal/oauth2/code
+         * @deprecated
+         */
+        getAdminOauth2Code: (
+            query: {
+                code: string;
+                scope: string;
+                state: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/oauth2/code`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags OAuth2SettingController
+         * @name PostAdminOauth2Code
+         * @summary Get the credential of OAuth2.0 by code and state
+         * @request POST:/admin/docpal/oauth2/code
+         * @deprecated
+         */
+        postAdminOauth2Code: (data: OAuth2SettingRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/oauth2/code`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MetadataSchemaController
+         * @name PostAdminMetadata
+         * @summary Save metadata
+         * @request POST:/admin/docpal/metadata
+         */
+        postAdminMetadata: (data: GrpcMetadataResp, params: RequestParams = {}) =>
+            this.request<ResultGrpcMetadataResp, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/metadata`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MetadataSchemaController
+         * @name PostAdminMetadataSubnotification
+         * @request POST:/admin/docpal/metadata/subNotification
+         */
+        postAdminMetadataSubnotification: (data: SubNotificationRequest, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/metadata/subNotification`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MetadataSchemaController
+         * @name PostAdminMetadataPage
+         * @request POST:/admin/docpal/metadata/page
+         */
+        postAdminMetadataPage: (data: MetadataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/metadata/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MetadataSchemaController
+         * @name PostAdminMetadataNotification
+         * @request POST:/admin/docpal/metadata/notification
+         */
+        postAdminMetadataNotification: (data: MailSendRequest, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/metadata/notification`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-template-message-controller
+         * @name PostAdminMessageTemplateList
+         * @request POST:/admin/docpal/message/template/list
+         */
+        postAdminMessageTemplateList: (data: MessageTemplateRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOMessageTemplateVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/message/template/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-template-message-controller
+         * @name PostAdminMessageTemplateEdit
+         * @request POST:/admin/docpal/message/template/edit
+         */
+        postAdminMessageTemplateEdit: (data: TemplateMsgManageDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/message/template/edit`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-template-message-controller
+         * @name PostAdminMessageTemplateCreate
+         * @request POST:/admin/docpal/message/template/create
+         */
+        postAdminMessageTemplateCreate: (data: TemplateMsgManageDTO, params: RequestParams = {}) =>
+            this.request<ResultCreateMessageResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/message/template/create`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesIdStructureExport
+         * @summary Export table structure
+         * @request POST:/admin/docpal/master/tables/{id}/structure/export
+         * @deprecated
+         */
+        postAdminMasterTablesIdStructureExport: (
+            id: string,
+            data: any,
+            query?: {
+                /** @default "excel" */
+                format?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/${id}/structure/export`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesIdRecordExport
+         * @summary Export data of a master table
+         * @request POST:/admin/docpal/master/tables/{id}/record/export
+         * @deprecated
+         */
+        postAdminMasterTablesIdRecordExport: (
+            id: string,
+            query?: {
+                operation?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/${id}/record/export`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesIdField
+         * @summary Add single field to master table
+         * @request POST:/admin/docpal/master/tables/{id}/field
+         * @deprecated
+         */
+        postAdminMasterTablesIdField: (id: string, data: MTFieldInfo, params: RequestParams = {}) =>
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/${id}/field`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesStructureImport
+         * @summary Import Excel to create master table
+         * @request POST:/admin/docpal/master/tables/structure/import
+         * @deprecated
+         */
+        postAdminMasterTablesStructureImport: (
+            data: {
+                /** @format binary */
+                file?: File;
+            },
+            query?: {
+                /** @default "excel" */
+                format?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/structure/import`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetAdminMasterTablesRecords
+         * @summary query records with related fields of master table
+         * @request GET:/admin/docpal/master/tables/records
+         * @deprecated
+         */
+        getAdminMasterTablesRecords: (
+            query: {
+                relationTable: string;
+                relationField: string;
+                displayField: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/records`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesRecords
+         * @summary Query all records of master table
+         * @request POST:/admin/docpal/master/tables/records
+         * @deprecated
+         */
+        postAdminMasterTablesRecords: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/records`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesRecord
+         * @summary Insert data into a master table
+         * @request POST:/admin/docpal/master/tables/record
+         * @deprecated
+         */
+        postAdminMasterTablesRecord: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/record`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesRecordPageNonpermission
+         * @request POST:/admin/docpal/master/tables/record/page/nonPermission
+         * @deprecated
+         */
+        postAdminMasterTablesRecordPageNonpermission: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/record/page/nonPermission`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesRecordImport
+         * @summary Upload json for import data into a master table
+         * @request POST:/admin/docpal/master/tables/record/import
+         * @deprecated
+         */
+        postAdminMasterTablesRecordImport: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/record/import`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesRecordImportFile
+         * @summary Upload .csv file for import data into a master table
+         * @request POST:/admin/docpal/master/tables/record/import/file
+         * @deprecated
+         */
+        postAdminMasterTablesRecordImportFile: (
+            query: {
+                /** @format binary */
+                file: File;
+                id: string;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                id?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/record/import/file`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesPage
+         * @summary Pagination search (Master Table)
+         * @request POST:/admin/docpal/master/tables/page
+         * @deprecated
+         */
+        postAdminMasterTablesPage: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesLogs
+         * @summary Pagination Search (Audit Logs of master table)
+         * @request POST:/admin/docpal/master/tables/logs
+         * @deprecated
+         */
+        postAdminMasterTablesLogs: (data: MTAuditLogRequestDTO, params: RequestParams = {}) =>
+            this.request<
+                ResultPaginationDTOAuditTemplateResponseExtendDTO,
+                Result | (ResultObject | Result | ResultString)
+            >({
+                path: `/admin/docpal/master/tables/logs`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesLogsPageConditions
+         * @request POST:/admin/docpal/master/tables/logs/page/conditions
+         * @deprecated
+         */
+        postAdminMasterTablesLogsPageConditions: (data: MTAuditLogRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/logs/page/conditions`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesInit
+         * @request POST:/admin/docpal/master/tables/init
+         * @deprecated
+         */
+        postAdminMasterTablesInit: (params: RequestParams = {}) =>
+            this.request<void, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/init`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesFields
+         * @summary Add multiple fields to master table
+         * @request POST:/admin/docpal/master/tables/fields
+         * @deprecated
+         */
+        postAdminMasterTablesFields: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/fields`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesColumnAdd
+         * @summary For master table adding column
+         * @request POST:/admin/docpal/master/tables/column/add
+         * @deprecated
+         */
+        postAdminMasterTablesColumnAdd: (data: MTAddColumnRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/column/add`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesBatchDelete
+         * @summary delete master table record
+         * @request POST:/admin/docpal/master/tables/batch/delete
+         * @deprecated
+         */
+        postAdminMasterTablesBatchDelete: (data: DeleteMTRecordRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/batch/delete`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesAclsRemove
+         * @summary Remove permission of current master table
+         * @request POST:/admin/docpal/master/tables/acls/remove
+         * @deprecated
+         */
+        postAdminMasterTablesAclsRemove: (data: MTPermissionDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/acls/remove`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesAclsUpdate
+         * @summary Remove permission of current master table
+         * @request POST:/admin/docpal/master/tables/acls/update
+         * @deprecated
+         */
+        postAdminMasterTablesAclsUpdate: (data: MTPermissionDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/acls/update`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesAclsDelete
+         * @summary Delete permission of current master table
+         * @request POST:/admin/docpal/master/tables/acls/delete
+         * @deprecated
+         */
+        postAdminMasterTablesAclsDelete: (data: MTPermissionDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/acls/delete`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PostAdminMasterTablesAclsAdd
+         * @summary Add permission of current master table
+         * @request POST:/admin/docpal/master/tables/acls/add
+         * @deprecated
+         */
+        postAdminMasterTablesAclsAdd: (data: MTPermissionDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/acls/add`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Management
+         * @name GetAdminManagementLoggers
+         * @summary Retrieve the available loggers of the services
+         * @request GET:/admin/docpal/management/loggers
+         */
+        getAdminManagementLoggers: (
+            query?: {
+                service?: string;
+                logger?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/management/loggers`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Management
+         * @name PostAdminManagementLoggers
+         * @summary Change the log level of services' loggers
+         * @request POST:/admin/docpal/management/loggers
+         */
+        postAdminManagementLoggers: (
+            query?: {
+                service?: string;
+                logger?: string;
+                level?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/management/loggers`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Management
+         * @name GetAdminManagementLoggersDeprecate
+         * @summary Retrieve the available loggers of the services
+         * @request GET:/admin/docpal/management/loggers/
+         */
+        getAdminManagementLoggersDeprecate: (
+            query?: {
+                service?: string;
+                logger?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/management/loggers/`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Management
+         * @name PostAdminManagementLoggersDeprecate
+         * @summary Change the log level of services' loggers
+         * @request POST:/admin/docpal/management/loggers/
+         */
+        postAdminManagementLoggersDeprecate: (
+            query?: {
+                service?: string;
+                logger?: string;
+                level?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/management/loggers/`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostAdminInternalsharePage
+         * @request POST:/admin/docpal/internalShare/page
+         */
+        postAdminInternalsharePage: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOInternalShareQueryDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/internalShare/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostAdminInternalshareCheckdocumentisinshare
+         * @request POST:/admin/docpal/internalShare/checkDocumentIsInShare
+         */
+        postAdminInternalshareCheckdocumentisinshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/internalShare/checkDocumentIsInShare`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags IdTemplateController
+         * @name GetAdminIdTemplates
+         * @summary Get all ID templates
+         * @request GET:/admin/docpal/id-templates
+         * @deprecated
+         */
+        getAdminIdTemplates: (params: RequestParams = {}) =>
+            this.request<ResultListIdTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/id-templates`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags IdTemplateController
+         * @name PostAdminIdTemplates
+         * @summary Create a ID template
+         * @request POST:/admin/docpal/id-templates
+         * @deprecated
+         */
+        postAdminIdTemplates: (data: IdTemplate, params: RequestParams = {}) =>
+            this.request<ResultIdTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/id-templates`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags IdTemplateController
+         * @name PostAdminIdTemplatesValidate
+         * @summary Verify id templates
+         * @request POST:/admin/docpal/id-templates/validate
+         * @deprecated
+         */
+        postAdminIdTemplatesValidate: (data: IdTemplate, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/id-templates/validate`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags IdTemplateController
+         * @name PostAdminIdTemplatesPage
+         * @summary Paging query id templates
+         * @request POST:/admin/docpal/id-templates/page
+         * @deprecated
+         */
+        postAdminIdTemplatesPage: (data: IdTemplateRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOIdTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/id-templates/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags IdTemplateController
+         * @name PostAdminIdTemplatesGenerate
+         * @summary Generated ID using id template
+         * @request POST:/admin/docpal/id-templates/generate
+         * @deprecated
+         */
+        postAdminIdTemplatesGenerate: (data: GenerateIdReq, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/id-templates/generate`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-alert-controller
+         * @name PostAdminGenerateXApiKey
+         * @request POST:/admin/docpal/generate_x_api_key
+         */
+        postAdminGenerateXApiKey: (data: GenerateXApiKeyRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/generate_x_api_key`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostAdminFormDesign
+         * @summary Create a form design
+         * @request POST:/admin/docpal/form/design
+         * @deprecated
+         */
+        postAdminFormDesign: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostAdminFormDesignSubmitData
+         * @summary Submit form data
+         * @request POST:/admin/docpal/form/design/submit/data
+         * @deprecated
+         */
+        postAdminFormDesignSubmitData: (
+            query: {
+                /** Form Designer (Request) */
+                formDataDTO: FormDesignDataDTO;
+            },
+            data: {
+                /** @format string */
+                id?: string;
+                /** @format map */
+                data?: map;
+                /** @format string */
+                bizNo?: string;
+                /** @format string */
+                bizType?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/submit/data`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostAdminFormDesignSendEmail
+         * @request POST:/admin/docpal/form/design/send_email
+         * @deprecated
+         */
+        postAdminFormDesignSendEmail: (data: EasyFormEmailDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/send_email`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostAdminFormDesignSavePreview
+         * @summary Save preview style
+         * @request POST:/admin/docpal/form/design/save/preview
+         * @deprecated
+         */
+        postAdminFormDesignSavePreview: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/save/preview`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostAdminFormDesignSavePermission
+         * @summary Save Permission
+         * @request POST:/admin/docpal/form/design/save/permission
+         * @deprecated
+         */
+        postAdminFormDesignSavePermission: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/save/permission`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostAdminFormDesignSaveInformation
+         * @summary Save information
+         * @request POST:/admin/docpal/form/design/save/information
+         * @deprecated
+         */
+        postAdminFormDesignSaveInformation: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/save/information`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostAdminFormDesignSaveFormresult
+         * @summary Save Form Result
+         * @request POST:/admin/docpal/form/design/save/formResult
+         * @deprecated
+         */
+        postAdminFormDesignSaveFormresult: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/save/formResult`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostAdminFormDesignSaveFormresultAppend
+         * @request POST:/admin/docpal/form/design/save/formResult/append
+         * @deprecated
+         */
+        postAdminFormDesignSaveFormresultAppend: (data: EasyFormResultRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultEasyFormResult, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/save/formResult/append`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostAdminFormDesignRecords
+         * @request POST:/admin/docpal/form/design/records
+         * @deprecated
+         */
+        postAdminFormDesignRecords: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListLinkedHashMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/records`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostAdminFormDesignRecordPage
+         * @summary Paging search form data
+         * @request POST:/admin/docpal/form/design/record/page
+         * @deprecated
+         */
+        postAdminFormDesignRecordPage: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/record/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostAdminFormDesignPublish
+         * @summary Publish Form Design
+         * @request POST:/admin/docpal/form/design/publish
+         * @deprecated
+         */
+        postAdminFormDesignPublish: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/publish`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostAdminFormDesignPageEmailLog
+         * @request POST:/admin/docpal/form/design/page_email_log
+         * @deprecated
+         */
+        postAdminFormDesignPageEmailLog: (data: EasyFormEmailQueryRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOEasyFormEmailLogDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/page_email_log`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PostAdminFormDesignPage
+         * @summary Paging Query (form design)
+         * @request POST:/admin/docpal/form/design/page
+         * @deprecated
+         */
+        postAdminFormDesignPage: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-data-statistics-controller
+         * @name PostAdminDataStatisticsExecuteDailyStatistics
+         * @request POST:/admin/docpal/data_statistics/execute_daily_statistics
+         */
+        postAdminDataStatisticsExecuteDailyStatistics: (data: ExecuteSqlDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/data_statistics/execute_daily_statistics`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DAMSettingController
+         * @name PostAdminDamGetallsetting
+         * @request POST:/admin/docpal/dam/getAllSetting
+         * @deprecated
+         */
+        postAdminDamGetallsetting: (params: RequestParams = {}) =>
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/dam/getAllSetting`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DAMSettingController
+         * @name PostAdminDamEditsetting
+         * @request POST:/admin/docpal/dam/editSetting
+         * @deprecated
+         */
+        postAdminDamEditsetting: (data: DAMConversionSettingRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/dam/editSetting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DAMSettingController
+         * @name PostAdminDamDeletesettings
+         * @request POST:/admin/docpal/dam/deleteSettings
+         * @deprecated
+         */
+        postAdminDamDeletesettings: (data: number[], params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/dam/deleteSettings`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Create a new contact group with the specified information
+         *
+         * @tags ContactController
+         * @name PostAdminContactgroup
+         * @summary Create a new contact group
+         * @request POST:/admin/docpal/contactGroup
+         * @deprecated
+         */
+        postAdminContactgroup: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostAdminContactgroupIdPermission
+         * @summary Add the contact permission
+         * @request POST:/admin/docpal/contactGroup/{id}/permission
+         * @deprecated
+         */
+        postAdminContactgroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
+            this.request<ResultListBasicField, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}/permission`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PatchAdminContactgroupIdPermission
+         * @summary Remove the contact permission
+         * @request PATCH:/admin/docpal/contactGroup/{id}/permission
+         * @deprecated
+         */
+        patchAdminContactgroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
+            this.request<ResultListBasicField, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}/permission`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostAdminContactgroupIdNewfields
+         * @summary Add new field to contact Group
+         * @request POST:/admin/docpal/contactGroup/{id}/newFields
+         * @deprecated
+         */
+        postAdminContactgroupIdNewfields: (id: string, data: ContactAttribute, params: RequestParams = {}) =>
+            this.request<ResultListContactAttribute, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}/newFields`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostAdminContactgroupIdContactdetail
+         * @summary Adding a new contact record
+         * @request POST:/admin/docpal/contactGroup/{id}/contactDetail
+         * @deprecated
+         */
+        postAdminContactgroupIdContactdetail: (id: string, data: Record<string, object>, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}/contactDetail`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostAdminContactgroupIdContactdetailPage
+         * @summary Page query contact detail list
+         * @request POST:/admin/docpal/contactGroup/{id}/contactDetail/page
+         * @deprecated
+         */
+        postAdminContactgroupIdContactdetailPage: (id: string, data: ContactRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}/contactDetail/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Import contacts from Excel or CSV file into the specified contact group
+         *
+         * @tags ContactController
+         * @name PostAdminContactgroupIdContactdetailImport
+         * @summary Import contacts from file
+         * @request POST:/admin/docpal/contactGroup/{id}/contactDetail/import
+         * @deprecated
+         */
+        postAdminContactgroupIdContactdetailImport: (
+            id: string,
+            query: {
+                requestDTO: ContactImportRequestDTO;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format Boolean */
+                replace?: replace;
+                /**
+                 * @format object string
+                 * @example {"name":"{{file-customer}}","email":"{{file-email}}","description":"{{file-column}}"}
+                 */
+                columns?: map;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultImportResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}/contactDetail/import`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostAdminContactgroupIdContactdetailExport
+         * @summary Export contact record for file type include excel, csv, vcf
+         * @request POST:/admin/docpal/contactGroup/{id}/contactDetail/export
+         * @deprecated
+         */
+        postAdminContactgroupIdContactdetailExport: (
+            id: string,
+            query: {
+                /** File Type */
+                fileType: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}/contactDetail/export`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostAdminContactgroupReadTitle
+         * @summary Get header list through read the file
+         * @request POST:/admin/docpal/contactGroup/read/title
+         * @deprecated
+         */
+        postAdminContactgroupReadTitle: (
+            data: {
+                /** @format binary */
+                file?: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringInteger, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/read/title`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name PostAdminContactgroupPage
+         * @summary Page query contact group
+         * @request POST:/admin/docpal/contactGroup/page
+         * @deprecated
+         */
+        postAdminContactgroupPage: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOContactGroupResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Profile APIs
+         * @name PostAdminCompanyprofiles
+         * @summary Create a new company profile by filling out required fields
+         * @request POST:/admin/docpal/companyProfiles
+         * @deprecated
+         */
+        postAdminCompanyprofiles: (data: Company, params: RequestParams = {}) =>
+            this.request<ResultCompany, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/companyProfiles`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Profile APIs
+         * @name GetAdminCompanyprofilesCompanyidChops
+         * @summary Retrieve list of all chops in one company
+         * @request GET:/admin/docpal/companyProfiles/{companyId}/chops
+         * @deprecated
+         */
+        getAdminCompanyprofilesCompanyidChops: (
+            companyId: string,
+            query: {
+                /** Company Chop (Request) */
+                requestDTO: CompanyChopRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListCompanyChop, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/companyProfiles/${companyId}/chops`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Profile APIs
+         * @name PostAdminCompanyprofilesCompanyidChops
+         * @summary Create a new company chop
+         * @request POST:/admin/docpal/companyProfiles/{companyId}/chops
+         * @deprecated
+         */
+        postAdminCompanyprofilesCompanyidChops: (
+            companyId: string,
+            query: {
+                /** Company Chop (Request) */
+                requestDTO: CompanyChopRequestDTO;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                name?: string;
+                /**
+                 * @format string
+                 * @default "A"
+                 */
+                status?: string;
+                /**
+                 * @format array
+                 * @default "ceo,it"
+                 */
+                roles?: stringArray;
+                /**
+                 * @format array
+                 * @default "admin,test_user"
+                 */
+                users?: stringArray;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCompanyChop, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/companyProfiles/${companyId}/chops`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Profile APIs
+         * @name PostAdminCompanyprofilesCompanyidChopsPage
+         * @summary Retrieve list of all chops in one company
+         * @request POST:/admin/docpal/companyProfiles/{companyId}/chops/page
+         * @deprecated
+         */
+        postAdminCompanyprofilesCompanyidChopsPage: (
+            companyId: string,
+            data: CompanyChopRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPaginationDTOCompanyChop, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/companyProfiles/${companyId}/chops/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Profile APIs
+         * @name PostAdminCompanyprofilesPage
+         * @summary Paginated query for fetch list of all company Profiles
+         * @request POST:/admin/docpal/companyProfiles/page
+         * @deprecated
+         */
+        postAdminCompanyprofilesPage: (data: CompanyRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOCompany, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/companyProfiles/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostAdminCaseTypesIdPublish
+         * @summary Publish CMMN file to workflow application
+         * @request POST:/admin/docpal/case/types/{id}/publish
+         * @deprecated
+         */
+        postAdminCaseTypesIdPublish: (
+            id: string,
+            data: {
+                /**
+                 * CMMN XML file
+                 * @format binary
+                 */
+                file?: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${id}/publish`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostAdminCaseTypesIdDraftSave
+         * @summary Save draft cmmn xml
+         * @request POST:/admin/docpal/case/types/{id}/draft/save
+         * @deprecated
+         */
+        postAdminCaseTypesIdDraftSave: (
+            id: string,
+            query: {
+                /** @format binary */
+                file: File;
+            },
+            data: {
+                /**
+                 * this is a .xml file
+                 * @format binary
+                 */
+                file?: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCaseModelDraft, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${id}/draft/save`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostAdminCaseTypesIdDraftDownload
+         * @summary Download draft cmmn xml (case model definition)
+         * @request POST:/admin/docpal/case/types/{id}/draft/download
+         * @deprecated
+         */
+        postAdminCaseTypesIdDraftDownload: (id: string, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${id}/draft/download`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostAdminCaseTypesIdDownloadDraft
+         * @summary Download draft cmmn xml (case model definition)
+         * @request POST:/admin/docpal/case/types/{id}/download/draft
+         * @deprecated
+         */
+        postAdminCaseTypesIdDownloadDraft: (id: string, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${id}/download/draft`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostAdminCaseTypesIdCopy
+         * @summary New Case for new case type
+         * @request POST:/admin/docpal/case/types/{id}/copy
+         * @deprecated
+         */
+        postAdminCaseTypesIdCopy: (id: string, data: CopyCaseTypeRequest, params: RequestParams = {}) =>
+            this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${id}/copy`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostAdminCaseTypesVersionVersionidRefresh
+         * @request POST:/admin/docpal/case/types/version/{versionId}/refresh
+         * @deprecated
+         */
+        postAdminCaseTypesVersionVersionidRefresh: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/version/${versionId}/refresh`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostAdminCaseTypesVersionVersionidNew
+         * @summary Create a new version of case type
+         * @request POST:/admin/docpal/case/types/version/{versionId}/new
+         * @deprecated
+         */
+        postAdminCaseTypesVersionVersionidNew: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultCmmnVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/version/${versionId}/new`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostAdminCaseTypesVersionVersionidActive
+         * @summary Deploy a version case type
+         * @request POST:/admin/docpal/case/types/version/{versionId}/active
+         * @deprecated
+         */
+        postAdminCaseTypesVersionVersionidActive: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/version/${versionId}/active`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostAdminCaseTypesVersionPage
+         * @summary Paging query case-model version
+         * @request POST:/admin/docpal/case/types/version/page
+         * @deprecated
+         */
+        postAdminCaseTypesVersionPage: (data: CmmnVersionRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOCmmnVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/version/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostAdminCaseTypesStylejsonSave
+         * @summary Save style json of cmmn xml
+         * @request POST:/admin/docpal/case/types/styleJson/save
+         * @deprecated
+         */
+        postAdminCaseTypesStylejsonSave: (data: CmmnVersionRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCmmnVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/styleJson/save`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostAdminCaseTypesRefresh
+         * @request POST:/admin/docpal/case/types/refresh
+         * @deprecated
+         */
+        postAdminCaseTypesRefresh: (
+            query: {
+                id: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/refresh`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostAdminCaseTypesRecordsList
+         * @summary Get all case instance data of deployed case type without permission
+         * @request POST:/admin/docpal/case/types/records/list
+         * @deprecated
+         */
+        postAdminCaseTypesRecordsList: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListLinkedHashMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/records/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostAdminCaseTypesPage
+         * @summary Pagination search (Case Type)
+         * @request POST:/admin/docpal/case/types/page
+         * @deprecated
+         */
+        postAdminCaseTypesPage: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOCaseType, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PostAdminCaseTypesList
+         * @summary Retrieve case list through the list of case id
+         * @request POST:/admin/docpal/case/types/list
+         * @deprecated
+         */
+        postAdminCaseTypesList: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostAdminCaseTriggerEvent
+         * @summary Trigger event for completed
+         * @request POST:/admin/docpal/case/trigger/event
+         * @deprecated
+         */
+        postAdminCaseTriggerEvent: (data: CmmnTriggerEventReqDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/trigger/event`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name GetAdminCaseTables
+         * @summary Retrieve all case tables
+         * @request GET:/admin/docpal/case/tables
+         * @deprecated
+         */
+        getAdminCaseTables: (params: RequestParams = {}) =>
+            this.request<ResultListCaseTable, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/tables`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name PostAdminCaseTables
+         * @summary Create (Case Table)
+         * @request POST:/admin/docpal/case/tables
+         * @deprecated
+         */
+        postAdminCaseTables: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCaseTable, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/tables`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name PostAdminCaseTablesIdField
+         * @summary Add single field to Case Table
+         * @request POST:/admin/docpal/case/tables/{id}/field
+         * @deprecated
+         */
+        postAdminCaseTablesIdField: (id: string, data: MTFieldInfo, params: RequestParams = {}) =>
+            this.request<ResultCaseTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/tables/${id}/field`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name DeleteAdminCaseTablesIdField
+         * @summary Delete field when not data (Case Table)
+         * @request DELETE:/admin/docpal/case/tables/{id}/field
+         * @deprecated
+         */
+        deleteAdminCaseTablesIdField: (
+            id: string,
+            query: {
+                columnName: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/tables/${id}/field`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name PostAdminCaseTablesRecord
+         * @summary Insert data into a Case Table
+         * @request POST:/admin/docpal/case/tables/record
+         * @deprecated
+         */
+        postAdminCaseTablesRecord: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/tables/record`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name PostAdminCaseTablesRecordPage
+         * @summary Pagination Search (Case Table Record)
+         * @request POST:/admin/docpal/case/tables/record/page
+         * @deprecated
+         */
+        postAdminCaseTablesRecordPage: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/tables/record/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostAdminCaseInstanceTasks
+         * @summary Retrieve all tasks of this case instance
+         * @request POST:/admin/docpal/case/instance/tasks
+         * @deprecated
+         */
+        postAdminCaseInstanceTasks: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
+            this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/instance/tasks`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostAdminCaseInstanceTasksComplete
+         * @summary Complete task
+         * @request POST:/admin/docpal/case/instance/tasks/complete
+         * @deprecated
+         */
+        postAdminCaseInstanceTasksComplete: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/instance/tasks/complete`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostAdminCaseInstanceStart
+         * @summary Start a case model definition to get a case instance
+         * @request POST:/admin/docpal/case/instance/start
+         * @deprecated
+         */
+        postAdminCaseInstanceStart: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/instance/start`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostAdminCaseInstancePlanitems
+         * @summary Retrieve all or activated planItem instances of this case instance
+         * @request POST:/admin/docpal/case/instance/planItems
+         * @deprecated
+         */
+        postAdminCaseInstancePlanitems: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/instance/planItems`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostAdminCaseInstancePlanitemsPlanitemidEnable
+         * @summary Enable plan item instance
+         * @request POST:/admin/docpal/case/instance/planItems/{planItemId}/enable
+         * @deprecated
+         */
+        postAdminCaseInstancePlanitemsPlanitemidEnable: (planItemId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/instance/planItems/${planItemId}/enable`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name PostAdminCaseInstancePlanitemsComplete
+         * @summary Complete PlanItem instance
+         * @request POST:/admin/docpal/case/instance/planItems/complete
+         * @deprecated
+         */
+        postAdminCaseInstancePlanitemsComplete: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/instance/planItems/complete`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name PostAdminCaseDashboardSaveStyle
+         * @summary Save dashboard Json
+         * @request POST:/admin/docpal/case/dashboard/save/style
+         */
+        postAdminCaseDashboardSaveStyle: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCmmnDashboard, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/save/style`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name PostAdminCaseDashboardPage
+         * @summary Pagination search (Case Dashboard)
+         * @request POST:/admin/docpal/case/dashboard/page
+         */
+        postAdminCaseDashboardPage: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name PostAdminCaseDashboardInstanceCaseidProcessInstanceTasks
+         * @summary Query sub-process tasks of this case instance
+         * @request POST:/admin/docpal/case/dashboard/instance/{caseId}/process/instance/tasks
+         */
+        postAdminCaseDashboardInstanceCaseidProcessInstanceTasks: (
+            caseId: string,
+            data: CmmnProcessRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPaginationDTOTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/instance/${caseId}/process/instance/tasks`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name PostAdminCaseDashboardInstanceCaseidProcessInstancePage
+         * @summary Pagination Search process instance of this case instance
+         * @request POST:/admin/docpal/case/dashboard/instance/{caseId}/process/instance/page
+         */
+        postAdminCaseDashboardInstanceCaseidProcessInstancePage: (
+            caseId: string,
+            data: CmmnDashboardRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPaginationDTOCmmnProcessInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/instance/${caseId}/process/instance/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name PostAdminCaseDashboardDatapatchRolepermission
+         * @request POST:/admin/docpal/case/dashboard/dataPatch/rolePermission
+         */
+        postAdminCaseDashboardDatapatchRolepermission: (params: RequestParams = {}) =>
+            this.request<void, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/dataPatch/rolePermission`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name GetAdminCalendarsWidgetSetting
+         * @summary Obtain calendar widget settings
+         * @request GET:/admin/docpal/calendars/widget/setting
+         * @deprecated
+         */
+        getAdminCalendarsWidgetSetting: (params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/calendars/widget/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name PostAdminCalendarsWidgetSetting
+         * @summary Save calendar settings
+         * @request POST:/admin/docpal/calendars/widget/setting
+         * @deprecated
+         */
+        postAdminCalendarsWidgetSetting: (data: Record<string, object>, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/calendars/widget/setting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name GetAdminCalendarsSetting
+         * @summary Obtain calendar settings
+         * @request GET:/admin/docpal/calendars/setting
+         * @deprecated
+         */
+        getAdminCalendarsSetting: (params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/calendars/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name PostAdminCalendarsSetting
+         * @summary Save calendar settings
+         * @request POST:/admin/docpal/calendars/setting
+         * @deprecated
+         */
+        postAdminCalendarsSetting: (data: Record<string, object>, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/calendars/setting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name PostAdminCalendarsList
+         * @summary Query list
+         * @request POST:/admin/docpal/calendars/list
+         * @deprecated
+         */
+        postAdminCalendarsList: (data: CalendarTaskReq, params: RequestParams = {}) =>
+            this.request<ResultListCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/calendars/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FolderCabinetController
+         * @name PostAdminCabinetTemplate
+         * @summary create folder cabinet template
+         * @request POST:/admin/docpal/cabinet/template
+         * @deprecated
+         */
+        postAdminCabinetTemplate: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/cabinet/template`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FolderCabinetController
+         * @name PatchAdminCabinetTemplate
+         * @summary Modify folder/file into exist folder cabinet template
+         * @request PATCH:/admin/docpal/cabinet/template
+         * @deprecated
+         */
+        patchAdminCabinetTemplate: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/cabinet/template`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FolderCabinetController
+         * @name GetAdminCabinetTemplatePermission
+         * @request GET:/admin/docpal/cabinet/template/permission
+         * @deprecated
+         */
+        getAdminCabinetTemplatePermission: (
+            query: {
+                id: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListDocumentACLEntryDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/cabinet/template/permission`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FolderCabinetController
+         * @name PostAdminCabinetTemplatePermission
+         * @summary Add permission for folder cabinet template
+         * @request POST:/admin/docpal/cabinet/template/permission
+         * @deprecated
+         */
+        postAdminCabinetTemplatePermission: (data: DocumentACLEntryDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/cabinet/template/permission`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FolderCabinetController
+         * @name DeleteAdminCabinetTemplatePermission
+         * @summary Delete permission from folder cabinet template
+         * @request DELETE:/admin/docpal/cabinet/template/permission
+         * @deprecated
+         */
+        deleteAdminCabinetTemplatePermission: (
+            query: {
+                id: string;
+                userId: string;
+                permission?: string;
+            },
+            data: any,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/cabinet/template/permission`,
+                method: "DELETE",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FolderCabinetController
+         * @name PostAdminCabinetTemplatePage
+         * @summary Pagination search folder cabinet
+         * @request POST:/admin/docpal/cabinet/template/page
+         * @deprecated
+         */
+        postAdminCabinetTemplatePage: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/cabinet/template/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FolderCabinetController
+         * @name PostAdminCabinetTemplateDuplicateName
+         * @summary Checking duplicate name
+         * @request POST:/admin/docpal/cabinet/template/duplicate/name
+         * @deprecated
+         */
+        postAdminCabinetTemplateDuplicateName: (data: FolderCabinet, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/cabinet/template/duplicate/name`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FolderCabinetController
+         * @name PostAdminCabinetImport
+         * @summary Import a folder cabinet
+         * @request POST:/admin/docpal/cabinet/import
+         * @deprecated
+         */
+        postAdminCabinetImport: (
+            query: {
+                documentPath: string;
+                /** @format binary */
+                multipartFile: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultFolderCabinet, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/cabinet/import`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FolderCabinetController
+         * @name PostAdminCabinetExporttojson
+         * @summary Export a folder cabinet
+         * @request POST:/admin/docpal/cabinet/exportToJson
+         * @deprecated
+         */
+        postAdminCabinetExporttojson: (
+            query: {
+                folderCabinetId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/cabinet/exportToJson`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-ocr-controller
+         * @name PostAdminAzureOcrQueryocrtransactionlogs
+         * @request POST:/admin/docpal/azure/ocr/queryOcrTransactionLogs
+         */
+        postAdminAzureOcrQueryocrtransactionlogs: (data: OcrTransactionLogRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOOcrTransactionLogDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/azure/ocr/queryOcrTransactionLogs`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-ocr-controller
+         * @name PostAdminAzureOcrCreateocrprofilemapping
+         * @request POST:/admin/docpal/azure/ocr/createOcrProfileMapping
+         */
+        postAdminAzureOcrCreateocrprofilemapping: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/azure/ocr/createOcrProfileMapping`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Batch retrieve roles and group information for multiple users
+         *
+         * @tags User Management
+         * @name PostAdminAclUserRolesAndGroups
+         * @summary Batch Get User Roles and Groups
+         * @request POST:/admin/docpal/acl/user/roles-and-groups
+         */
+        postAdminAclUserRolesAndGroups: (data: string[], params: RequestParams = {}) =>
+            this.request<ResultMapStringUserRoleGroupDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/user/roles-and-groups`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Add specified users to a specific role
+         *
+         * @tags Role-User Management
+         * @name PostAdminAclRoleUsers
+         * @summary Add Users to Role
+         * @request POST:/admin/docpal/acl/role/users
+         */
+        postAdminAclRoleUsers: (data: RoleUsersRequest, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/role/users`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Remove specified users from a specific role
+         *
+         * @tags Role-User Management
+         * @name DeleteAdminAclRoleUsers
+         * @summary Remove Users from Role
+         * @request DELETE:/admin/docpal/acl/role/users
+         */
+        deleteAdminAclRoleUsers: (data: number[], params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/role/users`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Get paginated list of role to users relationships
+         *
+         * @tags Role-User Management
+         * @name PostAdminAclRoleUsersPage
+         * @summary Get Role to Users Relationship Page
+         * @request POST:/admin/docpal/acl/role/users/page
+         */
+        postAdminAclRoleUsersPage: (data: BasePageDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTORoleUsersVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/role/users/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Get user list grouped by role IDs
+         *
+         * @tags Role-User Management
+         * @name PostAdminAclRoleUsersByRoles
+         * @summary Get Users by Role IDs
+         * @request POST:/admin/docpal/acl/role/users/by-roles
+         */
+        postAdminAclRoleUsersByRoles: (data: string[], params: RequestParams = {}) =>
+            this.request<ResultMapStringListUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/role/users/by-roles`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Get paginated role list
+         *
+         * @tags Role Permission Management
+         * @name PostAdminAclRolePage
+         * @summary Role Page
+         * @request POST:/admin/docpal/acl/role/page
+         */
+        postAdminAclRolePage: (data: BasePageDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTORoleVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/role/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Get role list
+         *
+         * @tags Role Permission Management
+         * @name PostAdminAclRoleList
+         * @summary Role List
+         * @request POST:/admin/docpal/acl/role/list
+         */
+        postAdminAclRoleList: (data: BaseQueryConditionDTO[], params: RequestParams = {}) =>
+            this.request<ResultListRoleDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/role/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Batch retrieve role hierarchies by role ID list
+         *
+         * @tags Role Permission Management
+         * @name PostAdminAclRoleHierarchy
+         * @summary Get Multiple Role Hierarchies
+         * @request POST:/admin/docpal/acl/role/hierarchy
+         */
+        postAdminAclRoleHierarchy: (data: string[], params: RequestParams = {}) =>
+            this.request<ResultListRoleDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/role/hierarchy`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Create a new resource permission
+         *
+         * @tags Resource Permission Management
+         * @name PostAdminAclResourcePermissions
+         * @summary Create Resource Permission
+         * @request POST:/admin/docpal/acl/resource-permissions
+         */
+        postAdminAclResourcePermissions: (data: ResourcePermissionRequest, params: RequestParams = {}) =>
+            this.request<ResultResourcePermissionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/resource-permissions`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Include parent permission to current resource(document)
+         *
+         * @tags Resource Permission Management
+         * @name PostAdminAclResourcePermissionsIncludeInheritResourceid
+         * @summary Include inherit permission to current resource by resource id
+         * @request POST:/admin/docpal/acl/resource-permissions/include-inherit/{resourceId}
+         */
+        postAdminAclResourcePermissionsIncludeInheritResourceid: (resourceId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/resource-permissions/include-inherit/${resourceId}`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * @description Copy parent permission to current resource(document)
+         *
+         * @tags Resource Permission Management
+         * @name PostAdminAclResourcePermissionsCopyInheritResourceid
+         * @summary Copy inherit permission to current resource by resource id
+         * @request POST:/admin/docpal/acl/resource-permissions/copy-inherit/{resourceId}
+         */
+        postAdminAclResourcePermissionsCopyInheritResourceid: (resourceId: string, params: RequestParams = {}) =>
+            this.request<ResultListResourcePermissionVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/resource-permissions/copy-inherit/${resourceId}`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * @description This endpoint retrieves a list of ACL documents based on the provided request parameters.
+         *
+         * @tags Document Management
+         * @name PostAdminAclDocumentList
+         * @summary Retrieve a list of ACL documents
+         * @request POST:/admin/docpal/acl/document/list
+         */
+        postAdminAclDocumentList: (data: AclDocumentListRequest, params: RequestParams = {}) =>
+            this.request<
+                ResultObject | ResultString,
+                ResultListAclDocumentVO | Result | (ResultObject | Result | ResultString)
+            >({
+                path: `/admin/docpal/acl/document/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Manager
+         * @name PostAdminworkflowManagerUpdateVariables
+         * @request POST:/admin/api/workflow/manager/update_variables
+         * @deprecated
+         */
+        postAdminworkflowManagerUpdateVariables: (data: WorkflowInstanceDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/workflow/manager/update_variables`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Manager
+         * @name PostAdminworkflowManagerStartMiddleWorkflow
+         * @request POST:/admin/api/workflow/manager/start_middle_workflow
+         * @deprecated
+         */
+        postAdminworkflowManagerStartMiddleWorkflow: (data: WorkflowInstanceRequest, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/workflow/manager/start_middle_workflow`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Manager
+         * @name PostAdminworkflowManagerStartFirstWorkflow
+         * @request POST:/admin/api/workflow/manager/start_first_workflow
+         * @deprecated
+         */
+        postAdminworkflowManagerStartFirstWorkflow: (data: WorkflowInstanceDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/workflow/manager/start_first_workflow`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Manager
+         * @name PostAdminworkflowManagerChangeWorkflowStateForSubmit
+         * @request POST:/admin/api/workflow/manager/change_workflow_state_for_submit
+         * @deprecated
+         */
+        postAdminworkflowManagerChangeWorkflowStateForSubmit: (data: WorkflowInstanceDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/workflow/manager/change_workflow_state_for_submit`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Manager
+         * @name PostAdminworkflowManagerChangeWorkflowState
+         * @request POST:/admin/api/workflow/manager/change_workflow_state
+         * @deprecated
+         */
+        postAdminworkflowManagerChangeWorkflowState: (data: WorkflowInstanceDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/workflow/manager/change_workflow_state`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Manager
+         * @name PostAdminworkflowManagerCalendars
+         * @request POST:/admin/api/workflow/manager/calendars
+         * @deprecated
+         */
+        postAdminworkflowManagerCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/workflow/manager/calendars`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name PatchAdminPasswordUpdatePassword
+         * @request PATCH:/admin/password/update-password
+         */
+        patchAdminPasswordUpdatePassword: (data: UpdatePasswordDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/password/update-password`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name PatchAdminPasswordUnlockUserid
+         * @request PATCH:/admin/password/unlock/{userId}
+         */
+        patchAdminPasswordUnlockUserid: (userId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/password/unlock/${userId}`,
+                method: "PATCH",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags External Share
+         * @name DeleteAdminNuxeoShare
+         * @request DELETE:/admin/nuxeo/share
+         */
+        deleteAdminNuxeoShare: (data: string[], params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/share`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags External Share
+         * @name PatchAdminNuxeoShare
+         * @request PATCH:/admin/nuxeo/share
+         */
+        patchAdminNuxeoShare: (data: ShareSaveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/share`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SmartFolderController
+         * @name GetAdminNuxeoSfolderDeprecate
+         * @request GET:/admin/nuxeo/sfolder/
+         * @deprecated
+         */
+        getAdminNuxeoSfolderDeprecate: (
+            query?: {
+                name?: string;
+                userGroupIds?: string[];
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/sfolder/`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SmartFolderController
+         * @name PatchAdminNuxeoSfolderDeprecate
+         * @summary Save Smart Folder
+         * @request PATCH:/admin/nuxeo/sfolder/
+         * @deprecated
+         */
+        patchAdminNuxeoSfolderDeprecate: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/sfolder/`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SmartFolderController
+         * @name GetAdminNuxeoSfolder
+         * @request GET:/admin/nuxeo/sfolder
+         * @deprecated
+         */
+        getAdminNuxeoSfolder: (
+            query?: {
+                name?: string;
+                userGroupIds?: string[];
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/sfolder`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SmartFolderController
+         * @name PatchAdminNuxeoSfolder
+         * @summary Save Smart Folder
+         * @request PATCH:/admin/nuxeo/sfolder
+         * @deprecated
+         */
+        patchAdminNuxeoSfolder: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/sfolder`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ViewSettingController
+         * @name GetAdminNuxeoSettingView
+         * @request GET:/admin/nuxeo/setting/view
+         * @deprecated
+         */
+        getAdminNuxeoSettingView: (params: RequestParams = {}) =>
+            this.request<ResultViewSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/setting/view`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ViewSettingController
+         * @name PatchAdminNuxeoSettingView
+         * @request PATCH:/admin/nuxeo/setting/view
+         * @deprecated
+         */
+        patchAdminNuxeoSettingView: (data: ViewSettingRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultViewSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/setting/view`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PatchAdminNuxeoIdentityUserPassword
+         * @summary Update user password
+         * @request PATCH:/admin/nuxeo/identity/user/password
+         */
+        patchAdminNuxeoIdentityUserPassword: (
+            query: {
+                userId: string;
+                password: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/user/password`,
+                method: "PATCH",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * @description Update the status of an import job
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PatchAdminImportjobsIdStatus
+         * @summary Update import job status
+         * @request PATCH:/admin/importJobs/{id}/status
+         * @deprecated
+         */
+        patchAdminImportjobsIdStatus: (
+            id: string,
+            data: ExternalStorageImportJobRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/importJobs/${id}/status`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Change the status of an external storage (A/D)
+         *
+         * @tags ExternalStorageController
+         * @name PatchAdminExternalstorageIdStatus
+         * @summary Active/Inactive a external storage
+         * @request PATCH:/admin/externalStorage/{id}/status
+         * @deprecated
+         */
+        patchAdminExternalstorageIdStatus: (id: string, data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/${id}/status`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Update profile status of a specific external storage, status value=[A/D]
+         *
+         * @tags ExternalStorageController
+         * @name PatchAdminExternalstorageIdProfilesProfileidStatus
+         * @summary Active/Inactive a external profile
+         * @request PATCH:/admin/externalStorage/{id}/profiles/{profileId}/status
+         * @deprecated
+         */
+        patchAdminExternalstorageIdProfilesProfileidStatus: (
+            id: string,
+            profileId: string,
+            data: ExternalProfileDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/${id}/profiles/${profileId}/status`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PatchAdminExternalstorageIdProfilesProfileidProcess
+         * @summary Update an setting of existing external profile for a specific external storage
+         * @request PATCH:/admin/externalStorage/{id}/profiles/{profileId}/process
+         * @deprecated
+         */
+        patchAdminExternalstorageIdProfilesProfileidProcess: (
+            id: string,
+            profileId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/${id}/profiles/${profileId}/process`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PatchAdminExternalstorageIdProfilesProfileidImport
+         * @summary Update an import setting of existing external profile for a specific external storage
+         * @request PATCH:/admin/externalStorage/{id}/profiles/{profileId}/import
+         * @deprecated
+         */
+        patchAdminExternalstorageIdProfilesProfileidImport: (
+            id: string,
+            profileId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/${id}/profiles/${profileId}/import`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PatchAdminExternalstorageIdProfilesProfileidGeneral
+         * @summary Update an general setting of existing external profile for a specific external storage
+         * @request PATCH:/admin/externalStorage/{id}/profiles/{profileId}/general
+         * @deprecated
+         */
+        patchAdminExternalstorageIdProfilesProfileidGeneral: (
+            id: string,
+            profileId: string,
+            data: ExternalProfileDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/${id}/profiles/${profileId}/general`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PatchAdminExternalstorageIdProfilesProfileidCapture
+         * @summary Update an capture setting of existing external profile for a specific external storage
+         * @request PATCH:/admin/externalStorage/{id}/profiles/{profileId}/capture
+         * @deprecated
+         */
+        patchAdminExternalstorageIdProfilesProfileidCapture: (
+            id: string,
+            profileId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/${id}/profiles/${profileId}/capture`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PatchAdminExternalstorageProfilesProfileidOutputrecordOutputrecordidStatus
+         * @summary Active/Inactive a external profile output record
+         * @request PATCH:/admin/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}/status
+         * @deprecated
+         */
+        patchAdminExternalstorageProfilesProfileidOutputrecordOutputrecordidStatus: (
+            profileId: string,
+            outputRecordId: string,
+            data: ExternalProfileOutputDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}/status`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name PatchAdminEventCalendarsSettingIdStatus
+         * @summary Update Event Calendar Setting Status
+         * @request PATCH:/admin/event/calendars/setting/{id}/status
+         * @deprecated
+         */
+        patchAdminEventCalendarsSettingIdStatus: (id: string, data: StatusRequest, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/event/calendars/setting/${id}/status`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PatchAdminDocpaltypeSettingsMetadataV2Update
+         * @request PATCH:/admin/docpalType/settings/metadata-v2/update
+         */
+        patchAdminDocpaltypeSettingsMetadataV2Update: (
+            data: MetaDataDefinitionRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/metadata-v2/update`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name GetAdminDocpaltypeSettingsActive
+         * @summary Query the list of activated docpal types
+         * @request GET:/admin/docpalType/settings/active
+         */
+        getAdminDocpaltypeSettingsActive: (params: RequestParams = {}) =>
+            this.request<ResultListDocPalType, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/active`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name PatchAdminDocpaltypeSettingsActive
+         * @summary Active or UnActive DocPal Type
+         * @request PATCH:/admin/docpalType/settings/active
+         */
+        patchAdminDocpaltypeSettingsActive: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/active`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Template
+         * @name PatchAdminWatermarkTemplatesDeprecate
+         * @summary Modify watermark template and watermark setting list
+         * @request PATCH:/admin/docpal/watermark/templates/
+         * @deprecated
+         */
+        patchAdminWatermarkTemplatesDeprecate: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/templates/`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Settings
+         * @name PatchAdminWatermarkSettingsDeprecate
+         * @summary update single watermark settings
+         * @request PATCH:/admin/docpal/watermark/settings/
+         * @deprecated
+         */
+        patchAdminWatermarkSettingsDeprecate: (data: WatermarkSettingsDTO, params: RequestParams = {}) =>
+            this.request<ResultWatermarkSettingsDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/settings/`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocumentTemplateController
+         * @name PatchAdminTemplateDocumentUpdatetemplatevariable
+         * @summary Update document template variables
+         * @request PATCH:/admin/docpal/template/document/updateTemplateVariable
+         */
+        patchAdminTemplateDocumentUpdatetemplatevariable: (
+            data: {
+                /** @format string */
+                id?: string;
+                /** @format string */
+                templateVariable?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultDocumentTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/document/updateTemplateVariable`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags RetentionPolicyController
+         * @name PatchAdminPolicyRetentionsIdStatusStatus
+         * @summary Modify status by id
+         * @request PATCH:/admin/docpal/policy/retentions/{id}/status/{status}
+         */
+        patchAdminPolicyRetentionsIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/policy/retentions/${id}/status/${status}`,
+                method: "PATCH",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags HoldPolicyController
+         * @name PatchAdminPolicyHoldsIdStatusStatus
+         * @summary Modify status by id
+         * @request PATCH:/admin/docpal/policy/holds/{id}/status/{status}
+         */
+        patchAdminPolicyHoldsIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/policy/holds/${id}/status/${status}`,
+                method: "PATCH",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name PatchAdminMasterTablesIdRecordStatus
+         * @summary Enable or Disable Record
+         * @request PATCH:/admin/docpal/master/tables/{id}/record/status
+         * @deprecated
+         */
+        patchAdminMasterTablesIdRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/${id}/record/status`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PatchAdminFormDesignName
+         * @summary Update name of form design
+         * @request PATCH:/admin/docpal/form/design/name
+         * @deprecated
+         */
+        patchAdminFormDesignName: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/name`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PatchAdminFormDesignEnableId
+         * @summary Enable a form design
+         * @request PATCH:/admin/docpal/form/design/enable/{id}
+         * @deprecated
+         */
+        patchAdminFormDesignEnableId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/enable/${id}`,
+                method: "PATCH",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name PatchAdminFormDesignDisableId
+         * @summary Disable a form design
+         * @request PATCH:/admin/docpal/form/design/disable/{id}
+         * @deprecated
+         */
+        patchAdminFormDesignDisableId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/disable/${id}`,
+                method: "PATCH",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Profile APIs
+         * @name PatchAdminCompanyprofilesCompanyidStatus
+         * @summary Update company status [Active or Unactive]
+         * @request PATCH:/admin/docpal/companyProfiles/{companyId}/status
+         * @deprecated
+         */
+        patchAdminCompanyprofilesCompanyidStatus: (companyId: string, data: Company, params: RequestParams = {}) =>
+            this.request<ResultCompany, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/companyProfiles/${companyId}/status`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PatchAdminCaseTypesVersionVersionidSave
+         * @summary Edit XML file [cmmn.xml] of version
+         * @request PATCH:/admin/docpal/case/types/version/{versionId}/save
+         * @deprecated
+         */
+        patchAdminCaseTypesVersionVersionidSave: (
+            versionId: string,
+            query: {
+                /** @format binary */
+                file: File;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCmmnVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/version/${versionId}/save`,
+                method: "PATCH",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name PatchAdminCaseTypesVersionVersionidSaveall
+         * @summary [Test API] Save XML file for all version of case definition
+         * @request PATCH:/admin/docpal/case/types/version/{versionId}/saveAll
+         * @deprecated
+         */
+        patchAdminCaseTypesVersionVersionidSaveall: (
+            versionId: string,
+            query: {
+                /** @format binary */
+                file: File;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/version/${versionId}/saveAll`,
+                method: "PATCH",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name PatchAdminCaseTablesFields
+         * @summary The Case Table has been augmented with the addition of multiple columns.
+         * @request PATCH:/admin/docpal/case/tables/fields
+         * @deprecated
+         */
+        patchAdminCaseTablesFields: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCaseTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/tables/fields`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name PatchAdminCalendarsIdStatusStatus
+         * @summary Modify status by id
+         * @request PATCH:/admin/docpal/calendars/{id}/status/{status}
+         * @deprecated
+         */
+        patchAdminCalendarsIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/calendars/${id}/status/${status}`,
+                method: "PATCH",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Public Application Version
+         * @name GetAdminPublicVersion
+         * @request GET:/admin/public/version
+         * @deprecated
+         */
+        getAdminPublicVersion: (params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/public/version`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetAdminPasswordUserStatus
+         * @request GET:/admin/password/user-status
+         */
+        getAdminPasswordUserStatus: (params: RequestParams = {}) =>
+            this.request<ResultUserStatusDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/password/user-status`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetAdminPasswordHasLockUserid
+         * @request GET:/admin/password/has-lock/{userId}
+         */
+        getAdminPasswordHasLockUserid: (userId: string, params: RequestParams = {}) =>
+            this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/password/has-lock/${userId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetAdminPasswordConfig
+         * @request GET:/admin/password/config
+         */
+        getAdminPasswordConfig: (params: RequestParams = {}) =>
+            this.request<ResultPasswordConfigDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/password/config`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetAdminPasswordCheckLockUserUserid
+         * @request GET:/admin/password/check-lock-user/{userId}
+         */
+        getAdminPasswordCheckLockUserUserid: (
+            userId: string,
+            query?: {
+                skipAddLoginCount?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/password/check-lock-user/${userId}`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetAdminPasswordCheckExpire
+         * @request GET:/admin/password/check-expire
+         */
+        getAdminPasswordCheckExpire: (params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/password/check-expire`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Configuration
+         * @name GetAdminNuxeoTypeDocumenttype
+         * @summary Obtain metadata list of this documentType
+         * @request GET:/admin/nuxeo/type/{documentType}
+         */
+        getAdminNuxeoTypeDocumenttype: (documentType: string, params: RequestParams = {}) =>
+            this.request<ResultDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/type/${documentType}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SmartFolderController
+         * @name GetAdminNuxeoSfolderId
+         * @request GET:/admin/nuxeo/sfolder/{id}
+         * @deprecated
+         */
+        getAdminNuxeoSfolderId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/sfolder/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SmartFolderController
+         * @name DeleteAdminNuxeoSfolderId
+         * @request DELETE:/admin/nuxeo/sfolder/{id}
+         * @deprecated
+         */
+        deleteAdminNuxeoSfolderId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/sfolder/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SmartFolderController
+         * @name GetAdminNuxeoSfolderPageConditions
+         * @summary Obtain all conditions that has been used
+         * @request GET:/admin/nuxeo/sfolder/page/conditions
+         * @deprecated
+         */
+        getAdminNuxeoSfolderPageConditions: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/sfolder/page/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name GetAdminNuxeoIdentitySendInitPasswordEmailUserid
+         * @request GET:/admin/nuxeo/identity/send-init-password-email/{userId}
+         */
+        getAdminNuxeoIdentitySendInitPasswordEmailUserid: (userId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/send-init-password-email/${userId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name GetAdminNuxeoDocumentVersions
+         * @request GET:/admin/nuxeo/document/versions
+         */
+        getAdminNuxeoDocumentVersions: (
+            query: {
+                idOrPath: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObjects, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/document/versions`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Document
+         * @name GetAdminNuxeoDocumentQueryaudittemplate
+         * @request GET:/admin/nuxeo/document/queryAuditTemplate
+         */
+        getAdminNuxeoDocumentQueryaudittemplate: (params: RequestParams = {}) =>
+            this.request<ResultListAuditTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/document/queryAuditTemplate`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Configuration
+         * @name GetAdminNuxeoConfigRefresh
+         * @request GET:/admin/nuxeo/config-refresh
+         */
+        getAdminNuxeoConfigRefresh: (params: RequestParams = {}) =>
+            this.request<string, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/config-refresh`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Collection (Nuxeo)
+         * @name GetAdminNuxeoCollectionAll
+         * @request GET:/admin/nuxeo/collection/all
+         * @deprecated
+         */
+        getAdminNuxeoCollectionAll: (params: RequestParams = {}) =>
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/collection/all`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name GetAdminNuxeoAdminVirtualfolderSettingId
+         * @request GET:/admin/nuxeo/admin/virtualfolder/setting/{id}
+         * @deprecated
+         */
+        getAdminNuxeoAdminVirtualfolderSettingId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/virtualfolder/setting/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name DeleteAdminNuxeoAdminVirtualfolderSettingId
+         * @request DELETE:/admin/nuxeo/admin/virtualfolder/setting/{id}
+         * @deprecated
+         */
+        deleteAdminNuxeoAdminVirtualfolderSettingId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/virtualfolder/setting/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name GetAdminNuxeoAdminSettingLanguage
+         * @request GET:/admin/nuxeo/admin/setting/language
+         * @deprecated
+         */
+        getAdminNuxeoAdminSettingLanguage: (params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/setting/language`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name GetAdminNuxeoAdminIcons
+         * @request GET:/admin/nuxeo/admin/icons
+         * @deprecated
+         */
+        getAdminNuxeoAdminIcons: (params: RequestParams = {}) =>
+            this.request<ResultListCustomIconDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/icons`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NuxeoAdminController
+         * @name GetAdminNuxeoAdminConcurrentSession
+         * @summary Query concurrent session configuration
+         * @request GET:/admin/nuxeo/admin/concurrent-session
+         * @deprecated
+         */
+        getAdminNuxeoAdminConcurrentSession: (
+            query: {
+                tenantId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultInteger, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/admin/concurrent-session`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MessageQueue
+         * @name GetAdminMessageQueueDocumentidMessage
+         * @summary Query record By documentId
+         * @request GET:/admin/message/queue/{documentId}/message
+         */
+        getAdminMessageQueueDocumentidMessage: (documentId: string, params: RequestParams = {}) =>
+            this.request<ResultListBusinessResultRecord, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/message/queue/${documentId}/message`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MessageQueue
+         * @name GetAdminMessageQueueTotal
+         * @summary message total of every message queue
+         * @request GET:/admin/message/queue/total
+         */
+        getAdminMessageQueueTotal: (
+            query?: {
+                messageQueueName?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListMQMessageTotalDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/message/queue/total`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MessageQueue
+         * @name GetAdminMessageQueueReportStatusgroup
+         * @summary Statistics by state
+         * @request GET:/admin/message/queue/report/statusGroup
+         */
+        getAdminMessageQueueReportStatusgroup: (
+            query?: {
+                mqName?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListMQConsumeGroupStatusDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/message/queue/report/statusGroup`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MessageQueue
+         * @name GetAdminMessageQueueReportHoursgroup
+         * @summary Statistics by per hours
+         * @request GET:/admin/message/queue/report/hoursGroup
+         */
+        getAdminMessageQueueReportHoursgroup: (
+            query: {
+                mqName: string;
+                date: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListMQDayTotalDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/message/queue/report/hoursGroup`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MessageQueue
+         * @name GetAdminMessageQueueReportDaygroup
+         * @summary Statistics by per day
+         * @request GET:/admin/message/queue/report/dayGroup
+         */
+        getAdminMessageQueueReportDaygroup: (
+            query?: {
+                mqName?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListMQDayTotalDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/message/queue/report/dayGroup`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MessageQueue
+         * @name GetAdminMessageQueueConsumes
+         * @summary The configuration of message queue
+         * @request GET:/admin/message/queue/consumes
+         */
+        getAdminMessageQueueConsumes: (params: RequestParams = {}) =>
+            this.request<ResultListMQConfigurationInfo, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/message/queue/consumes`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetAdminImportjobsPageConditions
+         * @request GET:/admin/importJobs/page/conditions
+         * @deprecated
+         */
+        getAdminImportjobsPageConditions: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/importJobs/page/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * @description Retrieve all profiles for a specific external storage
+         *
+         * @tags ExternalStorageController
+         * @name GetAdminExternalstorageIdProfilesList
+         * @summary Get all profile by external storage id
+         * @request GET:/admin/externalStorage/{id}/profiles/list
+         * @deprecated
+         */
+        getAdminExternalstorageIdProfilesList: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/${id}/profiles/list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetAdminExternalstorageProfilesProfileidOutputrecordList
+         * @summary Retrieve all output settings of specific profile
+         * @request GET:/admin/externalStorage/profiles/{profileId}/outputRecord/list
+         * @deprecated
+         */
+        getAdminExternalstorageProfilesProfileidOutputrecordList: (profileId: string, params: RequestParams = {}) =>
+            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/externalStorage/profiles/${profileId}/outputRecord/list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EventCalendarController
+         * @name GetAdminEventCalendarsSettings
+         * @summary Get All Event Calendar Settings
+         * @request GET:/admin/event/calendars/settings
+         * @deprecated
+         */
+        getAdminEventCalendarsSettings: (
+            query: {
+                /** Event Calendar Setting */
+                eventCalendarSetting: EventCalendarSetting;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListEventCalendarSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/event/calendars/settings`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name GetAdminDocpaltypeSettingsPageConditions
+         * @summary Obtain all conditions that has been used
+         * @request GET:/admin/docpalType/settings/page/conditions
+         */
+        getAdminDocpaltypeSettingsPageConditions: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/page/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name GetAdminDocpaltypeSettingsNameName
+         * @summary Obtain docpal type detail through name
+         * @request GET:/admin/docpalType/settings/name/{name}
+         */
+        getAdminDocpaltypeSettingsNameName: (name: string, params: RequestParams = {}) =>
+            this.request<ResultDocPalTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/name/${name}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name DeleteAdminDocpaltypeSettingsNameName
+         * @summary Delete docpal type
+         * @request DELETE:/admin/docpalType/settings/name/{name}
+         * @deprecated
+         */
+        deleteAdminDocpaltypeSettingsNameName: (name: string, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/name/${name}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name GetAdminDocpaltypeSettingsMetadataDocumenttype
+         * @summary Obtain all docpal type metadata list
+         * @request GET:/admin/docpalType/settings/metadata/{documentType}
+         */
+        getAdminDocpaltypeSettingsMetadataDocumenttype: (documentType: string, params: RequestParams = {}) =>
+            this.request<ResultDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/metadata/${documentType}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name GetAdminDocpaltypeSettingsMetadataV2QueryCache
+         * @request GET:/admin/docpalType/settings/metadata-v2/query-cache
+         */
+        getAdminDocpaltypeSettingsMetadataV2QueryCache: (params: RequestParams = {}) =>
+            this.request<ResultListMetadataResponseVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/metadata-v2/query-cache`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name GetAdminDocpaltypeSettingsExportMetadataDocumenttype
+         * @summary Download .csv template file of master table for use import data
+         * @request GET:/admin/docpalType/settings/export/metadata/{documentType}
+         * @deprecated
+         */
+        getAdminDocpaltypeSettingsExportMetadataDocumenttype: (documentType: string, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/export/metadata/${documentType}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name GetAdminDocpaltypeSettingsCategories
+         * @summary Obtain all docpal type categories
+         * @request GET:/admin/docpalType/settings/categories
+         */
+        getAdminDocpaltypeSettingsCategories: (params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/categories`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name GetAdminDocpaltypeSettingsAll
+         * @summary Find all docpal type
+         * @request GET:/admin/docpalType/settings/all
+         */
+        getAdminDocpaltypeSettingsAll: (params: RequestParams = {}) =>
+            this.request<ResultListDocPalType, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/all`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Version Controller
+         * @name GetAdminWorkflowVersion
+         * @summary Get Version Data
+         * @request GET:/admin/docpal/workflow/version
+         * @deprecated
+         */
+        getAdminWorkflowVersion: (
+            query: {
+                draftId: string;
+                versionNumber: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/version`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Version Controller
+         * @name GetAdminWorkflowVersionVersionid
+         * @summary Get Version Data
+         * @request GET:/admin/docpal/workflow/version/{versionId}
+         * @deprecated
+         */
+        getAdminWorkflowVersionVersionid: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/version/${versionId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Version Controller
+         * @name DeleteAdminWorkflowVersionVersionid
+         * @request DELETE:/admin/docpal/workflow/version/{versionId}
+         * @deprecated
+         */
+        deleteAdminWorkflowVersionVersionid: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/version/${versionId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Version Controller
+         * @name GetAdminWorkflowVersionVersionidBpmnxml
+         * @summary Download BPMN20.xml through version id of a workflow
+         * @request GET:/admin/docpal/workflow/version/{versionId}/bpmnXml
+         * @deprecated
+         */
+        getAdminWorkflowVersionVersionidBpmnxml: (versionId: string, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/version/${versionId}/bpmnXml`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Version Controller
+         * @name GetAdminWorkflowVersionKeyProcessdefinitionkey
+         * @summary Get Latest Version Data by process definition key
+         * @request GET:/admin/docpal/workflow/version/key/{processDefinitionKey}
+         * @deprecated
+         */
+        getAdminWorkflowVersionKeyProcessdefinitionkey: (processDefinitionKey: string, params: RequestParams = {}) =>
+            this.request<ResultProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/version/key/${processDefinitionKey}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Version Controller
+         * @name GetAdminWorkflowVersionJson
+         * @summary Download Json through version number and draft id
+         * @request GET:/admin/docpal/workflow/version/json
+         * @deprecated
+         */
+        getAdminWorkflowVersionJson: (
+            query: {
+                draftId: string;
+                versionNumber: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/version/json`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Version Controller
+         * @name GetAdminWorkflowVersionBpmnxml
+         * @summary Download BPMN20.xml through version number and draft id
+         * @request GET:/admin/docpal/workflow/version/bpmnXml
+         * @deprecated
+         */
+        getAdminWorkflowVersionBpmnxml: (
+            query: {
+                draftId: string;
+                versionNumber?: string;
+                versionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/version/bpmnXml`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name GetAdminWorkflowVariablesInstanceid
+         * @request GET:/admin/docpal/workflow/variables/{instanceId}
+         * @deprecated
+         */
+        getAdminWorkflowVariablesInstanceid: (instanceId: string, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/variables/${instanceId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name GetAdminWorkflowStartFormProperties
+         * @request GET:/admin/docpal/workflow/start-form/properties
+         * @deprecated
+         */
+        getAdminWorkflowStartFormProperties: (
+            query: {
+                processKey: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/start-form/properties`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name GetAdminWorkflowQuerydocumenttypeprofileid
+         * @request GET:/admin/docpal/workflow/querydocumentTypeProFileId
+         */
+        getAdminWorkflowQuerydocumenttypeprofileid: (
+            query: {
+                documentType: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListLong, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/querydocumentTypeProFileId`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name GetAdminWorkflowQuerymetadatamapping
+         * @request GET:/admin/docpal/workflow/queryMetadataMapping
+         */
+        getAdminWorkflowQuerymetadatamapping: (
+            query?: {
+                /** @format int64 */
+                id?: number;
+                name?: string;
+                metaDataMapper?: string;
+                /** @format int32 */
+                version?: number;
+                createUserId?: string;
+                createUserName?: string;
+                /** @format date-time */
+                createTime?: string;
+                updateUserId?: string;
+                updateUserName?: string;
+                /** @format date-time */
+                updateTime?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListDocumentTypeMetadataMapping, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/queryMetadataMapping`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name GetAdminWorkflowQuerymetadatamappingnames
+         * @request GET:/admin/docpal/workflow/queryMetadataMappingNames
+         */
+        getAdminWorkflowQuerymetadatamappingnames: (params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/queryMetadataMappingNames`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name GetAdminWorkflowQuerydocumenttypeprofile
+         * @request GET:/admin/docpal/workflow/queryDocumentTypeProfile
+         */
+        getAdminWorkflowQuerydocumenttypeprofile: (
+            query?: {
+                /** @format int64 */
+                id?: number;
+                documentType?: string;
+                profileID?: string;
+                profileName?: string;
+                rootPath?: string;
+                folder?: string;
+                /** @format int32 */
+                version?: number;
+                createUserId?: string;
+                createUserName?: string;
+                /** @format date-time */
+                createTime?: string;
+                updateUserId?: string;
+                updateUserName?: string;
+                /** @format date-time */
+                updateTime?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListDocumentTypeProfileSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/queryDocumentTypeProfile`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name GetAdminWorkflowQuerydocumenttypeprofilesettings
+         * @request GET:/admin/docpal/workflow/queryDocumentTypeProFileSettings
+         */
+        getAdminWorkflowQuerydocumenttypeprofilesettings: (params: RequestParams = {}) =>
+            this.request<ResultMapStringListMapStringString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/queryDocumentTypeProFileSettings`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name GetAdminWorkflowProcessInstanceProcessinstanceid
+         * @request GET:/admin/docpal/workflow/process/instance/{processInstanceId}
+         * @deprecated
+         */
+        getAdminWorkflowProcessInstanceProcessinstanceid: (processInstanceId: string, params: RequestParams = {}) =>
+            this.request<ResultProcessInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/instance/${processInstanceId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name GetAdminWorkflowProcessGetprocessdefinitionlist
+         * @request GET:/admin/docpal/workflow/process/getProcessDefinitionList
+         * @deprecated
+         */
+        getAdminWorkflowProcessGetprocessdefinitionlist: (
+            query?: {
+                processKey?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/getProcessDefinitionList`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetAdminWorkflowProcessDefinitionProcessdefinitionkey
+         * @summary Get deployed process definition through process definition key
+         * @request GET:/admin/docpal/workflow/process/definition/{processDefinitionKey}
+         * @deprecated
+         */
+        getAdminWorkflowProcessDefinitionProcessdefinitionkey: (
+            processDefinitionKey: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/${processDefinitionKey}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetAdminWorkflowProcessDefinitionProcessdefinitionkeyHistory
+         * @summary Find historical process definitions through process definition key
+         * @request GET:/admin/docpal/workflow/process/definition/{processDefinitionKey}/history
+         * @deprecated
+         */
+        getAdminWorkflowProcessDefinitionProcessdefinitionkeyHistory: (
+            processDefinitionKey: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/${processDefinitionKey}/history`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetAdminWorkflowProcessDefinitionForms
+         * @summary Get the list of form properties associated with the process definition
+         * @request GET:/admin/docpal/workflow/process/definition/forms
+         * @deprecated
+         */
+        getAdminWorkflowProcessDefinitionForms: (
+            query?: {
+                processDefinitionKey?: string;
+                processDefinitionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListBpmnDynamicFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/forms`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetAdminWorkflowProcessDefinitionFormsElementkey
+         * @summary Get form properties of single element associated with the process definition
+         * @request GET:/admin/docpal/workflow/process/definition/forms/{elementKey}
+         * @deprecated
+         */
+        getAdminWorkflowProcessDefinitionFormsElementkey: (
+            elementKey: string,
+            query?: {
+                processDefinitionKey?: string;
+                processDefinitionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/forms/${elementKey}`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetAdminWorkflowProcessDefinitionFormsStart
+         * @summary Get start-form properties associated with the process definition
+         * @request GET:/admin/docpal/workflow/process/definition/forms/start
+         * @deprecated
+         */
+        getAdminWorkflowProcessDefinitionFormsStart: (
+            query: {
+                /** Workflow Process Definition RequestDTO */
+                requestDTO: ProcessDefinitionRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBpmnDynamicFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/forms/start`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetAdminWorkflowProcessDefinitionDraftDraftid
+         * @summary Get draft through process definition key
+         * @request GET:/admin/docpal/workflow/process/definition/draft/{draftId}
+         * @deprecated
+         */
+        getAdminWorkflowProcessDefinitionDraftDraftid: (draftId: string, params: RequestParams = {}) =>
+            this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/draft/${draftId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name DeleteAdminWorkflowProcessDefinitionDraftDraftid
+         * @summary Delete process definition through process definition draft id
+         * @request DELETE:/admin/docpal/workflow/process/definition/draft/{draftId}
+         * @deprecated
+         */
+        deleteAdminWorkflowProcessDefinitionDraftDraftid: (
+            draftId: string,
+            query?: {
+                enforce?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/draft/${draftId}`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetAdminWorkflowProcessDefinitionDraftDraftidDownloadXml
+         * @summary Get draft BPMN2.0 XML file through draft id
+         * @request GET:/admin/docpal/workflow/process/definition/draft/{draftId}/download/xml
+         * @deprecated
+         */
+        getAdminWorkflowProcessDefinitionDraftDraftidDownloadXml: (draftId: string, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/draft/${draftId}/download/xml`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetAdminWorkflowProcessDefinitionDraftAll
+         * @request GET:/admin/docpal/workflow/process/definition/draft/all
+         * @deprecated
+         */
+        getAdminWorkflowProcessDefinitionDraftAll: (params: RequestParams = {}) =>
+            this.request<ResultListProcessDefinitionDraft, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/draft/all`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetAdminWorkflowProcessDefinitionDownloadXml
+         * @summary Download BPMN2.0 XML file through process definition ID
+         * @request GET:/admin/docpal/workflow/process/definition/download/xml
+         * @deprecated
+         */
+        getAdminWorkflowProcessDefinitionDownloadXml: (
+            query: {
+                processDefinitionId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/download/xml`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name GetAdminWorkflowForms
+         * @summary Get the list of form properties associated with the process definition
+         * @request GET:/admin/docpal/workflow/forms
+         * @deprecated
+         */
+        getAdminWorkflowForms: (
+            query?: {
+                processDefinitionKey?: string;
+                processDefinitionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListBpmnDynamicFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/forms`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name GetAdminWorkflowFormsElementkey
+         * @summary Get form properties of single element associated with the process definition
+         * @request GET:/admin/docpal/workflow/forms/{elementKey}
+         * @deprecated
+         */
+        getAdminWorkflowFormsElementkey: (
+            elementKey: string,
+            query?: {
+                processDefinitionKey?: string;
+                processDefinitionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/forms/${elementKey}`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-whats-app-controller
+         * @name GetAdminWhatsappTestConnection
+         * @request GET:/admin/docpal/whatsapp/test_connection
+         */
+        getAdminWhatsappTestConnection: (params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/whatsapp/test_connection`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-whats-app-controller
+         * @name GetAdminWhatsappLanguageList
+         * @request GET:/admin/docpal/whatsapp/language_list
+         */
+        getAdminWhatsappLanguageList: (params: RequestParams = {}) =>
+            this.request<ResultListLanguageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/whatsapp/language_list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Template
+         * @name GetAdminWatermarkTemplatesId
+         * @summary Query watermark template by ID
+         * @request GET:/admin/docpal/watermark/templates/{id}
+         * @deprecated
+         */
+        getAdminWatermarkTemplatesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/templates/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Template
+         * @name DeleteAdminWatermarkTemplatesId
+         * @summary Delete watermark template by id
+         * @request DELETE:/admin/docpal/watermark/templates/{id}
+         * @deprecated
+         */
+        deleteAdminWatermarkTemplatesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/templates/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Template
+         * @name GetAdminWatermarkTemplatesNameName
+         * @summary Query watermark template by name
+         * @request GET:/admin/docpal/watermark/templates/name/{name}
+         * @deprecated
+         */
+        getAdminWatermarkTemplatesNameName: (name: string, params: RequestParams = {}) =>
+            this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/templates/name/${name}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Template
+         * @name DeleteAdminWatermarkTemplatesNameName
+         * @summary Delete watermark template by name
+         * @request DELETE:/admin/docpal/watermark/templates/name/{name}
+         * @deprecated
+         */
+        deleteAdminWatermarkTemplatesNameName: (name: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/templates/name/${name}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Template
+         * @name GetAdminWatermarkTemplatesAll
+         * @summary Query all watermark template
+         * @request GET:/admin/docpal/watermark/templates/all
+         * @deprecated
+         */
+        getAdminWatermarkTemplatesAll: (params: RequestParams = {}) =>
+            this.request<ResultListWatermarkSettingsTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/templates/all`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Settings
+         * @name GetAdminWatermarkSettingsId
+         * @summary query watermark settings
+         * @request GET:/admin/docpal/watermark/settings/{id}
+         * @deprecated
+         */
+        getAdminWatermarkSettingsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultWatermarkSettingsDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/settings/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Settings
+         * @name DeleteAdminWatermarkSettingsId
+         * @summary Delete watermark settings by id
+         * @request DELETE:/admin/docpal/watermark/settings/{id}
+         * @deprecated
+         */
+        deleteAdminWatermarkSettingsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/settings/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Settings
+         * @name GetAdminWatermarkSettingsTemplateTemplateid
+         * @summary Query list of watermark settings by template id
+         * @request GET:/admin/docpal/watermark/settings/template/{templateId}
+         * @deprecated
+         */
+        getAdminWatermarkSettingsTemplateTemplateid: (templateId: string, params: RequestParams = {}) =>
+            this.request<ResultListWatermarkSettingsDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/settings/template/${templateId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Settings
+         * @name GetAdminWatermarkSettingsRepairdata
+         * @request GET:/admin/docpal/watermark/settings/repairData
+         * @deprecated
+         */
+        getAdminWatermarkSettingsRepairdata: (params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/settings/repairData`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Settings
+         * @name GetAdminWatermarkSettingsPreviewId
+         * @summary preview watermark settings to return byte array
+         * @request GET:/admin/docpal/watermark/settings/preview/{id}
+         * @deprecated
+         */
+        getAdminWatermarkSettingsPreviewId: (id: string, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/settings/preview/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Watermark Settings
+         * @name GetAdminWatermarkSettingsContenttype
+         * @summary Get list of content type of watermark setting
+         * @request GET:/admin/docpal/watermark/settings/contentType
+         * @deprecated
+         */
+        getAdminWatermarkSettingsContenttype: (params: RequestParams = {}) =>
+            this.request<ResultListWMContentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/watermark/settings/contentType`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags UserSettingController
+         * @name GetAdminUserSystemFields
+         * @summary Get system fields
+         * @request GET:/admin/docpal/user/system/fields
+         * @deprecated
+         */
+        getAdminUserSystemFields: (params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/user/system/fields`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags UserSettingController
+         * @name GetAdminUserGetapplication
+         * @summary Get current user information
+         * @request GET:/admin/docpal/user/getApplication
+         * @deprecated
+         */
+        getAdminUserGetapplication: (params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/user/getApplication`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name GetAdminTypesList
+         * @summary Obtain all list of actived docpal types
+         * @request GET:/admin/docpal/types/list
+         */
+        getAdminTypesList: (
+            query?: {
+                isFolder?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/types/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name GetAdminTypesActive
+         * @summary Obtain all list of actived docpal types
+         * @request GET:/admin/docpal/types/active
+         */
+        getAdminTypesActive: (
+            query?: {
+                all?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/types/active`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name GetAdminTemplateEmailId
+         * @summary Obtain email template detail
+         * @request GET:/admin/docpal/template/email/{id}
+         * @deprecated
+         */
+        getAdminTemplateEmailId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultEmailTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name GetAdminTemplateEmailTemplateId
+         * @summary Obtain email template detail
+         * @request GET:/admin/docpal/template/email/template/{id}
+         * @deprecated
+         */
+        getAdminTemplateEmailTemplateId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultEmailTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/template/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name DeleteAdminTemplateEmailTemplateId
+         * @summary Delete email template by id
+         * @request DELETE:/admin/docpal/template/email/template/{id}
+         * @deprecated
+         */
+        deleteAdminTemplateEmailTemplateId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/template/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name GetAdminTemplateEmailLayouts
+         * @summary Obtain all layouts used by email template
+         * @request GET:/admin/docpal/template/email/layouts
+         * @deprecated
+         */
+        getAdminTemplateEmailLayouts: (params: RequestParams = {}) =>
+            this.request<ResultListEmailLayout, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/layouts`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name GetAdminTemplateEmailTemplateLayouts
+         * @summary Obtain all layouts used by email template
+         * @request GET:/admin/docpal/template/email/template/layouts
+         * @deprecated
+         */
+        getAdminTemplateEmailTemplateLayouts: (params: RequestParams = {}) =>
+            this.request<ResultListEmailLayout, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/template/layouts`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name GetAdminTemplateEmailLayoutId
+         * @summary Obtain email layout by id
+         * @request GET:/admin/docpal/template/email/layout/{id}
+         * @deprecated
+         */
+        getAdminTemplateEmailLayoutId: (id: number, params: RequestParams = {}) =>
+            this.request<ResultEmailLayout, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/layout/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name DeleteAdminTemplateEmailLayoutId
+         * @summary Delete email layout by id
+         * @request DELETE:/admin/docpal/template/email/layout/{id}
+         * @deprecated
+         */
+        deleteAdminTemplateEmailLayoutId: (id: number, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/layout/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name GetAdminTemplateEmailLayoutAll
+         * @summary Obtain all email layout
+         * @request GET:/admin/docpal/template/email/layout/all
+         * @deprecated
+         */
+        getAdminTemplateEmailLayoutAll: (params: RequestParams = {}) =>
+            this.request<ResultListEmailLayout, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/layout/all`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags EmailController
+         * @name GetAdminTemplateEmailAll
+         * @request GET:/admin/docpal/template/email/all
+         * @deprecated
+         */
+        getAdminTemplateEmailAll: (params: RequestParams = {}) =>
+            this.request<ResultListEmailTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/email/all`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocumentTemplateController
+         * @name GetAdminTemplateDocumentId
+         * @summary Get Document Template
+         * @request GET:/admin/docpal/template/document/{id}
+         */
+        getAdminTemplateDocumentId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultDocumentTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/document/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocumentTemplateController
+         * @name DeleteAdminTemplateDocumentId
+         * @summary Delete Document Template by id
+         * @request DELETE:/admin/docpal/template/document/{id}
+         */
+        deleteAdminTemplateDocumentId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/document/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocumentTemplateController
+         * @name GetAdminTemplateDocumentSupportFiletype
+         * @request GET:/admin/docpal/template/document/support/fileType
+         */
+        getAdminTemplateDocumentSupportFiletype: (params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/document/support/fileType`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocumentTemplateController
+         * @name GetAdminTemplateDocumentRefreshId
+         * @summary Refresh document template variables
+         * @request GET:/admin/docpal/template/document/refresh/{id}
+         */
+        getAdminTemplateDocumentRefreshId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultDocumentTemplateResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/document/refresh/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocumentTemplateController
+         * @name GetAdminTemplateDocumentPageConditions
+         * @summary Obtain all conditions that has been used
+         * @request GET:/admin/docpal/template/document/page/conditions
+         */
+        getAdminTemplateDocumentPageConditions: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/document/page/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocumentTemplateController
+         * @name GetAdminTemplateDocumentAll
+         * @summary Get All Document Template
+         * @request GET:/admin/docpal/template/document/all
+         */
+        getAdminTemplateDocumentAll: (params: RequestParams = {}) =>
+            this.request<ResultListDocumentTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/template/document/all`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-system-feature-controller
+         * @name GetAdminSystemfeatureUsers
+         * @request GET:/admin/docpal/systemfeature/users
+         * @deprecated
+         */
+        getAdminSystemfeatureUsers: (params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/systemfeature/users`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-system-feature-controller
+         * @name GetAdminSystemfeatureUsersNameUsername
+         * @request GET:/admin/docpal/systemfeature/users/name/{username}
+         * @deprecated
+         */
+        getAdminSystemfeatureUsersNameUsername: (username: string, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/systemfeature/users/name/${username}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-system-feature-controller
+         * @name GetAdminSystemfeatureKeycloakTokenVerification
+         * @request GET:/admin/docpal/systemfeature/keycloak-token-verification
+         * @deprecated
+         */
+        getAdminSystemfeatureKeycloakTokenVerification: (params: RequestParams = {}) =>
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/systemfeature/keycloak-token-verification`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-system-feature-controller
+         * @name GetAdminSystemfeatureGetfeatures
+         * @request GET:/admin/docpal/systemfeature/getFeatures
+         * @deprecated
+         */
+        getAdminSystemfeatureGetfeatures: (params: RequestParams = {}) =>
+            this.request<ResultMapStringBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/systemfeature/getFeatures`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags GlobalSettingController
+         * @name GetAdminSettingWorkflowConditionSetting
+         * @request GET:/admin/docpal/setting/workflow/condition/setting
+         * @deprecated
+         */
+        getAdminSettingWorkflowConditionSetting: (params: RequestParams = {}) =>
+            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/setting/workflow/condition/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags GlobalSettingController
+         * @name GetAdminSettingFeaturerolemapping
+         * @request GET:/admin/docpal/setting/featureRoleMapping
+         * @deprecated
+         */
+        getAdminSettingFeaturerolemapping: (params: RequestParams = {}) =>
+            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/setting/featureRoleMapping`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name GetAdminRelationQuerylanguagelocale
+         * @request GET:/admin/docpal/relation/queryLanguageLocale
+         * @deprecated
+         */
+        getAdminRelationQuerylanguagelocale: (params: RequestParams = {}) =>
+            this.request<ResultSetString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/queryLanguageLocale`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name GetAdminRelationInitelanguagecache
+         * @request GET:/admin/docpal/relation/initeLanguageCache
+         * @deprecated
+         */
+        getAdminRelationInitelanguagecache: (params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/initeLanguageCache`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name GetAdminRelationGetkeycloakproperty
+         * @summary get keyCloakProperty
+         * @request GET:/admin/docpal/relation/getKeyCloakProperty
+         * @deprecated
+         */
+        getAdminRelationGetkeycloakproperty: (params: RequestParams = {}) =>
+            this.request<ResultKeyCloakPropertyVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/getKeyCloakProperty`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags RetentionPolicyController
+         * @name GetAdminPolicyRetentionsId
+         * @summary Obtain RetentionPolicy detail
+         * @request GET:/admin/docpal/policy/retentions/{id}
+         */
+        getAdminPolicyRetentionsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultRetentionPolicyResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/policy/retentions/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags RetentionPolicyController
+         * @name DeleteAdminPolicyRetentionsId
+         * @summary Delete the retention policy it must not have been used yet
+         * @request DELETE:/admin/docpal/policy/retentions/{id}
+         */
+        deleteAdminPolicyRetentionsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/policy/retentions/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags RetentionPolicyController
+         * @name GetAdminPolicyRetentionsPageConditions
+         * @summary Obtain all conditions that has been used
+         * @request GET:/admin/docpal/policy/retentions/page/conditions
+         */
+        getAdminPolicyRetentionsPageConditions: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/policy/retentions/page/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags RetentionPolicyController
+         * @name GetAdminPolicyRetentionsDocumenttypeUsed
+         * @summary Query used document-type of retention policies
+         * @request GET:/admin/docpal/policy/retentions/documentType/used
+         */
+        getAdminPolicyRetentionsDocumenttypeUsed: (
+            query: {
+                documentType: string;
+                /** @format int64 */
+                id: number;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListRetentionTrigger, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/policy/retentions/documentType/used`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags HoldPolicyController
+         * @name GetAdminPolicyHoldsId
+         * @summary Obtain hold policy detail
+         * @request GET:/admin/docpal/policy/holds/{id}
+         */
+        getAdminPolicyHoldsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultHoldPolicy, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/policy/holds/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags HoldPolicyController
+         * @name DeleteAdminPolicyHoldsId
+         * @summary Delete the hold policy it must not have been used yet
+         * @request DELETE:/admin/docpal/policy/holds/{id}
+         */
+        deleteAdminPolicyHoldsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/policy/holds/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags PersonalDashboardController
+         * @name GetAdminPersonalDashboardId
+         * @summary Obtain a dashboard detail
+         * @request GET:/admin/docpal/personal/dashboard/{id}
+         */
+        getAdminPersonalDashboardId: (id: number, params: RequestParams = {}) =>
+            this.request<ResultPersonalDashboard, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/personal/dashboard/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags PersonalDashboardController
+         * @name DeleteAdminPersonalDashboardId
+         * @request DELETE:/admin/docpal/personal/dashboard/{id}
+         */
+        deleteAdminPersonalDashboardId: (id: number, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/personal/dashboard/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags OAuth2SettingController
+         * @name GetAdminOauth2Authenticationmethod
+         * @summary Get all authentication way of OAuth2.0
+         * @request GET:/admin/docpal/oauth2/authenticationMethod
+         * @deprecated
+         */
+        getAdminOauth2Authenticationmethod: (params: RequestParams = {}) =>
+            this.request<ResultOAuth2AuthenticationMethod, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/oauth2/authenticationMethod`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags OAuth2SettingController
+         * @name GetAdminOauth2AccesstokenSenderaddressSenderaddress
+         * @request GET:/admin/docpal/oauth2/accessToken/senderAddress/{senderAddress}
+         * @deprecated
+         */
+        getAdminOauth2AccesstokenSenderaddressSenderaddress: (senderAddress: string, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/oauth2/accessToken/senderAddress/${senderAddress}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MetadataSchemaController
+         * @name GetAdminMetadataNameName
+         * @request GET:/admin/docpal/metadata/name/{name}
+         */
+        getAdminMetadataNameName: (name: string, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/metadata/name/${name}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MetadataSchemaController
+         * @name GetAdminMetadataAll
+         * @request GET:/admin/docpal/metadata/all
+         */
+        getAdminMetadataAll: (params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/metadata/all`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-template-message-controller
+         * @name GetAdminMessageTemplateQueryMessageTemplates
+         * @request GET:/admin/docpal/message/template/query_message_templates
+         */
+        getAdminMessageTemplateQueryMessageTemplates: (params: RequestParams = {}) =>
+            this.request<ResultListMessageTemplateDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/message/template/query_message_templates`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-template-message-controller
+         * @name GetAdminMessageTemplateQueryMessageTemplateTemplatename
+         * @request GET:/admin/docpal/message/template/query_message_template/{templateName}
+         */
+        getAdminMessageTemplateQueryMessageTemplateTemplatename: (templateName: string, params: RequestParams = {}) =>
+            this.request<ResultMessageTemplateDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/message/template/query_message_template/${templateName}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-template-message-controller
+         * @name GetAdminMessageTemplateFindTemplateNameList
+         * @request GET:/admin/docpal/message/template/find_template_name_list
+         */
+        getAdminMessageTemplateFindTemplateNameList: (params: RequestParams = {}) =>
+            this.request<ResultMessageTemplateListDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/message/template/find_template_name_list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-template-message-controller
+         * @name GetAdminMessageTemplateFindTemplateInfoTemplatename
+         * @request GET:/admin/docpal/message/template/find_template_info/{templateName}
+         */
+        getAdminMessageTemplateFindTemplateInfoTemplatename: (templateName: string, params: RequestParams = {}) =>
+            this.request<ResultMessageTemplateDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/message/template/find_template_info/${templateName}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-template-message-controller
+         * @name GetAdminMessageTemplateDetailsId
+         * @request GET:/admin/docpal/message/template/details/{id}
+         */
+        getAdminMessageTemplateDetailsId: (id: number, params: RequestParams = {}) =>
+            this.request<ResultMessageTemplateDetailDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/message/template/details/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetAdminMasterTablesId
+         * @summary Get all fields of master table and include associated data structures
+         * @request GET:/admin/docpal/master/tables/{id}
+         * @deprecated
+         */
+        getAdminMasterTablesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name DeleteAdminMasterTablesId
+         * @request DELETE:/admin/docpal/master/tables/{id}
+         * @deprecated
+         */
+        deleteAdminMasterTablesId: (
+            id: string,
+            query?: {
+                enforceable?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/${id}`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetAdminMasterTablesIdStructure
+         * @summary Get data structure of master table，but not relation fields
+         * @request GET:/admin/docpal/master/tables/{id}/structure
+         * @deprecated
+         */
+        getAdminMasterTablesIdStructure: (id: string, params: RequestParams = {}) =>
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/${id}/structure`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetAdminMasterTablesIdRecordRecordid
+         * @summary Query row data record in single master table
+         * @request GET:/admin/docpal/master/tables/{id}/record/{recordId}
+         * @deprecated
+         */
+        getAdminMasterTablesIdRecordRecordid: (id: string, recordId: string, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/${id}/record/${recordId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetAdminMasterTablesIdRecordTemplate
+         * @summary Download excel template file of master table for use import data
+         * @request GET:/admin/docpal/master/tables/{id}/record/template
+         * @deprecated
+         */
+        getAdminMasterTablesIdRecordTemplate: (
+            id: string,
+            query?: {
+                operation?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/${id}/record/template`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetAdminMasterTablesIdAcls
+         * @summary Obtain all permission of current master table
+         * @request GET:/admin/docpal/master/tables/{id}/acls
+         * @deprecated
+         */
+        getAdminMasterTablesIdAcls: (id: string, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/${id}/acls`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetAdminMasterTablesPageConditions
+         * @request GET:/admin/docpal/master/tables/page/conditions
+         * @deprecated
+         */
+        getAdminMasterTablesPageConditions: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/page/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetAdminMasterTablesNameName
+         * @summary Obtain structure of master table through table label
+         * @request GET:/admin/docpal/master/tables/name/{name}
+         * @deprecated
+         */
+        getAdminMasterTablesNameName: (name: string, params: RequestParams = {}) =>
+            this.request<ResultMasterTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/name/${name}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetAdminMasterTablesDownloadFailure
+         * @summary Download data that failed to upload .csv file
+         * @request GET:/admin/docpal/master/tables/download/failure
+         * @deprecated
+         */
+        getAdminMasterTablesDownloadFailure: (
+            query: {
+                id: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/download/failure`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name GetAdminMasterTablesDatatypeMapping
+         * @summary Obtain dataType mapping of master table
+         * @request GET:/admin/docpal/master/tables/dataType/mapping
+         * @deprecated
+         */
+        getAdminMasterTablesDatatypeMapping: (params: RequestParams = {}) =>
+            this.request<ResultListMTFieldTypeMapping, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/dataType/mapping`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Management
+         * @name GetAdminManagementServicesDeprecate
+         * @summary Retrieve available services
+         * @request GET:/admin/docpal/management/services/
+         */
+        getAdminManagementServicesDeprecate: (params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/management/services/`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Management
+         * @name GetAdminManagementServices
+         * @summary Retrieve available services
+         * @request GET:/admin/docpal/management/services
+         */
+        getAdminManagementServices: (params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/management/services`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Management
+         * @name GetAdminManagementLoggersLevels
+         * @summary Retrieve the available logger levels of the services
+         * @request GET:/admin/docpal/management/loggers/levels
+         */
+        getAdminManagementLoggersLevels: (service: string, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/management/loggers/levels`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Management
+         * @name GetAdminManagementLoggersServiceLevels
+         * @summary Retrieve the available logger levels of the services
+         * @request GET:/admin/docpal/management/loggers/{service}/levels
+         */
+        getAdminManagementLoggersServiceLevels: (service: string, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/management/loggers/${service}/levels`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Management
+         * @name GetAdminManagementLoggersLevelsDeprecate
+         * @summary Retrieve the available logger levels of the services
+         * @request GET:/admin/docpal/management/loggers/levels/
+         */
+        getAdminManagementLoggersLevelsDeprecate: (service: string, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/management/loggers/levels/`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Management
+         * @name GetAdminManagementLoggersServiceLevelsDeprecate
+         * @summary Retrieve the available logger levels of the services
+         * @request GET:/admin/docpal/management/loggers/{service}/levels/
+         */
+        getAdminManagementLoggersServiceLevelsDeprecate: (service: string, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/management/loggers/${service}/levels/`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Management
+         * @name GetAdminManagementInfoService
+         * @summary Retrieve the services' Java and build information
+         * @request GET:/admin/docpal/management/info/{service}
+         */
+        getAdminManagementInfoService: (service: string, params: RequestParams = {}) =>
+            this.request<ResultMapStringMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/management/info/${service}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Management
+         * @name GetAdminManagementInfoServiceDeprecate
+         * @summary Retrieve the services' Java and build information
+         * @request GET:/admin/docpal/management/info/{service}/
+         */
+        getAdminManagementInfoServiceDeprecate: (service: string, params: RequestParams = {}) =>
+            this.request<ResultMapStringMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/management/info/${service}/`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Management
+         * @name GetAdminManagementInfo
+         * @summary Retrieve the services' Java and build information
+         * @request GET:/admin/docpal/management/info
+         */
+        getAdminManagementInfo: (service: string, params: RequestParams = {}) =>
+            this.request<ResultMapStringMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/management/info`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Management
+         * @name GetAdminManagementHealthServiceDeprecate
+         * @summary Retrieve the health, whether it is up or down, of the services
+         * @request GET:/admin/docpal/management/health/{service}/
+         */
+        getAdminManagementHealthServiceDeprecate: (service: string, params: RequestParams = {}) =>
+            this.request<ResultMapStringMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/management/health/${service}/`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Management
+         * @name GetAdminManagementHealth
+         * @summary Retrieve the health, whether it is up or down, of the services
+         * @request GET:/admin/docpal/management/health
+         */
+        getAdminManagementHealth: (service: string, params: RequestParams = {}) =>
+            this.request<ResultMapStringMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/management/health`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Management
+         * @name GetAdminManagementHealthService
+         * @summary Retrieve the health, whether it is up or down, of the services
+         * @request GET:/admin/docpal/management/health/{service}
+         */
+        getAdminManagementHealthService: (service: string, params: RequestParams = {}) =>
+            this.request<ResultMapStringMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/management/health/${service}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags IdTemplateController
+         * @name GetAdminIdTemplatesNameName
+         * @summary Find ID template by name
+         * @request GET:/admin/docpal/id-templates/name/{name}
+         * @deprecated
+         */
+        getAdminIdTemplatesNameName: (name: string, params: RequestParams = {}) =>
+            this.request<ResultIdTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/id-templates/name/${name}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags IdTemplateController
+         * @name GetAdminIdTemplatesList
+         * @summary Find all id templates
+         * @request GET:/admin/docpal/id-templates/list
+         * @deprecated
+         */
+        getAdminIdTemplatesList: (params: RequestParams = {}) =>
+            this.request<ResultListIdTemplate, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/id-templates/list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name GetAdminFormDesignIdDetail
+         * @summary Retrieve form design detail of published
+         * @request GET:/admin/docpal/form/design/{id}/detail
+         * @deprecated
+         */
+        getAdminFormDesignIdDetail: (id: string, params: RequestParams = {}) =>
+            this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/${id}/detail`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name GetAdminFormDesignProcessDefinitions
+         * @request GET:/admin/docpal/form/design/process/definitions
+         * @deprecated
+         */
+        getAdminFormDesignProcessDefinitions: (params: RequestParams = {}) =>
+            this.request<ResultListPDResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/process/definitions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name GetAdminFormDesignEmailId
+         * @request GET:/admin/docpal/form/design/email/{id}
+         * @deprecated
+         */
+        getAdminFormDesignEmailId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultEasyFormBaseEmailDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/email/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name GetAdminFormDesignEmailHistoryLogId
+         * @request GET:/admin/docpal/form/design/email/history/log/{id}
+         * @deprecated
+         */
+        getAdminFormDesignEmailHistoryLogId: (id: number, params: RequestParams = {}) =>
+            this.request<ResultEasyFormBaseEmailDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/email/history/log/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name GetAdminFormDesignDraftId
+         * @summary Retrieve form design draft
+         * @request GET:/admin/docpal/form/design/draft/{id}
+         * @deprecated
+         */
+        getAdminFormDesignDraftId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultFormDesignResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/draft/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name GetAdminFormDesignDatatypeMapping
+         * @summary Obtain dataType mapping of form design
+         * @request GET:/admin/docpal/form/design/dataType/mapping
+         * @deprecated
+         */
+        getAdminFormDesignDatatypeMapping: (params: RequestParams = {}) =>
+            this.request<ResultListMTFieldTypeMapping, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/dataType/mapping`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DAMSettingController
+         * @name GetAdminDamGetsupportedformat
+         * @request GET:/admin/docpal/dam/getSupportedFormat
+         * @deprecated
+         */
+        getAdminDamGetsupportedformat: (params: RequestParams = {}) =>
+            this.request<
+                ResultHashMapStringListConversionSupportDestType,
+                Result | (ResultObject | Result | ResultString)
+            >({
+                path: `/admin/docpal/dam/getSupportedFormat`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name GetAdminContactgroupIdUserUseridPermission
+         * @summary Get permission of contact group
+         * @request GET:/admin/docpal/contactGroup/{id}/user/{userId}/permission
+         * @deprecated
+         */
+        getAdminContactgroupIdUserUseridPermission: (id: string, userId: string, params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}/user/${userId}/permission`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Profile APIs
+         * @name GetAdminCompanyprofilesCompanyidChopsCompanychopidFile
+         * @summary Download company chop file
+         * @request GET:/admin/docpal/companyProfiles/{companyId}/chops/{companyChopId}/file
+         * @deprecated
+         */
+        getAdminCompanyprofilesCompanyidChopsCompanychopidFile: (
+            companyId: string,
+            companyChopId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/companyProfiles/${companyId}/chops/${companyChopId}/file`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetAdminCaseTypesIdVersions
+         * @summary Create a new version case type
+         * @request GET:/admin/docpal/case/types/{id}/versions
+         * @deprecated
+         */
+        getAdminCaseTypesIdVersions: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${id}/versions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetAdminCaseTypesIdStylejson
+         * @summary Query style json of cmmn xml
+         * @request GET:/admin/docpal/case/types/{id}/styleJson
+         * @deprecated
+         */
+        getAdminCaseTypesIdStylejson: (
+            id: string,
+            query?: {
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${id}/styleJson`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetAdminCaseTypesIdStarttask
+         * @summary Retrieve startup task for the case definition of the latest version
+         * @request GET:/admin/docpal/case/types/{id}/startTask
+         * @deprecated
+         */
+        getAdminCaseTypesIdStarttask: (
+            id: string,
+            query?: {
+                startMatchSign?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListPlanItemDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${id}/startTask`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetAdminCaseTypesIdExport
+         * @summary 导出Case数据，包含CaseType、CaseModelDraft、CmmnVersion和cmmn.xml文件
+         * @request GET:/admin/docpal/case/types/{id}/export
+         * @deprecated
+         */
+        getAdminCaseTypesIdExport: (
+            id: string,
+            query?: {
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${id}/export`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetAdminCaseTypesIdDownloadXml
+         * @summary Download cmmn.xml of version (case model definition)
+         * @request GET:/admin/docpal/case/types/{id}/download/xml
+         * @deprecated
+         */
+        getAdminCaseTypesIdDownloadXml: (
+            id: string,
+            query?: {
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${id}/download/xml`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetAdminCaseTypesIdDownloadDeployVersion
+         * @summary Download latest version cmmn xml (case model definition)
+         * @request GET:/admin/docpal/case/types/{id}/download/deploy/version
+         * @deprecated
+         */
+        getAdminCaseTypesIdDownloadDeployVersion: (id: string, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${id}/download/deploy/version`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetAdminCaseTypesIdCaseinfo
+         * @summary Get form fields of deployed version based on this case type
+         * @request GET:/admin/docpal/case/types/{id}/caseInfo
+         * @deprecated
+         */
+        getAdminCaseTypesIdCaseinfo: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanTableFieldDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${id}/caseInfo`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetAdminCaseTypesCasetypeid
+         * @summary Retrieve case type detail
+         * @request GET:/admin/docpal/case/types/{caseTypeId}
+         * @deprecated
+         */
+        getAdminCaseTypesCasetypeid: (
+            caseTypeId: string,
+            query?: {
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCaseTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${caseTypeId}`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetAdminCaseTypesCasetypeidPermissions
+         * @request GET:/admin/docpal/case/types/{caseTypeId}/permissions
+         * @deprecated
+         */
+        getAdminCaseTypesCasetypeidPermissions: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${caseTypeId}/permissions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetAdminCaseTypesCasetypeidPermissionsUserid
+         * @request GET:/admin/docpal/case/types/{caseTypeId}/permissions/{userId}
+         * @deprecated
+         */
+        getAdminCaseTypesCasetypeidPermissionsUserid: (
+            caseTypeId: string,
+            userId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${caseTypeId}/permissions/${userId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetAdminCaseTypesCasetypeidInstances
+         * @summary Retrieve all case instances of this case type
+         * @request GET:/admin/docpal/case/types/{caseTypeId}/instances
+         * @deprecated
+         */
+        getAdminCaseTypesCasetypeidInstances: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnInstance, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${caseTypeId}/instances`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetAdminCaseTypesCasedefinitionkeyDeployment
+         * @request GET:/admin/docpal/case/types/{caseDefinitionKey}/deployment
+         * @deprecated
+         */
+        getAdminCaseTypesCasedefinitionkeyDeployment: (caseDefinitionKey: string, params: RequestParams = {}) =>
+            this.request<ResultCmmnDeploymentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${caseDefinitionKey}/deployment`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetAdminCaseTypesVersionVersionid
+         * @summary Retrieve detail of case model version
+         * @request GET:/admin/docpal/case/types/version/{versionId}
+         * @deprecated
+         */
+        getAdminCaseTypesVersionVersionid: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultCmmnVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/version/${versionId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetAdminCaseTypesVersionVersionidStarttask
+         * @summary Retrieve startup task for the case definition of the specified version
+         * @request GET:/admin/docpal/case/types/version/{versionId}/startTask
+         * @deprecated
+         */
+        getAdminCaseTypesVersionVersionidStarttask: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/version/${versionId}/startTask`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetAdminCaseTypesPermissionsRules
+         * @summary Retrieve case type permission rules
+         * @request GET:/admin/docpal/case/types/permissions/rules
+         * @deprecated
+         */
+        getAdminCaseTypesPermissionsRules: (params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/permissions/rules`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name GetAdminCaseTypesDatatypeMapping
+         * @summary Obtain support column mapping
+         * @request GET:/admin/docpal/case/types/dataType/mapping
+         * @deprecated
+         */
+        getAdminCaseTypesDatatypeMapping: (params: RequestParams = {}) =>
+            this.request<ResultListMTFieldTypeMapping, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/dataType/mapping`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name GetAdminCaseTablesId
+         * @summary Retrieve detail of case table and include associated data structures
+         * @request GET:/admin/docpal/case/tables/{id}
+         * @deprecated
+         */
+        getAdminCaseTablesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultCaseTableResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/tables/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name DeleteAdminCaseTablesId
+         * @request DELETE:/admin/docpal/case/tables/{id}
+         * @deprecated
+         */
+        deleteAdminCaseTablesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/tables/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name GetAdminCaseTablesNameExist
+         * @request GET:/admin/docpal/case/tables/name/exist
+         * @deprecated
+         */
+        getAdminCaseTablesNameExist: (
+            query: {
+                tablename: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/tables/name/exist`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name GetAdminCaseTablesCasetypeCasetypeid
+         * @summary Retrieve a list of case tables that belong to the specified case type
+         * @request GET:/admin/docpal/case/tables/caseType/{caseTypeId}
+         * @deprecated
+         */
+        getAdminCaseTablesCasetypeCasetypeid: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultListCaseTable, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/tables/caseType/${caseTypeId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTableController
+         * @name GetAdminCaseTablesCasequery
+         * @request GET:/admin/docpal/case/tables/caseQuery
+         * @deprecated
+         */
+        getAdminCaseTablesCasequery: (
+            query: {
+                tableName: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/tables/caseQuery`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetAdminCaseSupportSubcase
+         * @summary Filter case definition to select as sub-case
+         * @request GET:/admin/docpal/case/support/subCase
+         * @deprecated
+         */
+        getAdminCaseSupportSubcase: (params: RequestParams = {}) =>
+            this.request<ResultListCaseDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/support/subCase`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetAdminCaseSupportSubcaseFields
+         * @summary Extract input field list of sub-case definition
+         * @request GET:/admin/docpal/case/support/subCase/fields
+         * @deprecated
+         */
+        getAdminCaseSupportSubcaseFields: (
+            query: {
+                caseDefinitionId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListPlanTableFieldDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/support/subCase/fields`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetAdminCaseInstanceCaseinstanceidForms
+         * @request GET:/admin/docpal/case/instance/{caseInstanceId}/forms
+         * @deprecated
+         */
+        getAdminCaseInstanceCaseinstanceidForms: (caseInstanceId: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/instance/${caseInstanceId}/forms`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetAdminCaseInstanceCaseinstanceidEvents
+         * @request GET:/admin/docpal/case/instance/{caseInstanceId}/events
+         * @deprecated
+         */
+        getAdminCaseInstanceCaseinstanceidEvents: (caseInstanceId: string, params: RequestParams = {}) =>
+            this.request<ResultListUserEventInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/instance/${caseInstanceId}/events`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetAdminCaseInstanceTasksTaskidForm
+         * @summary Retrieve form information of task
+         * @request GET:/admin/docpal/case/instance/tasks/{taskId}/form
+         * @deprecated
+         */
+        getAdminCaseInstanceTasksTaskidForm: (taskId: string, params: RequestParams = {}) =>
+            this.request<ResultCaseInstanceFormDataDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/instance/tasks/${taskId}/form`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetAdminCaseInstanceProcessDefinitions
+         * @summary Retrieve process definition of this case instance through case definition key
+         * @request GET:/admin/docpal/case/instance/process/definitions
+         * @deprecated
+         */
+        getAdminCaseInstanceProcessDefinitions: (
+            query: {
+                businessKey: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/instance/process/definitions`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetAdminCaseInstancePlanitemsPlanitemidForm
+         * @summary Retrieve form information of plan item instance
+         * @request GET:/admin/docpal/case/instance/planItems/{planItemId}/form
+         * @deprecated
+         */
+        getAdminCaseInstancePlanitemsPlanitemidForm: (
+            planItemId: string,
+            query?: {
+                caseDefinitionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/instance/planItems/${planItemId}/form`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetAdminCaseDefinitions
+         * @summary Retrieve all case model definitions
+         * @request GET:/admin/docpal/case/definitions
+         * @deprecated
+         */
+        getAdminCaseDefinitions: (params: RequestParams = {}) =>
+            this.request<ResultListCaseDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/definitions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetAdminCaseDefinitionsCasedefinitionkeyInstances
+         * @summary Retrieve case instances of this case model
+         * @request GET:/admin/docpal/case/definitions/{caseDefinitionKey}/instances
+         * @deprecated
+         */
+        getAdminCaseDefinitionsCasedefinitionkeyInstances: (caseDefinitionKey: string, params: RequestParams = {}) =>
+            this.request<ResultListCaseInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/definitions/${caseDefinitionKey}/instances`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name GetAdminCaseDefinitionCasedefinitionkeyProcessDefinitions
+         * @summary Retrieve process definition of this case instance through case definition key
+         * @request GET:/admin/docpal/case/definition/{caseDefinitionKey}/process/definitions
+         * @deprecated
+         */
+        getAdminCaseDefinitionCasedefinitionkeyProcessDefinitions: (
+            caseDefinitionKey: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/definition/${caseDefinitionKey}/process/definitions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardId
+         * @summary Retrieve case dashboard detail
+         * @request GET:/admin/docpal/case/dashboard/{id}
+         */
+        getAdminCaseDashboardId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultCmmnDashboardResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name DeleteAdminCaseDashboardId
+         * @summary Delete the case dashboard it must not have been used yet
+         * @request DELETE:/admin/docpal/case/dashboard/{id}
+         */
+        deleteAdminCaseDashboardId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardVersionVersionidStages
+         * @summary Get stages of the current version that it is case definition
+         * @request GET:/admin/docpal/case/dashboard/version/{versionId}/stages
+         */
+        getAdminCaseDashboardVersionVersionidStages: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/version/${versionId}/stages`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardVersionVersionidPrimaryform
+         * @summary Get primary form of the current version that it is case definition
+         * @request GET:/admin/docpal/case/dashboard/version/{versionId}/primaryForm
+         */
+        getAdminCaseDashboardVersionVersionidPrimaryform: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/version/${versionId}/primaryForm`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardVersionVersionidPrimaryformData
+         * @summary Retrieve information and information data of this case version
+         * @request GET:/admin/docpal/case/dashboard/version/{versionId}/primaryForm/data
+         */
+        getAdminCaseDashboardVersionVersionidPrimaryformData: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultCaseInstanceFormDataDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/version/${versionId}/primaryForm/data`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardVersionVersionidActivity
+         * @summary Get all activity of the current version that it is case definition
+         * @request GET:/admin/docpal/case/dashboard/version/{versionId}/activity
+         */
+        getAdminCaseDashboardVersionVersionidActivity: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/version/${versionId}/activity`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardVersionVersionidActions
+         * @request GET:/admin/docpal/case/dashboard/version/{versionId}/actions
+         */
+        getAdminCaseDashboardVersionVersionidActions: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/version/${versionId}/actions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardInstanceCaseinstanceidMilestoneStatus
+         * @summary Obtain Milestone Status of a case instance
+         * @request GET:/admin/docpal/case/dashboard/instance/{caseInstanceId}/milestone/status
+         */
+        getAdminCaseDashboardInstanceCaseinstanceidMilestoneStatus: (
+            caseInstanceId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/instance/${caseInstanceId}/milestone/status`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardInstanceCaseidTasks
+         * @summary Retrieve all tasks of this case instance
+         * @request GET:/admin/docpal/case/dashboard/instance/{caseId}/tasks
+         */
+        getAdminCaseDashboardInstanceCaseidTasks: (caseId: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/instance/${caseId}/tasks`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardInstanceCaseidStages
+         * @summary Retrieve stages of current case instance
+         * @request GET:/admin/docpal/case/dashboard/instance/{caseId}/stages
+         */
+        getAdminCaseDashboardInstanceCaseidStages: (caseId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/instance/${caseId}/stages`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardInstanceCaseidPrimaryformData
+         * @summary Retrieve primary form data (Case Dashboard) structure
+         * @request GET:/admin/docpal/case/dashboard/instance/{caseId}/primaryForm/data
+         */
+        getAdminCaseDashboardInstanceCaseidPrimaryformData: (caseId: string, params: RequestParams = {}) =>
+            this.request<ResultCaseInstanceFormDataDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/instance/${caseId}/primaryForm/data`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardInstanceCaseidPlanitems
+         * @summary Retrieve planItems
+         * @request GET:/admin/docpal/case/dashboard/instance/{caseId}/planItems
+         */
+        getAdminCaseDashboardInstanceCaseidPlanitems: (
+            caseId: string,
+            query: {
+                type: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/instance/${caseId}/planItems`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardInstanceCaseidPersonalTasks
+         * @summary Retrieve personal tasks of this case instance
+         * @request GET:/admin/docpal/case/dashboard/instance/{caseId}/personal/tasks
+         */
+        getAdminCaseDashboardInstanceCaseidPersonalTasks: (caseId: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/instance/${caseId}/personal/tasks`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardInstanceCaseidEvents
+         * @summary Retrieve all events of this case instance
+         * @request GET:/admin/docpal/case/dashboard/instance/{caseId}/events
+         */
+        getAdminCaseDashboardInstanceCaseidEvents: (caseId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/instance/${caseId}/events`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardInstanceCaseidActivity
+         * @summary Retrieve activities of this case instance
+         * @request GET:/admin/docpal/case/dashboard/instance/{caseId}/activity
+         */
+        getAdminCaseDashboardInstanceCaseidActivity: (caseId: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnActivityItem, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/instance/${caseId}/activity`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardInstanceCaseidActions
+         * @summary Retrieve activities of this case instance
+         * @request GET:/admin/docpal/case/dashboard/instance/{caseId}/actions
+         */
+        getAdminCaseDashboardInstanceCaseidActions: (
+            caseId: string,
+            query: {
+                userId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/instance/${caseId}/actions`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardInstanceStagePlanitems
+         * @summary Retrieve all planItem instance of this case instance
+         * @request GET:/admin/docpal/case/dashboard/instance/stage/planItems
+         */
+        getAdminCaseDashboardInstanceStagePlanitems: (
+            query: {
+                /** Case Instance Id */
+                caseInstanceId: any;
+                /** Stage Plan Item Definition Id */
+                stageDefinitionId: any;
+                /** PlanItemInstanceDTO */
+                planItemInstanceDTO: PlanItemInstanceDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/instance/stage/planItems`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardCasetypeCasetypeid
+         * @summary Retrieve all Case View Dashboard
+         * @request GET:/admin/docpal/case/dashboard/caseType/{caseTypeId}
+         */
+        getAdminCaseDashboardCasetypeCasetypeid: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultListCmmnDashboard, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/caseType/${caseTypeId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardCasetypeCasetypeidVersionnumberVersionnumber
+         * @summary Retrieve case dashboard detail
+         * @request GET:/admin/docpal/case/dashboard/caseType/{caseTypeId}/versionNumber/{versionNumber}
+         */
+        getAdminCaseDashboardCasetypeCasetypeidVersionnumberVersionnumber: (
+            caseTypeId: string,
+            versionNumber: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListCmmnDashboard, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/caseType/${caseTypeId}/versionNumber/${versionNumber}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardCasetypeCasetypeidStages
+         * @summary Retrieve stages of current case instance
+         * @request GET:/admin/docpal/case/dashboard/caseType/{caseTypeId}/stages
+         */
+        getAdminCaseDashboardCasetypeCasetypeidStages: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/caseType/${caseTypeId}/stages`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardCasetypeCasetypeidPrimaryform
+         * @summary Retrieve primary form (Case Dashboard)
+         * @request GET:/admin/docpal/case/dashboard/caseType/{caseTypeId}/primaryForm
+         */
+        getAdminCaseDashboardCasetypeCasetypeidPrimaryform: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultCmmnPlanFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/caseType/${caseTypeId}/primaryForm`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardCasetypeCasetypeidActivity
+         * @request GET:/admin/docpal/case/dashboard/caseType/{caseTypeId}/activity
+         */
+        getAdminCaseDashboardCasetypeCasetypeidActivity: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/caseType/${caseTypeId}/activity`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CmmnDashboardController
+         * @name GetAdminCaseDashboardCasetypeCasetypeidActions
+         * @request GET:/admin/docpal/case/dashboard/caseType/{caseTypeId}/actions
+         */
+        getAdminCaseDashboardCasetypeCasetypeidActions: (caseTypeId: string, params: RequestParams = {}) =>
+            this.request<ResultListPlanItemInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/dashboard/caseType/${caseTypeId}/actions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name GetAdminCalendarsId
+         * @request GET:/admin/docpal/calendars/{id}
+         * @deprecated
+         */
+        getAdminCalendarsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/calendars/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name DeleteAdminCalendarsId
+         * @summary Delete the Task  it must not have been used yet
+         * @request DELETE:/admin/docpal/calendars/{id}
+         * @deprecated
+         */
+        deleteAdminCalendarsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/calendars/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name GetAdminCalendarsSettingTables
+         * @summary Obtain calendar tables
+         * @request GET:/admin/docpal/calendars/setting/tables
+         * @deprecated
+         */
+        getAdminCalendarsSettingTables: (params: RequestParams = {}) =>
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/calendars/setting/tables`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CalendarController
+         * @name GetAdminCalendarsActive
+         * @request GET:/admin/docpal/calendars/active
+         * @deprecated
+         */
+        getAdminCalendarsActive: (params: RequestParams = {}) =>
+            this.request<ResultListCalendarTaskRespDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/calendars/active`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FolderCabinetController
+         * @name GetAdminCabinetIdUseWorkflow
+         * @summary Query workflow list of use this folder cabinet
+         * @request GET:/admin/docpal/cabinet/{id}/use/workflow
+         * @deprecated
+         */
+        getAdminCabinetIdUseWorkflow: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/cabinet/${id}/use/workflow`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FolderCabinetController
+         * @name GetAdminCabinetTemplateId
+         * @summary get folder cabinet template tree
+         * @request GET:/admin/docpal/cabinet/template/{id}
+         * @deprecated
+         */
+        getAdminCabinetTemplateId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/cabinet/template/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FolderCabinetController
+         * @name GetAdminCabinetTemplateIdInformation
+         * @request GET:/admin/docpal/cabinet/template/{id}/information
+         * @deprecated
+         */
+        getAdminCabinetTemplateIdInformation: (id: string, params: RequestParams = {}) =>
+            this.request<ResultFolderCabinet, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/cabinet/template/${id}/information`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FolderCabinetController
+         * @name GetAdminCabinetList
+         * @summary query all folder cabinet list of top level
+         * @request GET:/admin/docpal/cabinet/list
+         * @deprecated
+         */
+        getAdminCabinetList: (params: RequestParams = {}) =>
+            this.request<ResultListFolderCabinetResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/cabinet/list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-ocr-controller
+         * @name GetAdminAzureOcrQueryazuresetting
+         * @request GET:/admin/docpal/azure/ocr/queryAzureSetting
+         */
+        getAdminAzureOcrQueryazuresetting: (params: RequestParams = {}) =>
+            this.request<ResultAzureSettingDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/azure/ocr/queryAzureSetting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-ocr-controller
+         * @name GetAdminAzureOcrQueryazureocrmodels
+         * @request GET:/admin/docpal/azure/ocr/queryAzureOcrModels
+         */
+        getAdminAzureOcrQueryazureocrmodels: (params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/azure/ocr/queryAzureOcrModels`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-alert-controller
+         * @name GetAdminAzureOcrJudgeandsendalertemail
+         * @request GET:/admin/docpal/azure/ocr/judgeAndSendAlertEmail
+         */
+        getAdminAzureOcrJudgeandsendalertemail: (
+            query: {
+                scanType: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/azure/ocr/judgeAndSendAlertEmail`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-ocr-controller
+         * @name GetAdminAzureOcrConditions
+         * @request GET:/admin/docpal/azure/ocr/conditions
+         */
+        getAdminAzureOcrConditions: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/azure/ocr/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * @description Get detailed information about a specific user, including roles, groups, and configuration rules
+         *
+         * @tags User Management
+         * @name GetAdminAclUserUserid
+         * @summary Get User Details
+         * @request GET:/admin/docpal/acl/user/{userId}
+         */
+        getAdminAclUserUserid: (userId: string, params: RequestParams = {}) =>
+            this.request<ResultUserDetailDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/user/${userId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * @description Get dropdown list of users in roles
+         *
+         * @tags Role-User Management
+         * @name GetAdminAclRoleUsersDropdown
+         * @summary Get Role Users Dropdown List
+         * @request GET:/admin/docpal/acl/role/users/dropdown
+         */
+        getAdminAclRoleUsersDropdown: (params: RequestParams = {}) =>
+            this.request<ResultListAclUserInformation, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/role/users/dropdown`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * @description Get hierarchy structure of all roles in the system
+         *
+         * @tags Role Permission Management
+         * @name GetAdminAclRoleRoot
+         * @summary Get All Role Structure for Admin
+         * @request GET:/admin/docpal/acl/role/root
+         */
+        getAdminAclRoleRoot: (params: RequestParams = {}) =>
+            this.request<ResultRoleDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/role/root`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * @description Get role hierarchy structure by role ID
+         *
+         * @tags Role Permission Management
+         * @name GetAdminAclRoleHierarchyRoleid
+         * @summary Get Role Hierarchy
+         * @request GET:/admin/docpal/acl/role/hierarchy/{roleId}
+         */
+        getAdminAclRoleHierarchyRoleid: (roleId: string, params: RequestParams = {}) =>
+            this.request<ResultRoleDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/role/hierarchy/${roleId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * @description Get permission list by resource ID
+         *
+         * @tags Resource Permission Management
+         * @name GetAdminAclResourcePermissionsResourceResourceid
+         * @summary Get Resource Permission List
+         * @request GET:/admin/docpal/acl/resource-permissions/resource/{resourceId}
+         */
+        getAdminAclResourcePermissionsResourceResourceid: (resourceId: string, params: RequestParams = {}) =>
+            this.request<ResultListResourcePermissionVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/acl/resource-permissions/resource/${resourceId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * @description Retrieve all documents under the specified document ID. If no ID is provided, returns root directory documents
+         *
+         * @tags Document Management
+         * @name GetAdminAclDocumentDocumentid
+         * @summary Get Document Details
+         * @request GET:/admin/docpal/acl/document/{documentId}
+         */
+        getAdminAclDocumentDocumentid: (documentId: string, params: RequestParams = {}) =>
+            this.request<DocumentDTO, void | Result>({
+                path: `/admin/docpal/acl/document/${documentId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * @description Retrieve all documents under the specified document ID. If no ID is provided, returns root directory documents
+         *
+         * @tags Document Management
+         * @name GetAdminAclDocument
+         * @summary Get Document Details
+         * @request GET:/admin/docpal/acl/document
+         */
+        getAdminAclDocument: (documentId: string, params: RequestParams = {}) =>
+            this.request<DocumentDTO, void | Result>({
+                path: `/admin/docpal/acl/document`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-system-admin-controller
+         * @name DeleteAdminSystemAdminClean
+         * @request DELETE:/admin/system_admin/clean
+         * @deprecated
+         */
+        deleteAdminSystemAdminClean: (params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/system_admin/clean`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name DeleteAdminDocpaltypeSettingsNameMetadata
+         * @summary Remove metadata from DocPal Type
+         * @request DELETE:/admin/docpalType/settings/{name}/metadata
+         */
+        deleteAdminDocpaltypeSettingsNameMetadata: (
+            name: string,
+            data: DocPalTypeMetadata,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/${name}/metadata`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name DeleteAdminDocpaltypeSettingsNameMetadataMetadataname
+         * @summary Remove metadata from DocPal Type
+         * @request DELETE:/admin/docpalType/settings/{name}/metadata/{metadataName}
+         */
+        deleteAdminDocpaltypeSettingsNameMetadataMetadataname: (
+            name: string,
+            metadataName: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/${name}/metadata/${metadataName}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name DeleteAdminDocpaltypeSettingsRelatedId
+         * @summary Delete related docpal type
+         * @request DELETE:/admin/docpalType/settings/related/{id}
+         */
+        deleteAdminDocpaltypeSettingsRelatedId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/related/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name DeleteAdminDocpaltypeSettingsMetadataV2DeleteMetadataid
+         * @request DELETE:/admin/docpalType/settings/metadata-v2/delete/{metadataId}
+         */
+        deleteAdminDocpaltypeSettingsMetadataV2DeleteMetadataid: (metadataId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/metadata-v2/delete/${metadataId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DocPalTypeSettingController
+         * @name DeleteAdminDocpaltypeSettingsDocpalTypeV2DeleteMetadataDocpaltypeid
+         * @request DELETE:/admin/docpalType/settings/docpal-type-v2/delete-metadata/{docpalTypeId}
+         */
+        deleteAdminDocpaltypeSettingsDocpalTypeV2DeleteMetadataDocpaltypeid: (
+            docpalTypeId: string,
+            data: AddMetadataRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpalType/settings/docpal-type-v2/delete-metadata/${docpalTypeId}`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Version Controller
+         * @name DeleteAdminWorkflowVersionDraftidDraftid
+         * @request DELETE:/admin/docpal/workflow/version/draftId/{draftId}
+         * @deprecated
+         */
+        deleteAdminWorkflowVersionDraftidDraftid: (draftId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/version/draftId/${draftId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name DeleteAdminWorkflowProcess
+         * @request DELETE:/admin/docpal/workflow/process
+         * @deprecated
+         */
+        deleteAdminWorkflowProcess: (
+            query?: {
+                processInstanceId?: string;
+                /** @format date-time */
+                createdDate?: string;
+                /** @format date-time */
+                endedDate?: string;
+                completed?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name DeleteAdminWorkflowProcessUser
+         * @summary Delete process instance by user id
+         * @request DELETE:/admin/docpal/workflow/process/user
+         * @deprecated
+         */
+        deleteAdminWorkflowProcessUser: (
+            query: {
+                /** Delete Workflow (Request) */
+                deleteWorkflowReq: DeleteWorkflowReq;
+            },
+            data: any,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/user`,
+                method: "DELETE",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name DeleteAdminWorkflowProcessDefinitionSuspendDraftid
+         * @summary Suspend a process definition
+         * @request DELETE:/admin/docpal/workflow/process/definition/suspend/{draftId}
+         * @deprecated
+         */
+        deleteAdminWorkflowProcessDefinitionSuspendDraftid: (draftId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/suspend/${draftId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name DeleteAdminWorkflowProcessDefinitionRemoveDraftid
+         * @summary Remove process definition from workflow list
+         * @request DELETE:/admin/docpal/workflow/process/definition/remove/{draftId}
+         * @deprecated
+         */
+        deleteAdminWorkflowProcessDefinitionRemoveDraftid: (draftId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/process/definition/remove/${draftId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow
+         * @name DeleteAdminWorkflowDeletedocumenttypeprofile
+         * @request DELETE:/admin/docpal/workflow/deleteDocumentTypeProfile
+         */
+        deleteAdminWorkflowDeletedocumenttypeprofile: (
+            query: {
+                /** @format int64 */
+                profileID: number;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/workflow/deleteDocumentTypeProfile`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-template-message-controller
+         * @name DeleteAdminMessageTemplateId
+         * @request DELETE:/admin/docpal/message/template/{id}
+         */
+        deleteAdminMessageTemplateId: (id: number, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/message/template/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name DeleteAdminMasterTablesIdRecordBatch
+         * @summary Batch delete record by id array
+         * @request DELETE:/admin/docpal/master/tables/{id}/record/batch
+         * @deprecated
+         */
+        deleteAdminMasterTablesIdRecordBatch: (
+            id: string,
+            query: {
+                recordIds: string[];
+            },
+            data: any,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/${id}/record/batch`,
+                method: "DELETE",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags MasterTableController
+         * @name DeleteAdminMasterTablesIdFields
+         * @summary Delete field when not data (Master Table)
+         * @request DELETE:/admin/docpal/master/tables/{id}/fields
+         * @deprecated
+         */
+        deleteAdminMasterTablesIdFields: (
+            id: string,
+            query: {
+                columnName: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/master/tables/${id}/fields`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name DeleteAdminInternalshare
+         * @request DELETE:/admin/docpal/internalShare
+         */
+        deleteAdminInternalshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/internalShare`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name DeleteAdminFormDesignId
+         * @request DELETE:/admin/docpal/form/design/{id}
+         * @deprecated
+         */
+        deleteAdminFormDesignId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FormDesignController
+         * @name DeleteAdminFormDesignDraftidFormresultFormresultid
+         * @request DELETE:/admin/docpal/form/design/{draftId}/formResult/{formResultId}
+         * @deprecated
+         */
+        deleteAdminFormDesignDraftidFormresultFormresultid: (
+            draftId: string,
+            formResultId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/form/design/${draftId}/formResult/${formResultId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name DeleteAdminContactgroupIdFieldsFieldname
+         * @summary Add new field to contact Group
+         * @request DELETE:/admin/docpal/contactGroup/{id}/fields/{fieldName}
+         * @deprecated
+         */
+        deleteAdminContactgroupIdFieldsFieldname: (
+            id: string,
+            fieldName: string,
+            data: any,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListContactAttribute, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}/fields/${fieldName}`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ContactController
+         * @name DeleteAdminContactgroupIdContactContactdetailid
+         * @summary Physically delete contact records
+         * @request DELETE:/admin/docpal/contactGroup/{id}/contact/{contactDetailId}
+         * @deprecated
+         */
+        deleteAdminContactgroupIdContactContactdetailid: (
+            id: string,
+            contactDetailId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/contactGroup/${id}/contact/${contactDetailId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseTypeController
+         * @name DeleteAdminCaseTypesId
+         * @summary Delete the case type it must not have been used yet
+         * @request DELETE:/admin/docpal/case/types/{id}
+         * @deprecated
+         */
+        deleteAdminCaseTypesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/types/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name DeleteAdminCaseInstance
+         * @request DELETE:/admin/docpal/case/instance
+         * @deprecated
+         */
+        deleteAdminCaseInstance: (
+            query?: {
+                caseId?: string;
+                caseInstanceId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/instance`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaseInstanceController
+         * @name DeleteAdminCaseInstanceCaseid
+         * @request DELETE:/admin/docpal/case/instance/{caseId}
+         * @deprecated
+         */
+        deleteAdminCaseInstanceCaseid: (caseId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/case/instance/${caseId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FolderCabinetController
+         * @name DeleteAdminCabinetId
+         * @summary Delete folder cabinet template and all sub folder cabinet
+         * @request DELETE:/admin/docpal/cabinet/{id}
+         * @deprecated
+         */
+        deleteAdminCabinetId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/cabinet/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags FolderCabinetController
+         * @name DeleteAdminCabinetAll
+         * @summary Delete folder cabinet template and all sub folder cabinet
+         * @request DELETE:/admin/docpal/cabinet/all
+         * @deprecated
+         */
+        deleteAdminCabinetAll: (params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/cabinet/all`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name GetAdminNuxeoIdentityIscanmodified
+         * @summary group is can modified ?
+         * @request GET:/admin/nuxeo/identity/isCanModified
+         */
+        getAdminNuxeoIdentityIscanmodified: (
+            query: {
+                groupId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/isCanModified`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PutAdminNuxeoIdentityIscanmodified
+         * @summary group is can modified ?
+         * @request PUT:/admin/nuxeo/identity/isCanModified
+         */
+        putAdminNuxeoIdentityIscanmodified: (
+            query: {
+                groupId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/isCanModified`,
+                method: "PUT",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostAdminNuxeoIdentityIscanmodified
+         * @summary group is can modified ?
+         * @request POST:/admin/nuxeo/identity/isCanModified
+         */
+        postAdminNuxeoIdentityIscanmodified: (
+            query: {
+                groupId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/isCanModified`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name DeleteAdminNuxeoIdentityIscanmodified
+         * @summary group is can modified ?
+         * @request DELETE:/admin/nuxeo/identity/isCanModified
+         */
+        deleteAdminNuxeoIdentityIscanmodified: (
+            query: {
+                groupId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/isCanModified`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name OptionsAdminNuxeoIdentityIscanmodified
+         * @summary group is can modified ?
+         * @request OPTIONS:/admin/nuxeo/identity/isCanModified
+         */
+        optionsAdminNuxeoIdentityIscanmodified: (
+            query: {
+                groupId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/isCanModified`,
+                method: "OPTIONS",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name HeadAdminNuxeoIdentityIscanmodified
+         * @summary group is can modified ?
+         * @request HEAD:/admin/nuxeo/identity/isCanModified
+         */
+        headAdminNuxeoIdentityIscanmodified: (
+            query: {
+                groupId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/isCanModified`,
+                method: "HEAD",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PatchAdminNuxeoIdentityIscanmodified
+         * @summary group is can modified ?
+         * @request PATCH:/admin/nuxeo/identity/isCanModified
+         */
+        patchAdminNuxeoIdentityIscanmodified: (
+            query: {
+                groupId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/nuxeo/identity/isCanModified`,
+                method: "PATCH",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name GetAdminRelationQuery
+         * @request GET:/admin/docpal/relation/query
+         * @deprecated
+         */
+        getAdminRelationQuery: (
+            query?: {
+                /** @format int64 */
+                id?: number;
+                processKey?: string;
+                userTaskId?: string;
+                jsonValue?: string;
+                versionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormPropertiesRelation, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/query`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name PutAdminRelationQuery
+         * @request PUT:/admin/docpal/relation/query
+         * @deprecated
+         */
+        putAdminRelationQuery: (
+            query?: {
+                /** @format int64 */
+                id?: number;
+                processKey?: string;
+                userTaskId?: string;
+                jsonValue?: string;
+                versionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormPropertiesRelation, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/query`,
+                method: "PUT",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name PostAdminRelationQuery
+         * @request POST:/admin/docpal/relation/query
+         * @deprecated
+         */
+        postAdminRelationQuery: (
+            query?: {
+                /** @format int64 */
+                id?: number;
+                processKey?: string;
+                userTaskId?: string;
+                jsonValue?: string;
+                versionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormPropertiesRelation, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/query`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name DeleteAdminRelationQuery
+         * @request DELETE:/admin/docpal/relation/query
+         * @deprecated
+         */
+        deleteAdminRelationQuery: (
+            query?: {
+                /** @format int64 */
+                id?: number;
+                processKey?: string;
+                userTaskId?: string;
+                jsonValue?: string;
+                versionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormPropertiesRelation, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/query`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name OptionsAdminRelationQuery
+         * @request OPTIONS:/admin/docpal/relation/query
+         * @deprecated
+         */
+        optionsAdminRelationQuery: (
+            query?: {
+                /** @format int64 */
+                id?: number;
+                processKey?: string;
+                userTaskId?: string;
+                jsonValue?: string;
+                versionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormPropertiesRelation, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/query`,
+                method: "OPTIONS",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name HeadAdminRelationQuery
+         * @request HEAD:/admin/docpal/relation/query
+         * @deprecated
+         */
+        headAdminRelationQuery: (
+            query?: {
+                /** @format int64 */
+                id?: number;
+                processKey?: string;
+                userTaskId?: string;
+                jsonValue?: string;
+                versionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormPropertiesRelation, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/query`,
+                method: "HEAD",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name PatchAdminRelationQuery
+         * @request PATCH:/admin/docpal/relation/query
+         * @deprecated
+         */
+        patchAdminRelationQuery: (
+            query?: {
+                /** @format int64 */
+                id?: number;
+                processKey?: string;
+                userTaskId?: string;
+                jsonValue?: string;
+                versionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormPropertiesRelation, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/query`,
+                method: "PATCH",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name GetAdminRelationQuerylanguage
+         * @request GET:/admin/docpal/relation/queryLanguage
+         * @deprecated
+         */
+        getAdminRelationQuerylanguage: (
+            query?: {
+                /** @format int64 */
+                id?: number;
+                locale?: string;
+                languageKey?: string;
+                languageContent?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListLanguageEntity, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/queryLanguage`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name PutAdminRelationQuerylanguage
+         * @request PUT:/admin/docpal/relation/queryLanguage
+         * @deprecated
+         */
+        putAdminRelationQuerylanguage: (
+            query?: {
+                /** @format int64 */
+                id?: number;
+                locale?: string;
+                languageKey?: string;
+                languageContent?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListLanguageEntity, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/queryLanguage`,
+                method: "PUT",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name PostAdminRelationQuerylanguage
+         * @request POST:/admin/docpal/relation/queryLanguage
+         * @deprecated
+         */
+        postAdminRelationQuerylanguage: (
+            query?: {
+                /** @format int64 */
+                id?: number;
+                locale?: string;
+                languageKey?: string;
+                languageContent?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListLanguageEntity, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/queryLanguage`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name DeleteAdminRelationQuerylanguage
+         * @request DELETE:/admin/docpal/relation/queryLanguage
+         * @deprecated
+         */
+        deleteAdminRelationQuerylanguage: (
+            query?: {
+                /** @format int64 */
+                id?: number;
+                locale?: string;
+                languageKey?: string;
+                languageContent?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListLanguageEntity, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/queryLanguage`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name OptionsAdminRelationQuerylanguage
+         * @request OPTIONS:/admin/docpal/relation/queryLanguage
+         * @deprecated
+         */
+        optionsAdminRelationQuerylanguage: (
+            query?: {
+                /** @format int64 */
+                id?: number;
+                locale?: string;
+                languageKey?: string;
+                languageContent?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListLanguageEntity, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/queryLanguage`,
+                method: "OPTIONS",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name HeadAdminRelationQuerylanguage
+         * @request HEAD:/admin/docpal/relation/queryLanguage
+         * @deprecated
+         */
+        headAdminRelationQuerylanguage: (
+            query?: {
+                /** @format int64 */
+                id?: number;
+                locale?: string;
+                languageKey?: string;
+                languageContent?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListLanguageEntity, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/queryLanguage`,
+                method: "HEAD",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name PatchAdminRelationQuerylanguage
+         * @request PATCH:/admin/docpal/relation/queryLanguage
+         * @deprecated
+         */
+        patchAdminRelationQuerylanguage: (
+            query?: {
+                /** @format int64 */
+                id?: number;
+                locale?: string;
+                languageKey?: string;
+                languageContent?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListLanguageEntity, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/queryLanguage`,
+                method: "PATCH",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name GetAdminRelationIsldapmode
+         * @summary is Ldap Mode
+         * @request GET:/admin/docpal/relation/isLdapMode
+         * @deprecated
+         */
+        getAdminRelationIsldapmode: (params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/isLdapMode`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name PutAdminRelationIsldapmode
+         * @summary is Ldap Mode
+         * @request PUT:/admin/docpal/relation/isLdapMode
+         * @deprecated
+         */
+        putAdminRelationIsldapmode: (params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/isLdapMode`,
+                method: "PUT",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name PostAdminRelationIsldapmode
+         * @summary is Ldap Mode
+         * @request POST:/admin/docpal/relation/isLdapMode
+         * @deprecated
+         */
+        postAdminRelationIsldapmode: (params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/isLdapMode`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name DeleteAdminRelationIsldapmode
+         * @summary is Ldap Mode
+         * @request DELETE:/admin/docpal/relation/isLdapMode
+         * @deprecated
+         */
+        deleteAdminRelationIsldapmode: (params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/isLdapMode`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name OptionsAdminRelationIsldapmode
+         * @summary is Ldap Mode
+         * @request OPTIONS:/admin/docpal/relation/isLdapMode
+         * @deprecated
+         */
+        optionsAdminRelationIsldapmode: (params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/isLdapMode`,
+                method: "OPTIONS",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name HeadAdminRelationIsldapmode
+         * @summary is Ldap Mode
+         * @request HEAD:/admin/docpal/relation/isLdapMode
+         * @deprecated
+         */
+        headAdminRelationIsldapmode: (params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/isLdapMode`,
+                method: "HEAD",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-form-properties-relation-controller
+         * @name PatchAdminRelationIsldapmode
+         * @summary is Ldap Mode
+         * @request PATCH:/admin/docpal/relation/isLdapMode
+         * @deprecated
+         */
+        patchAdminRelationIsldapmode: (params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/docpal/relation/isLdapMode`,
+                method: "PATCH",
                 ...params,
             }),
     };

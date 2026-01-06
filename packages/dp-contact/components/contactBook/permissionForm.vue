@@ -1,98 +1,135 @@
 <template>
-  <FormRenderer ref="FormRendererRef" :form-json="formJson" @form-change="handleFormChange"> </FormRenderer>
+  <FormRenderer ref="FormRendererRef" :form-json="formJson" @form-change="handleFormChange"></FormRenderer>
 </template>
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
-import { globalApi } from 'api'
 import formJson from './permission.vform.json'
+import {
+  convertPermissionObjectByPermissions,
+  getPermissionSelectOption,
+  convertPermissionsByPermissionObject,
+  convertSelectOptions
+} from '#imports'
+
 const { t } = useI18n()
 const emits = defineEmits(['refresh', 'vFormChange'])
 
 const FormRendererRef = ref()
 
 async function getFormData() {
-  const data = await FormRendererRef.value.getFormData()
-  const permissionRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('permissions')
-  const options = permissionRef.getOptionItems()
+  const data: any = await FormRendererRef.value.getFormData()
+
+  // TODO delete
   const permissions = {
-    Read: getPermissionData(data.read, options),
-    Create: getPermissionData(data.create, options),
-    Delete: getPermissionData(data.delete, options),
-    Manage: getPermissionData(data.manage, options),
-    Edit: getPermissionData(data.edit, options)
+    Read: getPermissionData(data.read),
+    Create: getPermissionData(data.create),
+    Delete: getPermissionData(data.delete),
+    Manage: getPermissionData(data.manage),
+    Edit: getPermissionData(data.edit)
   }
+
+  // new Api
+  // const permissions = {
+  //   Read: convertPermissionObjectByPermissions(data.read),
+  //   Create: convertPermissionObjectByPermissions(data.create),
+  //   Delete: convertPermissionObjectByPermissions(data.delete),
+  //   Manage: convertPermissionObjectByPermissions(data.manage),
+  //   Edit: convertPermissionObjectByPermissions(data.edit)
+  // }
   return { name: data.name, permissions }
 }
-function getPermissionData(values: any, options?: any) {
-  if (!options) {
-    const permissionRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('permissions')
-    options = permissionRef.getOptionItems()
-  }
-  if (!values) return {}
-  const result = {
-    users: [],
-    groups: [],
-    roles: []
-  }
-  const userList = options.find((item: any) => item.value === 'user_users')?.options
-  const groupList = options.find((item: any) => item.value === 'user_groups')?.options
-  const roleList = options.find((item: any) => item.value === 'user_roles')?.options
-  values.forEach((value: any) => {
-    if (userList.some((item: any) => item.value === value)) {
-      result.users.push(value)
-    } else if (groupList.some((item: any) => item.value === value)) {
-      result.groups.push(value)
-    } else if (roleList.some((item: any) => item.value === value)) {
-      result.roles.push(value)
+
+function getPermissionData(permissions: any) {
+  if (!permissions) return {}
+  const item: Record<string, string[]> = {}
+  permissions.forEach((key: string) => {
+    const segments = key.split('_')
+
+    if (segments.length < 1) {
+      return item
     }
+    if (!item[`${segments[0]}s`]) {
+      item[`${segments[0]}s`] = []
+    }
+    item[`${segments[0]}s`].push(segments.slice(1).join('_'))
   })
-  if (result.users.length === 0) delete result.users
-  if (result.groups.length === 0) delete result.groups
-  if (result.roles.length === 0) delete result.roles
-  return result
+  return item
 }
-function getPermissionType(value: any) {
-  const permissionRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('permissions')
-  const options = permissionRef.getOptionItems()
-  const userList = options.find((item: any) => item.value === 'user_users')?.options
-  const groupList = options.find((item: any) => item.value === 'user_groups')?.options
-  const roleList = options.find((item: any) => item.value === 'user_roles')?.options
-  if (userList.some((item: any) => item.value === value)) {
-    return 'user'
-  } else if (groupList.some((item: any) => item.value === value)) {
-    return 'group'
-  } else if (roleList.some((item: any) => item.value === value)) {
-    return 'role'
-  }
-}
+
 function setFormData(data: any) {
+  // TODO: Delete
   const params = {
     name: data.name,
-    read: data.permissions.Read?.map((item: any) => item.value) || [],
-    create: data.permissions.Create?.map((item: any) => item.value) || [],
-    delete: data.permissions.Delete?.map((item: any) => item.value) || [],
-    manage: data.permissions.Manage?.map((item: any) => item.value) || [],
-    edit: data.permissions.Edit?.map((item: any) => item.value) || []
+    read: convertSelectOptions(data.permissions.Read),
+    create: convertSelectOptions(data.permissions.Create),
+    delete: convertSelectOptions(data.permissions.Delete),
+    manage: convertSelectOptions(data.permissions.Manage),
+    edit: convertSelectOptions(data.permissions.Edit)
   }
+
+  // new Api
+  // const params = {
+  //   name: data.name,
+  //   read: convertPermissionsByPermissionObject(data.permissions.Read),
+  //   create: convertPermissionsByPermissionObject(data.permissions.Read),
+  //   delete: convertPermissionsByPermissionObject(data.permissions.Read),
+  //   manage: convertPermissionsByPermissionObject(data.permissions.Read),
+  //   edit: convertPermissionsByPermissionObject(data.permissions.Read)
+  // }
+
   FormRendererRef.value.vFormRenderRef.setFormData(params)
 }
+
 function setFieldValue(fieldName: string, data: any) {
   const widgetRef = FormRendererRef.value.vFormRenderRef.getWidgetRef(fieldName)
   if (!widgetRef) return
   widgetRef.setValue(data)
 }
+
 function getFieldValue(fieldName: string) {
   const widgetRef = FormRendererRef.value.vFormRenderRef.getWidgetRef(fieldName)
   if (!widgetRef) return
   return widgetRef.getValue()
 }
+
 function setDisabledForm(disabled: boolean = true) {
   if (disabled) FormRendererRef.value.vFormRenderRef.disableForm()
   else FormRendererRef.value.vFormRenderRef.enableForm()
 }
+
 function handleFormChange({ fieldName, newValue, oldValue, formModel }: any) {
+  // TODO:delete
   emits('vFormChange', { fieldName, newValue, oldValue, formModel })
+
+  // new Api
+  // const permissions = {
+  //   Read: convertPermissionObjectByPermissions(formModel.read),
+  //   Create: convertPermissionObjectByPermissions(formModel.create),
+  //   Delete: convertPermissionObjectByPermissions(formModel.delete),
+  //   Manage: convertPermissionObjectByPermissions(formModel.manage),
+  //   Edit: convertPermissionObjectByPermissions(formModel.edit)
+  // }
+  // emits('vFormChange', { name: formModel.name, permissions })
 }
-defineExpose({ getFormData, setFormData, getPermissionType, setFieldValue, getFieldValue, setDisabledForm })
+
+async function setPermissionsOption() {
+  const permissionOptionList = await getPermissionSelectOption()
+
+  const list = ['read', 'create', 'delete', 'edit', 'manage']
+  list.forEach((key: string) => {
+    try {
+      const widgetRef = FormRendererRef.value.vFormRenderRef.getWidgetRef(key)
+      widgetRef.loadOptions(permissionOptionList)
+    } catch (e) {
+      console.log('setPermissionsOption', e)
+    }
+  })
+}
+
+onMounted(async () => {
+  await setPermissionsOption()
+})
+defineExpose({ getFormData, setFormData, setFieldValue, getFieldValue, setDisabledForm })
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+</style>

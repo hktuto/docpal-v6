@@ -10,7 +10,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { globalApi } from 'api'
+import { clientApi } from 'api'
 import { routeContactList } from '~/utils/routerHelper'
 const tableColumnRender = reactive({
   name: 'TableColumnRender'
@@ -29,14 +29,15 @@ const initLoading = ref(false)
 const ContactListTableRef = ref()
 const ContactBookPermissionRef = ref()
 const ContactBookFieldSettingRef = ref()
+
 async function init(isInitTable = true) {
   try {
     loading.value = true
     initLoading.value = true
-    const res = await globalApi.api.getContactgroupId(props.id).then((res) => res.data)
+    const res: any = await clientApi.api.getDmsContactGroupId(props.id).then((res) => res.data)
     detail.value = res
     if (!res.hasPermissions) res.hasPermissions = ['Read']
-    permissionHelper.getPermission(res.hasPermissions)
+    await permissionHelper.getPermission(res.hasPermissions)
     contactDetailHelper.init(res)
     if (isInitTable) {
       setTimeout(() => {
@@ -54,21 +55,33 @@ async function init(isInitTable = true) {
     }, 1000)
   }
 }
+
 async function handleFormChange({ fieldName, newValue, oldValue, formModel }: any) {
   if (initLoading.value) return
+
+  // 僅使用put數據的接口，減少冗餘接口
+  // const params = {
+  //   ...contactDetail,
+  //   attributes: detail.value.attributes,
+  //   status: detail.value.status
+  // }
+  // await clientApi.api.putDmsContactGroupId(props.id, params).then(r => r.data)
+
+  // TODO: delete
   if (fieldName === 'name') {
-    updateDetail({ fieldName, newValue, oldValue, formModel })
+    await updateDetail({ fieldName, newValue, oldValue })
   } else {
     let _newValue = newValue ? JSON.parse(JSON.stringify(newValue)) : []
     let _oldValue = oldValue ? JSON.parse(JSON.stringify(oldValue)) : []
     if (_newValue.length > _oldValue.length) {
-      contactAddPermission({ fieldName, newValue: _newValue, oldValue: _oldValue, formModel })
+      await contactAddPermission({ fieldName, newValue: _newValue, oldValue: _oldValue })
     } else if (_newValue.length < _oldValue.length) {
-      contactRemovePermission({ fieldName, newValue: _newValue, oldValue: _oldValue, formModel })
+      await contactRemovePermission({ fieldName, newValue: _newValue, oldValue: _oldValue })
     }
   }
 }
-async function updateDetail({ fieldName, newValue, oldValue, formModel }: any) {
+
+async function updateDetail({ fieldName, newValue, oldValue }: any) {
   try {
     initLoading.value = true
     const permissions = await ContactBookPermissionRef.value.getFormData()
@@ -78,69 +91,75 @@ async function updateDetail({ fieldName, newValue, oldValue, formModel }: any) {
       attributes: detail.value.attributes,
       status: detail.value.status
     }
-    await globalApi.api.putContactgroupId(props.id, params)
+    await clientApi.api.putDmsContactGroupId(props.id, params).then(r => r.data)
   } catch (error) {
     console.log(error)
-    resetPermission(fieldName, oldValue)
+    await resetPermission(fieldName, oldValue)
     ElMessage.error(t('dpMsg_error'))
   } finally {
-    resetInitLoading()
+    await resetInitLoading()
   }
 }
-async function contactAddPermission({ fieldName, newValue, oldValue, formModel }: any) {
+
+async function contactAddPermission({ fieldName, newValue, oldValue }: any) {
   try {
     initLoading.value = true
-    const addItem = newValue.filter((item) => !oldValue.includes(item))
-    const type = ContactBookPermissionRef.value.getPermissionType(addItem[0])
+    const addItem = newValue.filter((item: string) => !oldValue.includes(item))
+    const segments = addItem[0].split('_')
     const params = {
-      dataType: type,
-      value: addItem[0],
+      dataType: segments[0],
+      value: segments.slice(1).join('_'),
       name: capitalizeFirstLetter(fieldName)
     }
-    await globalApi.api.postContactgroupIdPermission(props.id, params)
+    await clientApi.api.postDmsContactGroupIdPermission(props.id, params)
     ElMessage.success(t('dpMsg_success'))
   } catch (error) {
     console.log(error)
-    resetPermission(fieldName, oldValue)
+    await resetPermission(fieldName, oldValue)
     ElMessage.error(t('dpMsg_error'))
   } finally {
-    resetInitLoading()
+    await resetInitLoading()
   }
 }
-async function contactRemovePermission({ fieldName, newValue, oldValue, formModel }: any) {
+
+async function contactRemovePermission({ fieldName, newValue, oldValue }: any) {
   try {
     initLoading.value = true
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
   } catch (error) {
-    resetPermission(fieldName, oldValue)
+    await resetPermission(fieldName, oldValue)
     return
   }
   try {
-    const removeItem = oldValue.filter((item) => !newValue.includes(item))
-    const type = ContactBookPermissionRef.value.getPermissionType(removeItem[0])
+    const removeItem = oldValue.filter((item: string) => !newValue.includes(item))
+    const segments = removeItem[0].split('_')
+
     const params = {
-      dataType: type,
-      value: removeItem[0],
+      dataType: segments[0],
+      value: segments.slice(1).join('_'),
       name: capitalizeFirstLetter(fieldName)
     }
-    await globalApi.api.patchContactgroupIdPermission(props.id, params)
+    await clientApi.api.patchDmsContactGroupIdPermission(props.id, params).then(r => r.data)
     ElMessage.success(t('dpMsg_success'))
   } catch (error) {
-    resetPermission(fieldName, oldValue)
+    await resetPermission(fieldName, oldValue)
     ElMessage.error(t('dpMsg_error'))
   } finally {
-    resetInitLoading()
+    await resetInitLoading()
   }
 }
+
 async function resetPermission(fieldName: string, oldValue: any) {
   ContactBookPermissionRef.value.setFieldValue(fieldName, oldValue)
   ContactBookPermissionRef.value.setDisabledForm(true)
   await resetInitLoading(1000)
   ContactBookPermissionRef.value.setDisabledForm(false)
 }
-function capitalizeFirstLetter(string) {
+
+function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
+
 async function resetInitLoading(time = 100) {
   await new Promise((resolve) => {
     setTimeout(() => {
@@ -149,6 +168,7 @@ async function resetInitLoading(time = 100) {
     }, time)
   })
 }
+
 provide('contactDetailHelper', contactDetailHelper)
 provide('contactBookPermissionHelper', permissionHelper)
 onMounted(() => {
@@ -163,6 +183,7 @@ onMounted(() => {
 
 .responsive-container {
   width: 70%;
+
   :deep(.el-input) {
     width: 200px;
   }
@@ -172,6 +193,7 @@ onMounted(() => {
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: var(--app-space-s);
+
   .contactList--left {
     padding-right: var(--app-space-s);
     border-right: 1px solid var(--app-grey-800);
