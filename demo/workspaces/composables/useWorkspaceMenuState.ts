@@ -1,6 +1,7 @@
 import type { InjectionKey, Ref, ComputedRef } from 'vue'
 import type { MenuItem } from '../utils/db/schema/workspaces'
-import { v4 as uuidv4 } from 'uuid'
+import { v7 as uuidv7 } from 'uuid'
+import { useSingleWorkspaceContext } from './useSingleWorkspace';
 // Menu state for component
 export interface MenuState {
   items: MenuItem[]
@@ -12,7 +13,7 @@ export interface MenuState {
 // Menu context interface
 export interface MenuContext {
   state: Ref<MenuState>
-  workspaceSlug: Ref<string>
+  workspaceSlug: string | undefined
   toggleFolder: (id: string) => void
   startEdit: (id: string) => void
   saveEdit: (id: string, newLabel: string) => Promise<void>
@@ -27,22 +28,17 @@ export const WorkspaceMenuContextKey: InjectionKey<MenuContext> = Symbol('Worksp
 
 export const useWorkspaceMenu = () => {
   const { query } = usePglite()
-
+  const { workspace, menuActionsRef,openMenuItemActions } = useSingleWorkspaceContext()
   const state = ref<MenuState>({
     items: [],
     expandedFolders: new Set(),
     editingItemId: null,
     isDragging: false
   })
-  const workspaceSlug = ref('')
 
-  async function getMenuFromDb(){
-    const data = await query(`SELECT menu FROM workspaces WHERE slug = $1`, [workspaceSlug.value])
-    console.log('data', data)
-    state.value.items = data as MenuItem[]
-  }
   async function saveMenuToDb(){
-    await query(`UPDATE workspaces SET menu = $1 WHERE slug = $2`, [state.value.items, workspaceSlug.value])
+    console.log('saveMenuToDb', state.value.items, workspace.value?.id)
+    await query(`UPDATE workspaces SET menu = $1 WHERE id = $2`, [JSON.parse(JSON.stringify(state.value.items)), workspace.value?.id])
   }
 
   function findItemById(items: MenuItem[], id: string): MenuItem | undefined {
@@ -118,10 +114,17 @@ export const useWorkspaceMenu = () => {
     await saveMenuToDb()
   }
 
+  const getMenuFromDb = async () => {
+    if(!workspace.value) return
+    const menu = workspace.value?.menu
+    if(!menu) return
+    state.value.items = menu as MenuItem[]
+  }
+
   const addItem = async (parentId: string | null, type: MenuItem['type']) => {
     const newItem: MenuItem = {
-      id: uuidv4(),
-      label: '',
+      id: uuidv7(),
+      label: 'new folder',
       type,
       children: type === 'folder' ? [] : undefined,
       slug: `new-${type}-${Date.now()}`
@@ -134,12 +137,12 @@ export const useWorkspaceMenu = () => {
       } else {
         state.value.items.push(newItem)
       }
-      await saveMenuToDb()
+      // await saveMenuToDb()
     }
   
     const router = useRouter()
     function navigateToItem(item: MenuItem) {
-      const base = `/workspaces/${workspaceSlug.value}`
+      const base = `/workspaces/${workspace.value?.slug}`
       console.log('navigateToItem', item)
       switch (item.type) {
         case 'folder':
@@ -160,12 +163,12 @@ export const useWorkspaceMenu = () => {
     }
   
     function openSetting(slug: string, type: MenuItem['type']) {
-      router.push(`/workspaces/${workspaceSlug.value}/${type}/${slug}/setting`)
+      router.push(`/workspaces/${workspace.value?.slug}/${type}/${slug}/setting`)
     }
 
     provide(WorkspaceMenuContextKey, {
       state,
-      workspaceSlug,
+      workspaceSlug: workspace.value?.slug,
       toggleFolder,
       startEdit,
       saveEdit,
@@ -178,7 +181,9 @@ export const useWorkspaceMenu = () => {
 
     return {
       state,
-      workspaceSlug,
+      workspaceSlug: workspace.value?.slug,
+      menuActionsRef,
+      openMenuItemActions,
       getMenuFromDb,
       saveMenuToDb,
       toggleFolder,

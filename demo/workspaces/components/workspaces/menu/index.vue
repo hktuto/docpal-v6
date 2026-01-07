@@ -10,16 +10,19 @@ import { WorkspaceMenuContextKey } from '../../../composables/useWorkspaceMenuSt
 
 interface Props {
   workspaceId: string
-  workspaceSlug: string
   initialMenu: MenuItem[]
   isAdmin: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  workspaceId: '',
+  initialMenu: [] as any,
+  isAdmin: true,
+})
 
 
 
-const {state, workspaceSlug, addItem, saveMenuToDb, getMenuFromDb} = useWorkspaceMenu()
+const {state,  addItem, saveMenuToDb, getMenuFromDb} = useWorkspaceMenu()
 
 
 // Helper: Deep compare menu items using JSON stringification
@@ -45,17 +48,12 @@ const debouncedSave = useDebounceFn(async (menu: MenuItem[]) => {
 
 // Watch for drag changes and save
 watch(() => state.value.items, (newMenu) => {
+  console.log('newMenu', newMenu)
   // Only auto-save if we're not receiving external updates
   if (!state.value.isDragging) return
   
   console.log('[Menu] Items changed during drag, will save...')
 }, { deep: true })
-
-watch(workspaceSlug, (slug) => {
-  if(!slug) return
-  workspaceSlug.value = slug
-  getMenuFromDb()
-}, { immediate: true, deep: true })
 
 
 // Helper: Remove item by id recursively
@@ -121,7 +119,7 @@ async function handleMenuChange(newItems: MenuItem[]) {
 }
 
 // Add item popover
-const addItemPopover = ref()
+
 const addItemTarget = ref<HTMLElement | null>(null)
 
 // Table creation dialog
@@ -134,30 +132,6 @@ const createTableForm = ref({
   icon: '',
 })
 
-function openAddMenu(event: MouseEvent) {
-  if (!props.isAdmin) return
-  addItemTarget.value = event.currentTarget as HTMLElement
-  addItemPopover.value?.open(addItemTarget.value)
-}
-
-async function handleAddItem(type: MenuItem['type'], parentId: string | null = null) {
-  addItemPopover.value?.close()
-  
-  if (type === 'table') {
-    // Open table creation dialog
-    createTableForm.value = { name: '', description: '', icon: '' }
-    createTableParentId.value = parentId
-    
-    // Open popover at the add button location
-    if (addItemTarget.value) {
-      createTableTarget.value = addItemTarget.value
-      createTablePopover.value?.open(addItemTarget.value)
-    }
-  } else {
-    // For other types (folder, view, dashboard), add directly
-    await addItem(parentId, type)
-  }
-}
 
 async function handleCreateTable() {
   if (!createTableForm.value.name.trim()) {
@@ -167,22 +141,15 @@ async function handleCreateTable() {
   // TODO: create table
   console.log('handleCreateTable', createTableForm.value)
 }
+
+onMounted(async () => {
+  await getMenuFromDb()
+})
 </script>
 
 <template>
   <div class="workspace-menu">
-    <!-- Header -->
-    <Teleport defer to="#workspace-sidebar-actions-start">
-        <el-button
-          v-if="isAdmin"
-          text
-          circle
-          size="small"
-          @click="openAddMenu"
-        >
-          <Icon name="material-symbols:add" />
-        </el-button>
-      </Teleport>
+
 
     <!-- Menu Content -->
     <div class="menu-content">
@@ -196,7 +163,7 @@ async function handleCreateTable() {
       </div>
 
       <!-- Draggable Menu Items -->
-      <WorkspaceMenuDraggableList
+      <WorkspacesMenuDraggableList
         v-else
         v-model="state.items"
         :level="0"
@@ -206,34 +173,9 @@ async function handleCreateTable() {
       />
     </div>
 
-    <!-- Add Item Popover -->
-    <CommonPopoverDialog
-      ref="addItemPopover"
-      placement="bottom-start"
-      :width="200"
-    >
-      <div class="add-menu">
-        <div class="add-menu-item" @click="handleAddItem('folder')">
-          <Icon name="material-symbols:folder-outline" />
-          <span>Folder</span>
-        </div>
-        <div class="add-menu-item" @click="handleAddItem('table')">
-          <Icon name="material-symbols:table-outline" />
-          <span>Table</span>
-        </div>
-        <div class="add-menu-item" @click="handleAddItem('view')">
-          <Icon name="material-symbols:view-list-outline" />
-          <span>View</span>
-        </div>
-        <div class="add-menu-item" @click="handleAddItem('dashboard')">
-          <Icon name="material-symbols:dashboard-outline" />
-          <span>Dashboard</span>
-        </div>
-      </div>
-    </CommonPopoverDialog>
-
+    <slot/>
     <!-- Create Table Dialog -->
-    <CommonPopoverDialog
+    <UiPopoverDialog
       ref="createTablePopover"
       placement="right-start"
       :width="400"
@@ -270,7 +212,7 @@ async function handleCreateTable() {
           </el-button>
         </div>
       </el-form>
-    </CommonPopoverDialog>
+    </UiPopoverDialog>
   </div>
 </template>
 

@@ -1,21 +1,61 @@
 <script setup lang="ts">
 import type { WorkspaceType } from '../../utils/db/schema/workspaces'
 import { WorkspaceSchema } from '../../utils/db/schema/workspaces.zod'
+import { VirtGrid } from 'vue-virt-list'
+import { useDebounceFn } from '@vueuse/core'
 
 const createWorkspacePopover = ref()
 const viewMode = ref<'grid' | 'table'>('grid')
-const { query } = usePglite()
-const workspaces = ref<WorkspaceType[]>([])
+
+// Use workspaces composable
+const { workspaces, loading, getWorkspaces, searchWorkspaces, clearAllWorkspaces } = useWorkspaces()
+
+// Grid container ref and responsive columns
+const gridContainerRef = ref<HTMLElement>()
+const { columnCount } = useGridColumns(gridContainerRef, {
+  minColumnWidth: 260,
+  minColumns: 1,
+  maxColumns: 6,
+  gap: 16
+})
+
+// Refs for scrolling
+const virtGridRef = ref()
+const tableRef = ref()
+
+// Search state for database-level filtering
+const useDbSearch = ref(false)
 
 const routerProvider = inject(MenuRouterKey)
-async function getWorkspaces() {
-  const data = await query(`SELECT * FROM workspaces`)
-  workspaces.value = data
-}
+
+// Provide search handler to SearchableList (returns filtered results)
+provide('onSearchParamsChange', async (params: any) => {
+  if (!useDbSearch.value) return null // Use client-side filtering
+  
+  // Call database search and return results (doesn't modify workspaces.value)
+  return await searchWorkspaces({
+    keyword: params.keyword,
+    filters: params.filters,
+    sortBy: params.sortBy,
+    sortOrder: params.sortOrder,
+    isFilterStage: params.isFilterStage
+  })
+})
+
+// Watch for mode changes
+// watch(useDbSearch, async (newValue) => {
+//   if (!newValue) {
+//     // Switching back to client-side: ensure we have all data
+//     if (workspaces.value.length === 0) {
+//       await getWorkspaces()
+//     }
+//   }
+// })
 
 function handleCreateWorkspace(e: MouseEvent) {
   createWorkspacePopover.value.open(e.currentTarget as HTMLElement)
 }
+
 
 function handleCreateWorkspaceSuccess() {
   getWorkspaces()
@@ -38,6 +78,25 @@ function handleWorkspaceSelected(workspace: WorkspaceType) {
   // Handle workspace selection (e.g., navigate to workspace)
 }
 
+async function clearData() {
+  await clearAllWorkspaces()
+}
+
+
+
+function handleFiltered() {
+  // Scroll to top when filters are applied
+  nextTick(() => {
+    if (viewMode.value === 'grid' && virtGridRef.value) {
+      // Scroll VirtGrid to top
+      virtGridRef.value.scrollToIndex(0)
+    } else if (viewMode.value === 'table' && tableRef.value) {
+      // Scroll table to top
+      tableRef.value.scrollToTop?.()
+    }
+  })
+}
+
 onMounted(() => {
   getWorkspaces()
 })
@@ -46,44 +105,68 @@ onMounted(() => {
 <template>
   <div class="pageContainer">
     <div class="pageHeader">
-      <h1 class="title">Workspaces</h1>
+      <h1 class="title">Databases</h1>
       <div class="actions">
-        <ElButton type="primary" @click="handleCreateWorkspace">Create Workspace</ElButton>
+        <ElButton type="primary" @click="handleCreateWorkspace">Create Databases ({{workspaces.length }})</ElButton>
       </div>
     </div>
     <div class="workspaceList">
       <UiSearchableList
+        v-loading="loading"
         :data="workspaces"
         :zod-schema="WorkspaceSchema"
         :search-keys="['name', 'description', 'slug']"
         :default-sort-by="'name'"
         :default-sort-order="'asc'"
         @selected="handleWorkspaceSelected"
+        @filtered="handleFiltered"
       >
       <template #actions>
-        <!-- toggle action for table view and card view -->
-        <div class="action-button">
-          <Icon :name="viewMode === 'grid' ? 'lucide:grid-3x2' : 'lucide:table'" @click="viewMode = viewMode === 'grid' ? 'table' : 'grid'" />
+        <!-- Toggle database search -->
+        <ElTooltip :content="useDbSearch ? 'Using Database Search' : 'Using Client-side Search'" placement="bottom">
+          <div 
+            :class="['action-button', { 'db-search-active': useDbSearch }]"
+            @click="useDbSearch = !useDbSearch"
+          >
+            <Icon :name="useDbSearch ? 'lucide:database' : 'lucide:search'" />
+          </div>
+        </ElTooltip>
+        
+        <!-- Toggle table/grid view -->
+        <div class="action-button" @click="viewMode = viewMode === 'grid' ? 'table' : 'grid'">
+          <Icon :name="viewMode === 'grid' ? 'lucide:grid-3x2' : 'lucide:table'" />
         </div>
       </template>
-        <template #default="{ items }">
+        <template #default="{ items, keyword }">
           <template v-if="viewMode === 'grid'">
-            <TransitionGroup name="list" tag="div" class="cardGridContainer">
-            <WorkspacesListCard
-                v-for="workspace in items"
-                :key="workspace.id"
-                :workspace="workspace"
-                @selected="handleWorkspaceSelected"
-              />
-            </TransitionGroup>
+            <div ref="gridContainerRef" style="height: 100%; width: 100%;">
+              <VirtGrid
+                ref="virtGridRef"
+                :list="items"
+                :buffer="10"
+                :itemPreSize="120"
+                :gridItems="columnCount"
+              >
+                <template #default="{itemData, index, rowIndex}">
+                  <WorkspacesListCard
+                    :workspace="itemData"
+                    :keyword="keyword"
+                    @selected="handleWorkspaceSelected"
+                  />
+                </template>
+              </VirtGrid>
+            </div>
           </template>
           <template v-if="viewMode === 'table'">
             <WorkspacesListTable
+              ref="tableRef"
               :items="items"
+              :keyword="keyword"
             />
           </template>
         </template>
       </UiSearchableList>
+      <ElButton @click="clearData">Clear Data</ElButton>
     </div>
   </div>
   <UiPopoverDialog ref="createWorkspacePopover" title="Create Workspace">
@@ -125,6 +208,8 @@ onMounted(() => {
     flex-direction: column;
     gap: var(--app-space-s);
     height: 100%;
+    overflow: hidden;
+    position: relative;
   }
   .action-button{
     display: flex;
@@ -134,10 +219,16 @@ onMounted(() => {
     padding: var(--app-space-xs);
     border-radius: var(--app-border-radius-m);
     cursor: pointer;
-    :hover{
-      
+    transition: all 0.2s ease;
+    
+    &:hover{
       border-radius: var(--app-border-radius-s);
       background: var(--app-text-color);
+    }
+    
+    &.db-search-active {
+      background: var(--app-primary-color);
+      color: var(--app-paper);
     }
   }
 </style>

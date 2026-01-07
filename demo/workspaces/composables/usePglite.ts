@@ -58,7 +58,6 @@ function send<T = any>(type: WorkerRequestType, payload?: any): Promise<T> {
     pendingRequests.set(id, { resolve, reject })
 
     const workerInstance = getWorker()
-    console.log('sending message to worker',workerInstance, type, payload)
     workerInstance.postMessage({
       id,
       type,
@@ -83,7 +82,14 @@ export function usePglite() {
     sql: string,
     params?: any[]
   ): Promise<T[]> {
-    return send<T[]>("query", { sql, params })
+    const startTime = performance.now()
+    const result = await send<T[]>("query", { sql, params })
+    const endTime = performance.now()
+    const duration = (endTime - startTime).toFixed(2)
+    
+    console.log(`📡 [Main Thread] Total round-trip: ${duration}ms`)
+    
+    return result
   }
 
   // Execute a transaction
@@ -133,6 +139,128 @@ export function usePglite() {
     }
   }
 
+  /**
+   * Search function that generates SQL queries based on schema
+   * @param options - Search options
+   * @returns Promise with search results
+   */
+  async function search<T = any>(options: {
+    table: string
+    searchKeys?: string[]
+    keyword?: string
+    filters?: Record<string, any>
+    sortBy?: string
+    sortOrder?: 'asc' | 'desc'
+    limit?: number
+    offset?: number
+  }): Promise<T[]> {
+    const searchStartTime = performance.now()
+    
+    const {
+      table,
+      searchKeys = [],
+      keyword = '',
+      filters = {},
+      sortBy,
+      sortOrder = 'asc',
+      limit,
+      offset = 0
+    } = options
+
+    const whereClauses: string[] = []
+    const params: any[] = []
+    let paramIndex = 1
+
+    // Handle keyword search (split by spaces)
+    if (keyword && keyword.trim()) {
+      const keywords = keyword.trim().split(/\s+/).filter(k => k.length > 0)
+      
+      if (keywords.length > 0 && searchKeys.length > 0) {
+        // For each keyword, create OR conditions across all search keys
+        const keywordClauses = keywords.map((kw) => {
+          const keyConditions = searchKeys.map((key) => {
+            // Column name goes in the SQL directly, not as a parameter
+            const clause = `LOWER("${key}") LIKE LOWER($${paramIndex})`
+            params.push(`%${kw}%`)
+            paramIndex++
+            return clause
+          })
+          return `(${keyConditions.join(' OR ')})`
+        })
+        
+        whereClauses.push(`(${keywordClauses.join(' OR ')})`)
+      }
+    }
+
+    // Handle filters
+    if (filters && Object.keys(filters).length > 0) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value === undefined || value === null) return
+
+        // Handle boolean filter
+        if (typeof value === 'boolean') {
+          whereClauses.push(`"${key}" = $${paramIndex}`)
+          params.push(value)
+          paramIndex++
+        }
+        // Handle string filter (LIKE)
+        else if (typeof value === 'string' && value) {
+          whereClauses.push(`LOWER("${key}") LIKE LOWER($${paramIndex})`)
+          params.push(`%${value}%`)
+          paramIndex++
+        }
+        // Handle array filter (IN)
+        else if (Array.isArray(value) && value.length > 0) {
+          const placeholders = value.map(() => `$${paramIndex++}`).join(', ')
+          whereClauses.push(`"${key}" IN (${placeholders})`)
+          params.push(...value)
+        }
+        // Handle exact match for other types
+        else if (value !== '') {
+          whereClauses.push(`"${key}" = $${paramIndex}`)
+          params.push(value)
+          paramIndex++
+        }
+      })
+    }
+
+    // Build the query
+    let sql = `SELECT * FROM "${table}"`
+    
+    if (whereClauses.length > 0) {
+      sql += ` WHERE ${whereClauses.join(' AND ')}`
+    }
+
+    // Add sorting
+    if (sortBy) {
+      sql += ` ORDER BY "${sortBy}" ${sortOrder.toUpperCase()}`
+    }
+
+    // Add pagination
+    if (limit !== undefined) {
+      sql += ` LIMIT $${paramIndex}`
+      params.push(limit)
+      paramIndex++
+    }
+
+    if (offset > 0) {
+      sql += ` OFFSET $${paramIndex}`
+      params.push(offset)
+    }
+    
+    const sqlGenTime = performance.now() - searchStartTime
+    console.log(`⚙️ [Search] SQL generation: ${sqlGenTime.toFixed(2)}ms`)
+    console.log('SQL:', sql)
+    console.log('Params:', params)
+    
+    const result = await query<T>(sql, params)
+    
+    const totalSearchTime = performance.now() - searchStartTime
+    console.log(`🔎 [Search] Total search time: ${totalSearchTime.toFixed(2)}ms`)
+    
+    return result
+  }
+
   return {
     init,
     exec,
@@ -140,6 +268,7 @@ export function usePglite() {
     transaction,
     removeAllTables,
     close,
+    search,
   }
 }
 

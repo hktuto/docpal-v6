@@ -554,10 +554,13 @@ export function useTable(databaseId: string, tableId: string) {
     // Apply search
     if (params.search) {
       const searchLower = params.search.toLowerCase()
+      const keywords = searchLower.split(' ')
       result = result.filter(row => {
-        return Object.values(row).some(val => 
-          String(val).toLowerCase().includes(searchLower)
-        )
+        return keywords.every(keyword => {
+          return Object.values(row).some(val => 
+            String(val).toLowerCase().includes(keyword.trim())
+          )
+        })
       })
     }
     
