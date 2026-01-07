@@ -162,6 +162,7 @@ onMounted(() => {
               ref="tableRef"
               :items="items"
               :keyword="keyword"
+              @selected="handleWorkspaceSelected"
             />
           </template>
         </template>

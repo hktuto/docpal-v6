@@ -130,7 +130,7 @@ function handleResize(e: MouseEvent) {
   const deltaY = e.clientY - resizeStart.value.y
   const arrowSize = 8
   const baseMinWidth = 200
-  const baseMinHeight = 100
+  const baseMinHeight = 50
   
   const targetRect = targetElement.value.getBoundingClientRect()
   const side = arrowStyle.value.side
@@ -757,7 +757,7 @@ defineExpose({
   border-radius: var(--app-border-radius-m);
   box-shadow: var(--app-shadow-l);
   min-width: 200px;
-  min-height: 100px;
+  // min-height: 100px;
   
   &.is-resizing {
     user-select: none;

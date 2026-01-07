@@ -574,9 +574,6 @@ export function useTable(databaseId: string, tableId: string) {
       result = applySort(result, params.sort)
     }
     
-    const total = result.length
-    
-    
     return result
   }
 

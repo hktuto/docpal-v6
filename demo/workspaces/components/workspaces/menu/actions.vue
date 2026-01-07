@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import type { MenuItem } from '../../../utils/db/schema/workspaces'
-import { useWorkspaceMenuContext } from '../../../composables/useWorkspaceMenuState'
+import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspace'
 import { ElMessageBox } from 'element-plus'
 
 const item = ref<MenuItem | null>(null)
 const isAdmin = ref(false)
 const open = (data: {item: MenuItem, isAdmin: boolean}, target?: HTMLElement, highlight?: HTMLElement) => {
+  if(!data.isAdmin) return;
   item.value = data.item
   isAdmin.value = data.isAdmin
   popoverRef.value?.open(target, highlight)
 }
 
-const menuContext = useWorkspaceMenuContext()
+const menuContext = useSingleWorkspaceContext()
 const popoverRef = ref()
 
 
@@ -74,15 +75,7 @@ defineExpose({ open, close })
     :width="180"
   >
     <div class="item-actions-menu">
-      <!-- Edit -->
-      <div v-if="isAdmin && item" class="action-item" @click="handleEdit">
-        <Icon name="material-symbols:edit-outline" />
-        <span>Rename</span>
-      </div>
-
-      <!-- Add submenu (only for folders) -->
-      <template v-if="isAdmin && (!item || item && item.type === 'folder')">
-        <div class="action-divider" />
+      <template v-if="!item">
         <div class="action-item" @click="handleAddItem('folder')">
           <Icon name="material-symbols:folder-outline" />
           <span>Add Folder</span>
@@ -100,20 +93,49 @@ defineExpose({ open, close })
           <span>Add Dashboard</span>
         </div>
       </template>
-      <template v-if="item && item.type === 'table'">
-        <div class="action-item" @click="handleEditSetting('table')">
-          <Icon name="material-symbols:settings-outline" />
-          <span>table settings</span>
+      <template v-else>
+        <div class="action-item" @click="handleEdit">
+          <Icon name="material-symbols:edit-outline" />
+          <span>Rename</span>
         </div>
-      </template>
-      <!-- Delete -->
-      <template v-if="isAdmin && item">
+        <template v-if="item.type === 'folder'">
+          <div class="action-divider" />
+          <div class="action-item" @click="handleAddItem('folder')">
+            <Icon name="material-symbols:folder-outline" />
+            <span>Add Folder</span>
+          </div>
+          <div class="action-item" @click="handleAddItem('table')">
+            <Icon name="material-symbols:table-outline" />
+            <span>Add Table</span>
+          </div>
+          <div class="action-item" @click="handleAddItem('view')">
+            <Icon name="material-symbols:view-list-outline" />
+            <span>Add View</span>
+          </div>
+          <div class="action-item" @click="handleAddItem('dashboard')">
+            <Icon name="material-symbols:dashboard-outline" />
+            <span>Add Dashboard</span>
+          </div>
+        </template>
+        <template v-if="item.type === 'table'">
+          <div class="action-item" @click="handleEditSetting('table')">
+            <Icon name="material-symbols:settings-outline" />
+            <span>table settings</span>
+          </div>
+        </template>
+        <!-- Delete -->
         <div class="action-divider" />
         <div class="action-item danger" @click="handleDelete">
           <Icon name="material-symbols:delete-outline" />
           <span>Delete</span>
         </div>
       </template>
+      <!-- Edit -->
+      
+
+      <!-- Add submenu (only for folders) -->
+      
+      
     </div>
   </UiPopoverDialog>
 </template>

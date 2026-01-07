@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { MenuItem } from '../../../utils/db/schema/workspaces'
-import { useWorkspaceMenu } from '../../../composables/useWorkspaceMenuState'
 
 interface Props {
   item: MenuItem
@@ -9,76 +8,71 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const menuContext = useWorkspaceMenuContext()
+const {menuState, toggleFolder, startEdit, saveEdit, cancelEdit, navigateToItem, openMenuItemActions, workspaceRouteParams, getMenuIcon} = useSingleWorkspaceContext()
+
 const isHovered = ref(false)
 
+const isSelected = computed(() => workspaceRouteParams.value.detailId === props.item.id)
+
 // Check if this item is being edited
-const isEditing = computed(() => menuContext.state.value.editingItemId === props.item.id)
+const isEditing = computed(() => menuState.value.editingItemId === props.item.id)
 
 // Check if this folder is expanded
 const isExpanded = computed(() => {
   if (props.item.type !== 'folder') return false
-  return menuContext.state.value.expandedFolders.has(props.item.id)
+  return menuState.value.expandedFolders.has(props.item.id)
 })
 
-// Get icon based on type
-const itemIcon = computed(() => {
-  switch (props.item.type) {
-    case 'folder':
-      return isExpanded.value 
-        ? 'material-symbols:folder-open-outline' 
-        : 'material-symbols:folder-outline'
-    case 'table':
-      return 'material-symbols:table-outline'
-    case 'view':
-      return 'material-symbols:view-list-outline'
-    case 'dashboard':
-      return 'material-symbols:dashboard-outline'
-    default:
-      return 'material-symbols:description-outline'
-  }
-})
+
 
 // Toggle folder expand/collapse
 function handleToggle() {
   if (props.item.type === 'folder') {
-    menuContext.toggleFolder(props.item.id)
+    toggleFolder(props.item.id)
   }
 }
 
 // Handle double click on label to edit (admin only)
 function handleLabelDoubleClick() {
   if (props.isAdmin && !isEditing.value) {
-    menuContext.startEdit(props.item.id)
+    startEdit(props.item.id)
   }
 }
 
 // Handle item click - navigate to the item
 function handleItemClick() {
-  menuContext.navigateToItem(props.item)
+  setTimeout(() => {
+    if(isEditing.value)return;
+    navigateToItem(props.item)
+  }, 100)
 }
 const itemContentRef = ref<HTMLElement>()
 // Handle actions menu
 function handleActionsClick(event: MouseEvent) {
   event.stopPropagation()
+  openMenuItemActions({item: props.item, isAdmin: props.isAdmin}, event.currentTarget as HTMLElement, itemContentRef.value as HTMLElement)
   // actionsPopover.value?.open(event.currentTarget as HTMLElement, itemContentRef.value as HTMLElement)
 }
 
 // Handle save from label editor
 async function handleSaveEdit(newLabel: string) {
-  await menuContext.saveEdit(props.item.id, newLabel)
+  await saveEdit(props.item.id, newLabel)
 }
+
+const calItemIcon = computed(() => {
+  return getMenuIcon(props.item)
+})
 
 // Handle cancel from label editor
 function handleCancelEdit() {
-  menuContext.cancelEdit()
+  cancelEdit()
 }
 </script>
 
 <template>
   <div
     class="menu-item"
-    :class="{ 'is-folder': item.type === 'folder', 'is-expanded': isExpanded }"
+    :class="{ 'is-folder': item.type === 'folder', 'is-expanded': isExpanded, 'is-selected': isSelected }"
     @mouseenter="isHovered = true"
     @mouseleave="isHovered = false"
   >
@@ -98,12 +92,11 @@ function handleCancelEdit() {
 
       <!-- Item Icon -->
       <div class="item-icon">
-        <Icon :name="itemIcon"  />
+        <Icon :name="calItemIcon"  />
       </div>
-
       <!-- Label or Label Editor -->
       <div class="item-label" @dblclick.stop="handleLabelDoubleClick">
-        <WorkspaceMenuLabelEditor
+        <WorkspacesMenuLabelEditor
           v-if="isEditing"
           :model-value="item.label"
           @save="handleSaveEdit"
@@ -124,7 +117,7 @@ function handleCancelEdit() {
         </el-button>
       </div>
             <!-- Expand/Collapse Icon (folders only) -->
-            <div
+      <div
         v-if="item.type === 'folder'"
         class="expand-icon"
         @click.stop="handleToggle"
@@ -143,6 +136,10 @@ function handleCancelEdit() {
 .menu-item {
   position: relative;
   user-select: none;
+  &.is-selected {
+    background: var(--app-primary-alpha-30);
+    box-shadow: var(--app-shadow-s);
+  }
 }
 
 .item-content {

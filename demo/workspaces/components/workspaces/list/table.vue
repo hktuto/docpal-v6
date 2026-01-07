@@ -8,7 +8,7 @@ const props = defineProps<{
 const {items} = toRefs(props)
 
 const { highlightText } = useTextHighlight()
-
+const emits = defineEmits(['selected'])
 const { tableRef, tableConfig, tableEvent, reload } = useVxeTable({
   id: 'workspaces-table',
   columns: [
@@ -24,10 +24,17 @@ const { tableRef, tableConfig, tableEvent, reload } = useVxeTable({
         return highlightText(row.description, props.keyword || '')
       },
     },
-    { field: 'created_at', title: 'Created Date' },
-    { field: 'updated_at', title: 'Updated Date' },
+    { field: 'created_at', title: 'Created Date', formatter: ({cellValue}) => {
+      return formatDate(cellValue)
+    } },
+    { field: 'updated_at', title: 'Updated Date', formatter: ({cellValue}) => {
+      return formatDate(cellValue)
+    } },
   ],
   virtualScroll:true,
+  dblClickAction: ({ row, column, event }) => {
+    emits('selected', row)
+  },
   optionalConfig:{
     rowClassName({row}) {
       if(row.__dim) {

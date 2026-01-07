@@ -2,11 +2,7 @@
 import type { MenuItem } from '../../../utils/db/schema/workspaces'
 import { v4 as uuidv4 } from 'uuid'
 import { ElMessage } from 'element-plus'
-// Types from useWorkspaceMenuContext (auto-imported)
-import type { MenuState, MenuContext } from '../../../composables/useWorkspaceMenuState'
-import { WorkspaceMenuContextKey } from '../../../composables/useWorkspaceMenuState'
-
-
+import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspace'
 
 interface Props {
   workspaceId: string
@@ -20,23 +16,8 @@ const props = withDefaults(defineProps<Props>(), {
   isAdmin: true,
 })
 
+const { menuState: state, addItem, saveMenuToDb, getMenuFromDb } = useSingleWorkspaceContext()
 
-
-const {state,  addItem, saveMenuToDb, getMenuFromDb} = useWorkspaceMenu()
-
-
-// Helper: Deep compare menu items using JSON stringification
-function areMenuItemsEqual(a: MenuItem[], b: MenuItem[]): boolean {
-  return JSON.stringify(a) === JSON.stringify(b)
-}
-
-// Debounced save to avoid too many API calls during drag
-const saveTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
-const isSaving = ref(false)
-const pendingSave = ref(false)
-
-// Track what we last saved to avoid infinite loop with Electric sync
-const lastSavedHash = ref<string | null>(null)
 
 function getMenuHash(menu: MenuItem[]): string {
   return JSON.stringify(menu)
@@ -56,16 +37,7 @@ watch(() => state.value.items, (newMenu) => {
 }, { deep: true })
 
 
-// Helper: Remove item by id recursively
-function removeItemById(items: MenuItem[], id: string): MenuItem[] {
-  return items.filter(item => {
-    if (item.id === id) return false
-    if (item.children) {
-      item.children = removeItemById(item.children, id)
-    }
-    return true
-  })
-}
+
 
 // Helper: Update order numbers
 function updateOrderNumbers(items: MenuItem[]): MenuItem[] {
@@ -76,35 +48,8 @@ function updateOrderNumbers(items: MenuItem[]): MenuItem[] {
   }))
 }
 
-// API call to update menu
-async function saveMenuToServer(menu: MenuItem[]) {
-  try {
-    await $fetch(`/api/workspaces/${props.workspaceId}`, {
-      method: 'PUT',
-      body: { menu },
-    })
-  } catch (error) {
-    console.error('Failed to update menu:', error)
-    ElMessage.error('Failed to update menu')
-    throw error
-  }
-}
 
 
-
-// Helper: Get all table IDs recursively
-function getAllTableIds(items: MenuItem[]): string[] {
-  const tableIds: string[] = []
-  for (const item of items) {
-    if (item.type === 'table') {
-      tableIds.push(item.id)
-    }
-    if (item.children) {
-      tableIds.push(...getAllTableIds(item.children))
-    }
-  }
-  return tableIds
-}
 
 // Handle menu changes from draggable list (v-model update)
 async function handleMenuChange(newItems: MenuItem[]) {
@@ -118,14 +63,9 @@ async function handleMenuChange(newItems: MenuItem[]) {
   debouncedSave(orderedMenu)
 }
 
-// Add item popover
-
-const addItemTarget = ref<HTMLElement | null>(null)
 
 // Table creation dialog
 const createTablePopover = ref()
-const createTableTarget = ref<HTMLElement | null>(null)
-const createTableParentId = ref<string | null>(null)
 const createTableForm = ref({
   name: '',
   description: '',

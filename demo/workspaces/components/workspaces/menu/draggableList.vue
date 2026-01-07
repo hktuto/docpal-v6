@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MenuItem } from '../../../utils/db/schema/workspaces'
-import { useWorkspaceMenu } from '../../../composables/useWorkspaceMenuState'
+import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspace'
 import draggable from 'vuedraggable'
 
 interface Props {
@@ -20,7 +20,7 @@ const emit = defineEmits<{
   'update:modelValue': [items: MenuItem[]]
 }>()
 
-const menuContext = useWorkspaceMenuContext()
+const menuContext = useSingleWorkspaceContext()
 
 // Local copy that vuedraggable can mutate
 const localItems = ref<MenuItem[]>([...props.modelValue])
@@ -35,7 +35,7 @@ function areItemsEqual(a: MenuItem[], b: MenuItem[]): boolean {
 
 // Sync from parent when props change (but not during drag)
 watch(() => props.modelValue, (newItems) => {
-  if (menuContext.state.value.isDragging) {
+  if (menuContext.menuState.value.isDragging) {
     return
   }
   
@@ -68,12 +68,12 @@ watch(localItems, (newItems) => {
 
 // Handle drag start
 function handleDragStart() {
-  menuContext.state.value.isDragging = true
+  menuContext.menuState.value.isDragging = true
 }
 
 // Handle drag end
 function handleDragEnd() {
-  menuContext.state.value.isDragging = false
+  menuContext.menuState.value.isDragging = false
 }
 
 // Handle child folder items change (v-model from nested list)
@@ -90,7 +90,7 @@ function handleChildUpdate(folderId: string, newChildren: MenuItem[]) {
 
 // Check if folder is expanded
 function isExpanded(itemId: string): boolean {
-  return menuContext.state.value.expandedFolders.has(itemId)
+  return menuContext.menuState.value.expandedFolders.has(itemId)
 }
 </script>
 
