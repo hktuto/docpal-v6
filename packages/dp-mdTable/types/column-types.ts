@@ -21,12 +21,12 @@ export enum ColumnFieldType {
   Currency = 17,       // 货币
   Percent = 18,        // 百分比
   Text = 19,           // 标题/单行文本
-  AutoNumber = 20,     // 自增数字
+  // AutoNumber = 20,     // 自增数字
   CreatedTime = 21,    // 创建时间
   LastModifiedTime = 22, // 修改时间
   CreatedBy = 23,      // 创建人
   LastModifiedBy = 24, // 修改人
-  OneWayLink = 26,     // 单向关联
+  //OneWayLink = 26,     // 单向关联
 }
 
 // 渲染模式
