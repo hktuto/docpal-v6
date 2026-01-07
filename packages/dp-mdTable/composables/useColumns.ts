@@ -1,33 +1,7 @@
 // composables/useColumns.ts
 import { ref, type Ref } from 'vue'
-// 基础字段类型定义
-export enum ColumnFieldType {
-  SingleText = 1, // 多行文本
-  Number = 2, // 数字
-  SingleSelect = 3, // 单选
-  MultiSelect = 4, // 多选
-  DateTime = 5, // 日期
-  Attachment = 6, // 附件
-  TwoWayLink = 7, // 双向关联
-  URL = 8, // 网址
-  Email = 9, // 邮箱
-  Phone = 10, // 电话
-  Checkbox = 11, // 勾选
-  Rating = 12, // 评分
-  Member = 13, // 成员
-  MagicLink = 14, // 神奇引用/关联
-  MagicLookUp = 15, // 神奇引用/查找
-  Formula = 16, // 智能公式
-  Currency = 17, // 货币
-  Percent = 18, // 百分比
-  Text = 19, // 标题/单行文本
-  AutoNumber = 20, // 自增数字
-  CreatedTime = 21, // 创建时间
-  LastModifiedTime = 22, // 修改时间
-  CreatedBy = 23, // 创建人
-  LastModifiedBy = 24, // 修改人
-  OneWayLink = 26 // 单向关联
-}
+import { ColumnFieldType } from '../types/column-types'
+
 export interface ColumnConfig {
   field: string
   title: string

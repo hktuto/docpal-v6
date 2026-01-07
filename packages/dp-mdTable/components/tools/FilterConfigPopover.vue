@@ -131,7 +131,7 @@
 import { ref, computed, watch, nextTick } from 'vue'
 import { Delete, Plus, QuestionFilled, Document, Clock } from '@element-plus/icons-vue'
 import type { ColumnConfig } from '../../composables/useColumns'
-import { ColumnFieldType } from '../../composables/useColumns'
+import { ColumnFieldType } from '../../types/column-types'
 
 export interface FilterRule {
   id: string

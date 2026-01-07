@@ -1,6 +1,6 @@
 <template>
   <div class="md-table-header" @click="handleClick">
-    {{ column.field }}
+    {{ column.title }}
     <div class="mdTableHeader-trigger" ref="triggerRef">
       <SvgIcon src="/icons/tools/more.svg" />
     </div>

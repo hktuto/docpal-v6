@@ -26,7 +26,7 @@ import type { ColumnConfig } from '../composables/useColumns'
 interface Props {
   availableColumns: ColumnConfig[]
 }
-
+const gridRef = useMDTableReJect()
 const props = defineProps<Props>()
 const emits = defineEmits<{
   (e: 'sort-change', rules: SortRule[]): void
@@ -46,7 +46,8 @@ const availableColumns = computed<ColumnConfig[]>(() => {
 
 // 处理按钮点击
 const handleButtonClick = () => {
-  console.log('handleButtonClick', popoverRef.value)
+  console.log('gridRef', gridRef)
+  console.log('buttonRef', gridRef.gridRef.value.getData())
   if (popoverRef.value) {
     popoverRef.value.show(buttonRef.value)
   }

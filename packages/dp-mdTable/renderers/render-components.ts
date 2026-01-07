@@ -8,7 +8,7 @@ import type { RenderComponentConfig, ViewRenderFunctionParams } from '../types/c
 // 分离模式组件配置
 export const MDTableComponents: Record<string, RenderComponentConfig> = {
   Text: {
-    edit: { name: 'VxeInput' },
+    edit: { name: 'VxeInput', props: { type: 'textarea', rows: 3 } },
     // titleConfig: {
     //   icon: 'vxe-icon-user-fill',
     //   useHTML: true,
