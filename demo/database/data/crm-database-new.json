@@ -878,30 +878,6 @@
               "contacts": [
                 "row-contact-081"
               ]
-            },
-            {
-              "id": "row-company-049",
-              "salesperson": null,
-              "address": "",
-              "paymentTerms": "30 days",
-              "currency": "Opportunity",
-              "contacts": []
-            },
-            {
-              "id": "row-company-050",
-              "salesperson": null,
-              "address": "",
-              "paymentTerms": "35 days",
-              "currency": "Opportunity",
-              "contacts": []
-            },
-            {
-              "id": "row-company-051",
-              "salesperson": null,
-              "address": "",
-              "paymentTerms": "43 days",
-              "currency": "Closed-Won",
-              "contacts": []
             }
           ]
         },
@@ -1906,6 +1882,18 @@
               "required": true
             },
             {
+              "id": "col-1-1",
+              "field": "company",
+              "title": "Company",
+              "type": "relation",
+              "width": 180,
+              "relationConfig": {
+                "tableId": "tbl-company",
+                "displayField": "companyName",
+                "multiple": false
+              }
+            },
+            {
               "id": "col-2",
               "field": "salesperson",
               "title": "Salesperson",
@@ -2021,6 +2009,7 @@
             {
               "id": "row-case-001",
               "caseId": "CA000001",
+              "company": "row-company-001",
               "salesperson": "michaelchan",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-10-15",
@@ -2036,6 +2025,7 @@
             {
               "id": "row-case-002",
               "caseId": "CA000002",
+              "company": "row-company-001",
               "salesperson": "michaelchan",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-11-01",
@@ -2049,6 +2039,7 @@
             {
               "id": "row-case-003",
               "caseId": "CA000003",
+              "company": "row-company-030",
               "salesperson": "tommyyip",
               "caseStatus": "status-closed-won",
               "caseStatusLastUpdateDate": "2025-09-20",
@@ -2066,6 +2057,7 @@
             {
               "id": "row-case-004",
               "caseId": "CA000004",
+              "company":"row-company-048",
               "salesperson": "fionafung",
               "caseStatus": "status-lead",
               "caseStatusLastUpdateDate": "2025-11-05",
@@ -2079,6 +2071,7 @@
             {
               "id": "row-case-005",
               "caseId": "CA000005",
+              "company":"row-company-001",
               "salesperson": "michaelchan",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-08-28",
@@ -2096,6 +2089,7 @@
             {
               "id": "row-case-006",
               "caseId": "CA000006",
+              "company":"row-company-002",
               "salesperson": "michaelchan",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-10-22",
@@ -2111,6 +2105,7 @@
             {
               "id": "row-case-007",
               "caseId": "CA000007",
+              "company":"row-company-002",
               "salesperson": "michaelchan",
               "caseStatus": "status-closed-lost",
               "caseStatusLastUpdateDate": "2025-10-10",
@@ -2126,6 +2121,7 @@
             {
               "id": "row-case-008",
               "caseId": "CA000008",
+              "company":"row-company-011",
               "salesperson": "karenwong",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-11-03",
@@ -2143,6 +2139,7 @@
             {
               "id": "row-case-009",
               "caseId": "CA000009",
+              "company":"row-company-018",
               "salesperson": "maggielee",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-10-18",
@@ -2158,6 +2155,7 @@
             {
               "id": "row-case-010",
               "caseId": "CA000010",
+              "company":"row-company-035",
               "salesperson": "peggyleung",
               "caseStatus": "status-closed-won",
               "caseStatusLastUpdateDate": "2025-09-25",
@@ -2175,6 +2173,7 @@
             {
               "id": "row-case-011",
               "caseId": "CA000011",
+              "company":"row-company-003",
               "salesperson": "michaelchan",
               "caseStatus": "status-lead",
               "caseStatusLastUpdateDate": "2025-11-06",
@@ -2188,6 +2187,7 @@
             {
               "id": "row-case-012",
               "caseId": "CA000012",
+              "company":"row-company-011",
               "salesperson": "karenwong",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-10-30",
@@ -2206,6 +2206,7 @@
               "id": "row-case-013",
               "caseId": "CA000013",
               "salesperson": "karenwong",
+              "company":"row-company-011",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-09-25",
               "caseStatusDuration": 97,
@@ -2220,6 +2221,7 @@
             {
               "id": "row-case-014",
               "caseId": "CA000014",
+              "company":"row-company-039",
               "salesperson": "helenmok",
               "caseStatus": "status-closed-won",
               "caseStatusLastUpdateDate": "2025-10-05",
@@ -2237,6 +2239,7 @@
             {
               "id": "row-case-015",
               "caseId": "CA000015",
+              "company":"row-company-004",
               "salesperson": "michaelchan",
               "caseStatus": "status-disqualify",
               "caseStatusLastUpdateDate": "2025-10-12",
@@ -2250,6 +2253,7 @@
             {
               "id": "row-case-016",
               "caseId": "CA000016",
+              "company":"row-company-018",
               "salesperson": "maggielee",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-11-02",
@@ -2267,6 +2271,7 @@
             {
               "id": "row-case-017",
               "caseId": "CA000017",
+              "company":"row-company-019",
               "salesperson": "maggielee",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-10-20",
@@ -2282,6 +2287,7 @@
             {
               "id": "row-case-018",
               "caseId": "CA000018",
+              "company":"row-company-004",
               "salesperson": "michaelchan",
               "caseStatus": "status-lead",
               "caseStatusLastUpdateDate": "2025-11-07",
@@ -2295,6 +2301,7 @@
             {
               "id": "row-case-019",
               "caseId": "CA000019",
+              "company":"row-company-012",
               "salesperson": "karenwong",
               "caseStatus": "status-closed-lost",
               "caseStatusLastUpdateDate": "2025-09-30",
@@ -2310,6 +2317,7 @@
             {
               "id": "row-case-020",
               "caseId": "CA000020",
+              "company":"row-company-019",
               "salesperson": "maggielee",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-10-29",
@@ -2325,6 +2333,7 @@
             {
               "id": "row-case-021",
               "caseId": "CA000021",
+              "company":"row-company-024",
               "salesperson": "sophietam",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-09-23",
@@ -2340,6 +2349,7 @@
             {
               "id": "row-case-022",
               "caseId": "CA000022",
+              "company":"row-company-042",
               "salesperson": "wendyhui",
               "caseStatus": "status-closed-won",
               "caseStatusLastUpdateDate": "2025-10-08",
@@ -2357,6 +2367,7 @@
             {
               "id": "row-case-023",
               "caseId": "CA000023",
+              "company":"row-company-012",
               "salesperson": "karenwong",
               "caseStatus": "status-lead",
               "caseStatusLastUpdateDate": "2025-11-04",
@@ -2370,6 +2381,7 @@
             {
               "id": "row-case-024",
               "caseId": "CA000024",
+              "company":"row-company-024",
               "salesperson": "sophietam",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-11-01",
@@ -2387,6 +2399,7 @@
             {
               "id": "row-case-025",
               "caseId": "CA000025",
+              "company":"row-company-024",
               "salesperson": "sophietam",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-09-26",
@@ -2402,6 +2415,7 @@
             {
               "id": "row-case-026",
               "caseId": "CA000026",
+              "company":"row-company-013",
               "salesperson": "karenwong",
               "caseStatus": "status-disqualify",
               "caseStatusLastUpdateDate": "2025-10-15",
@@ -2415,6 +2429,7 @@
             {
               "id": "row-case-027",
               "caseId": "CA000027",
+              "company":"row-company-045",
               "salesperson": "kevinchow",
               "caseStatus": "status-closed-won",
               "caseStatusLastUpdateDate": "2025-09-28",
@@ -2432,6 +2447,7 @@
             {
               "id": "row-case-028",
               "caseId": "CA000028",
+              "company":"row-company-030",
               "salesperson": "tommyyip",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-10-31",
@@ -2449,6 +2465,7 @@
             {
               "id": "row-case-029",
               "caseId": "CA000029",
+              "company":"row-company-031",
               "salesperson": "tommyyip",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-10-21",
@@ -2464,6 +2481,7 @@
             {
               "id": "row-case-030",
               "caseId": "CA000030",
+              "company":"row-company-020",
               "salesperson": "maggielee",
               "caseStatus": "status-lead",
               "caseStatusLastUpdateDate": "2025-11-05",
@@ -2477,6 +2495,7 @@
             {
               "id": "row-case-031",
               "caseId": "CA000031",
+              "company":"row-company-031",
               "salesperson": "tommyyip",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-09-27",
@@ -2494,6 +2513,7 @@
             {
               "id": "row-case-032",
               "caseId": "CA000032",
+              "company":"row-company-020",
               "salesperson": "maggielee",
               "caseStatus": "status-closed-lost",
               "caseStatusLastUpdateDate": "2025-10-03",
@@ -2509,6 +2529,7 @@
             {
               "id": "row-case-033",
               "caseId": "CA000033",
+              "company":"row-company-032",
               "salesperson": "tommyyip",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-10-24",
@@ -2524,6 +2545,7 @@
             {
               "id": "row-case-034",
               "caseId": "CA000034",
+              "company":"row-company-035",
               "salesperson": "peggyleung",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-11-03",
@@ -2541,6 +2563,7 @@
             {
               "id": "row-case-035",
               "caseId": "CA000035",
+              "company":"row-company-004",
               "salesperson": "michaelchan",
               "caseStatus": "status-closed-won",
               "caseStatusLastUpdateDate": "2025-10-01",
@@ -2558,6 +2581,7 @@
             {
               "id": "row-case-036",
               "caseId": "CA000036",
+              "company":"row-company-025",
               "salesperson": "sophietam",
               "caseStatus": "status-lead",
               "caseStatusLastUpdateDate": "2025-11-06",
@@ -2571,6 +2595,7 @@
             {
               "id": "row-case-037",
               "caseId": "CA000037",
+              "company":"row-company-036",
               "salesperson": "peggyleung",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-10-19",
@@ -2586,6 +2611,8 @@
             {
               "id": "row-case-038",
               "caseId": "CA000038",
+              "company":"row-company-036",
+
               "salesperson": "peggyleung",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-10-30",
@@ -2603,6 +2630,7 @@
             {
               "id": "row-case-039",
               "caseId": "CA000039",
+              "company":"row-company-025",
               "salesperson": "sophietam",
               "caseStatus": "status-disqualify",
               "caseStatusLastUpdateDate": "2025-10-11",
@@ -2616,6 +2644,7 @@
             {
               "id": "row-case-040",
               "caseId": "CA000040",
+              "company":"row-company-005",
               "salesperson": "michaelchan",
               "caseStatus": "status-closed-won",
               "caseStatusLastUpdateDate": "2025-09-22",
@@ -2633,6 +2662,7 @@
             {
               "id": "row-case-041",
               "caseId": "CA000041",
+              "company":"row-company-037",
               "salesperson": "peggyleung",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-10-17",
@@ -2648,6 +2678,7 @@
             {
               "id": "row-case-042",
               "caseId": "CA000042",
+              "company":"row-company-039",
               "salesperson": "helenmok",
               "caseStatus": "status-lead",
               "caseStatusLastUpdateDate": "2025-11-07",
@@ -2661,6 +2692,7 @@
             {
               "id": "row-case-043",
               "caseId": "CA000043",
+              "company":"row-company-042",
               "salesperson": "wendyhui",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-11-02",
@@ -2678,6 +2710,7 @@
             {
               "id": "row-case-044",
               "caseId": "CA000044",
+              "company":"row-company-026",
               "salesperson": "sophietam",
               "caseStatus": "status-closed-lost",
               "caseStatusLastUpdateDate": "2025-10-07",
@@ -2693,6 +2726,7 @@
             {
               "id": "row-case-045",
               "caseId": "CA000045",
+              "company":"row-company-043",
               "salesperson": "wendyhui",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-08-28",
@@ -2708,6 +2742,7 @@
             {
               "id": "row-case-046",
               "caseId": "CA000046",
+              "company":"row-company-013",
               "salesperson": "karenwong",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-09-25",
@@ -2725,6 +2760,7 @@
             {
               "id": "row-case-047",
               "caseId": "CA000047",
+              "company":"row-company-013",
               "salesperson": "karenwong",
               "caseStatus": "status-closed-won",
               "caseStatusLastUpdateDate": "2025-09-26",
@@ -2742,6 +2778,7 @@
             {
               "id": "row-case-048",
               "caseId": "CA000048",
+              "company":"row-company-040",
               "salesperson": "helenmok",
               "caseStatus": "status-lead",
               "caseStatusLastUpdateDate": "2025-11-04",
@@ -2755,6 +2792,7 @@
             {
               "id": "row-case-049",
               "caseId": "CA000049",
+              "company":"row-company-032",
               "salesperson": "tommyyip",
               "caseStatus": "status-lead",
               "caseStatusLastUpdateDate": "2025-01-11",
@@ -2768,6 +2806,7 @@
             {
               "id": "row-case-050",
               "caseId": "CA000050",
+              "company":"row-company-037",
               "salesperson": "peggyleung",
               "caseStatus": "status-lead",
               "caseStatusLastUpdateDate": "2025-01-10",
@@ -2781,6 +2820,7 @@
             {
               "id": "row-case-051",
               "caseId": "CA000051",
+              "company":"row-company-033",
               "salesperson": "tommyyip",
               "caseStatus": "status-lead",
               "caseStatusLastUpdateDate": "2025-01-09",
@@ -2794,6 +2834,7 @@
             {
               "id": "row-case-052",
               "caseId": "CA000052",
+              "company":"row-company-037",
               "salesperson": "peggyleung",
               "caseStatus": "status-lead",
               "caseStatusLastUpdateDate": "2025-03-11",
@@ -2807,6 +2848,7 @@
             {
               "id": "row-case-053",
               "caseId": "CA000053",
+              "company":"row-company-043",
               "salesperson": "wendyhui",
               "caseStatus": "status-lead",
               "caseStatusLastUpdateDate": "2025-03-08",
@@ -2820,6 +2862,7 @@
             {
               "id": "row-case-054",
               "caseId": "CA000054",
+              "company":"row-company-046",
               "salesperson": "kevinchow",
               "caseStatus": "status-lead",
               "caseStatusLastUpdateDate": "2025-05-11",
@@ -2833,6 +2876,7 @@
             {
               "id": "row-case-055",
               "caseId": "CA000055",
+              "company":"row-company-044",
               "salesperson": "wendyhui",
               "caseStatus": "status-lead",
               "caseStatusLastUpdateDate": "2025-02-07",
@@ -2846,6 +2890,7 @@
             {
               "id": "row-case-056",
               "caseId": "CA000056",
+              "company":"row-company-046",
               "salesperson": "kevinchow",
               "caseStatus": "status-lead",
               "caseStatusLastUpdateDate": "2025-04-11",
@@ -2859,6 +2904,7 @@
             {
               "id": "row-case-057",
               "caseId": "CA000057",
+              "company":"row-company-005",
               "salesperson": "michaelchan",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-07-28",
@@ -2872,6 +2918,7 @@
             {
               "id": "row-case-058",
               "caseId": "CA000058",
+              "company":"row-company-014",
               "salesperson": "karenwong",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-09-04",
@@ -2885,6 +2932,7 @@
             {
               "id": "row-case-059",
               "caseId": "CA000059",
+              "company":"row-company-006",
               "salesperson": "michaelchan",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-10-22",
@@ -2898,6 +2946,7 @@
             {
               "id": "row-case-060",
               "caseId": "CA000060",
+              "company":"row-company-014",
               "salesperson": "karenwong",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-11-01",
@@ -2911,6 +2960,7 @@
             {
               "id": "row-case-061",
               "caseId": "CA000061",
+              "company":"row-company-021",
               "salesperson": "maggielee",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-09-25",
@@ -2924,6 +2974,7 @@
             {
               "id": "row-case-062",
               "caseId": "CA000062",
+              "company":"row-company-026",
               "salesperson": "sophietam",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-11-07",
@@ -2937,6 +2988,7 @@
             {
               "id": "row-case-063",
               "caseId": "CA000063",
+              "company":"row-company-033",
               "salesperson": "tommyyip",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-09-30",
@@ -2950,6 +3002,7 @@
             {
               "id": "row-case-064",
               "caseId": "CA000064",
+              "company":"row-company-038",
               "salesperson": "peggyleung",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-11-05",
@@ -2963,6 +3016,7 @@
             {
               "id": "row-case-065",
               "caseId": "CA000065",
+              "company":"row-company-040",
               "salesperson": "helenmok",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-09-18",
@@ -2976,6 +3030,7 @@
             {
               "id": "row-case-066",
               "caseId": "CA000066",
+              "company":"row-company-044",
               "salesperson": "wendyhui",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-11-03",
@@ -2989,6 +3044,7 @@
             {
               "id": "row-case-067",
               "caseId": "CA000067",
+              "company":"row-company-047",
               "salesperson": "kevinchow",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-10-26",
@@ -3002,6 +3058,7 @@
             {
               "id": "row-case-068",
               "caseId": "CA000068",
+              "company":"row-company-048",
               "salesperson": "fionafung",
               "caseStatus": "status-opportunity",
               "caseStatusLastUpdateDate": "2025-11-06",
@@ -3015,6 +3072,7 @@
             {
               "id": "row-case-069",
               "caseId": "CA000069",
+              "company":"row-company-006",
               "salesperson": "michaelchan",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-10-08",
@@ -3032,6 +3090,7 @@
             {
               "id": "row-case-070",
               "caseId": "CA000070",
+              "company":"row-company-015",
               "salesperson": "karenwong",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-09-05",
@@ -3049,6 +3108,7 @@
             {
               "id": "row-case-071",
               "caseId": "CA000071",
+              "company":"row-company-021",
               "salesperson": "maggielee",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-10-10",
@@ -3066,6 +3126,7 @@
             {
               "id": "row-case-072",
               "caseId": "CA000072",
+              "company":"row-company-027",
               "salesperson": "sophietam",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-11-03",
@@ -3083,6 +3144,7 @@
             {
               "id": "row-case-073",
               "caseId": "CA000073",
+              "company":"row-company-034",
               "salesperson": "tommyyip",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-11-07",
@@ -3100,6 +3162,7 @@
             {
               "id": "row-case-074",
               "caseId": "CA000074",
+              "company":"row-company-038",
               "salesperson": "peggyleung",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-11-01",
@@ -3117,6 +3180,7 @@
             {
               "id": "row-case-075",
               "caseId": "CA000075",
+              "company":"row-company-041",
               "salesperson": "helenmok",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-11-09",
@@ -3134,6 +3198,7 @@
             {
               "id": "row-case-076",
               "caseId": "CA000076",
+              "company":"row-company-007",
               "salesperson": "michaelchan",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-11-04",
@@ -3151,6 +3216,7 @@
             {
               "id": "row-case-077",
               "caseId": "CA000077",
+              "company":"row-company-015",
               "salesperson": "karenwong",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-11-06",
@@ -3168,6 +3234,7 @@
             {
               "id": "row-case-078",
               "caseId": "CA000078",
+              "company":"row-company-022",
               "salesperson": "maggielee",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-11-02",
@@ -3185,6 +3252,7 @@
             {
               "id": "row-case-079",
               "caseId": "CA000079",
+              "company":"row-company-027",
               "salesperson": "sophietam",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-11-11",
@@ -3202,6 +3270,7 @@
             {
               "id": "row-case-080",
               "caseId": "CA000080",
+              "company":"row-company-034",
               "salesperson": "tommyyip",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-11-05",
@@ -3219,6 +3288,7 @@
             {
               "id": "row-case-081",
               "caseId": "CA000081",
+              "company":"row-company-038",
               "salesperson": "peggyleung",
               "caseStatus": "status-pipeline",
               "caseStatusLastUpdateDate": "2025-11-07",
@@ -3236,6 +3306,7 @@
             {
               "id": "row-case-082",
               "caseId": "CA000082",
+              "company":"row-company-007",
               "salesperson": "michaelchan",
               "caseStatus": "status-closed-won",
               "caseStatusLastUpdateDate": "2025-01-15",
@@ -3253,6 +3324,7 @@
             {
               "id": "row-case-083",
               "caseId": "CA000083",
+              "company":"row-company-016",
               "salesperson": "karenwong",
               "caseStatus": "status-closed-won",
               "caseStatusLastUpdateDate": "2025-01-28",
@@ -3270,6 +3342,7 @@
             {
               "id": "row-case-084",
               "caseId": "CA000084",
+              "company":"row-company-022",
               "salesperson": "maggielee",
               "caseStatus": "status-closed-won",
               "caseStatusLastUpdateDate": "2025-01-08",
@@ -3287,6 +3360,7 @@
             {
               "id": "row-case-085",
               "caseId": "CA000085",
+              "company":"row-company-008",
               "salesperson": "michaelchan",
               "caseStatus": "status-closed-won",
               "caseStatusLastUpdateDate": "2025-02-22",
@@ -3304,6 +3378,7 @@
             {
               "id": "row-case-086",
               "caseId": "CA000086",
+              "company":"row-company-017",
               "salesperson": "karenwong",
               "caseStatus": "status-closed-won",
               "caseStatusLastUpdateDate": "2025-02-20",
@@ -3321,6 +3396,7 @@
             {
               "id": "row-case-087",
               "caseId": "CA000087",
+              "company":"row-company-023",
               "salesperson": "maggielee",
               "caseStatus": "status-closed-won",
               "caseStatusLastUpdateDate": "2025-10-18",
@@ -3338,6 +3414,7 @@
             {
               "id": "row-case-088",
               "caseId": "CA000088",
+              "company":"row-company-028",
               "salesperson": "sophietam",
               "caseStatus": "status-closed-won",
               "caseStatusLastUpdateDate": "2025-04-05",
@@ -3355,6 +3432,7 @@
             {
               "id": "row-case-089",
               "caseId": "CA000089",
+              "company":"row-company-041",
               "salesperson": "helenmok",
               "caseStatus": "status-closed-won",
               "caseStatusLastUpdateDate": "2025-10-12",
@@ -3372,6 +3450,7 @@
             {
               "id": "row-case-090",
               "caseId": "CA000090",
+              "company":"row-company-008",
               "salesperson": "michaelchan",
               "caseStatus": "status-closed-lost",
               "caseStatusLastUpdateDate": "2025-10-25",
@@ -3385,6 +3464,7 @@
             {
               "id": "row-case-091",
               "caseId": "CA000091",
+              "company":"row-company-017",
               "salesperson": "karenwong",
               "caseStatus": "status-closed-lost",
               "caseStatusLastUpdateDate": "2025-10-10",
@@ -3398,6 +3478,7 @@
             {
               "id": "row-case-092",
               "caseId": "CA000092",
+              "company":"row-company-023",
               "salesperson": "maggielee",
               "caseStatus": "status-closed-lost",
               "caseStatusLastUpdateDate": "2025-10-18",
@@ -3411,6 +3492,7 @@
             {
               "id": "row-case-093",
               "caseId": "CA000093",
+              "company":"row-company-029",
               "salesperson": "sophietam",
               "caseStatus": "status-closed-lost",
               "caseStatusLastUpdateDate": "2025-10-30",
@@ -3424,6 +3506,7 @@
             {
               "id": "row-case-094",
               "caseId": "CA000094",
+              "company":"row-company-009",
               "salesperson": "michaelchan",
               "caseStatus": "status-disqualify",
               "caseStatusLastUpdateDate": "2025-11-05",
@@ -3437,6 +3520,7 @@
             {
               "id": "row-case-095",
               "caseId": "CA000095",
+              "company":"row-company-009",
               "salesperson": "michaelchan",
               "caseStatus": "status-disqualify",
               "caseStatusLastUpdateDate": "2025-10-28",
@@ -3450,6 +3534,7 @@
             {
               "id": "row-case-096",
               "caseId": "CA000096",
+              "company":"row-company-010",
               "salesperson": "michaelchan",
               "caseStatus": "status-disqualify",
               "caseStatusLastUpdateDate": "2025-11-01",
@@ -3463,6 +3548,7 @@
             {
               "id": "row-case-097",
               "caseId": "CA000097",
+              "company":"row-company-010",
               "salesperson": "michaelchan",
               "caseStatus": "status-disqualify",
               "caseStatusLastUpdateDate": "2025-10-22",

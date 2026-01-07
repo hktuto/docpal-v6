@@ -546,8 +546,8 @@ export function useTable(databaseId: string, tableId: string) {
   }
 
   // Query table rows with filters, sorting, and pagination
-  function queryRows(params: TableQueryParams = {}): { rows: Row[]; total: number } {
-    if (!table.value) return { rows: [], total: 0 }
+  function queryRows(params: TableQueryParams = {}): Row[] {
+    if (!table.value) return []
     
     let result = [...table.value.rows]
     
@@ -576,13 +576,8 @@ export function useTable(databaseId: string, tableId: string) {
     
     const total = result.length
     
-    // Apply pagination
-    if (params.page !== undefined && params.pageSize !== undefined) {
-      const start = (params.page - 1) * params.pageSize
-      result = result.slice(start, start + params.pageSize)
-    }
     
-    return { rows: result, total }
+    return result
   }
 
   // Get all rows

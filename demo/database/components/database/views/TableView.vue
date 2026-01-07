@@ -245,7 +245,7 @@ async function getAllDataAndCreateUniqueOptions(column: Column) {
     page: 1,
     pageSize: 10000
   })
-  const uniqueOptions = [...new Set(result.rows.map(row => row[column.field]))]
+  const uniqueOptions = [...new Set(result.map(row => row[column.field]))]
   return uniqueOptions.sort((a,b) => a.localeCompare(b)).map(option => ({
     label: option,
     value: option
@@ -260,20 +260,15 @@ async function mockTableApi(params: any) {
     filters: activeFilters.value,
     sort: viewSorting.value,
     page: page?.currentPage || 1,
-    pageSize: page?.pageSize || 20
+    pageSize: page?.pageSize || 300
   })
   
   // If grouping is enabled, organize data into groups
   if (viewGroupBy.value?.field) {
-    organizeGroupedData(result.rows)
+    organizeGroupedData(result)
   }
   
-  return {
-    data: {
-      entryList: result.rows,
-      totalSize: result.total
-    }
-  }
+  return result
 }
 
 // Calculate aggregation for a group of rows
@@ -598,6 +593,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: `database-table-${props.table.id}`,
   columns: [],
   api: mockTableApi,
+  virtualScroll: true,
   headerActions: [
     [
       {
