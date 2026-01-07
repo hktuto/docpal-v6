@@ -1,50 +1,99 @@
 <script setup lang="ts">
-const init = ref(false)
-const iconCategories = ref<any[]>([
-  {key: 'fluent-emoji-flat', name: 'Emoji', icons:[
-    "fluent-emoji-flat:aerial-tramway",
-    "fluent-emoji-flat:airplane",
-    "fluent-emoji-flat:airplane-arrival",
-    "fluent-emoji-flat:airplane-departure",
-    "fluent-emoji-flat:alarm-clock",
-    "fluent-emoji-flat:alembic",
-    "fluent-emoji-flat:alien"
-  ]},
-  {name:'Lucide', key: 'lucide', icons:[]},
-  {name:'Material Design', key: 'mdi', icons:[]},
-  {name:'Ionicons', key: 'ion', icons:[]},
-  {name:'Heroicons', key: 'heroicons', icons:[]},
-  {name:'Tabler Icons', key: 'tabler', icons:[]},
+import { VirtGrid } from 'vue-virt-list'
+
+interface IconCategory {
+  name: string
+  key: string
+  icons: string[]
+  loaded: boolean
+}
+
+const loading = ref(false)
+const iconCategories = ref<IconCategory[]>([
+  { name: 'Lucide', key: 'lucide', icons: [], loaded: false },
+  { name: 'Material', key: 'mdi', icons: [], loaded: false },
+  { name: 'Ionicons', key: 'ion', icons: [], loaded: false },
+  { name: 'Heroicons', key: 'heroicons', icons: [], loaded: false },
+  { name: 'Tabler Icons', key: 'tabler', icons: [], loaded: false },
 ])
 
-const selectedCategory = ref<any>(iconCategories.value[0])
-
+const selectedCategory = ref<IconCategory>(iconCategories.value[0])
+const gridContainerRef = ref<HTMLElement>()
 
 const emits = defineEmits(['selected'])
 
+// Computed icons with full name prefix for Icon component
+const displayIcons = computed(() => {
+  return selectedCategory.value.icons.map(icon => `${selectedCategory.value.key}:${icon}`)
+})
 
-function handleIconClick(icon:any) {
+async function fetchCategoryIcons(category: IconCategory) {
+  if (category.loaded) return
+  
+  loading.value = true
+  try {
+    const response = await fetch(`https://api.iconify.design/collection?prefix=${category.key}`)
+    const data = await response.json()
+    category.icons = data.uncategorized || []
+    category.loaded = true
+  } catch (error) {
+    console.error(`Failed to fetch icons for ${category.key}:`, error)
+    category.icons = []
+  } finally {
+    loading.value = false
+  }
+}
+
+async function handleCategoryClick(category: IconCategory) {
+  selectedCategory.value = category
+  await fetchCategoryIcons(category)
+}
+
+function handleIconClick(icon: string) {
   emits('selected', icon)
 }
 
-
 onMounted(async () => {
-  // await getIconCategories()
+  // Load the first category by default
+  await fetchCategoryIcons(selectedCategory.value)
 })
-
 </script>
 
 <template>
-  <div  class="iconSelector">
+  <div class="iconSelector">
     <div class="categoryList">
-      <div class="categoryItem" v-for="category in iconCategories" :key="category.key" @click="selectedCategory = category">
+      <div 
+        v-for="category in iconCategories" 
+        :key="category.key"
+        :class="{ categoryItem: true, selected: selectedCategory.key === category.key }"
+        @click="handleCategoryClick(category)"
+      >
         {{ category.name }}
+        <el-badge v-if="selectedCategory.key === category.key"  :value="displayIcons.length" />
       </div>
     </div>
-    <div class="iconList">
-      <div class="iconItem" v-for="icon in selectedCategory.icons" :key="icon" @click="handleIconClick(icon)">
-        <Icon :name="icon" />
-        
+    <div v-loading="loading" ref="gridContainerRef" class="iconListContainer">
+      <VirtGrid
+        v-if="displayIcons.length > 0"
+        :list="displayIcons"
+        :buffer="10"
+        :itemPreSize="40"
+        :gridItems="8"
+      >
+        <template #default="{ itemData }">
+          <div 
+            class="iconItem"
+            tabindex="0"
+            :aria-label="itemData"
+            @click="handleIconClick(itemData)"
+            @keydown.enter="handleIconClick(itemData)"
+          >
+            <Icon :name="itemData" />
+          </div>
+        </template>
+      </VirtGrid>
+      <div v-else-if="!loading" class="emptyState">
+        No icons available
       </div>
     </div>
   </div>
@@ -52,22 +101,70 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .iconSelector {
   line-height: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-s);
+
   .categoryList {
     display: flex;
     flex-flow: row nowrap;
     justify-content: flex-start;
     align-items: center;
-  }
-  .iconList {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: flex-start;
-    align-items: center;
     gap: var(--app-space-xs);
-    
+    overflow-x: auto;
+    flex-shrink: 0;
+
+    .categoryItem {
+      cursor: pointer;
+      padding: var(--app-space-xxs) var(--app-space-xs);
+      border-radius: var(--app-border-radius-s);
+      white-space: nowrap;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: var(--app-grey-850);
+      }
+
+      &.selected:not(:hover) {
+        background-color: var(--app-primary-color);
+      }
+    }
+  }
+
+  .iconListContainer {
+    width: 100%;
+    height: 200px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .emptyState {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: var(--app-text-color-secondary);
   }
 }
-.iconItem{
-  font-size: var(--app-font-size-xl);
+
+.iconItem {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  padding: var(--app-space-xs);
+  border-radius: var(--app-border-radius-s);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: var(--app-text-color-secondary);
+  &:hover {
+    background-color: var(--app-grey-850);
+  }
+
+  &:focus {
+    outline: 2px solid var(--app-primary-color);
+    outline-offset: -2px;
+  }
 }
 </style>

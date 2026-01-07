@@ -31,22 +31,15 @@ CREATE TABLE "data_table_columns" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"data_table_id" uuid NOT NULL,
 	"workspace_id" uuid NOT NULL,
-	"name" text NOT NULL,
 	"label" text NOT NULL,
-	"type" text NOT NULL,
+	"type" integer NOT NULL,
 	"required" boolean DEFAULT false NOT NULL,
-	"order" integer DEFAULT 0 NOT NULL,
-	"default_value" text,
-	"is_unique" boolean DEFAULT false NOT NULL,
-	"is_hidden" boolean DEFAULT false NOT NULL,
-	"is_primary_display" boolean DEFAULT false NOT NULL,
 	"config" jsonb,
 	"validation_rules" jsonb,
 	"created_by" uuid,
 	"_update_token" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "data_table_columns_table_name_unique" UNIQUE("data_table_id","name")
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "data_tables" (
@@ -59,7 +52,7 @@ CREATE TABLE "data_tables" (
 	"icon" text,
 	"form_json" jsonb,
 	"card_json" jsonb,
-	"dashboard_json" jsonb,
+	"detail_json" jsonb,
 	"list_json" jsonb,
 	"created_by" uuid,
 	"_update_token" text,
@@ -88,4 +81,9 @@ ALTER TABLE "data_table_columns" ADD CONSTRAINT "data_table_columns_created_by_u
 ALTER TABLE "data_tables" ADD CONSTRAINT "data_tables_workspace_id_workspaces_id_fk" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspaces"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "data_tables" ADD CONSTRAINT "data_tables_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "table_migrations" ADD CONSTRAINT "table_migrations_data_table_id_data_tables_id_fk" FOREIGN KEY ("data_table_id") REFERENCES "public"."data_tables"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "table_migrations" ADD CONSTRAINT "table_migrations_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "table_migrations" ADD CONSTRAINT "table_migrations_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "workspaces_name_idx" ON "workspaces" USING btree (LOWER("name"));--> statement-breakpoint
+CREATE INDEX "workspaces_description_idx" ON "workspaces" USING btree (LOWER("description"));--> statement-breakpoint
+CREATE INDEX "workspaces_slug_idx" ON "workspaces" USING btree (LOWER("slug"));--> statement-breakpoint
+CREATE INDEX "workspaces_name_sort_idx" ON "workspaces" USING btree ("name");--> statement-breakpoint
+CREATE INDEX "workspaces_name_slug_idx" ON "workspaces" USING btree ("name","slug");

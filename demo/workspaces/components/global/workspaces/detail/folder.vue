@@ -2,8 +2,8 @@
 
 
 <script setup lang="ts">
-import LabelEditor from '../menu/labelEditor.vue'
-import TextareaEditor from '../menu/textareaEditor.vue'
+import LabelEditor from '../../../workspaces/menu/labelEditor.vue'
+import TextareaEditor from '../../../workspaces/menu/textareaEditor.vue'
 
 const props = defineProps<{
   isAdmin: boolean
