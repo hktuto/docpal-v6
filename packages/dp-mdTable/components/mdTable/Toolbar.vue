@@ -2,6 +2,8 @@
   <div v-if="showToolbar" class="table-toolbar">
     <div class="toolbar-left">
       <ToolsGroupingButton :groupableColumns="groupableColumns" @grouping-change="emit('grouping-change', $event)"/>
+      <ToolsFilterButton :available-columns="groupableColumns" @filter-change="handleFilterChange" />
+      <ToolsSortButton :available-columns="groupableColumns" @sort-change="handleSortChange" />
       <slot name="toolbar-left">
 
       </slot>
@@ -32,6 +34,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { Refresh, Search, Download, Operation, DataAnalysis } from '@element-plus/icons-vue'
+import type { FilterGroup } from '../tools/FilterConfigPopover.vue'
+import type { SortRule } from '../tools/sort/SortConfigPopover.vue'
 
 interface ColumnConfig {
   field: string
@@ -56,6 +60,8 @@ interface Emits {
   (e: 'group-toggle', field: string): void
   (e: 'update:activeGroupFields', fields: string[]): void
   (e: 'grouping-change', rules: GroupingRule[]): void
+  (e: 'filter-change', group: FilterGroup): void
+  (e: 'sort-change', rules: SortRule[]): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -88,6 +94,16 @@ const handleSearch = (value: string) => {
 
 const handleExport = () => {
   emit('export')
+}
+
+const handleFilterChange = (group: FilterGroup) => {
+  console.log('handleFilterChange', group)
+  emit('filter-change', group)
+}
+
+const handleSortChange = (rules: SortRule[]) => {
+  console.log('handleSortChange', rules)
+  emit('sort-change', rules)
 }
 
 const handleGroupCommand = (field: string) => {

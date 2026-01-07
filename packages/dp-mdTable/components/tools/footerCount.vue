@@ -39,7 +39,7 @@ import { computed } from 'vue'
 import { ElDropdown, ElDropdownMenu, ElDropdownItem, ElIcon } from 'element-plus'
 import { Check, CaretBottom } from '@element-plus/icons-vue'
 import type { ColumnConfig } from '../../composables/useColumns'
-import { ColumnFieldType } from '../../composables/useColumns'
+import { ColumnFieldType } from '../../types/column-types'
 import { useMDTableReJect } from '../../composables/useMDTable'
 import { calculateCount, type CountMethod, flattenAggregatedData } from '../../utils/tableCount'
 

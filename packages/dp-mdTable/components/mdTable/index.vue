@@ -33,7 +33,7 @@
             <el-icon><Plus /></el-icon>
           </slot>
         </div>
-        <AddColumnPopover
+        <MdTableAddColumnPopover
           ref="addColumnPopoverRef"
           :existing-fields="existingFields"
           placement="left-start"
@@ -54,7 +54,6 @@ import { Plus } from '@element-plus/icons-vue'
 import { useTableData } from '../../composables/useTableData'
 import { useTableConfig } from '../../composables/useTableConfig'
 import Toolbar from './Toolbar.vue'
-import AddColumnPopover from './AddColumnPopover.vue'
 // 导入并注册自定义渲染器（必须在组件加载时执行）
 const slots = useSlots()
 

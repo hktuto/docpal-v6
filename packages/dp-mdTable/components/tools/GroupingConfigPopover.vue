@@ -141,7 +141,7 @@ import { ref, computed, watch } from 'vue'
 import { Delete, Rank, QuestionFilled, Document, Clock } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
 import type { ColumnConfig } from '../../composables/useColumns'
-import { ColumnFieldType } from '../../composables/useColumns'
+import { ColumnFieldType } from '../../types/column-types'
 
 export interface GroupingRule {
   id: string

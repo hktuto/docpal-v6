@@ -2,7 +2,7 @@
 
 // 字段类型枚举
 export enum ColumnFieldType {
-  SingleText = 1,      // 多行文本
+  MultiText = 1,      // 多行文本
   Number = 2,          // 数字
   SingleSelect = 3,    // 单选
   MultiSelect = 4,     // 多选
@@ -16,7 +16,7 @@ export enum ColumnFieldType {
   Rating = 12,         // 评分
   Member = 13,         // 成员
   MagicLink = 14,      // 神奇引用/关联
-  MagicLookUp = 15,    // 神奇引用/查找
+  // MagicLookUp = 15,    // 神奇引用/查找
   Formula = 16,        // 智能公式
   Currency = 17,       // 货币
   Percent = 18,        // 百分比

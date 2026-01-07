@@ -1,42 +1,14 @@
 <template>
-  <UiPopoverDialog
-    ref="popoverRef"
-    :width="width"
-  >
+  <UiPopoverDialog ref="popoverRef" :width="width">
     <template #default>
       <div class="add-column-popover">
-        <el-form
-          ref="formRef"
-          :model="formData"
-          :rules="rules"
-          label-position="top"
-          @submit.prevent
-        >
-          <el-form-item label="字段名" prop="field">
-            <el-input
-              v-model="formData.field"
-              placeholder="请输入字段名（英文）"
-              @keydown.enter.prevent="handleSubmit"
-            />
-          </el-form-item>
-
+        <el-form ref="formRef" :model="formData" :rules="rules" label-position="top" @submit.prevent>
           <el-form-item label="列标题" prop="title">
-            <el-input
-              v-model="formData.title"
-              placeholder="请输入列标题"
-              @keydown.enter.prevent="handleSubmit"
-            />
+            <el-input v-model="formData.title" placeholder="请输入列标题" @keydown.enter.prevent="handleSubmit" />
           </el-form-item>
 
           <el-form-item label="数据类型" prop="type">
-            <el-select
-              v-model="formData.type"
-              placeholder="请选择数据类型"
-              style="width: 100%"
-              :teleported="false"
-              @change="handleSelectChange"
-              @click.stop
-            >
+            <el-select v-model="formData.type" placeholder="请选择数据类型" style="width: 100%" :teleported="false" @change="handleSelectChange" @click.stop>
               <el-option label="字符串" value="string" />
               <el-option label="数字" value="number" />
               <el-option label="整数" value="integer" />
@@ -44,23 +16,11 @@
           </el-form-item>
 
           <el-form-item label="列宽度" prop="width">
-            <el-input-number
-              v-model="formData.width"
-              :min="80"
-              :max="800"
-              placeholder="列宽度"
-              style="width: 100%"
-            />
+            <el-input-number v-model="formData.width" :min="80" :max="800" placeholder="列宽度" style="width: 100%" />
           </el-form-item>
 
           <el-form-item label="最小宽度" prop="minWidth">
-            <el-input-number
-              v-model="formData.minWidth"
-              :min="80"
-              :max="800"
-              placeholder="最小宽度"
-              style="width: 100%"
-            />
+            <el-input-number v-model="formData.minWidth" :min="80" :max="800" placeholder="最小宽度" style="width: 100%" />
           </el-form-item>
 
           <el-form-item>
@@ -94,7 +54,6 @@ interface ColumnConfig {
 }
 
 interface Props {
-  existingFields?: string[]
   virtualRef?: HTMLElement | (() => HTMLElement)
   width?: number | string
   placement?: string
@@ -102,7 +61,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  existingFields: () => [],
   width: 320,
   placement: 'left-start',
   popperClass: ''
@@ -130,7 +88,7 @@ function show(targetParams: any, column: any) {
   popoverRef.value.open(targetParams)
   state.column = null
   state.isEdit = false
-  if(!!column) {
+  if (!!column) {
     state.column = column
     state.isEdit = true
     formData.field = column.field
@@ -142,45 +100,29 @@ function show(targetParams: any, column: any) {
 }
 const formRef = ref<FormInstance>()
 
-
 // 验证规则
 const validateField = (rule: any, value: any, callback: any) => {
   if (!value) {
     callback(new Error('请输入字段名'))
     return
   }
-  
+
   // 检查字段名格式（只允许英文、数字、下划线）
   if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(value)) {
     callback(new Error('字段名只能包含字母、数字和下划线，且不能以数字开头'))
     return
   }
-  
-  // 检查字段名是否已存在
-  if (props.existingFields.includes(value)) {
-    callback(new Error('该字段名已存在'))
-    return
-  }
-  
+
   callback()
 }
 
 const rules: FormRules = {
-  field: [{ validator: validateField, trigger: 'blur' }],
   title: [{ required: true, message: '请输入列标题', trigger: 'blur' }],
   type: [{ required: true, message: '请选择数据类型', trigger: 'change' }]
 }
 
-// 监听 existingFields 变化，更新验证
-watch(() => props.existingFields, () => {
-  if (formRef.value) {
-    formRef.value.validateField('field', () => {})
-  }
-}, { deep: true })
-
 // 重置表单
 const resetForm = () => {
-  formData.field = ''
   formData.title = ''
   formData.type = 'string'
   formData.width = 150
@@ -194,33 +136,42 @@ const handleSubmit = async () => {
 
   try {
     await formRef.value.validate()
-    
+
     const columnConfig: ColumnConfig = {
-      field: formData.field,
+      field: formData.field || createField(),
       title: formData.title,
       type: formData.type,
       width: formData.width,
       visible: true
     }
-    
+
     if (formData.minWidth) {
       columnConfig.minWidth = formData.minWidth
     }
-    
+
     // 根据类型设置编辑配置
     if (columnConfig.type === 'number' || columnConfig.type === 'integer') {
       columnConfig.editRender = { name: 'VxeInput', props: { type: 'number' } }
     } else {
       columnConfig.editRender = { name: 'VxeInput' }
     }
-    
+
     emit('submit', columnConfig)
     resetForm()
+    popoverRef.value.close()
   } catch (error) {
     console.error('表单验证失败:', error)
   }
 }
-
+function createField(length: number = 8): string {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let result = ''
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length)
+    result += characters[randomIndex]
+  }
+  return 'fld' + result
+}
 // 取消
 const handleCancel = () => {
   resetForm()
@@ -231,8 +182,7 @@ const handleCancel = () => {
 // 暴露方法
 defineExpose({
   resetForm,
-  show,
-  
+  show
 })
 </script>
 
@@ -250,4 +200,3 @@ defineExpose({
   }
 }
 </style>
-
