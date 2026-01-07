@@ -144,7 +144,7 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
       localStorage.setItem('access_token', refreshToken as string)
 
       const { data } = await axiosInstance.post(
-        '/api/auth/token',
+        '/auth/token',
         {},
         {
           headers: {
