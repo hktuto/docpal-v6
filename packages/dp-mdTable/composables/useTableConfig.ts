@@ -94,7 +94,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     return _columns.map((col) => {
       if (!col.type) col.type = ColumnFieldType.Text
       if (col.field === 'name') col.rowGroupNode = true
-      const colConfig = { ...col, aggFunc: true, ...rendererManager.getColumnConfig(col.type as ColumnFieldType, col.property, col.property) }
+      const colConfig = { ...col, aggFunc: true, ...rendererManager.getColumnConfig(col.type as ColumnFieldType, col.properties, col.properties) }
       colConfig.slots = {
         footer: 'footerCount',
         header: 'header'
@@ -103,8 +103,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       if (
         col.type === ColumnFieldType.Number ||
         col.type === ColumnFieldType.Currency ||
-        col.type === ColumnFieldType.Percent ||
-        col.type === ColumnFieldType.AutoNumber
+        col.type === ColumnFieldType.Percent
       ) {
         colConfig.align = 'right'
       }

@@ -18,7 +18,7 @@ export interface ColumnConfig {
   slots?: Record<string, string>
   fixed?: 'left' | 'right'
   /** 列设置，用于传递额外的配置参数给渲染器 */
-  property?: Record<string, any>
+  properties?: Record<string, any>
   /** 统计方法 */
   countMethod?: 'sum' | 'max' | 'min' | 'avg' | 'count' | 'empty' | 'filled' | 'unique' | 'emptyPercent' | 'filledPercent' | 'none'
   [key: string]: any
@@ -67,7 +67,7 @@ function createMockColumns(tableName: string) {
   const names = ['name', 'age', 'gender', 'email', 'phone', 'address', 'city', 'state', 'zip', 'country', 'url', 'rate']
   for (let i = 0; i < names.length; i++) {
     let type = ColumnFieldType.Text
-    let property = {}
+    let properties = {}
     if (names[i] === 'age') {
       type = ColumnFieldType.Number
     }
@@ -85,7 +85,7 @@ function createMockColumns(tableName: string) {
     }
     if (names[i] === 'rate') {
       ;(type = ColumnFieldType.Rating),
-        (property = {
+        (properties = {
           allowHalf: true,
           max: 3
         })
@@ -97,7 +97,7 @@ function createMockColumns(tableName: string) {
       minWidth: 100,
       sortable: true,
       type,
-      property
+      properties
     })
   }
   console.log('mockColumns', mockColumns)
@@ -148,19 +148,7 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
   const addColumn = (column: ColumnConfig): boolean => {
     // 验证必填字段
     if (!column.field || !column.title) {
-      console.error('添加列失败: field 和 title 是必填项')
-      return false
-    }
-
-    // 检查字段名是否已存在
-    if (hasColumn(column.field)) {
-      console.error(`添加列失败: 字段名 "${column.field}" 已存在`)
-      return false
-    }
-
-    // 验证字段名格式（只允许英文、数字、下划线，且不能以数字开头）
-    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column.field)) {
-      console.error('添加列失败: 字段名只能包含字母、数字和下划线，且不能以数字开头')
+      console.error('添加列失败: title 是必填项')
       return false
     }
 
@@ -217,47 +205,20 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
    * @returns 是否更新成功
    */
   const updateColumn = (field: string, updates: Partial<ColumnConfig>): boolean => {
+    console.log('updateColumn', field, updates)
     const index = columns.value.findIndex((col) => col.field === field)
 
     if (index === -1) {
       console.error(`更新列失败: 字段名 "${field}" 不存在`)
       return false
     }
-
-    // 如果更新了 field，需要检查新 field 是否已存在
-    if (updates.field && updates.field !== field) {
-      if (hasColumn(updates.field)) {
-        console.error(`更新列失败: 新字段名 "${updates.field}" 已存在`)
-        return false
-      }
-
-      // 验证新字段名格式
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(updates.field)) {
-        console.error('更新列失败: 新字段名只能包含字母、数字和下划线，且不能以数字开头')
-        return false
-      }
-    }
-
     // 更新列配置
     const updatedColumn = {
       ...columns.value[index],
       ...updates
     }
-
-    // 如果类型改变，更新编辑配置
-    if (updates.type) {
-      if (updates.type === 'number' || updates.type === 'integer') {
-        updatedColumn.editRender = updatedColumn.editRender || { name: 'VxeInput', props: { type: 'number' } }
-      } else {
-        updatedColumn.editRender = updatedColumn.editRender || { name: 'VxeInput' }
-      }
-    }
-
     columns.value[index] = updatedColumn
-
-    // 触发回调
-    options?.onColumnUpdate?.(field, updatedColumn)
-
+    console.log('columns', columns.value)
     return true
   }
 

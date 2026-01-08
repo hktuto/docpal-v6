@@ -1,51 +1,47 @@
 <template>
-  <UiPopoverDialog ref="popoverRef" :width="width">
-    <template #default>
-      <div class="add-column-popover">
-        <el-form ref="formRef" :model="formData" :rules="rules" label-position="top" @submit.prevent>
-          <el-form-item label="列标题" prop="title">
-            <el-input v-model="formData.title" placeholder="请输入列标题" @keydown.enter.prevent="handleSubmit" />
-          </el-form-item>
-
-          <el-form-item label="数据类型" prop="type">
-            <el-select v-model="formData.type" placeholder="请选择数据类型" style="width: 100%" :teleported="false" @change="handleSelectChange" @click.stop>
-              <el-option label="字符串" value="string" />
-              <el-option label="数字" value="number" />
-              <el-option label="整数" value="integer" />
-            </el-select>
-          </el-form-item>
-
-          <el-form-item label="列宽度" prop="width">
-            <el-input-number v-model="formData.width" :min="80" :max="800" placeholder="列宽度" style="width: 100%" />
-          </el-form-item>
-
-          <el-form-item label="最小宽度" prop="minWidth">
-            <el-input-number v-model="formData.minWidth" :min="80" :max="800" placeholder="最小宽度" style="width: 100%" />
-          </el-form-item>
-
-          <el-form-item>
-            <div class="form-actions">
-              <el-button @click="handleCancel">取消</el-button>
-              <el-button type="primary" @click="handleSubmit">确定</el-button>
-            </div>
-          </el-form-item>
-        </el-form>
-      </div>
-    </template>
+  <UiPopoverDialog ref="popoverRef" :width="width" :close-on-click-outside="closeOnClickOutside">
+    <div class="add-column-popover">
+      <el-form ref="formRef" :model="formData" :rules="rules" label-position="top" @submit.prevent>
+        <el-form-item label="列标题" prop="title">
+          <el-input v-model="formData.title" placeholder="请输入列标题" @keydown.enter.prevent="handleSubmit" />
+        </el-form-item>
+        <el-form-item label="数据类型" prop="type">
+          <el-select-v2
+            v-model="formData.type"
+            placeholder="请选择数据类型"
+            style="width: 100%"
+            :options="columnFieldOptions"
+            @visible-change="handleSelectVisibleChange"
+            @change="handleSelectChange"
+            @click.stop
+          >
+          </el-select-v2>
+        </el-form-item>
+        <component :is="AsyncComponent" v-if="AsyncComponent" :form-data="formData" />
+        <el-form-item v-if="![ColumnFieldType.DateTime].includes(formData.type)" label="Default Value" prop="defaultValue">
+          <el-input v-model="formData.defaultValue" />
+        </el-form-item>
+        <el-form-item>
+          <div class="form-actions">
+            <el-button @click="handleCancel">取消</el-button>
+            <el-button type="primary" @click="handleSubmit">确定</el-button>
+          </div>
+        </el-form-item>
+      </el-form>
+    </div>
   </UiPopoverDialog>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, nextTick } from 'vue'
+import { ref, reactive, nextTick, provide } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
-
+import { defineAsyncComponent } from 'vue'
+import { getColumnFieldOptions } from './columnBasic'
 interface ColumnConfig {
   field: string
   title: string
   type?: 'string' | 'number' | 'integer'
-  width?: number
-  minWidth?: number
   visible?: boolean
   sortable?: boolean
   filterable?: boolean
@@ -59,13 +55,13 @@ interface Props {
   placement?: string
   popperClass?: string
 }
-
+const columnFieldOptions = getColumnFieldOptions()
 const props = withDefaults(defineProps<Props>(), {
   width: 320,
   placement: 'left-start',
   popperClass: ''
 })
-
+const mdTable = useMDTableReJect()
 const emit = defineEmits<{
   submit: [column: ColumnConfig]
   cancel: []
@@ -76,89 +72,114 @@ const state = reactive({
 })
 const popoverRef = ref()
 const triggerRef = ref()
-const formData = reactive({
+const closeOnClickOutside = ref(true)
+const openSelectCount = ref(0)
+const formData = ref<ColumnConfig>({
   field: '',
   title: '',
-  type: 'string',
-  width: 150,
-  minWidth: undefined
+  type: 'string'
 })
 function show(targetParams: any, column: any) {
+  console.log('show', targetParams, JSON.stringify(column))
   // check if targetParams is a html element, or is a vue component ref
   popoverRef.value.open(targetParams)
   state.column = null
   state.isEdit = false
   if (!!column) {
+    // 优先从 column.properties 读取，如果没有则从 cellRender?.props 或 editRender?.props 读取
+    const properties = column.properties || column.cellRender?.props || column.editRender?.props || {}
     state.column = column
     state.isEdit = true
-    formData.field = column.field
-    formData.title = column.title
-    formData.type = column.type
-    formData.width = column.width
-    formData.minWidth = column.minWidth
+    formData.value = {
+      field: column.field,
+      title: column.title,
+      type: column.type,
+      ...properties
+    }
+    console.log('formData', formData.value)
+    loadComponent(column.type)
   }
 }
 const formRef = ref<FormInstance>()
-
-// 验证规则
-const validateField = (rule: any, value: any, callback: any) => {
-  if (!value) {
-    callback(new Error('请输入字段名'))
-    return
+let selectVisible = false
+// 处理下拉菜单显示/隐藏
+const handleSelectVisibleChange = (visible: boolean) => {
+  selectVisible = !selectVisible
+  if (selectVisible) {
+    closeOnClickOutside.value = false
+  } else {
+    closeOnClickOutside.value = true
   }
-
-  // 检查字段名格式（只允许英文、数字、下划线）
-  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(value)) {
-    callback(new Error('字段名只能包含字母、数字和下划线，且不能以数字开头'))
-    return
+}
+const handleClose = () => {
+  popoverRef.value.close()
+  closeOnClickOutside.value = true
+}
+// 提供给子组件使用，让子组件的select也能控制popover的关闭行为
+provide('handleSelectVisibleChange', handleSelectVisibleChange)
+function handleSelectChange(value: any) {
+  console.log('handleSelectChange', value)
+  loadComponent(value)
+}
+const AsyncComponent = ref<null | any>(null)
+// 定义加载组件的函数
+const loadComponent = (value: any) => {
+  const options = columnFieldOptions.reduce((acc: any, item: any) => {
+    acc.push(...item.options)
+    return acc
+  }, [])
+  const fieldSetting = options.find((item: any) => item.value === value)
+  if (fieldSetting?.component) {
+    AsyncComponent.value = defineAsyncComponent(() => import(`./field/${fieldSetting.component}.vue`))
+  } else {
+    AsyncComponent.value = null
   }
-
-  callback()
 }
-
-const rules: FormRules = {
-  title: [{ required: true, message: '请输入列标题', trigger: 'blur' }],
-  type: [{ required: true, message: '请选择数据类型', trigger: 'change' }]
-}
-
 // 重置表单
 const resetForm = () => {
-  formData.title = ''
-  formData.type = 'string'
-  formData.width = 150
-  formData.minWidth = undefined
+  formData.value = {
+    field: '',
+    title: '',
+    type: 'string'
+  }
   formRef.value?.clearValidate()
 }
 
 // 提交
 const handleSubmit = async () => {
   if (!formRef.value) return
-
   try {
     await formRef.value.validate()
 
+    // 基本字段
+    const basicFields = ['field', 'title', 'type']
     const columnConfig: ColumnConfig = {
-      field: formData.field || createField(),
-      title: formData.title,
-      type: formData.type,
-      width: formData.width,
-      visible: true
+      field: formData.value.field || createField(),
+      title: formData.value.title,
+      type: formData.value.type
     }
 
-    if (formData.minWidth) {
-      columnConfig.minWidth = formData.minWidth
+    // 将其他字段保存到 properties 中
+    const properties: Record<string, any> = {}
+    Object.keys(formData.value).forEach((key) => {
+      if (!basicFields.includes(key)) {
+        properties[key] = formData.value[key]
+      }
+    })
+
+    // 如果有 properties，则添加到 columnConfig 中
+    if (Object.keys(properties).length > 0) {
+      columnConfig.properties = properties
     }
 
-    // 根据类型设置编辑配置
-    if (columnConfig.type === 'number' || columnConfig.type === 'integer') {
-      columnConfig.editRender = { name: 'VxeInput', props: { type: 'number' } }
+    console.log('columnConfig', columnConfig)
+    if (state.isEdit) {
+      mdTable.updateColumn(columnConfig.field, columnConfig)
     } else {
-      columnConfig.editRender = { name: 'VxeInput' }
+      emit('submit', columnConfig)
     }
-
-    emit('submit', columnConfig)
     resetForm()
-    popoverRef.value.close()
+    handleClose()
   } catch (error) {
     console.error('表单验证失败:', error)
   }
@@ -172,10 +193,11 @@ function createField(length: number = 8): string {
   }
   return 'fld' + result
 }
+
 // 取消
 const handleCancel = () => {
   resetForm()
-  popoverRef.value.close()
+  handleClose()
   emit('cancel')
 }
 
