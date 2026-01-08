@@ -19,15 +19,17 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     both: {
       render({ options, params }) {
         const { $table, row, column } = params
-        const props = options.options || {}
+        const props = options.props || {}
+        const max = props.max ? Number(props.max) : 5
+        const allowHalf = props.allowHalf ? props.allowHalf : false
         return h(ElRate, {
           modelValue: Number(row[column.field]) || 0,
           'onUpdate:modelValue': (value: number) => {
             row[column.field] = value
             // $table.updateStatus(row)  // 如果需要触发表格的更新事件
           },
-          max: props.max || 4,
-          ...props
+          max,
+          allowHalf,
         })
       },
     }

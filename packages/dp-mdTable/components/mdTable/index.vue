@@ -22,13 +22,13 @@
             <ToolsFooterCount :column="footerProps.column" :row="footerProps.row" />
           </template>
           <template #header="headerProps">
-            <MdTableHeader v-if="headerProps.column.field" :column="headerProps.column" />
+            <MdTableHeader v-if="headerProps.column.field" :headerProps="headerProps" :column="headerProps.column" />
           </template>
         </vxe-grid>
       </div>
       <!-- 右侧区域 -->
       <div class="table-right-panel">
-        <div class="table-right-panel-header" @click="(e) => handleAddColumn(e)">
+        <div ref="rightPanelHeaderRef" class="table-right-panel-header" @click="(e) => handleAddColumn(e)">
           <slot name="right-panel">
             <el-icon><Plus /></el-icon>
           </slot>
@@ -117,9 +117,10 @@ const handleGroupToggle = (rules: GroupingRule[]) => {
 }
 
 // 处理添加列
+const rightPanelHeaderRef = ref<HTMLElement>()
 const handleAddColumn = (e: MouseEvent) => {
   if (addColumnPopoverRef.value) {
-    addColumnPopoverRef.value.show(e.target || null)
+    addColumnPopoverRef.value.show(rightPanelHeaderRef.value || null)
   }
 }
 const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) => {

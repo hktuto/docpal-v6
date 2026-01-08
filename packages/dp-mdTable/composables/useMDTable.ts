@@ -4,13 +4,14 @@ import type { VxeGridInstance } from 'vxe-table'
 interface mdTable {
   columns: any
   addColumn: any
+  updateColumn: any
   columnGroupRules: any
   gridRef: Ref<VxeGridInstance | undefined>
 }
 
 export function useMDTable(tableName: string, props: any) {
   const gridRef = ref<VxeGridInstance<any>>()
-  const { columns, addColumn, columnGroupRules } = useColumns(tableName)
+  const { columns, addColumn, updateColumn, columnGroupRules } = useColumns(tableName)
   const {
     loading,
     refresh: refreshTableData,
@@ -36,12 +37,14 @@ export function useMDTable(tableName: string, props: any) {
   provide<mdTable>('mdTable', {
     columns,
     addColumn,
+    updateColumn,
     columnGroupRules,
     gridRef
   })
   return {
     columns,
     addColumn,
+    updateColumn,
     columnGroupRules,
     gridOptions,
     gridRef,
