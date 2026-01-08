@@ -8,19 +8,19 @@ async function getLocale(){
     const { locale, availableLocales, setLocaleMessage } = useI18n()
     await Promise.all( availableLocales.map( async(code) => {
             const vxeLang = code === 'zh-CN' ? zhCN : code === 'en-US' ? enUS : zhHK
-            const { data:clientData } = await clientApi.api.getRelationQuerylanguage({
+            const { data:clientData } = await clientApi.api.queryLanguage({
                     locale:code, 
                     languageKey: 'client'
                 }) as any
             const clientJson = JSON.parse(clientData[0].languageContent)
 
-            const { data:adminData } = await clientApi.api.getRelationQuerylanguage({
+            const { data:adminData } = await clientApi.api.queryLanguage({
                     locale:code, 
                     languageKey: 'admin'
                 }) as any
             const adminJson = JSON.parse(adminData[0].languageContent)
 
-            const { data:metaData } = await clientApi.api.getRelationQuerylanguage({
+            const { data:metaData } = await clientApi.api.queryLanguage({
                     locale:code, 
                     languageKey: 'meta'
                 }) as any

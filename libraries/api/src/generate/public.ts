@@ -1441,11 +1441,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Configuration
-         * @name GetNuxeoTypes
+         * @name GetDocumentTypes
          * @summary Get all document types
          * @request GET:/api/nuxeo/types
          */
-        getNuxeoTypes: (
+        getDocumentTypes: (
             query: {
                 /** @format int32 */
                 flag: number;
@@ -1463,11 +1463,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Configuration
-         * @name PostNuxeoTypes
+         * @name GetDocumentTypes1
          * @summary Get all document types
          * @request POST:/api/nuxeo/types
          */
-        postNuxeoTypes: (
+        getDocumentTypes1: (
             query: {
                 /** @format int32 */
                 flag: number;
@@ -1568,11 +1568,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags VerificationPermissionController
-         * @name PostVerificationPermission
+         * @name Verification
          * @summary verification access control permission of acl user
          * @request POST:/api/verification/permission
          */
-        postVerificationPermission: (data: VerificationPermissionReq, params: RequestParams = {}) =>
+        verification: (data: VerificationPermissionReq, params: RequestParams = {}) =>
             this.request<ResultObject, Result>({
                 path: `/api/verification/permission`,
                 method: "POST",
@@ -1585,11 +1585,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Search History
-         * @name GetV1SearchHistory
+         * @name GetSearchHistory
          * @summary Get paginated search history
          * @request GET:/api/v1/search-history
          */
-        getV1SearchHistory: (
+        getSearchHistory: (
             query: {
                 /** User ID */
                 userId: string;
@@ -1621,11 +1621,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Search History
-         * @name PostV1SearchHistory
+         * @name SaveSearchHistory
          * @summary Save search history record
          * @request POST:/api/v1/search-history
          */
-        postV1SearchHistory: (data: SearchHistory, params: RequestParams = {}) =>
+        saveSearchHistory: (data: SearchHistory, params: RequestParams = {}) =>
             this.request<SearchHistory, Result>({
                 path: `/api/v1/search-history`,
                 method: "POST",
@@ -1638,11 +1638,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserPermissionController
-         * @name GetUserPermission
+         * @name Find1
          * @summary Query permission
          * @request GET:/api/user/permission
          */
-        getUserPermission: (
+        find1: (
             query: {
                 businessId: string;
                 userId: string;
@@ -1661,11 +1661,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserPermissionController
-         * @name PostUserPermission
+         * @name Create
          * @summary create permission of acl user that deal with business
          * @request POST:/api/user/permission
          */
-        postUserPermission: (data: AclUserPermission, params: RequestParams = {}) =>
+        create: (data: AclUserPermission, params: RequestParams = {}) =>
             this.request<ResultAclUserPermission, Result>({
                 path: `/api/user/permission`,
                 method: "POST",
@@ -1678,11 +1678,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserPermissionController
-         * @name DeleteUserPermission
+         * @name Delete
          * @summary Remove single permission
          * @request DELETE:/api/user/permission
          */
-        deleteUserPermission: (data: AclUserPermission, params: RequestParams = {}) =>
+        delete: (data: AclUserPermission, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/user/permission`,
                 method: "DELETE",
@@ -1695,10 +1695,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserPermissionController
-         * @name PostUserPermissionReplace
+         * @name Replace
          * @request POST:/api/user/permission/replace
          */
-        postUserPermissionReplace: (data: AclUserPermission, params: RequestParams = {}) =>
+        replace: (data: AclUserPermission, params: RequestParams = {}) =>
             this.request<ResultAclUserPermission, Result>({
                 path: `/api/user/permission/replace`,
                 method: "POST",
@@ -1711,11 +1711,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclPermissionController
-         * @name PostPermissions
+         * @name Create1
          * @summary Create access control permission
          * @request POST:/api/permissions
          */
-        postPermissions: (data: AccessControlPermission, params: RequestParams = {}) =>
+        create1: (data: AccessControlPermission, params: RequestParams = {}) =>
             this.request<ResultAccessControlPermission, Result>({
                 path: `/api/permissions`,
                 method: "POST",
@@ -1728,11 +1728,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclPermissionController
-         * @name DeletePermissions
+         * @name Delete2
          * @summary delete access control permission and entry list by name
          * @request DELETE:/api/permissions
          */
-        deletePermissions: (data: AclPermissionDTO, params: RequestParams = {}) =>
+        delete2: (data: AclPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/permissions`,
                 method: "DELETE",
@@ -1745,10 +1745,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclPermissionController
-         * @name PostPermissionsNames
+         * @name FindByNames
          * @request POST:/api/permissions/names
          */
-        postPermissionsNames: (data: string[], params: RequestParams = {}) =>
+        findByNames: (data: string[], params: RequestParams = {}) =>
             this.request<ResultListAccessControlPermission, Result>({
                 path: `/api/permissions/names`,
                 method: "POST",
@@ -1761,11 +1761,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclPermissionController
-         * @name PostPermissionsEntries
+         * @name FindPermissionEntries
          * @summary Query permission entry list by permission name list
          * @request POST:/api/permissions/entries
          */
-        postPermissionsEntries: (data: string[], params: RequestParams = {}) =>
+        findPermissionEntries: (data: string[], params: RequestParams = {}) =>
             this.request<ResultListString, Result>({
                 path: `/api/permissions/entries`,
                 method: "POST",
@@ -1778,11 +1778,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclPermissionController
-         * @name PostPermissionsBatchEntry
+         * @name BatchCreate
          * @summary batch add access control permission
          * @request POST:/api/permissions/batch/entry
          */
-        postPermissionsBatchEntry: (data: AclPermissionDTO, params: RequestParams = {}) =>
+        batchCreate: (data: AclPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultAclPermissionDTO, Result>({
                 path: `/api/permissions/batch/entry`,
                 method: "POST",
@@ -1795,11 +1795,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserController
-         * @name PostPermissionUsers
+         * @name Create2
          * @summary create acl user
          * @request POST:/api/permission/users
          */
-        postPermissionUsers: (data: AclUserInformation, params: RequestParams = {}) =>
+        create2: (data: AclUserInformation, params: RequestParams = {}) =>
             this.request<ResultAclUserInformation, Result>({
                 path: `/api/permission/users`,
                 method: "POST",
@@ -1812,11 +1812,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserRelationshipController
-         * @name PostPermissionUserRelationships
+         * @name Create3
          * @summary create user relation ship
          * @request POST:/api/permission/user/relationships
          */
-        postPermissionUserRelationships: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
+        create3: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/permission/user/relationships`,
                 method: "POST",
@@ -1829,11 +1829,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserRelationshipController
-         * @name DeletePermissionUserRelationships
+         * @name Delete5
          * @summary remove user relation ship
          * @request DELETE:/api/permission/user/relationships
          */
-        deletePermissionUserRelationships: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
+        delete5: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/permission/user/relationships`,
                 method: "DELETE",
@@ -1846,11 +1846,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserGroupController
-         * @name PostPermissionUserGroup
+         * @name Create4
          * @summary create acl user group
          * @request POST:/api/permission/user/group
          */
-        postPermissionUserGroup: (data: AclUserGroup, params: RequestParams = {}) =>
+        create4: (data: AclUserGroup, params: RequestParams = {}) =>
             this.request<ResultAclUserGroup, Result>({
                 path: `/api/permission/user/group`,
                 method: "POST",
@@ -1863,11 +1863,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserGroupController
-         * @name DeletePermissionUserGroup
+         * @name Delete6
          * @summary Remove user from user group
          * @request DELETE:/api/permission/user/group
          */
-        deletePermissionUserGroup: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
+        delete6: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/permission/user/group`,
                 method: "DELETE",
@@ -1880,11 +1880,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserGroupController
-         * @name PostPermissionUserGroupUsers
+         * @name Create5
          * @summary Add the list of acl user to user group
          * @request POST:/api/permission/user/group/users
          */
-        postPermissionUserGroupUsers: (data: AclUserGroupDTO, params: RequestParams = {}) =>
+        create5: (data: AclUserGroupDTO, params: RequestParams = {}) =>
             this.request<ResultAclUserGroup, Result>({
                 path: `/api/permission/user/group/users`,
                 method: "POST",
@@ -1897,10 +1897,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserGroupController
-         * @name PostPermissionUserGroupGroups
+         * @name Find
          * @request POST:/api/permission/user/group/groups
          */
-        postPermissionUserGroupGroups: (data: AclUserGroupDTO, params: RequestParams = {}) =>
+        find: (data: AclUserGroupDTO, params: RequestParams = {}) =>
             this.request<ResultListAclUserGroup, Result>({
                 path: `/api/permission/user/group/groups`,
                 method: "POST",
@@ -1913,11 +1913,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserGroupController
-         * @name PostPermissionUserGroupAddUsers
+         * @name Create6
          * @summary Add user to user group
          * @request POST:/api/permission/user/group/add/users
          */
-        postPermissionUserGroupAddUsers: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
+        create6: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/permission/user/group/add/users`,
                 method: "POST",
@@ -1930,11 +1930,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclEntryController
-         * @name PostPermissionEntry
+         * @name Create7
          * @summary Create Access control entry
          * @request POST:/api/permission/entry
          */
-        postPermissionEntry: (data: AccessControlEntry, params: RequestParams = {}) =>
+        create7: (data: AccessControlEntry, params: RequestParams = {}) =>
             this.request<ResultAccessControlEntry, Result>({
                 path: `/api/permission/entry`,
                 method: "POST",
@@ -1947,11 +1947,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclEntryController
-         * @name DeletePermissionEntry
+         * @name Delete8
          * @summary Batch delete entry by id list
          * @request DELETE:/api/permission/entry
          */
-        deletePermissionEntry: (data: AclEntryDTO, params: RequestParams = {}) =>
+        delete8: (data: AclEntryDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/permission/entry`,
                 method: "DELETE",
@@ -1980,10 +1980,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Workflow
-         * @name PostWorkflowProcessList
+         * @name GetProcessDefinitions1
          * @request POST:/api/docpal/workflow/process/list
          */
-        postWorkflowProcessList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        getProcessDefinitions1: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListProcessDTO, Result>({
                 path: `/api/docpal/workflow/process/list`,
                 method: "POST",
@@ -1996,10 +1996,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Workflow
-         * @name PostWorkflowProcessCombineList
+         * @name GetCombineProcessDefinitions
          * @request POST:/api/docpal/workflow/process/combine/list
          */
-        postWorkflowProcessCombineList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        getCombineProcessDefinitions: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListProcessDTO, Result>({
                 path: `/api/docpal/workflow/process/combine/list`,
                 method: "POST",
@@ -2206,10 +2206,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocPalEmailController
-         * @name PostEmailTemplateSend
+         * @name SendByEmailTemplate
          * @request POST:/api/docpal/email/template/send
          */
-        postEmailTemplateSend: (data: MailSendRequest, params: RequestParams = {}) =>
+        sendByEmailTemplate: (data: MailSendRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/docpal/email/template/send`,
                 method: "POST",
@@ -2222,11 +2222,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocPalEmailController
-         * @name PostEmailSend
+         * @name SendByJson
          * @summary Send test email using email template
          * @request POST:/api/docpal/email/send
          */
-        postEmailSend: (data: MailSendRequest, params: RequestParams = {}) =>
+        sendByJson: (data: MailSendRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/docpal/email/send`,
                 method: "POST",
@@ -2239,10 +2239,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocPalEmailController
-         * @name PostEmailSendFrom
+         * @name Send
          * @request POST:/api/docpal/email/send/from
          */
-        postEmailSendFrom: (
+        send: (
             query: {
                 mailSendRequest: MailSendRequest;
                 multipartFiles: File[];
@@ -2260,10 +2260,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocPalEmailController
-         * @name PostEmailCustomizeSend
+         * @name SendByCustomizeText
          * @request POST:/api/docpal/email/customize/send
          */
-        postEmailCustomizeSend: (data: MailSendRequest, params: RequestParams = {}) =>
+        sendByCustomizeText: (data: MailSendRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/docpal/email/customize/send`,
                 method: "POST",
@@ -2276,10 +2276,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocPalEmailController
-         * @name PostEmailBatchSend
+         * @name BatchSend
          * @request POST:/api/docpal/email/batch/send
          */
-        postEmailBatchSend: (data: BatchMailSendRequest, params: RequestParams = {}) =>
+        batchSend: (data: BatchMailSendRequest, params: RequestParams = {}) =>
             this.request<ResultBatchSendEmailResponseDTO, Result>({
                 path: `/api/docpal/email/batch/send`,
                 method: "POST",
@@ -2292,10 +2292,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocPalEmailController
-         * @name PostEmailBatchSendundefined
+         * @name BatchSend1
          * @request POST:/api/docpal/email/batch-send
          */
-        postEmailBatchSendundefined: (
+        batchSend1: (
             query: {
                 request: string;
             },
@@ -2610,11 +2610,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocBlockPermissionController
-         * @name PostBlockPermission
+         * @name Create10
          * @summary Create DocBlockPermission
          * @request POST:/api/block/permission
          */
-        postBlockPermission: (data: BlockInheritedPermission, params: RequestParams = {}) =>
+        create10: (data: BlockInheritedPermission, params: RequestParams = {}) =>
             this.request<ResultBlockInheritedPermission, Result>({
                 path: `/api/block/permission`,
                 method: "POST",
@@ -2627,11 +2627,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocBlockPermissionController
-         * @name PostBlockPermissionFilter
+         * @name Filter
          * @summary filter block document permission
          * @request POST:/api/block/permission/filter
          */
-        postBlockPermissionFilter: (data: DocDTO, params: RequestParams = {}) =>
+        filter: (data: DocDTO, params: RequestParams = {}) =>
             this.request<ResultListDocDTO, Result>({
                 path: `/api/block/permission/filter`,
                 method: "POST",
@@ -2644,11 +2644,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclPermissionController
-         * @name PatchPermissionsUpdateEntry
+         * @name BatchUpdate
          * @summary batch modify list of entries of permissions
          * @request PATCH:/api/permissions/update/entry
          */
-        patchPermissionsUpdateEntry: (data: AclPermissionDTO, params: RequestParams = {}) =>
+        batchUpdate: (data: AclPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultAclPermissionDTO, Result>({
                 path: `/api/permissions/update/entry`,
                 method: "PATCH",
@@ -2676,10 +2676,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags VerificationPermissionController
-         * @name GetVerificationPermissionBusinessBusinessid
+         * @name FindBusinessPermissions
          * @request GET:/api/verification/permission/business/{businessId}
          */
-        getVerificationPermissionBusinessBusinessid: (businessId: string, params: RequestParams = {}) =>
+        findBusinessPermissions: (businessId: string, params: RequestParams = {}) =>
             this.request<ResultObject, Result>({
                 path: `/api/verification/permission/business/${businessId}`,
                 method: "GET",
@@ -2690,10 +2690,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags VerificationPermissionController
-         * @name GetVerificationPermissionAclPermissionDeprecate
+         * @name GetUserMaxPermissionOnDocument
          * @request GET:/api/verification/permission/acl/permission/
          */
-        getVerificationPermissionAclPermissionDeprecate: (
+        getUserMaxPermissionOnDocument: (
             query: {
                 docId: string;
                 userId: string;
@@ -2711,10 +2711,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags VerificationPermissionController
-         * @name GetVerificationPermissionAclPermission
+         * @name GetUserMaxPermissionOnDocument1
          * @request GET:/api/verification/permission/acl/permission
          */
-        getVerificationPermissionAclPermission: (
+        getUserMaxPermissionOnDocument1: (
             query: {
                 docId: string;
                 userId: string;
@@ -2732,11 +2732,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserPermissionController
-         * @name GetUserPermissionId
+         * @name GetById
          * @summary Query detail
          * @request GET:/api/user/permission/{id}
          */
-        getUserPermissionId: (id: string, params: RequestParams = {}) =>
+        getById: (id: string, params: RequestParams = {}) =>
             this.request<ResultAclUserPermission, Result>({
                 path: `/api/user/permission/${id}`,
                 method: "GET",
@@ -2747,11 +2747,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserPermissionController
-         * @name GetUserPermissionAllUserid
+         * @name QueryUserPermission
          * @summary Query all permission of acl user
          * @request GET:/api/user/permission/all/{userId}
          */
-        getUserPermissionAllUserid: (userId: string, params: RequestParams = {}) =>
+        queryUserPermission: (userId: string, params: RequestParams = {}) =>
             this.request<ResultListAclPermissionDTO, Result>({
                 path: `/api/user/permission/all/${userId}`,
                 method: "GET",
@@ -2762,11 +2762,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclPermissionController
-         * @name GetPermissionsId
+         * @name Get
          * @summary query access control permission by id
          * @request GET:/api/permissions/{id}
          */
-        getPermissionsId: (id: string, params: RequestParams = {}) =>
+        get: (id: string, params: RequestParams = {}) =>
             this.request<ResultAclPermissionDTO, Result>({
                 path: `/api/permissions/${id}`,
                 method: "GET",
@@ -2777,11 +2777,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclPermissionController
-         * @name DeletePermissionsId
+         * @name Delete3
          * @summary delete access control permission by id
          * @request DELETE:/api/permissions/{id}
          */
-        deletePermissionsId: (id: string, params: RequestParams = {}) =>
+        delete3: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/permissions/${id}`,
                 method: "DELETE",
@@ -2792,11 +2792,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclPermissionController
-         * @name GetPermissionsNameName
+         * @name FindByName
          * @summary Query permission list by name
          * @request GET:/api/permissions/name/{name}
          */
-        getPermissionsNameName: (name: string, params: RequestParams = {}) =>
+        findByName: (name: string, params: RequestParams = {}) =>
             this.request<ResultAclPermissionDTO, Result>({
                 path: `/api/permissions/name/${name}`,
                 method: "GET",
@@ -2807,11 +2807,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclPermissionController
-         * @name DeletePermissionsNameName
+         * @name DeleteByName
          * @summary delete access control permission by name
          * @request DELETE:/api/permissions/name/{name}
          */
-        deletePermissionsNameName: (name: string, params: RequestParams = {}) =>
+        deleteByName: (name: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/permissions/name/${name}`,
                 method: "DELETE",
@@ -2822,11 +2822,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserController
-         * @name GetPermissionUsersId
+         * @name Get1
          * @summary query user information
          * @request GET:/api/permission/users/{id}
          */
-        getPermissionUsersId: (id: string, params: RequestParams = {}) =>
+        get1: (id: string, params: RequestParams = {}) =>
             this.request<ResultAclUserInformation, Result>({
                 path: `/api/permission/users/${id}`,
                 method: "GET",
@@ -2837,11 +2837,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserController
-         * @name DeletePermissionUsersId
+         * @name Delete4
          * @summary delete user by logic
          * @request DELETE:/api/permission/users/{id}
          */
-        deletePermissionUsersId: (id: string, params: RequestParams = {}) =>
+        delete4: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/permission/users/${id}`,
                 method: "DELETE",
@@ -2852,11 +2852,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserRelationshipController
-         * @name GetPermissionUserRelationshipsGroupidGroupid
+         * @name FindByGroupId
          * @summary query bind users
          * @request GET:/api/permission/user/relationships/groupId/{groupId}
          */
-        getPermissionUserRelationshipsGroupidGroupid: (groupId: string, params: RequestParams = {}) =>
+        findByGroupId: (groupId: string, params: RequestParams = {}) =>
             this.request<ResultListAclUserRelationshipWithUserGroup, Result>({
                 path: `/api/permission/user/relationships/groupId/${groupId}`,
                 method: "GET",
@@ -2867,11 +2867,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserGroupController
-         * @name GetPermissionUserGroupId
+         * @name Get2
          * @summary Query user group information
          * @request GET:/api/permission/user/group/{id}
          */
-        getPermissionUserGroupId: (id: string, params: RequestParams = {}) =>
+        get2: (id: string, params: RequestParams = {}) =>
             this.request<ResultAclUserGroup, Result>({
                 path: `/api/permission/user/group/${id}`,
                 method: "GET",
@@ -2882,11 +2882,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserGroupController
-         * @name DeletePermissionUserGroupId
+         * @name Delete7
          * @summary Remove user group
          * @request DELETE:/api/permission/user/group/{id}
          */
-        deletePermissionUserGroupId: (id: string, params: RequestParams = {}) =>
+        delete7: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/permission/user/group/${id}`,
                 method: "DELETE",
@@ -2897,11 +2897,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserGroupController
-         * @name GetPermissionUserGroupGroupidUsers
+         * @name FindGroupUsers
          * @summary Query user list of binding in user group
          * @request GET:/api/permission/user/group/{groupId}/users
          */
-        getPermissionUserGroupGroupidUsers: (groupId: string, params: RequestParams = {}) =>
+        findGroupUsers: (groupId: string, params: RequestParams = {}) =>
             this.request<ResultAclUserGroupDTO, Result>({
                 path: `/api/permission/user/group/${groupId}/users`,
                 method: "GET",
@@ -2912,10 +2912,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserGroupController
-         * @name GetPermissionUserGroupGroupsAll
+         * @name AllGroups
          * @request GET:/api/permission/user/group/groups/all
          */
-        getPermissionUserGroupGroupsAll: (
+        allGroups: (
             query: {
                 userIds: string[];
             },
@@ -2952,11 +2952,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclEntryController
-         * @name GetPermissionEntryId
+         * @name Get3
          * @summary Query entry by id
          * @request GET:/api/permission/entry/{id}
          */
-        getPermissionEntryId: (id: string, params: RequestParams = {}) =>
+        get3: (id: string, params: RequestParams = {}) =>
             this.request<ResultAccessControlEntry, Result>({
                 path: `/api/permission/entry/${id}`,
                 method: "GET",
@@ -2967,11 +2967,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclEntryController
-         * @name DeletePermissionEntryId
+         * @name Delete9
          * @summary Delete entry by id
          * @request DELETE:/api/permission/entry/{id}
          */
-        deletePermissionEntryId: (id: string, params: RequestParams = {}) =>
+        delete9: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/permission/entry/${id}`,
                 method: "DELETE",
@@ -3146,10 +3146,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocPalEmailController
-         * @name GetEmailTemplateList
+         * @name GetTemplateList
          * @request GET:/api/docpal/email/template/list
          */
-        getEmailTemplateList: (params: RequestParams = {}) =>
+        getTemplateList: (params: RequestParams = {}) =>
             this.request<ResultListDocPalEmailTemplate, Result>({
                 path: `/api/docpal/email/template/list`,
                 method: "GET",
@@ -3188,16 +3188,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags AclUserPermissionController
-         * @name DeleteUserPermissionBusinessBusinessidUserUseridAcesAces
+         * @name Delete1
          * @summary Remove permission of business
          * @request DELETE:/api/user/permission/business/{businessId}/user/{userId}/aces/{aces}
          */
-        deleteUserPermissionBusinessBusinessidUserUseridAcesAces: (
-            businessId: string,
-            userId: string,
-            aces: string,
-            params: RequestParams = {},
-        ) =>
+        delete1: (businessId: string, userId: string, aces: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/user/permission/business/${businessId}/user/${userId}/aces/${aces}`,
                 method: "DELETE",
@@ -3208,11 +3203,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocBlockPermissionController
-         * @name DeleteBlockPermissionDocumentDocidPathDocpath
+         * @name Delete10
          * @summary Delete block permission
          * @request DELETE:/api/block/permission/document/{docId}/path/{docPath}
          */
-        deleteBlockPermissionDocumentDocidPathDocpath: (docId: string, docPath: string, params: RequestParams = {}) =>
+        delete10: (docId: string, docPath: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/block/permission/document/${docId}/path/${docPath}`,
                 method: "DELETE",

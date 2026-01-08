@@ -1,13 +1,13 @@
-import { Client } from './generate/client'
 import { Admin } from './generate/admin'
 import { Public } from './generate/public'
 import { Template } from './generate/template'
+import { Standard } from './generate/newClient'
 
 let clientBaseURL = '/'
 let publicBaseURL = '/public-api/report/v1/api'
 let templateBaseURL = '/open-api/template'
 
-export const clientApi = new Client({
+export const clientApi = new Standard({
   baseURL: clientBaseURL,
   timeout: 50000
 })

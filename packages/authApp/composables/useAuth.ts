@@ -250,7 +250,7 @@ const uiSize = [
  */
 export async function getUserPreference() {
   const preference = useUserPreference()
-  const { data } = await clientApi.api.getUserSetting()
+  const data = await clientApi.api.getDmsUserSetting().then(r => r.data)
   if (!data) {
     throw new Error('get user preference fail')
   }

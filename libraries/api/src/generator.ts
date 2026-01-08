@@ -12,7 +12,7 @@ const publicUrl = process.env.PUBLIC_URL || setting.PUBLIC_URL
 const templateUrl = process.env.OPEN_PROXY || setting.TEMPLATE_URL
 
 const endpoint = [
-    {name: 'client', url:`${clientUrl}/v3/api-docs`, className:"Client"},
+    {name: 'newClient', url:`${clientUrl}/v3/api-docs`, className:"Standard"},
     {name: 'public', url:`${publicUrl}/v3/api-docs`, className:"Public"},
     {name: 'template', url:`${templateUrl}/docs/swagger.json`, className:"Template"},
 ]
@@ -36,6 +36,18 @@ async function generate(){
             endpoint.map( 
                 point => {
                     let finalRoute:Record<string, any> = {}
+                    // 讀取 oldClient.json 文件
+                    const oldClientFilePath = path.resolve(process.cwd(), "./src/generate/oldClient.json")
+                    let oldClientData: Record<string, any> = {}
+                    if(fs.existsSync(oldClientFilePath)) {
+                        try {
+                            const fileContent = fs.readFileSync(oldClientFilePath, 'utf-8')
+                            oldClientData = JSON.parse(fileContent)
+                        } catch (error) {
+                            console.warn(`Failed to read oldClient.json: ${error}`)
+                        }
+                    }
+                    
                     generateApi({
                         name: point.name + '.ts',
                         output: path.resolve(process.cwd(), "./src/generate"),
@@ -65,6 +77,10 @@ async function generate(){
                                 return routeNameInfo
                             },
                             onFormatRouteName: (routeInfo, templateRouteName) => {
+                                if (routeInfo.route in oldClientData.paths){
+                                    return
+                                }
+
                                 // console.log(routeInfo);
                                 const paths = routeInfo.route.replace('/api/','').split('/');
                                 if(paths[paths.length -1] === '') {

@@ -27,7 +27,7 @@ export async function getLocale(){
     }
     let clientJson;
     if(config.public.isProduction){
-        const { data:clientData } = await clientApi.api.getRelationQuerylanguage({
+        const { data:clientData } = await clientApi.api.queryLanguage({
                 locale:locale.value, 
                 languageKey: 'client'
             }) as any
@@ -37,13 +37,13 @@ export async function getLocale(){
         // const jsonFile = await fetch(`/defaultLang/${code}.json`).then(res => res.json())
         // clientJson = jsonFile
     }
-    const { data:adminData } = await clientApi.api.getRelationQuerylanguage({
+    const { data:adminData } = await clientApi.api.queryLanguage({
             locale:locale.value, 
             languageKey: 'admin'
         }) as any
     const adminJson = JSON.parse(adminData[0].languageContent)
 
-    const { data:metaData } = await clientApi.api.getRelationQuerylanguage({
+    const { data:metaData } = await clientApi.api.queryLanguage({
             locale:locale.value, 
             languageKey: 'meta'
         }) as any
