@@ -10,7 +10,7 @@ const router = useRouter()
 const appPlatform = useAppPlatform()
 const preference = useUserPreference()
 
-function openTab(tabItem: any) {
+async function openTab(tabItem: any) {
   const userStoreTab = preference.value.userStoreTab
   const storageTabs = userStoreTab.client || null
   let newLayout: any
@@ -45,16 +45,13 @@ function openTab(tabItem: any) {
     }
   }
   preference.value.userStoreTab.client = JSON.stringify(newLayout)
+  await clientApi.api.putUserSetting(preference.value as any)
   router.push('/')
 }
 
 onMounted(async () => {
   // step1 normalize route path by removing trailing slash
-  const temPath = sessionStorage.getItem('temp-path')
-  if (!temPath) {
-    router.push('/')
-    return
-  }
+
   const path = route.path.replace(/\/$/, '')
   sessionStorage.setItem('temp-path', path)
   switch (path) {
@@ -71,6 +68,7 @@ onMounted(async () => {
       const workflowItem = await getWorkflowRoute(
         route.query.processInstanceId as string
       )
+      console.log(workflowItem)
       openTab(workflowItem)
       break
     case '/case':

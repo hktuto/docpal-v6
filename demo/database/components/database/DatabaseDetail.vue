@@ -848,6 +848,7 @@ function handleExportAllData() {
           :table="selectedTable"
           :record-id="selectedRecordId"
           @close="handleCloseRecord"
+          @open-record="handleOpenRecord"
         />
       </template>
       

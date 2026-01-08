@@ -1,5 +1,5 @@
 import type { Database, Table, Row, View, Column, Dashboard, FilterCondition, SortConfig, TableQueryParams, MockUser, NavItem, NavItemType } from '../types/database'
-import crmData from '../data/crm-database-new.json'
+import crmData from '../data/crm-database-new2.json'
 import usersData from '../data/sales-users-new.json'
 import groupsRolesData from '../data/groups-roles.json'
 import { calculateRollup } from '../utils/rollupCalculator'

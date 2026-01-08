@@ -13,7 +13,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  close: []
+  close: [],
+  openRecord: [string, string]
 }>()
 
 const { getRowById, getRelatedRows, resolveRelation, resolveUser, updateRow, getTableById } = useTable(props.database.id, props.table.id)
@@ -311,6 +312,11 @@ const headerActions = computed<HeaderAction[]>(() => {
     }
   ]
 })
+
+function relatedTableRowClick(row: Row, tableId: string) {
+  console.log(row, tableId)
+  emit('openRecord', tableId, row.id)
+}
 </script>
 
 <template>
@@ -546,7 +552,7 @@ const headerActions = computed<HeaderAction[]>(() => {
         </h3>
         
         <div v-if="getRelatedData(column).length > 0" class="related-table">
-          <el-table :data="getRelatedData(column)" stripe border size="small">
+          <el-table :data="getRelatedData(column)" stripe border size="small" @row-click="(row) => relatedTableRowClick(row, column.relationConfig!.tableId)">
             <el-table-column
               v-for="relCol in getRelatedTableColumns(column.relationConfig!.tableId)"
               :key="relCol.id"
