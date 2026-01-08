@@ -3963,6 +3963,10 @@
               "type": "number",
               "width": 160,
               "decimalPlaces": 2,
+              "displayConfig": {
+                "format": "currency",
+                "prefix": "$"
+              },
               "rollup": {
                 "sourceField": "lineItems",
                 "aggregation": "sum",
@@ -4783,7 +4787,11 @@
               "title": "Unit Price (HKD)",
               "type": "number",
               "width": 140,
-              "decimalPlaces": 2
+              "decimalPlaces": 2,
+              "displayConfig": {
+                "format": "currency",
+                "prefix": "$"
+              }
             },
             {
               "id": "col-7",
@@ -4795,7 +4803,11 @@
               "numberFormat": "currency",
               "currencySymbol": "$",
               "currencyPosition": "prefix",
-              "formula": "quantity * unitPrice"
+              "formula": "quantity * unitPrice",
+              "displayConfig": {
+                "format": "currency",
+                "prefix": "$"
+              }
             }
           ],
           "rows": [
@@ -6132,6 +6144,10 @@
                 "sourceField": "lineItems",
                 "aggregation": "sum",
                 "targetField": "netAmount"
+              },
+              "displayConfig": {
+                "format": "currency",
+                "prefix": "$"
               }
             }
           ],
@@ -6838,7 +6854,7 @@
               "field": "quantity",
               "title": "Quantity",
               "type": "number",
-              "width": 100
+              "width": 10
             },
             {
               "id": "col-6",
@@ -6846,7 +6862,11 @@
               "title": "Unit Price (HKD)",
               "type": "number",
               "width": 140,
-              "decimalPlaces": 0
+              "decimalPlaces": 0,
+              "displayConfig": {
+                "format": "currency",
+                "prefix": "$"
+              }
             },
             {
               "id": "col-7",
@@ -6855,7 +6875,11 @@
               "type": "number",
               "width": 150,
               "decimalPlaces": 0,
-              "formula": "quantity * unitPrice"
+              "formula": "quantity * unitPrice",
+              "displayConfig": {
+                "format": "currency",
+                "prefix": "$"
+              }
             }
           ],
           "rows": [

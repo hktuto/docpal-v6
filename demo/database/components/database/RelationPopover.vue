@@ -55,7 +55,7 @@ const recordTitle = computed(() => {
 const displayFields = computed(() => {
   if (!relatedRecord.value || !relatedTable.value) return []
   
-  const fieldsToShow: { label: string; value: string; column: Column }[] = []
+  const fieldsToShow: { label: string; value: string; column: Column; displayOptions?: any }[] = []
   const allColumns = JSON.parse(JSON.stringify(relatedTable.value.columns))
   // becasue title is using first text column, so we need to skip the title column
   let titleColumn;
@@ -79,7 +79,8 @@ const displayFields = computed(() => {
       fieldsToShow.push({
         label: column.title,
         value: formatFieldValue(value, column),
-        column
+        column,
+        displayOptions: getDisplayOptions(column, value)
       })
     }
     
@@ -88,6 +89,13 @@ const displayFields = computed(() => {
   
   return fieldsToShow
 })
+
+function getDisplayOptions(column: Column, value: any): any {
+  if (column.type === 'single-select') {
+    return column.options?.find(o => o.id === value)
+  }
+  return null
+}
 
 function formatFieldValue(value: any, column: Column): string {
   if (value === null || value === undefined) return '-'
@@ -180,7 +188,19 @@ function handleViewRecord() {
             class="field-item"
           >
             <div class="field-label">{{ field.label }}</div>
-            <div class="field-value">{{ field.value }}</div>
+            <div class="field-value">
+                <template v-if="field.column.type === 'single-select'">
+                  <el-tag
+                    :style="{ backgroundColor: field.displayOptions?.color + '20', color: field.displayOptions?.color, borderColor: field.displayOptions?.color }"
+                    size="small"
+                  >
+                    {{ field.value }}
+                  </el-tag>
+                </template>
+                <template v-else>
+                  {{ field.value }}
+                </template>
+            </div>
           </div>
         </div>
         <div v-else class="no-fields">

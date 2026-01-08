@@ -6,7 +6,7 @@ import { formatNumber as formatNumberValue, formatDate as formatDateValue, forma
 import { useDebounceFn } from '@vueuse/core'
 import RelationPopover from '../RelationPopover.vue'
 import { Download } from '@element-plus/icons-vue'
-
+import RelationPopoverList from '../RelationPopoverList.vue'
 const props = defineProps<{
   database: Database
   table: Table
@@ -1437,6 +1437,14 @@ function formatRollupValue(column: Column, row: Row): string {
                       <el-tag v-if="row[column.field].length > 2" size="small" type="info">
                         +{{ row[column.field].length - 2 }}
                       </el-tag>
+                      <RelationPopoverList 
+                        :database-id="database.id"
+                        :table-id="column.relationConfig.tableId"
+                        :recordIds="row[column.field]"
+                        :display-field="column.relationConfig.displayField"
+                        :fieldTitle="column.title"
+                        @view-record="(tableId, recordId) => $emit('openRecord', tableId, recordId)"
+                      />
                     </template>
                     <template v-else-if="row[column.field]">
                       <RelationPopover
@@ -1614,6 +1622,14 @@ function formatRollupValue(column: Column, row: Row): string {
               <el-tag v-if="row[column.field].length > 2" size="small" type="info">
                 +{{ row[column.field].length - 2 }}
               </el-tag>
+              <RelationPopoverList 
+                :database-id="database.id"
+                :table-id="column.relationConfig.tableId"
+                :recordIds="row[column.field]"
+                :display-field="column.relationConfig.displayField"
+                :fieldTitle="column.title"
+                @view-record="(tableId, recordId) => $emit('openRecord', tableId, recordId)"
+              />
             </template>
             <template v-else-if="row[column.field]">
               <RelationPopover
