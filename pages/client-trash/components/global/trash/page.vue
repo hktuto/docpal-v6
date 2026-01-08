@@ -15,7 +15,8 @@
             <el-button id="Trash__RestoreSelected" type="primary" @click="handleBathRestore(true, state.selectList)">
               {{ t('trash_actions_restore') }}
             </el-button>
-            <el-button id="Trash__PermanentlyDeleteSelected" type="danger" @click="handleBathDelete(true, state.selectList)">
+            <el-button id="Trash__PermanentlyDeleteSelected" type="danger"
+                       @click="handleBathDelete(true, state.selectList)">
               {{ t('trash_actions_delete') }}
             </el-button>
           </div>
@@ -27,7 +28,7 @@
 <script lang="ts" setup>
 import { ElMessageBox, ElNotification } from 'element-plus'
 import { clientApi } from 'api'
-import {useDebounceFn} from '@vueuse/core'
+import { useDebounceFn } from '@vueuse/core'
 
 const routerProvider = inject(MenuRouterKey)
 type TableState = {
@@ -48,10 +49,6 @@ const state = reactive<TableState>({
 const { t } = useI18n()
 const ResponsiveFilterRef = ref()
 
-
-
-
-
 function handleFilterFormChange(formModel: any) {
   state.extraParamsFilter = formModel
   debouncedReload()
@@ -59,10 +56,10 @@ function handleFilterFormChange(formModel: any) {
 
 function dblClickHandler(row: any) {
   const params = createDetailPageParams({
-      idOrPath: row.id,
-      docName: row.name
-    })
-    routerProvider?.navigateTo(params, true)
+    idOrPath: row.id,
+    docName: row.name
+  })
+  routerProvider?.navigateTo(params, true)
 }
 
 const { tableConfig, tableEvent, tableRef, reload, query, cleanSelectedRows } = useVxeTable({
@@ -70,7 +67,7 @@ const { tableConfig, tableEvent, tableRef, reload, query, cleanSelectedRows } = 
   api: async (pageParams: any) => {
     cleanSelectedRows()
     pageParams = { ...pageParams, ...state.extraParamsFilter }
-    return clientApi.api.postNuxeoDocumentTrash(pageParams)
+    return await clientApi.api.postNuxeoDocumentTrash(pageParams)
   },
   columns: [
     { field: 'checkbox', type: 'checkbox', width: '50px', fixed: 'left' },
@@ -174,6 +171,14 @@ const { tableConfig, tableEvent, tableRef, reload, query, cleanSelectedRows } = 
         visible: false
       }
     }
+
+    if (!row.permissionIds.includes(12)) {
+      return {
+        visible: false,
+        disabled: true
+      }
+    }
+
     if (state.loading) {
       return {
         visible: false,
@@ -191,10 +196,10 @@ const { tableConfig, tableEvent, tableRef, reload, query, cleanSelectedRows } = 
   },
   optionalConfig: {
     checkboxConfig: {
-      checkMethod: ({ row }) => {
+      visibleMethod: ({ row }) => {
         return row.permissionIds.includes(12)
       }
-    },
+    }
   }
 })
 
@@ -224,17 +229,19 @@ async function handleDeleteAll() {
 async function handleBathRestore(status: boolean, selectList: any) {
   state.loading = true
   let promises = []
+  // Exclude data that does not contain permissions
+  selectList = selectList.filter((item: any) => item.permissionIds.includes(12))
 
   for (const row of selectList) {
     promises.push(restore(row.id, row.name))
   }
   const allResponse = await Promise.all(promises)
 
-  const failMessage = allResponse.reduce((result, item) => {
+  const failMessage: string = allResponse.reduce((result, item) => {
     if (item) result += item
     return result
   }, '')
-  if (failMessage.length > 0) {
+  if (failMessage != '') {
     state.loading = false
     handleMsg(failMessage)
     return
@@ -261,17 +268,19 @@ async function handleBathDelete(status: boolean, selectList: any) {
 
     state.loading = true
     let promises = []
+    // Exclude data that does not contain permissions
+    selectList = selectList.filter((item: any) => item.permissionIds.includes(12))
 
     for (const row of selectList) {
       promises.push(deleteOne(row.id, row.name))
     }
     const allResponse = await Promise.all(promises)
 
-    const failMessage = allResponse.reduce((result, item) => {
+    const failMessage: string = allResponse.reduce((result, item) => {
       if (item) result += item
       return result
     }, '')
-    if (failMessage.length > 0) {
+    if (failMessage != '') {
       state.loading = false
       handleMsg(failMessage)
       return
@@ -302,7 +311,7 @@ function handleMsg(messages: string) {
   })
 }
 
-async function deleteOne(idOrPath: string) {
+async function deleteOne(idOrPath: string, name: string) {
   try {
     await clientApi.api.deleteNuxeoDocument({ idOrPath }, { headers: { noErrorMessage: true } })
   } catch (error) {
@@ -317,7 +326,7 @@ async function restore(idOrPath: string, name: string) {
     return null
   } catch (error) {
     console.log('call Api error', error)
-    return `Fiel / Folder Name: ${name}` + ', Error: ' + (error?.response?.data?.message || 'Server Error') + '.</br> '
+    return `${t('doc_typeSmartFolderSearchName')}: ${name}, ${t('upload_Status_error')}: ` + (error?.response?.data?.message || 'Server Error') + '.</br> '
   }
 }
 
