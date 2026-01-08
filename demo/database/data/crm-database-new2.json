@@ -2161,7 +2161,8 @@
               "field": "caseStatusDuration",
               "title": "Duration (Days)",
               "type": "number",
-              "width": 120
+              "width": 120,
+              "decimalPlaces":0
             },
             {
               "id": "col-6",
@@ -2169,7 +2170,7 @@
               "title": "Est. Contract Value (HKD)",
               "type": "number",
               "width": 180,
-              "decimalPlaces": 0
+              "decimalPlaces": 2
             },
             {
               "id": "col-7",
@@ -3953,7 +3954,7 @@
               "title": "Total Amount (HKD)",
               "type": "number",
               "width": 160,
-              "decimalPlaces": 0,
+              "decimalPlaces": 2,
               "rollup": {
                 "sourceField": "lineItems",
                 "aggregation": "sum",

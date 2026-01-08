@@ -1335,14 +1335,14 @@ function formatRollupValue(column: Column, row: Row): string {
             @click="toggleGroupCollapse(group.groupValue)"
           >
             <span class="group-expand-icon">
-              {{ group.collapsed ? '▶' : '▼' }}
+              {{ collapsedGroups.has(group.groupValue) ? '▶' : '▼' }}
             </span>
             <span class="group-title">{{ group.groupLabel }}</span>
             <span class="group-count">{{ group.count }} Records</span>
           </div>
           
           <!-- Group Content (Table) -->
-          <div v-if="!group.collapsed" class="group-content">
+          <div v-if="!collapsedGroups.has(group.groupValue)" class="group-content">
             <vxe-grid
               :data="group.rows"
               :columns="vxeColumns"

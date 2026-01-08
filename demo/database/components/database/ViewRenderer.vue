@@ -191,7 +191,7 @@ function handleCreateView(data: {
   })
   
   if (newView) {
-    ElMessage.success(`View "${data.name}" created successfully`)
+    // ElMessage.success(`View "${data.name}" created successfully`)
     emit('viewCreated', {...newView, baseTableId:props.table.id})
   }
 }

@@ -56,8 +56,19 @@ const displayFields = computed(() => {
   if (!relatedRecord.value || !relatedTable.value) return []
   
   const fieldsToShow: { label: string; value: string; column: Column }[] = []
-  
-  for (const column of relatedTable.value.columns) {
+  const allColumns = JSON.parse(JSON.stringify(relatedTable.value.columns))
+  // becasue title is using first text column, so we need to skip the title column
+  let titleColumn;
+  if(props.displayField) {
+     titleColumn = allColumns.find((c:any) => c.field === props.displayField)
+    
+  }else {
+    titleColumn = allColumns.find((c:any) => c.type === 'text' || c.type === 'textarea')
+  }
+  if (titleColumn ) {
+    allColumns.splice(allColumns.indexOf(titleColumn), 1)
+  }
+  for (const column of allColumns) {
     // Skip relation fields and very long text fields
     if (column.type === 'relation' || column.type === 'textarea' || column.type === 'attachment') {
       continue
@@ -113,6 +124,8 @@ function convertTableNameToSingular(name: string): string {
   if (name.endsWith('ies')) {
     return name.slice(0, -3) + 'y';
   }
+  // handle special cases
+  if(name.toLowerCase() ==='cases') return 'case'
   
   // Handle words ending in "ses", "xes", "zes" (e.g., addresses -> address, boxes -> box)
   if (name.endsWith('ses') || name.endsWith('xes') || name.endsWith('zes')) {
@@ -124,10 +137,7 @@ function convertTableNameToSingular(name: string): string {
     return name.slice(0, -2);
   }
   
-  // Handle regular plural words ending in "s" (e.g., contacts -> contact)
-  if (name.endsWith('s')) {
-    return name.slice(0, -1);
-  }
+
   
   // Return as-is if no plural pattern detected
   return name;

@@ -565,7 +565,71 @@ function relatedTableRowClick(row: Row, tableId: string) {
               :min-width="120"
             >
               <template #default="{ row }">
-                {{ formatFieldValue(relCol, row[relCol.field]) }}
+                <template v-if="relCol.type === 'single-select'">
+                  <el-tag
+                    v-if="row[relCol.field]"
+                    :style="{ 
+                      backgroundColor: getSelectColor(row[relCol.field], relCol) + '20', 
+                      color: getSelectColor(row[relCol.field], relCol),
+                      borderColor: getSelectColor(row[relCol.field], relCol)
+                    }"
+                  >
+                    {{ formatFieldValue(relCol, row[relCol.field]) }}
+                  </el-tag>
+                  <span v-else class="field-value empty">-</span>
+                </template> 
+
+              <!-- User with avatar -->
+              <template v-else-if="relCol.type === 'user'">
+                <div v-if="record[relCol.field]" class="user-display">
+                  <el-avatar :size="24" :src="resolveUser(record[relCol.field])?.avatar" />
+                  <span>{{ resolveUser(row[relCol.field])?.name }}</span>
+                </div>
+                <span v-else class="field-value empty">-</span>
+              </template>
+
+              <!-- Rating -->
+              <template v-else-if="relCol.type === 'rating'">
+                <el-rate :model-value="row[relCol.field] || 0" disabled :max="relCol.maxRating || 5" />
+              </template>
+
+              <!-- Switch/Checkbox -->
+              <template v-else-if="relCol.type === 'switch'">
+                <el-tag :type="row[relCol.field] ? 'success' : 'info'">
+                  {{ row[column.field] ? 'Active' : 'Inactive' }}
+                </el-tag>
+              </template>
+
+              <!-- URL -->
+              <template v-else-if="relCol.type === 'url'">
+                <el-link v-if="record[relCol.field]" :href="row[relCol.field]" target="_blank" type="primary">
+                  {{ row[relCol.field] }}
+                </el-link>
+                <span v-else class="field-value empty">-</span>
+              </template>
+
+              <!-- Email -->
+              <template v-else-if="relCol.type === 'email'">
+                <el-link v-if="record[relCol.field]" :href="`mailto:${record[relCol.field]}`" type="primary">
+                  {{ row[relCol.field] }}
+                </el-link>
+                <span v-else class="field-value empty">-</span>
+              </template>
+
+              <!-- Formula (fx) - Calculated -->
+              <template v-else-if="relCol.type === 'fx'">
+                <span class="field-value fx-value" :title="relCol.fxConfig?.expression">
+                  {{ evaluateFormulaColumn(relCol) }}
+                  <small class="fx-hint">(formula)</small>
+                </span>
+              </template>
+
+              <!-- Default -->
+              <template v-else>
+                <span class="field-value" :class="{ empty: !record[column.field] }">
+                  {{ formatFieldValue(relCol, row[relCol.field]) }}
+                </span>
+              </template>
               </template>
             </el-table-column>
           </el-table>
