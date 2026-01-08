@@ -26,15 +26,133 @@ const kanbanGroupByColumn = computed(() => {
 
 // Get all options for the groupBy column (these become the kanban columns)
 const kanbanColumns = computed(() => {
-  if (!kanbanGroupByColumn.value || !kanbanGroupByColumn.value.options) {
-    return []
+  // select column logic
+  if(kanbanGroupByColumn.value?.type === 'single-select'){
+    return kanbanGroupByColumn.value.options
   }
-  return kanbanGroupByColumn.value.options
+  if(kanbanGroupByColumn.value?.type === 'relation'){
+
+  }
+  // fallback to options empty array
+  return kanbanGroupByColumn.value?.options || []
 })
 
 // Get view-configured filters and sorting
 const viewFilters = computed(() => props.view.config?.filters || [])
 const viewSorting = computed(() => props.view.config?.sorting || [])
+
+const flatData = ref<any[]>([])
+const debouncedGetTableData = useDebounceFn(getTableData, 300)
+async function getTableData() {
+  const result = await queryRows({
+    search: searchQuery.value,
+    filters: viewFilters.value,
+    sort: viewSorting.value
+  })
+  flatData.value = result
+}
+
+const columns = ref<(SelectOption & {data:any[]})[]>([])
+const debouncedCalculateColumns = useDebounceFn(calculateColumns, 300)
+async function calculateColumns(){
+  let emptyColumns: (SelectOption & {data:any[]})= {
+    id: '__uncategorized__',
+    label: 'Uncategorized',
+    color: '',
+    data: []
+  }
+  // select column logic
+  if(kanbanGroupByColumn.value?.type === 'single-select'){
+    columns.value = (kanbanGroupByColumn.value?.options || []).map(option => ({
+      ...option,
+      data: flatData.value.filter(row => {
+        if(!row[kanbanGroupByColumn.value?.field || '']) {
+          emptyColumns.data.push(row)
+          return false
+        }
+        if(Array.isArray(row[kanbanGroupByColumn.value?.field || ''])){
+          return row[kanbanGroupByColumn.value?.field || ''].includes(option.id)
+        }else{
+          return row[kanbanGroupByColumn.value?.field || ''] === option.id
+        }
+      })
+    }))
+  }
+  // relation column logic
+  // check if flatData is ready, if not, return empty array
+  if(!flatData.value.length) {
+    columns.value = []
+    return
+  }
+  if(kanbanGroupByColumn.value?.type === 'relation'){
+    // get all unique values from the relation column
+    const uniqueValues = [...new Set(flatData.value.reduce((acc: any[], row: any) => {
+      const value = row[kanbanGroupByColumn.value?.field || '']
+      if(value) {
+        if(Array.isArray(value)){
+          acc.push(...value)
+        }else{
+          acc.push(value)
+        }
+      }
+      return acc
+    }, []))]
+    let columnOptions: (SelectOption & {data:any[]})[] = []
+    for(const value of uniqueValues){
+      const label = resolveRelation(kanbanGroupByColumn.value?.relationConfig?.tableId || '', value, kanbanGroupByColumn.value?.relationConfig?.displayField || '')
+      columnOptions.push({
+        id: value,
+        label: Array.isArray(label) ? label.join(', ') : label,
+        color: '',
+        data: flatData.value.filter(row => {
+          if(!row[kanbanGroupByColumn.value?.field || '']) {
+            emptyColumns.data.push(row)
+            return false
+          }
+          if(Array.isArray(row[kanbanGroupByColumn.value?.field || ''])){
+            return row[kanbanGroupByColumn.value?.field || ''].includes(value)
+          }else{
+            return row[kanbanGroupByColumn.value?.field || ''] === value
+          }
+        })
+      })
+    }
+    columns.value = columnOptions
+    return
+  }
+  // user column logic
+  if(kanbanGroupByColumn.value?.type === 'user'){
+    const uniqueValues = [...new Set(flatData.value.reduce((acc: any[], row: any) => {
+      const value = row[kanbanGroupByColumn.value?.field || '']
+      if(value) {
+        if(Array.isArray(value)){
+          acc.push(...value)
+        }else{
+          acc.push(value)
+        }
+      }
+      return acc
+    }, []))]
+    let columnOptions: (SelectOption & {data:any[]})[] = []
+    for(const value of uniqueValues){
+      const label = resolveUser(value)?.name || value
+      columnOptions.push({
+        id: value,
+        label: label,
+        color: '',
+        data: flatData.value.filter(row => {
+          if(!row[kanbanGroupByColumn.value?.field || '']) {
+            emptyColumns.data.push(row)
+            return false
+          }
+          return row[kanbanGroupByColumn.value?.field || ''] === value
+        })
+      })
+    }
+    columns.value = columnOptions
+    return
+  }
+}
 
 // Get all rows for Kanban (no pagination, but apply filters/sorting)
 const kanbanRows = computed(() => {
@@ -43,7 +161,7 @@ const kanbanRows = computed(() => {
     filters: viewFilters.value,
     sort: viewSorting.value
   })
-  return result.rows
+  return result
 })
 
 // Group rows by the groupBy field
@@ -175,6 +293,8 @@ function getCardFieldValue(row: Row, column: Column): string {
       return String(value)
   }
 }
+
+
 </script>
 
 <template>

@@ -9,9 +9,13 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
-
+const columnTypeOptions = [
+  "single-select",
+  "relation",
+  "user"
+]
 const selectColumns = computed(() => {
-  return props.columns.filter(c => c.type === 'single-select')
+  return props.columns.filter(c => columnTypeOptions.includes(c.type))
 })
 
 const value = computed({
