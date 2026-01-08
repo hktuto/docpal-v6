@@ -1108,26 +1108,6 @@
           ],
           "columns": [
             {
-              "id": "col-1",
-              "field": "companyId",
-              "title": "Company",
-              "type": "relation",
-              "width": 200,
-              "relationConfig": {
-                "tableId": "tbl-company",
-                "displayField": "companyName",
-                "multiple": false
-              }
-            },
-            {
-              "id": "col-2",
-              "field": "contactPerson",
-              "title": "Contact Person",
-              "type": "text",
-              "width": 180,
-              "required": true
-            },
-            {
               "id": "col-3",
               "field": "department",
               "title": "Department",
@@ -1149,18 +1129,41 @@
               "width": 120
             },
             {
-              "id": "col-6",
-              "field": "mobileNumber",
-              "title": "Mobile Number",
-              "type": "text",
-              "width": 120
-            },
-            {
               "id": "col-7",
               "field": "email",
               "title": "Email",
               "type": "email",
               "width": 220
+            },
+            {
+              "id": "col-1",
+              "field": "companyId",
+              "title": "Company",
+              "type": "relation",
+              "width": 200,
+              "relationConfig": {
+                "tableId": "tbl-company",
+                "displayField": "companyName",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-2",
+              "field": "contactPerson",
+              "title": "Contact Person",
+              "type": "text",
+              "width": 180,
+              "required": true
+            },
+            
+            
+            
+            {
+              "id": "col-6",
+              "field": "mobileNumber",
+              "title": "Mobile Number",
+              "type": "text",
+              "width": 120
             }
           ],
           "rows": [
@@ -2087,28 +2090,11 @@
               "required": true
             },
             {
-              "id": "col-1-1",
-              "field": "company",
-              "title": "Company",
-              "type": "relation",
-              "width": 180,
-              "relationConfig": {
-                "tableId": "tbl-company",
-                "displayField": "companyName",
-                "multiple": false
-              }
-            },
-            {
-              "id": "col-2",
-              "field": "salesperson",
-              "title": "Salesperson",
-              "type": "user",
-              "width": 150,
-              "relationConfig": {
-                "tableId": "tbl-sales",
-                "displayField": "name",
-                "multiple": false
-              }
+              "id": "col-8",
+              "field": "projectName",
+              "title": "Project Name",
+              "type": "text",
+              "width": 300
             },
             {
               "id": "col-3",
@@ -2150,21 +2136,6 @@
               ]
             },
             {
-              "id": "col-4",
-              "field": "caseStatusLastUpdateDate",
-              "title": "Status Last Update",
-              "type": "date",
-              "width": 140
-            },
-            {
-              "id": "col-5",
-              "field": "caseStatusDuration",
-              "title": "Duration (Days)",
-              "type": "number",
-              "width": 120,
-              "decimalPlaces":0
-            },
-            {
               "id": "col-6",
               "field": "estimateTotalContractValue",
               "title": "Est. Contract Value (HKD)",
@@ -2180,12 +2151,49 @@
               "width": 140
             },
             {
-              "id": "col-8",
-              "field": "projectName",
-              "title": "Project Name",
-              "type": "text",
-              "width": 300
+              "id": "col-1-1",
+              "field": "company",
+              "title": "Company",
+              "type": "relation",
+              "width": 180,
+              "relationConfig": {
+                "tableId": "tbl-company",
+                "displayField": "companyName",
+                "multiple": false
+              }
             },
+            {
+              "id": "col-2",
+              "field": "salesperson",
+              "title": "Salesperson",
+              "type": "user",
+              "width": 150,
+              "relationConfig": {
+                "tableId": "tbl-sales",
+                "displayField": "name",
+                "multiple": false
+              }
+            },
+           
+            {
+              "id": "col-4",
+              "field": "caseStatusLastUpdateDate",
+              "title": "Status Last Update",
+              "type": "date",
+              "width": 140
+            },
+            
+            
+            {
+              "id": "col-5",
+              "field": "caseStatusDuration",
+              "title": "Duration (Days)",
+              "type": "number",
+              "width": 120,
+              "decimalPlaces":0
+            },
+            
+            
             {
               "id": "col-9",
               "field": "quotations",
