@@ -24,7 +24,7 @@ const emit = defineEmits<{
   back: []
 }>()
 
-const { getDatabaseById, updateNavigation, addNavigationItem, updateNavigationItem, createDashboard, exportAndDownloadDatabase, exportAndDownloadAllData } = useDatabase()
+const { getDatabaseById, updateNavigation, addNavigationItem, updateNavigationItem, createDashboard, exportAndDownloadDatabase, exportAndDownloadAllData, findParent } = useDatabase()
 
 // Current database (reactive)
 const currentDb = computed(() => getDatabaseById(props.database.id))
@@ -309,9 +309,17 @@ function handleSelectFolder(folderId: string) {
   selectedRecordId.value = null
 }
 
-function handleViewCreated(view: View) {
+function handleViewCreated(view: any) {
   // When a new view is created from ViewRenderer, automatically select it
   selectedViewId.value = view.id
+  const parent = findParent(currentDb.value?.navigation || [], view.baseTableId)
+  if(!parent) return
+  addNavigationItem(props.database.id, parent.id, 'view', {
+        label: view.name,
+        targetId: view.id,
+        targetTableId: view.baseTableId,
+        icon: 'postcard'
+      })
   ElMessage.success(`View "${view.name}" created successfully`)
 }
 
@@ -848,6 +856,7 @@ function handleExportAllData() {
           :table="selectedTable"
           :record-id="selectedRecordId"
           @close="handleCloseRecord"
+          @open-record="handleOpenRecord"
         />
       </template>
       
@@ -920,6 +929,7 @@ function handleExportAllData() {
       :columns="addViewTableColumns"
       @create="handleCreateView"
     />
+    
 
     <!-- Edit View Dialog -->
     <EditViewDialog

@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Read Excel file
-const wb = xlsx.readFile(path.join(__dirname, 'dataset_v5.xlsx'));
+const wb = xlsx.readFile(path.join(__dirname, 'dataset_v6.xlsx'));
 
 // Read all sheets
 const salesData = xlsx.utils.sheet_to_json(wb.Sheets['Sales']);
@@ -173,10 +173,9 @@ contractLineData.forEach((row) => {
 // ============================================
 
 // Company rows
-const companyRows = companyData.map((row, i) => {
+const companyRows = companyData.filter(it => it['Company Name']).map((row, i) => {
   const id = `row-company-${String(i + 1).padStart(3, '0')}`;
   const relatedSalesperson = users.find(user => user.id === row['Salesperson'] || user.name === row['Salesperson']);
-
   return {
     id,
     companyId: row['Company ID'],
@@ -223,14 +222,18 @@ const caseStatusMap = {
   'Disqualify': 'status-disqualify'
 };
 
+
+
 // Case rows
 const caseRows = caseData.map((row, i) => {
   const id = `row-case-${String(i + 1).padStart(3, '0')}`;
   const relatedSalesperson = users.find(user => user.id === row['Salesperson'] || user.name === row['Salesperson']);
+  const relatedCompany = companyRows.find(company => company['companyName'] === row['Company Name']);
 
   return {
     id,
     caseId: row['Case ID'],
+    company: relatedCompany.id || null,
     salesperson: relatedSalesperson ? relatedSalesperson.id : null,
     caseStatus: caseStatusMap[row['Case Status']] || null,
     caseStatusLastUpdateDate: excelDateToISO(row['Case Status Last Update Date']),
@@ -243,15 +246,21 @@ const caseRows = caseData.map((row, i) => {
   };
 });
 
+companyRows.forEach((company) => {
+  company.caseId = caseRows.filter((c) => c.company === company.id).map((c) => c.id);
+});
+
 // Quotation rows
 const quotationRows = quotationData.map((row, i) => {
   const id = `row-quotation-${String(i + 1).padStart(3, '0')}`;
   const quotNo = row['Quotation No.'];
   const relatedSalesperson = users.find(user => user.id === row['Sales Person'] || user.name === row['Sales Person']);
+  const relatedCase = caseRows.find((c) => c.caseId === row['Case ID']);
 
   return {
     id,
     caseId: caseIdMap[row['Case ID']] || null,
+    companyId: relatedCase.company || null,
     quotationNo: quotNo,
     salesperson: relatedSalesperson ? relatedSalesperson.id : null,
     specialNotes: row['Special Notes'] || '',
@@ -283,10 +292,14 @@ const contractRows = contractData.map((row, i) => {
   const contractNo = row['Contract No.'];
   const relatedSalesperson = users.find(user => user.id === row['Sales Person'] || user.name === row['Sales Person']);
 
+  const relatedCase = caseRows.find((c) => c.caseId === row['Case ID']);
+
+  
   return {
     id,
     caseId: caseIdMap[row['Case ID']] || null,
     contractNo: contractNo,
+    companyId: relatedCase.company || null,
     contractStartDate: excelDateToISO(row['Contract Start Date']),
     contractExpiryDate: excelDateToISO(row['Contract Expiry Date']),
     quotationId: quotationIdMap[row['Quotation No.']] || null,
@@ -333,24 +346,83 @@ const crmDatabase = {
         "name": "Emma Zhang",
         "email": "emma.zhang@company.com"
       },
-      "dashboards": [
+     "dashboards": [
         {
           "id": "dash-overview",
           "name": "CRM Overview",
           "icon": "chart-bar",
           "scope": "database",
           "widgets": [
-            { "id": "w1", "title": "Total Companies", "type": "stat", "width": 1, "height": 1, "config": { "aggregation": "count", "tableId": "tbl-company" } },
-            { "id": "w2", "title": "Total Contacts", "type": "stat", "width": 1, "height": 1, "config": { "aggregation": "count", "tableId": "tbl-contact" } },
-            { "id": "w3", "title": "Open Quotations", "type": "stat", "width": 1, "height": 1, "config": { "aggregation": "count", "tableId": "tbl-quotation" } },
-            { "id": "w4", "title": "Active Contracts", "type": "stat", "width": 1, "height": 1, "config": { "aggregation": "count", "tableId": "tbl-contract" } },
-            { "id": "w5", "title": "Companies by Type", "type": "chart-pie", "width": 2, "height": 2, "config": { "tableId": "tbl-company", "groupByField": "type" } },
-            { "id": "w6", "title": "Quotations by Status", "type": "chart-bar", "width": 2, "height": 2, "config": { "tableId": "tbl-quotation", "groupByField": "status" } }
+            {
+              "id": "w1",
+              "title": "Total Companies",
+              "type": "stat",
+              "width": 1,
+              "height": 1,
+              "config": {
+                "aggregation": "count",
+                "tableId": "tbl-company"
+              }
+            },
+            {
+              "id": "w2",
+              "title": "Total Contacts",
+              "type": "stat",
+              "width": 1,
+              "height": 1,
+              "config": {
+                "aggregation": "count",
+                "tableId": "tbl-contact"
+              }
+            },
+            {
+              "id": "w3",
+              "title": "Open Quotations",
+              "type": "stat",
+              "width": 1,
+              "height": 1,
+              "config": {
+                "aggregation": "count",
+                "tableId": "tbl-quotation"
+              }
+            },
+            {
+              "id": "w4",
+              "title": "Active Contracts",
+              "type": "stat",
+              "width": 1,
+              "height": 1,
+              "config": {
+                "aggregation": "count",
+                "tableId": "tbl-contract"
+              }
+            },
+            {
+              "id": "w5",
+              "title": "Companies by Type",
+              "type": "chart-pie",
+              "width": 2,
+              "height": 2,
+              "config": {
+                "tableId": "tbl-company",
+                "groupByField": "type"
+              }
+            },
+            {
+              "id": "w6",
+              "title": "Quotations by Status",
+              "type": "chart-bar",
+              "width": 2,
+              "height": 2,
+              "config": {
+                "tableId": "tbl-quotation",
+                "groupByField": "status"
+              }
+            }
           ]
         }
       ],
       "navigation": [
-        
         {
           "id": "nav-company-mgmt",
           "type": "folder",
@@ -376,7 +448,7 @@ const crmDatabase = {
             {
               "id": "nav-companies",
               "type": "table",
-              "label": "Companies",
+              "label": "Company List",
               "icon": "suitcase",
               "targetId": "tbl-company"
             },
@@ -414,17 +486,9 @@ const crmDatabase = {
             {
               "id": "nav-high-value",
               "type": "view",
-              "label": "High Value Deals",
+              "label": "Group By Salesperson",
               "icon": "trophy",
-              "targetId": "view-quot-high-value",
-              "targetTableId": "tbl-quotation"
-            },
-            {
-              "id": "nav-my-pipeline",
-              "type": "view",
-              "label": "My Sales Pipeline",
-              "icon": "trend-charts",
-              "targetId": "view-quot-sales-pipeline",
+              "targetId": "view-1767331914439-qv6phnwef",
               "targetTableId": "tbl-quotation"
             }
           ]
@@ -432,7 +496,7 @@ const crmDatabase = {
         {
           "id": "nav-contract-mgmt",
           "type": "folder",
-          "label": "Contracts",
+          "label": "Contracts Management",
           "description": "Manage all your contracts and contract terms in one centralized location. Track contract status, monitor active agreements, review contract lines, and stay on top of renewal dates. Quickly access views for active contracts requiring your attention.",
           "icon": "tickets",
           "isExpanded": true,
@@ -461,19 +525,95 @@ const crmDatabase = {
           name: "Companies",
           icon: "office-building",
           "views": [
-            { "id": "view-company-table", "name": "All Companies", "type": "table", "isDefault": true },
-            { "id": "view-company-kanban", "name": "By Type", "type": "kanban", "config": { "groupByField": "salesperson" } }
+            {
+              "id": "view-company-table",
+              "name": "Company List",
+              "type": "table",
+              "isDefault": true
+            },
+            {
+              "id": "view-company-kanban",
+              "name": "By Type",
+              "type": "kanban",
+              "config": {
+                "groupByField": "salesperson"
+              }
+            }
           ],
-          columns: [
-            { id: "col-1", field: "companyId", title: "Company ID", type: "text", width: 120, required: true },
-            { id: "col-2", field: "companyName", title: "Company Name", type: "text", width: 250, required: true },
-            { id: "col-3", field: "salesperson", title: "Sales Person", type: "user", width: 150,
-              relationConfig: { tableId: "tbl-sales", displayField: "name", multiple: false } },
-            { id: "col-4", field: "address", title: "Address", type: "textarea", width: 300 },
-            { id: "col-5", field: "paymentTerms", title: "Payment Terms", type: "text", width: 120 },
-            { id: "col-6", field: "currency", title: "Currency", type: "text", width: 80 },
-            { id: "col-7", field: "contacts", title: "Contacts", type: "relation", width: 200,
-              relationConfig: { tableId: "tbl-contact", displayField: "contactPerson", multiple: true } }
+          "columns": [
+            {
+              "id": "col-1",
+              "field": "companyId",
+              "title": "Company ID",
+              "type": "text",
+              "width": 120,
+              "required": true
+            },
+            {
+              "id": "col-1-1",
+              "field": "caseId",
+              "title": "Case",
+              "type": "relation",
+              "width": 120,
+              "relationConfig": {
+                "tableId": "tbl-case",
+                "displayField": "caseId",
+                "multiple": true
+              }
+            },
+            {
+              "id": "col-2",
+              "field": "companyName",
+              "title": "Company Name",
+              "type": "text",
+              "width": 250,
+              "required": true
+            },
+            {
+              "id": "col-3",
+              "field": "salesperson",
+              "title": "Salesperson",
+              "type": "user",
+              "width": 150,
+              "relationConfig": {
+                "tableId": "tbl-sales",
+                "displayField": "name",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-4",
+              "field": "address",
+              "title": "Address",
+              "type": "textarea",
+              "width": 300
+            },
+            {
+              "id": "col-5",
+              "field": "paymentTerms",
+              "title": "Payment Terms",
+              "type": "text",
+              "width": 120
+            },
+            {
+              "id": "col-6",
+              "field": "currency",
+              "title": "Currency",
+              "type": "text",
+              "width": 80
+            },
+            {
+              "id": "col-7",
+              "field": "contacts",
+              "title": "Contact Person",
+              "type": "relation",
+              "width": 200,
+              "relationConfig": {
+                "tableId": "tbl-contact",
+                "displayField": "contactPerson",
+                "multiple": true
+              }
+            }
           ],
           rows: companyRows
         },
@@ -483,18 +623,77 @@ const crmDatabase = {
           name: "Contacts",
           icon: "user",
           "views": [
-            { "id": "view-company-table", "name": "All Companies", "type": "table", "isDefault": true },
-            { "id": "view-company-kanban", "name": "By Type", "type": "kanban", "config": { "groupByField": "companyId" } }
+            {
+              "id": "view-company-table",
+              "name": "All Companies",
+              "type": "table",
+              "isDefault": true
+            },
+            {
+              "id": "view-company-kanban",
+              "name": "By Type",
+              "type": "kanban",
+              "config": {
+                "groupByField": "companyId"
+              }
+            }
           ],
-          columns: [
-            { id: "col-1", field: "companyId", title: "Company", type: "relation", width: 200,
-              relationConfig: { tableId: "tbl-company", displayField: "companyName", multiple: false } },
-            { id: "col-2", field: "contactPerson", title: "Contact Person", type: "text", width: 180, required: true },
-            { id: "col-3", field: "department", title: "Department", type: "text", width: 150 },
-            { id: "col-4", field: "jobTitle", title: "Job Title", type: "text", width: 180 },
-            { id: "col-5", field: "contactNumber", title: "Contact Number", type: "text", width: 120 },
-            { id: "col-6", field: "mobileNumber", title: "Mobile Number", type: "text", width: 120 },
-            { id: "col-7", field: "email", title: "Email", type: "email", width: 220 }
+          "columns": [
+            {
+              "id": "col-1",
+              "field": "companyId",
+              "title": "Company",
+              "type": "relation",
+              "width": 200,
+              "relationConfig": {
+                "tableId": "tbl-company",
+                "displayField": "companyName",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-2",
+              "field": "contactPerson",
+              "title": "Contact Person",
+              "type": "text",
+              "width": 180,
+              "required": true
+            },
+            {
+              "id": "col-3",
+              "field": "department",
+              "title": "Department",
+              "type": "text",
+              "width": 150
+            },
+            {
+              "id": "col-4",
+              "field": "jobTitle",
+              "title": "Job Title",
+              "type": "text",
+              "width": 180
+            },
+            {
+              "id": "col-5",
+              "field": "contactNumber",
+              "title": "Contact Number",
+              "type": "text",
+              "width": 120
+            },
+            {
+              "id": "col-6",
+              "field": "mobileNumber",
+              "title": "Mobile Number",
+              "type": "text",
+              "width": 120
+            },
+            {
+              "id": "col-7",
+              "field": "email",
+              "title": "Email",
+              "type": "email",
+              "width": 220
+            }
           ],
           rows: contactRows
         },
@@ -504,24 +703,153 @@ const crmDatabase = {
           name: "Cases",
           icon: "folder",
           "views": [
-            { "id": "view-case-table", "name": "All Case", "type": "table", "isDefault": true },
-            { "id": "view-coase-kanban", "name": "By Status", "type": "kanban", "config": { "groupByField": "caseStatus" } }
+            {
+              "id": "view-case-table",
+              "name": "All Case",
+              "type": "table",
+              "isDefault": true
+            },
+            {
+              "id": "view-coase-kanban",
+              "name": "By Status",
+              "type": "kanban",
+              "config": {
+                "groupByField": "caseStatus"
+              }
+            }
           ],
-          columns: [
-            { id: "col-1", field: "caseId", title: "Case ID", type: "text", width: 120, required: true },
-            { id: "col-2", field: "salesperson", title: "Sales Person", type: "user", width: 150,
-              relationConfig: { tableId: "tbl-sales", displayField: "name", multiple: false } },
-            { id: "col-3", field: "caseStatus", title: "Case Status", type: "single-select", width: 130,
-              options: caseStatusOptions },
-            { id: "col-4", field: "caseStatusLastUpdateDate", title: "Status Last Update", type: "date", width: 140 },
-            { id: "col-5", field: "caseStatusDuration", title: "Duration (Days)", type: "number", width: 120 },
-            { id: "col-6", field: "estimateTotalContractValue", title: "Est. Contract Value (HKD)", type: "number", width: 180, decimalPlaces: 0 },
-            { id: "col-7", field: "estimateBookedDate", title: "Est. Booked Date", type: "date", width: 140 },
-            { id: "col-8", field: "projectName", title: "Project Name", type: "text", width: 300 },
-            { id: "col-9", field: "quotations", title: "Quotations", type: "relation", width: 180,
-              relationConfig: { tableId: "tbl-quotation", displayField: "quotationNo", multiple: true } },
-            { id: "col-10", field: "contracts", title: "Contracts", type: "relation", width: 180,
-              relationConfig: { tableId: "tbl-contract", displayField: "contractNo", multiple: true } }
+          "columns": [
+            {
+              "id": "col-1",
+              "field": "caseId",
+              "title": "Case ID",
+              "type": "text",
+              "width": 120,
+              "required": true
+            },
+            {
+              "id": "col-1-1",
+              "field": "company",
+              "title": "Company",
+              "type": "relation",
+              "width": 180,
+              "relationConfig": {
+                "tableId": "tbl-company",
+                "displayField": "companyName",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-2",
+              "field": "salesperson",
+              "title": "Salesperson",
+              "type": "user",
+              "width": 150,
+              "relationConfig": {
+                "tableId": "tbl-sales",
+                "displayField": "name",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-3",
+              "field": "caseStatus",
+              "title": "Case Status",
+              "type": "single-select",
+              "width": 130,
+              "options": [
+                {
+                  "id": "status-lead",
+                  "label": "Lead",
+                  "color": "#6b7280"
+                },
+                {
+                  "id": "status-opportunity",
+                  "label": "Opportunity",
+                  "color": "#3b82f6"
+                },
+                {
+                  "id": "status-pipeline",
+                  "label": "Pipeline",
+                  "color": "#8b5cf6"
+                },
+                {
+                  "id": "status-closed-won",
+                  "label": "Closed-Won",
+                  "color": "#10b981"
+                },
+                {
+                  "id": "status-closed-lost",
+                  "label": "Closed-Lost",
+                  "color": "#ef4444"
+                },
+                {
+                  "id": "status-disqualify",
+                  "label": "Disqualify",
+                  "color": "#f59e0b"
+                }
+              ]
+            },
+            {
+              "id": "col-4",
+              "field": "caseStatusLastUpdateDate",
+              "title": "Status Last Update",
+              "type": "date",
+              "width": 140
+            },
+            {
+              "id": "col-5",
+              "field": "caseStatusDuration",
+              "title": "Duration (Days)",
+              "type": "number",
+              "width": 120
+            },
+            {
+              "id": "col-6",
+              "field": "estimateTotalContractValue",
+              "title": "Est. Contract Value (HKD)",
+              "type": "number",
+              "width": 180,
+              "decimalPlaces": 0
+            },
+            {
+              "id": "col-7",
+              "field": "estimateBookedDate",
+              "title": "Est. Booked Date",
+              "type": "date",
+              "width": 140
+            },
+            {
+              "id": "col-8",
+              "field": "projectName",
+              "title": "Project Name",
+              "type": "text",
+              "width": 300
+            },
+            {
+              "id": "col-9",
+              "field": "quotations",
+              "title": "Quotations",
+              "type": "relation",
+              "width": 180,
+              "relationConfig": {
+                "tableId": "tbl-quotation",
+                "displayField": "quotationNo",
+                "multiple": true
+              }
+            },
+            {
+              "id": "col-10",
+              "field": "contracts",
+              "title": "Contracts",
+              "type": "relation",
+              "width": 180,
+              "relationConfig": {
+                "tableId": "tbl-contract",
+                "displayField": "contractNo",
+                "multiple": true
+              }
+            }
           ],
           rows: caseRows
         },
@@ -531,86 +859,197 @@ const crmDatabase = {
           name: "Quotations",
           icon: "document",
           "views": [
-            { "id": "view-quot-table", "name": "All Quotations", "type": "table", "isDefault": true },
-            { "id": "view-quot-kanban", "name": "By Status", "type": "kanban", "config": { "groupByField": "status" } },
-            { "id": "view-quot-calendar", "name": "Calendar", "type": "calendar", "config": { "dateField": "quotationDate" } },
             {
-              "id": "view-quot-sales-pipeline",
-              "name": "My Sales Pipeline",
+              "id": "view-quot-table",
+              "name": "All Quotations",
               "type": "table",
-              "baseTableId": "tbl-quotation",
-              "isDefault": false,
-              "createdBy": "user-1",
-              "visibility": "personal",
-              "columns": [
-                { "id": "vcol-1", "columnId": "col-1", "field": "quotationNo", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 0 },
-                { "id": "vcol-2", "columnId": "col-2", "field": "company", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 1 },
-                { "id": "vcol-3", "columnId": "col-1", "field": "name", "sourceTableId": "tbl-company", "sourceType": "relation", "relationField": "company", "displayTitle": "Company Name", "visible": true, "order": 2 },
-                { "id": "vcol-4", "columnId": "col-2", "field": "email", "sourceTableId": "tbl-company", "sourceType": "relation", "relationField": "company", "displayTitle": "Company Email", "visible": true, "order": 3 },
-                { "id": "vcol-5", "columnId": "col-6", "field": "totalAmount", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 4 },
-                { "id": "vcol-6", "columnId": "col-8", "field": "status", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 5 },
-                { "id": "vcol-7", "columnId": "col-7", "field": "salesPerson", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 6 }
-              ],
-              "config": {
-                "filters": [
-                  { "field": "status", "operator": "in", "value": ["status-2", "status-3"] }
-                ],
-                "sorting": [
-                  { "field": "totalAmount", "order": "desc" }
-                ]
-              },
-              "createdAt": "2024-12-01T10:00:00Z",
-              "updatedAt": "2024-12-15T14:30:00Z"
+              "isDefault": true
             },
             {
-              "id": "view-quot-high-value",
-              "name": "High Value Deals",
-              "type": "table",
-              "baseTableId": "tbl-quotation",
-              "isDefault": false,
-              "createdBy": "user-1",
-              "visibility": "shared",
-              "sharedWith": [
-                { "type": "user", "id": "user-2", "name": "Bob Johnson", "permission": "view", "sharedAt": "2024-12-10T09:00:00Z" },
-                { "type": "group", "id": "group-sales", "name": "Sales Team", "permission": "view", "sharedAt": "2024-12-10T09:00:00Z" }
-              ],
-              "columns": [
-                { "id": "vcol-hv-1", "columnId": "col-1", "field": "quotationNo", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 0 },
-                { "id": "vcol-hv-2", "columnId": "col-2", "field": "company", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 1 },
-                { "id": "vcol-hv-3", "columnId": "col-6", "field": "totalAmount", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 2 },
-                { "id": "vcol-hv-4", "columnId": "col-8", "field": "status", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 3 },
-                { "id": "vcol-hv-5", "columnId": "col-3", "field": "contactPerson", "sourceTableId": "tbl-quotation", "sourceType": "base", "visible": true, "order": 4 },
-                { "id": "vcol-hv-6", "columnId": "col-1", "field": "name", "sourceTableId": "tbl-contact", "sourceType": "relation", "relationField": "contactPerson", "displayTitle": "Contact Name", "visible": true, "order": 5 },
-                { "id": "vcol-hv-7", "columnId": "col-2", "field": "email", "sourceTableId": "tbl-contact", "sourceType": "relation", "relationField": "contactPerson", "displayTitle": "Contact Email", "visible": true, "order": 6 }
-              ],
+              "id": "view-quot-kanban",
+              "name": "By Status",
+              "type": "kanban",
               "config": {
-                "filters": [],
-                "sorting": [
-                  { "field": "totalAmount", "order": "desc" }
-                ],
-                "groupBy": {
-                  "field": "salesPerson",
-                  "secondaryField": "status",
-                  "aggregations": [
-                    { "field": "totalAmount", "type": "sum" }
-                  ]
-                }
+                "groupByField": "status"
+              }
+            },
+            {
+              "id": "view-1767331914439-qv6phnwef",
+              "name": "Group By Salepersoon",
+              "type": "table",
+              "isDefault": false,
+              "config": {
+                  "groupBy": {
+                      "field": "salesperson",
+                      "collapsed": [],
+                      "showEmptyGroups": true,
+                      "aggregations": [
+                          {
+                              "field": "totalAmount",
+                              "type": "sum"
+                          }
+                      ]
+                  },
+                  "filters": [],
+                  "sorting": []
               },
-              "createdAt": "2024-12-05T11:00:00Z",
-              "updatedAt": "2024-12-12T16:00:00Z"
+              "createdBy": "user-1",
+              "visibility": "personal",
+              "baseTableId": "tbl-quotation",
+              "createdAt": "2026-01-02T05:31:54.439Z",
+              "updatedAt": "2026-01-02T05:32:10.754Z",
+              "columns": [
+                  {
+                      "id": "vcol-1767331914457-48h6hs41m",
+                      "columnId": "col-1",
+                      "field": "caseId",
+                      "sourceTableId": "tbl-quotation",
+                      "sourceType": "base",
+                      "visible": true,
+                      "order": 0,
+                      "width": 120
+                  },
+                  {
+                      "id": "vcol-1767331914457-3geme2oax",
+                      "columnId": "col-1-1",
+                      "field": "companyId",
+                      "sourceTableId": "tbl-quotation",
+                      "sourceType": "base",
+                      "visible": true,
+                      "order": 1,
+                      "width": 220
+                  },
+                  {
+                      "id": "vcol-1767331914457-z1h4qgbvb",
+                      "columnId": "col-2",
+                      "field": "quotationNo",
+                      "sourceTableId": "tbl-quotation",
+                      "sourceType": "base",
+                      "visible": true,
+                      "order": 2,
+                      "width": 130
+                  },
+                  {
+                      "id": "vcol-1767331914457-xcvj5wsmn",
+                      "columnId": "col-3",
+                      "field": "salesperson",
+                      "sourceTableId": "tbl-quotation",
+                      "sourceType": "base",
+                      "visible": true,
+                      "order": 3,
+                      "width": 150
+                  },
+                  
+                  {
+                      "id": "vcol-1767331914457-k7ixhdb23",
+                      "columnId": "col-5",
+                      "field": "lineItems",
+                      "sourceTableId": "tbl-quotation",
+                      "sourceType": "base",
+                      "visible": true,
+                      "order": 4,
+                      "width": 250
+                  },
+                  {
+                      "id": "vcol-1767331914457-ayz1gc829",
+                      "columnId": "col-6",
+                      "field": "totalAmount",
+                      "sourceTableId": "tbl-quotation",
+                      "sourceType": "base",
+                      "visible": true,
+                      "order": 5,
+                      "width": 180
+                  },
+                  {
+                      "id": "vcol-1767331914457-av5yuixtx",
+                      "columnId": "col-4",
+                      "field": "specialNotes",
+                      "sourceTableId": "tbl-quotation",
+                      "sourceType": "base",
+                      "visible": true,
+                      "order": 6,
+                      "width": 300
+                  }
+              ]
             }
           ],
-          columns: [
-            { id: "col-1", field: "caseId", title: "Case", type: "relation", width: 120,
-              relationConfig: { tableId: "tbl-case", displayField: "caseId", multiple: false } },
-            { id: "col-2", field: "quotationNo", title: "Quotation No.", type: "text", width: 130, required: true },
-            { id: "col-3", field: "salesperson", title: "Sales Person", type: "user", width: 150,
-              relationConfig: { tableId: "tbl-sales", displayField: "name", multiple: false } },
-            { id: "col-4", field: "specialNotes", title: "Special Notes", type: "textarea", width: 300 },
-            { id: "col-5", field: "lineItems", title: "Line Items", type: "relation", width: 200,
-              relationConfig: { tableId: "tbl-quotation-line", displayField: "description", multiple: true } },
-            { id: "col-6", field: "totalAmount", title: "Total Amount (HKD)", type: "number", width: 160, decimalPlaces: 0,
-              rollup: { sourceField: "lineItems", aggregation: "sum", targetField: "netAmount" } }
+          "columns": [
+            {
+              "id": "col-1",
+              "field": "caseId",
+              "title": "Case",
+              "type": "relation",
+              "width": 120,
+              "relationConfig": {
+                "tableId": "tbl-case",
+                "displayField": "caseId",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-1-1",
+              "field": "companyId",
+              "title": "Company Name",
+              "type": "relation",
+              "width": 120,
+              "relationConfig": {
+                "tableId": "tbl-company",
+                "displayField": "companyName",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-2",
+              "field": "quotationNo",
+              "title": "Quotation No.",
+              "type": "text",
+              "width": 130,
+              "required": true
+            },
+            {
+              "id": "col-3",
+              "field": "salesperson",
+              "title": "Salesperson",
+              "type": "user",
+              "width": 150,
+              "relationConfig": {
+                "tableId": "tbl-sales",
+                "displayField": "name",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-4",
+              "field": "specialNotes",
+              "title": "Special Notes",
+              "type": "textarea",
+              "width": 300
+            },
+            {
+              "id": "col-5",
+              "field": "lineItems",
+              "title": "Description",
+              "type": "relation",
+              "width": 200,
+              "relationConfig": {
+                "tableId": "tbl-quotation-line",
+                "displayField": "description",
+                "multiple": true
+              }
+            },
+            {
+              "id": "col-6",
+              "field": "totalAmount",
+              "title": "Total Amount (HKD)",
+              "type": "number",
+              "width": 160,
+              "decimalPlaces": 0,
+              "rollup": {
+                "sourceField": "lineItems",
+                "aggregation": "sum",
+                "targetField": "netAmount"
+              }
+            }
           ],
           rows: quotationRows
         },
@@ -620,19 +1059,79 @@ const crmDatabase = {
           name: "Quotation Lines",
           icon: "list",
           "views": [
-            { "id": "view-ql-table", "name": "All Lines", "type": "table", "isDefault": true }
+            {
+              "id": "view-ql-table",
+              "name": "All Lines",
+              "type": "table",
+              "isDefault": true
+            }
           ],
-          columns: [
-            { id: "col-1", field: "caseId", title: "Case", type: "relation", width: 120,
-              relationConfig: { tableId: "tbl-case", displayField: "caseId", multiple: false } },
-            { id: "col-2", field: "quotationId", title: "Quotation", type: "relation", width: 130,
-              relationConfig: { tableId: "tbl-quotation", displayField: "quotationNo", multiple: false } },
-            { id: "col-3", field: "itemNo", title: "Item No.", type: "number", width: 80 },
-            { id: "col-4", field: "description", title: "Description", type: "text", width: 300 },
-            { id: "col-5", field: "quantity", title: "Quantity", type: "number", width: 100 },
-            { id: "col-6", field: "unitPrice", title: "Unit Price (HKD)", type: "number", width: 140, decimalPlaces: 2 },
-            { id: "col-7", field: "netAmount", title: "Net Amount (HKD)", type: "number", width: 150, decimalPlaces: 2, numberFormat: "currency", currencySymbol: "$", currencyPosition: "prefix",
-              formula: "quantity * unitPrice" }
+          "columns": [
+            {
+              "id": "col-1",
+              "field": "caseId",
+              "title": "Case",
+              "type": "relation",
+              "width": 120,
+              "relationConfig": {
+                "tableId": "tbl-case",
+                "displayField": "caseId",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-2",
+              "field": "quotationId",
+              "title": "Quotation",
+              "type": "relation",
+              "width": 130,
+              "relationConfig": {
+                "tableId": "tbl-quotation",
+                "displayField": "quotationNo",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-3",
+              "field": "itemNo",
+              "title": "Item No.",
+              "type": "number",
+              "width": 80
+            },
+            {
+              "id": "col-4",
+              "field": "description",
+              "title": "Description",
+              "type": "text",
+              "width": 300
+            },
+            {
+              "id": "col-5",
+              "field": "quantity",
+              "title": "Quantity",
+              "type": "number",
+              "width": 100
+            },
+            {
+              "id": "col-6",
+              "field": "unitPrice",
+              "title": "Unit Price (HKD)",
+              "type": "number",
+              "width": 140,
+              "decimalPlaces": 2
+            },
+            {
+              "id": "col-7",
+              "field": "netAmount",
+              "title": "Net Amount (HKD)",
+              "type": "number",
+              "width": 150,
+              "decimalPlaces": 2,
+              "numberFormat": "currency",
+              "currencySymbol": "$",
+              "currencyPosition": "prefix",
+              "formula": "quantity * unitPrice"
+            }
           ],
           rows: quotationLineRows
         },
@@ -642,24 +1141,124 @@ const crmDatabase = {
           name: "Contracts",
           icon: "document-checked",
           "views": [
-            { "id": "view-contract-table", "name": "All Contracts", "type": "table", "isDefault": true },
-            { "id": "view-contract-kanban", "name": "By Status", "type": "kanban", "config": { "groupByField": "salesperson" } },
+            {
+              "id": "view-contract-table",
+              "name": "All Contracts",
+              "type": "table",
+              "isDefault": true
+            },
+            {
+              "id": "view-contract-kanban",
+              "name": "By Status",
+              "type": "kanban",
+              "config": {
+                "groupByField": "salesperson"
+              }
+            }
           ],
-          columns: [
-            { id: "col-1", field: "caseId", title: "Case", type: "relation", width: 120,
-              relationConfig: { tableId: "tbl-case", displayField: "caseId", multiple: false } },
-            { id: "col-2", field: "contractNo", title: "Contract No.", type: "text", width: 130, required: true },
-            { id: "col-3", field: "contractStartDate", title: "Start Date", type: "date", width: 120 },
-            { id: "col-4", field: "contractExpiryDate", title: "Expiry Date", type: "date", width: 120 },
-            { id: "col-5", field: "quotationId", title: "Quotation", type: "relation", width: 130,
-              relationConfig: { tableId: "tbl-quotation", displayField: "quotationNo", multiple: false } },
-            { id: "col-6", field: "salesperson", title: "Sales Person", type: "user", width: 150,
-              relationConfig: { tableId: "tbl-sales", displayField: "name", multiple: false } },
-            { id: "col-7", field: "specialNotes", title: "Special Notes", type: "textarea", width: 300 },
-            { id: "col-8", field: "lineItems", title: "Line Items", type: "relation", width: 200,
-              relationConfig: { tableId: "tbl-contract-line", displayField: "description", multiple: true } },
-            { id: "col-9", field: "totalAmount", title: "Total Amount (HKD)", type: "number", width: 160, decimalPlaces: 0,
-              rollup: { sourceField: "lineItems", aggregation: "sum", targetField: "netAmount" } }
+          "columns": [
+            {
+              "id": "col-1",
+              "field": "caseId",
+              "title": "Case",
+              "type": "relation",
+              "width": 120,
+              "relationConfig": {
+                "tableId": "tbl-case",
+                "displayField": "caseId",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-1-1",
+              "field": "companyId",
+              "title": "Company Name",
+              "type": "relation",
+              "width": 120,
+              "relationConfig": {
+                "tableId": "tbl-company",
+                "displayField": "companyName",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-2",
+              "field": "contractNo",
+              "title": "Contract No.",
+              "type": "text",
+              "width": 130,
+              "required": true
+            },
+            {
+              "id": "col-3",
+              "field": "contractStartDate",
+              "title": "Contract Start Date",
+              "type": "date",
+              "width": 120
+            },
+            {
+              "id": "col-4",
+              "field": "contractExpiryDate",
+              "title": "Contract Expiry Date",
+              "type": "date",
+              "width": 120
+            },
+            {
+              "id": "col-5",
+              "field": "quotationId",
+              "title": "Quotation",
+              "type": "relation",
+              "width": 130,
+              "relationConfig": {
+                "tableId": "tbl-quotation",
+                "displayField": "quotationNo",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-6",
+              "field": "salesperson",
+              "title": "Salesperson",
+              "type": "user",
+              "width": 150,
+              "relationConfig": {
+                "tableId": "tbl-sales",
+                "displayField": "name",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-7",
+              "field": "specialNotes",
+              "title": "Special Notes",
+              "type": "textarea",
+              "width": 300
+            },
+            {
+              "id": "col-8",
+              "field": "lineItems",
+              "title": "Description",
+              "type": "relation",
+              "width": 200,
+              "relationConfig": {
+                "tableId": "tbl-contract-line",
+                "displayField": "description",
+                "multiple": true
+              }
+            },
+            {
+              "id": "col-9",
+              "field": "totalAmount",
+              "title": "Total Amount (HKD)",
+              "type": "number",
+              "width": 160,
+              "decimalPlaces": 0,
+              "rollup": {
+                "sourceField": "lineItems",
+                "aggregation": "sum",
+                "targetField": "netAmount"
+              }
+            }
           ],
           rows: contractRows
         },
@@ -669,19 +1268,76 @@ const crmDatabase = {
           name: "Contract Lines",
           icon: "list",
           "views": [
-            { "id": "view-cl-table", "name": "All Lines", "type": "table", "isDefault": true }
+            {
+              "id": "view-cl-table",
+              "name": "All Lines",
+              "type": "table",
+              "isDefault": true
+            }
           ],
-          columns: [
-            { id: "col-1", field: "caseId", title: "Case", type: "relation", width: 120,
-              relationConfig: { tableId: "tbl-case", displayField: "caseId", multiple: false } },
-            { id: "col-2", field: "contractId", title: "Contract", type: "relation", width: 130,
-              relationConfig: { tableId: "tbl-contract", displayField: "contractNo", multiple: false } },
-            { id: "col-3", field: "itemNo", title: "Item No.", type: "number", width: 80 },
-            { id: "col-4", field: "description", title: "Description", type: "text", width: 300 },
-            { id: "col-5", field: "quantity", title: "Quantity", type: "number", width: 100 },
-            { id: "col-6", field: "unitPrice", title: "Unit Price (HKD)", type: "number", width: 140, decimalPlaces: 0 },
-            { id: "col-7", field: "netAmount", title: "Net Amount (HKD)", type: "number", width: 150, decimalPlaces: 0,
-              formula: "quantity * unitPrice" }
+          "columns": [
+            {
+              "id": "col-1",
+              "field": "caseId",
+              "title": "Case",
+              "type": "relation",
+              "width": 120,
+              "relationConfig": {
+                "tableId": "tbl-case",
+                "displayField": "caseId",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-2",
+              "field": "contractId",
+              "title": "Contract",
+              "type": "relation",
+              "width": 130,
+              "relationConfig": {
+                "tableId": "tbl-contract",
+                "displayField": "contractNo",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-3",
+              "field": "itemNo",
+              "title": "Item No.",
+              "type": "number",
+              "width": 80
+            },
+            {
+              "id": "col-4",
+              "field": "description",
+              "title": "Description",
+              "type": "text",
+              "width": 300
+            },
+            {
+              "id": "col-5",
+              "field": "quantity",
+              "title": "Quantity",
+              "type": "number",
+              "width": 100
+            },
+            {
+              "id": "col-6",
+              "field": "unitPrice",
+              "title": "Unit Price (HKD)",
+              "type": "number",
+              "width": 140,
+              "decimalPlaces": 0
+            },
+            {
+              "id": "col-7",
+              "field": "netAmount",
+              "title": "Net Amount (HKD)",
+              "type": "number",
+              "width": 150,
+              "decimalPlaces": 0,
+              "formula": "quantity * unitPrice"
+            }
           ],
           rows: contractLineRows
         }
@@ -692,7 +1348,7 @@ const crmDatabase = {
 
 // Write crm-database.json
 fs.writeFileSync(
-  path.join(__dirname, 'crm-database-new.json'),
+  path.join(__dirname, 'crm-database-new2.json'),
   JSON.stringify(crmDatabase, null, 2)
 );
 

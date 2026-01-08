@@ -227,12 +227,12 @@ Object.entries(quotationsGrouped).forEach(([quotNo, quotData]) => {
 const crmDatabase = {
   databases: [
     {
-      id: "db-crm",
-      name: "CRM Database",
-      description: "Customer Relationship Management system for managing companies, contacts, quotations, and contracts",
-      icon: "briefcase",
-      color: "#3b82f6",
-      createdAt: "2024-01-15T10:00:00Z",
+      "id": "db-crm",
+      "name": "CRM Database",
+      "description": "Customer Relationship Management system",
+      "icon": "briefcase",
+      "color": "#3b82f6",
+      "createdAt": "2025-12-31T06:33:27.702Z",
       updatedAt: new Date().toISOString(),
       createdBy: {
         id: "user-1",
@@ -241,61 +241,173 @@ const crmDatabase = {
       },
       dashboards: [
         {
-          id: "dash-overview",
-          name: "CRM Overview",
-          icon: "chart-bar",
-          scope: "database",
-          widgets: [
-            { id: "w1", title: "Total Companies", type: "stat", width: 1, height: 1, config: { aggregation: "count", tableId: "tbl-company" } },
-            { id: "w2", title: "Total Contacts", type: "stat", width: 1, height: 1, config: { aggregation: "count", tableId: "tbl-contact" } },
-            { id: "w3", title: "Open Quotations", type: "stat", width: 1, height: 1, config: { aggregation: "count", tableId: "tbl-quotation" } },
-            { id: "w4", title: "Active Contracts", type: "stat", width: 1, height: 1, config: { aggregation: "count", tableId: "tbl-contract" } },
-            { id: "w5", title: "Companies by Type", type: "chart-pie", width: 2, height: 2, config: { tableId: "tbl-company", groupByField: "type" } },
-            { id: "w6", title: "Quotations by Status", type: "chart-bar", width: 2, height: 2, config: { tableId: "tbl-quotation", groupByField: "status" } }
+          "id": "dash-overview",
+          "name": "CRM Overview",
+          "icon": "chart-bar",
+          "scope": "database",
+          "widgets": [
+            {
+              "id": "w1",
+              "title": "Total Companies",
+              "type": "stat",
+              "width": 1,
+              "height": 1,
+              "config": {
+                "aggregation": "count",
+                "tableId": "tbl-company"
+              }
+            },
+            {
+              "id": "w2",
+              "title": "Total Contacts",
+              "type": "stat",
+              "width": 1,
+              "height": 1,
+              "config": {
+                "aggregation": "count",
+                "tableId": "tbl-contact"
+              }
+            },
+            {
+              "id": "w3",
+              "title": "Open Quotations",
+              "type": "stat",
+              "width": 1,
+              "height": 1,
+              "config": {
+                "aggregation": "count",
+                "tableId": "tbl-quotation"
+              }
+            },
+            {
+              "id": "w4",
+              "title": "Active Contracts",
+              "type": "stat",
+              "width": 1,
+              "height": 1,
+              "config": {
+                "aggregation": "count",
+                "tableId": "tbl-contract"
+              }
+            },
+            {
+              "id": "w5",
+              "title": "Companies by Type",
+              "type": "chart-pie",
+              "width": 2,
+              "height": 2,
+              "config": {
+                "tableId": "tbl-company",
+                "groupByField": "type"
+              }
+            },
+            {
+              "id": "w6",
+              "title": "Quotations by Status",
+              "type": "chart-bar",
+              "width": 2,
+              "height": 2,
+              "config": {
+                "tableId": "tbl-quotation",
+                "groupByField": "status"
+              }
+            }
           ]
         }
       ],
-      navigation: [
+      "navigation": [
         {
-          id: "nav-overview",
-          type: "dashboard",
-          label: "CRM Overview",
-          icon: "data-analysis",
-          targetId: "dash-overview"
-        },
-        {
-          id: "nav-company-mgmt",
-          type: "folder",
-          label: "Company Management",
-          description: "Centralize all your company and contact information in one place.",
-          icon: "office-building",
-          isExpanded: true,
-          children: [
-            { id: "nav-companies", type: "table", label: "Companies", icon: "suitcase", targetId: "tbl-company" },
-            { id: "nav-contacts", type: "table", label: "Contacts", icon: "user", targetId: "tbl-contact" }
+          "id": "nav-company-mgmt",
+          "type": "folder",
+          "label": "Company Management",
+          "description": "Centralize all your company and contact information in one place. Track company details, maintain contact records, and manage organizational relationships efficiently. This section provides a comprehensive view of your customer and partner network.",
+          "icon": "office-building",
+          "isExpanded": true,
+          "children": [
+            {
+              "id": "nav-overview",
+              "type": "dashboard",
+              "label": "CRM Overview",
+              "icon": "data-analysis",
+              "targetId": "dash-overview"
+            },
+            {
+              "id": "nav-cases",
+              "type": "table",
+              "label": "Cases",
+              "icon": "suitcase",
+              "targetId": "tbl-case"
+            },
+            {
+              "id": "nav-companies",
+              "type": "table",
+              "label": "Company List",
+              "icon": "suitcase",
+              "targetId": "tbl-company"
+            },
+            {
+              "id": "nav-contacts",
+              "type": "table",
+              "label": "Contacts",
+              "icon": "user",
+              "targetId": "tbl-contact"
+            }
           ]
         },
         {
-          id: "nav-sales-mgmt",
-          type: "folder",
-          label: "Sales Management",
-          description: "Monitor your entire sales pipeline from initial quotation to deal closure.",
-          icon: "money",
-          isExpanded: true,
-          children: [
-            { id: "nav-quotations", type: "table", label: "Quotations", icon: "document", targetId: "tbl-quotation" },
-            { id: "nav-quot-lines", type: "table", label: "Quotation Lines", icon: "document-copy", targetId: "tbl-quotation-line" }
+          "id": "nav-sales-mgmt",
+          "type": "folder",
+          "label": "Sales Management",
+          "description": "Monitor your entire sales pipeline from initial quotation to deal closure. Track quotation details, line items, deal values, and sales performance metrics. Use custom views to focus on high-value opportunities and manage your personal sales pipeline effectively.",
+          "icon": "money",
+          "isExpanded": true,
+          "children": [
+            {
+              "id": "nav-quotations",
+              "type": "table",
+              "label": "Quotations",
+              "icon": "document",
+              "targetId": "tbl-quotation"
+            },
+            {
+              "id": "nav-quot-lines",
+              "type": "table",
+              "label": "Quotation Lines",
+              "icon": "document-copy",
+              "targetId": "tbl-quotation-line"
+            },
+            {
+              "id": "nav-high-value",
+              "type": "view",
+              "label": "Group By Salesperson",
+              "icon": "trophy",
+              "targetId": "view-1767331914439-qv6phnwef",
+              "targetTableId": "tbl-quotation"
+            }
           ]
         },
         {
-          id: "nav-contract-mgmt",
-          type: "folder",
-          label: "Contracts",
-          description: "Manage all your contracts in one centralized location.",
-          icon: "tickets",
-          children: [
-            { id: "nav-contracts", type: "table", label: "All Contracts", icon: "document-checked", targetId: "tbl-contract" },
-            { id: "nav-contract-lines", type: "table", label: "Contract Lines", icon: "document-copy", targetId: "tbl-contract-line" }
+          "id": "nav-contract-mgmt",
+          "type": "folder",
+          "label": "Contracts Management",
+          "description": "Manage all your contracts and contract terms in one centralized location. Track contract status, monitor active agreements, review contract lines, and stay on top of renewal dates. Quickly access views for active contracts requiring your attention.",
+          "icon": "tickets",
+          "isExpanded": true,
+          "children": [
+            {
+              "id": "nav-contracts",
+              "type": "table",
+              "label": "All Contracts",
+              "icon": "document-checked",
+              "targetId": "tbl-contract"
+            },
+            {
+              "id": "nav-contract-lines",
+              "type": "table",
+              "label": "Contract Lines",
+              "icon": "document-copy",
+              "targetId": "tbl-contract-line"
+            }
           ]
         }
       ],
@@ -304,29 +416,84 @@ const crmDatabase = {
           id: "tbl-company",
           name: "Companies",
           icon: "building",
-          views: [
-            { id: "view-company-table", name: "All Companies", type: "table", isDefault: true },
-            { id: "view-company-kanban", name: "By Type", type: "kanban", config: { groupByField: "type" } }
+          "views": [
+            {
+              "id": "view-company-table",
+              "name": "Company List",
+              "type": "table",
+              "isDefault": true
+            },
+            {
+              "id": "view-company-kanban",
+              "name": "By Type",
+              "type": "kanban",
+              "config": {
+                "groupByField": "salesperson"
+              }
+            }
           ],
-          columns: [
-            { id: "col-1", field: "name", title: "Name", type: "text", width: 200, required: true },
-            { id: "col-2", field: "email", title: "Email", type: "email", width: 200 },
-            { id: "col-3", field: "phone", title: "Phone", type: "text", width: 150 },
-            { id: "col-4", field: "address", title: "Address", type: "textarea", width: 250 },
-            { id: "col-5", field: "type", title: "Type", type: "single-select", width: 120, options: [
-              { id: "opt-1", label: "Enterprise", color: "#8b5cf6" },
-              { id: "opt-2", label: "SMB", color: "#3b82f6" },
-              { id: "opt-3", label: "Startup", color: "#10b981" },
-              { id: "opt-4", label: "Government", color: "#f59e0b" }
-            ]},
-            { id: "col-6", field: "salesPerson", title: "Sales Person", type: "user", width: 150 },
-            { id: "col-7", field: "contacts", title: "Contacts", type: "relation", width: 200, relationConfig: { tableId: "tbl-contact", displayField: "name", multiple: true }},
-            { id: "col-8", field: "quotations", title: "Quotations", type: "relation", width: 200, relationConfig: { tableId: "tbl-quotation", displayField: "quotationNumber", multiple: true }},
-            { id: "col-9", field: "contracts", title: "Contracts", type: "relation", width: 200, relationConfig: { tableId: "tbl-contract", displayField: "contractNumber", multiple: true }},
-            { id: "col-10", field: "isActive", title: "Active", type: "switch", width: 80 },
-            { id: "col-11", field: "paymentTerms", title: "Payment Terms", type: "text", width: 120 },
-            { id: "col-12", field: "currency", title: "Currency", type: "text", width: 80 },
-            { id: "col-13", field: "rating", title: "Rating", type: "rating", width: 120, maxRating: 5 }
+          "columns": [
+            {
+              "id": "col-1",
+              "field": "companyId",
+              "title": "Company ID",
+              "type": "text",
+              "width": 120,
+              "required": true
+            },
+            {
+              "id": "col-2",
+              "field": "companyName",
+              "title": "Company Name",
+              "type": "text",
+              "width": 250,
+              "required": true
+            },
+            {
+              "id": "col-3",
+              "field": "salesperson",
+              "title": "Salesperson",
+              "type": "user",
+              "width": 150,
+              "relationConfig": {
+                "tableId": "tbl-sales",
+                "displayField": "name",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-4",
+              "field": "address",
+              "title": "Address",
+              "type": "textarea",
+              "width": 300
+            },
+            {
+              "id": "col-5",
+              "field": "paymentTerms",
+              "title": "Payment Terms",
+              "type": "text",
+              "width": 120
+            },
+            {
+              "id": "col-6",
+              "field": "currency",
+              "title": "Currency",
+              "type": "text",
+              "width": 80
+            },
+            {
+              "id": "col-7",
+              "field": "contacts",
+              "title": "Contact Person",
+              "type": "relation",
+              "width": 200,
+              "relationConfig": {
+                "tableId": "tbl-contact",
+                "displayField": "contactPerson",
+                "multiple": true
+              }
+            }
           ],
           rows: companyRows
         },
@@ -334,19 +501,78 @@ const crmDatabase = {
           id: "tbl-contact",
           name: "Contacts",
           icon: "user",
-          views: [
-            { id: "view-contact-table", name: "All Contacts", type: "table", isDefault: true },
-            { id: "view-contact-gallery", name: "Gallery", type: "gallery", config: { titleField: "name" } }
+          "views": [
+            {
+              "id": "view-company-table",
+              "name": "All Companies",
+              "type": "table",
+              "isDefault": true
+            },
+            {
+              "id": "view-company-kanban",
+              "name": "By Type",
+              "type": "kanban",
+              "config": {
+                "groupByField": "companyId"
+              }
+            }
           ],
-          columns: [
-            { id: "col-1", field: "name", title: "Name", type: "text", width: 180, required: true },
-            { id: "col-2", field: "email", title: "Email", type: "email", width: 220 },
-            { id: "col-3", field: "phone", title: "Phone", type: "text", width: 150 },
-            { id: "col-4", field: "mobile", title: "Mobile", type: "text", width: 150 },
-            { id: "col-5", field: "company", title: "Company", type: "relation", width: 180, relationConfig: { tableId: "tbl-company", displayField: "name", multiple: false }},
-            { id: "col-6", field: "position", title: "Position", type: "text", width: 150 },
-            { id: "col-7", field: "department", title: "Department", type: "text", width: 150 },
-            { id: "col-8", field: "isPrimary", title: "Primary Contact", type: "checkbox", width: 120 }
+          "columns": [
+            {
+              "id": "col-1",
+              "field": "companyId",
+              "title": "Company",
+              "type": "relation",
+              "width": 200,
+              "relationConfig": {
+                "tableId": "tbl-company",
+                "displayField": "companyName",
+                "multiple": false
+              }
+            },
+            {
+              "id": "col-2",
+              "field": "contactPerson",
+              "title": "Contact Person",
+              "type": "text",
+              "width": 180,
+              "required": true
+            },
+            {
+              "id": "col-3",
+              "field": "department",
+              "title": "Department",
+              "type": "text",
+              "width": 150
+            },
+            {
+              "id": "col-4",
+              "field": "jobTitle",
+              "title": "Job Title",
+              "type": "text",
+              "width": 180
+            },
+            {
+              "id": "col-5",
+              "field": "contactNumber",
+              "title": "Contact Number",
+              "type": "text",
+              "width": 120
+            },
+            {
+              "id": "col-6",
+              "field": "mobileNumber",
+              "title": "Mobile Number",
+              "type": "text",
+              "width": 120
+            },
+            {
+              "id": "col-7",
+              "field": "email",
+              "title": "Email",
+              "type": "email",
+              "width": 220
+            }
           ],
           rows: contactRows
         },

@@ -23,7 +23,7 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{
   openRecord: [tableId: string, recordId: string]
   columnsChanged: []
-  viewCreated: [view: View]
+  viewCreated: [view: any]
   openTableSettings: []
 }>()
 
@@ -191,8 +191,8 @@ function handleCreateView(data: {
   })
   
   if (newView) {
-    ElMessage.success(`View "${data.name}" created successfully`)
-    emit('viewCreated', newView)
+    // ElMessage.success(`View "${data.name}" created successfully`)
+    emit('viewCreated', {...newView, baseTableId:props.table.id})
   }
 }
 
@@ -289,7 +289,6 @@ const headerActions = computed<HeaderAction[]>(() => {
       <KanbanView
         v-else-if="view.type === 'kanban'"
         :key="`kanban-${columnsVersion}`"
-        v-model:search-query="searchQuery"
         :database="database"
         :table="table"
         :view="view"

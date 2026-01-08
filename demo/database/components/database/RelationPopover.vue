@@ -55,9 +55,20 @@ const recordTitle = computed(() => {
 const displayFields = computed(() => {
   if (!relatedRecord.value || !relatedTable.value) return []
   
-  const fieldsToShow: { label: string; value: string; column: Column }[] = []
-  
-  for (const column of relatedTable.value.columns) {
+  const fieldsToShow: { label: string; value: string; column: Column; displayOptions?: any }[] = []
+  const allColumns = JSON.parse(JSON.stringify(relatedTable.value.columns))
+  // becasue title is using first text column, so we need to skip the title column
+  let titleColumn;
+  if(props.displayField) {
+     titleColumn = allColumns.find((c:any) => c.field === props.displayField)
+    
+  }else {
+    titleColumn = allColumns.find((c:any) => c.type === 'text' || c.type === 'textarea')
+  }
+  if (titleColumn ) {
+    allColumns.splice(allColumns.indexOf(titleColumn), 1)
+  }
+  for (const column of allColumns) {
     // Skip relation fields and very long text fields
     if (column.type === 'relation' || column.type === 'textarea' || column.type === 'attachment') {
       continue
@@ -68,7 +79,8 @@ const displayFields = computed(() => {
       fieldsToShow.push({
         label: column.title,
         value: formatFieldValue(value, column),
-        column
+        column,
+        displayOptions: getDisplayOptions(column, value)
       })
     }
     
@@ -77,6 +89,13 @@ const displayFields = computed(() => {
   
   return fieldsToShow
 })
+
+function getDisplayOptions(column: Column, value: any): any {
+  if (column.type === 'single-select') {
+    return column.options?.find(o => o.id === value)
+  }
+  return null
+}
 
 function formatFieldValue(value: any, column: Column): string {
   if (value === null || value === undefined) return '-'
@@ -113,6 +132,8 @@ function convertTableNameToSingular(name: string): string {
   if (name.endsWith('ies')) {
     return name.slice(0, -3) + 'y';
   }
+  // handle special cases
+  if(name.toLowerCase() ==='cases') return 'case'
   
   // Handle words ending in "ses", "xes", "zes" (e.g., addresses -> address, boxes -> box)
   if (name.endsWith('ses') || name.endsWith('xes') || name.endsWith('zes')) {
@@ -124,10 +145,7 @@ function convertTableNameToSingular(name: string): string {
     return name.slice(0, -2);
   }
   
-  // Handle regular plural words ending in "s" (e.g., contacts -> contact)
-  if (name.endsWith('s')) {
-    return name.slice(0, -1);
-  }
+
   
   // Return as-is if no plural pattern detected
   return name;
@@ -170,7 +188,19 @@ function handleViewRecord() {
             class="field-item"
           >
             <div class="field-label">{{ field.label }}</div>
-            <div class="field-value">{{ field.value }}</div>
+            <div class="field-value">
+                <template v-if="field.column.type === 'single-select'">
+                  <el-tag
+                    :style="{ backgroundColor: field.displayOptions?.color + '20', color: field.displayOptions?.color, borderColor: field.displayOptions?.color }"
+                    size="small"
+                  >
+                    {{ field.value }}
+                  </el-tag>
+                </template>
+                <template v-else>
+                  {{ field.value }}
+                </template>
+            </div>
           </div>
         </div>
         <div v-else class="no-fields">

@@ -98,6 +98,9 @@ export default defineAppConfig({
     {
       name: 'contact-book'
     },
+    {
+      name: 'admin-database-list'
+    },
   ],
   adminMenu: [
     {
@@ -289,9 +292,7 @@ export default defineAppConfig({
       name: 'admin-calendar-setting'
     },
 
-    {
-      name: 'admin-database-list'
-    },
+    
     {
       name: 'demo-workspaces'
     }
