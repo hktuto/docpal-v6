@@ -27,7 +27,7 @@ const argv = parseArgv();
 const { SUPERADMIN, PASSWORD, ADMINURL } = argv;
 
 async function loginAdmin() {
-  const data = await fetch(`${ADMINURL}/auth/login`, {
+  const data = await fetch(`${ADMINURL}/api/auth/login`, {
     method: 'POST',
     body: JSON.stringify({
       username: SUPERADMIN,
@@ -44,7 +44,7 @@ async function loginAdmin() {
 }
 
 async function updateLanguage(code, token) {
-  const { data } = await fetch(`${ADMINURL}/docpal/relation/queryLanguage?locale=${code}&languageKey=client`, {
+  const { data } = await fetch(`${ADMINURL}/api/docpal/relation/queryLanguage?locale=${code}&languageKey=client`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ async function updateLanguage(code, token) {
     ...data[0],
     languageContent: JSON.stringify(newJson)
   }
-  const res = await fetch(`${ADMINURL}/docpal/relation/updateLanguage`, {
+  const res = await fetch(`${ADMINURL}/api/docpal/relation/updateLanguage`, {
     method: 'POST',
     body: JSON.stringify(newData),
     headers: {
