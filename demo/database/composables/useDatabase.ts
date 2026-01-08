@@ -355,6 +355,17 @@ export function useDatabase() {
     return null
   }
 
+  function findParent(items: NavItem[], itemId: string): NavItem | null {
+    for (const item of items) {
+      if(item.children?.find(child => child.targetId === itemId)) return item
+      if(item.type === 'folder' && item.children) {
+        const found = findParent(item.children, itemId)
+        if (found) return found
+      }
+    }
+    return null
+  }
+
   // Export database to JSON (for saving changes)
   function exportDatabaseToJSON(databaseId: string): string {
     const db = getDatabaseById(databaseId)
@@ -419,6 +430,7 @@ export function useDatabase() {
     users: computed(() => users.value),
     groups: computed(() => groups.value),
     roles: computed(() => roles.value),
+    findParent,
     getDatabases,
     getDatabaseById,
     createDatabase,
@@ -495,7 +507,7 @@ export function useTable(databaseId: string, tableId: string) {
     return rows.filter(row => {
       return filters.every(filter => {
         const value = row[filter.field]
-        
+        console.log('value', value, filter)
         switch (filter.operator) {
           case 'equals':
             return value === filter.value
@@ -510,7 +522,11 @@ export function useTable(databaseId: string, tableId: string) {
           case 'lte':
             return Number(value) <= Number(filter.value)
           case 'in':
-            return Array.isArray(filter.value) && filter.value.includes(value)
+            if(Array.isArray(value)) {
+              return value.some(v => filter.value.includes(v))
+            }else{
+              return Array.isArray(filter.value) && filter.value.includes(value)
+            }
           case 'notIn':
             return Array.isArray(filter.value) && !filter.value.includes(value)
           case 'isEmpty':
@@ -552,7 +568,7 @@ export function useTable(databaseId: string, tableId: string) {
     let result = [...table.value.rows]
     
     // Apply search
-    if (params.search) {
+    if (params.search ) {
       const searchLower = params.search.toLowerCase()
       const keywords = searchLower.split(' ')
       result = result.filter(row => {
