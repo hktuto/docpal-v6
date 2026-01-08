@@ -581,7 +581,7 @@ function relatedTableRowClick(row: Row, tableId: string) {
 
               <!-- User with avatar -->
               <template v-else-if="relCol.type === 'user'">
-                <div v-if="record[relCol.field]" class="user-display">
+                <div v-if="row[relCol.field]" class="user-display">
                   <el-avatar :size="24" :src="resolveUser(record[relCol.field])?.avatar" />
                   <span>{{ resolveUser(row[relCol.field])?.name }}</span>
                 </div>
@@ -602,7 +602,7 @@ function relatedTableRowClick(row: Row, tableId: string) {
 
               <!-- URL -->
               <template v-else-if="relCol.type === 'url'">
-                <el-link v-if="record[relCol.field]" :href="row[relCol.field]" target="_blank" type="primary">
+                <el-link v-if="row[relCol.field]" :href="row[relCol.field]" target="_blank" type="primary">
                   {{ row[relCol.field] }}
                 </el-link>
                 <span v-else class="field-value empty">-</span>
@@ -610,7 +610,7 @@ function relatedTableRowClick(row: Row, tableId: string) {
 
               <!-- Email -->
               <template v-else-if="relCol.type === 'email'">
-                <el-link v-if="record[relCol.field]" :href="`mailto:${record[relCol.field]}`" type="primary">
+                <el-link v-if="row[relCol.field]" :href="`mailto:${record[relCol.field]}`" type="primary">
                   {{ row[relCol.field] }}
                 </el-link>
                 <span v-else class="field-value empty">-</span>
