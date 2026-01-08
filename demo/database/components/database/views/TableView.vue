@@ -265,7 +265,7 @@ async function mockTableApi(params: any) {
   
   // If grouping is enabled, organize data into groups
   if (viewGroupBy.value?.field) {
-    organizeGroupedData(result)
+    organizeGroupedData()
   }
   
   return result
@@ -380,12 +380,17 @@ function formatGroupLabel(key: string, column: Column): string {
 }
 
 // Organize rows into groups
-function organizeGroupedData(rows: Row[]) {
+function organizeGroupedData() {
   if (!viewGroupBy.value?.field) {
     groupedRows.value = []
     return
   }
-  
+  console.log('organizeGroupedData')
+  const rows = queryRows({
+    search: searchText.value,
+    filters: activeFilters.value,
+    sort: viewSorting.value,
+  })
   const groupField = viewGroupBy.value.field
   const groupColumn = props.table.columns.find(c => c.field === groupField)
   if (!groupColumn) {
@@ -546,7 +551,7 @@ function toggleGroupCollapse(groupValue: string) {
   const $table = tableRef.value as any
   const currentData = $table?.getTableData?.()
   if (currentData?.fullData) {
-    organizeGroupedData(currentData.fullData)
+    organizeGroupedData()
   }
 }
 
@@ -653,16 +658,26 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 
 // Watch search query to reload table
 const debouncedReload = useDebounceFn(reload, 300)
+const debouncedOrganizeGroupedData = useDebounceFn(organizeGroupedData, 300)
 watch(searchQuery, async() => {
   await setColumns()
-  debouncedReload()
+  // check is viewing in group mode
+  if(viewGroupBy.value?.field){
+    debouncedOrganizeGroupedData()
+  }else{
+    debouncedReload()
+  }
 }, { deep: true })
 
 // Watch view config changes (filters/sorting from ViewSettingsDrawer)
 watch(
   () => [props.view.config?.filters, props.view.config?.sorting],
   () => {
-    debouncedReload()
+    if(viewGroupBy.value?.field){
+      debouncedOrganizeGroupedData()
+    }else{
+      debouncedReload()
+    }
   },
   { deep: true }
 )
@@ -673,15 +688,24 @@ watch(
   () => {
     setColumns()
     // Force re-render of the grid when columns change
-    debouncedReload()
+    if(viewGroupBy.value?.field){
+      debouncedOrganizeGroupedData()
+    }else{
+      debouncedReload()
+    }
   },
   { deep: true }
 )
 
 // Initialize filters on mount
-onMounted(() => {
+onMounted(async() => {
   setColumns()
-  initializeFilters()
+  await initializeFilters()
+  if(viewGroupBy.value?.field){
+      debouncedOrganizeGroupedData()
+    }else{
+      debouncedReload()
+    }
 })
 
 // Initialize ResponsiveFilter with column filters
@@ -745,7 +769,6 @@ async function getFilterOptions(column: Column): { label: string; value: any }[]
         return { label: labelStr, value: relId }
       }).sort((a,b) => a.label.localeCompare(b.label))
     case 'text': 
-      console.log('text', column.title, column.type)
       const options = await getAllDataAndCreateUniqueOptions(column)
       return options
       // get all data and create unique options
@@ -1287,7 +1310,7 @@ function formatRollupValue(column: Column, row: Row): string {
 <template>
   <div class="table-view">
     <!-- Grouped View -->
-    <div v-if="viewGroupBy?.field && groupedRows.length > 0" class="grouped-table-view">
+    <div v-if="viewGroupBy?.field" class="grouped-table-view">
       <!-- Toolbar -->
       <div class="grouped-toolbar">
         <ResponsiveFilter
@@ -1315,7 +1338,7 @@ function formatRollupValue(column: Column, row: Row): string {
               {{ group.collapsed ? '▶' : '▼' }}
             </span>
             <span class="group-title">{{ group.groupLabel }}</span>
-            <span class="group-count">{{ group.count }}</span>
+            <span class="group-count">{{ group.count }} Records</span>
           </div>
           
           <!-- Group Content (Table) -->
@@ -1325,7 +1348,7 @@ function formatRollupValue(column: Column, row: Row): string {
               :columns="vxeColumns"
               border
               show-overflow
-              :row-config="{ isHover: true }"
+              :row-config="{ isHover: true, useKey:true }"
               :auto-resize="true"
               max-height="500"
               :tree-config="hasSecondaryGrouping ? getTreeConfig() : undefined"
@@ -1385,7 +1408,7 @@ function formatRollupValue(column: Column, row: Row): string {
                 <template v-else-if="column.type === 'user'">
                   <div v-if="row[column.field]" class="user-cell">
                     <el-avatar :size="24" :src="resolveUser(row[column.field])?.avatar" />
-                    <span>{{ resolveUser(row[column.field])?.name }}</span>
+                    <span v-html="highlightText(resolveUser(row[column.field])?.name ?? '', searchQuery.q)"></span>
                   </div>
                   <span v-else>-</span>
                 </template>
@@ -1447,7 +1470,7 @@ function formatRollupValue(column: Column, row: Row): string {
                 <!-- Email -->
                 <template v-else-if="column.type === 'email'">
                   <el-link v-if="row[column.field]" :href="`mailto:${row[column.field]}`" type="primary">
-                    {{ row[column.field] }}
+                    <span v-html="highlightText(row[column.field], searchQuery.q)"></span>
                   </el-link>
                   <span v-else>-</span>
                 </template>
@@ -1741,6 +1764,9 @@ function formatRollupValue(column: Column, row: Row): string {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  :deep(.vxe-grid--toolbar-wrapper){
+    padding-inline: var(--app-space-s);
+  }
 }
 
 .toolbar-content {
@@ -1807,7 +1833,7 @@ function formatRollupValue(column: Column, row: Row): string {
 }
 
 .group-title {
-  flex: 1;
+  flex: 0 0 auto;
   font-size: var(--app-font-size-m);
   font-weight: 600;
   color: var(--app-text-color-primary);

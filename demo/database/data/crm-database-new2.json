@@ -6,8 +6,8 @@
       "description": "Customer Relationship Management system",
       "icon": "briefcase",
       "color": "#3b82f6",
-      "createdAt": "2026-01-08T01:45:50.050Z",
-      "updatedAt": "2026-01-08T01:45:50.050Z",
+      "createdAt": "2026-01-08T02:37:55.877Z",
+      "updatedAt": "2026-01-08T02:37:55.877Z",
       "createdBy": {
         "id": "user-5",
         "name": "Emma Zhang",
@@ -1083,33 +1083,6 @@
                 "row-case-004",
                 "row-case-068"
               ]
-            },
-            {
-              "id": "row-company-049",
-              "salesperson": null,
-              "address": "",
-              "paymentTerms": 30,
-              "currency": "Opportunity",
-              "contacts": [],
-              "caseId": []
-            },
-            {
-              "id": "row-company-050",
-              "salesperson": null,
-              "address": "",
-              "paymentTerms": 35,
-              "currency": "Opportunity",
-              "contacts": [],
-              "caseId": []
-            },
-            {
-              "id": "row-company-051",
-              "salesperson": null,
-              "address": "",
-              "paymentTerms": 43,
-              "currency": "Closed-Won",
-              "contacts": [],
-              "caseId": []
             }
           ]
         },

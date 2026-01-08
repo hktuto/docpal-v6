@@ -173,7 +173,7 @@ contractLineData.forEach((row) => {
 // ============================================
 
 // Company rows
-const companyRows = companyData.map((row, i) => {
+const companyRows = companyData.filter(it => it['Company Name']).map((row, i) => {
   const id = `row-company-${String(i + 1).padStart(3, '0')}`;
   const relatedSalesperson = users.find(user => user.id === row['Salesperson'] || user.name === row['Salesperson']);
   return {

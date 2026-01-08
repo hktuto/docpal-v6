@@ -552,7 +552,11 @@ function relatedTableRowClick(row: Row, tableId: string) {
         </h3>
         
         <div v-if="getRelatedData(column).length > 0" class="related-table">
-          <el-table :data="getRelatedData(column)" stripe border size="small" @row-click="(row) => relatedTableRowClick(row, column.relationConfig!.tableId)">
+          <el-table :data="getRelatedData(column)" 
+          stripe border 
+          size="small" 
+          :row-style="{ cursor: 'pointer' }"
+            @row-click="(row) => relatedTableRowClick(row, column.relationConfig!.tableId)">
             <el-table-column
               v-for="relCol in getRelatedTableColumns(column.relationConfig!.tableId)"
               :key="relCol.id"
