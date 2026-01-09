@@ -4,9 +4,10 @@ import type { VNode } from 'vue'
 import { ElRate,ElInput } from 'element-plus'
 import { EditPen } from '@element-plus/icons-vue'
 import type { RenderComponentConfig, ViewRenderFunctionParams } from '../types/column-types'
-import { ElSelect,ElOption } from 'element-plus'
+import { ElSelect,ElOption,ElInputNumber } from 'element-plus'
 import { renderSelectView, renderMultipleSelectView } from './components/select/view'
 import SelectEdit from './components/select/edit.vue'
+import { NumberView } from './components/number/view'
 // 分离模式组件配置
 export const MDTableComponents: Record<string, RenderComponentConfig> = {
   Text: {
@@ -57,7 +58,17 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     }
   },
   Number: {
-    edit: { name: 'VxeInput', props: { type: 'number' } }
+    edit: { 
+      render({options, params}: ViewRenderFunctionParams<number>): VNode {
+        const { $table, row, column } = params
+        const { options: numberOptions } = options?.props
+        return h(ElInputNumber, {
+          modelValue: row[column.field],
+          'onUpdate:modelValue': (value: number) => { row[column.field] = value },
+        })
+      }
+     },
+    view: { render: NumberView }
   },
   SingleSelect: {
     edit: { 
