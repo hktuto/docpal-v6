@@ -24,6 +24,7 @@ interface Props {
   offScreenThreshold?: number // Distance in px before auto-close (default 100px). Opacity fades gradually within this threshold
   showClose?: boolean
   persistId?: string // If provided, save/restore size to localStorage
+  teleportTo?: string // Teleport to body by default
 }
 
 interface Emits {
@@ -43,6 +44,7 @@ const props = withDefaults(defineProps<Props>(), {
   closeOnOffScreen: true,
   offScreenThreshold: 100,
   showClose: true,
+  teleportTo: 'body',
 })
 
 const emit = defineEmits<Emits>()
@@ -628,7 +630,6 @@ async function open(target?: any, highlight?: any) {
  */
 async function close() {
   if (!visible.value) return
-  
   emit('close')
   visible.value = false
   // Remove outline from highlight element (or target if no highlight was set)
@@ -749,7 +750,7 @@ defineExpose({
 
 <template>
       
-
+    <Teleport :to="teleportTo">
     <!-- Desktop Popover -->
     <div
       v-if="visible && !isMobile && targetElement"
@@ -799,7 +800,7 @@ defineExpose({
         <slot />
       </div>
     </div>
-
+    </Teleport>
     <!-- Mobile Dialog -->
 
     <el-dialog

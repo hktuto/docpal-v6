@@ -119,6 +119,7 @@ onMounted(async () => {
       cursor: pointer;
       padding: var(--app-space-xxs) var(--app-space-xs);
       border-radius: var(--app-border-radius-s);
+      font-size: var(--app-font-size-m);
       white-space: nowrap;
       transition: background-color 0.2s ease;
 
