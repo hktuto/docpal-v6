@@ -4,7 +4,9 @@ import type { VNode } from 'vue'
 import { ElRate,ElInput } from 'element-plus'
 import { EditPen } from '@element-plus/icons-vue'
 import type { RenderComponentConfig, ViewRenderFunctionParams } from '../types/column-types'
-
+import { ElSelect,ElOption } from 'element-plus'
+import { renderSelectView, renderMultipleSelectView } from './components/select/view'
+import SelectEdit from './components/select/edit.vue'
 // 分离模式组件配置
 export const MDTableComponents: Record<string, RenderComponentConfig> = {
   Text: {
@@ -56,5 +58,48 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   },
   Number: {
     edit: { name: 'VxeInput', props: { type: 'number' } }
+  },
+  SingleSelect: {
+    edit: { 
+      render({options, params}: ViewRenderFunctionParams<string>): VNode {
+        const { $table, row, column } = params
+        const { options: selectOptions } = options?.props
+        return h(SelectEdit, { 
+          options: selectOptions,
+          multiple: false,
+          collapseTags: true,
+          filterable:true,
+          modelValue: row[column.field], 
+          popperClass:'vxe-table--ignore-clear', // 加这个类名，让 table 不會 outside click 改變
+          'onUpdate:modelValue': (value: any) => { 
+            row[column.field] = value 
+          } 
+          })
+      }
+     },
+    view: { 
+      render: renderSelectView
+     }
+  },
+  MultiSelect: {
+    edit: { 
+      render({options, params}: ViewRenderFunctionParams<string>): VNode {
+        const { $table, row, column } = params
+        const { options: selectOptions } = options?.props
+        return h(SelectEdit, { 
+          options: selectOptions,
+          multiple: true,
+          collapseTags: true,
+          filterable:true,
+          modelValue: row[column.field], 
+          popperClass:'vxe-table--ignore-clear', // 加这个类名，让 table 不會 outside click 改變
+          'onUpdate:modelValue': (value: any) => { 
+            row[column.field] = value } 
+          })
+      }
+     },
+    view: {
+      render: renderMultipleSelectView
+    }
   },
 } as const

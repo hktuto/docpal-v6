@@ -1,0 +1,33 @@
+.table-tag-list{
+  display: flex;
+  flex-flow: row nowrap;
+  overflow: hidden;
+  gap: var(--app-space-xs);
+  .table-tag {
+    flex: 0 0 auto;
+  }
+}
+
+.table-tag{
+  padding: var(--app-space-xs) var(--app-space-s);
+  border-radius: var(--app-border-radius-m);
+  background-color: oklch( from var(--color) 1 0.2 h );
+  border: 1px solid oklch( from var(--color) l c h );
+  color: oklch( from var(--color) 0.2 c h);
+  font-size: var(--app-font-size-s);
+  font-weight: 500;
+  line-height: 1.1;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: max-content;
+  max-width: 100px;
+  &.round{
+    padding: var(--app-space-xs);
+    display: inline-block;
+    border-radius: 12px;
+    height: 12px;
+    width: 12px;
+  }
+}

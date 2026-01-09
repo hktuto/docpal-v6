@@ -12,7 +12,7 @@ export interface UseTableDataOptions {
 }
 function createMockData({ page }: any, tableName: string) {
   const mockData = []
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 100; i++) {
     mockData.push({
       id: i,
       name: `name${i}`,
@@ -24,6 +24,8 @@ function createMockData({ page }: any, tableName: string) {
       city: `city${i}`,
       state: `state${i}`,
       zip: `zip${i}`,
+      singleSelect: [1],
+      multiSelect: [1,2,3],
       country: `country${i}`,
       rate: Math.floor(Math.random() * 5) + 1,
       url: [
@@ -36,7 +38,6 @@ function createMockData({ page }: any, tableName: string) {
       ]
     })
   }
-  console.log('mockData', mockData)
   return mockData
 }
 /**

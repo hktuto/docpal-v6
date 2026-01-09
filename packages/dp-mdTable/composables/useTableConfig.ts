@@ -7,7 +7,6 @@ import { ColumnFieldType } from '../types/column-types'
 import { calculateCount, type CountMethod, flattenAggregatedData } from '../utils/tableCount'
 // 初始化注册管理器
 import { rendererManager } from '../renderers/registry-manager'
-
 rendererManager.registerAllRenderers()
 
 export interface TableConfigOptions {
@@ -215,19 +214,15 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     const hasEditRender = processedColumns.value.some((col) => col.editRender)
 
     // 如果显式传递了 editConfig 或者有列配置了 editRender，则启用编辑功能
-    if (editConfig || hasEditRender) {
-      if (typeof editConfig === 'object' && editConfig !== null) {
-        const editConfigObj = editConfig as any
-        options.editConfig = {
-          ...editConfigObj,
-          // 默认每行可编辑
-          trigger: editConfigObj.trigger || 'click',
-          mode: editConfigObj.mode || 'cell',
-          showIcon: false
-        }
-      } else {
-        options.editConfig = { trigger: 'click', mode: 'cell', showIcon: false }
+    if (!!editConfig || hasEditRender) {
+      options.editConfig = {
+        trigger: 'dblclick',
+        mode: 'cell',
+        showIcon: false,
+        showStatus: false,
+        ...(editConfig as any || {}),
       }
+      
     }
     if (apiMethod) {
       options.proxyConfig = {

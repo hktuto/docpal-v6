@@ -54,7 +54,7 @@ export class RendererRegistryManager {
   }
   private registerRenderer(config: RenderComponentConfig, name: string): void {
     const { both, view, edit } = config
-
+    
     // 创建渲染器函数的公共方法
     const createRenderFunction =
       (renderFunc: Function, defaultOptions: any = {}) =>
