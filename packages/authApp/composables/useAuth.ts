@@ -122,6 +122,7 @@ export async function login() {
   try {
     // get access token from local storage
     const storageToken = localStorage.getItem('access_token')
+    console.log('useAuth',storageToken)
     if (!storageToken) {
       throw new Error('access token not found')
     }

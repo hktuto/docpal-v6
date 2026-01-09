@@ -32,7 +32,6 @@ export async function getLocale(){
                 languageKey: 'client'
             }) as any
         clientJson = JSON.parse(clientData[0].languageContent)
-      console.log("clientJson",clientJson)
     }else{
         clientJson = locale.value === 'en-US' ? enJson : locale.value === 'zh-CN' ? zhJson : zhHKJson
         // const jsonFile = await fetch(`/defaultLang/${code}.json`).then(res => res.json())
@@ -44,13 +43,11 @@ export async function getLocale(){
             languageKey: 'admin'
         }) as any
     const adminJson = JSON.parse(adminData[0].languageContent)
-  console.log("adminJson",adminJson)
     const { data:metaData } = await clientApi.api.getDmsFormPropertiesLanguageList({
             locale:locale.value, 
             languageKey: 'meta'
         }) as any
     const metaJson = JSON.parse(metaData[0].languageContent)
-  console.log("metaJson",metaJson)
 
     setLocaleMessage(locale.value, {
         ...clientJson,

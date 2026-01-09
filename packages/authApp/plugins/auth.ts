@@ -32,7 +32,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     if (publicPage.value.includes(window.location.pathname) || window.location.pathname.startsWith('/public')) {
       return;
     }
-    await useAuth().login();
+    try {
+      console.log('defineNuxtPlugin')
+      await useAuth().login()
+    } catch (e) {
+      console.error(e)
+    }
   });
 
   // set refresh token to clientApi and adminApi

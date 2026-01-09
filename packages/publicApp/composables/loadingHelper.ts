@@ -14,7 +14,6 @@ export const initPublicLayout = async () => {
   try {
     loadState.value = await getLocale(resultLanguage)
   } catch (e) {
-    console.log(123)
     console.error(e)
   }
 
@@ -32,26 +31,22 @@ export async function getLocale(curLocale: string = 'en-US') {
       languageKey: 'client'
     }) as any
     const clientJson = JSON.parse(clientData[0].languageContent)
-      console.log('loading-1',clientJson)
     const { data: adminData } = await clientApi.api.getDmsFormPropertiesLanguageList({
       locale: code,
       languageKey: 'admin'
     }) as any
     const adminJson = JSON.parse(adminData[0].languageContent)
-      console.log('loading-2',adminJson)
     const { data: metaData } = await clientApi.api.getDmsFormPropertiesLanguageList({
       locale: code,
       languageKey: 'meta'
     }) as any
     const metaJson = JSON.parse(metaData[0].languageContent)
-      console.log('loading-2',metaJson)
     setLocaleMessage(code, {
       ...clientJson,
       ...adminJson,
       ...metaJson,
       ...vxeLang
     })
-
   })
   )
   setLocale(curLocale)

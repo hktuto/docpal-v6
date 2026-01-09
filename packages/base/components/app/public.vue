@@ -13,19 +13,16 @@ async function getLocale(){
                     languageKey: 'client'
                 }) as any
             const clientJson = JSON.parse(clientData[0].languageContent)
-      console.log("clientJson-1",clientJson)
             const { data:adminData } = await clientApi.api.getDmsFormPropertiesLanguageList({
                     locale:code, 
                     languageKey: 'admin'
                 }) as any
             const adminJson = JSON.parse(adminData[0].languageContent)
-      console.log("adminJson-1",adminJson)
             const { data:metaData } = await clientApi.api.getDmsFormPropertiesLanguageList({
                     locale:code, 
                     languageKey: 'meta'
                 }) as any
             const metaJson = JSON.parse(metaData[0].languageContent)
-      console.log("metaJson-1",metaJson)
             setLocaleMessage(code, {
                 ...clientJson,
                 ...adminJson,
