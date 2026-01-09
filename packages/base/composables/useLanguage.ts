@@ -9,6 +9,7 @@ const GetLanguageApi = async(locale: string, languageKey: string) => {
     const data: any = await clientApi.api.getDmsFormPropertiesLanguageList({locale, languageKey}, {
         headers: { 'noRouteErrorPage' : "true" }
     }).then(res=>res.data)
+  console.log('useLanguage')
     if(!!data && !!data[0]) return {
         ...data[0],
         languageContent: JSON.parse(data[0].languageContent),
