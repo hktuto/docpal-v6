@@ -175,10 +175,9 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       columns: processedColumns.value as any,
       editRules: processedEditRules.value,
       // 虚拟滚动配置 - 性能优化
-      scrollY: {
+      virtualYConfig:{
         enabled: true,
-        oSize: 50, // 每行高度
-        gt: 0 // 大于0条数据时启用虚拟滚动
+        gt: 20 // 大于20条数据时启用虚拟滚动
       },
       scrollX: {
         enabled: true
