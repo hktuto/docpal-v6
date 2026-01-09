@@ -571,19 +571,10 @@ onClickOutside(popoverRef, (event) => {
     // Check if click is on or inside the highlight element
     if (highlightElement.value?.contains(clickedElement)) return
     
-    // Check if click is inside another popover (nested popover case)
-    // All popovers are teleported to body, so nested ones are siblings in the DOM
-    // const isInsideAnyPopover = clickedElement.closest('.custom-popover')
-    const isInsideCurrentSlot = clickedElement.closest('#'+contentId.value)
-    // const isInsideAnyPopover = clickedElement.closest('.custom-popover')
-    const isInsideElPopover = clickedElement.closest(`.el-popper`)
-    
-    // Only close if NOT clicking inside any popover
-    // (if clicking in nested popover, don't close parent)
-    if (!isInsideCurrentSlot && !isInsideElPopover) {
-      close()
-    }
+    close()
   }
+},{
+  ignore: [contentRef.value, '.el-popper'],
 })
 
 // Close on escape (but not if user is typing in an input)
@@ -673,7 +664,7 @@ defineExpose({
 
 <template>
       
-  <Teleport to="body">
+
     <!-- Desktop Popover -->
     <div
       v-if="visible && !isMobile && targetElement"
@@ -718,13 +709,13 @@ defineExpose({
         @mousedown="startResize('right', $event)"
       />
       
-      <div ref="contentRef" class="popover-content" :id="contentId">
+      <div ref="contentRef" class="popover-content" :id="contentId" >
         <slot />
       </div>
     </div>
 
     <!-- Mobile Dialog -->
-  </Teleport>
+
     <el-dialog
       v-model="visible"
       v-if="isMobile || !targetElement"
