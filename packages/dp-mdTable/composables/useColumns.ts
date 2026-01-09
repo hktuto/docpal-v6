@@ -64,7 +64,7 @@ const inferColumnsFromData = (data: any[]): ColumnConfig[] => {
 }
 function createMockColumns(tableName: string) {
   const mockColumns = []
-  const names = ['name', 'age', 'gender', 'email', 'phone', 'address', 'city', 'state', 'zip', 'country', 'url', 'rate']
+  const names = ['name', 'age', 'gender', 'email', 'phone', 'address', "singleSelect", "multiSelect", 'city', 'state', 'zip', 'country', 'url', 'rate']
   for (let i = 0; i < names.length; i++) {
     let type = ColumnFieldType.Text
     let properties = {}
@@ -73,6 +73,20 @@ function createMockColumns(tableName: string) {
     }
     if (names[i] === 'gender') {
       type = ColumnFieldType.SingleSelect
+      properties = {
+        options: [
+          {
+            id: 'male',
+            label: 'Male',
+            color: 'red'
+          },
+          {
+            id: 'female',
+            label: 'Female',
+            color: 'blue'
+          }
+        ]
+      }
     }
     if (names[i] === 'email') {
       type = ColumnFieldType.Email
@@ -89,6 +103,50 @@ function createMockColumns(tableName: string) {
           allowHalf: true,
           max: 3
         })
+    }
+    if (names[i] === 'singleSelect') {
+      type = ColumnFieldType.SingleSelect
+      properties = {
+        options: [
+          {
+            id: 1,
+            label: 'Option 1',
+            color: 'red'
+          },
+          {
+            id: 2,
+            label: 'Option 2',
+            color: 'blue'
+          },
+          {
+            id: 3,
+            label: 'Option 3',
+            color: 'green'
+          }
+        ]
+      }
+    }
+    if (names[i] === 'multiSelect') {
+      type = ColumnFieldType.MultiSelect
+      properties = {
+        options: [
+          {
+            id: 1,
+            label: 'Option 1',
+            color: 'red'
+          },
+          {
+            id: 2,
+            label: 'Option 2',
+            color: 'blue'
+          },
+          {
+            id: 3,
+            label: 'Option 3',
+            color: 'green'
+          }
+        ]
+      }
     }
     mockColumns.push({
       field: names[i],
