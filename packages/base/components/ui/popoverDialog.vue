@@ -7,8 +7,11 @@
  * - Mobile OR no target: Shows dialog
  * - highlightElement (optional): Element to highlight with focus-outline class.
  *   If not provided, uses targetElement for highlighting.
+ * - Automatically tracks target position with smooth fade effect when target goes off-screen
+ * - Fades to 50% opacity when target moves off-screen (within threshold)
+ * - Auto-closes when target exceeds offScreenThreshold distance (default 100px)
  */
-import { onClickOutside, useEventListener } from '@vueuse/core'
+import { onClickOutside, useEventListener, useElementBounding } from '@vueuse/core'
 
 interface Props {
   title?: string
@@ -17,6 +20,8 @@ interface Props {
   offset?: number
   closeOnClickModal?: boolean
   closeOnClickOutside?: boolean // If false, clicking outside won't close popover
+  closeOnOffScreen?: boolean // If true, auto close when target goes off-screen
+  offScreenThreshold?: number // Distance in px before auto-close (default 100px). Opacity fades gradually within this threshold
   showClose?: boolean
   persistId?: string // If provided, save/restore size to localStorage
 }
@@ -35,6 +40,8 @@ const props = withDefaults(defineProps<Props>(), {
   width: '400px',
   closeOnClickModal: true,
   closeOnClickOutside: true,
+  closeOnOffScreen: true,
+  offScreenThreshold: 100,
   showClose: true,
 })
 
@@ -55,6 +62,9 @@ const popoverStyle = ref({
   transformOrigin: 'top left',
 })
 
+// Opacity state (for off-screen fade effect)
+const popoverOpacity = ref(1)
+
 // Arrow position state
 const arrowStyle = ref({
   top: '0px',
@@ -70,6 +80,81 @@ const popoverSize = ref<{ width: number | null; height: number | null }>({
 const isResizing = ref(false)
 const resizeDirection = ref<'top' | 'bottom' | 'left' | 'right' | null>(null)
 const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0, top: 0, left: 0 })
+
+// Track target element position changes
+const targetBounding = useElementBounding(targetElement)
+
+/**
+ * Calculate how far the target element is off-screen
+ * @returns Distance in pixels (0 if on-screen, positive if off-screen)
+ */
+function getOffScreenDistance() {
+  const { left, top, width, height } = targetBounding
+  const viewport = {
+    width: window.innerWidth,
+    height: window.innerHeight,
+  }
+  
+  let distance = 0
+  
+  // Check each edge and calculate maximum off-screen distance
+  if (left.value + width.value < 0) {
+    // Off left edge
+    distance = Math.max(distance, Math.abs(left.value + width.value))
+  }
+  if (left.value > viewport.width) {
+    // Off right edge
+    distance = Math.max(distance, left.value - viewport.width)
+  }
+  if (top.value + height.value < 0) {
+    // Off top edge
+    distance = Math.max(distance, Math.abs(top.value + height.value))
+  }
+  if (top.value > viewport.height) {
+    // Off bottom edge
+    distance = Math.max(distance, top.value - viewport.height)
+  }
+  
+  return distance
+}
+
+// Watch for position/size changes and recalculate popover position
+watch(
+  [
+    () => targetBounding.left.value,
+    () => targetBounding.top.value,
+    () => targetBounding.width.value,
+    () => targetBounding.height.value,
+  ],
+  () => {
+    if (visible.value && !isMobile.value && targetElement.value && contentRef.value) {
+      // Check if target is off-screen
+      if (props.closeOnOffScreen) {
+        const offScreenDistance = getOffScreenDistance()
+        
+        if (offScreenDistance > 0) {
+          // Target is off-screen
+          if (offScreenDistance >= props.offScreenThreshold) {
+            // Beyond threshold - close popover
+            close()
+            return
+          } else {
+            // Within threshold - fade opacity gradually
+            // Opacity ranges from 1.0 (on-screen) to 0.5 (at threshold)
+            const fadeRatio = offScreenDistance / props.offScreenThreshold
+            popoverOpacity.value = 1 - (fadeRatio * 0.2) // Fades from 1.0 to 0.5
+          }
+        } else {
+          // Target is on-screen - full opacity
+          popoverOpacity.value = 1
+        }
+      }
+      
+      // Recalculate position
+      recalculate()
+    }
+  }
+)
 
 // localStorage key for size persistence
 const sizeStorageKey = computed(() => 
@@ -315,7 +400,6 @@ function findBestPlacement(
 function calculatePosition(target: HTMLElement, content: HTMLElement) {
   const targetRect = target.getBoundingClientRect()
   const contentRect = content.getBoundingClientRect()
-  console.log('calculatePosition', contentRect)
   const viewport = {
     width: window.innerWidth,
     height: window.innerHeight,
@@ -504,6 +588,7 @@ async function open(target?: any, highlight?: any) {
   // Desktop with target → use positioned popover
   emit('open')
   visible.value = true
+  popoverOpacity.value = 1 // Reset opacity when opening
   if(highlightElement.value){
     highlightElement.value.classList.add('highlight-element')
   }else if(targetElement.value){
@@ -675,6 +760,7 @@ defineExpose({
         ...popoverStyle,
         width: popoverSize.width ? `${popoverSize.width}px` : (typeof width === 'number' ? `${width}px` : width),
         height: popoverSize.height ? `${popoverSize.height}px` : undefined,
+        opacity: popoverOpacity,
       }"
     >
       <!-- Arrow pointing to target -->
@@ -752,6 +838,7 @@ defineExpose({
   border-radius: var(--app-border-radius-m);
   box-shadow: var(--app-shadow-l);
   min-width: 200px;
+  transition: opacity 0.2s ease;
   // min-height: 100px;
   
   &.is-resizing {
