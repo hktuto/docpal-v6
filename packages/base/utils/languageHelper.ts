@@ -18,7 +18,6 @@ export async function getLocale(){
     // if app is not public, then get user preference language
 
     const config = useRuntimeConfig()
-    console.log('getLocale',config.public.platform)
     if(config.public.platform === 'admin' || config.public.platform === 'client'){
       const perference = useUserPreference()
       // check if perference is value and language is not equal to locale
@@ -27,19 +26,18 @@ export async function getLocale(){
       }
     }
     let clientJson;
-  console.log('getLocale',config.public.isProduction)
-    if(config.public.isProduction){
-      const { data:clientData } = await clientApi.api.getDmsFormPropertiesLanguageList({
-        locale:locale.value,
-        languageKey: 'client'
-      }) as any
-      console.log("clientData", clientData[0])
-        clientJson = JSON.parse(clientData[0].languageContent)
-    }else{
+    // if(config.public.isProduction){
+    //   const { data:clientData } = await clientApi.api.getDmsFormPropertiesLanguageList({
+    //     locale:locale.value,
+    //     languageKey: 'client'
+    //   }) as any
+    //   console.log("clientData", clientData[0].languageContent)
+    //     clientJson = JSON.parse(clientData[0].languageContent)
+    // }else{
         clientJson = locale.value === 'en-US' ? enJson : locale.value === 'zh-CN' ? zhJson : zhHKJson
         // const jsonFile = await fetch(`/defaultLang/${code}.json`).then(res => res.json())
         // clientJson = jsonFile
-    }
+    // }
     const { data:adminData } = await clientApi.api.getDmsFormPropertiesLanguageList({
             locale:locale.value,
             languageKey: 'admin'
