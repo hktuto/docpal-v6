@@ -231,7 +231,7 @@ function getStoreKey(code: any) {
 
 // #endregion
 onMounted(async () => {
-  const { data } = await adminApi.api.getNuxeoAdminSettingLanguage() as any
+  const data = await clientApi.api.getDmsSettingSystemLanguage().then(r =>r.data) as any
 
   state.locales = JSON.parse(data).locale
   GetLanguages()

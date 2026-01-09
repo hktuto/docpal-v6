@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { adminApi } from 'api';
+import { clientApi } from 'api';
 const docTypeData = ref()
 const { documentType } = defineProps<{
     documentType: string
 }>()
 
 onMounted(async() => {
-    const {data:metaSettingData} = await adminApi.api.getNuxeoAdminSetting("");
+    const {data:metaSettingData} = await clientApi.api.getDmsSettingSystem("");
     if(metaSettingData && metaSettingData[documentType]) {
         docTypeData.value = {
             ...metaSettingData[documentType],

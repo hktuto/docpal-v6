@@ -26,18 +26,17 @@ export async function getLocale(){
       }
     }
     let clientJson;
-    // if(config.public.isProduction){
-    //   const { data:clientData } = await clientApi.api.getDmsFormPropertiesLanguageList({
-    //     locale:locale.value,
-    //     languageKey: 'client'
-    //   }) as any
-    //   console.log("clientData", clientData[0].languageContent)
-    //     clientJson = JSON.parse(clientData[0].languageContent)
-    // }else{
+    if(config.public.isProduction){
+      const { data:clientData } = await clientApi.api.getDmsFormPropertiesLanguageList({
+        locale:locale.value,
+        languageKey: 'client'
+      }) as any
+      clientJson = JSON.parse(clientData[0].languageContent)
+    }else{
         clientJson = locale.value === 'en-US' ? enJson : locale.value === 'zh-CN' ? zhJson : zhHKJson
         // const jsonFile = await fetch(`/defaultLang/${code}.json`).then(res => res.json())
         // clientJson = jsonFile
-    // }
+    }
     const { data:adminData } = await clientApi.api.getDmsFormPropertiesLanguageList({
             locale:locale.value,
             languageKey: 'admin'
