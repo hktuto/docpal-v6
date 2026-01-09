@@ -1,22 +1,24 @@
 <template>
-  <div>{{formData}}
+  <div>
     <el-form-item label="日期格式">
       <el-select v-model="formData.dateFormat" allow-create filterable placeholder="请选择日期格式" @visible-change="onSelectVisibleChange">
         <el-option v-for="option in dateFormatOptions" :key="option.value" :label="option.label" :value="option.value" />
       </el-select>
     </el-form-item>
-    <el-form-item label="显示时间与地区">
-      <el-switch v-model="formData.showTimeAndRegion" />
-    </el-form-item>
-    <template v-if="formData.showTimeAndRegion">
+    <div class="switch-container">
+      <div>显示时间与地区</div>
+      <el-switch v-model="formData.includeTime" />
+    </div>
+    <template v-if="formData.includeTime">
       <el-select v-model="formData.dateTimeFormat" style="margin-bottom: var(--app-space-s)" placeholder="请选择时间" @visible-change="onSelectVisibleChange">
-        <el-option label="12小时" value="hh:mm:ss" />
-        <el-option label="24小时" value="HH:mm:ss" />
+        <el-option label="12小时" value="hh:mm A" />
+        <el-option label="24小时" value="HH:mm" />
       </el-select>
       <el-select v-model="formData.timezone" placeholder="请选择时区" @visible-change="onSelectVisibleChange">
         <el-option v-for="option in timezoneOptions" :key="option.value" :label="option.label" :value="option.value" />
       </el-select>
     </template>
+    <el-checkbox v-model="formData.includeTimeZone">显示时区标识</el-checkbox>
   </div>
 </template>
 
@@ -56,3 +58,11 @@ const timezoneOptions = [
   { label: 'Europe/London', value: 'Europe/London', offset: -1 }
 ]
 </script>
+
+<style lang="scss" scoped>
+.switch-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+</style>
