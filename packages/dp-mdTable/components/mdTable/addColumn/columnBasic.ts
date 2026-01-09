@@ -4,7 +4,8 @@ export const columnBasic: any = {
     isBasic: true
   },
   [ColumnFieldType.Number]: {
-    isBasic: true
+    isBasic: true,
+    component: 'Number'
   },
   [ColumnFieldType.DateTime]: {
     isBasic: true,
@@ -21,7 +22,7 @@ export const columnBasic: any = {
   [ColumnFieldType.Rating]: {
     isBasic: true,
     component: 'Rating'
-  }
+  },
 }
 export function getColumnFieldOptions() {
   const ColumnFieldTypeMap = Object.fromEntries(Object.entries(ColumnFieldType).filter(([key, value]) => typeof value === 'number'))
