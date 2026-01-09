@@ -575,11 +575,12 @@ onClickOutside(popoverRef, (event) => {
     // All popovers are teleported to body, so nested ones are siblings in the DOM
     // const isInsideAnyPopover = clickedElement.closest('.custom-popover')
     const isInsideCurrentSlot = clickedElement.closest('#'+contentId.value)
+    // const isInsideAnyPopover = clickedElement.closest('.custom-popover')
     const isInsideElPopover = clickedElement.closest(`.el-popper`)
-
+    
     // Only close if NOT clicking inside any popover
     // (if clicking in nested popover, don't close parent)
-    if (!isInsideAnyPopover || !isInsideElPopover) {
+    if (!isInsideCurrentSlot && !isInsideElPopover) {
       close()
     }
   }
