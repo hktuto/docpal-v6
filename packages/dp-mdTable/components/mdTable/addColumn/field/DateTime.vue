@@ -60,9 +60,5 @@ const timezoneOptions = [
 </script>
 
 <style lang="scss" scoped>
-.switch-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+
 </style>

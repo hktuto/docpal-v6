@@ -221,4 +221,10 @@ defineExpose({
     margin-top: 8px;
   }
 }
+
+:deep(.switch-container) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 </style>

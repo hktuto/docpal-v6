@@ -8,6 +8,7 @@
   }
   function handleIconSelected(icon:string) {
     modelValue.value = icon
+    console.log(icon)
     pickerRef.value.close()
   }
 </script>
