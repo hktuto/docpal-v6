@@ -28,6 +28,7 @@ interface Emits {
   (e: 'closed'): void
 }
 
+const contentId = ref('content-id-' + Date.now())
 const props = withDefaults(defineProps<Props>(), {
   placement: 'bottom-start',
   offset: 12,
@@ -554,7 +555,7 @@ async function close() {
   await nextTick()
   emit('closed')
 }
-
+const slots = useSlots()
 // Click outside to close (but not if clicking inside a nested popover or target element)
 onClickOutside(popoverRef, (event) => {
   // Skip if closeOnClickOutside is disabled
@@ -572,11 +573,13 @@ onClickOutside(popoverRef, (event) => {
     
     // Check if click is inside another popover (nested popover case)
     // All popovers are teleported to body, so nested ones are siblings in the DOM
-    const isInsideAnyPopover = clickedElement.closest('.custom-popover')
-    
+    // const isInsideAnyPopover = clickedElement.closest('.custom-popover')
+    const isInsideCurrentSlot = clickedElement.closest('#'+contentId.value)
+    const isInsideElPopover = clickedElement.closest(`.el-popper`)
+
     // Only close if NOT clicking inside any popover
     // (if clicking in nested popover, don't close parent)
-    if (!isInsideAnyPopover) {
+    if (!isInsideAnyPopover || !isInsideElPopover) {
       close()
     }
   }
@@ -714,7 +717,7 @@ defineExpose({
         @mousedown="startResize('right', $event)"
       />
       
-      <div ref="contentRef" class="popover-content">
+      <div ref="contentRef" class="popover-content" :id="contentId">
         <slot />
       </div>
     </div>

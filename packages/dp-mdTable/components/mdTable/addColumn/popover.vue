@@ -104,12 +104,12 @@ const formRef = ref<FormInstance>()
 let selectVisible = false
 // 处理下拉菜单显示/隐藏
 const handleSelectVisibleChange = (visible: boolean) => {
-  selectVisible = !selectVisible
-  if (selectVisible) {
-    closeOnClickOutside.value = false
-  } else {
-    closeOnClickOutside.value = true
-  }
+  // selectVisible = !selectVisible
+  // if (selectVisible) {
+  //   closeOnClickOutside.value = false
+  // } else {
+  //   closeOnClickOutside.value = true
+  // }
 }
 const handleClose = () => {
   popoverRef.value.close()
