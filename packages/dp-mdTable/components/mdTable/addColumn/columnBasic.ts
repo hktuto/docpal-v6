@@ -1,15 +1,22 @@
 import { ColumnFieldType } from '../../../types/column-types'
 export const columnBasic: any = {
   [ColumnFieldType.Text]: {
-    isBasic: true
+    isBasic: true,
+    order: 1
+  },
+  [ColumnFieldType.MultiText]: {
+    isBasic: true,
+    order: 2
   },
   [ColumnFieldType.Number]: {
     isBasic: true,
-    component: 'Number'
+    component: 'Number',
+    order: 3
   },
   [ColumnFieldType.DateTime]: {
     isBasic: true,
-    component: 'DateTime'
+    component: 'DateTime',
+    order: 4
   },
   [ColumnFieldType.SingleSelect]: {
     isBasic: true,
@@ -23,6 +30,23 @@ export const columnBasic: any = {
     isBasic: true,
     component: 'Rating'
   },
+  [ColumnFieldType.URL]: {
+    isBasic: true
+  },
+  [ColumnFieldType.Email]: {
+    isBasic: true
+  },
+  [ColumnFieldType.Phone]: {
+    isBasic: true
+  },
+  [ColumnFieldType.Checkbox]: {
+    isBasic: true,
+    component: 'Checkbox'
+  },
+  [ColumnFieldType.Member]: {
+    isBasic: true,
+    component: 'Member'
+  }
 }
 export function getColumnFieldOptions() {
   const ColumnFieldTypeMap = Object.fromEntries(Object.entries(ColumnFieldType).filter(([key, value]) => typeof value === 'number'))
@@ -33,31 +57,33 @@ export function getColumnFieldOptions() {
     if (fieldSetting?.isBasic) {
       const item: any = {
         label: key,
-        value: value,
+        value: value
       }
       if (fieldSetting.component) {
         item.component = fieldSetting.component
       }
+      item.order = fieldSetting.order || 999
       basicOptions.push(item)
     } else {
       const item: any = {
         label: key,
-        value: value,
+        value: value
       }
       if (fieldSetting?.component) {
         item.component = fieldSetting.component
       }
+      item.order = fieldSetting?.order || 999
       advancedOptions.push(item)
     }
   })
   return [
     {
       label: 'Basic',
-      options: basicOptions
+      options: basicOptions.sort((a, b) => a.order - b.order)
     },
     {
       label: 'Advanced',
-      options: advancedOptions
+      options: advancedOptions.sort((a, b) => a.order - b.order)
     }
   ]
 }
