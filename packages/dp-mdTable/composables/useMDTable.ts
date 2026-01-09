@@ -55,7 +55,7 @@ export function useMDTable(tableName: string, props: any) {
 export function useMDTableReJect(): mdTable {
   const MDTableReJect = inject<mdTable>('mdTable')
   if (!MDTableReJect) {
-    throw new Error('usemdTableConsumer must be used within a component that calls useMDTableProvider')
+    throw new Error('useMdTableConsumer must be used within a component that calls useMDTableProvider')
   }
   return MDTableReJect
 }
