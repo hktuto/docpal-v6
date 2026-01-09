@@ -18,6 +18,7 @@ export async function getLocale(){
     // if app is not public, then get user preference language
     
     const config = useRuntimeConfig()
+    console.log('getLocale',config.public.platform)
     if(config.public.platform === 'admin' || config.public.platform === 'client'){
       const perference = useUserPreference()
       // check if perference is value and language is not equal to locale
@@ -26,6 +27,7 @@ export async function getLocale(){
       }
     }
     let clientJson;
+  console.log('getLocale',config.public.isProduction)
     if(config.public.isProduction){
         const { data:clientData } = await clientApi.api.getDmsFormPropertiesLanguageList({
                 locale:locale.value, 
@@ -37,7 +39,7 @@ export async function getLocale(){
         // const jsonFile = await fetch(`/defaultLang/${code}.json`).then(res => res.json())
         // clientJson = jsonFile
     }
-
+  console.log(123123)
     const { data:adminData } = await clientApi.api.getDmsFormPropertiesLanguageList({
             locale:locale.value, 
             languageKey: 'admin'
