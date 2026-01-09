@@ -64,7 +64,7 @@ async function updateLanguage(code, token) {
   }
   const res = await fetch(`${URL}/api/dms/form-properties/language`, {
     method: 'POST',
-    body: newData,
+    body: JSON.stringify(newData),
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
