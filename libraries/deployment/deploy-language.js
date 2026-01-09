@@ -44,7 +44,7 @@ async function loginAdmin() {
 }
 
 async function updateLanguage(code, token) {
-  const { data } = await fetch(`${URL}/api/docpal/relation/queryLanguage?locale=${code}&languageKey=client`, {
+  const { data } = await fetch(`${URL}/api/dms/form-properties/language/list?locale=${code}&languageKey=client`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ async function updateLanguage(code, token) {
     ...data[0],
     languageContent: JSON.stringify(newJson)
   }
-  const res = await fetch(`${URL}/api/docpal/relation/updateLanguage`, {
+  const res = await fetch(`${URL}/api/dms/form-properties/language`, {
     method: 'POST',
     body: JSON.stringify(newData),
     headers: {
@@ -74,10 +74,9 @@ async function updateLanguage(code, token) {
     if (data.code !== 200) {
       throw new Error(data.message)
     }
+  }).catch(error => {
+    console.log('error', error)
   })
-    .catch(error => {
-      console.log('error', error)
-    })
   console.log('finish update language', ADMINURL, URL, code)
 }
 

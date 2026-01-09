@@ -5,7 +5,7 @@ import { clientApi } from 'api'
 let localeFinished = false
 export async function isLocaleFinished(){
   // console.log('isLocaleFinished');
-  
+
   // while(!localeFinished){
   //   await new Promise((resolve) => setTimeout(resolve, 100))
   //   console.log('isLocaleFinished', localeFinished);
@@ -16,7 +16,7 @@ export async function isLocaleFinished(){
 export async function getLocale(){
     const { locale, availableLocales, setLocaleMessage, setLocale } = useI18n()
     // if app is not public, then get user preference language
-    
+
     const config = useRuntimeConfig()
     console.log('getLocale',config.public.platform)
     if(config.public.platform === 'admin' || config.public.platform === 'client'){
@@ -29,24 +29,24 @@ export async function getLocale(){
     let clientJson;
   console.log('getLocale',config.public.isProduction)
     if(config.public.isProduction){
-        const { data:clientData } = await clientApi.api.getDmsFormPropertiesLanguageList({
-                locale:locale.value, 
-                languageKey: 'client'
-            }) as any
+      const { data:clientData } = await clientApi.api.getDmsFormPropertiesLanguageList({
+        locale:locale.value,
+        languageKey: 'client'
+      }) as any
+      console.log("clientData", clientData[0])
         clientJson = JSON.parse(clientData[0].languageContent)
     }else{
         clientJson = locale.value === 'en-US' ? enJson : locale.value === 'zh-CN' ? zhJson : zhHKJson
         // const jsonFile = await fetch(`/defaultLang/${code}.json`).then(res => res.json())
         // clientJson = jsonFile
     }
-  console.log(123123)
     const { data:adminData } = await clientApi.api.getDmsFormPropertiesLanguageList({
-            locale:locale.value, 
+            locale:locale.value,
             languageKey: 'admin'
         }) as any
     const adminJson = JSON.parse(adminData[0].languageContent)
     const { data:metaData } = await clientApi.api.getDmsFormPropertiesLanguageList({
-            locale:locale.value, 
+            locale:locale.value,
             languageKey: 'meta'
         }) as any
     const metaJson = JSON.parse(metaData[0].languageContent)
