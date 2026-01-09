@@ -35,7 +35,7 @@ export const getFromServer = async function(loadUserList: boolean, loadRoleList:
     }
 
     if (loadRoleList) {
-      const role = await clientApi.api.postAclRoleList([{
+      const role = await clientApi.api.postDocpalAclRoleList([{
         column: 'status',
         type: 'EQ',
         values: '1'
@@ -179,14 +179,18 @@ export const excludeItemSelectList = (permission: any, permissionOptionList: Per
   }, [])
 }
 
-// To Select Options. output Data
+/**
+ * Convert permissions array Object to permission array.
+ * [{"dataType": "group", "value": "administrators", "name": "Administrators Group"}] To format: [ "group_administrators" ]
+ * @param permissions
+ */
 export const convertSelectOptions = (permissions: any) => {
   const permission: any = []
   permissions.forEach((item: any) => {
     const type = item.dataType
     switch (type) {
       case 'user':
-        permission.push(`user_${item.value}`)
+        permission.push(`user_${item.value}`)()
         break
       case 'role':
         permission.push(`role_${item.value}`)
@@ -272,7 +276,7 @@ export const getUserSelectOption = async () => {
 
 export const getRoleSelectOption = async () => {
   try {
-    const list: any = await clientApi.api.postAclRoleList([{
+    const list: any = await clientApi.api.postDocpalAclRoleList([{
       column: 'status',
       type: 'EQ',
       values: '1'

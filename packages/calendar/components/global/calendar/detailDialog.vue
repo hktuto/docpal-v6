@@ -45,7 +45,7 @@ async function getCaseData() {
             headers:{
                 "noThrowError":"true"
             }
-        })
+        }).then(r => r.data)
         console.log("getCaseData", res)
     }catch(err) {
         caseData.value = null
@@ -116,7 +116,7 @@ defineExpose({
               <Icon name="mdi:clock-outline"  /> Time: {{ displayTimeFn(eventDetail) }}
             </div>
           </div>
-           
+
             <!-- <ElForm label-position="top">
                 <ElRow :gutter="12">
                     <ElCol :span="12">
@@ -129,7 +129,7 @@ defineExpose({
                             <ElDatePicker v-model="eventDetail.detail.endTime" format="YYYY-MM-DD HH:mm" :disabled="!options.editable"></ElDatePicker>
                         </ElFormItem>
                     </ElCol>
-                </ElRow> 
+                </ElRow>
             </ElForm> -->
             <!-- Related Workflow -->
             <div v-if="eventDetail?.detail?.relatedWorkflows" class="relatedWorkflow pointer">

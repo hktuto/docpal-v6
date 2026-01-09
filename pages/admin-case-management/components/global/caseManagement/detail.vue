@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { CaseManagementDetailProviderKey } from '#imports'
-import { adminApi } from 'api'
-
+import { clientApi } from 'api'
 
 const props = defineProps<{
   caseTypeId: string,
@@ -9,7 +8,6 @@ const props = defineProps<{
   currentVersion: string,
 }>()
 const {caseTypeId, name, currentVersion} = toRefs(props)
-
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -50,7 +48,7 @@ function handleUpdate() {
 
 async function promoteToProduction() {
   buttonLoading.value = true
-  const {data} = await adminApi.api.postCaseTypesVersionVersionidActive(props.caseTypeId)
+  const {data} = await clientApi.api.postCaseTypesVersionVersionidActive(props.caseTypeId)
   routerProvider?.message.success(t('dpMsg_success'))
   await init()
   buttonLoading.value = false
@@ -60,7 +58,7 @@ async function saveAsNewVersion() {
   // console.log("props",props);
 
   buttonLoading.value = true
-  const {data} = await adminApi.api.postCaseTypesVersionVersionidNew(props.caseTypeId)
+  const {data} = await clientApi.api.postCaseTypesVersionVersionidNew(props.caseTypeId)
   //TODO : get all form in case and save as to new version
   // Step 1 : get all form in case
   const allFrom = await xmlRef.value.getAllForm()
@@ -69,7 +67,7 @@ async function saveAsNewVersion() {
     const params = form.params
     params.versionId = data?.id
     params.jsonValue = JSON.stringify(form.form)
-    await adminApi.api.postRelationSave(params)
+    await clientApi.api.postDmsFormPropertiesSave(params)
   }
 
   routerProvider?.updateProps({
@@ -110,8 +108,8 @@ const production = ref(false)
 
 async function init() {
   loading.value = true
-  const {data} = await adminApi.api.getCaseTypesVersionVersionid(props.caseTypeId) as any
-  const {data: removeCaseTypeInfo} = await adminApi.api.getCaseTypesId(data.caseTypeId) as any
+  const {data} = await clientApi.api.getCaseTypesVersionVersionid(props.caseTypeId) as any
+  const {data: removeCaseTypeInfo} = await clientApi.api.getCaseTypesCasetypeid(data.caseTypeId) as any
 
   caseTypeInfo.value = removeCaseTypeInfo
   caseInfo.value = data

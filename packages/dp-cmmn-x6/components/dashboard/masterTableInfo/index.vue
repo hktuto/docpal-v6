@@ -25,7 +25,7 @@
 import { useEventBus, EventType } from 'eventbus'
 
 import { set, watchDebounced } from '@vueuse/core'
-import { clientApi, globalApi } from 'api'
+import { clientApi } from 'api'
 const platform = useAppPlatform()
 
 const props = withDefaults(
@@ -108,8 +108,7 @@ async function getMasterTableData() {
         prev[item.name] = item.defaultValue
         return prev
       }, {})
-    const { data } = await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(instanceIdId)
-    state.caseRecord = data
+    state.caseRecord = await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(instanceIdId).then(r => r.data)
     const masterTableRecordId = state.caseRecord.rows.find((item: any) => item.id === props.setting.relatedField)?.value
     if (!masterTableRecordId) throw new Error('Master table record not found')
     const { data: masterTableRecord } = await clientApi.api.postDmsMasterTableRecordPageNonpermission({

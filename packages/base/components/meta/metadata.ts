@@ -474,7 +474,7 @@ export async function getUserList() {
 }
 export async function getRoleList(type: string = 'role') {
   try {
-    const data = await adminApi.api.getAclRoleRoot().then((res: any) => res.data)
+    const data = await clientApi.api.getDocpalAclRoleRoot().then((res: any) => res.data)
     const roleList = data ? makeFlapRoleList([data]) : []
     return roleList.map((item: any) => ({
       label: item.name,

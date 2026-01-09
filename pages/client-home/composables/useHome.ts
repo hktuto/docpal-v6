@@ -55,7 +55,7 @@ export const useHomePage = () => {
       currentHome.value.layout = []
     } finally {
       preference.value.userStoreHome = detail.id
-      await clientApi.api.putUserSetting(preference.value as any)
+      await clientApi.api.putDmsUserSetting(preference.value as any)
       loading.value = false
     }
   }

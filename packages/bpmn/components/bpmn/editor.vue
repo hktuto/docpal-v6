@@ -5,7 +5,7 @@ import { Selection } from '@antv/x6-plugin-selection'
 import { Dnd } from '@antv/x6-plugin-dnd'
 import { History } from '@antv/x6-plugin-history'
 import { graphToBpmnJson } from '~/utils/bpmnConverter'
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 import { bpmnElement } from '~/utils/bpmnElement'
 
 import { ElMessage } from 'element-plus'
@@ -185,7 +185,7 @@ function itemDrop(item: any, ev: any) {
 
 async function formSubmit() {
   const json = FormDesignRef.value.getFormJson()
-  await adminApi.api.postRelationSave({
+  await clientApi.api.postDmsFormPropertiesSave({
     processKey: props.processKey,
     userTaskId: selectedStep.value.id,
     jsonValue: JSON.stringify(json),
@@ -210,7 +210,7 @@ async function getFormByNode(node: Node) {
 
 async function saveFormByNode(node: Node, json: any) {
   const id = node.data.type === 'endEvent' ? 'end' : node.id
-  return await adminApi.api.postRelationSave({
+  return await clientApi.api.postDmsFormPropertiesSave({
     processKey: props.processKey,
     userTaskId: id,
     jsonValue: JSON.stringify(json),
@@ -356,7 +356,7 @@ async function importWorkflow(importData:ExportWorkflowResult) {
   const version = props.currentVersionId
   const processKey = props.processKey
   allForms.forEach(async (form) => {
-    const res = await adminApi.api.postRelationSave({
+    const res = await clientApi.api.postDmsFormPropertiesSave({
       processKey: processKey,
       userTaskId: form.formId,
       jsonValue: form.json,
@@ -478,7 +478,6 @@ defineExpose({
       <slot name="actions" />
       <ElButton @click="openXmlEditor" :disabled="!ready">Open XML Editor</ElButton>
     </div>
-    
   </div>
 </template>
 

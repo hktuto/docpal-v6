@@ -212,7 +212,7 @@ async function GetLanguages() {
 
   async function getLanguage(code: any) {
     const key = getStoreKey(code)
-    const { data } = await clientApi.api.queryLanguage({
+    const { data } = await clientApi.api.getDmsFormPropertiesLanguageList({
       locale: code,
       languageKey: state.selectedSection
     }) as any

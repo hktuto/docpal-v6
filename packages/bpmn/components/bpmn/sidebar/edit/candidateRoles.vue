@@ -19,7 +19,7 @@ const candidateRoles = ref()
 const allUserRole = ref([])
 
 async function getUserRule() {
-  const data: any = await adminApi.api.postAclRoleList([{
+  const data: any = await clientApi.api.postDocpalAclRoleList([{
     column: 'status',
     type: 'EQ',
     values: '1'

@@ -1,4 +1,4 @@
-import { adminApi } from "api";
+import { clientApi } from "api";
 import type { OrgNode } from '../components/rbac/OrgChart/X6/types'
 const useRoleTree = () => useState<OrgNode[]>('role-tree', () => ([]))
 const useFlatRole = () => useState<any[]>('flat-role', () => ([]))
@@ -16,12 +16,12 @@ export const useRBAC = (roleId?: string) => {
       if(roleId) {
         // const roleIdArray = Array.isArray(roleIds) ? roleIds : [roleIds]
         // normalize roleIds to array
-        const data: any = await adminApi.api.getAclRoleHierarchyRoleid(roleId)
+        const data: any = await clientApi.api.getDocpalAclRoleHierarchyRoleid(roleId)
         .then((res: any) => res.data) as OrgNode[]
         roleTree.value = data.children || []
         console.log(roleTree)
       }else{
-        const data = await adminApi.api.getAclRoleRoot()
+        const data = await clientApi.api.getDocpalAclRoleRoot()
         .then((res: any) => res.data) as OrgNode
         roleTree.value = data ? [data] : []
       }

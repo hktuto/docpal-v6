@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { globalApi, clientApi } from 'api'
+import { clientApi } from 'api'
 const props = withDefaults(
   defineProps<{
     dates?: any
@@ -34,8 +34,7 @@ async function getData() {
   const id = CMDProvider?.instanceId?.value || null
   console.log('id', id)
   if(id === null) return
-  const { data } = await globalApi.api.getCaseDashboardInstanceCaseidPrimaryformData(id)
-  state.data = data
+  state.data = await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(id).then(r => r.data)
   const selectedData = data.rows.find((item: any) => item.id === props.setting.selectedField)
   console.log('selectedData', selectedData)
   if(selectedData && selectedData.value) {

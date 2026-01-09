@@ -18,14 +18,16 @@
         </div>
       </div>
     </div>
-    <DashboardRelatedCaseInfoSetting v-if="!hideSetting" ref="settingRef" @delete="handleDelete" @refresh="handleRefresh" />
+    <DashboardRelatedCaseInfoSetting v-if="!hideSetting" ref="settingRef" @delete="handleDelete"
+                                     @refresh="handleRefresh" />
   </DashboardCard>
 </template>
 <script lang="ts" setup>
 import { useEventBus, EventType } from 'eventbus'
 
 import { set, watchDebounced } from '@vueuse/core'
-import { clientApi, globalApi } from 'api'
+import { clientApi } from 'api'
+
 const platform = useAppPlatform()
 
 const props = withDefaults(
@@ -48,6 +50,7 @@ const caseProvider: any = inject(CaseManagementDashboardKey)
 const emits = defineEmits(['refreshSetting', 'delete'])
 const { t } = useI18n()
 const tabProvider = inject(TabManagerKey)
+
 function displayValue(item: any) {
   if (platform.value === 'admin') {
     return item.defaultValue
@@ -60,23 +63,28 @@ function displayValue(item: any) {
   }
   return item.value || '--'
 }
+
 function displayLabel(label: any) {
   let _label = label.split('_').join(' ')
   return _label.toLowerCase().replace(/\b\w/g, (s) => s.toUpperCase())
 }
+
 const state = reactive<any>({
   caseRecord: {},
   masterTableRecord: {},
   layout: []
 })
+
 // #region module: dialog
 
 function handleDelete() {
   emits('delete')
 }
+
 function handleRefresh(chartSetting: any) {
   emits('refreshSetting', chartSetting)
 }
+
 // #endregion
 function handleLink(item: any) {
   if (!item.linkType) return
@@ -94,12 +102,14 @@ function handleLink(item: any) {
   }
   notiHandleView({ content }, tabProvider)
 }
+
 function renderLabel(label: any) {
   // convert label to titel case
   // return orgin label if secound string is also uppercase
   if (label.toUpperCase() === label) return label
   return label.toLowerCase().replace(/\b\w/g, (s) => s.toUpperCase())
 }
+
 async function getCaseData() {
   try {
     const instanceIdId = caseProvider.instanceId?.value || null
@@ -108,11 +118,10 @@ async function getCaseData() {
         prev[item.name] = item.defaultValue
         return prev
       }, {})
-    const { data } = await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(instanceIdId)
-    state.caseRecord = data
+    state.caseRecord = await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(instanceIdId).then(r => r.data)
     const caseId = state.caseRecord.rows.find((item: any) => item.id === props.setting.relatedCaseField)?.value
     if (!caseId) throw new Error('Case not found')
-    const { data: caseData } = await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(caseId)
+    const caseData = await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(caseId).then(r => r.data)
     return caseData.rows.reduce((prev: any, item: any) => {
       prev[item.id] = item.value
       return prev
@@ -122,6 +131,7 @@ async function getCaseData() {
     return null
   }
 }
+
 const { settingRef, cardRef, refresh, loading } = useDashboardCard({
   props,
   handleInitCardAction: async (setting: any) => {
@@ -149,25 +159,31 @@ const { settingRef, cardRef, refresh, loading } = useDashboardCard({
     background-color: #fff;
     width: calc(var(--field-width, 25%) - var(--app-space-xs));
     --icon-size: 1.14rem;
+
     .header {
       margin: var(--app-input-padding) 0;
       color: var(--app-grey-600);
     }
+
     .content {
       font-size: var(--app-font-size-l);
       font-weight: 600;
     }
   }
+
   .content {
     min-height: var(--app-space-s);
   }
 }
+
 .o-auto > .el-card__body {
   overflow: auto;
 }
+
 .content--link {
   cursor: pointer;
   color: var(--el-color-primary);
+
   &:hover {
     color: var(--el-color-primary-dark-2);
   }

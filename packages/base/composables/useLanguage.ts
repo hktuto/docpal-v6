@@ -6,7 +6,7 @@ const pageKeys: any = {
     '/trash': ['commons_success', 'Fail', 'trash_error_noAction', 'dpTip_noSelection']
 }
 const GetLanguageApi = async(locale: string, languageKey: string) => {
-    const data: any = await clientApi.api.queryLanguage({locale, languageKey}, {
+    const data: any = await clientApi.api.getDmsFormPropertiesLanguageList({locale, languageKey}, {
         headers: { 'noRouteErrorPage' : "true" }
     }).then(res=>res.data)
     if(!!data && !!data[0]) return {

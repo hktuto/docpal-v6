@@ -94,7 +94,7 @@ async function getEventList(filterParams?: any) {
     endTime: filterParams.date?.endTime
   }
   try {
-    const data = await clientApi.api.postCalendarsList(params).then(res => res.data)
+    const data = await clientApi.api.postDmsCalendarsList(params).then(res => res.data)
 
     tableConfig.data = data.filter((event: any) => {
       if (!!filterParams.category) {

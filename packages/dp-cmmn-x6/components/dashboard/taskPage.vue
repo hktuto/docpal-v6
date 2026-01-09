@@ -19,7 +19,7 @@
   </DashboardCard>
 </template>
 <script lang="ts" setup>
-import { globalApi, clientApi } from 'api'
+import { clientApi } from 'api'
 const props = withDefaults(
   defineProps<{
     dates?: any
@@ -66,10 +66,10 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
       // category: 'Personal'
     }
 
-    const { data: res }: any = await globalApi.api.postCaseDashboardInstanceCaseidProcessInstancePage(
+    const res: any = await clientApi.api.postCaseDashboardInstanceCaseidProcessInstancePage(
       _instanceId,
       paramsWithExtra
-    )
+    ).then(r => r.data)
     return {
       data: res
     }

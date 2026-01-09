@@ -132,7 +132,7 @@ async function save() {
     })
     await clientApi.api.patchNuxeoIdentityUser(newUserInfo)
 
-    await clientApi.api.putUserSetting(userPreference.value as any)
+    await clientApi.api.putDmsUserSetting(userPreference.value as any)
 
     await clientApi.api.postNotificationSettingUserUseridPreferences(userId.value, state.notificationPreferenceList)
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { globalApi } from 'api'
+import { clientApi } from 'api'
 const state = reactive<any>({
   visible: false,
   allList:[],
@@ -25,12 +25,11 @@ async function getCDBasciInfo() {
     if (id) {
       // in client platform
       state.mode = 'normal'
-      const { data } = await globalApi.api.getCaseDashboardInstanceCaseidPrimaryformData(id)
-      state.data = data
+      state.data = await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(id).then(r => r.data)
     } else if (versionId) {
       // in admin platform
       state.mode = 'develop'
-      const { data: form }: any = await globalApi.api.getCaseDashboardVersionVersionidPrimaryform(versionId)
+      const { data: form }: any = await clientApi.api.getCaseDashboardVersionVersionidPrimaryform(versionId)
       form.rows = form.fields.reduce((prev: any, item: any) => {
         let value = item.type
         if (item.type === 'date') value = '2024-01-01'

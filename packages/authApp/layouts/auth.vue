@@ -97,7 +97,7 @@ async function saveTabsToLocalStorage(layout: TabPanel[]) {
     preference.value.userStoreTab = {}
   }
   preference.value.userStoreTab[appPlatform.value] = JSON.stringify(saveData)
-  await clientApi.api.putUserSetting(preference.value as any)
+  await clientApi.api.putDmsUserSetting(preference.value as any)
   
   // localStorage.setItem(tabStorageKey, JSON.stringify(saveData));
 }

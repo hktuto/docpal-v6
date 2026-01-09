@@ -36,17 +36,6 @@ async function generate(){
             endpoint.map( 
                 point => {
                     let finalRoute:Record<string, any> = {}
-                    // 讀取 oldClient.json 文件
-                    const oldClientFilePath = path.resolve(process.cwd(), "./src/generate/oldClient.json")
-                    let oldClientData: Record<string, any> = {}
-                    if(fs.existsSync(oldClientFilePath)) {
-                        try {
-                            const fileContent = fs.readFileSync(oldClientFilePath, 'utf-8')
-                            oldClientData = JSON.parse(fileContent)
-                        } catch (error) {
-                            console.warn(`Failed to read oldClient.json: ${error}`)
-                        }
-                    }
                     
                     generateApi({
                         name: point.name + '.ts',
@@ -77,16 +66,12 @@ async function generate(){
                                 return routeNameInfo
                             },
                             onFormatRouteName: (routeInfo, templateRouteName) => {
-                                if (routeInfo.route in oldClientData.paths){
-                                    return
-                                }
-
                                 // console.log(routeInfo);
                                 const paths = routeInfo.route.replace('/api/','').split('/');
                                 if(paths[paths.length -1] === '') {
                                     paths[paths.length -1] = 'deprecate'
                                 }
-                                const ignoreList = ['api', 'docpal'];
+                                const ignoreList = ['api'];
                                 const allPath = paths.reduce((all, curr, index) => {
                                     if(ignoreList.includes(curr)) return all
                                     // if curr contain "${}", replace it
@@ -98,7 +83,6 @@ async function generate(){
                                 },[])
                                
                                 let newName = routeInfo.method + toPascalCase(allPath.join('-'))
-                                let oldName = newName;
                                 if(finalRoute[newName]) {
                                     newName += finalRoute[newName].length
                                 }

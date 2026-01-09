@@ -82,9 +82,8 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { ElMessageBox } from 'element-plus'
 import draggable from 'vuedraggable'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 const emits = defineEmits(['refresh', 'delete'])
 const { t } = useI18n()
 const caseProvider: any = inject(CaseManagementDashboardKey)
@@ -131,7 +130,7 @@ async function handleSubmit() {
   }
 }
 async function initOptions() {
-  const { data } = await adminApi.api.getCaseTypes({ deployed: true })
+  const data = await clientApi.api.getCaseTypes({ deployed: true }).then(r => r.data)
   console.log('data', data)
   state.caseList = data.map((item: any) => ({
     value: item.id,
@@ -143,7 +142,7 @@ async function initOptions() {
 }
 async function getCaseFields(versionId: string) {
   if (versionId) {
-    const { data } = await adminApi.api.getCaseDashboardVersionVersionidPrimaryform(versionId)
+    const data = await clientApi.api.getCaseDashboardVersionVersionidPrimaryform(versionId).then(r => r.data)
     return data.fields
       .map((item: any) => ({
         name: item.id,

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { updateExtentionProperties, getExtentionProperties } from '../../../utils/cmmnConfig'
 const props = defineProps(['graph', 'node'])
-import {adminApi} from 'api'
+import { clientApi } from 'api'
 const {node} = toRefs(props)
 const { caseId } = useCmmnGraph();
 const caseProvider = inject(CaseManagementEditorKey)
@@ -47,7 +47,7 @@ const fieldListApi  = computed(() => {
 async function formSubmit(){
     
     const json = fromDesignRef.value.getFormJson()
-    await adminApi.api.postRelationSave({
+    await clientApi.api.postDmsFormPropertiesSave({
         processKey: caseId.value,
         userTaskId: node.value.data.data.attr_id,
         jsonValue: JSON.stringify(json),
@@ -59,7 +59,7 @@ async function editForm(){
 
     // formDialog.value.handleOpen(state.data)
     // console.log("editForm", caseId.value, node.value.data.data.attr_id, caseProvider.versionId.value)
-    const response = await adminApi.api.getRelationQuery({
+    const response = await clientApi.api.getDmsFormPropertiesQuery({
         processKey: caseId.value,
         userTaskId: node.value.data.data.attr_id,
         versionId: caseProvider.versionId.value

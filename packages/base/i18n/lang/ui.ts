@@ -20,10 +20,10 @@ export default defineI18nLocale(async(locale:string) => {
     // for example, fetch locale messages from nuxt server
     console.log('ui', locale);
     
-    const {data} = await clientApi.api.queryLanguage({
+    const data: any = await clientApi.api.getDmsFormPropertiesLanguageList({
         locale:locale,
         languageKey:'client'
-    })
+    }).then(r => r.data)
     if(data && data.length > 0 && data[0].languageContent) {
         const languageContent = JSON.parse(data[0].languageContent)
         if(locale === 'zh-CN') {

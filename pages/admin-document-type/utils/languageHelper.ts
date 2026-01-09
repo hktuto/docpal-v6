@@ -20,7 +20,7 @@ export async function getMetaLanguageList(languageKey: string = 'meta') {
     let pList: any = []
     localeKeys.forEach(async (locale) => {
         pList.push(
-            clientApi.api.queryLanguage({
+            clientApi.api.getDmsFormPropertiesLanguageList({
                 locale,
                 languageKey
             }).then(res => res.data[0])

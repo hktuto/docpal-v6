@@ -22,19 +22,19 @@ export async function getLocale(curLocale: string = 'en-US') {
   const { locale, availableLocales, setLocaleMessage, setLocale } = useI18n()
   await Promise.all(availableLocales.map(async (code) => {
     const vxeLang = code === 'zh-CN' ? zhCN : code === 'en-US' ? enUS : zhHK
-    const { data: clientData } = await clientApi.api.queryLanguage({
+    const { data: clientData } = await clientApi.api.getDmsFormPropertiesLanguageList({
       locale: code,
       languageKey: 'client'
     }) as any
     const clientJson = JSON.parse(clientData[0].languageContent)
 
-    const { data: adminData } = await clientApi.api.queryLanguage({
+    const { data: adminData } = await clientApi.api.getDmsFormPropertiesLanguageList({
       locale: code,
       languageKey: 'admin'
     }) as any
     const adminJson = JSON.parse(adminData[0].languageContent)
 
-    const { data: metaData } = await clientApi.api.queryLanguage({
+    const { data: metaData } = await clientApi.api.getDmsFormPropertiesLanguageList({
       locale: code,
       languageKey: 'meta'
     }) as any

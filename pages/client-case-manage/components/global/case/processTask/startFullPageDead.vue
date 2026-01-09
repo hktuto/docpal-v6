@@ -26,11 +26,7 @@ async function setUpForm() {
   try {
     loading.value = true
     // get action item detail from case instance
-    const stepDetail = (await clientApi.api
-      .postCaseDashboardInstanceActionPreRequisite({
-        id: actionStepId
-      })
-      .then((res) => res.data)) as any
+    const stepDetail = (await clientApi.api.postCaseDashboardInstanceActionPreRequisite({ id: actionStepId }).then((res) => res.data)) as any
 
     // get latest case detail
     const caseData = (await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(caseInstanceId).then((res) => res.data)) as any

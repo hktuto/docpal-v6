@@ -86,7 +86,7 @@ export async function getEventFromApi(calendarApp: any, calendarControls: any, f
   const user = localStorage.getItem('docpal-user')
   const userId = user ? JSON.parse(user).userId : undefined
   // TODO : backend is missing filter
-  const data = await clientApi.api.postCalendarsList(params).then(res => res.data)
+  const data = await clientApi.api.postDmsCalendarsList(params).then(res => res.data)
   const calendarLocation = useCalenarLocation()
 
   const events = data.filter((event: any) => {

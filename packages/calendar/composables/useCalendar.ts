@@ -75,11 +75,7 @@ export const useCalendarStore = () => {
   })
 
   async function getCalendarMasterTable() {
-    const appPlatform = useAppPlatform()
-    const api = appPlatform.value === 'admin' ? adminApi : clientApi
-    console.log('api', api.instance.defaults.baseURL)
-    const { data } = await api.api.getCalendarsSettingTables() as any
-    return data
+    return await clientApi.api.getDmsCalendarsSettingTables().then(r => r.data)
   }
 
   const categoriesOption = useCalenarCategories()
@@ -96,7 +92,7 @@ export const useCalendarStore = () => {
   const locationsOption = useCalenarLocation()
 
   async function getLocations() {
-    const data = await cliten.api.postDmsMasterTableRecords({
+    const data = await clientApi.api.postDmsMasterTableRecords({
       id: setting.value.location.master_table
     }).then(res => res.data) as any
     locationsOption.value = (data || []).filter(i => i.status).sort((a, b) => a.name.localeCompare(b.name))
@@ -104,9 +100,7 @@ export const useCalendarStore = () => {
 
   async function getCalendarsSetting() {
     const masterTable = await getCalendarMasterTable()
-    const appPlatform = useAppPlatform()
-    const api = appPlatform.value === 'admin' ? adminApi : clientApi
-    const { data } = await api.api.getCalendarsSetting() as any
+    const data = await clientApi.api.getDmsCalendarsSetting().then(r => r.data)
     const { public: { platform } } = useRuntimeConfig()
 
     setting.value = {
