@@ -54,7 +54,7 @@ export async function getAllFormFromXML(xml: string, processKey: string, version
     allFormsID.push(endEvent.attr_id)
   })
   for await (const formId of allFormsID) {
-    const response = await adminApi.api.getRelationQuery({
+    const response = await clientApi.api.getDmsFormPropertiesQuery({
       processKey: processKey,
       userTaskId: formId,
       versionId: version

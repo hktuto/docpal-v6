@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
 import { MenuRouterKey } from '#imports'
 import { clientApi } from 'api'
 
@@ -24,7 +23,7 @@ function formDataGet(propList: any = []) {
 }
 
 async function formJsonGet(userTaskId: string, processKey: string, versionId: string) {
-  const response: any = await clientApi.api.getRelationQuery({
+  const response: any = await clientApi.api.getDmsFormPropertiesQuery({
     userTaskId,
     processKey,
     versionId

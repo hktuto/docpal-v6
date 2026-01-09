@@ -174,7 +174,7 @@ export async function getCaseExportData(caseId: string) {
       const item = steps.humanTask[i]
       console.log("try to get form", item)
       if(!item.data.attr_id) continue;
-      const form = await adminApi.api.getRelationQuery({
+      const form = await clientApi.api.getDmsFormPropertiesQuery({
         processKey: selectedCaseData.name,
         userTaskId: item.data.attr_id,
         versionId: selectedCaseData?.latestVersion

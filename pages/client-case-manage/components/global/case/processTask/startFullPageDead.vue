@@ -49,8 +49,7 @@ async function setUpForm() {
     formData.value.case_id = caseInstanceId
 
     // get form json with lateset versiion
-    formJson.value = await clientApi.api
-      .getRelationQuery({
+    formJson.value = await clientApi.api.getDmsFormPropertiesQuery({
         userTaskId: 'start',
         processKey: stepDetail.processDefinitionKey,
         versionId: stepDetail.processDefinitionVersionId

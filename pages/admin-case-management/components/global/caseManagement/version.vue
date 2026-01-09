@@ -61,7 +61,7 @@ async function saveAsNewVersion(data:any){
             userTaskId: item.attr_id,
             versionId:  data.id,
         }
-        const response = await adminApi.api.getRelationQuery(params)
+        const response = await clientApi.api.getDmsFormPropertiesQuery(params)
         if(response && response.data && response.data.length > 0 && response.data[0].jsonValue) {
           const json = response.data[0].jsonValue
           params.jsonValue = json

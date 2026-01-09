@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 import type { ProcessDefinitionDTO } from 'api/src/generate/admin'
 import { ArrowDown } from '@element-plus/icons-vue'
 const routerProvider = inject(MenuRouterKey)
@@ -37,7 +37,7 @@ const GetWorkflowDetail = async (_processKey: string) => {
 async function setJson(_taskId) {
   let json: any = null
   try {
-    const taskFormJsons = await adminApi.api.getRelationQuery({
+    const taskFormJsons = await clientApi.api.getDmsFormPropertiesQuery({
       processKey: processKey,
       userTaskId: _taskId
     }).then(res => res.data)
@@ -84,7 +84,7 @@ async function handleSubmit() {
   }
   state.submitLoading = true
   try {
-    const res = await adminApi.api.postRelationSave(param)
+    const res = await clientApi.api.postDmsFormPropertiesSave(param)
     if (!!res) routerProvider?.message.success(t('msg_successfullyModified'))
   } catch (error) {
   }

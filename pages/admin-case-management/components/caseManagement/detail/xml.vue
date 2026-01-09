@@ -46,7 +46,7 @@ async function getAllForm(){
         const element = nodes[i]
         const nodeData = element.getData()
         if(nodeData.type === 'humanTask') {
-            const response = await adminApi.api.getRelationQuery({
+            const response = await clientApi.api.getDmsFormPropertiesQuery({
                 processKey,
                 userTaskId: nodeData.data.attr_id,
                 versionId:  props.caseTypeId

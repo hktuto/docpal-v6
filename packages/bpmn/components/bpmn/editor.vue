@@ -195,7 +195,7 @@ async function formSubmit() {
 }
 
 async function getFormByNode(node: Node) {
-  const response = await adminApi.api.getRelationQuery({
+  const response = await clientApi.api.getDmsFormPropertiesQuery({
     processKey: props.processKey,
     userTaskId: node.data.id,
     versionId: props.currentVersionId
@@ -222,7 +222,7 @@ const formRenderVisible = ref(false)
 const fromRenderRef = ref()
 async function previewForm(node: Node) {
   const id = node.data.type === 'endEvent' ? 'end' : node.id
-  const response = await adminApi.api.getRelationQuery({
+  const response = await clientApi.api.getDmsFormPropertiesQuery({
     processKey: props.processKey,
     userTaskId: id,
     versionId: props.currentVersionId
@@ -262,7 +262,7 @@ async function openForm(node: Node) {
       return
     }
     const id = node.data ? node.data.id : node.id === 'end' ? 'complete' : node.id
-    const response = await adminApi.api.getRelationQuery({
+    const response = await clientApi.api.getDmsFormPropertiesQuery({
       processKey: props.processKey,
       userTaskId: id,
       versionId: props.currentVersionId
