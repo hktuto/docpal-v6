@@ -12,6 +12,7 @@ import { DateTimeView } from './components/DateTime/view'
 import { EmailView, EmailEdit } from './components/email/view'
 import { MultiTextView, MultiTextEdit } from './components/MultiText/view'  
 import { TextView, TextEdit } from './components/text/view'
+import { UserView } from './components/user/view'
 // 分离模式组件配置
 export const MDTableComponents: Record<string, RenderComponentConfig> = {
   Text: {
@@ -161,6 +162,21 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     },
     view:{
       render: EmailView
+    }
+  },
+  CreatedBy:{
+    both:{
+      render: UserView
+    }
+  },
+  LastModifiedBy:{
+    both:{
+      render: UserView
+    }
+  },
+  Member:{
+    both:{
+      render: UserView
     }
   }
 } as const
