@@ -18,10 +18,8 @@ export const useTableView = () => {
       throw new Error('tableId is required')
     }
     // TODO : add params t oquery
-    console.log('getTableData', queryParams.value)
     const data = await query(`SELECT * FROM ${tableId.value}`)
     tableData.value = data
-    console.log('tableData', tableData.value)
     return data
   }
 
@@ -122,12 +120,64 @@ export const useTableView = () => {
       throw new Error('field is required')
     }
     const column = getColumn(field)
-    const newData = {
-      ...column,
-      ...updates
+    if(!column?.id){
+      throw new Error('column not found')
     }
-    const result = await query('UPDATE data_table_columns SET $1 WHERE id = $2', [newData, column.id])
     
+    // Build SET clause dynamically from updates object
+    const updateKeys = Object.keys(updates).filter(key => key !== 'id')
+    if(updateKeys.length === 0){
+      return // Nothing to update
+    }
+    
+    // Map column config keys to database column names (camelCase to snake_case)
+    const keyToDbColumn: Record<string, string> = {
+      dataTableId: 'data_table_id',
+      workspaceId: 'workspace_id',
+      field: 'field',
+      title: 'title',
+      type: 'type',
+      required: 'required',
+      properties: 'properties',
+      validationRules: 'validation_rules',
+      createdBy: 'created_by',
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
+    }
+    
+    const setClauses: string[] = []
+    const values: any[] = []
+    let paramIndex = 1
+    
+    for (const key of updateKeys) {
+      const dbColumn = keyToDbColumn[key] || key
+      setClauses.push(`"${dbColumn}" = $${paramIndex}`)
+      // Handle JSON fields
+      const value = (key === 'properties' || key === 'validationRules') 
+        ? JSON.stringify(updates[key as keyof ColumnConfig]) 
+        : updates[key as keyof ColumnConfig]
+      values.push(value)
+      paramIndex++
+    }
+    
+    // Always update updated_at
+    setClauses.push(`"updated_at" = $${paramIndex}`)
+    values.push(new Date().toISOString())
+    paramIndex++
+    
+    // Add the WHERE clause parameter
+    values.push(column.id)
+    
+    const sql = `UPDATE data_table_columns SET ${setClauses.join(', ')} WHERE id = $${paramIndex}`
+    console.log('updateColumn SQL:', sql, values)
+    
+    await query(sql, values)
+    
+    // Update local state
+    const index = columns.value.findIndex(c => c.field === field)
+    if(index !== -1){
+      columns.value[index] = { ...columns.value[index], ...updates }
+    }
   }
 
   async function deleteColumn(field: string){
