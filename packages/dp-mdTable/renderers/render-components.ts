@@ -8,15 +8,32 @@ import { ElSelect,ElOption,ElInputNumber } from 'element-plus'
 import { renderSelectView, renderMultipleSelectView } from './components/select/view'
 import SelectEdit from './components/select/edit.vue'
 import { NumberView } from './components/number/view'
+import { DateTimeView } from './components/DateTime/view'
+import { EmailView, EmailEdit } from './components/email/view'
+import { MultiTextView, MultiTextEdit } from './components/MultiText/view'  
+import { TextView, TextEdit } from './components/text/view'
 // 分离模式组件配置
 export const MDTableComponents: Record<string, RenderComponentConfig> = {
   Text: {
-    edit: { name: 'VxeInput', props: { type: 'textarea', rows: 3 } },
+    edit: {
+      render: TextEdit
+    },
+    view: {
+      render: TextView
+    }
     // titleConfig: {
     //   icon: 'vxe-icon-user-fill',
     //   useHTML: true,
     //   content: '点击链接：<a href="https://vxeui.com" target="_blank" style="color:#95c7fb;">vxe-ui 官网</a>'
     // }
+  },
+  MultiText:{
+    edit: {
+      render: MultiTextEdit
+    },
+    view: {
+      render: MultiTextView
+    }
   },
   Rating: {
     both: {
@@ -113,4 +130,37 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
       render: renderMultipleSelectView
     }
   },
+  DateTime:{
+    edit: {
+      render({options, params}: ViewRenderFunctionParams<string>): VNode {
+        const { $table, row, column } = params
+        const { options: dateTimeOptions } = options?.props
+        return h(ElInput, {
+          modelValue: row[column.field],
+          'onUpdate:modelValue': (value: string) => { row[column.field] = value },
+        })
+      }
+    },
+    view: {
+      render: DateTimeView
+    }
+  },
+  CreatedTime:{
+    both:{
+      render: DateTimeView
+    }
+  },
+  LastModifiedTime:{
+    both:{
+      render: DateTimeView
+    }
+  },
+  Email:{
+    edit:{
+      render: EmailEdit
+    },
+    view:{
+      render: EmailView
+    }
+  }
 } as const

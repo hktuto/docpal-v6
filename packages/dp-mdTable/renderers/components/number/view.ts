@@ -8,9 +8,8 @@ export const NumberView = ({options, params}: ViewRenderFunctionParams<number>) 
   if(isNaN(value)) {
     return h('span', 'no a valid number')
   }
-  console.log('numberOptions', options)
   const precision = numberOptions?.precision || 0
-  let formattedValue = value.toFixed(precision)
+  let formattedValue = Number(value).toFixed(precision)
   
   if(numberOptions?.showThouComma) {
     formattedValue = formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -22,7 +21,6 @@ export const NumberView = ({options, params}: ViewRenderFunctionParams<number>) 
       formattedValue = formattedValue + numberOptions.symbol
     }
   }
-  console.log('numberOptions', formattedValue, numberOptions)
   return h('div', {
     class: 'number-view',
   }, formattedValue)

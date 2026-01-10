@@ -7,7 +7,12 @@
     flex: 0 0 auto;
   }
 }
-
+.text-view, .email-view, .date-time-view{
+  width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
 .table-tag{
   padding: var(--app-space-xs) var(--app-space-s);
   border-radius: var(--app-border-radius-m);

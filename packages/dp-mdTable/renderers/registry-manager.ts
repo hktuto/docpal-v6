@@ -105,7 +105,7 @@ export class RendererRegistryManager {
     let config: RenderComponentConfig | undefined = this.getComponentConfig(fieldName)
 
     if (!config) {
-      console.error(`字段类型 ${fieldName} 的组件配置未找到`)
+      console.error(`字段类型 ${fieldName} ${type} 的组件配置未找到`)
       config = this.getComponentConfig('Text')
     }
     const titleConfig = config?.titleConfig || {}

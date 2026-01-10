@@ -296,22 +296,22 @@ self.addEventListener("message", async (event: MessageEvent) => {
         const database = await initDb()
         
         // Performance logging
-        const startTime = performance.now()
+        // const startTime = performance.now()
         
         // Execute query and return results
         const rows = await database.query(payload.sql, payload.params || [])
         result = rows.rows
         
         // Log performance metrics
-        const endTime = performance.now()
-        const duration = (endTime - startTime).toFixed(2)
+        // const endTime = performance.now()
+        // const duration = (endTime - startTime).toFixed(2)
         
-        console.group(`🔍 [Worker Query] ${duration}ms`)
-        console.log('SQL:', payload.sql)
-        console.log('Params:', payload.params || [])
-        console.log('Results:', result.length, 'rows')
-        console.log('Duration:', duration, 'ms')
-        console.groupEnd()
+        // console.group(`🔍 [Worker Query] ${duration}ms`)
+        // console.log('SQL:', payload.sql)
+        // console.log('Params:', payload.params || [])
+        // console.log('Results:', result.length, 'rows')
+        // console.log('Duration:', duration, 'ms')
+        // console.groupEnd()
         
         break
       }

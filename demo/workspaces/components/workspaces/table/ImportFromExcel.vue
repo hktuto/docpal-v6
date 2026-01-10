@@ -163,25 +163,27 @@ function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
 }
 
 /**
- * Convert a cell value to string, handling Date objects properly
+ * Convert a cell value to string based on the detected column type
  */
-function cellValueToString(value: any): string {
+function cellValueToString(value: any, columnType?: ColumnFieldType): string {
   if (value === undefined || value === null) {
     return ''
   }
   
-  // Handle Date objects - format as ISO string
+  // Handle Date objects
   if (value instanceof Date) {
-    // Check if it's a valid date
     if (isNaN(value.getTime())) {
       return ''
     }
-    // Return ISO datetime string
     return value.toISOString()
   }
   
   // Handle numbers - preserve precision
   if (typeof value === 'number') {
+    // For percentages stored as decimals (e.g., 0.85 for 85%)
+    if (columnType === ColumnFieldType.Percent) {
+      return String(value * 100)
+    }
     return String(value)
   }
   
@@ -192,6 +194,101 @@ function cellValueToString(value: any): string {
   
   // Default: convert to string
   return String(value)
+}
+
+/**
+ * Detect the column type based on cell values and Excel formatting
+ */
+function detectColumnType(
+  sheet: XLSX.WorkSheet, 
+  columnIndex: number, 
+  dataRows: any[][]
+): { type: ColumnFieldType; properties: Record<string, any> } {
+  const sampleSize = Math.min(20, dataRows.length)
+  const samples: any[] = []
+  
+  for (let i = 0; i < sampleSize && samples.length < 10; i++) {
+    const value = dataRows[i]?.[columnIndex]
+    if (value !== undefined && value !== null && value !== '') {
+      samples.push(value)
+    }
+  }
+  
+  if (samples.length === 0) {
+    return { type: ColumnFieldType.MultiText, properties: { defaultValue: '', maxLength: 1000 } }
+  }
+  
+  // Check for Date type
+  const dateCount = samples.filter(v => v instanceof Date && !isNaN(v.getTime())).length
+  if (dateCount >= samples.length * 0.8) {
+    return { 
+      type: ColumnFieldType.DateTime, 
+      properties: { autoFill: false, dateFormat: 'YYYY-MM-DD HH:mm:ss', timeZone: 'local', timeFormat: 24 } 
+    }
+  }
+  
+  // Check for Number type
+  const numberCount = samples.filter(v => typeof v === 'number').length
+  if (numberCount >= samples.length * 0.8) {
+    const cellRef = XLSX.utils.encode_cell({ r: 1, c: columnIndex })
+    const cell = sheet[cellRef]
+    if (cell?.z) {
+      if (cell.z.includes('%')) {
+        return { type: ColumnFieldType.Percent, properties: { precision: 2 } }
+      }
+      if (cell.z.includes('$') || cell.z.includes('¥') || cell.z.includes('€') || cell.z.includes('£')) {
+        const symbol = cell.z.match(/[\$\¥\€\£]/)?.[0] || '$'
+        return { type: ColumnFieldType.Currency, properties: { symbol, precision: 2, symbolAlign: 0 } }
+      }
+    }
+    return { type: ColumnFieldType.Number, properties: { symbol: '', precision: 2, symbolAlign: 2 } }
+  }
+  
+  // Check for Boolean type
+  const boolCount = samples.filter(v => typeof v === 'boolean').length
+  if (boolCount >= samples.length * 0.8) {
+    return { type: ColumnFieldType.Checkbox, properties: { trueIcon: 'check', falseIcon: '' } }
+  }
+  
+  // Check for text patterns
+  const stringValues = samples.filter(v => typeof v === 'string')
+  if (stringValues.length > 0) {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (stringValues.filter(v => emailPattern.test(v)).length >= stringValues.length * 0.8) {
+      return { type: ColumnFieldType.Email, properties: {} }
+    }
+    
+    const urlPattern = /^https?:\/\//i
+    if (stringValues.filter(v => urlPattern.test(v)).length >= stringValues.length * 0.8) {
+      return { type: ColumnFieldType.URL, properties: { openInNewTab: true } }
+    }
+    
+    const avgLength = stringValues.reduce((sum, v) => sum + v.length, 0) / stringValues.length
+    if (avgLength < 50) {
+      return { type: ColumnFieldType.Text, properties: { defaultValue: '' } }
+    }
+  }
+  
+  return { type: ColumnFieldType.MultiText, properties: { defaultValue: '', maxLength: 1000 } }
+}
+
+/**
+ * Get human-readable type name for display
+ */
+function getTypeName(type: ColumnFieldType): string {
+  const typeNames: Record<number, string> = {
+    [ColumnFieldType.MultiText]: 'Long Text',
+    [ColumnFieldType.Number]: 'Number',
+    [ColumnFieldType.DateTime]: 'Date/Time',
+    [ColumnFieldType.Currency]: 'Currency',
+    [ColumnFieldType.Percent]: 'Percent',
+    [ColumnFieldType.Checkbox]: 'Checkbox',
+    [ColumnFieldType.Email]: 'Email',
+    [ColumnFieldType.URL]: 'URL',
+    [ColumnFieldType.Phone]: 'Phone',
+    [ColumnFieldType.Text]: 'Text',
+  }
+  return typeNames[type] || 'Text'
 }
 
 async function parseSheet(sheetName: string) {
@@ -232,7 +329,12 @@ async function parseSheet(sheetName: string) {
   
   const uniqueFields = generateUniqueFieldNames(validHeaderTitles)
   
-  // Create columns from headers with field names
+  // Get data rows for type detection (excluding header row)
+  const dataRows = jsonData.slice(1).filter((row: any[]) => 
+    row && !row.every((cell: any) => cell === undefined || cell === null || cell === '')
+  )
+  
+  // Create columns from headers with auto-detected types
   let fieldIndex = 0
   const columns: Partial<DataTableColumnType>[] = headerRow
     .map((header, index) => {
@@ -241,20 +343,32 @@ async function parseSheet(sheetName: string) {
       }
       const title = String(header).trim()
       const field = uniqueFields[fieldIndex++]
+      
+      // Detect column type based on data
+      const { type, properties } = detectColumnType(sheet, index, dataRows)
+      
       return {
         id: uuidv7(),
         dataTableId: props.dataTableId,
         workspaceId: props.workspaceId,
         field,
         title,
-        type: ColumnFieldType.MultiText,
+        type,
         required: false,
-        properties: { defaultValue: '', maxLength: 1000 }
+        properties
       }
     })
     .filter(Boolean) as Partial<DataTableColumnType>[]
   
-  // Parse data rows
+  // Create a map of column titles to their types for row parsing
+  const columnTypeMap = new Map<string, ColumnFieldType>()
+  columns.forEach(col => {
+    if (col.title && col.type !== undefined) {
+      columnTypeMap.set(col.title, col.type as ColumnFieldType)
+    }
+  })
+  
+  // Parse data rows with proper value conversion
   const rows: Record<string, any>[] = []
   for (let i = 1; i < jsonData.length; i++) {
     const rowData = jsonData[i]
@@ -267,7 +381,8 @@ async function parseSheet(sheetName: string) {
     headerRow.forEach((header, idx) => {
       if (header !== undefined && header !== null && String(header).trim() !== '') {
         const colTitle = String(header).trim()
-        simpleRow[colTitle] = cellValueToString(rowData[idx])
+        const colType = columnTypeMap.get(colTitle)
+        simpleRow[colTitle] = cellValueToString(rowData[idx], colType)
       }
     })
     rows.push(simpleRow)
@@ -374,6 +489,7 @@ function handleRemoveFile() {
               class="column-tag"
             >
               {{ col.title }}
+              <span class="column-type-badge">{{ getTypeName(col.type as ColumnFieldType) }}</span>
             </el-tag>
           </div>
         </div>
@@ -551,6 +667,14 @@ function handleRemoveFile() {
       
       .column-tag {
         font-size: 12px;
+        
+        .column-type-badge {
+          margin-left: 6px;
+          padding: 1px 4px;
+          font-size: 10px;
+          background: rgba(0, 0, 0, 0.1);
+          border-radius: 3px;
+        }
       }
     }
   }

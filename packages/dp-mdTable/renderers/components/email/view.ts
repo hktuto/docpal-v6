@@ -1,0 +1,23 @@
+import type { ViewRenderFunctionParams } from "../../../types/column-types";
+import { ElInput } from "element-plus";
+
+export const EmailView = ({options, params}: ViewRenderFunctionParams<string>) => {
+  const { $table, row, column } = params
+  const emailOptions = options?.props
+  // console.log('emailOptions', emailOptions)
+  return h('a', {
+    class: 'email-view',
+    href: `mailto:${row[column.field]}`,
+  }, row[column.field])
+}
+
+export const EmailEdit = ({options, params}: ViewRenderFunctionParams<string>) => {
+  const { $table, row, column } = params
+  const emailOptions = options?.props
+  // console.log('emailOptions', emailOptions)
+  return h(ElInput, {
+    type: 'email',
+    modelValue: row[column.field],
+    'onUpdate:modelValue': (value: string) => { row[column.field] = value },
+  })
+}

@@ -233,18 +233,43 @@ async function processFile(file: File) {
       // Generate unique field names for columns
       const columnFields = generateUniqueFieldNames(validHeaders)
       
-      // Create column definitions
-      const columns: Partial<DataTableColumnType>[] = validHeaders.map((header, idx) => ({
-        id: uuidv7(),
-        workspaceId: effectiveWorkspaceId.value,
-        field: columnFields[idx],
-        title: header,
-        type: ColumnFieldType.MultiText,
-        required: false,
-        properties: { defaultValue: '', maxLength: 1000 }
-      }))
+      // Get data rows for type detection (excluding header row)
+      const dataRows = jsonData.slice(1).filter((row: any[]) => 
+        row && !row.every((cell: any) => cell === undefined || cell === null || cell === '')
+      )
       
-      // Parse data rows
+      // Create column definitions with auto-detected types
+      const columns: Partial<DataTableColumnType>[] = validHeaders.map((header, idx) => {
+        // Find the original column index in the full header row
+        const originalIdx = headerRow.findIndex((h: any, i: number) => 
+          h !== undefined && h !== null && String(h).trim() === header && 
+          headerRow.slice(0, i).filter((hh: any) => hh !== undefined && hh !== null && String(hh).trim() === header).length === 
+          validHeaders.slice(0, idx).filter(vh => vh === header).length
+        )
+        
+        // Detect column type based on data
+        const { type, properties } = detectColumnType(sheet, originalIdx, dataRows)
+        
+        return {
+          id: uuidv7(),
+          workspaceId: effectiveWorkspaceId.value,
+          field: columnFields[idx],
+          title: header,
+          type,
+          required: false,
+          properties
+        }
+      })
+      
+      // Create a map of column titles to their types for row parsing
+      const columnTypeMap = new Map<string, ColumnFieldType>()
+      columns.forEach(col => {
+        if (col.title && col.type !== undefined) {
+          columnTypeMap.set(col.title, col.type as ColumnFieldType)
+        }
+      })
+      
+      // Parse data rows with proper value conversion
       const rows: Record<string, any>[] = []
       for (let i = 1; i < jsonData.length; i++) {
         const rowData = jsonData[i]
@@ -256,7 +281,8 @@ async function processFile(file: File) {
         headerRow.forEach((header: any, idx: number) => {
           if (header !== undefined && header !== null && String(header).trim() !== '') {
             const colTitle = String(header).trim()
-            row[colTitle] = cellValueToString(rowData[idx])
+            const colType = columnTypeMap.get(colTitle)
+            row[colTitle] = cellValueToString(rowData[idx], colType)
           }
         })
         rows.push(row)
@@ -298,26 +324,28 @@ function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
 }
 
 /**
- * Convert a cell value to string, handling Date objects properly
+ * Convert a cell value to string based on the detected column type
  */
-function cellValueToString(value: any): string {
+function cellValueToString(value: any, columnType?: ColumnFieldType): string {
   if (value === undefined || value === null) {
     return ''
   }
   
-  // Handle Date objects - format as ISO string or locale date
+  // Handle Date objects
   if (value instanceof Date) {
-    // Check if it's a valid date
     if (isNaN(value.getTime())) {
       return ''
     }
-    // Return ISO date string (YYYY-MM-DD) for date-only values
-    // or ISO datetime string for datetime values
+    // Return ISO datetime string
     return value.toISOString()
   }
   
   // Handle numbers - preserve precision
   if (typeof value === 'number') {
+    // For percentages stored as decimals (e.g., 0.85 for 85%)
+    if (columnType === ColumnFieldType.Percent) {
+      return String(value * 100)
+    }
     return String(value)
   }
   
@@ -328,6 +356,172 @@ function cellValueToString(value: any): string {
   
   // Default: convert to string
   return String(value)
+}
+
+/**
+ * Detect the column type based on cell values and Excel formatting
+ * Analyzes the first N non-empty values in a column to determine the type
+ */
+function detectColumnType(
+  sheet: XLSX.WorkSheet, 
+  columnIndex: number, 
+  dataRows: any[][]
+): { type: ColumnFieldType; properties: Record<string, any> } {
+  const sampleSize = Math.min(20, dataRows.length) // Check first 20 rows
+  const samples: any[] = []
+  
+  // Collect non-empty samples from the data rows
+  for (let i = 0; i < sampleSize && samples.length < 10; i++) {
+    const value = dataRows[i]?.[columnIndex]
+    if (value !== undefined && value !== null && value !== '') {
+      samples.push(value)
+    }
+  }
+  
+  if (samples.length === 0) {
+    return { type: ColumnFieldType.MultiText, properties: { defaultValue: '', maxLength: 1000 } }
+  }
+  
+  // Check for Date type
+  const dateCount = samples.filter(v => v instanceof Date && !isNaN(v.getTime())).length
+  if (dateCount >= samples.length * 0.8) {
+    return { 
+      type: ColumnFieldType.DateTime, 
+      properties: { 
+        autoFill: false,
+        dateFormat: 'YYYY-MM-DD HH:mm:ss',
+        timeZone: 'local',
+        timeFormat: 24
+      } 
+    }
+  }
+  
+  // Check for Number type (including currency/percent)
+  const numberCount = samples.filter(v => typeof v === 'number').length
+  if (numberCount >= samples.length * 0.8) {
+    // Check if values look like percentages (between 0 and 1)
+    const percentLikeCount = samples.filter(v => typeof v === 'number' && v >= 0 && v <= 1).length
+    if (percentLikeCount >= samples.length * 0.8) {
+      // Could be percentage - check Excel format if available
+      const cellRef = XLSX.utils.encode_cell({ r: 1, c: columnIndex })
+      const cell = sheet[cellRef]
+      if (cell?.z && (cell.z.includes('%') || cell.z.includes('0.00%'))) {
+        return { 
+          type: ColumnFieldType.Percent, 
+          properties: { precision: 2 } 
+        }
+      }
+    }
+    
+    // Check for currency format
+    const cellRef = XLSX.utils.encode_cell({ r: 1, c: columnIndex })
+    const cell = sheet[cellRef]
+    if (cell?.z) {
+      const format = cell.z
+      if (format.includes('$') || format.includes('¥') || format.includes('€') || format.includes('£')) {
+        const symbol = format.match(/[\$\¥\€\£]/)?.[0] || '$'
+        return { 
+          type: ColumnFieldType.Currency, 
+          properties: { symbol, precision: 2, symbolAlign: 0 } 
+        }
+      }
+      if (format.includes('%')) {
+        return { 
+          type: ColumnFieldType.Percent, 
+          properties: { precision: 2 } 
+        }
+      }
+    }
+    
+    return { 
+      type: ColumnFieldType.Number, 
+      properties: { symbol: '', precision: 2, symbolAlign: 2 } 
+    }
+  }
+  
+  // Check for Boolean type
+  const boolCount = samples.filter(v => typeof v === 'boolean').length
+  if (boolCount >= samples.length * 0.8) {
+    return { 
+      type: ColumnFieldType.Checkbox, 
+      properties: { trueIcon: 'check', falseIcon: '' } 
+    }
+  }
+  
+  // Check for text patterns
+  const stringValues = samples.filter(v => typeof v === 'string')
+  if (stringValues.length > 0) {
+    // Check for Email pattern
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const emailCount = stringValues.filter(v => emailPattern.test(v)).length
+    if (emailCount >= stringValues.length * 0.8) {
+      return { type: ColumnFieldType.Email, properties: {} }
+    }
+    
+    // Check for URL pattern
+    const urlPattern = /^https?:\/\//i
+    const urlCount = stringValues.filter(v => urlPattern.test(v)).length
+    if (urlCount >= stringValues.length * 0.8) {
+      return { type: ColumnFieldType.URL, properties: { openInNewTab: true } }
+    }
+    
+    // Check for Phone pattern (simple check)
+    const phonePattern = /^[\+\d\s\-\(\)]{7,}$/
+    const phoneCount = stringValues.filter(v => phonePattern.test(v)).length
+    if (phoneCount >= stringValues.length * 0.8) {
+      return { type: ColumnFieldType.Phone, properties: { includeCountryCode: false } }
+    }
+    
+    // Check for short text vs long text
+    const avgLength = stringValues.reduce((sum, v) => sum + v.length, 0) / stringValues.length
+    if (avgLength < 50) {
+      return { type: ColumnFieldType.Text, properties: { defaultValue: '' } }
+    }
+  }
+  
+  // Default to MultiText
+  return { type: ColumnFieldType.MultiText, properties: { defaultValue: '', maxLength: 1000 } }
+}
+
+/**
+ * Get human-readable type name for display
+ */
+function getTypeName(type: ColumnFieldType): string {
+  const typeNames: Record<number, string> = {
+    [ColumnFieldType.MultiText]: 'Long Text',
+    [ColumnFieldType.Number]: 'Number',
+    [ColumnFieldType.DateTime]: 'Date/Time',
+    [ColumnFieldType.Currency]: 'Currency',
+    [ColumnFieldType.Percent]: 'Percent',
+    [ColumnFieldType.Checkbox]: 'Checkbox',
+    [ColumnFieldType.Email]: 'Email',
+    [ColumnFieldType.URL]: 'URL',
+    [ColumnFieldType.Phone]: 'Phone',
+    [ColumnFieldType.Text]: 'Text',
+  }
+  return typeNames[type] || 'Text'
+}
+
+/**
+ * Get tag color type based on column type
+ */
+function getColumnTagType(type: ColumnFieldType): '' | 'success' | 'info' | 'warning' | 'danger' {
+  switch (type) {
+    case ColumnFieldType.Number:
+    case ColumnFieldType.Currency:
+    case ColumnFieldType.Percent:
+      return 'success'
+    case ColumnFieldType.DateTime:
+      return 'warning'
+    case ColumnFieldType.Checkbox:
+      return 'info'
+    case ColumnFieldType.Email:
+    case ColumnFieldType.URL:
+    case ColumnFieldType.Phone:
+      return ''
+    default:
+      return 'info'
+  }
 }
 
 function toggleSheet(sheet: SheetImportConfig) {
@@ -545,6 +739,24 @@ defineExpose({ open, openWithFile, close })
               <div v-else class="sheet-stats empty">
                 No data or invalid headers
               </div>
+              
+              <!-- Column types preview -->
+              <div v-if="sheet.columns.length > 0 && sheet.selected" class="column-types-preview">
+                <div class="column-type-tags">
+                  <el-tag
+                    v-for="col in sheet.columns.slice(0, 5)"
+                    :key="col.id"
+                    size="small"
+                    :type="getColumnTagType(col.type as ColumnFieldType)"
+                    class="column-type-tag"
+                  >
+                    {{ col.title }}: {{ getTypeName(col.type as ColumnFieldType) }}
+                  </el-tag>
+                  <el-tag v-if="sheet.columns.length > 5" size="small" type="info">
+                    +{{ sheet.columns.length - 5 }} more
+                  </el-tag>
+                </div>
+              </div>
             </div>
 
             <div v-if="sheet.headers.length > 0 && sheet.selected" class="table-name-input" @click.stop>
@@ -748,6 +960,22 @@ defineExpose({ open, openWithFile, close })
         
         &.empty {
           color: var(--el-color-warning);
+        }
+      }
+      
+      .column-types-preview {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px dashed var(--el-border-color-lighter);
+        
+        .column-type-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+          
+          .column-type-tag {
+            font-size: 11px;
+          }
         }
       }
     }
