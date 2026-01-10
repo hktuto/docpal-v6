@@ -267,7 +267,7 @@ async function parseSheet(sheetName: string) {
     headerRow.forEach((header, idx) => {
       if (header !== undefined && header !== null && String(header).trim() !== '') {
         const colTitle = String(header).trim()
-        simpleRow[colTitle] = rowData[idx] !== undefined ? String(rowData[idx]) : ''
+        simpleRow[colTitle] = cellValueToString(rowData[idx])
       }
     })
     rows.push(simpleRow)
