@@ -31,15 +31,17 @@ CREATE TABLE "data_table_columns" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"data_table_id" uuid NOT NULL,
 	"workspace_id" uuid NOT NULL,
-	"label" text NOT NULL,
+	"field" text NOT NULL,
+	"title" text NOT NULL,
 	"type" integer NOT NULL,
 	"required" boolean DEFAULT false NOT NULL,
-	"config" jsonb,
+	"properties" jsonb,
 	"validation_rules" jsonb,
 	"created_by" uuid,
 	"_update_token" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "data_table_columns_table_field_unique" UNIQUE("data_table_id","field")
 );
 --> statement-breakpoint
 CREATE TABLE "data_tables" (

@@ -1,24 +1,40 @@
 <script setup lang="ts">
 
-const {openMenuItemActions: openActions, workspace} = useSingleWorkspaceContext()
+const {openMenuItemActions: openActions, workspace, navigateToItem, saveWorkspaceToDb} = useSingleWorkspaceContext()
 const editIconRef = ref<HTMLElement>()
-
+const routerProvider = inject(MenuRouterKey)
 function handleOpenActions() {
   openActions({item: null, isAdmin: true}, editIconRef.value || undefined)
 }
 
+function handleIconSelected(icon: string) {
+  if(!workspace.value) return
+  workspace.value.icon = icon
+  saveWorkspaceToDb()
+}
 
+function goBackList() {
+  const item = {
+    id: "demo-workspaces",
+    name: "demo-workspaces",
+    label: "Demo Workspaces",
+    icon: "icon-park-outline:database-forbid",
+    hoverIcon: "icon-park-outline:database-forbid",
+    component: "LazyWorkspacesList",
+    props: {},
+  }
+  routerProvider?.navigateTo(item)
+}
 </script>
 
 <template>
   <div  class="header">
-    <div class="iconContainer">
-      <Icon v-if="workspace?.icon" :name="workspace?.icon" />
-      <span v-else>
-        {{ workspace?.name.charAt(0) }}
-      </span>
+    <Icon class="backIcon" name="lucide:chevron-left" @click="goBackList" />
+    <div class="iconContainer" @click="navigateToItem()">
+      <UiIconPicker class="workspaceIcon" iconSize="var(--app-font-size-m)" :modelValue="workspace.icon || ''" @update:modelValue="handleIconSelected" />
+      
     </div>
-    <h3>{{ workspace?.name }}</h3>
+    <h3 @click="navigateToItem()">{{ workspace?.name }}</h3>
     <div class="actions">
       <div class="actionIcon" ref="editIconRef">
         <Icon name="material-symbols:edit" />
@@ -33,7 +49,12 @@ function handleOpenActions() {
 
 
 <style lang="scss" scoped>
+  .backIcon{
+    font-size: var(--app-font-size-l);
+    cursor: pointer;
+  }
   .iconContainer{
+    --icon-size: var(--app-font-size-m);
     width: var(--app-font-size-l);
     height: var(--app-font-size-l);
     display: flex;
@@ -43,16 +64,23 @@ function handleOpenActions() {
     background: var(--app-grey-800);
     color: var(--app-grey-200);
     cursor: pointer;
+    padding: var(--app-space-s);
+    z-index: 5;
+  }
+
+  h3{
+    cursor: pointer;
   }
 .header{
   width: 100%;
-  padding: var(--app-space-xs) var(--app-space-s);
+  padding: var(--app-space-s) var(--app-space-s);
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
   gap: var(--app-space-xs);
   border-bottom: 1px solid var(--app-grey-800);
+  height: var(--app-header-height);
 }
 h3{
   margin: 0;

@@ -11,6 +11,11 @@ const props = defineProps<Props>()
 const {menuState, toggleFolder, startEdit, saveEdit, cancelEdit, navigateToItem, openMenuItemActions, workspaceRouteParams, getMenuIcon} = useSingleWorkspaceContext()
 
 const isHovered = ref(false)
+const isDragOver = ref(false)
+
+// Inject drop handlers from parent menu
+const handleFolderDrop = inject<(folderId: string, file: File) => void>('handleFolderDrop')
+const isExcelFile = inject<(file: File) => boolean>('isExcelFile')
 
 const isSelected = computed(() => workspaceRouteParams.value.detailId === props.item.id)
 
@@ -29,13 +34,6 @@ const isExpanded = computed(() => {
 function handleToggle() {
   if (props.item.type === 'folder') {
     toggleFolder(props.item.id)
-  }
-}
-
-// Handle double click on label to edit (admin only)
-function handleLabelDoubleClick() {
-  if (props.isAdmin && !isEditing.value) {
-    startEdit(props.item.id)
   }
 }
 
@@ -67,14 +65,58 @@ const calItemIcon = computed(() => {
 function handleCancelEdit() {
   cancelEdit()
 }
+
+// Folder drop handlers
+function onFolderDragOver(event: DragEvent) {
+  if (props.item.type !== 'folder' || !props.isAdmin) return
+  
+  event.preventDefault()
+  event.stopPropagation()
+  
+  if (event.dataTransfer?.types.includes('Files')) {
+    isDragOver.value = true
+    event.dataTransfer.dropEffect = 'copy'
+  }
+}
+
+function onFolderDragLeave(event: DragEvent) {
+  event.preventDefault()
+  event.stopPropagation()
+  isDragOver.value = false
+}
+
+function onFolderDrop(event: DragEvent) {
+  event.preventDefault()
+  event.stopPropagation()
+  isDragOver.value = false
+  
+  if (props.item.type !== 'folder' || !props.isAdmin) return
+  
+  const files = event.dataTransfer?.files
+  if (!files || files.length === 0) return
+  
+  // Find Excel file
+  const excelFile = Array.from(files).find(f => isExcelFile?.(f))
+  if (excelFile && handleFolderDrop) {
+    handleFolderDrop(props.item.id, excelFile)
+  }
+}
 </script>
 
 <template>
   <div
     class="menu-item"
-    :class="{ 'is-folder': item.type === 'folder', 'is-expanded': isExpanded, 'is-selected': isSelected }"
+    :class="{ 
+      'is-folder': item.type === 'folder', 
+      'is-expanded': isExpanded, 
+      'is-selected': isSelected,
+      'is-drag-over': isDragOver
+    }"
     @mouseenter="isHovered = true"
     @mouseleave="isHovered = false"
+    @dragover="onFolderDragOver"
+    @dragleave="onFolderDragLeave"
+    @drop="onFolderDrop"
   >
     <div ref="itemContentRef" class="item-content" @click="handleItemClick">
       <!-- Drag Handle (admin only, shown on hover) -->
@@ -95,14 +137,16 @@ function handleCancelEdit() {
         <Icon :name="calItemIcon"  />
       </div>
       <!-- Label or Label Editor -->
-      <div class="item-label" @dblclick.stop="handleLabelDoubleClick">
-        <WorkspacesMenuLabelEditor
-          v-if="isEditing"
+      <div class="item-label">
+        <UiInlineEditor
           :model-value="item.label"
+          :editing="isEditing"
+          :editable="isAdmin"
+          wrapper="span"
+          @update:editing="(val) => val ? startEdit(item.id) : cancelEdit()"
           @save="handleSaveEdit"
           @cancel="handleCancelEdit"
         />
-        <span v-else class="label-text">{{ item.label }}</span>
       </div>
 
       <!-- Actions Menu (shown on hover) -->
@@ -137,7 +181,8 @@ function handleCancelEdit() {
   position: relative;
   user-select: none;
   &.is-selected {
-    background: var(--app-primary-alpha-30);
+    border-radius: var(--app-border-radius-s);
+    background: var(--el-fill-color-light);
     box-shadow: var(--app-shadow-s);
   }
 }
@@ -204,7 +249,7 @@ function handleCancelEdit() {
 .item-label {
   flex: 1;
   min-width: 0;
-  font-size: var(--app-font-size-s);
+  font-size: var(--app-font-size-m);
 }
 
 .label-text {
@@ -229,6 +274,19 @@ function handleCancelEdit() {
 .menu-item.is-folder {
   .item-icon {
     color: var(--el-color-warning);
+  }
+}
+
+// Drag over state for folders
+.menu-item.is-folder.is-drag-over {
+  .item-content {
+    background: var(--el-color-primary-light-9);
+    border: 1px dashed var(--el-color-primary);
+    border-radius: var(--app-border-radius-s);
+  }
+  
+  .item-icon {
+    color: var(--el-color-primary);
   }
 }
 </style>

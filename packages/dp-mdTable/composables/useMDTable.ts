@@ -9,26 +9,20 @@ interface mdTable {
   gridRef: Ref<VxeGridInstance | undefined>
 }
 
-export function useMDTable(tableName: string, props: any) {
+export function useMDTable(props: any) {
   const gridRef = ref<VxeGridInstance<any>>()
-  const { columns, addColumn, updateColumn, columnGroupRules } = useColumns(tableName)
+  const { columns, addColumn, updateColumn, deleteColumn, columnGroupRules } = useColumnsContext()
   const {
     loading,
+    queryParams,
     refresh: refreshTableData,
     addRow: addTableRow,
     updateRow: updateTableRow,
     deleteRow: deleteTableRow,
     getTableData,
-  } = useTableData(tableName, gridRef)
+  } = useTableDataContext()
   const { gridOptions } = useTableConfig({
-    height: props.height,
-    autoResize: props.autoResize,
-    stripe: props.stripe,
-    border: props.border,
-    resizable: props.resizable,
-    keepSource: props.keepSource,
-    rowId: props.rowId,
-    editConfig: props.editConfig,
+    ...props,
     groupBy: columnGroupRules,
     columns,
     loading,

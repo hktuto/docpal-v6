@@ -148,7 +148,7 @@ function isExpanded(itemId: string): boolean {
 }
 
 .nested-children {
-  padding-left: 20px;
+  padding-left: var(--app-space-s);
   margin-top: 2px;
 }
 

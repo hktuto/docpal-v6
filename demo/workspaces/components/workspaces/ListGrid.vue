@@ -5,7 +5,7 @@ import { VirtGrid } from 'vue-virt-list'
 import { useDebounceFn } from '@vueuse/core'
 
 const createWorkspacePopover = ref()
-const viewMode = ref<'grid' | 'table'>('grid')
+const viewMode = ref<'grid' | 'table'>('table')
 
 // Use workspaces composable
 const { workspaces, loading, getWorkspaces, searchWorkspaces, clearAllWorkspaces } = useWorkspaces()

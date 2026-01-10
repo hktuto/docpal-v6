@@ -2,25 +2,44 @@
 import { ref, type Ref } from 'vue'
 import { ColumnFieldType } from '../types/column-types'
 
+export interface ColumnContext {
+  getColumn: (field: string) => ColumnConfig | undefined
+  getAllColumns: () => Promise<ColumnConfig[]>
+  addColumn: (column: ColumnConfig) => Promise<void>
+  deleteColumn: (field: string) => Promise<void>
+  updateColumn: (field: string, updates: Partial<ColumnConfig>) => Promise<void>
+
+
+  columns: Ref<ColumnConfig[]>
+  columnGroupRules: Ref<any[]>
+}
+
+export const ColumnContextKey:InjectionKey<ColumnContext> = Symbol('ColumnContextKey')
+
+
 export interface ColumnConfig {
+  id?: string
+  dataTableId?: string // id of the data table
+  workspaceId?: string // id of the workspace
   field: string
   title: string
   width?: number | string
   minWidth?: number | string
-  visible?: boolean
-  sortable?: boolean
-  filterable?: boolean
-  type?: 'number' | 'string' | 'integer' | ColumnFieldType
+  // visible?: boolean // deprecated
+  //sortable?: boolean // deprecated
+  // filterable?: boolean // deprecated
+  type: ColumnFieldType
   /** 只读模式渲染器配置 */
-  cellRender?: any
+  // cellRender?: any // deprecated
   /** 编辑模式渲染器配置 */
-  editRender?: any
-  slots?: Record<string, string>
+  // editRender?: any // deprecated
+  // slots?: Record<string, string> // this will add in rea; table render
   fixed?: 'left' | 'right'
   /** 列设置，用于传递额外的配置参数给渲染器 */
   properties?: Record<string, any>
   /** 统计方法 */
   countMethod?: 'sum' | 'max' | 'min' | 'avg' | 'count' | 'empty' | 'filled' | 'unique' | 'emptyPercent' | 'filledPercent' | 'none'
+  
   [key: string]: any
 }
 
@@ -181,7 +200,7 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
    * 获取所有列
    * @returns 所有列配置
    */
-  const getAllColumns = (): ColumnConfig[] => {
+  const getAllColumns = async (): Promise<ColumnConfig[]> => {
     if (tableName) {
       columns.value = createMockColumns(tableName)
       return columns.value
@@ -189,25 +208,17 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
     return [...columns.value]
   }
 
-  /**
-   * 检查列是否存在
-   * @param field 字段名
-   * @returns 是否存在
-   */
-  const hasColumn = (field: string): boolean => {
-    return columns.value.some((col) => col.field === field)
-  }
 
   /**
    * 添加列
    * @param column 列配置
    * @returns 是否添加成功
    */
-  const addColumn = (column: ColumnConfig): boolean => {
+  const addColumn = async(column: ColumnConfig): Promise<void> => {
     // 验证必填字段
     if (!column.field || !column.title) {
       console.error('添加列失败: title 是必填项')
-      return false
+      throw new Error('添加列失败: title 是必填项')
     }
 
     // 设置默认值
@@ -218,20 +229,19 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
       ...column
     }
 
-    // 根据类型设置编辑配置
-    if (newColumn.type === 'number' || newColumn.type === 'integer') {
-      newColumn.editRender = newColumn.editRender || { name: 'VxeInput', props: { type: 'number' } }
-    } else {
-      newColumn.editRender = newColumn.editRender || { name: 'VxeInput' }
-    }
+    // // 根据类型设置编辑配置
+    // if (newColumn.type === 'number' || newColumn.type === 'integer') {
+    //   newColumn.editRender = newColumn.editRender || { name: 'VxeInput', props: { type: 'number' } }
+    // } else {
+    //   newColumn.editRender = newColumn.editRender || { name: 'VxeInput' }
+    // }
 
     // 添加到列数组
     columns.value.push(newColumn)
 
-    // 触发回调
-    options?.onColumnAdd?.(newColumn)
+    // // 触发回调
+    // options?.onColumnAdd?.(newColumn)
 
-    return true
   }
 
   /**
@@ -239,21 +249,20 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
    * @param field 字段名
    * @returns 是否删除成功
    */
-  const deleteColumn = (field: string): boolean => {
+  const deleteColumn = async(field: string): Promise<void> => {
     const index = columns.value.findIndex((col) => col.field === field)
 
     if (index === -1) {
       console.error(`删除列失败: 字段名 "${field}" 不存在`)
-      return false
+      throw new Error(`删除列失败: 字段名 "${field}" 不存在`)
     }
 
     // 删除列
     columns.value.splice(index, 1)
 
     // 触发回调
-    options?.onColumnDelete?.(field)
+    // options?.onColumnDelete?.(field)
 
-    return true
   }
 
   /**
@@ -262,13 +271,13 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
    * @param updates 要更新的列配置
    * @returns 是否更新成功
    */
-  const updateColumn = (field: string, updates: Partial<ColumnConfig>): boolean => {
+  const updateColumn = async(field: string, updates: Partial<ColumnConfig>): Promise<void> => {
     console.log('updateColumn', field, updates)
     const index = columns.value.findIndex((col) => col.field === field)
 
     if (index === -1) {
       console.error(`更新列失败: 字段名 "${field}" 不存在`)
-      return false
+      throw new Error(`更新列失败: 字段名 "${field}" 不存在`)
     }
     // 更新列配置
     const updatedColumn = {
@@ -277,101 +286,47 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
     }
     columns.value[index] = updatedColumn
     console.log('columns', columns.value)
-    return true
   }
 
-  /**
-   * 批量添加列
-   * @param columnList 列配置数组
-   * @returns 成功添加的数量
-   */
-  const addColumns = (columnList: ColumnConfig[]): number => {
-    let successCount = 0
-    columnList.forEach((column) => {
-      if (addColumn(column)) {
-        successCount++
-      }
-    })
-    return successCount
-  }
 
-  /**
-   * 批量删除列
-   * @param fields 字段名数组
-   * @returns 成功删除的数量
-   */
-  const deleteColumns = (fields: string[]): number => {
-    let successCount = 0
-    fields.forEach((field) => {
-      if (deleteColumn(field)) {
-        successCount++
-      }
-    })
-    return successCount
-  }
 
-  /**
-   * 获取已存在的字段列表
-   * @returns 字段名数组
-   */
-  const getExistingFields = (): string[] => {
-    return columns.value.filter((col) => col.field && col.field !== '__add_button__').map((col) => col.field)
-  }
 
-  /**
-   * 重置列配置
-   * @param newColumns 新的列配置数组
-   */
-  const resetColumns = (newColumns: ColumnConfig[]) => {
-    columns.value = [...newColumns]
-  }
 
-  /**
-   * 从数据自动推断并设置列配置
-   * @param data 数据数组
-   */
-  const inferColumns = (data: any[]) => {
-    const inferredColumns = inferColumnsFromData(data)
-    columns.value = inferredColumns
-  }
-
-  /**
-   * 从数据推断并合并列配置（不覆盖已有列）
-   * @param data 数据数组
-   */
-  const mergeColumnsFromData = (data: any[]) => {
-    if (!data || data.length === 0) return
-
-    const inferredColumns = inferColumnsFromData(data)
-    const existingFields = columns.value.map((col) => col.field)
-
-    inferredColumns.forEach((col) => {
-      if (!existingFields.includes(col.field)) {
-        columns.value.push(col)
-      }
-    })
-  }
   onMounted(() => {
     getAllColumns()
+  })
+
+  provide(ColumnContextKey, {
+    getColumn,
+    getAllColumns,
+    addColumn,
+    deleteColumn,
+    updateColumn,
+
+
+
+    columns,
+    columnGroupRules
   })
   return {
     // 基础方法
     getColumn,
     getAllColumns,
-    hasColumn,
     addColumn,
     deleteColumn,
     updateColumn,
     // 批量方法
-    addColumns,
-    deleteColumns,
-    // 工具方法
-    getExistingFields,
-    resetColumns,
-    inferColumns,
-    mergeColumnsFromData,
+
     // 原始引用（只读）
     columns: columns as Readonly<Ref<ColumnConfig[]>>,
     columnGroupRules
   }
+}
+
+export const useColumnsContext = () => {
+  const columnContext = inject(ColumnContextKey)
+  if(!columnContext) {
+    throw new Error('ColumnContext not found')
+  }
+  return columnContext
 }

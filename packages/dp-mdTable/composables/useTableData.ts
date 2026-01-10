@@ -40,32 +40,43 @@ function createMockData({ page }: any, tableName: string) {
   }
   return mockData
 }
+
+export interface TableDataContext {
+  tableData: Ref<any[]>,
+  loading : Ref<boolean>,
+  error: Ref<Error | null>,
+  queryParams: Ref<any>,
+    // 方法
+    getTableData: (params?: any) => Promise<any[] | undefined>,
+    refresh: () => Promise<void>,
+    addRow: (row: any) => void,
+    updateRow: (index: number, row: any) => void,
+    deleteRow: (index: number) => void,
+
+   
+}
+
+export const TableDataContextKey:InjectionKey<TableDataContext> = Symbol('TableDataContextKey')
+
 /**
  * 表格数据管理 Composable
  * 通过 tableName 获取和管理表格数据
  */
 export function useTableData(tableName: string, gridRef: any, options: UseTableDataOptions = {}) {
-  const { queryParams = '', autoLoad = true, transform } = options
+  const { autoLoad = true, transform } = options
 
   const tableData = ref<any[]>([])
   const rawData = ref<any[]>([]) // 原始数据，用于行数据管理
   const loading = ref(false)
   const error = ref<Error | null>(null)
+  const queryParams = ref<any>({})
   const groupOptions = ref<any[]>([
     { key: 'gender', asc: true },
     { key: 'age', asc: true }
   ])
 
-  /**
-   * 从数据推断列类型
-   */
-  const inferColumnType = (value: any): 'number' | 'integer' | 'string' => {
-    if (value === null || value === undefined) return 'string'
-    if (typeof value === 'number') {
-      return Number.isInteger(value) ? 'integer' : 'number'
-    }
-    return 'string'
-  }
+
+
 
   /**
    * 获取表格数据
@@ -114,52 +125,14 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
   /**
    * 删除行数据
    */
-  const deleteRow = (index: number) => {
-    if (index >= 0 && index < tableData.value.length) {
+  const deleteRow = (id: number) => {
+    const index = tableData.value.findIndex(item => item.id === id)
+    if (index !== -1) {
       tableData.value.splice(index, 1)
       rawData.value.splice(index, 1)
     }
   }
 
-  /**
-   * 根据条件删除行
-   */
-  const deleteRowByCondition = (condition: (row: any) => boolean) => {
-    const newData = tableData.value.filter((row) => !condition(row))
-    tableData.value = newData
-    rawData.value = newData
-  }
-
-  /**
-   * 批量添加行数据
-   */
-  const addRows = (rows: any[]) => {
-    tableData.value.push(...rows)
-    rawData.value.push(...rows)
-  }
-
-  /**
-   * 清空数据
-   */
-  const clearData = () => {
-    tableData.value = []
-    rawData.value = []
-  }
-
-  /**
-   * 获取原始行数据（用于编辑、删除等操作）
-   */
-  const getRowData = (index: number) => {
-    return index >= 0 && index < rawData.value.length ? rawData.value[index] : null
-  }
-
-  
-  /**
-   * 获取所有行数据
-   */
-  const getAllRowData = () => {
-    return [...rawData.value]
-  }
 
   // 监听 tableName 变化，自动重新加载数据
   watch(
@@ -176,12 +149,12 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
     getTableData()
   }
 
-  return {
+  provide(TableDataContextKey, {
     // 数据
-    tableData: computed(() => tableData.value),
-    rawData: computed(() => rawData.value),
-    loading: computed(() => loading.value),
-    error: computed(() => error.value),
+    tableData,
+    loading,
+    error,
+    queryParams,
 
     // 方法
     getTableData,
@@ -189,11 +162,29 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
     addRow,
     updateRow,
     deleteRow,
-    deleteRowByCondition,
-    addRows,
-    clearData,
-    getRowData,
-    getAllRowData,
-    inferColumnType,
+  })
+
+  return {
+    // 数据
+    tableData,
+    rawData,
+    loading,
+    error,
+    queryParams,
+    // 方法
+    getTableData,
+    refresh,
+    addRow,
+    updateRow,
+    deleteRow,
   }
+}
+
+
+export const useTableDataContext = () => {
+  const tableDataContext = inject(TableDataContextKey)
+  if(!tableDataContext) {
+    throw new Error('TableDataContext not found')
+  }
+  return tableDataContext
 }

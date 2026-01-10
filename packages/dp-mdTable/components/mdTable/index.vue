@@ -1,5 +1,5 @@
 <template>
-  <div class="multi-dimension-table" :style="{ height: props.height || '100%' }">
+  <div class="multi-dimension-table" :style="{ height: height || '100%' }">
     <!-- 工具栏 -->
     <Toolbar :groupable-columns="columns" @refresh="handleRefresh" @search="handleSearch" @grouping-change="handleGroupToggle">
       <template #toolbar-left>
@@ -61,9 +61,7 @@ interface Props {
   tableName: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  tableName: ''
-})
+
 
 const emit = defineEmits<{
   refresh: []
@@ -78,7 +76,7 @@ const emit = defineEmits<{
 const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
 const addColumnPopoverRef = ref()
-const { columns, addColumn, columnGroupRules, gridOptions, gridRef, refreshTableData } = useMDTable(props.tableName, props)
+const { columns, addColumn, columnGroupRules, gridOptions, gridRef, refreshTableData } = useMDTable({})
 
 // 表格事件
 const gridEvents = computed<VxeGridListeners>(() => ({
@@ -150,28 +148,30 @@ defineExpose({
 })
 
 // 监听 tableName 变化，重新加载数据
-watch(
-  () => props.tableName,
-  (newTableName) => {
-    if (newTableName) {
-      refreshTableData()
-    }
-  }
-)
 </script>
 
 <style scoped lang="scss">
 .multi-dimension-table {
+  width:100%;
   display: flex;
   flex-direction: column;
   height: 100%;
   background: #fff;
 
   .table-content {
-    display: flex;
-    flex: 1;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr min-content;
+    grid-template-rows: 1fr;
+    position: relative;
     overflow: hidden;
-    gap: 0;
+    position: relative;
+    .table-left-panel{
+      height: 100%;
+      flex: 1 0 auto;
+      position: relative;
+      overflow: hidden;
+    }
     .multi-dimension-grid {
       flex: 1;
       overflow: hidden;

@@ -14,7 +14,79 @@ const props = withDefaults(defineProps<Props>(), {
   isAdmin: true,
 })
 
-const { menuState: state, addItem, saveMenuToDb, getMenuFromDb } = useSingleWorkspaceContext()
+const { menuState: state, addItem, saveMenuToDb, getMenuFromDb, workspace } = useSingleWorkspaceContext()
+
+// Excel drop import
+const importExcelDialogRef = ref()
+const isDraggingOver = ref(false)
+const dropTargetFolderId = ref<string | null>(null)
+
+function isExcelFile(file: File): boolean {
+  const validTypes = [
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel',
+    'text/csv'
+  ]
+  const validExtensions = ['xlsx', 'xls', 'csv']
+  const extension = file.name.split('.').pop()?.toLowerCase()
+  
+  return validTypes.includes(file.type) || validExtensions.includes(extension || '')
+}
+
+function handleDragOver(event: DragEvent) {
+  if (!props.isAdmin) return
+  
+  event.preventDefault()
+  event.stopPropagation()
+  
+  // Check if dragging files
+  if (event.dataTransfer?.types.includes('Files')) {
+    isDraggingOver.value = true
+    event.dataTransfer.dropEffect = 'copy'
+  }
+}
+
+function handleDragLeave(event: DragEvent) {
+  event.preventDefault()
+  event.stopPropagation()
+  
+  // Only set to false if leaving the container entirely
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+  const x = event.clientX
+  const y = event.clientY
+  
+  if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+    isDraggingOver.value = false
+  }
+}
+
+function handleDrop(event: DragEvent) {
+  event.preventDefault()
+  event.stopPropagation()
+  isDraggingOver.value = false
+  
+  if (!props.isAdmin) return
+  
+  const files = event.dataTransfer?.files
+  if (!files || files.length === 0) return
+  
+  // Find Excel files
+  const excelFile = Array.from(files).find(isExcelFile)
+  if (excelFile) {
+    // Open import dialog with the file
+    dropTargetFolderId.value = null // Root level
+    importExcelDialogRef.value?.openWithFile(excelFile, workspace.value?.id, null)
+  }
+}
+
+function handleFolderDrop(folderId: string, file: File) {
+  dropTargetFolderId.value = folderId
+  importExcelDialogRef.value?.openWithFile(file, workspace.value?.id, folderId)
+}
+
+// Expose for child components
+provide('handleFolderDrop', handleFolderDrop)
+provide('isExcelFile', isExcelFile)
 
 
 
@@ -51,8 +123,22 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="workspace-menu">
-
+  <div 
+    class="workspace-menu"
+    :class="{ 'is-drag-over': isDraggingOver }"
+    @dragover="handleDragOver"
+    @dragleave="handleDragLeave"
+    @drop="handleDrop"
+  >
+    <!-- Drop Overlay -->
+    <Transition name="fade">
+      <div v-if="isDraggingOver && isAdmin" class="drop-overlay">
+        <div class="drop-content">
+          <Icon name="material-symbols:upload-file-outline" size="48" />
+          <p>Drop Excel file to import tables</p>
+        </div>
+      </div>
+    </Transition>
 
     <!-- Menu Content -->
     <div class="menu-content">
@@ -61,7 +147,7 @@ onMounted(async () => {
         <Icon name="material-symbols:folder-open-outline" size="48" />
         <p class="empty-title">No items yet</p>
         <p class="empty-description">
-          {{ isAdmin ? 'Click + to add your first table' : 'No items to display' }}
+          {{ isAdmin ? 'Click + to add your first table, or drop an Excel file' : 'No items to display' }}
         </p>
       </div>
 
@@ -78,6 +164,12 @@ onMounted(async () => {
 
     <slot/>
     
+    <!-- Import Dialog -->
+    <WorkspacesTableImportExcelDialog 
+      ref="importExcelDialogRef"
+      :parent-folder-id="dropTargetFolderId"
+      @success="getMenuFromDb"
+    />
   </div>
 </template>
 
@@ -85,7 +177,51 @@ onMounted(async () => {
 .workspace-menu {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1 0 auto;
+  position: relative;
+
+  &.is-drag-over {
+    .menu-content {
+      pointer-events: none;
+    }
+  }
+}
+
+.drop-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--el-color-primary-light-9);
+  border: 2px dashed var(--el-color-primary);
+  border-radius: var(--app-border-radius-m);
+  pointer-events: none;
+}
+
+.drop-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--app-space-s);
+  color: var(--el-color-primary);
+  
+  p {
+    margin: 0;
+    font-size: var(--app-font-size-m);
+    font-weight: 500;
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 .menu-header {
@@ -105,7 +241,7 @@ onMounted(async () => {
 .menu-content {
   flex: 1;
   overflow-y: auto;
-  padding: var(--app-space-xs);
+  padding: var(--app-space-s);
 }
 
 .empty-state {

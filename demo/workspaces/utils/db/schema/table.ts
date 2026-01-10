@@ -51,21 +51,27 @@ export const dataTables = pgTable('data_tables', {
 /**
  * Data Table Columns
  * Column definitions for dynamic tables
+ * Aligned with ColumnConfig interface from dp-mdTable
  */
 export const dataTableColumns = pgTable('data_table_columns', {
   id: uuid('id').primaryKey().defaultRandom(),
   dataTableId: uuid('data_table_id').notNull().references(() => dataTables.id, { onDelete: 'cascade' }),
   workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
   
-  // Display label (e.g., "Full Name")
-  label: text('label').notNull(),
+  // Field name for SQL column (e.g., "full_name") - maps to ColumnConfig.field
+  field: text('field').notNull(),
+  
+  // Display title (e.g., "Full Name") - maps to ColumnConfig.title
+  title: text('title').notNull(),
+  
+  // Column type
   type: integer('type').$type<ColumnFieldType>().notNull(),
   
   // Column properties
   required: boolean('required').notNull().default(false),
   
-  // Type-specific configuration
-  config: jsonb('config').$type<ColumnConfig>(),
+  // Type-specific properties - maps to ColumnConfig.properties
+  properties: jsonb('properties').$type<Record<string, any>>(),
   
   // Validation rules
   validationRules: jsonb('validation_rules').$type<ValidationRules>(),
@@ -74,7 +80,9 @@ export const dataTableColumns = pgTable('data_table_columns', {
   updateToken: text('_update_token'), // Session token for filtering own changes in Electric sync
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
-})
+},(table) => ({
+  uniqueFieldPerTable: unique('data_table_columns_table_field_unique').on(table.dataTableId, table.field),
+}))
 
 /**
  * Table Migrations

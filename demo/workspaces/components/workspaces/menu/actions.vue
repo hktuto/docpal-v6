@@ -14,6 +14,7 @@ const open = (data: {item: MenuItem, isAdmin: boolean}, target?: HTMLElement, hi
 
 const menuContext = useSingleWorkspaceContext()
 const popoverRef = ref()
+const importExcelDialogRef = ref()
 
 
 function close() {
@@ -60,9 +61,23 @@ async function handleEditSetting(type: MenuItem['type']) {
   close()
 }
 async function handleAddItem(type: MenuItem['type']) {
+  if(type ==='folder'){
 
-  await menuContext.addItem(item.value?.id || null, type)
+    await menuContext.addItem(item.value?.id || null, type)
+    close()
+    return
+  }
+  // 
+}
+
+function handleImportFromExcel() {
   close()
+  importExcelDialogRef.value?.open()
+}
+
+function handleImportSuccess(tables: { id: string; name: string }[]) {
+  // Could navigate to the first imported table if desired
+  console.log('Imported tables:', tables)
 }
 
 defineExpose({ open, close })
@@ -92,6 +107,11 @@ defineExpose({ open, close })
           <Icon name="material-symbols:dashboard-outline" />
           <span>Add Dashboard</span>
         </div>
+        <div class="action-divider" />
+        <div class="action-item" @click="handleImportFromExcel">
+          <Icon name="material-symbols:upload-file-outline" />
+          <span>Import from Excel</span>
+        </div>
       </template>
       <template v-else>
         <div class="action-item" @click="handleEdit">
@@ -116,6 +136,11 @@ defineExpose({ open, close })
             <Icon name="material-symbols:dashboard-outline" />
             <span>Add Dashboard</span>
           </div>
+          <div class="action-divider" />
+          <div class="action-item" @click="handleImportFromExcel">
+            <Icon name="material-symbols:upload-file-outline" />
+            <span>Import from Excel</span>
+          </div>
         </template>
         <template v-if="item.type === 'table'">
           <div class="action-item" @click="handleEditSetting('table')">
@@ -138,6 +163,14 @@ defineExpose({ open, close })
       
     </div>
   </UiPopoverDialog>
+
+  <!-- Import Excel Dialog -->
+  <WorkspacesTableImportExcelDialog
+    ref="importExcelDialogRef"
+    :workspace-id="menuContext.workspace.value?.id || ''"
+    :parent-folder-id="item?.type === 'folder' ? item.id : null"
+    @success="handleImportSuccess"
+  />
 </template>
 
 <style scoped lang="scss">

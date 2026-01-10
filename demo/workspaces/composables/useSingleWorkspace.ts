@@ -18,7 +18,7 @@ export interface WorkspaceContext {
   menuState: Ref<MenuState>
   workspaceRouteParams: Ref<WorkspaceRouteParams>
   getWorkspaceById: (id: string) => Promise<void>
-  saveWorkspaceToDb: (workspace: WorkspaceType) => Promise<void>
+  saveWorkspaceToDb: (workspace?: WorkspaceType) => Promise<void>
   openMenuItemActions: (data: {item: MenuItem | null, isAdmin: boolean}, target?: HTMLElement, highlight?: HTMLElement) => void
   // Menu functions
   toggleFolder: (id: string) => void
@@ -27,7 +27,7 @@ export interface WorkspaceContext {
   cancelEdit: () => void
   deleteItem: (id: string) => Promise<void>
   addItem: (parentId: string | null, type: MenuItem['type']) => Promise<void>
-  navigateToItem: (item: MenuItem) => void
+  navigateToItem: (item?: MenuItem) => void
   openSetting: (slug: string, type: MenuItem['type']) => void
   getMenuFromDb: () => Promise<void>
   saveMenuToDb: () => Promise<void>
@@ -44,15 +44,15 @@ export function useSingleWorkspaceContext() {
   return context
 }
 
-type WorkspaceRouteParams = {
+export type WorkspaceRouteParams = {
   detailId: string | null,
-  detailType: 'root' | 'folder' | 'table' | 'view' | 'dashboard'
+  detailType: 'folder' | 'table' | 'view' | 'dashboard' | 'root'
 }
 
 export function useSingleWorkspace() {
   const { query } = usePglite()
   const router = useRouter()
-  const workspace = ref<WorkspaceType | null>(null)
+  const workspace = ref<WorkspaceType | null>()
 
   const menuActionsRef = ref()
 
@@ -82,12 +82,14 @@ export function useSingleWorkspace() {
       workspace.value = null
       return
     }
-    console.log('menuActionsRef', data[0])
     workspace.value =  data[0] as WorkspaceType
   }
 
-  async function saveWorkspaceToDb(workspace: WorkspaceType) {
-    await query(`UPDATE workspaces SET name = $1, slug = $2, icon = $3, description = $4 WHERE id = $5`, [workspace.name, workspace.slug, workspace.icon, workspace.description, workspace.id])
+  async function saveWorkspaceToDb(newWorkspaceData?: WorkspaceType) {
+    if(!newWorkspaceData && !workspace.value) return
+    newWorkspaceData ||= workspace.value as WorkspaceType
+    const { name, slug, icon, description, id } = newWorkspaceData
+    await query(`UPDATE workspaces SET name = $1, slug = $2, icon = $3, description = $4 WHERE id = $5`, [name, slug, icon, description, id])
   }
 
   // Menu Functions
@@ -224,9 +226,14 @@ export function useSingleWorkspace() {
     await saveMenuToDb()
   }
 
-  function navigateToItem(item: MenuItem) {
-    const base = `/workspaces/${workspace.value?.slug}`
+  function navigateToItem(item?: MenuItem) {
     // console.log('navigateToItem', item)
+    console.log('navigateToItem', item)
+    if(!item) {
+      workspaceRouteParams.value.detailId = null
+      workspaceRouteParams.value.detailType = 'root'
+      return
+    }
     switch (item.type) {
       case 'folder':
         workspaceRouteParams.value.detailId = item.id

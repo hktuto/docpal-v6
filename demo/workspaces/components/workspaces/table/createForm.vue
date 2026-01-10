@@ -1,6 +1,6 @@
 <script setup lang="ts">
   const createTablePopover = ref()
-  const context = useSingleWorkspaceContext()
+  const {} = useSingleWorkspaceContext()
   const createTableForm = ref({
     name: '',
     description: '',

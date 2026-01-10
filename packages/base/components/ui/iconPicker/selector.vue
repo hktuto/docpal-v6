@@ -61,15 +61,21 @@ onMounted(async () => {
 
 <template>
   <div class="iconSelector">
-    <div class="categoryList">
+    <div class="categoryList" role="tablist">
       <div 
         v-for="category in iconCategories" 
         :key="category.key"
         :class="{ categoryItem: true, selected: selectedCategory.key === category.key }"
+        tabindex="0"
+        role="tab"
+        :aria-selected="selectedCategory.key === category.key"
+        :aria-label="`${category.name} icons`"
         @click="handleCategoryClick(category)"
+        @keydown.enter="handleCategoryClick(category)"
+        @keydown.space.prevent="handleCategoryClick(category)"
       >
         {{ category.name }}
-        <el-badge v-if="selectedCategory.key === category.key"  :value="displayIcons.length" />
+        <el-badge v-if="selectedCategory.key === category.key" :value="displayIcons.length" />
       </div>
     </div>
     <div v-loading="loading" ref="gridContainerRef" class="iconListContainer">
@@ -121,7 +127,7 @@ onMounted(async () => {
       border-radius: var(--app-border-radius-s);
       font-size: var(--app-font-size-m);
       white-space: nowrap;
-      transition: background-color 0.2s ease;
+      transition: background-color 0.2s ease, outline 0.15s ease;
 
       &:hover {
         background-color: var(--app-grey-850);
@@ -129,6 +135,20 @@ onMounted(async () => {
 
       &.selected:not(:hover) {
         background-color: var(--app-primary-color);
+      }
+
+      &:focus {
+        outline: 2px solid var(--app-primary-color);
+        outline-offset: 2px;
+      }
+
+      &:focus:not(:focus-visible) {
+        outline: none;
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--app-primary-color);
+        outline-offset: 2px;
       }
     }
   }

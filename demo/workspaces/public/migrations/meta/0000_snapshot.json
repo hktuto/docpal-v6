@@ -1,5 +1,5 @@
 {
-  "id": "cfcc7bc2-0978-4b03-a417-3000e120111a",
+  "id": "b6cd1f96-f556-4de0-ba5b-e7969b9eeba2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -295,8 +295,14 @@
           "primaryKey": false,
           "notNull": true
         },
-        "label": {
-          "name": "label",
+        "field": {
+          "name": "field",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -314,8 +320,8 @@
           "notNull": true,
           "default": false
         },
-        "config": {
-          "name": "config",
+        "properties": {
+          "name": "properties",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": false
@@ -396,7 +402,16 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "data_table_columns_table_field_unique": {
+          "name": "data_table_columns_table_field_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "data_table_id",
+            "field"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

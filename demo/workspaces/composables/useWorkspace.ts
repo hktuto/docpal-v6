@@ -1,7 +1,7 @@
 import type { WorkspaceType } from '../utils/db/schema/workspaces'
 
 export function useWorkspaces() {
-  const { query, search } = usePglite()
+  const { query, search, removeAllTables } = usePglite()
   const workspaces = shallowRef<WorkspaceType[]>([])
   const loading = ref(false)
 
@@ -71,8 +71,8 @@ export function useWorkspaces() {
    * Clear all workspaces
    */
   async function clearAllWorkspaces(): Promise<void> {
-    await query(`DELETE FROM workspaces`)
-    workspaces.value = []
+    await removeAllTables()
+    await getWorkspaces()
   }
 
   return {

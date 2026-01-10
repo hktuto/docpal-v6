@@ -1,0 +1,251 @@
+import { v7 as uuidv7 } from 'uuid'
+
+export interface ImportRowError {
+  rowIndex: number
+  rowData: Record<string, any>
+  error: string
+}
+
+export interface ImportJob {
+  id: string
+  tableName: string
+  tableDisplayName: string
+  physicalTableName: string
+  columns: any[]
+  rows: Record<string, any>[]
+  status: 'pending' | 'importing' | 'completed' | 'error'
+  progress: {
+    total: number
+    imported: number
+    errors: ImportRowError[]
+  }
+  startedAt?: string
+  completedAt?: string
+}
+
+export interface ImportReport {
+  id: string
+  jobs: ImportJob[]
+  totalTables: number
+  totalRowsAttempted: number
+  totalRowsImported: number
+  totalErrors: number
+  startedAt: string
+  completedAt: string
+}
+
+// Global state for import queue
+const importQueue = ref<ImportJob[]>([])
+const currentJob = ref<ImportJob | null>(null)
+const isProcessing = ref(false)
+const completedReports = ref<ImportReport[]>([])
+const currentReportId = ref<string | null>(null)
+
+// Event emitter for UI updates
+const eventBus = {
+  listeners: new Map<string, Set<Function>>(),
+  on(event: string, callback: Function) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, new Set())
+    }
+    this.listeners.get(event)!.add(callback)
+  },
+  off(event: string, callback: Function) {
+    this.listeners.get(event)?.delete(callback)
+  },
+  emit(event: string, data?: any) {
+    this.listeners.get(event)?.forEach(cb => cb(data))
+  }
+}
+
+export function useImportQueue() {
+  const { query } = usePglite()
+
+  /**
+   * Add jobs to the import queue and start processing
+   */
+  function queueImportJobs(jobs: Omit<ImportJob, 'id' | 'status' | 'progress'>[]): string {
+    const reportId = uuidv7()
+    currentReportId.value = reportId
+
+    const newJobs: ImportJob[] = jobs.map(job => ({
+      ...job,
+      id: uuidv7(),
+      status: 'pending',
+      progress: {
+        total: job.rows.length,
+        imported: 0,
+        errors: []
+      }
+    }))
+
+    importQueue.value.push(...newJobs)
+    
+    // Start processing if not already running
+    if (!isProcessing.value) {
+      processQueue(reportId)
+    }
+
+    return reportId
+  }
+
+  /**
+   * Process the import queue
+   */
+  async function processQueue(reportId: string) {
+    if (isProcessing.value) return
+    isProcessing.value = true
+    
+    const startedAt = new Date().toISOString()
+    const processedJobs: ImportJob[] = [] // Track processed jobs for report
+    
+    eventBus.emit('import-started', { reportId })
+
+    while (importQueue.value.length > 0) {
+      const job = importQueue.value[0]
+      currentJob.value = job
+      job.status = 'importing'
+      job.startedAt = new Date().toISOString()
+      
+      eventBus.emit('job-started', job)
+
+      try {
+        await processJob(job)
+        job.status = 'completed'
+      } catch (error) {
+        console.error('Job error:', error)
+        job.status = 'error'
+      }
+
+      job.completedAt = new Date().toISOString()
+      eventBus.emit('job-completed', job)
+      
+      // Save to processed jobs before removing
+      processedJobs.push({ ...job })
+      
+      // Remove from queue
+      importQueue.value.shift()
+    }
+
+    currentJob.value = null
+    isProcessing.value = false
+
+    // Generate report from processed jobs
+    const report: ImportReport = {
+      id: reportId,
+      jobs: processedJobs,
+      totalTables: processedJobs.length,
+      totalRowsAttempted: processedJobs.reduce((sum, j) => sum + j.progress.total, 0),
+      totalRowsImported: processedJobs.reduce((sum, j) => sum + j.progress.imported, 0),
+      totalErrors: processedJobs.reduce((sum, j) => sum + j.progress.errors.length, 0),
+      startedAt,
+      completedAt: new Date().toISOString()
+    }
+
+    completedReports.value.push(report)
+    eventBus.emit('import-completed', report)
+    currentReportId.value = null
+  }
+
+  /**
+   * Process a single import job
+   */
+  async function processJob(job: ImportJob) {
+    const { physicalTableName, columns, rows } = job
+    
+    // Filter out system columns for import
+    const systemColumnTypes = [21, 22, 23, 24] // CreatedTime, LastModifiedTime, CreatedBy, LastModifiedBy
+    const userColumns = columns.filter((c: any) => !systemColumnTypes.includes(c.type))
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]
+      
+      try {
+        const columnNames: string[] = []
+        const placeholders: string[] = []
+        const values: any[] = []
+        let paramIndex = 1
+
+        // Add user data columns - use field for SQL column name, title for row data lookup
+        for (const column of userColumns) {
+          if (!column.field && !column.title) continue
+          const colName = column.field || column.title.toLowerCase().replace(/\s+/g, '_')
+          const value = row[column.title]
+
+          columnNames.push(`"${colName}"`)
+          placeholders.push(`$${paramIndex}`)
+          values.push(value !== undefined ? value : null)
+          paramIndex++
+        }
+
+        // Add system columns
+        columnNames.push('created_by', 'updated_by')
+        placeholders.push(`$${paramIndex}`, `$${paramIndex + 1}`)
+        values.push(null, null)
+
+        const sql = `INSERT INTO "${physicalTableName}" (${columnNames.join(', ')}) VALUES (${placeholders.join(', ')})`
+        await query(sql, values)
+        
+        job.progress.imported++
+      } catch (error: any) {
+        job.progress.errors.push({
+          rowIndex: i + 2, // +2 because: +1 for header row, +1 for 1-based index
+          rowData: row,
+          error: error.message || 'Unknown error'
+        })
+      }
+
+      // Emit progress update every 10 rows or on last row
+      if (i % 10 === 0 || i === rows.length - 1) {
+        eventBus.emit('job-progress', job)
+      }
+    }
+  }
+
+  /**
+   * Get the latest report
+   */
+  function getLatestReport(): ImportReport | null {
+    return completedReports.value[completedReports.value.length - 1] || null
+  }
+
+  /**
+   * Clear a report from history
+   */
+  function clearReport(reportId: string) {
+    const index = completedReports.value.findIndex(r => r.id === reportId)
+    if (index !== -1) {
+      completedReports.value.splice(index, 1)
+    }
+  }
+
+  /**
+   * Subscribe to import events
+   */
+  function onImportEvent(event: string, callback: Function) {
+    eventBus.on(event, callback)
+    return () => eventBus.off(event, callback)
+  }
+
+  return {
+    // State
+    importQueue: readonly(importQueue),
+    currentJob: readonly(currentJob),
+    isProcessing: readonly(isProcessing),
+    completedReports: readonly(completedReports),
+    
+    // Actions
+    queueImportJobs,
+    getLatestReport,
+    clearReport,
+    onImportEvent
+  }
+}
+
+// Export singleton-like access to state
+export const importQueueState = {
+  importQueue,
+  currentJob,
+  isProcessing,
+  completedReports
+}

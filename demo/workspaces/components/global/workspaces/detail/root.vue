@@ -1,21 +1,68 @@
 <script setup lang="ts">
+
+
 const props = defineProps<{
   isAdmin: boolean
 }>()
-const { workspace } = useSingleWorkspaceContext()
+
+const { workspace, saveWorkspaceToDb, menuState } = useSingleWorkspaceContext()
+const routerProvider = inject(MenuRouterKey)
+
+function handleLabelSave(name: string) {
+  if (!name || !workspace.value) {
+    routerProvider?.message.error('Name is required')
+    return
+  }
+  workspace.value.name = name
+  saveWorkspaceToDb()
+}
+function handleIconSelected(icon: string) {
+  if (!workspace.value) return
+  workspace.value.icon = icon
+  saveWorkspaceToDb()
+}
+function handleDescriptionSave(description: string) {
+  if (!workspace.value) return
+  workspace.value.description = description
+  saveWorkspaceToDb()
+}
+
+
 </script>
 
 <template>
-  <div class="detailContainer">
-    <h1>{{ workspace?.name }}</h1>
+  <div class="rootDetailContainer">
+    <UiIconPicker :style="{'--icon-size': 'var(--app-font-size-xxl)'}" :modelValue="workspace?.icon || ''" @update:modelValue="handleIconSelected" />
+    <UiInlineEditor
+      :model-value="workspace?.name || ''"
+      wrapper="h1"
+      :editable="isAdmin"
+      @save="handleLabelSave"
+    />
+    <UiInlineEditor
+      :model-value="workspace?.description || ''"
+      wrapper="p"
+      :editable="isAdmin"
+      :multiline="true"
+      placeholder="No description. Double-click to add one."
+      @save="handleDescriptionSave"
+    />
+    <WorkspacesMenuChildrenGrid
+      :children="menuState.items || []"
+    />
   </div>
 </template>
 
 <style lang="scss" scoped>
-  .detailContainer{
-    margin: 0 auto;
-    width: 100%;
-    max-width: var(--app-max-width);
-    padding: var(--app-space-l);
-  }
+.rootDetailContainer {
+  margin: 0 auto;
+  width: 100%;
+  max-width: var(--app-max-width);
+  padding: var(--app-space-l);
+}
+
+:deep(p) {
+  color: var(--el-text-color-regular);
+  white-space: pre-line;
+}
 </style>

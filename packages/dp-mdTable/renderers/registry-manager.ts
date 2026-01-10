@@ -192,7 +192,6 @@ export class RendererRegistryManager {
       width: this.getDefaultWidth(type),
       ...renderConfig
     }
-
     return columnConfig
   }
 
@@ -202,7 +201,7 @@ export class RendererRegistryManager {
   private getDefaultWidth(type: ColumnFieldType): number {
     const widthMap: Record<ColumnFieldType, number> = {
       [ColumnFieldType.Text]: 200,
-      [ColumnFieldType.SingleText]: 250,
+      [ColumnFieldType.MultiText]: 250,
       [ColumnFieldType.Number]: 120,
       [ColumnFieldType.SingleSelect]: 120,
       [ColumnFieldType.MultiSelect]: 180,
@@ -215,17 +214,17 @@ export class RendererRegistryManager {
       [ColumnFieldType.Currency]: 120,
       [ColumnFieldType.Percent]: 100,
       [ColumnFieldType.Formula]: 150,
-      [ColumnFieldType.AutoNumber]: 100,
+      // [ColumnFieldType.AutoNumber]: 100,
       [ColumnFieldType.CreatedTime]: 160,
       [ColumnFieldType.LastModifiedTime]: 160,
       [ColumnFieldType.CreatedBy]: 120,
       [ColumnFieldType.LastModifiedBy]: 120,
       [ColumnFieldType.Attachment]: 200,
       [ColumnFieldType.TwoWayLink]: 150,
-      [ColumnFieldType.OneWayLink]: 150,
+      // [ColumnFieldType.OneWayLink]: 150,
       [ColumnFieldType.Member]: 180,
       [ColumnFieldType.MagicLink]: 150,
-      [ColumnFieldType.MagicLookUp]: 150
+      // [ColumnFieldType.MagicLookUp]: 150
     }
 
     return widthMap[type] || 150
