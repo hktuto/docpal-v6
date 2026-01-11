@@ -33,11 +33,6 @@ const form = ref<any>({
   attr_systemCaseInstanceId: '',
   field: []
 })
-const caseTypeId = ref('')
-const caseName = ref('')
-const caseReturnId = ref('')
-const fields = ref<any[]>([])
-
 const loading = ref(false)
 const caseList = ref()
 const caseOptionList = ref([])
@@ -53,20 +48,21 @@ async function getCaseLise() {
 }
 
 async function init() {
+  if (!caseList.value) {
+    await getCaseLise()
+  }
   const extensionElements = node.data.data.extensionElements
-  if ('' == extensionElements['flowable:newCase'].attr_caseTypeId) return
+  form.value.attr_caseTypeId = extensionElements['flowable:newCase'].attr_caseTypeId
+  form.value.attr_name = extensionElements['flowable:newCase'].attr_name
+  form.value.attr_systemCaseInstanceId = extensionElements['flowable:newCase'].attr_systemCaseInstanceId
 
-  caseTypeId.value = extensionElements['flowable:newCase'].attr_caseTypeId
-  caseName.value = extensionElements['flowable:newCase'].attr_name
-  caseReturnId.value = extensionElements['flowable:newCase'].attr_systemCaseInstanceId
-
-  const find = caseList.value.find((item: any) => item.id === caseTypeId.value)
+  const find = caseList.value.find((item: any) => item.id === form.value.attr_caseTypeId)
   if (!find) {
     caseOptionList.value = []
     return
   }
 
-  if ('' !== caseTypeId.value) {
+  if ('' !== form.value.attr_caseTypeId) {
     await getCaseOption()
   }
 
@@ -86,7 +82,7 @@ async function init() {
 async function getCaseOption() {
   loading.value = true
   try {
-    const caseData: any = await clientApi.api.getCaseTypesIdStarttask(caseTypeId.value).then((r) => r.data)
+    const caseData: any = await clientApi.api.getCaseTypesIdStarttask(form.value.attr_caseTypeId).then((r) => r.data)
 
     if (caseData.length == 0) {
       caseOptionList.value = []
@@ -115,14 +111,15 @@ async function handleCase(caseId: string) {
   if (!find) {
     return
   }
-  caseName.value = find.name
+
+  form.value.attr_name = find.name
   form.value.field = []
   await getCaseOption()
   setData()
 }
 
 function handleCaseReturnId() {
-  if (caseReturnId.value && '' !== caseReturnId.value) {
+  if (form.value.attr_systemCaseInstanceId && '' !== form.value.attr_systemCaseInstanceId) {
     setData()
   }
 }
@@ -233,13 +230,13 @@ onMounted(async () => {
     <BpmnSidebarEditLabel :node="node" />
     <el-form label-position="top" :disabled="editorProvider.readonly.value">
       <el-form-item label="Case" required>
-        <el-select v-model="caseTypeId" @change="handleCase" filterable>
+        <el-select v-model="form.attr_caseTypeId" @change="handleCase" filterable>
           <el-option v-for="item in caseList" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
 
       <el-form-item label="Case Return Column ID" required>
-        <el-select v-model="caseReturnId" :placeholder="t('common_selectedIsRequiredMsg')"
+        <el-select v-model="form.attr_systemCaseInstanceId" :placeholder="t('common_selectedIsRequiredMsg')"
                    @change="handleCaseReturnId" filterable>
           <el-option v-for="item in stringFields" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
