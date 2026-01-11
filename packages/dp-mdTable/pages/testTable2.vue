@@ -3,7 +3,7 @@
   <div class="test-container">
     <h1>MultiDimensionTable 组件测试</h1>
 
-    <MdTable ref="tableRef" tableName="test_table">
+    <MdTable v-if="tableReady" ref="tableRef" tableName="test_table">
       <!-- 自定义工具栏左侧 -->
       <template #toolbar-left>
       </template>
@@ -22,6 +22,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 const tableRef = ref<any>()
+const tableData = useTableData('test_table', tableRef)
+const columns = useColumns('test_table')
+const tableReady = ref(false)
+async function initTable() {
+
+  await tableData.getTableData()
+  await columns.getAllColumns()
+  tableReady.value = true
+}
+onMounted(async () => {
+  await initTable()
+})
 </script>
 
 <style scoped lang="scss">
