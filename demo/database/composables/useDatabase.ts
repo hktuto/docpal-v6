@@ -29,10 +29,10 @@ const isLoaded = ref(false)
 function initializeData() {
   if (isLoaded.value) return
   
-  databases.value = crmData.databases as Database[]
-  users.value = usersData.users as MockUser[]
-  groups.value = groupsRolesData.groups as Group[]
-  roles.value = groupsRolesData.roles as Role[]
+  databases.value = JSON.parse(JSON.stringify(crmData.databases)) as Database[]
+  users.value = JSON.parse(JSON.stringify(usersData.users)) as MockUser[]
+  groups.value = JSON.parse(JSON.stringify(groupsRolesData.groups)) as Group[]
+  roles.value = JSON.parse(JSON.stringify(groupsRolesData.roles)) as Role[]
   isLoaded.value = true
 }
 
@@ -45,6 +45,14 @@ export function useDatabase() {
   // Initialize on first use
   initializeData()
 
+  function resetData() {
+    databases.value = JSON.parse(JSON.stringify(crmData.databases)) as Database[]
+    users.value = JSON.parse(JSON.stringify(usersData.users)) as MockUser[]
+    groups.value = JSON.parse(JSON.stringify(groupsRolesData.groups)) as Group[]
+    roles.value = JSON.parse(JSON.stringify(groupsRolesData.roles)) as Role[]
+    console.log('resetData')
+    console.log(databases.value[0].navigation)
+  }
   // Get all databases
   function getDatabases(): Database[] {
     return databases.value
@@ -459,7 +467,8 @@ export function useDatabase() {
     exportUsersToJSON,
     downloadJSON,
     exportAndDownloadDatabase,
-    exportAndDownloadAllData
+    exportAndDownloadAllData,
+    resetData
   }
 }
 
