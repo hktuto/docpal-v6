@@ -61,12 +61,12 @@ async function handleEditSetting(type: MenuItem['type']) {
   close()
 }
 async function handleAddItem(type: MenuItem['type']) {
-  if(type ==='folder'){
+  await menuContext.addItem(item.value?.id || null, type)
+  close()
+  // if(type ==='folder'){
 
-    await menuContext.addItem(item.value?.id || null, type)
-    close()
-    return
-  }
+  //   return
+  // }
   // 
 }
 
