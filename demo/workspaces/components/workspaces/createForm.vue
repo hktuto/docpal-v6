@@ -6,18 +6,18 @@
     label-position="top"
     class="create-workspace-form"
   >
-    <el-form-item label="Workspace Name" prop="name">
-      <el-input v-model="form.name" placeholder="Enter workspace name" />
+    <el-form-item label="Database Name" prop="name">
+      <el-input v-model="form.name" placeholder="Enter Database name" />
     </el-form-item>
-    <el-form-item label="Workspace Description" prop="description">
-      <el-input type="textarea" v-model="form.description" placeholder="Enter workspace description" />
+    <el-form-item label="Database Description" prop="description">
+      <el-input type="textarea" v-model="form.description" placeholder="Enter Database description" />
     </el-form-item>
-    <el-form-item label="Workspace Icon" prop="icon">
+    <el-form-item label="Database Icon" prop="icon">
       <UiIconPicker v-model="form.icon" />
     </el-form-item>
     <el-form-item>
       <div style="display: flex; gap: var(--app-space-xs);">
-        <ElButton type="primary" @click="handleCreateWorkspace" :loading="loading">Create Workspace</ElButton>
+        <ElButton type="primary" @click="handleCreateWorkspace" :loading="loading">Create Database</ElButton>
       </div>
     </el-form-item>
   </el-form>
@@ -42,7 +42,7 @@ const form = ref({
 
 const rules = reactive<FormRules>({
   name: [
-    { required: true, message: 'Please enter workspace name', trigger: 'blur' }
+    { required: true, message: 'Please enter Database name', trigger: 'blur' }
   ]
 })
 
