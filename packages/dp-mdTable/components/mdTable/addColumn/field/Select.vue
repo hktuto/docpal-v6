@@ -14,8 +14,7 @@
               size="small"
               ref="colorPickerRef"
               popper-class="selector-color-picker-popper"
-              @focus="handleColorPickerVisibleChange()"
-              @blur="handleColorPickerVisibleChange()"
+              @change="updateFormData"
               @click.stop
             />
             <el-input v-model="element.label" ref="labelInputRef" placeholder="请输入选项名称" class="option-input" @input="handleOptionInput(index)" />
@@ -117,14 +116,6 @@ const handleDeleteOption = (index: number) => {
 const handleOptionInput = (index: number) => {
   updateFormData()
 }
-
-// 颜色选择器显示/隐藏变化
-const handleColorPickerVisibleChange = () => {
-  if (handleSelectVisibleChange) {
-    handleSelectVisibleChange()
-  }
-}
-
 // 选项拖拽变化
 const handleOptionsChange = () => {
   updateFormData()
@@ -143,7 +134,7 @@ const updateFormData = () => {
     const currentOptionsStr = JSON.stringify(
       (props.formData.options || []).map((opt: any) => ({ id: opt.id, label: opt.label, color: opt.color })).sort((a: any, b: any) => a.id.localeCompare(b.id))
     )
-    const newOptionsStr = JSON.stringify(newOptions.map((opt) => ({ id: opt.id, label: opt.label, color: opt.color })).sort((a, b) => a.id.localeCompare(b.id)))
+    const newOptionsStr = JSON.stringify(newOptions.map((opt) => ({ id: opt.id, label: opt.label, color: opt.color })).sort((a, b) => a.label.localeCompare(b.label)))
 
     if (currentOptionsStr !== newOptionsStr) {
       props.formData.options = newOptions
@@ -163,11 +154,12 @@ const syncOptionsFromProps = () => {
   const newOptions = props.formData?.options
   if (newOptions && Array.isArray(newOptions)) {
     // 比较新选项和当前选项是否相同（通过比较序列化后的字符串）
+
     const normalizeOptions = (opts: any[]) => {
       return JSON.stringify(
         opts
           .map((opt: any) => ({ id: opt.id || '', label: opt.label || '', color: opt.color || '' }))
-          .sort((a: any, b: any) => (a.id || '').localeCompare(b.id || ''))
+          .sort((a: any, b: any) => (a.label || '').localeCompare(b.label || ''))
       )
     }
 
