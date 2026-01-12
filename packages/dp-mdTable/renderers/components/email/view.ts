@@ -6,8 +6,9 @@ export const EmailView = ({options, params}: ViewRenderFunctionParams<string>) =
   const emailOptions = options?.props
   // console.log('emailOptions', emailOptions)
   return h('a', {
-    class: 'email-view',
+    class: 'email-view mb-table-cell',
     href: `mailto:${row[column.field]}`,
+    "data-title": row[column.field],
   }, row[column.field])
 }
 

@@ -7,11 +7,19 @@
     flex: 0 0 auto;
   }
 }
-.text-view, .email-view, .date-time-view{
+.mb-table-cell{
+// Tooltip base - always present but hidden
+  // TODO : add tooltip styles here
+}
+.text-view, .email-view, .date-time-view {
   width: 100%;
   text-overflow: ellipsis;
   white-space: nowrap;
-  overflow: hidden;
+  // overflow: hidden;
+  position: relative;
+  cursor: default;
+
+  
 }
 .table-tag{
   padding: var(--app-space-xs) var(--app-space-s);
@@ -36,3 +44,5 @@
     width: 12px;
   }
 }
+
+

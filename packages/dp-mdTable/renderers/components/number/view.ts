@@ -22,6 +22,7 @@ export const NumberView = ({options, params}: ViewRenderFunctionParams<number>) 
     }
   }
   return h('div', {
-    class: 'number-view',
+    class: 'number-view mb-table-cell',
+    "data-title": formattedValue,
   }, formattedValue)
 }

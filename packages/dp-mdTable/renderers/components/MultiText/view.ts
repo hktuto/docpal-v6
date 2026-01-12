@@ -5,7 +5,8 @@ export const MultiTextView = ({options, params}: ViewRenderFunctionParams<string
   const multiTextOptions = options?.props
   // console.log('multiTextOptions', multiTextOptions)
   return h('div', {
-    class: 'multi-text-view',
+    class: 'multi-text-view mb-table-cell',
+    "data-title": row[column.field],
   }, row[column.field])
 }
 

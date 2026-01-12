@@ -5,7 +5,9 @@ export const TextView = ({options, params}: ViewRenderFunctionParams<string>) =>
   const textOptions = options?.props
   // console.log('textOptions', textOptions)
   return h('div', {
-    class: 'text-view',
+    class: 'text-view mb-table-cell',
+    title: row[column.field],
+    "data-title": row[column.field],
   }, row[column.field])
 }
 
