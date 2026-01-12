@@ -24,7 +24,11 @@ const emit = defineEmits<{
   back: []
 }>()
 
-const { getDatabaseById, updateNavigation, addNavigationItem, updateNavigationItem, createDashboard, exportAndDownloadDatabase, exportAndDownloadAllData, findParent } = useDatabase()
+const { getDatabaseById, updateNavigation, addNavigationItem, updateNavigationItem, createDashboard, exportAndDownloadDatabase, exportAndDownloadAllData, findParent, resetData } = useDatabase()
+
+onMounted(() => {
+  resetData()
+})
 
 // Current database (reactive)
 const currentDb = computed(() => getDatabaseById(props.database.id))
