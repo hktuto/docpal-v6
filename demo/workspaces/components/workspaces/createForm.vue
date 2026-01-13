@@ -83,12 +83,13 @@ async function handleCreateWorkspace() {
     const newId = uuidv7()
     const now = Date.now()
     // create workspace with createdAt and updatedAt
-    await query(
-      `INSERT INTO workspaces (id, name, slug, description, icon, menu, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, 
+    const result = await query(
+      `INSERT INTO workspaces (id, name, slug, description, icon, menu, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`, 
       [newId, realFrom.name, slug, realFrom.description, realFrom.icon, realFrom.menu, now, now]
     )
+    console.log(result)
     ElMessage.success('Workspace created successfully')
-    emits('created')
+    emits('created', result[0])
   } catch (error) {
     console.error(error)
     ElMessage.error('Failed to create workspace')

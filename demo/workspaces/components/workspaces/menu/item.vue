@@ -55,6 +55,9 @@ function handleActionsClick(event: MouseEvent) {
 // Handle save from label editor
 async function handleSaveEdit(newLabel: string) {
   await saveEdit(props.item.id, newLabel)
+  nextTick(() => {
+    navigateToItem(props.item)
+  })
 }
 
 const calItemIcon = computed(() => {

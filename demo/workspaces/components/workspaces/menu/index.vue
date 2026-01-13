@@ -180,11 +180,6 @@ onMounted(async () => {
   flex: 1 0 auto;
   position: relative;
 
-  &.is-drag-over {
-    .menu-content {
-      pointer-events: none;
-    }
-  }
 }
 
 .drop-overlay {

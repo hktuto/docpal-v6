@@ -186,7 +186,7 @@ export function useSingleWorkspace() {
     // move all child to root
     if (item.type === 'folder' && item.children) {
       for (const child of item.children) {
-        menuState.value.items.push(child)
+        deleteItem(child.id)
       }
     }
     // table logic

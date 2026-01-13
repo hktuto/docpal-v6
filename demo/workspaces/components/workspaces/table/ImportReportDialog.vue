@@ -84,7 +84,7 @@ defineExpose({ open, close })
   <el-dialog
     v-model="dialogVisible"
     title="Import Report"
-    width="700px"
+    width="big"
     :close-on-click-modal="true"
     @close="close"
   >

@@ -57,9 +57,21 @@ function handleCreateWorkspace(e: MouseEvent) {
 }
 
 
-function handleCreateWorkspaceSuccess() {
+function handleCreateWorkspaceSuccess(workspace:any) {
   getWorkspaces()
   createWorkspacePopover.value.close()
+  const newItem = {
+    id: 'workspace-detail',
+    name: 'workspace-detail',
+    icon: 'lucide:grid-3x2',
+    label: 'Workspace Detail',
+    component: 'LazyWorkspacesDetail',
+    props: {
+      id: workspace.id
+    }
+  }
+  routerProvider?.navigateTo(newItem)
+  
 }
 
 function handleWorkspaceSelected(workspace: WorkspaceType) {
