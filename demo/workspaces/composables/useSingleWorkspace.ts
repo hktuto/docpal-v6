@@ -1,39 +1,47 @@
-import type { WorkspaceType, MenuItem } from '../utils/db/schema/workspaces';
-import type { WorkspaceSchema } from '../utils/db/schema/workspaces.zod'
+import type { CaseTypeRecord, CaseTreeRecord } from '../utils/db/schema/newTableSchema'
+import type { CaseTreeItemType } from '../utils/db/schema/newTableSchema'
+
+export type { CaseTreeItemType }
 import { v7 as uuidv7 } from 'uuid'
 
 export const SingleWorkspaceContextKey: InjectionKey<WorkspaceContext> = Symbol('SingleWorkspaceContext')
 
+// Tree item for component rendering (includes computed children)
+export interface TreeItem extends CaseTreeRecord {
+  children?: TreeItem[]
+}
+
 // Menu state for component
 export interface MenuState {
-  items: MenuItem[]
+  items: TreeItem[]
   expandedFolders: Set<string>
   editingItemId: string | null
   isDragging: boolean
 }
 
 export interface WorkspaceContext {
-  workspace: Ref<WorkspaceType | null>
+  workspace: Ref<CaseTypeRecord | null>
   menuActionsRef: Ref<any | null>
   menuState: Ref<MenuState>
   workspaceRouteParams: Ref<WorkspaceRouteParams>
   getWorkspaceById: (id: string) => Promise<void>
-  saveWorkspaceToDb: (workspace?: WorkspaceType) => Promise<void>
-  openMenuItemActions: (data: {item: MenuItem | null, isAdmin: boolean}, target?: HTMLElement, highlight?: HTMLElement) => void
+  saveWorkspaceToDb: (workspace?: CaseTypeRecord) => Promise<void>
+  openMenuItemActions: (data: {item: TreeItem | null, isAdmin: boolean}, target?: HTMLElement, highlight?: HTMLElement) => void
   // Menu functions
   toggleFolder: (id: string) => void
   startEdit: (id: string) => void
   saveEdit: (id: string, newLabel: string) => Promise<void>
   cancelEdit: () => void
   deleteItem: (id: string) => Promise<void>
-  addItem: (parentId: string | null, type: MenuItem['type']) => Promise<void>
-  navigateToItem: (item?: MenuItem) => void
-  openSetting: (slug: string, type: MenuItem['type']) => void
+  addItem: (parentId: string | null, type: CaseTreeItemType) => Promise<TreeItem>
+  navigateToItem: (item?: TreeItem) => void
+  openSetting: (slug: string, type: CaseTreeItemType) => void
   getMenuFromDb: () => Promise<void>
-  saveMenuToDb: () => Promise<void>
-  findItemById: (items: MenuItem[], id: string) => MenuItem | undefined
-  recursiveUpdateItem: (items: MenuItem[], id: string, data:Partial<MenuItem>) => void
-  getMenuIcon: (menuItem: MenuItem) => string
+  saveMenuItemToDb: (item: Partial<CaseTreeRecord>) => Promise<void>
+  findItemById: (items: TreeItem[], id: string) => TreeItem | undefined
+  recursiveUpdateItem: (items: TreeItem[], id: string, data: Partial<TreeItem>) => void
+  getMenuIcon: (menuItem: TreeItem) => string
+  buildTreeFromFlat: (flatItems: CaseTreeRecord[]) => TreeItem[]
 }
 
 export function useSingleWorkspaceContext() {
@@ -50,12 +58,11 @@ export type WorkspaceRouteParams = {
 }
 
 export function useSingleWorkspace() {
-  const { query } = usePglite()
+  const { query, exec } = usePglite()
   const router = useRouter()
-  const workspace = ref<WorkspaceType | null>()
+  const workspace = ref<CaseTypeRecord | null>(null)
 
   const menuActionsRef = ref()
-
 
   const workspaceRouteParams = ref<WorkspaceRouteParams>({
     detailId: null,
@@ -69,55 +76,171 @@ export function useSingleWorkspace() {
     isDragging: false
   })
 
-
-
-  function openMenuItemActions(data: {item: MenuItem | null, isAdmin: boolean}, target?: HTMLElement, highlight?: HTMLElement) {
+  function openMenuItemActions(data: {item: TreeItem | null, isAdmin: boolean}, target?: HTMLElement, highlight?: HTMLElement) {
     console.log('openMenuItemActions', data, menuActionsRef.value)
     menuActionsRef.value?.open(data, target, highlight)
   }
 
   async function getWorkspaceById(id: string) {
-    const data = await query(`SELECT * FROM workspaces WHERE id = $1`, [id])
-    if(!data || data.length === 0) {
+    const data = await query(`SELECT * FROM case_type WHERE id = $1`, [id])
+    if (!data || data.length === 0) {
       workspace.value = null
       return
     }
-    workspace.value =  data[0] as WorkspaceType
+    workspace.value = data[0] as CaseTypeRecord
   }
 
-  async function saveWorkspaceToDb(newWorkspaceData?: WorkspaceType) {
-    if(!newWorkspaceData && !workspace.value) return
-    newWorkspaceData ||= workspace.value as WorkspaceType
-    const { name, slug, icon, description, id } = newWorkspaceData
-    await query(`UPDATE workspaces SET name = $1, slug = $2, icon = $3, description = $4 WHERE id = $5`, [name, slug, icon, description, id])
+  async function saveWorkspaceToDb(newWorkspaceData?: CaseTypeRecord) {
+    if (!newWorkspaceData && !workspace.value) return
+    newWorkspaceData ||= workspace.value as CaseTypeRecord
+    const { name, description, icon, id } = newWorkspaceData
+    const now = new Date().toISOString()
+    await query(
+      `UPDATE case_type SET name = $1, icon = $2, description = $3, "updatedAt" = $4 WHERE id = $5`,
+      [name, icon, description, now, id]
+    )
+  }
+
+  /**
+   * Build hierarchical tree structure from flat database records
+   */
+  function buildTreeFromFlat(flatItems: CaseTreeRecord[]): TreeItem[] {
+    const itemMap = new Map<string, TreeItem>()
+    const rootItems: TreeItem[] = []
+
+    // First pass: create all items
+    for (const item of flatItems) {
+      itemMap.set(item.id, { ...item, children: [] })
+    }
+
+    // Second pass: build hierarchy
+    for (const item of flatItems) {
+      const treeItem = itemMap.get(item.id)!
+      if (item.parentId && itemMap.has(item.parentId)) {
+        const parent = itemMap.get(item.parentId)!
+        parent.children = parent.children || []
+        parent.children.push(treeItem)
+      } else {
+        rootItems.push(treeItem)
+      }
+    }
+
+    // Sort by order
+    const sortByOrder = (items: TreeItem[]) => {
+      items.sort((a, b) => (a.order || 0) - (b.order || 0))
+      items.forEach(item => {
+        if (item.children && item.children.length > 0) {
+          sortByOrder(item.children)
+        }
+      })
+    }
+    sortByOrder(rootItems)
+
+    return rootItems
+  }
+
+  /**
+   * Flatten tree structure to flat array for saving
+   */
+  function flattenTree(items: TreeItem[], parentId: string | null = null): Partial<CaseTreeRecord>[] {
+    const result: Partial<CaseTreeRecord>[] = []
+    items.forEach((item, index) => {
+      result.push({
+        id: item.id,
+        entityId: workspace.value?.id,
+        label: item.label,
+        slug: item.slug,
+        description: item.description,
+        itemType: item.itemType,
+        itemId: item.itemId,
+        parentId: parentId,
+        order: index,
+      })
+      if (item.children && item.children.length > 0) {
+        result.push(...flattenTree(item.children, item.id))
+      }
+    })
+    return result
   }
 
   // Menu Functions
-  async function saveMenuToDb(){
-    console.log('saveMenuToDb', menuState.value.items, workspace.value?.id)
-    await query(`UPDATE workspaces SET menu = $1 WHERE id = $2`, [JSON.parse(JSON.stringify(menuState.value.items)), workspace.value?.id])
+  async function saveMenuItemToDb(item: Partial<CaseTreeRecord>) {
+    const now = new Date().toISOString()
+    
+    // Check if item exists
+    const existing = await query<CaseTreeRecord[]>(
+      `SELECT id FROM case_tree WHERE id = $1`,
+      [item.id]
+    )
+
+    if (existing.length > 0) {
+      // Update existing item
+      await query(
+        `UPDATE case_tree 
+         SET label = $1, slug = $2, description = $3, "itemType" = $4, "itemId" = $5, 
+             "parentId" = $6, "order" = $7, "updatedAt" = $8
+         WHERE id = $9`,
+        [
+          item.label,
+          item.slug,
+          item.description || null,
+          item.itemType,
+          item.itemId || null,
+          item.parentId || null,
+          item.order || 0,
+          now,
+          item.id
+        ]
+      )
+    } else {
+      // Insert new item
+      await query(
+        `INSERT INTO case_tree (id, "entityId", label, slug, description, "itemType", "itemId", "parentId", "order", "createdAt", "updatedAt")
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+        [
+          item.id,
+          item.entityId || workspace.value?.id,
+          item.label,
+          item.slug,
+          item.description || null,
+          item.itemType,
+          item.itemId || null,
+          item.parentId || null,
+          item.order || 0,
+          now,
+          now
+        ]
+      )
+    }
   }
 
   async function getMenuFromDb() {
-    if(!workspace.value) return
-    const menu = workspace.value?.menu
-    if(!menu) return
-    menu.forEach((item: any) => {
-      if(item.type === 'folder'){
-        menuState.value.expandedFolders.add(item.id)
-        if(item.children && item.children.length > 0) {
-          item.children.forEach((child: any) => {
-            if(child.type === 'folder'){
-              menuState.value.expandedFolders.add(child.id)
-            }
-          })
+    if (!workspace.value) return
+    
+    const data = await query<CaseTreeRecord>(
+      `SELECT * FROM case_tree WHERE "entityId" = $1 ORDER BY "order" ASC`,
+      [workspace.value.id]
+    )
+    console.log('getMenuFromDb', data)
+    const treeItems = buildTreeFromFlat(data)
+    
+    // Expand all folders by default
+    const expandFolders = (items: TreeItem[]) => {
+      for (const item of items) {
+        if (item.itemType === 'folder') {
+          menuState.value.expandedFolders.add(item.id)
+          if (item.children) {
+            expandFolders(item.children)
+          }
         }
       }
-    })
-    menuState.value.items = menu
+    }
+    expandFolders(treeItems)
+    
+    menuState.value.items = treeItems
   }
 
-  function findItemById(items: MenuItem[], id: string): MenuItem | undefined {
+  function findItemById(items: TreeItem[], id: string): TreeItem | undefined {
     for (const item of items) {
       if (item.id === id) {
         return item
@@ -132,7 +255,7 @@ export function useSingleWorkspace() {
     return undefined
   }
 
-  function removeItemById(items: MenuItem[], id: string): MenuItem[] {
+  function removeItemById(items: TreeItem[], id: string): TreeItem[] {
     return items.filter(item => {
       if (item.id === id) return false
       if (item.children) {
@@ -143,7 +266,7 @@ export function useSingleWorkspace() {
   }
 
   function toggleFolder(id: string) {
-    if(menuState.value.expandedFolders.has(id)) {
+    if (menuState.value.expandedFolders.has(id)) {
       menuState.value.expandedFolders.delete(id)
     } else {
       menuState.value.expandedFolders.add(id)
@@ -154,24 +277,26 @@ export function useSingleWorkspace() {
     menuState.value.editingItemId = id
   }
 
-  
-  function recursiveUpdateItem(items: MenuItem[], id: string, data:any) {
+  function recursiveUpdateItem(items: TreeItem[], id: string, data: Partial<TreeItem>) {
     for (const item of items) {
-      if(item.id === id) {
+      if (item.id === id) {
         Object.keys(data).forEach((key: any) => {
-          item[key as keyof MenuItem] = data[key]
+          (item as any)[key] = (data as any)[key]
         })
         console.log('update item', item, data)
       }
-      if(item.children) {
+      if (item.children) {
         recursiveUpdateItem(item.children, id, data)
       }
     }
   }
 
   async function saveEdit(id: string, newLabel: string) {
-    recursiveUpdateItem(menuState.value.items, id, {label: newLabel})
-    await saveMenuToDb()
+    recursiveUpdateItem(menuState.value.items, id, { label: newLabel })
+    const item = findItemById(menuState.value.items, id)
+    if (item) {
+      await saveMenuItemToDb(item)
+    }
     cancelEdit()
   }
 
@@ -181,60 +306,127 @@ export function useSingleWorkspace() {
 
   async function deleteItem(id: string) {
     const item = findItemById(menuState.value.items, id)
-    if(!item) return
-    // delete folder logic
-    // move all child to root
-    if (item.type === 'folder' && item.children) {
+    if (!item) return
+
+    // For folders, recursively delete children first
+    if (item.itemType === 'folder' && item.children) {
       for (const child of item.children) {
-        deleteItem(child.id)
+        await deleteItem(child.id)
       }
     }
-    // table logic
-    if(item.type === 'table'){
-      // TODO: implement table deletion logic
+
+    // For tables, delete the physical table and all metadata
+    if (item.itemType === 'table' && item.itemId) {
+      try {
+        // Get the physical table name first
+        const tableRecords = await query<{ tableName: string }>(
+          `SELECT "tableName" FROM case_tables WHERE id = $1`,
+          [item.itemId]
+        )
+        
+        if (tableRecords.length > 0 && tableRecords[0].tableName) {
+          // Drop the physical table
+          await exec(`DROP TABLE IF EXISTS "${tableRecords[0].tableName}" CASCADE`)
+        }
+        
+        // Delete metadata: fields, views, then table record
+        await query(`DELETE FROM case_fields WHERE "tableId" = $1`, [item.itemId])
+        await query(`DELETE FROM case_views WHERE "tableId" = $1`, [item.itemId])
+        await query(`DELETE FROM case_tables WHERE id = $1`, [item.itemId])
+      } catch (error) {
+        console.error('Error deleting table:', error)
+      }
     }
-    if(item.type === 'view'){
-      // TODO: implement view deletion logic
-    }
-    if(item.type === 'dashboard'){
-      // TODO: implement dashboard deletion logic
-    }
-    // delete item
+
+    // Delete the tree item from case_tree
+    await query(`DELETE FROM case_tree WHERE id = $1`, [id])
+
+    // Update local state
     menuState.value.items = removeItemById(menuState.value.items, id)
-    await saveMenuToDb()
+    
+    // If the deleted item was currently being viewed, navigate to root
+    if (workspaceRouteParams.value.detailId === id) {
+      workspaceRouteParams.value.detailId = null
+      workspaceRouteParams.value.detailType = 'root'
+    }
   }
 
-  async function addItem(parentId: string | null, type: MenuItem['type']) {
-    const newItem: MenuItem = {
-      id: uuidv7(),
-      label: 'new folder',
-      type,
-      children: type === 'folder' ? [] : undefined,
-      slug: `new-${type}-${Date.now()}`
+  async function addItem(parentId: string | null, type: CaseTreeItemType): Promise<TreeItem> {
+    const now = new Date()
+    const treeItemId = uuidv7()
+    const label = `New ${type}`
+    const slug = `new-${type}-${Date.now()}`
+    
+    let itemId: string | null = null
+    
+    // For tables, automatically create the physical table with default columns
+    if (type === 'table' && workspace.value?.id) {
+      const { createCaseTable, generateSlug } = useTableSchema()
+      const tableId = uuidv7()
+      
+      try {
+        // Create the table with only default system columns (no user columns)
+        await createCaseTable(
+          {
+            id: tableId,
+            name: label,
+            entityId: workspace.value.id,
+            description: null
+          },
+          [], // No user-defined fields, just default system columns
+          undefined // createdBy
+        )
+        itemId = tableId
+      } catch (error) {
+        console.error('Error creating table:', error)
+        throw error
+      }
     }
-    if(parentId) {
-      // open parent folder
+    
+    const newItem: TreeItem = {
+      id: treeItemId,
+      entityId: workspace.value?.id || null,
+      label,
+      slug,
+      description: null,
+      itemType: type,
+      itemId,
+      parentId: parentId,
+      order: 0,
+      createdBy: null,
+      createdAt: now,
+      updatedBy: null,
+      updatedAt: now,
+      children: type === 'folder' ? [] : undefined,
+    }
+
+    // Save to database
+    await saveMenuItemToDb(newItem)
+
+    // Update local state
+    if (parentId) {
       menuState.value.expandedFolders.add(parentId)
       const parent = findItemById(menuState.value.items, parentId)
-      if(parent && parent.type === 'folder' && parent.children) {
+      if (parent && parent.itemType === 'folder') {
+        parent.children = parent.children || []
         parent.children.push(newItem)
       }
     } else {
       menuState.value.items.push(newItem)
     }
+
     startEdit(newItem.id)
-    await saveMenuToDb()
+    return newItem
   }
 
-  function navigateToItem(item?: MenuItem) {
-    // console.log('navigateToItem', item)
+  function navigateToItem(item?: TreeItem) {
     console.log('navigateToItem', item)
-    if(!item) {
+    if (!item) {
       workspaceRouteParams.value.detailId = null
       workspaceRouteParams.value.detailType = 'root'
       return
     }
-    switch (item.type) {
+    switch (item.itemType) {
       case 'folder':
         workspaceRouteParams.value.detailId = item.id
         workspaceRouteParams.value.detailType = 'folder'
@@ -252,17 +444,17 @@ export function useSingleWorkspace() {
         workspaceRouteParams.value.detailType = 'dashboard'
         break
       default:
-        console.warn('Unknown item type:', item.type)
+        console.warn('Unknown item type:', item.itemType)
     }
   }
 
-  function openSetting(slug: string, type: MenuItem['type']) {
-    router.push(`/workspaces/${workspace.value?.slug}/${type}/${slug}/setting`)
+  function openSetting(slug: string, type: CaseTreeItemType) {
+    router.push(`/workspaces/${workspace.value?.id}/${type}/${slug}/setting`)
   }
 
-  function getMenuIcon(menuItem: MenuItem) {
+  function getMenuIcon(menuItem: TreeItem) {
     const item = findItemById(menuState.value.items, menuItem.id)
-    switch (item?.type) {
+    switch (item?.itemType) {
       case 'folder':
         return 'material-symbols:folder-outline'
       case 'table':
@@ -293,10 +485,11 @@ export function useSingleWorkspace() {
     navigateToItem,
     openSetting,
     getMenuFromDb,
-    saveMenuToDb,
+    saveMenuItemToDb,
     findItemById,
     recursiveUpdateItem,
     getMenuIcon,
+    buildTreeFromFlat,
   }
 
   provide(SingleWorkspaceContextKey, context)

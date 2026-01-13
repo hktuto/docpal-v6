@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import type { WorkspaceType } from '../../utils/db/schema/workspaces'
-import { WorkspaceSchema } from '../../utils/db/schema/workspaces.zod'
+import type { CaseTypeRecord } from '../../utils/db/schema/newTableSchema'
 import { VirtGrid } from 'vue-virt-list'
-import { useDebounceFn } from '@vueuse/core'
 
 const createWorkspacePopover = ref()
-const viewMode = ref<'grid' | 'table'>('table')
+const viewMode = ref<'grid' | 'table'>('grid')
 
 // Use workspaces composable
 const { workspaces, loading, getWorkspaces, searchWorkspaces, clearAllWorkspaces } = useWorkspaces()
@@ -74,8 +72,7 @@ function handleCreateWorkspaceSuccess(workspace:any) {
   
 }
 
-function handleWorkspaceSelected(workspace: WorkspaceType) {
-  console.log('Selected workspace:', workspace)
+function handleWorkspaceSelected(workspace: CaseTypeRecord) {
   const newItem = {
     id: 'workspace-detail',
     name: 'workspace-detail',
@@ -126,8 +123,7 @@ onMounted(() => {
       <UiSearchableList
         v-loading="loading"
         :data="workspaces"
-        :zod-schema="WorkspaceSchema"
-        :search-keys="['name', 'description', 'slug']"
+        :search-keys="['name', 'description']"
         :default-sort-by="'name'"
         :default-sort-order="'asc'"
         @selected="handleWorkspaceSelected"

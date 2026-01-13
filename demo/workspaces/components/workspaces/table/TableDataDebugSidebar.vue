@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { MenuItem } from '../../../utils/db/schema/workspaces'
-import type { DataTableType, DataTableColumnType, TableMigrationType } from '../../../utils/db/schema/table'
+import type { TreeItem } from '../../../composables/useSingleWorkspace'
+import type { CaseTableRecord, CaseFieldRecord, CaseViewRecord } from '../../../utils/db/schema/newTableSchema'
 
 const props = defineProps<{
-  menuItem: MenuItem
-  dataTableRecord: (DataTableType & { table_name?: string }) | null
-  dataTableColumns: DataTableColumnType[]
-  tableMigrations: TableMigrationType[]
+  menuItem: TreeItem
+  caseTable: CaseTableRecord | null
+  caseFields: CaseFieldRecord[]
+  caseViews: CaseViewRecord[]
   realTableData: any[]
   realTableError: string | null
 }>()
@@ -35,32 +35,32 @@ function toggleCollapse() {
     <div v-show="!isCollapsed" class="sidebar-content">
       <!-- Menu Item -->
       <div class="data-section">
-        <h4>Menu Item</h4>
+        <h4>Tree Item</h4>
         <pre class="raw-data">{{ JSON.stringify(menuItem, null, 2) }}</pre>
       </div>
 
-      <!-- Data Table Record -->
+      <!-- Case Table Record -->
       <div class="data-section">
-        <h4>data_tables Record</h4>
-        <pre class="raw-data">{{ JSON.stringify(dataTableRecord, null, 2) }}</pre>
+        <h4>case_tables Record</h4>
+        <pre class="raw-data">{{ JSON.stringify(caseTable, null, 2) }}</pre>
       </div>
 
-      <!-- Data Table Columns -->
+      <!-- Case Fields -->
       <div class="data-section">
-        <h4>data_table_columns ({{ dataTableColumns.length }})</h4>
-        <pre class="raw-data">{{ JSON.stringify(dataTableColumns, null, 2) }}</pre>
+        <h4>case_fields ({{ caseFields.length }})</h4>
+        <pre class="raw-data">{{ JSON.stringify(caseFields, null, 2) }}</pre>
       </div>
 
-      <!-- Table Migrations -->
+      <!-- Case Views -->
       <div class="data-section">
-        <h4>table_migrations ({{ tableMigrations.length }})</h4>
-        <pre class="raw-data">{{ JSON.stringify(tableMigrations, null, 2) }}</pre>
+        <h4>case_views ({{ caseViews.length }})</h4>
+        <pre class="raw-data">{{ JSON.stringify(caseViews, null, 2) }}</pre>
       </div>
 
       <!-- Real Table Data -->
       <div class="data-section">
         <h4>
-          Real Table: "{{ dataTableRecord?.table_name }}" 
+          Real Table: "{{ caseTable?.tableName }}" 
           ({{ realTableData.length }}{{ realTableData.length >= 100 ? '+' : '' }} rows)
         </h4>
         <el-alert

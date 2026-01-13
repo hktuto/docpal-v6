@@ -154,8 +154,17 @@ export function useImportQueue() {
     const { physicalTableName, columns, rows } = job
     
     // Filter out system columns for import
-    const systemColumnTypes = [21, 22, 23, 24] // CreatedTime, LastModifiedTime, CreatedBy, LastModifiedBy
-    const userColumns = columns.filter((c: any) => !systemColumnTypes.includes(c.type))
+    // System columns: CreatedTime, LastModifiedTime, CreatedBy, LastModifiedBy
+    const systemColumnTypes = [21, 22, 23, 24]
+    const systemFieldNames = ['createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'id']
+    
+    const userColumns = columns.filter((c: any) => {
+      // Check by type (old schema)
+      if (c.type && systemColumnTypes.includes(c.type)) return false
+      // Check by fieldName (new schema)
+      if (c.fieldName && systemFieldNames.includes(c.fieldName)) return false
+      return true
+    })
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]
@@ -166,20 +175,37 @@ export function useImportQueue() {
         const values: any[] = []
         let paramIndex = 1
 
-        // Add user data columns - use field for SQL column name, title for row data lookup
+        // Add user data columns
+        // Support both old schema (field/title) and new schema (fieldName/fieldNameAlias)
         for (const column of userColumns) {
-          if (!column.field && !column.title) continue
-          const colName = column.field || column.title.toLowerCase().replace(/\s+/g, '_')
-          const value = row[column.title]
+          // Get the SQL column name (fieldName in new schema, field in old)
+          const colName = column.fieldName || column.field
+          // Get the display name for row data lookup (fieldNameAlias in new schema, title in old)
+          const displayName = column.fieldNameAlias || column.title
+          
+          if (!colName && !displayName) continue
+          
+          const sqlColName = colName || displayName.toLowerCase().replace(/\s+/g, '_')
+          const value = row[displayName]
 
-          columnNames.push(`"${colName}"`)
+          columnNames.push(`"${sqlColName}"`)
           placeholders.push(`$${paramIndex}`)
           values.push(value !== undefined ? value : null)
           paramIndex++
         }
 
+        // Skip if no columns to insert
+        if (columnNames.length === 0) {
+          job.progress.errors.push({
+            rowIndex: i + 2,
+            rowData: row,
+            error: 'No valid columns to insert'
+          })
+          continue
+        }
+
         // Add system columns
-        columnNames.push('created_by', 'updated_by')
+        columnNames.push('"createdBy"', '"updatedBy"')
         placeholders.push(`$${paramIndex}`, `$${paramIndex + 1}`)
         values.push(null, null)
 

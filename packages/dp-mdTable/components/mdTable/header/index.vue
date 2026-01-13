@@ -7,14 +7,14 @@
   </div>
 </template>
 <script setup lang="ts">
-import { useMDTableReJect } from '../../../composables/useMDTable'
+import { useMDTableInject } from '../../../composables/useMDTable'
 
 const props = defineProps<{
   column: any
   headerProps: any
 }>()
 const mdTableHeaderPopover = inject('mdTableHeaderPopover')
-const mdTable = useMDTableReJect()
+const mdTable = useMDTableInject()
 const triggerRef = ref()
 
 /**

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { MenuItem } from '../../../utils/db/schema/workspaces'
+import type { TreeItem } from '../../../composables/useSingleWorkspace'
 import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspace'
 import draggable from 'vuedraggable'
 
 interface Props {
-  modelValue: MenuItem[]
+  modelValue: TreeItem[]
   level?: number
   parentId?: string | null
   isAdmin?: boolean
@@ -17,19 +17,19 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  'update:modelValue': [items: MenuItem[]]
+  'update:modelValue': [items: TreeItem[]]
 }>()
 
 const menuContext = useSingleWorkspaceContext()
 
 // Local copy that vuedraggable can mutate
-const localItems = ref<MenuItem[]>([...props.modelValue])
+const localItems = ref<TreeItem[]>([...props.modelValue])
 
 // Track if we're syncing from props to prevent emit loop
 const isSyncingFromProps = ref(false)
 
 // Helper to compare arrays
-function areItemsEqual(a: MenuItem[], b: MenuItem[]): boolean {
+function areItemsEqual(a: TreeItem[], b: TreeItem[]): boolean {
   return JSON.stringify(a) === JSON.stringify(b)
 }
 
@@ -77,14 +77,14 @@ function handleDragEnd() {
 }
 
 // Handle child folder items change (v-model from nested list)
-function handleChildUpdate(folderId: string, newChildren: MenuItem[]) {
+function handleChildUpdate(folderId: string, newChildren: TreeItem[]) {
   const index = localItems.value.findIndex(item => item.id === folderId)
   if (index !== -1) {
     const item = localItems.value[index]
     localItems.value[index] = {
       ...item,
       children: newChildren,
-    } as MenuItem
+    } as TreeItem
   }
 }
 
@@ -119,7 +119,7 @@ function isExpanded(itemId: string): boolean {
 
         <!-- Nested Children (if folder and expanded) -->
         <div
-          v-if="element.type === 'folder' && isExpanded(element.id)"
+          v-if="element.itemType === 'folder' && isExpanded(element.id)"
           class="nested-children"
         >
           <WorkspacesMenuDraggableList
@@ -127,7 +127,7 @@ function isExpanded(itemId: string): boolean {
             :level="level + 1"
             :parent-id="element.id"
             :is-admin="isAdmin"
-            @update:model-value="(children: MenuItem[]) => handleChildUpdate(element.id, children)"
+            @update:model-value="(children: TreeItem[]) => handleChildUpdate(element.id, children)"
           />
         </div>
       </div>

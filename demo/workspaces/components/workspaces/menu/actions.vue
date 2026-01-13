@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { MenuItem } from '../../../utils/db/schema/workspaces'
+import type { TreeItem, CaseTreeItemType } from '../../../composables/useSingleWorkspace'
 import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspace'
 import { ElMessageBox } from 'element-plus'
 
-const item = ref<MenuItem | null>(null)
+const item = ref<TreeItem | null>(null)
 const isAdmin = ref(false)
-const open = (data: {item: MenuItem, isAdmin: boolean}, target?: HTMLElement, highlight?: HTMLElement) => {
+const open = (data: {item: TreeItem, isAdmin: boolean}, target?: HTMLElement, highlight?: HTMLElement) => {
   if(!data.isAdmin) return;
   item.value = data.item
   isAdmin.value = data.isAdmin
@@ -35,10 +35,10 @@ async function handleDelete() {
   let message = `Are you sure you want to delete "${item.value.label}"?`
   let confirmText = 'Delete'
   
-  if (item.value?.type === 'table') {
-    message = `Are you sure you want to delete the table "${item.value.label}"?\n\nThis will permanently delete:\n• The physical database table\n• All columns\n• All data records\n\nThis action cannot be undone.`
+  if (item.value?.itemType === 'table') {
+    message = `Are you sure you want to delete the table "${item.value.label}"?\n\nThis will permanently delete:\n• The physical database table\n• All fields\n• All data records\n\nThis action cannot be undone.`
     confirmText = 'Delete Table'
-  } else if (item.value?.type === 'folder' && item.value?.children && item.value?.children.length > 0) {
+  } else if (item.value?.itemType === 'folder' && item.value?.children && item.value?.children.length > 0) {
     message = `Are you sure you want to delete the folder "${item.value.label}" and all its contents?`
   }
   
@@ -55,12 +55,12 @@ async function handleDelete() {
     // User cancelled
   })
 }
-async function handleEditSetting(type: MenuItem['type']) {
+async function handleEditSetting(type: CaseTreeItemType) {
   if(!item.value) return
   await menuContext.openSetting(item.value.slug, type)
   close()
 }
-async function handleAddItem(type: MenuItem['type']) {
+async function handleAddItem(type: CaseTreeItemType) {
   await menuContext.addItem(item.value?.id || null, type)
   close()
   // if(type ==='folder'){
@@ -118,7 +118,7 @@ defineExpose({ open, close })
           <Icon name="material-symbols:edit-outline" />
           <span>Rename</span>
         </div>
-        <template v-if="item.type === 'folder'">
+        <template v-if="item.itemType === 'folder'">
           <div class="action-divider" />
           <div class="action-item" @click="handleAddItem('folder')">
             <Icon name="material-symbols:folder-outline" />
@@ -142,7 +142,7 @@ defineExpose({ open, close })
             <span>Import from Excel</span>
           </div>
         </template>
-        <template v-if="item.type === 'table'">
+        <template v-if="item.itemType === 'table'">
           <div class="action-item" @click="handleEditSetting('table')">
             <Icon name="material-symbols:settings-outline" />
             <span>table settings</span>
@@ -167,8 +167,8 @@ defineExpose({ open, close })
   <!-- Import Excel Dialog -->
   <WorkspacesTableImportExcelDialog
     ref="importExcelDialogRef"
-    :workspace-id="menuContext.workspace.value?.id || ''"
-    :parent-folder-id="item?.type === 'folder' ? item.id : null"
+    :entity-id="menuContext.workspace.value?.id || ''"
+    :parent-folder-id="item?.itemType === 'folder' ? item.id : null"
     @success="handleImportSuccess"
   />
 </template>

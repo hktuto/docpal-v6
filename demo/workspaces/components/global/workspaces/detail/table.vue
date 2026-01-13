@@ -4,7 +4,6 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 const { workspaceRouteParams, workspace, menuState, findItemById, deleteItem, navigateToItem } = useSingleWorkspaceContext()
 
 const currentTable = ref<any>(null)
-const isTableCreated = ref(false)
 
 function getCurrentTable() {
   if (!workspaceRouteParams.value.detailId) return null
@@ -14,13 +13,6 @@ function getCurrentTable() {
 function checkTableStatus() {
   const table = getCurrentTable()
   currentTable.value = table
-  isTableCreated.value = !!(table?.itemId)
-}
-
-async function handleSetupComplete(data: { dataTableId: string }) {
-  // Refresh the current table state
-  checkTableStatus()
-  ElMessage.success('Table created successfully!')
 }
 
 async function handleDeleteTable() {
@@ -28,7 +20,7 @@ async function handleDeleteTable() {
   
   try {
     await ElMessageBox.confirm(
-      'This will delete this table from the menu. Are you sure?',
+      'This will delete this table and all its data. Are you sure?',
       'Delete Table',
       {
         confirmButtonText: 'Delete',
@@ -65,14 +57,16 @@ watch(() => workspaceRouteParams.value.detailId, () => {
       </div>
     </template>
     
-    <template v-else-if="!isTableCreated">
-      <!-- Setup Wizard -->
-      <WorkspacesTableSetupWizard
-        :menu-item="currentTable"
-        :workspace-id="workspace?.id || ''"
-        @complete="handleSetupComplete"
-        @delete="handleDeleteTable"
-      />
+    <template v-else-if="!currentTable.itemId">
+      <!-- Table not properly created - show error state -->
+      <div class="error-state">
+        <Icon name="material-symbols:error-outline" class="error-icon" />
+        <h3>Table Not Found</h3>
+        <p>This table was not created properly.</p>
+        <el-button type="danger" @click="handleDeleteTable">
+          Delete and try again
+        </el-button>
+      </div>
     </template>
     
     <template v-else>
@@ -106,6 +100,31 @@ watch(() => workspaceRouteParams.value.detailId, () => {
   
   .el-icon {
     font-size: 32px;
+  }
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 16px;
+  color: var(--el-text-color-secondary);
+  text-align: center;
+  
+  .error-icon {
+    font-size: 64px;
+    color: var(--el-color-danger);
+  }
+  
+  h3 {
+    margin: 0;
+    color: var(--el-text-color-primary);
+  }
+  
+  p {
+    margin: 0;
   }
 }
 </style>

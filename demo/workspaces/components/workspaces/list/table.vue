@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import type{ WorkspaceType } from '../../../utils/db/schema/workspaces';
+import type { CaseTypeRecord } from '../../../utils/db/schema/newTableSchema'
 
 const props = defineProps<{
-  items: WorkspaceType[]
+  items: CaseTypeRecord[]
   keyword?: string
 }>()
 const {items} = toRefs(props)
@@ -24,10 +24,10 @@ const { tableRef, tableConfig, tableEvent, reload } = useVxeTable({
         return highlightText(row.description, props.keyword || '')
       },
     },
-    { field: 'created_at', title: 'Created Date', formatter: ({cellValue}) => {
+    { field: 'createdAt', title: 'Created Date', formatter: ({cellValue}) => {
       return formatDate(cellValue)
     } },
-    { field: 'updated_at', title: 'Updated Date', formatter: ({cellValue}) => {
+    { field: 'updatedAt', title: 'Updated Date', formatter: ({cellValue}) => {
       return formatDate(cellValue)
     } },
   ],
@@ -57,7 +57,7 @@ const { tableRef, tableConfig, tableEvent, reload } = useVxeTable({
 
 watch(items, (newItems) => {
   if(tableRef.value) {
-    (tableRef.value as any)?.reloadData(newItems)
+    // (tableRef.value as any)?.reloadData(newItems)
     // tableRef.value.reload()o
   }
 }, { deep: true})
@@ -74,20 +74,17 @@ defineExpose({
 
 onMounted(() => {
   if(tableRef.value) {
-    (tableRef.value as any)?.reloadData(props.items)
+    // (tableRef.value as any)?.reloadData(props.items)
   }
 })
 </script>
 <template>
-  <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
+  <VxeGrid ref="tableRef" :data="items" v-bind="tableConfig" v-on="tableEvent">
     <template #toolbar_buttons></template>
     <template #icon="{ row }">
       <Icon :name="row.icon" />
     </template>
 
-    <template #description="{ row }">
-      <span v-html="highlightText(row.description || '', keyword || '')"></span>
-    </template>
   </VxeGrid>
 </template>
 

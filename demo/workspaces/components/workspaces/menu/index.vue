@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { MenuItem } from '../../../utils/db/schema/workspaces'
+import type { TreeItem } from '../../../composables/useSingleWorkspace'
 import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspace'
 import { useImportBatch, isExcelFile } from '../../../composables/useImportBatch'
 
 interface Props {
   workspaceId: string
-  initialMenu: MenuItem[]
+  initialMenu?: TreeItem[]
   isAdmin: boolean
 }
 
@@ -78,11 +78,39 @@ provide('isExcelFile', isExcelFile)
 
 
 
-const debouncedSave = useDebounceFn(async (menu: MenuItem[]) => {
-  await saveMenuToDb()
+const { saveMenuItemToDb } = useSingleWorkspaceContext()
+
+const debouncedSave = useDebounceFn(async (items: TreeItem[]) => {
+  // Save each item to the database
+  for (const item of flattenTree(items)) {
+    await saveMenuItemToDb(item)
+  }
 }, 1000)
+
+// Helper: Flatten tree to array for saving
+function flattenTree(items: TreeItem[], parentId: string | null = null): Partial<TreeItem>[] {
+  const result: Partial<TreeItem>[] = []
+  items.forEach((item, index) => {
+    result.push({
+      id: item.id,
+      entityId: item.entityId,
+      label: item.label,
+      slug: item.slug,
+      description: item.description,
+      itemType: item.itemType,
+      itemId: item.itemId,
+      parentId: parentId,
+      order: index,
+    })
+    if (item.children && item.children.length > 0) {
+      result.push(...flattenTree(item.children, item.id))
+    }
+  })
+  return result
+}
+
 // Helper: Update order numbers
-function updateOrderNumbers(items: MenuItem[]): MenuItem[] {
+function updateOrderNumbers(items: TreeItem[]): TreeItem[] {
   return items.map((item, index) => ({
     ...item,
     order: index,
@@ -90,11 +118,8 @@ function updateOrderNumbers(items: MenuItem[]): MenuItem[] {
   }))
 }
 
-
-
-
 // Handle menu changes from draggable list (v-model update)
-async function handleMenuChange(newItems: MenuItem[]) {
+async function handleMenuChange(newItems: TreeItem[]) {
   console.log('[Menu] Menu changed from drag:', newItems.length, 'items')
   
   // Update order numbers

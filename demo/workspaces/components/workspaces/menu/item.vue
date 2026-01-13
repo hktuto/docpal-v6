@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { MenuItem } from '../../../utils/db/schema/workspaces'
+import type { TreeItem } from '../../../composables/useSingleWorkspace'
 
 interface Props {
-  item: MenuItem
+  item: TreeItem
   isAdmin: boolean
 }
 
@@ -24,7 +24,7 @@ const isEditing = computed(() => menuState.value.editingItemId === props.item.id
 
 // Check if this folder is expanded
 const isExpanded = computed(() => {
-  if (props.item.type !== 'folder') return false
+  if (props.item.itemType !== 'folder') return false
   return menuState.value.expandedFolders.has(props.item.id)
 })
 
@@ -32,7 +32,7 @@ const isExpanded = computed(() => {
 
 // Toggle folder expand/collapse
 function handleToggle() {
-  if (props.item.type === 'folder') {
+  if (props.item.itemType === 'folder') {
     toggleFolder(props.item.id)
   }
 }
@@ -71,7 +71,7 @@ function handleCancelEdit() {
 
 // Folder drop handlers
 function onFolderDragOver(event: DragEvent) {
-  if (props.item.type !== 'folder' || !props.isAdmin) return
+  if (props.item.itemType !== 'folder' || !props.isAdmin) return
   
   event.preventDefault()
   event.stopPropagation()
@@ -93,7 +93,7 @@ async function onFolderDrop(event: DragEvent) {
   event.stopPropagation()
   isDragOver.value = false
   
-  if (props.item.type !== 'folder' || !props.isAdmin) return
+  if (props.item.itemType !== 'folder' || !props.isAdmin) return
   
   const files = event.dataTransfer?.files
   if (!files || files.length === 0) return
@@ -110,7 +110,7 @@ async function onFolderDrop(event: DragEvent) {
   <div
     class="menu-item"
     :class="{ 
-      'is-folder': item.type === 'folder', 
+      'is-folder': item.itemType === 'folder', 
       'is-expanded': isExpanded, 
       'is-selected': isSelected,
       'is-drag-over': isDragOver
@@ -165,7 +165,7 @@ async function onFolderDrop(event: DragEvent) {
       </div>
             <!-- Expand/Collapse Icon (folders only) -->
       <div
-        v-if="item.type === 'folder'"
+        v-if="item.itemType === 'folder'"
         class="expand-icon"
         @click.stop="handleToggle"
       >

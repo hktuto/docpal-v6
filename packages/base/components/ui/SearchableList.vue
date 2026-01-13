@@ -288,10 +288,10 @@ async function computeFilteredList() {
       defaultItemMatchesFilters(item, filterOptions.value, keywordValue)
     )
   }
-
+  console.log('result', result)
   // Sort the results
   filteredList.value = sortItems(result)
-  
+  console.log('filteredList', filteredList.value)
   const endTime = performance.now()
   const duration = (endTime - startTime).toFixed(2)
   

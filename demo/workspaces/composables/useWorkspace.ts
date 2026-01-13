@@ -1,17 +1,17 @@
-import type { WorkspaceType } from '../utils/db/schema/workspaces'
+import type { CaseTypeRecord } from '../utils/db/schema/newTableSchema'
 
 export function useWorkspaces() {
   const { query, search, removeAllTables } = usePglite()
-  const workspaces = shallowRef<WorkspaceType[]>([])
+  const workspaces = shallowRef<CaseTypeRecord[]>([])
   const loading = ref(false)
 
   /**
-   * Get all workspaces
+   * Get all workspaces (case types)
    */
-  async function getWorkspaces(): Promise<WorkspaceType[]> {
+  async function getWorkspaces(): Promise<CaseTypeRecord[]> {
     loading.value = true
     try {
-      const data = await query<WorkspaceType>(`SELECT * FROM workspaces ORDER BY name ASC`)
+      const data = await query<CaseTypeRecord>(`SELECT * FROM case_type ORDER BY name ASC`)
       workspaces.value = data
       return data
     } finally {
@@ -29,42 +29,75 @@ export function useWorkspaces() {
     sortBy?: string
     sortOrder?: 'asc' | 'desc'
     isFilterStage?: boolean
-  }): Promise<WorkspaceType[]> {
-    const data = await search<WorkspaceType>({
-      table: 'workspaces',
-      searchKeys: ['name', 'description', 'slug'],
+  }): Promise<CaseTypeRecord[]> {
+    const data = await search<CaseTypeRecord>({
+      table: 'case_type',
+      searchKeys: ['name', 'description'],
       ...options
     })
-    // If in filter stage, need to return all items with __dim for non-matches
-    // if (options.isFilterStage) {
-    //   const matchedIds = new Set(data.map(item => item.id))
-    //   const invertList= JSON.parse(JSON.stringify(workspaces.value)).filter((item:any) => !matchedIds.has(item.id)).map((item:any) => {item.__dim = true; return item});
-    //   // Return all workspaces, with __dim for non-matches
-    //   return [...data,...invertList]
-    // }
-    
-    // After confirmation, just return filtered results
     return data
   }
 
   /**
    * Get workspace by ID
    */
-  async function getWorkspaceById(id: string): Promise<WorkspaceType | null> {
-    const data = await query<WorkspaceType>(
-      `SELECT * FROM workspaces WHERE id = $1`,
+  async function getWorkspaceById(id: string): Promise<CaseTypeRecord | null> {
+    const data = await query<CaseTypeRecord>(
+      `SELECT * FROM case_type WHERE id = $1`,
       [id]
     )
     return data[0] || null
   }
 
   /**
+   * Create a new workspace
+   */
+  async function createWorkspace(workspace: Partial<CaseTypeRecord>): Promise<CaseTypeRecord> {
+    const now = new Date().toISOString()
+    const data = await query<CaseTypeRecord>(
+      `INSERT INTO case_type (name, description, icon, "entityType", "createdBy", "createdAt", "updatedAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING *`,
+      [
+        workspace.name,
+        workspace.description || null,
+        workspace.icon || null,
+        workspace.entityType || 'case',
+        workspace.createdBy || null,
+        now,
+        now
+      ]
+    )
+    // Update local state
+    workspaces.value = [...workspaces.value, data[0]]
+    return data[0]
+  }
+
+  /**
+   * Update a workspace
+   */
+  async function updateWorkspace(id: string, updates: Partial<CaseTypeRecord>): Promise<void> {
+    const now = new Date().toISOString()
+    await query(
+      `UPDATE case_type 
+       SET name = COALESCE($1, name), 
+           description = COALESCE($2, description), 
+           icon = COALESCE($3, icon),
+           "updatedAt" = $4
+       WHERE id = $5`,
+      [updates.name, updates.description, updates.icon, now, id]
+    )
+    // Update local state
+    getWorkspaces()
+  }
+
+  /**
    * Delete workspace by ID
    */
   async function deleteWorkspace(id: string): Promise<void> {
-    await query(`DELETE FROM workspaces WHERE id = $1`, [id])
+    await query(`DELETE FROM case_type WHERE id = $1`, [id])
     // Update local state
-    workspaces.value = workspaces.value.filter(w => w.id !== id)
+    getWorkspaces()
   }
 
   /**
@@ -81,6 +114,8 @@ export function useWorkspaces() {
     getWorkspaces,
     searchWorkspaces,
     getWorkspaceById,
+    createWorkspace,
+    updateWorkspace,
     deleteWorkspace,
     clearAllWorkspaces
   }

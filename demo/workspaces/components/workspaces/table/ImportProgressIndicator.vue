@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import { importQueueState, useImportQueue, type ImportReport, type ImportJob } from '../../../composables/useImportQueue'
+import type { AnalysisResult } from '../../../composables/useRelationAnalyzer'
 
 const emit = defineEmits<{
   (e: 'view-report', report: ImportReport): void
 }>()
 
 const { onImportEvent } = useImportQueue()
+const { analyzeWorkspace } = useRelationAnalyzer()
+const { workspace } = useSingleWorkspaceContext()
+
+// Relation analysis state
+const showRelationDialog = ref(false)
+const analysisResult = ref<AnalysisResult | null>(null)
+const isAnalyzing = ref(false)
 
 const isVisible = ref(false)
 const isMinimized = ref(false)
@@ -34,14 +42,19 @@ onMounted(() => {
     // Force reactivity update
   })
 
-  onImportEvent('import-completed', (report: ImportReport) => {
+  onImportEvent('import-completed', async (report: ImportReport) => {
     latestReport.value = report
     showCompletedBanner.value = true
     
-    // Auto-hide after 10 seconds if no errors
-    if (report.totalErrors === 0) {
+    // Run relationship analysis if import was successful and we have a workspace
+    if (report.totalTables > 0 && workspace.value?.id) {
+      await runRelationshipAnalysis()
+    }
+    
+    // Auto-hide after 10 seconds if no errors (and no relation dialog)
+    if (report.totalErrors === 0 && !showRelationDialog.value) {
       setTimeout(() => {
-        if (showCompletedBanner.value && !isProcessing.value) {
+        if (showCompletedBanner.value && !isProcessing.value && !showRelationDialog.value) {
           isVisible.value = false
         }
       }, 10000)
@@ -63,6 +76,40 @@ function handleViewReport() {
 function handleDismiss() {
   isVisible.value = false
   showCompletedBanner.value = false
+}
+
+/**
+ * Run relationship analysis after import completes
+ */
+async function runRelationshipAnalysis() {
+  if (!workspace.value?.id) return
+  
+  isAnalyzing.value = true
+  
+  try {
+    const result = await analyzeWorkspace(workspace.value.id)
+    console.log('result', result)
+    // Only show dialog if we found potential relationships
+    if (result.suggestions.length > 0) {
+      analysisResult.value = result
+      showRelationDialog.value = true
+    }
+  } catch (error) {
+    console.error('Error analyzing relationships:', error)
+  } finally {
+    isAnalyzing.value = false
+  }
+}
+
+function handleRelationConfirm() {
+  showRelationDialog.value = false
+  analysisResult.value = null
+  ElMessage.success('Relation fields created successfully')
+}
+
+function handleRelationCancel() {
+  showRelationDialog.value = false
+  analysisResult.value = null
 }
 </script>
 
@@ -171,6 +218,14 @@ function handleDismiss() {
       </div>
     </Transition>
   </Teleport>
+
+  <!-- Relationship Analysis Dialog -->
+  <WorkspacesTableRelationSuggestDialog
+    v-model="showRelationDialog"
+    :analysis-result="analysisResult"
+    @confirm="handleRelationConfirm"
+    @cancel="handleRelationCancel"
+  />
 </template>
 
 <style lang="scss" scoped>

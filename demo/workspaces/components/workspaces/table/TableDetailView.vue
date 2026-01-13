@@ -1,82 +1,78 @@
 <script setup lang="ts">
-import type { MenuItem } from '../../../utils/db/schema/workspaces'
-import type { DataTableType, DataTableColumnType, TableMigrationType } from '../../../utils/db/schema/table'
+import type { TreeItem } from '../../../composables/useSingleWorkspace'
+import type { CaseTableRecord, CaseFieldRecord, CaseViewRecord } from '../../../utils/db/schema/newTableSchema'
 
 const props = defineProps<{
-  menuItem: MenuItem
+  menuItem: TreeItem
   dataTableId: string
 }>()
 
 const { query } = usePglite()
 
 // Data for detail view
-// Note: DB returns snake_case but TypeScript type uses camelCase
-const dataTableRecord = ref<(DataTableType & { table_name?: string }) | null>(null)
-const dataTableColumns = ref<DataTableColumnType[]>([])
-const tableMigrations = ref<TableMigrationType[]>([])
+const caseTable = ref<CaseTableRecord | null>(null)
+const caseFields = ref<CaseFieldRecord[]>([])
+const caseViews = ref<CaseViewRecord[]>([])
 const realTableData = ref<any[]>([])
 const realTableError = ref<string | null>(null)
 const isLoading = ref(false)
 
+// useTableView() sets up the ColumnContext and TableDataContext providers
+// that MdTable expects to inject
 const tableView = useTableView()
+const tableReady = ref(false)
 
 async function loadTableData() {
   isLoading.value = true
   realTableError.value = null
+  tableReady.value = false
+  
   try {
-    // Fetch data_tables record
-    const tables = await query<DataTableType>(
-      'SELECT * FROM data_tables WHERE id = $1',
+    // Fetch case_tables record
+    const tables = await query<CaseTableRecord>(
+      'SELECT * FROM case_tables WHERE id = $1',
       [props.dataTableId]
     )
-    dataTableRecord.value = tables[0] || null
+    caseTable.value = tables[0] || null
 
-    // Fetch data_table_columns
-    const columns = await query<DataTableColumnType>(
-      'SELECT * FROM data_table_columns WHERE data_table_id = $1 ORDER BY created_at ASC',
-      [props.dataTableId]
-    )
-    dataTableColumns.value = columns
-
-    // Fetch table_migrations
-    const migrations = await query<TableMigrationType>(
-      'SELECT * FROM table_migrations WHERE data_table_id = $1 ORDER BY version ASC',
-      [props.dataTableId]
-    )
-    tableMigrations.value = migrations
-
-    // Fetch data from the real/dynamic table
-    if (dataTableRecord.value?.table_name) {
-      try {
-        const realData = await query<any>(
-          `SELECT * FROM "${dataTableRecord.value.table_name}" ORDER BY created_at DESC LIMIT 100`
-        )
-        realTableData.value = realData
-      } catch (err: any) {
-        console.error('Error fetching real table data:', err)
-        realTableError.value = err.message || 'Failed to fetch table data'
-        realTableData.value = []
-      }
+    if (!caseTable.value?.tableName) {
+      console.error('Table not found or has no physical table name')
+      return
     }
-    
-    tableView.tableId.value = dataTableRecord.value?.table_name || ''
-    tableView.dataTableId.value = dataTableRecord.value?.id || ''
-    console.log('tableView.dataTableId', dataTableRecord.value)
-    tableView.getAllColumns()
-    // tableView.getTableData()
+
+    // Set IDs on tableView - this is needed for getAllColumns() and getTableData()
+    tableView.physicalTableName.value = caseTable.value.tableName
+    tableView.tableId.value = caseTable.value.id
+
+    // Load columns and table data through tableView
+    // This populates the contexts that MdTable will inject
+    const [fields, views, data] = await Promise.all([
+      tableView.getAllColumns(), // Uses tableId to fetch from case_fields
+      tableView.getViews(),       // Uses tableId to fetch from case_views
+      tableView.getTableData()    // Uses physicalTableName to fetch from actual table
+    ])
+
+    caseFields.value = tableView.fields.value
+    caseViews.value = tableView.views.value
+    realTableData.value = data
+
+    tableReady.value = true
   } catch (error) {
     console.error('Error loading table data:', error)
+    realTableError.value = error instanceof Error ? error.message : 'Unknown error'
   } finally {
     isLoading.value = false
   }
 }
 
-onMounted(() => {
-  loadTableData()
+const physicalTableName = computed(() => caseTable.value?.tableName || '')
+
+onMounted(async () => {
+  await loadTableData()
 })
 
-watch(() => props.dataTableId, () => {
-  loadTableData()
+watch(() => props.dataTableId, async () => {
+  await loadTableData()
 })
 </script>
 
@@ -84,11 +80,6 @@ watch(() => props.dataTableId, () => {
   <div class="table-detail-view">
     <!-- Main Content Area -->
     <div class="table-main">
-      <!-- <div class="table-header">
-        <h2>{{ menuItem.label }}</h2>
-        <p v-if="menuItem.description">{{ menuItem.description }}</p>
-      </div> -->
-      
       <div v-if="isLoading" class="loading-state">
         <el-icon class="is-loading">
           <Icon name="material-symbols:progress-activity" />
@@ -97,8 +88,9 @@ watch(() => props.dataTableId, () => {
       </div>
 
       <div v-else class="table-content">
-        <!-- Table will be added here -->
-        <MdTable ref="tableRef" ></MdTable>
+        <!-- Use wrapper component that sets up MdTable providers -->
+        <MdTable v-if="tableReady" />
+        
       </div>
     </div>
 
@@ -106,9 +98,9 @@ watch(() => props.dataTableId, () => {
     <WorkspacesTableDataDebugSidebar
       v-if="!isLoading"
       :menu-item="menuItem"
-      :data-table-record="dataTableRecord"
-      :data-table-columns="dataTableColumns"
-      :table-migrations="tableMigrations"
+      :case-table="caseTable"
+      :case-fields="caseFields"
+      :case-views="caseViews"
       :real-table-data="realTableData"
       :real-table-error="realTableError"
     />
@@ -166,8 +158,6 @@ watch(() => props.dataTableId, () => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   overflow: auto;
   
   .empty-icon {
@@ -177,6 +167,20 @@ watch(() => props.dataTableId, () => {
   
   :deep(.el-empty__image) {
     width: auto;
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 12px;
+  color: var(--el-text-color-secondary);
+  
+  p {
+    margin: 0;
   }
 }
 </style>

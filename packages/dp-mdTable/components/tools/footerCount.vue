@@ -40,7 +40,7 @@ import { ElDropdown, ElDropdownMenu, ElDropdownItem, ElIcon } from 'element-plus
 import { Check, CaretBottom } from '@element-plus/icons-vue'
 import type { ColumnConfig } from '../../composables/useColumns'
 import { ColumnFieldType } from '../../types/column-types'
-import { useMDTableReJect } from '../../composables/useMDTable'
+import { useMDTableInject } from '../../composables/useMDTable'
 import { calculateCount, type CountMethod, flattenAggregatedData } from '../../utils/tableCount'
 
 const { t } = useI18n()
@@ -73,7 +73,7 @@ const allMethods = computed<MethodOption[]>(() => [
   { value: 'emptyPercent', label: t('mdTable.countMethod.emptyPercent') },
   { value: 'filledPercent', label: t('mdTable.countMethod.filledPercent') }
 ])
-const mdTable = useMDTableReJect()
+const mdTable = useMDTableInject()
 const gridRef = mdTable.gridRef
 // Inject gridRef 来获取表格数据
 // 判断是否为数字类型

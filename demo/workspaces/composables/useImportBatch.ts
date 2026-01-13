@@ -1,7 +1,6 @@
 import * as XLSX from 'xlsx'
 import { v7 as uuidv7 } from 'uuid'
-import type { MenuItem } from '../utils/db/schema/workspaces'
-import type { DataTableColumnType } from '../utils/db/schema/table'
+import type { CaseTreeRecord, CaseFieldRecord, FieldDisplayStructure } from '../utils/db/schema/newTableSchema'
 import { ColumnFieldType } from '../utils/tableColumnType'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
@@ -10,7 +9,7 @@ interface SheetData {
   tableName: string
   slug: string
   headers: string[]
-  columns: Partial<DataTableColumnType>[]
+  fields: Partial<CaseFieldRecord>[]
   rows: Record<string, any>[]
 }
 
@@ -25,7 +24,7 @@ interface ImportBatchResult {
  * Reserved column names that cannot be used as field names
  */
 const RESERVED_COLUMN_NAMES = [
-  'id', 'created_at', 'created_by', 'updated_at', 'updated_by',
+  'id', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy',
   'oid', 'tableoid', 'xmin', 'cmin', 'xmax', 'cmax', 'ctid'
 ]
 
@@ -73,7 +72,6 @@ function generateUniqueFieldNames(titles: string[]): string[] {
 
 /**
  * Detect the column type based on cell values
- * Simplified version - mainly detect basic types, default to Text for objects
  */
 function detectColumnType(
   samples: any[]
@@ -139,7 +137,7 @@ function detectColumnType(
     }
   }
   
-  // Default to Text for simple values
+  // Default to Text
   return { type: ColumnFieldType.Text, properties: { defaultValue: '' } }
 }
 
@@ -196,9 +194,61 @@ export function isExcelFile(file: File): boolean {
   return validTypes.includes(file.type) || validExtensions.includes(extension || '')
 }
 
+/**
+ * Map ColumnFieldType to business type
+ */
+function mapToBusinessType(type: ColumnFieldType): string {
+  switch (type) {
+    case ColumnFieldType.Number:
+    case ColumnFieldType.Rating:
+      return 'number'
+    case ColumnFieldType.Checkbox:
+      return 'boolean'
+    case ColumnFieldType.DateTime:
+    case ColumnFieldType.CreatedTime:
+    case ColumnFieldType.LastModifiedTime:
+      return 'date'
+    case ColumnFieldType.Relation:
+      return 'relation'
+    case ColumnFieldType.Formula:
+      return 'formula'
+    case ColumnFieldType.Aggregation:
+      return 'aggregation'
+    default:
+      return 'text'
+  }
+}
+
+/**
+ * Map ColumnFieldType to database type
+ */
+function mapToDatabaseType(type: ColumnFieldType): string {
+  switch (type) {
+    case ColumnFieldType.Number:
+    case ColumnFieldType.Rating:
+      return 'numeric'
+    case ColumnFieldType.Checkbox:
+      return 'boolean'
+    case ColumnFieldType.DateTime:
+    case ColumnFieldType.CreatedTime:
+    case ColumnFieldType.LastModifiedTime:
+      return 'timestamp'
+    case ColumnFieldType.User:
+    case ColumnFieldType.CreatedBy:
+    case ColumnFieldType.LastModifiedBy:
+    case ColumnFieldType.Relation:
+      return 'uuid'
+    case ColumnFieldType.MultiSelect:
+    case ColumnFieldType.Document:
+      return 'jsonb'
+    default:
+      return 'text'
+  }
+}
+
 export function useImportBatch() {
-  const { menuState, saveMenuToDb, findItemById, workspace } = useSingleWorkspaceContext()
-  const { createDataTable, generateSlug } = useTableSchema()
+  const { menuState, saveMenuItemToDb, findItemById, workspace } = useSingleWorkspaceContext()
+  const { createCaseTable, generateSlug } = useTableSchema()
   const { queueImportJobs } = useImportQueue()
 
   /**
@@ -208,9 +258,9 @@ export function useImportBatch() {
     const names: string[] = []
     const slugs: string[] = []
     
-    function collectFromItems(items: MenuItem[]) {
+    function collectFromItems(items: any[]) {
       for (const item of items) {
-        if (item.type === 'table') {
+        if (item.itemType === 'table') {
           names.push(item.label.toLowerCase())
           if (item.slug) {
             slugs.push(item.slug.toLowerCase())
@@ -245,7 +295,7 @@ export function useImportBatch() {
   /**
    * Parse Excel file and extract sheet data
    */
-  async function parseExcelFile(file: File, workspaceId: string): Promise<SheetData[]> {
+  async function parseExcelFile(file: File, entityId: string): Promise<SheetData[]> {
     const data = await readFileAsArrayBuffer(file)
     const workbook = XLSX.read(data, { type: 'array', cellDates: true })
     
@@ -273,16 +323,16 @@ export function useImportBatch() {
         continue
       }
       
-      // Generate unique field names for columns
-      const columnFields = generateUniqueFieldNames(validHeaders)
+      // Generate unique field names
+      const fieldNames = generateUniqueFieldNames(validHeaders)
       
       // Get data rows (excluding header)
       const dataRows = jsonData.slice(1).filter((row: any[]) => 
         row && !row.every((cell: any) => cell === undefined || cell === null || cell === '')
       )
       
-      // Create column definitions with auto-detected types
-      const columns: Partial<DataTableColumnType>[] = validHeaders.map((header, idx) => {
+      // Create field definitions with auto-detected types
+      const fields: Partial<CaseFieldRecord>[] = validHeaders.map((header, idx) => {
         const originalIdx = headerRow.findIndex((h: any, i: number) => 
           h !== undefined && h !== null && String(h).trim() === header && 
           headerRow.slice(0, i).filter((hh: any) => hh !== undefined && hh !== null && String(hh).trim() === header).length === 
@@ -300,14 +350,24 @@ export function useImportBatch() {
         
         const { type, properties } = detectColumnType(samples)
         
+        // Create display structure
+        const displayStructure: FieldDisplayStructure = {
+          type,
+          properties,
+        }
+        
         return {
           id: uuidv7(),
-          workspaceId,
-          field: columnFields[idx],
-          title: header,
-          type,
-          required: false,
-          properties
+          fieldName: fieldNames[idx],
+          fieldNameAlias: header,
+          businessType: mapToBusinessType(type) as any,
+          fieldType: mapToDatabaseType(type) as any,
+          displayStructure,
+          isRequired: false,
+          isHidden: false,
+          isArray: false,
+          isUnique: false,
+          fieldLength: 0,
         }
       })
       
@@ -338,7 +398,7 @@ export function useImportBatch() {
         tableName: sheetName,
         slug: tableSlug,
         headers: validHeaders,
-        columns,
+        fields,
         rows
       })
     }
@@ -348,13 +408,10 @@ export function useImportBatch() {
 
   /**
    * Import Excel file directly without dialog
-   * @param file - The Excel file to import
-   * @param workspaceId - The workspace ID
-   * @param parentFolderId - Optional parent folder ID
    */
   async function importExcelFile(
     file: File, 
-    workspaceId: string, 
+    entityId: string, 
     parentFolderId?: string | null
   ): Promise<ImportBatchResult> {
     // Validate file type
@@ -365,7 +422,7 @@ export function useImportBatch() {
     
     try {
       // Parse the Excel file
-      const sheets = await parseExcelFile(file, workspaceId)
+      const sheets = await parseExcelFile(file, entityId)
       
       if (sheets.length === 0) {
         ElMessage.warning('No valid sheets found in the file')
@@ -379,7 +436,6 @@ export function useImportBatch() {
         .filter(name => existingNames.includes(name))
       
       if (duplicates.length > 0) {
-        // Prompt user about duplicates
         const duplicateList = [...new Set(duplicates)].join(', ')
         
         try {
@@ -393,7 +449,6 @@ export function useImportBatch() {
             }
           )
         } catch {
-          // User cancelled
           return { success: false, duplicates: [...new Set(duplicates)], error: 'User cancelled due to duplicates' }
         }
         
@@ -407,12 +462,10 @@ export function useImportBatch() {
           return { success: false, duplicates: [...new Set(duplicates)], error: 'All sheets are duplicates' }
         }
         
-        // Continue with non-duplicate sheets
-        return await createTablesFromSheets(filteredSheets, workspaceId, parentFolderId, file.name)
+        return await createTablesFromSheets(filteredSheets, entityId, parentFolderId, file.name)
       }
       
-      // No duplicates - proceed with import
-      return await createTablesFromSheets(sheets, workspaceId, parentFolderId, file.name)
+      return await createTablesFromSheets(sheets, entityId, parentFolderId, file.name)
       
     } catch (error: any) {
       console.error('Error importing Excel file:', error)
@@ -426,65 +479,67 @@ export function useImportBatch() {
    */
   async function createTablesFromSheets(
     sheets: SheetData[],
-    workspaceId: string,
+    entityId: string,
     parentFolderId: string | null | undefined,
     fileName: string
   ): Promise<ImportBatchResult> {
-    const createdTables: { id: string; name: string; physicalTableName: string; columns: any[]; rows: any[] }[] = []
+    const createdTables: { id: string; name: string; physicalTableName: string; fields: any[]; rows: any[] }[] = []
     
     try {
-      // Phase 1: Create tables, columns, migrations
+      // Phase 1: Create tables, fields, views
       for (const sheet of sheets) {
-        const dataTableId = uuidv7()
+        const tableId = uuidv7()
         
-        // Create the data table structure (without importing rows)
-        const result = await createDataTable(
+        // Create the case table structure
+        const result = await createCaseTable(
           {
-            id: dataTableId,
+            id: tableId,
             name: sheet.tableName,
-            slug: sheet.slug,
-            workspaceId,
+            entityId,
             description: `Imported from ${fileName} - Sheet: ${sheet.name}`
           },
-          sheet.columns,
+          sheet.fields,
           undefined
         )
         
-        // Create menu item
-        const menuItem: MenuItem = {
+        // Create tree item
+        const treeItem: Partial<CaseTreeRecord> = {
           id: uuidv7(),
+          entityId,
           label: sheet.tableName,
           slug: sheet.slug,
-          type: 'table',
-          itemId: dataTableId
+          itemType: 'table',
+          itemId: tableId,
+          parentId: parentFolderId || null,
+          order: 0,
         }
         
-        // Add to parent folder or root
+        // Save tree item to database
+        await saveMenuItemToDb(treeItem)
+        
+        // Add to local menu state
         if (parentFolderId) {
           const parentFolder = findItemById(menuState.value.items, parentFolderId)
-          if (parentFolder && parentFolder.type === 'folder') {
+          if (parentFolder && parentFolder.itemType === 'folder') {
             if (!parentFolder.children) {
               parentFolder.children = []
             }
-            parentFolder.children.push(menuItem)
+            parentFolder.children.push(treeItem as any)
           } else {
-            menuState.value.items.push(menuItem)
+            menuState.value.items.push(treeItem as any)
           }
         } else {
-          menuState.value.items.push(menuItem)
+          menuState.value.items.push(treeItem as any)
         }
         
         createdTables.push({ 
-          id: dataTableId, 
+          id: tableId, 
           name: sheet.tableName,
-          physicalTableName: result.dataTable.tableName,
-          columns: result.columns,
+          physicalTableName: result.table.tableName,
+          fields: result.fields,
           rows: sheet.rows
         })
       }
-      
-      // Save menu
-      await saveMenuToDb()
       
       // Show success message
       const tableCount = createdTables.length
@@ -504,7 +559,7 @@ export function useImportBatch() {
             tableName: t.id,
             tableDisplayName: t.name,
             physicalTableName: t.physicalTableName,
-            columns: t.columns,
+            columns: t.fields,
             rows: t.rows
           }))
         

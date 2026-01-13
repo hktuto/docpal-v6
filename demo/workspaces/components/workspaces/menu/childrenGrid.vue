@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import type { MenuItem } from '../../../../utils/db/schema/workspaces'
+import type { TreeItem } from '../../../../composables/useSingleWorkspace'
 
 interface Props {
-  children: MenuItem[]
+  children: TreeItem[]
 }
 
 defineProps<Props>()
 
 const { navigateToItem, getMenuIcon } = useSingleWorkspaceContext()
 
-function getChildIcon(child: MenuItem) {
+function getChildIcon(child: TreeItem) {
   return getMenuIcon(child)
 }
 </script>

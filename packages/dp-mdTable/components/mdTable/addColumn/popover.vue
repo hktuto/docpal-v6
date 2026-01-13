@@ -61,7 +61,7 @@ const props = withDefaults(defineProps<Props>(), {
   placement: 'left-start',
   popperClass: ''
 })
-const mdTable = useMDTableReJect()
+const mdTable = useMDTableInject()
 const emit = defineEmits<{
   submit: [column: ColumnConfig]
   cancel: []
