@@ -3,7 +3,7 @@
     <el-form-item label="Formula">
       <el-input v-model="formData.formula" @click="handleFormulaClick" />
     </el-form-item>
-    <MdTableAddColumnFieldFormulaDialog v-model="dialogVisible" :formData="formData" @confirm="handleFormulaConfirm" />
+    <!-- <MdTableAddColumnFieldFormulaDialog v-model="dialogVisible" :formData="formData" @confirm="handleFormulaConfirm" /> -->
   </div>
 </template>
 
