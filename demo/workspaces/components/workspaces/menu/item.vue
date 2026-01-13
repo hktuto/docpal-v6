@@ -14,7 +14,7 @@ const isHovered = ref(false)
 const isDragOver = ref(false)
 
 // Inject drop handlers from parent menu
-const handleFolderDrop = inject<(folderId: string, file: File) => void>('handleFolderDrop')
+const handleFolderDrop = inject<(folderId: string, file: File) => Promise<void>>('handleFolderDrop')
 const isExcelFile = inject<(file: File) => boolean>('isExcelFile')
 
 const isSelected = computed(() => workspaceRouteParams.value.detailId === props.item.id)
@@ -88,7 +88,7 @@ function onFolderDragLeave(event: DragEvent) {
   isDragOver.value = false
 }
 
-function onFolderDrop(event: DragEvent) {
+async function onFolderDrop(event: DragEvent) {
   event.preventDefault()
   event.stopPropagation()
   isDragOver.value = false
@@ -101,7 +101,7 @@ function onFolderDrop(event: DragEvent) {
   // Find Excel file
   const excelFile = Array.from(files).find(f => isExcelFile?.(f))
   if (excelFile && handleFolderDrop) {
-    handleFolderDrop(props.item.id, excelFile)
+    await handleFolderDrop(props.item.id, excelFile)
   }
 }
 </script>
