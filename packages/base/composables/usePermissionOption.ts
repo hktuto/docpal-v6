@@ -84,6 +84,15 @@ export const getPermissionSelectOption = async () => {
   return convertId(options.value)
 }
 
+// User, Role Select option
+export const getUserAndRolePermissionSelectOption = async () => {
+  const options = usePermissionOption()
+  if (options.value.length === 0) {
+    await getFromServer(true, true, false)
+  }
+  return convertId(options.value)
+}
+
 // User, Group Select option
 export const getUserAndGroupPermissionSelectOption = async () => {
   const options = usePermissionOption()
@@ -126,7 +135,7 @@ function convertId(options: any) {
 
 /**
  * From the select array, convert permissions to objects.
- * ['user_Joshua', 'role_aaa', 'group_Admin'] To format: { "user": ["joshua"], "group": ['group_IT'], "role": ['role_cxv']}
+ * ['user_joshua', 'role_cxv', 'group_IT'] To format: { "user": ["joshua"], "group": ['IT'], "role": ['cxv']}
  * @param permissions string array
  */
 export const convertPermissionObjectByPermissions = (permissions: string[]) => {
@@ -148,13 +157,13 @@ export const convertPermissionObjectByPermissions = (permissions: string[]) => {
 
 /**
  * Convert permissions object to permission array.
- * { "user": ["joshua"], "group": ['group_IT'], "role": ['role_cxv']} To format: [ "user_joshua", "group_IT", "role_cxv" ]
+ * { "user": ["joshua"], "group": ['IT'], "role": ['cxv']} To format: [ "user_joshua", "group_IT", "role_cxv" ]
  * @param permissions { 'user': ['joshua'], 'group': ['group_IT'], 'role': ['role_cxv']}
  */
 export const convertPermissionsByPermissionObject = (permissions: {
-  user: string[],
-  role: string[],
-  group: string[]
+  user?: string[],
+  role?: string[],
+  group?: string[]
 }) => {
   return Object.entries(permissions).flatMap(([key, values]) =>
     values.map(value => `${key}_${value}`)

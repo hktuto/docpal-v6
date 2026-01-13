@@ -9,10 +9,12 @@
   >
     <el-form :model="form" label-width="80px" ref="formRef" :rules="rules" label-position="top">
       <el-form-item :label="$t('companyProfile.chopName')" prop="name" required>
-        <el-input v-model="form.name" :placeholder="$t('render.hint.fieldRequired', { name: $t('companyProfile.chopName') })"></el-input>
+        <el-input v-model="form.name"
+                  :placeholder="$t('render.hint.fieldRequired', { name: $t('companyProfile.chopName') })"></el-input>
       </el-form-item>
       <el-form-item :label="$t('common_status')" prop="status" required>
-        <el-switch v-model="form.status" active-text="Active" inactive-text="Inactive" active-value="A" inactive-value="D"></el-switch>
+        <el-switch v-model="form.status" active-text="Active" inactive-text="Inactive" active-value="A"
+                   inactive-value="D"></el-switch>
       </el-form-item>
       <el-divider></el-divider>
       <div style="margin-bottom: 10px; color: #888">{{ $t('dpTable_permission') }}</div>
@@ -30,8 +32,11 @@
     </el-form>
     <template #footer>
       <div class="footer-grid">
-        <el-button @click="visible = false">{{ $t('cancelText') }}</el-button>
-        <el-button type="primary" :loading="loading" @click="onSave">
+        <el-button id='CompanyProfile__NewProfile_Detail__AddChop_Dialog__Cancel' @click="visible = false">
+          {{ $t('cancelText') }}
+        </el-button>
+        <el-button id="CompanyProfile__NewProfile_Detail__AddChop_Dialog__Submit" type="primary" :loading="loading"
+                   @click="onSave">
           {{ $t('common_submit') }}
         </el-button>
       </div>
@@ -40,8 +45,13 @@
 </template>
 
 <script setup lang="ts">
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 import { ElMessage } from 'element-plus'
+import {
+  getUserAndRolePermissionSelectOption,
+  convertPermissionObjectByPermissions,
+  convertPermissionsByPermissionObject
+} from '#imports'
 
 const props = defineProps<{
   companyId?: string
@@ -93,65 +103,34 @@ async function handleEdit(data: any) {
   editData.value = data
   visible.value = true
   fileChange.value = false
-  const file = await adminApi.api.getCompanyprofilesCompanyidChopsCompanychopidFile(props.companyId as string, data.id, {
+  const file = await clientApi.api.getDmsCompanyprofilesCompanyidChopsCompanychopidFile(props.companyId as string, data.id, {
     format: 'blob'
   })
-  const permissions: any = []
-  if (data.roles) {
-    data.roles.split(',').forEach((item: any) => {
-      permissions.push('role____' + item)
-    })
+
+  const permission = {
+    user: [] as string[],
+    role: [] as string[]
   }
-  if (data.users) {
-    data.users.split(',').forEach((item: any) => {
-      permissions.push(item)
-    })
+  if (!!data.users) {
+    permission.user = data.users.split(',')
   }
+  if (!!data.roles) {
+    permission.role = data.roles.split(',')
+  }
+
   // 填充表单数据
   form.value = {
     name: data.name || '',
     status: data.status,
-    permissions,
+    permissions: convertPermissionsByPermissionObject(permission),
     file
   }
 }
 
-const { flatRole } = useRBAC()
-let userList: any = []
 async function getOptions() {
-  await getUserList()
-  permissionOptions.value.push(
-    {
-      label: 'user_role',
-      value: 2, // 1=User, 3=Group, 2=Role
-      type: 'select',
-      options: flatRole.value.map((item: any) => ({
-        label: item.name,
-        value: 'role____' + item.id
-      }))
-    },
-    {
-      label: 'user_users',
-      value: 1,
-      type: 'select',
-      options: userList
-    }
-  )
-  async function getUserList() {
-    if (userList.length > 0) return
-    try {
-      const _userList: any = await clientApi.api.postNuxeoIdentityUsers().then((res) => res.data)
-      userList = _userList
-        .sort((a: any, b: any) => a.username.localeCompare(b.username))
-        .map((item: any) => ({
-          label: item.userId,
-          value: item.userId
-        }))
-    } catch (error) {
-      userList = []
-    }
-  }
+  permissionOptions.value = await getUserAndRolePermissionSelectOption()
 }
+
 // 保存数据
 async function onSave() {
   try {
@@ -161,36 +140,29 @@ async function onSave() {
     }
     await formRef.value?.validate()
     loading.value = true
-    const roles: any = []
-    const users: any = []
-    form.value.permissions.forEach((item: any) => {
-      if (item.includes('role____')) {
-        roles.push(item.split('role____')[1])
-      } else {
-        users.push(item)
-      }
-    })
+    const permissionsObject = convertPermissionObjectByPermissions(form.value.permissions)
     const formData = new FormData()
+
+    // TODO: 接口數據接口不符合規範
     formData.append('status', form.value.status)
     formData.append('name', form.value.name)
-    if (roles.length > 0) {
-      formData.append('roles', roles.join(','))
+    if (!!permissionsObject.role && permissionsObject.role.length > 0) {
+      formData.append('roles', permissionsObject.role as any)
     }
-    if (users.length > 0) {
-      formData.append('users', users.join(','))
+    if (!!permissionsObject.user && permissionsObject.user.length > 0) {
+      formData.append('users', permissionsObject.user as any)
     }
     if (isEdit.value && editData.value) {
       // 编辑模式
       if (fileChange.value) {
         formData.append('file', form.value.file)
       }
-      await adminApi.api.putCompanyprofilesCompanyidChopsCompanychopid(props.companyId as string, editData.value.id, {} as any, formData as any)
+      await clientApi.api.putDmsCompanyprofilesCompanyidChopsCompanychopid(props.companyId as string, editData.value.id, {} as any, formData as any).then(r => r.data)
       ElMessage.success('Updated successfully')
     } else {
       // 添加模式
       formData.append('file', form.value.file)
-
-      await adminApi.api.postCompanyprofilesCompanyidChops(props.companyId as string, {} as any, formData as any)
+      await clientApi.api.postDmsCompanyprofilesCompanyidChops(props.companyId as string, {} as any, formData as any).then(r => r.data)
       ElMessage.success('Created successfully')
     }
 

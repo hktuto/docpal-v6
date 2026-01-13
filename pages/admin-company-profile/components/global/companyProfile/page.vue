@@ -5,7 +5,7 @@
         <div class="actions">
           <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange"
                             inputPlaceHolder="companyProfile.filterTip" />
-          <el-button id="EasyForm__CreateNewForm" type="primary" @click="handleAdd()">
+          <el-button id="CompanyProfile__NewProfile" type="primary" @click="handleAdd()">
             {{ $t('companyProfile.create') }}
           </el-button>
         </div>
@@ -19,7 +19,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 import { routeCompanyProfileDetailPage } from '../../../util/routerHelper'
 
@@ -32,7 +32,7 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-company-profile',
-  api: (pageParams: any) => adminApi.api.postCompanyprofilesPage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => clientApi.api.postDmsCompanyprofilesPage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'name', title: 'companyProfile.name', fixed: 'left' },
     {
@@ -135,7 +135,7 @@ function handleDblclick(row: any) {
 
 async function handleActive(row: any, status: string) {
   try {
-    const result = await adminApi.api.patchCompanyprofilesCompanyidStatus(row.id, { status: status }).then((res) => res.data)
+    const result = await clientApi.api.patchDmsCompanyprofilesCompanyidStatus(row.id, { status: status }).then((res) => res.data)
     if (!!result) {
       row.status = status
       routerProvider?.message.success(t('tip_updateSuccessMsg', { modelName: null, name: row.name }))
@@ -162,7 +162,7 @@ async function handleDelete(row: any) {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    let result = await adminApi.api.deleteCompanyprofilesCompanyid(row.id).then((res) => res.data)
+    let result = await clientApi.api.deleteDmsCompanyprofilesCompanyid(row.id).then((res) => res.data)
     if (result) routerProvider?.message.success(t('tip_deleteSuccessMsg', {
       modelName: t('adminMenu.companyProfile'),
       name: row.name
