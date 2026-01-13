@@ -46,6 +46,11 @@ export const columnBasic: any = {
   [ColumnFieldType.Member]: {
     isBasic: true,
     component: 'Member'
+  },
+  [ColumnFieldType.Formula]: {
+    isBasic: false,
+    component: 'Formula',
+    order: 1
   }
 }
 export function getColumnFieldOptions() {
