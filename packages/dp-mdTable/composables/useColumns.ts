@@ -111,7 +111,7 @@ function createMockColumns(tableName: string) {
       type = ColumnFieldType.Email
     }
     if (names[i] === 'phone') {
-      type = ColumnFieldType.Phone
+      type = ColumnFieldType.Formula
     }
     if (names[i] === 'url') {
       type = ColumnFieldType.URL
