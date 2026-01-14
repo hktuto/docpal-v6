@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { ElSplitter } from 'element-plus';
-import { useSingleWorkspace } from '../../../../composables/useSingleWorkspace';
-import type { ImportReport } from '../../../../composables/useImportQueue';
+import { ElSplitter } from 'element-plus'
+import { useSingleWorkspace } from '../../../../composables/useSingleWorkspace'
+import type { ImportReport } from '../../../../composables/useImportQueue'
 
 const props = defineProps<{
   id: string
@@ -17,23 +17,23 @@ function handleViewImportReport(report: ImportReport) {
 }
 
 const detailComponent = computed(() => {
-  switch(workspaceRouteParams.value.detailType){
+  switch (workspaceRouteParams.value.detailType) {
     case 'root':
       return 'LazyWorkspacesDetailRoot'
     case 'folder':
       return 'LazyWorkspacesDetailFolder'
     case 'table':
-      if(workspaceRouteParams.value.detailId === 'setting'){
+      if (workspaceRouteParams.value.detailId === 'setting') {
         return 'LazyWorkspacesDetailTableSetting'
       }
       return 'LazyWorkspacesDetailTable'
     case 'view':
-      if(workspaceRouteParams.value.detailId === 'setting'){
+      if (workspaceRouteParams.value.detailId === 'setting') {
         return 'LazyWorkspacesDetailViewSetting'
       }
       return 'LazyWorkspacesDetailView'
     case 'dashboard':
-      if(workspaceRouteParams.value.detailId === 'setting'){
+      if (workspaceRouteParams.value.detailId === 'setting') {
         return 'LazyWorkspacesDetailDashboardSetting'
       }
       return 'LazyWorkspacessDetailDashboard'
@@ -42,16 +42,20 @@ const detailComponent = computed(() => {
   }
 })
 
-watch(props, async () => {
-  await getWorkspaceById(props.id)
-  if(props.detailId) {
-    workspaceRouteParams.value.detailId = props.detailId
-    workspaceRouteParams.value.detailType = props.detailType
+watch(
+  props,
+  async () => {
+    await getWorkspaceById(props.id)
+    if (props.detailId) {
+      workspaceRouteParams.value.detailId = props.detailId
+      workspaceRouteParams.value.detailType = props.detailType
+    }
+  },
+  {
+    immediate: true,
+    deep: true
   }
-},{
-  immediate: true,
-  deep: true,
-})
+)
 </script>
 
 <template>
@@ -61,56 +65,39 @@ watch(props, async () => {
     </template>
     <template v-else>
       <ElSplitter>
-        <ElSplitterPanel
-        :min="120"
-        size="220px"
-        >
-        <div class="sideBarContainer">
-          <WorkspacesMenuHeader />
-          <WorkspacesMenu 
-            :workspace-id="workspace?.id"
-            :initialMenu="workspace?.menu || []"
-            :is-admin="true"
-          >
-            
-           </WorkspacesMenu>
+        <ElSplitterPanel :min="120" size="220px">
+          <div class="sideBarContainer">
+            <WorkspacesMenuHeader />
+            <WorkspacesMenu :workspace-id="workspace?.id" :initialMenu="[]" :is-admin="true"> </WorkspacesMenu>
           </div>
         </ElSplitterPanel>
         <ElSplitterPanel>
           <div class="detailContainer">
-
             <WorkspacesDetailHeader />
             <component :is="detailComponent" :is-admin="true" />
           </div>
         </ElSplitterPanel>
       </ElSplitter>
-      <WorkspacesMenuActions
-              ref="menuActionsRef"
-            />
-      
+      <WorkspacesMenuActions ref="menuActionsRef" />
+
       <!-- Import Progress Indicator (bottom-left) -->
-      <WorkspacesTableImportProgressIndicator
-        @view-report="handleViewImportReport"
-      />
-      
+      <WorkspacesTableImportProgressIndicator @view-report="handleViewImportReport" />
+
       <!-- Import Report Dialog -->
-      <WorkspacesTableImportReportDialog
-        ref="importReportDialogRef"
-      />
+      <WorkspacesTableImportReportDialog ref="importReportDialogRef" />
     </template>
   </div>
 </template>
 
-
 <style lang="scss" scoped>
-  .sideBarContainer{
-    height: 100%;
-    display: grid;
-    grid-template-rows: min-content 1fr;
-    gap: 0;
-    overflow: hidden;
-  }
-.detailContainer{
+.sideBarContainer {
+  height: 100%;
+  display: grid;
+  grid-template-rows: min-content 1fr;
+  gap: 0;
+  overflow: hidden;
+}
+.detailContainer {
   height: 100%;
   width: 100%;
   overflow: hidden;
@@ -120,18 +107,18 @@ watch(props, async () => {
   grid-template-rows: min-content 1fr;
   gap: 0;
 }
-  .pageContainer{
-    height: 100%;
-    width: 100%;
-    --app-header-height: 60px;
+.pageContainer {
+  height: 100%;
+  width: 100%;
+  --app-header-height: 60px;
+}
+:deep(.actionIcon) {
+  font-size: var(--app-font-size-m);
+  cursor: pointer;
+  color: var(--app-grey-600);
+  line-height: 0;
+  &:hover {
+    color: var(--app-grey-300);
   }
-  :deep(.actionIcon){
-    font-size: var(--app-font-size-m);
-    cursor: pointer;
-    color: var(--app-grey-600);
-    line-height: 0;
-    &:hover{
-      color: var(--app-grey-300);
-    }
-  }
+}
 </style>

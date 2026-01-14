@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { importQueueState, useImportQueue, type ImportReport, type ImportJob } from '../../../composables/useImportQueue'
 import type { AnalysisResult } from '../../../composables/useRelationAnalyzer'
-
+import { ElMessage } from 'element-plus'
 const emit = defineEmits<{
   (e: 'view-report', report: ImportReport): void
 }>()
@@ -45,12 +45,13 @@ onMounted(() => {
   onImportEvent('import-completed', async (report: ImportReport) => {
     latestReport.value = report
     showCompletedBanner.value = true
-    
+
     // Run relationship analysis if import was successful and we have a workspace
     if (report.totalTables > 0 && workspace.value?.id) {
-      await runRelationshipAnalysis()
+      // TODO: need to redesign the relationship analysis
+      // await runRelationshipAnalysis()
     }
-    
+
     // Auto-hide after 10 seconds if no errors (and no relation dialog)
     if (report.totalErrors === 0 && !showRelationDialog.value) {
       setTimeout(() => {
@@ -83,9 +84,9 @@ function handleDismiss() {
  */
 async function runRelationshipAnalysis() {
   if (!workspace.value?.id) return
-  
+
   isAnalyzing.value = true
-  
+
   try {
     const result = await analyzeWorkspace(workspace.value.id)
     console.log('result', result)
@@ -116,11 +117,7 @@ function handleRelationCancel() {
 <template>
   <Teleport to="body">
     <Transition name="slide-up">
-      <div 
-        v-if="isVisible" 
-        class="import-progress-indicator"
-        :class="{ minimized: isMinimized }"
-      >
+      <div v-if="isVisible" class="import-progress-indicator" :class="{ minimized: isMinimized }">
         <!-- Minimized View -->
         <div v-if="isMinimized" class="minimized-view" @click="toggleMinimize">
           <div class="mini-icon">
@@ -130,12 +127,8 @@ function handleRelationCancel() {
             <Icon v-else-if="latestReport?.totalErrors" name="material-symbols:warning" class="warning-icon" />
             <Icon v-else name="material-symbols:check-circle" class="success-icon" />
           </div>
-          <span v-if="isProcessing" class="mini-text">
-            Importing... {{ progressPercent }}%
-          </span>
-          <span v-else class="mini-text">
-            Import complete
-          </span>
+          <span v-if="isProcessing" class="mini-text"> Importing... {{ progressPercent }}% </span>
+          <span v-else class="mini-text"> Import complete </span>
         </div>
 
         <!-- Expanded View -->
@@ -168,14 +161,8 @@ function handleRelationCancel() {
                 <span>{{ currentJob.tableDisplayName }}</span>
               </div>
               <div class="job-progress">
-                <el-progress
-                  :percentage="progressPercent"
-                  :stroke-width="8"
-                  :show-text="false"
-                />
-                <span class="progress-text">
-                  {{ currentJob.progress.imported }} / {{ currentJob.progress.total }} rows
-                </span>
+                <el-progress :percentage="progressPercent" :stroke-width="8" :show-text="false" />
+                <span class="progress-text"> {{ currentJob.progress.imported }} / {{ currentJob.progress.total }} rows </span>
               </div>
               <div v-if="currentJob.progress.errors.length > 0" class="job-errors">
                 <Icon name="material-symbols:error-outline" class="error-icon" />
@@ -193,25 +180,27 @@ function handleRelationCancel() {
             <div class="completion-summary">
               <div class="summary-item">
                 <Icon name="material-symbols:table-outline" />
-                <span><strong>{{ latestReport.totalTables }}</strong> table(s)</span>
+                <span
+                  ><strong>{{ latestReport.totalTables }}</strong> table(s)</span
+                >
               </div>
               <div class="summary-item">
                 <Icon name="material-symbols:check" />
-                <span><strong>{{ latestReport.totalRowsImported }}</strong> rows imported</span>
+                <span
+                  ><strong>{{ latestReport.totalRowsImported }}</strong> rows imported</span
+                >
               </div>
               <div v-if="latestReport.totalErrors > 0" class="summary-item error">
                 <Icon name="material-symbols:error-outline" />
-                <span><strong>{{ latestReport.totalErrors }}</strong> error(s)</span>
+                <span
+                  ><strong>{{ latestReport.totalErrors }}</strong> error(s)</span
+                >
               </div>
             </div>
 
             <div class="completion-actions">
-              <el-button size="small" @click="handleViewReport">
-                View Report
-              </el-button>
-              <el-button size="small" type="primary" @click="handleDismiss">
-                Done
-              </el-button>
+              <el-button size="small" @click="handleViewReport"> View Report </el-button>
+              <el-button size="small" type="primary" @click="handleDismiss"> Done </el-button>
             </div>
           </div>
         </template>
@@ -245,7 +234,7 @@ function handleRelationCancel() {
   &.minimized {
     min-width: auto;
     cursor: pointer;
-    
+
     &:hover {
       background: var(--el-fill-color-light);
     }
@@ -361,7 +350,7 @@ function handleRelationCancel() {
     gap: 6px;
     font-size: 12px;
     color: var(--el-color-warning);
-    
+
     .error-icon {
       font-size: 14px;
     }
