@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import type { WorkspaceRouteParams } from '../../../composables/useSingleWorkspace'
-import type { MenuItem } from '../../../utils/db/schema/workspaces'
+import type { WorkspaceRouteParams, TreeItem } from '../../../composables/useSingleWorkspace'
 
 const { workspaceRouteParams, workspace, menuState, navigateToItem, findItemById } = useSingleWorkspaceContext()
 
@@ -15,14 +14,14 @@ const breadcrumbList = ref<BreadcrumbItem[]>([])
  * Recursively find the path from root to the target item
  * Returns true if target is found, path will be built in result array
  */
-function findPathToItem(items: MenuItem[], targetId: string, path: BreadcrumbItem[]): boolean {
+function findPathToItem(items: TreeItem[], targetId: string, path: BreadcrumbItem[]): boolean {
   for (const item of items) {
     // Add current item to path
     const breadcrumbItem: BreadcrumbItem = {
       label: item.label,
       params: {
         detailId: item.id,
-        detailType: item.type,
+        detailType: item.itemType,
       }
     }
     path.push(breadcrumbItem)

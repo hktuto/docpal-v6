@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { WorkspaceType } from '../../../utils/db/schema';
+import type { CaseTypeRecord } from '../../../utils/db/schema/newTableSchema'
 
 const props = defineProps<{
-  workspace: WorkspaceType
+  workspace: CaseTypeRecord
   keyword?: string
 }>()
 

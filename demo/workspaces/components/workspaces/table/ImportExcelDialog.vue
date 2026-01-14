@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import * as XLSX from 'xlsx'
 import { v7 as uuidv7 } from 'uuid'
-import type { MenuItem } from '../../../utils/db/schema/workspaces'
-import type { DataTableColumnType } from '../../../utils/db/schema/table'
+import type { CaseTreeRecord, CaseFieldRecord, FieldDisplayStructure } from '../../../utils/db/schema/newTableSchema'
 import { ColumnFieldType } from '../../../utils/tableColumnType'
 import { ElMessage } from 'element-plus'
 
@@ -14,17 +13,17 @@ interface SheetImportConfig {
   rowCount: number
   columnCount: number
   headers: string[]
-  columns: Partial<DataTableColumnType>[]
+  fields: Partial<CaseFieldRecord>[]
   rows: Record<string, any>[]
 }
 
 const props = defineProps<{
-  workspaceId?: string
+  entityId?: string
   parentFolderId?: string | null
 }>()
 
-// Internal state for dynamic workspaceId and parentFolderId
-const effectiveWorkspaceId = ref<string>('')
+// Internal state for dynamic entityId and parentFolderId
+const effectiveEntityId = ref<string>('')
 const effectiveParentFolderId = ref<string | null>(null)
 
 const emit = defineEmits<{
@@ -32,8 +31,8 @@ const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
-const { menuState, saveMenuToDb, findItemById } = useSingleWorkspaceContext()
-const { createDataTable, generateSlug } = useTableSchema()
+const { menuState, saveMenuItemToDb, findItemById, workspace } = useSingleWorkspaceContext()
+const { createCaseTable, generateSlug } = useTableSchema()
 const { queueImportJobs } = useImportQueue()
 
 const dialogVisible = ref(false)
@@ -49,18 +48,18 @@ const selectedSheets = computed(() => sheets.value.filter(s => s.selected))
 const hasSelectedSheets = computed(() => selectedSheets.value.length > 0)
 const totalRows = computed(() => selectedSheets.value.reduce((sum, s) => sum + s.rowCount, 0))
 
-function open(workspaceId?: string, parentFolderId?: string | null) {
+function open(entityId?: string, parentFolderId?: string | null) {
   // Use provided values or fall back to props
-  effectiveWorkspaceId.value = workspaceId || props.workspaceId || ''
+  effectiveEntityId.value = entityId || props.entityId || workspace.value?.id || ''
   effectiveParentFolderId.value = parentFolderId !== undefined ? parentFolderId : (props.parentFolderId ?? null)
   
   dialogVisible.value = true
   reset()
 }
 
-function openWithFile(file: File, workspaceId?: string, parentFolderId?: string | null) {
+function openWithFile(file: File, entityId?: string, parentFolderId?: string | null) {
   // Use provided values or fall back to props
-  effectiveWorkspaceId.value = workspaceId || props.workspaceId || ''
+  effectiveEntityId.value = entityId || props.entityId || workspace.value?.id || ''
   effectiveParentFolderId.value = parentFolderId !== undefined ? parentFolderId : (props.parentFolderId ?? null)
   
   dialogVisible.value = true
@@ -90,7 +89,7 @@ function reset() {
  * Reserved column names that cannot be used as field names
  */
 const RESERVED_COLUMN_NAMES = [
-  'id', 'created_at', 'created_by', 'updated_at', 'updated_by',
+  'id', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy',
   'oid', 'tableoid', 'xmin', 'cmin', 'xmax', 'cmax', 'ctid'
 ]
 
@@ -185,9 +184,9 @@ async function processFile(file: File) {
     
     // Get existing table slugs to avoid duplicates
     const existingSlugs: string[] = []
-    function collectSlugs(items: MenuItem[]) {
+    function collectSlugs(items: any[]) {
       for (const item of items) {
-        if (item.type === 'table' && item.slug) {
+        if (item.itemType === 'table' && item.slug) {
           existingSlugs.push(item.slug)
         }
         if (item.children) {
@@ -238,8 +237,8 @@ async function processFile(file: File) {
         row && !row.every((cell: any) => cell === undefined || cell === null || cell === '')
       )
       
-      // Create column definitions with auto-detected types
-      const columns: Partial<DataTableColumnType>[] = validHeaders.map((header, idx) => {
+      // Create field definitions with auto-detected types
+      const fields: Partial<CaseFieldRecord>[] = validHeaders.map((header, idx) => {
         // Find the original column index in the full header row
         const originalIdx = headerRow.findIndex((h: any, i: number) => 
           h !== undefined && h !== null && String(h).trim() === header && 
@@ -250,22 +249,32 @@ async function processFile(file: File) {
         // Detect column type based on data
         const { type, properties } = detectColumnType(sheet, originalIdx, dataRows)
         
-        return {
-          id: uuidv7(),
-          workspaceId: effectiveWorkspaceId.value,
-          field: columnFields[idx],
-          title: header,
+        // Create display structure
+        const displayStructure: FieldDisplayStructure = {
           type,
-          required: false,
           properties
         }
+        
+        return {
+          id: uuidv7(),
+          fieldName: columnFields[idx],
+          fieldNameAlias: header,
+          businessType: mapToBusinessType(type),
+          fieldType: mapToDatabaseType(type),
+          displayStructure,
+          isRequired: false,
+          isHidden: false,
+          isArray: false,
+          isUnique: false,
+          fieldLength: 0,
+        } as Partial<CaseFieldRecord>
       })
       
-      // Create a map of column titles to their types for row parsing
-      const columnTypeMap = new Map<string, ColumnFieldType>()
-      columns.forEach(col => {
-        if (col.title && col.type !== undefined) {
-          columnTypeMap.set(col.title, col.type as ColumnFieldType)
+      // Create a map of field aliases to their types for row parsing
+      const fieldTypeMap = new Map<string, ColumnFieldType>()
+      fields.forEach(field => {
+        if (field.fieldNameAlias && field.displayStructure?.type !== undefined) {
+          fieldTypeMap.set(field.fieldNameAlias, field.displayStructure.type)
         }
       })
       
@@ -281,7 +290,7 @@ async function processFile(file: File) {
         headerRow.forEach((header: any, idx: number) => {
           if (header !== undefined && header !== null && String(header).trim() !== '') {
             const colTitle = String(header).trim()
-            const colType = columnTypeMap.get(colTitle)
+            const colType = fieldTypeMap.get(colTitle)
             row[colTitle] = cellValueToString(rowData[idx], colType)
           }
         })
@@ -300,7 +309,7 @@ async function processFile(file: File) {
         rowCount: rows.length,
         columnCount: validHeaders.length,
         headers: validHeaders,
-        columns,
+        fields,
         rows
       })
     }
@@ -484,6 +493,58 @@ function detectColumnType(
 }
 
 /**
+ * Map ColumnFieldType to business type
+ */
+function mapToBusinessType(type: ColumnFieldType): string {
+  switch (type) {
+    case ColumnFieldType.Number:
+    case ColumnFieldType.Rating:
+      return 'number'
+    case ColumnFieldType.Checkbox:
+      return 'boolean'
+    case ColumnFieldType.DateTime:
+    case ColumnFieldType.CreatedTime:
+    case ColumnFieldType.LastModifiedTime:
+      return 'date'
+    case ColumnFieldType.Relation:
+      return 'relation'
+    case ColumnFieldType.Formula:
+      return 'formula'
+    case ColumnFieldType.Aggregation:
+      return 'aggregation'
+    default:
+      return 'text'
+  }
+}
+
+/**
+ * Map ColumnFieldType to database type
+ */
+function mapToDatabaseType(type: ColumnFieldType): string {
+  switch (type) {
+    case ColumnFieldType.Number:
+    case ColumnFieldType.Rating:
+      return 'numeric'
+    case ColumnFieldType.Checkbox:
+      return 'boolean'
+    case ColumnFieldType.DateTime:
+    case ColumnFieldType.CreatedTime:
+    case ColumnFieldType.LastModifiedTime:
+      return 'timestamp'
+    case ColumnFieldType.User:
+    case ColumnFieldType.CreatedBy:
+    case ColumnFieldType.LastModifiedBy:
+    case ColumnFieldType.Relation:
+      return 'uuid'
+    case ColumnFieldType.MultiSelect:
+    case ColumnFieldType.Document:
+      return 'jsonb'
+    default:
+      return 'text'
+  }
+}
+
+/**
  * Get human-readable type name for display
  */
 function getTypeName(type: ColumnFieldType): string {
@@ -543,61 +604,63 @@ async function handleImport() {
   if (!hasSelectedSheets.value || isImporting.value) return
   
   isImporting.value = true
-  const createdTables: { id: string; name: string; physicalTableName: string; columns: any[]; rows: any[] }[] = []
+  const createdTables: { id: string; name: string; physicalTableName: string; fields: any[]; rows: any[] }[] = []
   
   try {
-    // Phase 1: Create tables, columns, migrations (fast)
+    // Phase 1: Create tables, fields, views (fast)
     for (const sheet of selectedSheets.value) {
-      const dataTableId = uuidv7()
+      const tableId = uuidv7()
       
-      // Create the data table structure (without importing rows)
-      const result = await createDataTable(
+      // Create the case table structure (without importing rows)
+      const result = await createCaseTable(
         {
-          id: dataTableId,
+          id: tableId,
           name: sheet.tableName,
-          slug: sheet.slug,
-          workspaceId: effectiveWorkspaceId.value,
+          entityId: effectiveEntityId.value,
           description: `Imported from ${fileName.value} - Sheet: ${sheet.name}`
         },
-        sheet.columns,
+        sheet.fields,
         undefined // createdBy
       )
       
-      // Create menu item
-      const menuItem: MenuItem = {
+      // Create tree item
+      const treeItem: Partial<CaseTreeRecord> = {
         id: uuidv7(),
+        entityId: effectiveEntityId.value,
         label: sheet.tableName,
         slug: sheet.slug,
-        type: 'table',
-        itemId: dataTableId
+        itemType: 'table',
+        itemId: tableId,
+        parentId: effectiveParentFolderId.value,
+        order: 0,
       }
       
-      // Add to parent folder or root
+      // Save to database
+      await saveMenuItemToDb(treeItem)
+      
+      // Add to local menu state
       if (effectiveParentFolderId.value) {
         const parentFolder = findItemById(menuState.value.items, effectiveParentFolderId.value)
-        if (parentFolder && parentFolder.type === 'folder') {
+        if (parentFolder && parentFolder.itemType === 'folder') {
           if (!parentFolder.children) {
             parentFolder.children = []
           }
-          parentFolder.children.push(menuItem)
+          parentFolder.children.push(treeItem as any)
         } else {
-          menuState.value.items.push(menuItem)
+          menuState.value.items.push(treeItem as any)
         }
       } else {
-        menuState.value.items.push(menuItem)
+        menuState.value.items.push(treeItem as any)
       }
       
       createdTables.push({ 
-        id: dataTableId, 
+        id: tableId, 
         name: sheet.tableName,
-        physicalTableName: result.dataTable.tableName,
-        columns: result.columns,
+        physicalTableName: result.table.tableName,
+        fields: result.fields,
         rows: sheet.rows
       })
     }
-    
-    // Save menu
-    await saveMenuToDb()
     
     // Close dialog immediately - user can now navigate
     const tableCount = createdTables.length

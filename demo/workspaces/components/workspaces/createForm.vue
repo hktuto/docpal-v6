@@ -24,20 +24,17 @@
 </template>
 
 <script setup lang="ts">
-import { v7 as uuidv7 } from 'uuid'
-import type { MenuItem } from '../../utils/db/schema/workspaces'
+import type { CaseTypeRecord } from '../../utils/db/schema/newTableSchema'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 
 const { query } = usePglite()
 
 const formRef = ref<FormInstance>()
 const loading = ref(false)
-const batchLoading = ref(false)
 const form = ref({
   name: '',
   description: '',
   icon: '',
-  menu: [] as MenuItem[]
 })
 
 const rules = reactive<FormRules>({
@@ -46,7 +43,9 @@ const rules = reactive<FormRules>({
   ]
 })
 
-const emits = defineEmits(['created'])
+const emits = defineEmits<{
+  (e: 'created', workspace: CaseTypeRecord): void
+}>()
 
 async function handleCreateWorkspace() {
   if (!formRef.value) return
@@ -56,46 +55,34 @@ async function handleCreateWorkspace() {
 
   loading.value = true
   try {
-    const realFrom = JSON.parse(JSON.stringify(form.value))
-    realFrom.name.trim()
-    realFrom.icon.trim()
-    // check if name is already exists
-    const workspace = await query(`SELECT * FROM workspaces WHERE name = $1`, [realFrom.name])
-    if (workspace && workspace.length > 0) {
-      ElMessage.error('Workspace name already exists')
+    const name = form.value.name.trim()
+    const description = form.value.description.trim()
+    const icon = form.value.icon.trim()
+    
+    // Check if name already exists
+    const existing = await query(`SELECT id FROM case_type WHERE name = $1`, [name])
+    if (existing && existing.length > 0) {
+      ElMessage.error('Database name already exists')
       return
     }
-    // generate slug from name
-    let slug = realFrom.name.toLowerCase().replaceAll(' ', '-')
-    // check if slug is already exists
-    const slugExists = await query(`SELECT * FROM workspaces WHERE slug = $1`, [slug])
-    if (slugExists && slugExists.length > 0) {
-      // get all slug start with slug
-      const slugStartsWith = await query(`SELECT * FROM workspaces WHERE slug LIKE $1`, [slug + '%'])
-      if (slugStartsWith && slugStartsWith.length > 0) {
-        // get the last slug
-        const lastSlug = slugStartsWith[slugStartsWith.length - 1].slug
-        // increment the slug
-        slug = lastSlug + 1
-      }
-    }
-    // make the object pure 
-    const newId = uuidv7()
-    const now = Date.now()
-    // create workspace with createdAt and updatedAt
-    const result = await query(
-      `INSERT INTO workspaces (id, name, slug, description, icon, menu, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`, 
-      [newId, realFrom.name, slug, realFrom.description, realFrom.icon, realFrom.menu, now, now]
+
+    // Create workspace - let database handle id (defaultRandom) and timestamps (defaultNow)
+    const result = await query<CaseTypeRecord>(
+      `INSERT INTO case_type (name, description, icon) VALUES ($1, $2, $3) RETURNING *`, 
+      [name, description || null, icon || null]
     )
-    console.log(result)
-    ElMessage.success('Workspace created successfully')
+    
+    console.log('Created workspace:', result[0])
+    ElMessage.success('Database created successfully')
     emits('created', result[0])
+    
+    // Reset form
+    form.value = { name: '', description: '', icon: '' }
   } catch (error) {
-    console.error(error)
-    ElMessage.error('Failed to create workspace')
+    console.error('Error creating workspace:', error)
+    ElMessage.error('Failed to create database')
   } finally {
     loading.value = false
   }
 }
-
 </script>

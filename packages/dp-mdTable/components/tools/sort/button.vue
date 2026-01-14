@@ -26,7 +26,7 @@ import type { ColumnConfig } from '../composables/useColumns'
 interface Props {
   availableColumns: ColumnConfig[]
 }
-const gridRef = useMDTableReJect()
+const gridRef = useMDTableInject()
 const props = defineProps<Props>()
 const emits = defineEmits<{
   (e: 'sort-change', rules: SortRule[]): void

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import type { MenuItem } from '../../../utils/db/schema/workspaces'
+import type { TreeItem } from '../../../composables/useSingleWorkspace'
 import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspace'
+import { useImportBatch, isExcelFile } from '../../../composables/useImportBatch'
 
 interface Props {
   workspaceId: string
-  initialMenu: MenuItem[]
+  initialMenu?: TreeItem[]
   isAdmin: boolean
 }
 
@@ -15,23 +16,10 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const { menuState: state, addItem, saveMenuToDb, getMenuFromDb, workspace } = useSingleWorkspaceContext()
+const { importExcelFile } = useImportBatch()
 
 // Excel drop import
-const importExcelDialogRef = ref()
 const isDraggingOver = ref(false)
-const dropTargetFolderId = ref<string | null>(null)
-
-function isExcelFile(file: File): boolean {
-  const validTypes = [
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'application/vnd.ms-excel',
-    'text/csv'
-  ]
-  const validExtensions = ['xlsx', 'xls', 'csv']
-  const extension = file.name.split('.').pop()?.toLowerCase()
-  
-  return validTypes.includes(file.type) || validExtensions.includes(extension || '')
-}
 
 function handleDragOver(event: DragEvent) {
   if (!props.isAdmin) return
@@ -60,7 +48,7 @@ function handleDragLeave(event: DragEvent) {
   }
 }
 
-function handleDrop(event: DragEvent) {
+async function handleDrop(event: DragEvent) {
   event.preventDefault()
   event.stopPropagation()
   isDraggingOver.value = false
@@ -72,16 +60,16 @@ function handleDrop(event: DragEvent) {
   
   // Find Excel files
   const excelFile = Array.from(files).find(isExcelFile)
-  if (excelFile) {
-    // Open import dialog with the file
-    dropTargetFolderId.value = null // Root level
-    importExcelDialogRef.value?.openWithFile(excelFile, workspace.value?.id, null)
+  if (excelFile && workspace.value?.id) {
+    // Directly import without dialog
+    await importExcelFile(excelFile, workspace.value.id, null)
   }
 }
 
-function handleFolderDrop(folderId: string, file: File) {
-  dropTargetFolderId.value = folderId
-  importExcelDialogRef.value?.openWithFile(file, workspace.value?.id, folderId)
+async function handleFolderDrop(folderId: string, file: File) {
+  if (workspace.value?.id) {
+    await importExcelFile(file, workspace.value.id, folderId)
+  }
 }
 
 // Expose for child components
@@ -90,11 +78,39 @@ provide('isExcelFile', isExcelFile)
 
 
 
-const debouncedSave = useDebounceFn(async (menu: MenuItem[]) => {
-  await saveMenuToDb()
+const { saveMenuItemToDb } = useSingleWorkspaceContext()
+
+const debouncedSave = useDebounceFn(async (items: TreeItem[]) => {
+  // Save each item to the database
+  for (const item of flattenTree(items)) {
+    await saveMenuItemToDb(item)
+  }
 }, 1000)
+
+// Helper: Flatten tree to array for saving
+function flattenTree(items: TreeItem[], parentId: string | null = null): Partial<TreeItem>[] {
+  const result: Partial<TreeItem>[] = []
+  items.forEach((item, index) => {
+    result.push({
+      id: item.id,
+      entityId: item.entityId,
+      label: item.label,
+      slug: item.slug,
+      description: item.description,
+      itemType: item.itemType,
+      itemId: item.itemId,
+      parentId: parentId,
+      order: index,
+    })
+    if (item.children && item.children.length > 0) {
+      result.push(...flattenTree(item.children, item.id))
+    }
+  })
+  return result
+}
+
 // Helper: Update order numbers
-function updateOrderNumbers(items: MenuItem[]): MenuItem[] {
+function updateOrderNumbers(items: TreeItem[]): TreeItem[] {
   return items.map((item, index) => ({
     ...item,
     order: index,
@@ -102,11 +118,8 @@ function updateOrderNumbers(items: MenuItem[]): MenuItem[] {
   }))
 }
 
-
-
-
 // Handle menu changes from draggable list (v-model update)
-async function handleMenuChange(newItems: MenuItem[]) {
+async function handleMenuChange(newItems: TreeItem[]) {
   console.log('[Menu] Menu changed from drag:', newItems.length, 'items')
   
   // Update order numbers
@@ -163,13 +176,6 @@ onMounted(async () => {
     </div>
 
     <slot/>
-    
-    <!-- Import Dialog -->
-    <WorkspacesTableImportExcelDialog 
-      ref="importExcelDialogRef"
-      :parent-folder-id="dropTargetFolderId"
-      @success="getMenuFromDb"
-    />
   </div>
 </template>
 

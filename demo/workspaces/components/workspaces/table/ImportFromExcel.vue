@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import * as XLSX from 'xlsx'
-import type { DataTableColumnType } from '../../../utils/db/schema/table'
+import type { CaseFieldRecord, FieldDisplayStructure } from '../../../utils/db/schema/newTableSchema'
 import { ColumnFieldType } from '../../../utils/tableColumnType'
 import { v7 as uuidv7 } from 'uuid'
 
 interface ImportResult {
-  columns: Partial<DataTableColumnType>[]
+  fields: Partial<CaseFieldRecord>[]
   rows: Record<string, any>[]
   sheetName: string
 }
@@ -17,8 +17,8 @@ interface SheetInfo {
 }
 
 const props = defineProps<{
-  workspaceId: string
-  dataTableId?: string
+  entityId: string
+  tableId?: string
 }>()
 
 const emit = defineEmits<{
@@ -38,7 +38,7 @@ const previewData = ref<ImportResult | null>(null)
  * Reserved column names that cannot be used as field names
  */
 const RESERVED_COLUMN_NAMES = [
-  'id', 'created_at', 'created_by', 'updated_at', 'updated_by',
+  'id', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy',
   'oid', 'tableoid', 'xmin', 'cmin', 'xmax', 'cmax', 'ctid'
 ]
 
@@ -334,37 +334,51 @@ async function parseSheet(sheetName: string) {
     row && !row.every((cell: any) => cell === undefined || cell === null || cell === '')
   )
   
-  // Create columns from headers with auto-detected types
+  // Create fields from headers with auto-detected types
   let fieldIndex = 0
-  const columns: Partial<DataTableColumnType>[] = headerRow
+  const fields: Partial<CaseFieldRecord>[] = headerRow
     .map((header, index) => {
       if (header === undefined || header === null || String(header).trim() === '') {
         return null
       }
       const title = String(header).trim()
-      const field = uniqueFields[fieldIndex++]
+      const fieldName = uniqueFields[fieldIndex++]
       
       // Detect column type based on data
       const { type, properties } = detectColumnType(sheet, index, dataRows)
       
-      return {
-        id: uuidv7(),
-        dataTableId: props.dataTableId,
-        workspaceId: props.workspaceId,
-        field,
-        title,
+      // Create display structure for frontend settings
+      const displayStructure: FieldDisplayStructure = {
         type,
-        required: false,
         properties
       }
+      
+      // Map to business and database types
+      const businessType = mapToBusinessType(type)
+      const fieldType = mapToDatabaseType(type)
+      
+      return {
+        id: uuidv7(),
+        tableId: props.tableId,
+        fieldName,
+        fieldNameAlias: title,
+        businessType,
+        fieldType,
+        displayStructure,
+        isRequired: false,
+        isHidden: false,
+        isArray: false,
+        isUnique: false,
+        fieldLength: 0,
+      } as Partial<CaseFieldRecord>
     })
-    .filter(Boolean) as Partial<DataTableColumnType>[]
+    .filter(Boolean) as Partial<CaseFieldRecord>[]
   
-  // Create a map of column titles to their types for row parsing
-  const columnTypeMap = new Map<string, ColumnFieldType>()
-  columns.forEach(col => {
-    if (col.title && col.type !== undefined) {
-      columnTypeMap.set(col.title, col.type as ColumnFieldType)
+  // Create a map of field aliases to their display types for row parsing
+  const fieldTypeMap = new Map<string, ColumnFieldType>()
+  fields.forEach(field => {
+    if (field.fieldNameAlias && field.displayStructure?.type !== undefined) {
+      fieldTypeMap.set(field.fieldNameAlias, field.displayStructure.type)
     }
   })
   
@@ -376,12 +390,12 @@ async function parseSheet(sheetName: string) {
       continue // Skip empty rows
     }
     
-    // Map by header title
+    // Map by header title (fieldNameAlias)
     const simpleRow: Record<string, any> = {}
     headerRow.forEach((header, idx) => {
       if (header !== undefined && header !== null && String(header).trim() !== '') {
         const colTitle = String(header).trim()
-        const colType = columnTypeMap.get(colTitle)
+        const colType = fieldTypeMap.get(colTitle)
         simpleRow[colTitle] = cellValueToString(rowData[idx], colType)
       }
     })
@@ -389,9 +403,61 @@ async function parseSheet(sheetName: string) {
   }
   
   previewData.value = {
-    columns,
+    fields,
     rows,
     sheetName
+  }
+}
+
+/**
+ * Map ColumnFieldType to business type
+ */
+function mapToBusinessType(type: ColumnFieldType): string {
+  switch (type) {
+    case ColumnFieldType.Number:
+    case ColumnFieldType.Rating:
+      return 'number'
+    case ColumnFieldType.Checkbox:
+      return 'boolean'
+    case ColumnFieldType.DateTime:
+    case ColumnFieldType.CreatedTime:
+    case ColumnFieldType.LastModifiedTime:
+      return 'date'
+    case ColumnFieldType.Relation:
+      return 'relation'
+    case ColumnFieldType.Formula:
+      return 'formula'
+    case ColumnFieldType.Aggregation:
+      return 'aggregation'
+    default:
+      return 'text'
+  }
+}
+
+/**
+ * Map ColumnFieldType to database type
+ */
+function mapToDatabaseType(type: ColumnFieldType): string {
+  switch (type) {
+    case ColumnFieldType.Number:
+    case ColumnFieldType.Rating:
+      return 'numeric'
+    case ColumnFieldType.Checkbox:
+      return 'boolean'
+    case ColumnFieldType.DateTime:
+    case ColumnFieldType.CreatedTime:
+    case ColumnFieldType.LastModifiedTime:
+      return 'timestamp'
+    case ColumnFieldType.User:
+    case ColumnFieldType.CreatedBy:
+    case ColumnFieldType.LastModifiedBy:
+    case ColumnFieldType.Relation:
+      return 'uuid'
+    case ColumnFieldType.MultiSelect:
+    case ColumnFieldType.Document:
+      return 'jsonb'
+    default:
+      return 'text'
   }
 }
 
@@ -475,21 +541,21 @@ function handleRemoveFile() {
         <div class="preview-header">
           <h4>Preview</h4>
           <span class="preview-stats">
-            {{ previewData.columns.length }} columns, {{ previewData.rows.length }} rows
+            {{ previewData.fields.length }} fields, {{ previewData.rows.length }} rows
           </span>
         </div>
 
         <div class="columns-preview">
-          <h5>Columns to import:</h5>
+          <h5>Fields to import:</h5>
           <div class="column-tags">
             <el-tag
-              v-for="col in previewData.columns"
-              :key="col.id"
+              v-for="field in previewData.fields"
+              :key="field.id"
               type="info"
               class="column-tag"
             >
-              {{ col.title }}
-              <span class="column-type-badge">{{ getTypeName(col.type as ColumnFieldType) }}</span>
+              {{ field.fieldNameAlias }}
+              <span class="column-type-badge">{{ getTypeName(field.displayStructure?.type as ColumnFieldType) }}</span>
             </el-tag>
           </div>
         </div>
@@ -504,10 +570,10 @@ function handleRemoveFile() {
             max-height="200"
           >
             <el-table-column
-              v-for="col in previewData.columns"
-              :key="col.id"
-              :prop="col.title"
-              :label="col.title"
+              v-for="field in previewData.fields"
+              :key="field.id"
+              :prop="field.fieldNameAlias"
+              :label="field.fieldNameAlias"
               min-width="120"
               show-overflow-tooltip
             />

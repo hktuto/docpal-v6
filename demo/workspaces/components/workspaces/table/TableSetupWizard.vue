@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { v7 as uuidv7 } from 'uuid'
-import type { MenuItem } from '../../../utils/db/schema/workspaces'
-import type { DataTableColumnType } from '../../../utils/db/schema/table'
+import type { TreeItem } from '../../../composables/useSingleWorkspace'
+import type { CaseFieldRecord } from '../../../utils/db/schema/newTableSchema'
 import { ColumnFieldType } from '../../../utils/tableColumnType'
 import { ElMessage } from 'element-plus'
 const props = defineProps<{
-  menuItem: MenuItem
-  workspaceId: string
+  menuItem: TreeItem
+  entityId: string
 }>()
 
 const emit = defineEmits<{
@@ -14,8 +14,8 @@ const emit = defineEmits<{
   (e: 'delete'): void
 }>()
 
-const { recursiveUpdateItem, menuState, saveMenuToDb } = useSingleWorkspaceContext()
-const { generateSlug, getDefaultColumns, createDataTable, importDataRows } = useTableSchema()
+const { recursiveUpdateItem, menuState, saveMenuItemToDb } = useSingleWorkspaceContext()
+const { generateSlug, getDefaultFields, createCaseTable, importDataRows } = useTableSchema()
 
 // Wizard state
 const currentStep = ref(0)
@@ -29,7 +29,7 @@ const tableInfo = ref({
 
 // Step 2: Import data
 const importMode = ref<'skip' | 'excel' | 'manual'>('skip')
-const importedColumns = ref<Partial<DataTableColumnType>[]>([])
+const importedFields = ref<Partial<CaseFieldRecord>[]>([])
 const importedRows = ref<Record<string, any>[]>([])
 
 // Step 3: Review
@@ -48,14 +48,14 @@ const canProceedStep1 = computed(() => {
 
 const canProceedStep2 = computed(() => {
   return importMode.value === 'skip' || 
-    (importMode.value === 'excel' && importedColumns.value.length > 0)
+    (importMode.value === 'excel' && importedFields.value.length > 0)
 })
 
-const finalColumns = computed(() => {
+const finalFields = computed(() => {
   if (importMode.value === 'skip') {
-    return getDefaultColumns(props.workspaceId, '')
+    return getDefaultFields('')
   }
-  return importedColumns.value
+  return importedFields.value
 })
 
 // Handlers
@@ -71,21 +71,21 @@ function handleBack() {
   }
 }
 
-function handleImport(data: { columns: Partial<DataTableColumnType>[]; rows: Record<string, any>[] }) {
-  importedColumns.value = data.columns
+function handleImport(data: { fields: Partial<CaseFieldRecord>[]; rows: Record<string, any>[] }) {
+  importedFields.value = data.fields
   importedRows.value = data.rows
   importMode.value = 'excel'
 }
 
 function handleCancelImport() {
   importMode.value = 'skip'
-  importedColumns.value = []
+  importedFields.value = []
   importedRows.value = []
 }
 
 function handleSkipImport() {
   importMode.value = 'skip'
-  importedColumns.value = []
+  importedFields.value = []
   importedRows.value = []
   handleNext()
 }
@@ -99,43 +99,48 @@ async function handleCreate() {
   isCreating.value = true
   
   try {
-    const dataTableId = uuidv7()
+    const tableId = uuidv7()
     const slug = generateSlug(tableInfo.value.name)
     
-    // Create the data table with columns
-    const result = await createDataTable(
+    // Create the case table with fields and default view
+    const result = await createCaseTable(
       {
-        id: dataTableId,
+        id: tableId,
         name: tableInfo.value.name,
-        slug,
-        workspaceId: props.workspaceId,
+        entityId: props.entityId,
         description: tableInfo.value.description
       },
-      importMode.value === 'excel' ? importedColumns.value : [],
+      importMode.value === 'excel' ? importedFields.value : [],
       undefined // createdBy - could be passed from user context
     )
     
     // Import data rows if any
     if (importMode.value === 'excel' && importedRows.value.length > 0) {
       await importDataRows(
-        result.dataTable.tableName,
-        result.columns,
+        result.table.tableName,
+        result.fields,
         importedRows.value,
         undefined // createdBy
       )
     }
     
-    // Update the menu item with the new table ID
+    // Update the tree item with the new table ID
     recursiveUpdateItem(menuState.value.items, props.menuItem.id, {
-      itemId: dataTableId,
+      itemId: tableId,
       label: tableInfo.value.name,
       description: tableInfo.value.description,
       slug
     })
     
-    await saveMenuToDb()
+    await saveMenuItemToDb({
+      id: props.menuItem.id,
+      itemId: tableId,
+      label: tableInfo.value.name,
+      description: tableInfo.value.description,
+      slug
+    })
     
-    emit('complete', { dataTableId })
+    emit('complete', { dataTableId: tableId })
   } catch (error) {
     console.error('Error creating table:', error)
     ElMessage.error('Failed to create table. Please try again.')
@@ -270,19 +275,19 @@ watch(() => tableInfo.value.name, (newName) => {
 
         <div v-else-if="importMode === 'excel'" class="import-excel-container">
           <WorkspacesTableImportFromExcel
-            :workspace-id="workspaceId"
+            :entity-id="entityId"
             @import="handleImport"
             @cancel="handleCancelImport"
           />
           
-          <div v-if="importedColumns.length > 0" class="import-success">
+          <div v-if="importedFields.length > 0" class="import-success">
             <el-alert
               type="success"
               :closable="false"
               show-icon
             >
               <template #title>
-                <span>{{ importedColumns.length }} columns and {{ importedRows.length }} rows ready to import</span>
+                <span>{{ importedFields.length }} fields and {{ importedRows.length }} rows ready to import</span>
               </template>
             </el-alert>
           </div>
@@ -322,17 +327,17 @@ watch(() => tableInfo.value.name, (newName) => {
               Columns
             </h4>
             
-            <div v-if="importMode === 'excel' && importedColumns.length > 0" class="columns-list">
+            <div v-if="importMode === 'excel' && importedFields.length > 0" class="columns-list">
               <div class="column-group">
-                <h5>Imported Columns ({{ importedColumns.length }})</h5>
+                <h5>Imported Fields ({{ importedFields.length }})</h5>
                 <div class="column-tags">
                   <el-tag
-                    v-for="col in importedColumns"
-                    :key="col.id"
+                    v-for="field in importedFields"
+                    :key="field.id"
                     class="column-tag"
                   >
-                    {{ col.title }}
-                    <span class="column-type">{{ getColumnTypeLabel(col.type as ColumnFieldType) }}</span>
+                    {{ field.fieldNameAlias }}
+                    <span class="column-type">{{ getColumnTypeLabel(field.displayStructure?.type as ColumnFieldType) }}</span>
                   </el-tag>
                 </div>
               </div>
@@ -405,7 +410,7 @@ watch(() => tableInfo.value.name, (newName) => {
 
         <template v-else-if="currentStep === 1">
           <el-button
-            v-if="importMode === 'excel' && importedColumns.length > 0"
+            v-if="importMode === 'excel' && importedFields.length > 0"
             type="primary"
             @click="handleNext"
           >

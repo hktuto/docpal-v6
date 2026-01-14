@@ -1,0 +1,204 @@
+import { text, timestamp, uuid, pgTable, integer, jsonb, boolean } from "drizzle-orm/pg-core";
+import { users } from "./user"
+import type { ColumnFieldType } from "../../tableColumnType"
+
+// =============================================================================
+// Type Definitions
+// =============================================================================
+
+/**
+ * Item types for the case tree navigation
+ */
+export type CaseTreeItemType = 'folder' | 'table' | 'view' | 'dashboard'
+
+/**
+ * Status for tables
+ */
+export type CaseTableStatus = 'A' | 'I' // Active | Inactive
+
+/**
+ * Business types for fields (backend logic)
+ */
+export type FieldBusinessType = 'text' | 'number' | 'boolean' | 'date' | 'relation' | 'formula' | 'aggregation'
+
+/**
+ * Database field types (actual PostgreSQL types)
+ */
+export type FieldDatabaseType = 'text' | 'integer' | 'numeric' | 'boolean' | 'timestamp' | 'uuid' | 'jsonb'
+
+/**
+ * Display structure for frontend column configuration
+ * This contains all frontend-specific display settings
+ */
+export interface FieldDisplayStructure {
+  /** Frontend column type enum */
+  type: ColumnFieldType
+  /** Column display properties (varies by type) */
+  properties?: Record<string, any>
+  /** Validation rules for the field */
+  validationRules?: {
+    required?: boolean
+    unique?: boolean
+    regex?: string
+    custom?: string
+    errorMessage?: string
+  }
+  /** Minimum column width in pixels */
+  minWidth?: number
+  /** Whether the column is sortable */
+  sortable?: boolean
+  /** Whether the column is filterable */
+  filterable?: boolean
+  /** Custom cell renderer */
+  cellRenderer?: string
+  /** Custom header renderer */
+  headerRenderer?: string
+}
+
+/**
+ * Form structure for table layouts
+ * Combines formJson, cardJson, detailJson, listJson
+ */
+export interface FormStructure {
+  form?: any
+  card?: any
+  detail?: any
+  list?: any
+}
+
+/**
+ * Filter configuration for views
+ */
+export interface ViewFilter {
+  field: string
+  operator: string
+  value: any
+}
+
+/**
+ * Sorting configuration for views
+ */
+export interface ViewSorting {
+  field: string
+  order: 'asc' | 'desc'
+}
+
+/**
+ * Grouping configuration for views
+ */
+export interface ViewGrouping {
+  field: string
+  collapsed?: boolean
+}
+
+// =============================================================================
+// Table Schemas (using camelCase column names for PGlite demo)
+// =============================================================================
+
+export const caseType = pgTable('case_type', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  description: text('description'),
+  icon: text('icon'),
+  entityType: text('entityType').notNull().default('case'),
+  createdBy: uuid('createdBy').references(() => users.id),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedBy: uuid('updatedBy').references(() => users.id),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
+
+
+export const caseTree = pgTable('case_tree', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  entityId: uuid('entityId').references(() => caseType.id),
+  label: text('label').notNull(),
+  slug: text('slug').notNull(),
+  description: text('description'),
+  itemType: text('itemType').$type<CaseTreeItemType>().notNull().default('folder'),
+  itemId: text('itemId'),
+  parentId: uuid('parentId'),
+  order: integer('order').notNull().default(0),
+  createdBy: uuid('createdBy').references(() => users.id),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedBy: uuid('updatedBy').references(() => users.id),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
+
+export const caseTable = pgTable('case_tables', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  status: text('status').$type<CaseTableStatus>().notNull().default('A'),
+  description: text('description'),
+  tableName: text('tableName').notNull().unique(),
+  entityId: uuid('entityId').notNull().references(() => caseType.id),
+  formStructure: jsonb('formStructure').$type<FormStructure>(),
+  createdBy: uuid('createdBy').references(() => users.id),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedBy: uuid('updatedBy').references(() => users.id),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
+
+export const caseField = pgTable('case_fields', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  aggregationFieldName: text('aggregationFieldName'),
+  aggregationMethod: text('aggregationMethod'),
+  businessType: text('businessType').$type<FieldBusinessType>().notNull().default('text'),
+  defaultValue: text('defaultValue'),
+  displayStructure: jsonb('displayStructure').$type<FieldDisplayStructure>(),
+  fieldLength: integer('fieldLength').notNull().default(0),
+  fieldName: text('fieldName').notNull(),
+  fieldNameAlias: text('fieldNameAlias').notNull(),
+  fieldType: text('fieldType').$type<FieldDatabaseType>().notNull().default('text'),
+  formulaExpression: text('formulaExpression'),
+  isArray: boolean('isArray').notNull().default(false),
+  isHidden: boolean('isHidden').notNull().default(false),
+  isReference: boolean('isReference').default(false),
+  isRequired: boolean('isRequired').notNull().default(false),
+  isUnique: boolean('isUnique').default(false),
+  tableId: uuid('tableId').references(() => caseTable.id),
+  createdBy: uuid('createdBy').references(() => users.id),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedBy: uuid('updatedBy').references(() => users.id),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+  // Relation field configuration
+  displayFieldIds: uuid('displayFieldIds').array().notNull().default([]),
+  relationFieldId: uuid('relationFieldId'),
+  relationTableId: uuid('relationTableId').references(() => caseTable.id),
+})
+
+export const caseView = pgTable('case_views', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  description: text('description'),
+  viewName: text('viewName').notNull().unique(),
+  filter: jsonb('filter').$type<ViewFilter[]>(),
+  sorting: jsonb('sorting').$type<ViewSorting[]>(),
+  grouping: jsonb('grouping').$type<ViewGrouping[]>(),
+  tableId: uuid('tableId').notNull().references(() => caseTable.id),
+  isDefault: boolean('isDefault').notNull().default(false),
+  entityId: uuid('entityId').notNull().references(() => caseType.id),
+  fields: text('fields').array().notNull().default([]),
+  createdBy: uuid('createdBy').references(() => users.id),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedBy: uuid('updatedBy').references(() => users.id),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
+
+// =============================================================================
+// Type Exports (inferred from schema)
+// =============================================================================
+
+export type CaseTypeRecord = typeof caseType.$inferSelect
+export type CaseTypeInsert = typeof caseType.$inferInsert
+
+export type CaseTreeRecord = typeof caseTree.$inferSelect
+export type CaseTreeInsert = typeof caseTree.$inferInsert
+
+export type CaseTableRecord = typeof caseTable.$inferSelect
+export type CaseTableInsert = typeof caseTable.$inferInsert
+
+export type CaseFieldRecord = typeof caseField.$inferSelect
+export type CaseFieldInsert = typeof caseField.$inferInsert
+
+export type CaseViewRecord = typeof caseView.$inferSelect
+export type CaseViewInsert = typeof caseView.$inferInsert
