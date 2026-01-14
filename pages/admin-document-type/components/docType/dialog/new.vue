@@ -55,14 +55,13 @@ const state = reactive({
 
 const elFormRef = ref()
 const { t } = useI18n()
-const { flatRole } = useRBAC()
 const permissionOptions = ref<any>()
 const categoryOptions = ref<any[]>([])
 
 async function getOptions() {
   permissionOptions.value = await getPermissionSelectOption()
 
-  const data = await adminApi.api.getDocpaltypeSettingsCategories().then((res) => res.data)
+  const data = await clientApi.admin.getAdmindmsDocpalTypeCategories().then((res) => res.data)
   categoryOptions.value = data.map((item: any) => ({
     label: item,
     value: item

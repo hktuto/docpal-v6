@@ -15,12 +15,12 @@ export async function initMasterTableOpts() {
 }
 export async function initMetadataOpts() {
   // if (metadataOpts.value.length > 0) return metadataOpts.value
-  const data = await adminApi.api.getDocpaltypeSettingsMetadataV2QueryCache().then((res: any) => res.data)
+  const data = await clientApi.admin.getAdmindmsDocpalTypeCache().then((res: any) => res.data)
   metadataOpts.value = data.map((item: any) => ({ label: item.name, value: item.id }))
 }
 export async function initCategoryOpts() {
   if (categoryOpts.value.length > 0) return categoryOpts.value
-  const data = await adminApi.api.getDocpaltypeSettingsCategories().then((res: any) => res.data)
+  const data = await clientApi.admin.getAdmindmsDocpalTypeCategories().then((res: any) => res.data)
   categoryOpts.value = data.map((item: any) => ({ label: item, value: item }))
 }
 export async function getMasterTableDisplayOpts(masterTableId: string) {

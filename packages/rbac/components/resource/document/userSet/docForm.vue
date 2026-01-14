@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 const { t } = useI18n()
 const ConditionEnum = {
   eq: '=',
@@ -22,7 +22,7 @@ const resourceAttributes = ref([])
 async function getMetadata() {
   try {
     if (metadataOpts.length === 0) {
-      metadataOpts = await adminApi.api.getDocpaltypeSettingsMetadataV2QueryCache().then((res: any) => res.data)
+      metadataOpts = await clientApi.admin.getAdmindmsDocpalTypeCache().then((res: any) => res.data)
     }
     const optionList = metadataOpts.map((item: any) => {
       const extraProps = {

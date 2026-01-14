@@ -36,7 +36,7 @@
 
 <script lang="ts" setup>
 import { ElMessage, type FormInstance } from 'element-plus'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { METADATA_OPTIONS, MASK_OPTIONS, type MetadataOption } from '../../../../../../packages/dp-datatype/utils/dataTypeHelper'
 import { mapDataType, getDefaultByType } from '../../../../../../packages/dp-datatype/utils/globalDataTypeHelper'
 const { t } = useI18n()
@@ -91,7 +91,7 @@ async function handleCreate() {
         return
       }
       // step 4 create the metadata
-      const result = await adminApi.api.postDocpaltypeSettingsMetadataV2Create(formData).then((res) => res.data)
+      const result = await clientApi.admin.postAdmindmsMetadata(formData).then((res) => res.data)
       if (result) {
         ElMessage.success(
           t('meta.create_success', {

@@ -46,7 +46,7 @@
         "onFocus": "",
         "onBlur": "",
         "onEnter": "",
-        "onValidate": "const _this = this\n\nasync function getOptions () {\n  const data = await $api.post('/docpalType/settings/check/duplicate', {\n    name: value\n  }).then(res => res.data.data)\n  return data\n}\nasync function validate () {\n  const isDuplicate = await getOptions()\n  console.log({isDuplicate})\n  if (isDuplicate) {\n    callback(new Error($t('documentType_createdDifferentNameMsg')))  //fail\n  } \n  else if(!/^[a-zA-Z_]/.test(value)) {\n    callback(new Error($t('documentType_createdLetterOrUnderscoreNameMsg'))) \n  }\n  else if(!/^[a-zA-Z_][a-zA-Z0-9 _-]*$/.test(value)) {\n    callback(new Error('Only letters, numbers, spaces , connectors and underscores can be entered')) \n  }\n  else {\n    callback();  //pass\n  }\n}\nvalidate()",
+        "onValidate": "const _this = this\n\nasync function getOptions () {\n  const data = await $admin.post('/admin/api/dms/docpal-type/check/duplicate', {\n    name: value\n  }).then(res => res.data.data)\n  return data\n}\nasync function validate () {\n  const isDuplicate = await getOptions()\n  console.log({isDuplicate})\n  if (isDuplicate) {\n    callback(new Error($t('documentType_createdDifferentNameMsg')))  //fail\n  } \n  else if(!/^[a-zA-Z_]/.test(value)) {\n    callback(new Error($t('documentType_createdLetterOrUnderscoreNameMsg'))) \n  }\n  else if(!/^[a-zA-Z_][a-zA-Z0-9 _-]*$/.test(value)) {\n    callback(new Error('Only letters, numbers, spaces , connectors and underscores can be entered')) \n  }\n  else {\n    callback();  //pass\n  }\n}\nvalidate()",
         "onAppendButtonClick": ""
       },
       "id": "input56172"

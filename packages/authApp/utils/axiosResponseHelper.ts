@@ -7,9 +7,9 @@ import { useEventBus, EventType, emitBus } from 'eventbus'
  */
 
 /**
- * @deprecated, 
+ * @deprecated,
  */
-const ignoreCaseConversion = ['/auth/nuxeo/login', '/docpal/systemfeature/keycloak-token-verification', '/api/docpal/workflow/variables/']; // which url need to ignore case conversion
+const ignoreCaseConversion = ['/auth/nuxeo/login', 'api/dms/feature/keycloak-token-verification', '/api/docpal/workflow/variables/'] // which url need to ignore case conversion
 
 /**
  *  @deprecated,  Converts a string from snake_case to camelCase
@@ -20,7 +20,7 @@ function toCamelCase(str: string): string {
 }
 
 /**
- *  @deprecated, 
+ *  @deprecated,
  * Converts all keys in an object from snake_case to camelCase
  * Handles nested objects and arrays
  */
@@ -40,7 +40,7 @@ function convertKeysToCamelCase(obj: any): any {
 }
 
 /**
- *  @deprecated, 
+ *  @deprecated,
  * Automatically detects and converts API response keys to camelCase
  * Only converts if snake_case keys are detected
  */
@@ -72,7 +72,7 @@ function getBaseUrl(baseURL: string) {
   } = useRuntimeConfig()
   if (baseURL === '/dashboard') baseURL = DASHBOARD_PROXY
   if (baseURL === '/client') baseURL = CLIENT_PROXY
-  if (baseURL === '/admin') baseURL = ADMIN_PROXY
+  if (baseURL === '/admin/api') baseURL = ADMIN_PROXY
   if (baseURL === '/api') baseURL = PROXY
   if (baseURL === '/adminApi/api') baseURL = ADMIN_PROXY
   if (baseURL === '/docpalApi') baseURL = PROXY
@@ -107,7 +107,7 @@ export const responseSuccessHelper = (response: any, axiosInstance: AxiosInstanc
 export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstance) => {
   const originalRequest = error.config
   console.log('responseErrorHelper', error)
-  if(!error.response) return Promise.reject(error)
+  if (!error.response) return Promise.reject(error)
   if (error.response.status === 420) {
     console.log('token expired, clear token and redirect to login page')
     // TODO : may need to handle error message
@@ -150,12 +150,12 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
           headers: {
             Authorization: 'Bearer ' + refreshToken
           },
-          baseURL:'/api'
+          baseURL: '/api'
         }
       )
       console.log('retry', data)
       console.log('refresh token response', data)
-      if(!data){
+      if (!data) {
         logout()
         return Promise.reject(new Error('refresh token response is null'))
       }
