@@ -99,7 +99,7 @@ onMounted(() => {
   <VxeGrid ref="tableRef" :data="items" v-bind="tableConfig" v-on="tableEvent">
     <template #toolbar_buttons></template>
     <template #icon="{ row }">
-      <Icon :name="row.icon" />
+      <Icon v-if="row.icon" :name="row.icon" />
     </template>
   </VxeGrid>
 </template>

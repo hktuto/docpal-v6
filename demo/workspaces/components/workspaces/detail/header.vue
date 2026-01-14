@@ -3,9 +3,15 @@ import type { WorkspaceRouteParams, TreeItem } from '../../../composables/useSin
 
 const { workspaceRouteParams, workspace, menuState, navigateToItem, findItemById } = useSingleWorkspaceContext()
 
+defineSlots<{
+  default?: (props: {}) => any
+  left?: (props: {}) => any
+  right?: (props: {}) => any
+}>()
+
 type BreadcrumbItem = {
   label: string
-  params: WorkspaceRouteParams 
+  params: WorkspaceRouteParams
 }
 
 const breadcrumbList = ref<BreadcrumbItem[]>([])
@@ -21,7 +27,7 @@ function findPathToItem(items: TreeItem[], targetId: string, path: BreadcrumbIte
       label: item.label,
       params: {
         detailId: item.id,
-        detailType: item.itemType,
+        detailType: item.itemType
       }
     }
     path.push(breadcrumbItem)
@@ -50,7 +56,7 @@ function createBreadcrumb() {
     label: workspace.value?.name || '',
     params: {
       detailId: null,
-      detailType: 'root',
+      detailType: 'root'
     }
   }
 
@@ -62,7 +68,7 @@ function createBreadcrumb() {
   // Build path to current item
   const path: BreadcrumbItem[] = []
   findPathToItem(menuState.value.items, workspaceRouteParams.value.detailId, path)
-  
+
   breadcrumbList.value = [rootItem, ...path]
 }
 
@@ -77,19 +83,23 @@ function handleBreadcrumbClick(item: BreadcrumbItem) {
   }
 }
 
-watch(workspaceRouteParams, () => {
-  createBreadcrumb()
-}, { immediate: true, deep: true })
+watch(
+  workspaceRouteParams,
+  () => {
+    createBreadcrumb()
+  },
+  { immediate: true, deep: true }
+)
 </script>
 
 <template>
   <div class="headerContainer">
     <div class="headerLeft">
+      <div class="headerLeft">
+        <slot name="left" />
+      </div>
       <el-breadcrumb separator="/">
-        <el-breadcrumb-item
-          v-for="(item, index) in breadcrumbList"
-          :key="item.params.detailId ?? 'root'"
-        >
+        <el-breadcrumb-item v-for="(item, index) in breadcrumbList" :key="item.params.detailId ?? 'root'">
           <span
             v-if="index < breadcrumbList.length - 1"
             class="breadcrumb-link"
@@ -105,8 +115,10 @@ watch(workspaceRouteParams, () => {
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <div class="headerRight">
 
+    <div class="headerRight">
+      <slot name="right" />
+      <slot />
     </div>
   </div>
 </template>
@@ -147,5 +159,11 @@ watch(workspaceRouteParams, () => {
 .breadcrumb-current {
   color: var(--el-text-color-primary);
   font-weight: 500;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-s);
 }
 </style>
