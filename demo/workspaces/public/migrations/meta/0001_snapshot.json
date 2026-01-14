@@ -1,9 +1,99 @@
 {
-  "id": "15c86ba8-a4aa-48f4-9d09-8fa5035d4258",
-  "prevId": "3c069954-3149-457e-9afc-1cbb7ad64e7c",
+  "id": "ff9c5ac7-b653-48e9-9cd5-93fa666bfb55",
+  "prevId": "39a65791-8bba-488d-af05-a3dc781c4fc9",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "avatar": {
+          "name": "avatar",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_super_admin": {
+          "name": "is_super_admin",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "email_verified_at": {
+          "name": "email_verified_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_login_at": {
+          "name": "last_login_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "_update_token": {
+          "name": "_update_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_email_unique": {
+          "name": "users_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.case_fields": {
       "name": "case_fields",
       "schema": "",
@@ -261,6 +351,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "viewName": {
+          "name": "viewName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "entityId": {
           "name": "entityId",
@@ -659,7 +755,7 @@
         },
         "fields": {
           "name": "fields",
-          "type": "uuid[]",
+          "type": "text[]",
           "primaryKey": false,
           "notNull": true,
           "default": "'{}'"

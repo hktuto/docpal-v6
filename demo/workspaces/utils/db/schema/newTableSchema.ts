@@ -1,6 +1,7 @@
-import { text, timestamp, uuid, pgTable, integer, jsonb, boolean } from "drizzle-orm/pg-core";
-import { users } from "./user"
-import type { ColumnFieldType } from "../../tableColumnType"
+import { text, timestamp, uuid, pgTable, integer, jsonb, boolean } from 'drizzle-orm/pg-core'
+import { users } from './user'
+import type { ColumnFieldType } from '../../tableColumnType'
+import { view } from 'drizzle-orm/sqlite-core'
 
 // =============================================================================
 // Type Definitions
@@ -104,9 +105,8 @@ export const caseType = pgTable('case_type', {
   createdBy: uuid('createdBy').references(() => users.id),
   createdAt: timestamp('createdAt').notNull().defaultNow(),
   updatedBy: uuid('updatedBy').references(() => users.id),
-  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow()
 })
-
 
 export const caseTree = pgTable('case_tree', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -121,7 +121,7 @@ export const caseTree = pgTable('case_tree', {
   createdBy: uuid('createdBy').references(() => users.id),
   createdAt: timestamp('createdAt').notNull().defaultNow(),
   updatedBy: uuid('updatedBy').references(() => users.id),
-  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow()
 })
 
 export const caseTable = pgTable('case_tables', {
@@ -130,12 +130,15 @@ export const caseTable = pgTable('case_tables', {
   status: text('status').$type<CaseTableStatus>().notNull().default('A'),
   description: text('description'),
   tableName: text('tableName').notNull().unique(),
-  entityId: uuid('entityId').notNull().references(() => caseType.id),
+  viewName: text('viewName'),
+  entityId: uuid('entityId')
+    .notNull()
+    .references(() => caseType.id),
   formStructure: jsonb('formStructure').$type<FormStructure>(),
   createdBy: uuid('createdBy').references(() => users.id),
   createdAt: timestamp('createdAt').notNull().defaultNow(),
   updatedBy: uuid('updatedBy').references(() => users.id),
-  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow()
 })
 
 export const caseField = pgTable('case_fields', {
@@ -163,7 +166,7 @@ export const caseField = pgTable('case_fields', {
   // Relation field configuration
   displayFieldIds: uuid('displayFieldIds').array().notNull().default([]),
   relationFieldId: uuid('relationFieldId'),
-  relationTableId: uuid('relationTableId').references(() => caseTable.id),
+  relationTableId: uuid('relationTableId').references(() => caseTable.id)
 })
 
 export const caseView = pgTable('case_views', {
@@ -174,14 +177,18 @@ export const caseView = pgTable('case_views', {
   filter: jsonb('filter').$type<ViewFilter[]>(),
   sorting: jsonb('sorting').$type<ViewSorting[]>(),
   grouping: jsonb('grouping').$type<ViewGrouping[]>(),
-  tableId: uuid('tableId').notNull().references(() => caseTable.id),
+  tableId: uuid('tableId')
+    .notNull()
+    .references(() => caseTable.id),
   isDefault: boolean('isDefault').notNull().default(false),
-  entityId: uuid('entityId').notNull().references(() => caseType.id),
+  entityId: uuid('entityId')
+    .notNull()
+    .references(() => caseType.id),
   fields: text('fields').array().notNull().default([]),
   createdBy: uuid('createdBy').references(() => users.id),
   createdAt: timestamp('createdAt').notNull().defaultNow(),
   updatedBy: uuid('updatedBy').references(() => users.id),
-  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow()
 })
 
 // =============================================================================

@@ -13,7 +13,7 @@ interface FilterSchema<T = any> {
 interface Props {
   data: T[]
   schema?: FilterSchema<T>[]
-  zodSchema?: any  // z.ZodObject<any>
+  zodSchema?: any // z.ZodObject<any>
   searchKeys?: (keyof T)[]
   excludeKeys?: (keyof T)[]
   customLabels?: Partial<Record<keyof T, string>>
@@ -26,7 +26,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   searchKeys: () => [],
   excludeKeys: () => [],
-  customLabels: () => ({} as Partial<Record<keyof T, string>>),
+  customLabels: () => ({}) as Partial<Record<keyof T, string>>,
   defaultSortOrder: () => 'asc',
   debounceMs: 300
 })
@@ -64,11 +64,11 @@ const finalSchema = computed(() => {
   if (props.schema) {
     return props.schema
   }
-  
+
   if (props.zodSchema) {
     return generateSchemaFromZod(props.zodSchema)
   }
-  
+
   return []
 })
 
@@ -76,7 +76,7 @@ const finalSchema = computed(() => {
 function generateSchemaFromZod(zodSchema: any): FilterSchema<T>[] {
   const shape = zodSchema.shape
   const filters: FilterSchema<T>[] = []
-  
+
   // System field patterns to exclude
   const systemFieldPatterns = [
     'id',
@@ -95,26 +95,23 @@ function generateSchemaFromZod(zodSchema: any): FilterSchema<T>[] {
     'deleted_at',
     '__dim'
   ]
-  
+
   for (const [key, zodType] of Object.entries(shape)) {
     if (props.excludeKeys.includes(key as keyof T)) continue
-    
+
     // Skip system fields
-    const isSystemField = systemFieldPatterns.some(pattern => 
-      key === pattern || 
-      key.toLowerCase().includes(pattern.toLowerCase()) ||
-      key.endsWith('At') ||
-      key.endsWith('By')
+    const isSystemField = systemFieldPatterns.some(
+      (pattern) => key === pattern || key.toLowerCase().includes(pattern.toLowerCase()) || key.endsWith('At') || key.endsWith('By')
     )
-    
+
     if (isSystemField) continue
-    
+
     const typeName = (zodType as any)._def?.typeName
     const label = props.customLabels[key as keyof T] || formatLabel(key)
-    
+
     let filterType: 'select' | 'boolean' | null = null
     let options: Array<{ label: string; value: any }> | undefined
-    
+
     // Only include boolean and select filters
     if (typeName === 'ZodBoolean') {
       filterType = 'boolean'
@@ -126,10 +123,10 @@ function generateSchemaFromZod(zodSchema: any): FilterSchema<T>[] {
         value: val
       }))
     }
-    
+
     // Skip if not boolean or select
     if (!filterType) continue
-    
+
     filters.push({
       key: key as keyof T,
       label,
@@ -138,7 +135,7 @@ function generateSchemaFromZod(zodSchema: any): FilterSchema<T>[] {
       placeholder: generatePlaceholder(label, filterType)
     })
   }
-  
+
   return filters
 }
 
@@ -149,7 +146,7 @@ function formatLabel(key: string): string {
     .replace(/_/g, ' ')
     .replace(/-/g, ' ')
     .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ')
     .trim()
 }
@@ -206,12 +203,15 @@ function defaultItemMatchesFilters(item: T, filters: { [key in keyof T]?: any },
   // Check keyword search
   if (keywordValue) {
     // Split keyword by spaces and filter out empty strings
-    const keywords = keywordValue.trim().split(/\s+/).filter(k => k.length > 0)
-    
+    const keywords = keywordValue
+      .trim()
+      .split(/\s+/)
+      .filter((k) => k.length > 0)
+
     if (keywords.length === 0) return true
-    
+
     const keysToSearch = props.searchKeys.length > 0 ? props.searchKeys : Object.keys(item)
-    
+
     // Check if ANY keyword matches ANY searchable field
     const matchesKeyword = keywords.some((keyword) => {
       const searchTerm = keyword.toLowerCase()
@@ -236,12 +236,12 @@ function defaultItemMatchesFilters(item: T, filters: { [key in keyof T]?: any },
  */
 async function computeFilteredList() {
   const startTime = performance.now()
-  
+
   const filters = isFilterStage.value ? tempFilterOptions.value : filterOptions.value
   const keywordValue = keyword.value
-  
+
   let filterType = 'None'
-  
+
   // If external search handler is provided (e.g., database search)
   if (onSearchParamsChange) {
     filterType = 'Database'
@@ -252,13 +252,13 @@ async function computeFilteredList() {
       sortOrder: sortOrder.value,
       isFilterStage: isFilterStage.value
     })
-    
+
     // If handler returns results, use them directly
     if (result) {
       filteredList.value = result
       const endTime = performance.now()
       const duration = (endTime - startTime).toFixed(2)
-      
+
       ElMessage.info(`${filterType} Filter: ${duration}ms (${result.length} results)`)
       return
     }
@@ -284,47 +284,42 @@ async function computeFilteredList() {
     })
   } else {
     // After confirmation, filter the list
-    result = props.data.filter((item) => 
-      defaultItemMatchesFilters(item, filterOptions.value, keywordValue)
-    )
+    result = props.data.filter((item) => defaultItemMatchesFilters(item, filterOptions.value, keywordValue))
   }
-  console.log('result', result)
+
   // Sort the results
   filteredList.value = sortItems(result)
-  console.log('filteredList', filteredList.value)
   const endTime = performance.now()
   const duration = (endTime - startTime).toFixed(2)
-  
+
   if (hasActiveFilters) {
     ElMessage.info(`${filterType} Filter: ${duration}ms (${filteredList.value.length} results)`)
   }
 }
 
-
-
 // Sort items: non-dimmed first, then dimmed, then by sortBy field
 function sortItems(items: T[]): T[] {
   const sorted = [...items]
-  
+
   sorted.sort((a: any, b: any) => {
     // First priority: non-dimmed items come before dimmed items
     const aDim = a.__dim || false
     const bDim = b.__dim || false
-    
+
     if (aDim !== bDim) {
       return aDim ? 1 : -1
     }
-    
+
     // Second priority: sort by specified field
     if (sortBy.value) {
       const aVal = a[sortBy.value]
       const bVal = b[sortBy.value]
-      
+
       // Handle null/undefined
       if (aVal == null && bVal == null) return 0
       if (aVal == null) return 1
       if (bVal == null) return -1
-      
+
       // Compare values
       let comparison = 0
       if (typeof aVal === 'string' && typeof bVal === 'string') {
@@ -336,32 +331,32 @@ function sortItems(items: T[]): T[] {
       } else {
         comparison = String(aVal).localeCompare(String(bVal))
       }
-      
+
       return sortOrder.value === 'asc' ? comparison : -comparison
     }
-    
+
     return 0
   })
-  
+
   return sorted
 }
 
 // Get sortable fields from schema
 const sortableFields = computed(() => {
   if (!props.data || props.data.length === 0) return []
-  
+
   const firstItem = props.data[0]
-  const fields = Object.keys(firstItem).filter(key => {
+  const fields = Object.keys(firstItem).filter((key) => {
     // Exclude system fields and __dim
     if (key === '__dim' || key === 'id') return false
     if (key.endsWith('At') || key.endsWith('By') || key.includes('Token')) return false
-    
+
     const value = firstItem[key as keyof T]
     // Include string, number, date fields
     const valueType = typeof value
     return valueType === 'string' || valueType === 'number' || (value != null && typeof (value as any).getTime === 'function')
   })
-  
+
   return fields as (keyof T)[]
 })
 
@@ -409,10 +404,10 @@ async function handleConfirm() {
   // Apply the filters first
   filterOptions.value = { ...tempFilterOptions.value }
   isFilterStage.value = false
-  
+
   // Immediately compute filtered list
   await computeFilteredList()
-  
+
   // Count matching items
   const matchingItems = filteredList.value.filter((item: any) => !item.__dim)
 
@@ -453,14 +448,18 @@ async function resetFilters() {
 }
 
 // Watch for changes in data, keyword, filters, and sorting
-watch([() => props.data, keyword, tempFilterOptions, sortBy, sortOrder], () => {
-  const hasFilters = keyword.value || Object.keys(tempFilterOptions.value).length > 0
-  if (!hasFilters) {
-    isFilterStage.value = false
-    filterOptions.value = {}
-  }
-  debouncedComputeFilteredList()
-}, { deep: true })
+watch(
+  [() => props.data, keyword, tempFilterOptions, sortBy, sortOrder],
+  () => {
+    const hasFilters = keyword.value || Object.keys(tempFilterOptions.value).length > 0
+    if (!hasFilters) {
+      isFilterStage.value = false
+      filterOptions.value = {}
+    }
+    debouncedComputeFilteredList()
+  },
+  { deep: true }
+)
 
 // Initial computation
 onMounted(async () => {
@@ -480,10 +479,8 @@ function handleGlobalKeydown(event: KeyboardEvent) {
   if (event.key === 'Escape') {
     // Check if user is typing in an input
     const activeElement = document.activeElement as HTMLElement
-    const isTyping = activeElement?.tagName === 'INPUT' || 
-                     activeElement?.tagName === 'TEXTAREA' ||
-                     activeElement?.isContentEditable
-    
+    const isTyping = activeElement?.tagName === 'INPUT' || activeElement?.tagName === 'TEXTAREA' || activeElement?.isContentEditable
+
     // If not typing, handle escape
     if (!isTyping) {
       handleEscapeKey()
@@ -494,137 +491,110 @@ function handleGlobalKeydown(event: KeyboardEvent) {
 
 <template>
   <div class="searchable-list">
-    
-      <div :class="{'filter-container': true, 'is-filtering': isFilterStage || keyword || hasAppliedFilters}">
-        <!-- Keyword Search -->
-        <ElInput
-          v-model="keyword"
-          placeholder="Search..."
-          clearable
-          @input="handleKeywordInput"
-          @keydown="handleKeydown"
-          class="search-input"
-        >
-          <template #prefix>
-            <Icon name="mdi:magnify" />
-          </template>
-        </ElInput>
+    <div :class="{ 'filter-container': true, 'is-filtering': isFilterStage || keyword || hasAppliedFilters }">
+      <!-- Keyword Search -->
+      <ElInput v-model="keyword" placeholder="Search..." clearable @input="handleKeywordInput" @keydown="handleKeydown" class="search-input">
+        <template #prefix>
+          <Icon name="mdi:magnify" />
+        </template>
+      </ElInput>
 
-        <!-- Sort Controls -->
-        <div v-if="sortableFields.length > 0" class="sort-controls">
-          <div class="sort-trigger" @click="handleSortClick">
-            <span class="sort-field-name">
-              {{ sortBy ? (props.customLabels[sortBy as keyof typeof props.customLabels] || formatLabel(String(sortBy))) : 'Sort' }}
-            </span>
-            <Icon 
-              :name="sortOrder === 'asc' ? 'mdi:sort-ascending' : 'mdi:sort-descending'" 
-              class="sort-icon"
-            />
-          </div>
-        </div>
-
-        <UiPopoverDialog
-          ref="sortPopover"
-          title="Sort Options"
-          width="280px"
-          placement="bottom-start"
-        >
-          <div class="sort-options">
-            <div class="sort-section">
-              <div class="section-label">Sort by</div>
-              <div class="sort-fields">
-                <div
-                  v-for="field in sortableFields"
-                  :key="String(field)"
-                  :class="['sort-field-item', { active: sortBy === field }]"
-                  @click="handleSortChange(field)"
-                >
-                  {{ props.customLabels[field] || formatLabel(String(field)) }}
-                </div>
-              </div>
-            </div>
-            
-            <div class="sort-section">
-              <div class="section-label">Order</div>
-              <div class="sort-order-toggle">
-                <div
-                  :class="['order-option', { active: sortOrder === 'asc' }]"
-                  @click="sortOrder = 'asc'"
-                >
-                  <Icon name="mdi:sort-ascending" />
-                  <span>Ascending</span>
-                </div>
-                <div
-                  :class="['order-option', { active: sortOrder === 'desc' }]"
-                  @click="sortOrder = 'desc'"
-                >
-                  <Icon name="mdi:sort-descending" />
-                  <span>Descending</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </UiPopoverDialog>
-
-        <!-- Auto-generated Filters -->
-        <div v-if="finalSchema.length > 0" class="filters">
-          <template v-for="filter in finalSchema" :key="String(filter.key)">
-            <!-- Text Filter -->
-            <ElInput
-              v-if="filter.type === 'text'"
-              :model-value="(tempFilterOptions as any)[filter.key]"
-              :placeholder="filter.placeholder || filter.label"
-              clearable
-              @update:model-value="(val: any) => handleFilterChange(filter.key, val)"
-              @keydown="handleKeydown"
-            >
-              <template #prepend>{{ filter.label }}</template>
-            </ElInput>
-
-            <!-- Select Filter -->
-            <ElSelect
-              v-else-if="filter.type === 'select'"
-              :model-value="(tempFilterOptions as any)[filter.key]"
-              :placeholder="filter.placeholder || `Select ${filter.label}`"
-              clearable
-              @update:model-value="(val: any) => handleFilterChange(filter.key, val)"
-              @keydown="handleKeydown"
-            >
-              <template #prefix>{{ filter.label }}:</template>
-              <ElOption
-                v-for="option in filter.options"
-                :key="String(option.value)"
-                :label="option.label"
-                :value="option.value"
-              />
-            </ElSelect>
-
-            <!-- Boolean Filter -->
-            <ElCheckbox
-              v-else-if="filter.type === 'boolean'"
-              :model-value="(tempFilterOptions as any)[filter.key]"
-              @update:model-value="(val: any) => handleFilterChange(filter.key, val)"
-            >
-              {{ filter.label }}
-            </ElCheckbox>
-          </template>
-        </div>
-        <!-- Action slot -->
-        <slot name="actions" />
-        <!-- Action Buttons -->
-        <div v-if="isFilterStage || keyword || hasAppliedFilters" class="filter-actions">
-          <div v-if="isFilterStage" class="filter-action-button cancel">
-            <Icon name="mdi:close" @click="handleEscapeKey" />
-          </div>
-          <div v-if="isFilterStage" class="filter-action-button confirm">
-            <Icon name="mdi:check" @click="handleConfirm"/>
-          </div>
-          <div v-if="!isFilterStage && (keyword || hasAppliedFilters)" class="filter-action-button reset">
-            <Icon name="mdi:filter-off" @click="resetFilters" />
-          </div>
+      <!-- Sort Controls -->
+      <div v-if="sortableFields.length > 0" class="sort-controls">
+        <div class="sort-trigger" @click="handleSortClick">
+          <span class="sort-field-name">
+            {{ sortBy ? props.customLabels[sortBy as keyof typeof props.customLabels] || formatLabel(String(sortBy)) : 'Sort' }}
+          </span>
+          <Icon :name="sortOrder === 'asc' ? 'mdi:sort-ascending' : 'mdi:sort-descending'" class="sort-icon" />
         </div>
       </div>
-      <template v-if="filteredList.length === 0">
+
+      <UiPopoverDialog ref="sortPopover" title="Sort Options" width="280px" placement="bottom-start">
+        <div class="sort-options">
+          <div class="sort-section">
+            <div class="section-label">Sort by</div>
+            <div class="sort-fields">
+              <div
+                v-for="field in sortableFields"
+                :key="String(field)"
+                :class="['sort-field-item', { active: sortBy === field }]"
+                @click="handleSortChange(field)"
+              >
+                {{ props.customLabels[field] || formatLabel(String(field)) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="sort-section">
+            <div class="section-label">Order</div>
+            <div class="sort-order-toggle">
+              <div :class="['order-option', { active: sortOrder === 'asc' }]" @click="sortOrder = 'asc'">
+                <Icon name="mdi:sort-ascending" />
+                <span>Ascending</span>
+              </div>
+              <div :class="['order-option', { active: sortOrder === 'desc' }]" @click="sortOrder = 'desc'">
+                <Icon name="mdi:sort-descending" />
+                <span>Descending</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </UiPopoverDialog>
+
+      <!-- Auto-generated Filters -->
+      <div v-if="finalSchema.length > 0" class="filters">
+        <template v-for="filter in finalSchema" :key="String(filter.key)">
+          <!-- Text Filter -->
+          <ElInput
+            v-if="filter.type === 'text'"
+            :model-value="(tempFilterOptions as any)[filter.key]"
+            :placeholder="filter.placeholder || filter.label"
+            clearable
+            @update:model-value="(val: any) => handleFilterChange(filter.key, val)"
+            @keydown="handleKeydown"
+          >
+            <template #prepend>{{ filter.label }}</template>
+          </ElInput>
+
+          <!-- Select Filter -->
+          <ElSelect
+            v-else-if="filter.type === 'select'"
+            :model-value="(tempFilterOptions as any)[filter.key]"
+            :placeholder="filter.placeholder || `Select ${filter.label}`"
+            clearable
+            @update:model-value="(val: any) => handleFilterChange(filter.key, val)"
+            @keydown="handleKeydown"
+          >
+            <template #prefix>{{ filter.label }}:</template>
+            <ElOption v-for="option in filter.options" :key="String(option.value)" :label="option.label" :value="option.value" />
+          </ElSelect>
+
+          <!-- Boolean Filter -->
+          <ElCheckbox
+            v-else-if="filter.type === 'boolean'"
+            :model-value="(tempFilterOptions as any)[filter.key]"
+            @update:model-value="(val: any) => handleFilterChange(filter.key, val)"
+          >
+            {{ filter.label }}
+          </ElCheckbox>
+        </template>
+      </div>
+      <!-- Action slot -->
+      <slot name="actions" />
+      <!-- Action Buttons -->
+      <div v-if="isFilterStage || keyword || hasAppliedFilters" class="filter-actions">
+        <div v-if="isFilterStage" class="filter-action-button cancel">
+          <Icon name="mdi:close" @click="handleEscapeKey" />
+        </div>
+        <div v-if="isFilterStage" class="filter-action-button confirm">
+          <Icon name="mdi:check" @click="handleConfirm" />
+        </div>
+        <div v-if="!isFilterStage && (keyword || hasAppliedFilters)" class="filter-action-button reset">
+          <Icon name="mdi:filter-off" @click="resetFilters" />
+        </div>
+      </div>
+    </div>
+    <template v-if="filteredList.length === 0">
       <template v-if="$slots.noData">
         <slot name="noData"></slot>
       </template>
@@ -638,24 +608,19 @@ function handleGlobalKeydown(event: KeyboardEvent) {
       </template>
     </template>
     <div :class="['list-content', ...(props.containerClass?.split(',') || [])]">
-      <slot 
-        :items="filteredList" 
-        :is-filtering="isFilterStage" 
-        :keyword="keyword"
-        :filters="isFilterStage ? tempFilterOptions : filterOptions"
-      />
-      </div>  
+      <slot :items="filteredList" :is-filtering="isFilterStage" :keyword="keyword" :filters="isFilterStage ? tempFilterOptions : filterOptions" />
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-  .no-data{
-    width: 100%;
-    height: 100%;
-    font-size: var(--app-font-size-xl);
-    display: grid;
-    place-items: center;
-  }
+.no-data {
+  width: 100%;
+  height: 100%;
+  font-size: var(--app-font-size-xl);
+  display: grid;
+  place-items: center;
+}
 .searchable-list {
   display: flex;
   flex-direction: column;
@@ -673,7 +638,7 @@ function handleGlobalKeydown(event: KeyboardEvent) {
   @container (max-width: 600px) {
     flex-flow: row wrap;
   }
-  &.is-filtering{
+  &.is-filtering {
     padding-right: var(--app-space-l);
   }
 }
@@ -703,12 +668,12 @@ function handleGlobalKeydown(event: KeyboardEvent) {
     background-color: var(--app-grey-700);
     border-color: var(--app-primary-alpha-50);
   }
-  
+
   .sort-field-name {
     font-weight: 500;
     color: var(--app-text-primary);
   }
-  
+
   .sort-icon {
     color: var(--app-primary);
     font-size: var(--app-font-size-m);
@@ -744,11 +709,11 @@ function handleGlobalKeydown(event: KeyboardEvent) {
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: var(--app-font-size-s);
-  
+
   &:hover {
     background-color: var(--app-grey-800);
   }
-  
+
   &.active {
     background-color: var(--app-primary-color);
     color: var(--app-paper);
@@ -773,19 +738,19 @@ function handleGlobalKeydown(event: KeyboardEvent) {
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: var(--app-font-size-s);
-  
+
   &:hover {
     background-color: var(--app-grey-800);
     border-color: var(--app-primary-alpha-50);
   }
-  
+
   &.active {
     background-color: var(--app-primary-alpha-10);
     border-color: var(--app-primary);
     color: var(--app-primary);
     font-weight: 500;
   }
-  
+
   .icon {
     font-size: var(--app-font-size-m);
   }
@@ -807,7 +772,7 @@ function handleGlobalKeydown(event: KeyboardEvent) {
   gap: 0;
   justify-content: flex-end;
 }
-.filter-action-button{
+.filter-action-button {
   font-size: var(--app-font-size-s);
   padding: var(--app-space-xxs);
   border-radius: var(--app-border-radius-s);
@@ -831,4 +796,3 @@ function handleGlobalKeydown(event: KeyboardEvent) {
   overflow: auto;
 }
 </style>
-

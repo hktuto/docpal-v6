@@ -1,9 +1,99 @@
 {
-  "id": "3c069954-3149-457e-9afc-1cbb7ad64e7c",
+  "id": "39a65791-8bba-488d-af05-a3dc781c4fc9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "avatar": {
+          "name": "avatar",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_super_admin": {
+          "name": "is_super_admin",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "email_verified_at": {
+          "name": "email_verified_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_login_at": {
+          "name": "last_login_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "_update_token": {
+          "name": "_update_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_email_unique": {
+          "name": "users_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.case_fields": {
       "name": "case_fields",
       "schema": "",
@@ -15,151 +105,151 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "aggregation_field_name": {
-          "name": "aggregation_field_name",
+        "aggregationFieldName": {
+          "name": "aggregationFieldName",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "aggregation_method": {
-          "name": "aggregation_method",
+        "aggregationMethod": {
+          "name": "aggregationMethod",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "business_type": {
-          "name": "business_type",
+        "businessType": {
+          "name": "businessType",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "default": "'text'"
         },
-        "default_value": {
-          "name": "default_value",
+        "defaultValue": {
+          "name": "defaultValue",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "display_structure": {
-          "name": "display_structure",
+        "displayStructure": {
+          "name": "displayStructure",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
-        "field_length": {
-          "name": "field_length",
+        "fieldLength": {
+          "name": "fieldLength",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "default": 0
         },
-        "field_name": {
-          "name": "field_name",
+        "fieldName": {
+          "name": "fieldName",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "field_name_alias": {
-          "name": "field_name_alias",
+        "fieldNameAlias": {
+          "name": "fieldNameAlias",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "field_type": {
-          "name": "field_type",
+        "fieldType": {
+          "name": "fieldType",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "default": "'text'"
         },
-        "formula_expression": {
-          "name": "formula_expression",
+        "formulaExpression": {
+          "name": "formulaExpression",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "is_array": {
-          "name": "is_array",
+        "isArray": {
+          "name": "isArray",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
           "default": false
         },
-        "is_hidden": {
-          "name": "is_hidden",
+        "isHidden": {
+          "name": "isHidden",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
           "default": false
         },
-        "is_reference": {
-          "name": "is_reference",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "is_required": {
-          "name": "is_required",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "is_unique": {
-          "name": "is_unique",
+        "isReference": {
+          "name": "isReference",
           "type": "boolean",
           "primaryKey": false,
           "notNull": false,
           "default": false
         },
-        "master_table_id": {
-          "name": "master_table_id",
+        "isRequired": {
+          "name": "isRequired",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "isUnique": {
+          "name": "isUnique",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "tableId": {
+          "name": "tableId",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "created_by": {
-          "name": "created_by",
+        "createdBy": {
+          "name": "createdBy",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "created_at": {
-          "name": "created_at",
+        "createdAt": {
+          "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
-        "updated_by": {
-          "name": "updated_by",
+        "updatedBy": {
+          "name": "updatedBy",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "updated_at": {
-          "name": "updated_at",
+        "updatedAt": {
+          "name": "updatedAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
-        "display_field_ids": {
-          "name": "display_field_ids",
+        "displayFieldIds": {
+          "name": "displayFieldIds",
           "type": "uuid[]",
           "primaryKey": false,
           "notNull": true,
           "default": "'{}'"
         },
-        "relation_field_id": {
-          "name": "relation_field_id",
+        "relationFieldId": {
+          "name": "relationFieldId",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "relation_table_id": {
-          "name": "relation_table_id",
+        "relationTableId": {
+          "name": "relationTableId",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
@@ -167,12 +257,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "case_fields_master_table_id_case_tables_id_fk": {
-          "name": "case_fields_master_table_id_case_tables_id_fk",
+        "case_fields_tableId_case_tables_id_fk": {
+          "name": "case_fields_tableId_case_tables_id_fk",
           "tableFrom": "case_fields",
           "tableTo": "case_tables",
           "columnsFrom": [
-            "master_table_id"
+            "tableId"
           ],
           "columnsTo": [
             "id"
@@ -180,12 +270,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "case_fields_created_by_users_id_fk": {
-          "name": "case_fields_created_by_users_id_fk",
+        "case_fields_createdBy_users_id_fk": {
+          "name": "case_fields_createdBy_users_id_fk",
           "tableFrom": "case_fields",
           "tableTo": "users",
           "columnsFrom": [
-            "created_by"
+            "createdBy"
           ],
           "columnsTo": [
             "id"
@@ -193,12 +283,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "case_fields_updated_by_users_id_fk": {
-          "name": "case_fields_updated_by_users_id_fk",
+        "case_fields_updatedBy_users_id_fk": {
+          "name": "case_fields_updatedBy_users_id_fk",
           "tableFrom": "case_fields",
           "tableTo": "users",
           "columnsFrom": [
-            "updated_by"
+            "updatedBy"
           ],
           "columnsTo": [
             "id"
@@ -206,12 +296,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "case_fields_relation_table_id_case_tables_id_fk": {
-          "name": "case_fields_relation_table_id_case_tables_id_fk",
+        "case_fields_relationTableId_case_tables_id_fk": {
+          "name": "case_fields_relationTableId_case_tables_id_fk",
           "tableFrom": "case_fields",
           "tableTo": "case_tables",
           "columnsFrom": [
-            "relation_table_id"
+            "relationTableId"
           ],
           "columnsTo": [
             "id"
@@ -256,45 +346,45 @@
           "primaryKey": false,
           "notNull": false
         },
-        "table_name": {
-          "name": "table_name",
+        "tableName": {
+          "name": "tableName",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "entity_id": {
-          "name": "entity_id",
+        "entityId": {
+          "name": "entityId",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "form_structure": {
-          "name": "form_structure",
+        "formStructure": {
+          "name": "formStructure",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
-        "created_by": {
-          "name": "created_by",
+        "createdBy": {
+          "name": "createdBy",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "created_at": {
-          "name": "created_at",
+        "createdAt": {
+          "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
-        "updated_by": {
-          "name": "updated_by",
+        "updatedBy": {
+          "name": "updatedBy",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "updated_at": {
-          "name": "updated_at",
+        "updatedAt": {
+          "name": "updatedAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -303,12 +393,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "case_tables_entity_id_case_type_id_fk": {
-          "name": "case_tables_entity_id_case_type_id_fk",
+        "case_tables_entityId_case_type_id_fk": {
+          "name": "case_tables_entityId_case_type_id_fk",
           "tableFrom": "case_tables",
           "tableTo": "case_type",
           "columnsFrom": [
-            "entity_id"
+            "entityId"
           ],
           "columnsTo": [
             "id"
@@ -316,12 +406,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "case_tables_created_by_users_id_fk": {
-          "name": "case_tables_created_by_users_id_fk",
+        "case_tables_createdBy_users_id_fk": {
+          "name": "case_tables_createdBy_users_id_fk",
           "tableFrom": "case_tables",
           "tableTo": "users",
           "columnsFrom": [
-            "created_by"
+            "createdBy"
           ],
           "columnsTo": [
             "id"
@@ -329,12 +419,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "case_tables_updated_by_users_id_fk": {
-          "name": "case_tables_updated_by_users_id_fk",
+        "case_tables_updatedBy_users_id_fk": {
+          "name": "case_tables_updatedBy_users_id_fk",
           "tableFrom": "case_tables",
           "tableTo": "users",
           "columnsFrom": [
-            "updated_by"
+            "updatedBy"
           ],
           "columnsTo": [
             "id"
@@ -345,11 +435,11 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "case_tables_table_name_unique": {
-          "name": "case_tables_table_name_unique",
+        "case_tables_tableName_unique": {
+          "name": "case_tables_tableName_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "table_name"
+            "tableName"
           ]
         }
       },
@@ -368,8 +458,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "entity_id": {
-          "name": "entity_id",
+        "entityId": {
+          "name": "entityId",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
@@ -392,21 +482,21 @@
           "primaryKey": false,
           "notNull": false
         },
-        "item_type": {
-          "name": "item_type",
+        "itemType": {
+          "name": "itemType",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "default": "'folder'"
         },
-        "item_id": {
-          "name": "item_id",
+        "itemId": {
+          "name": "itemId",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "parent_id": {
-          "name": "parent_id",
+        "parentId": {
+          "name": "parentId",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
@@ -418,27 +508,27 @@
           "notNull": true,
           "default": 0
         },
-        "created_by": {
-          "name": "created_by",
+        "createdBy": {
+          "name": "createdBy",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "created_at": {
-          "name": "created_at",
+        "createdAt": {
+          "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
-        "updated_by": {
-          "name": "updated_by",
+        "updatedBy": {
+          "name": "updatedBy",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "updated_at": {
-          "name": "updated_at",
+        "updatedAt": {
+          "name": "updatedAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -447,12 +537,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "case_tree_entity_id_case_type_id_fk": {
-          "name": "case_tree_entity_id_case_type_id_fk",
+        "case_tree_entityId_case_type_id_fk": {
+          "name": "case_tree_entityId_case_type_id_fk",
           "tableFrom": "case_tree",
           "tableTo": "case_type",
           "columnsFrom": [
-            "entity_id"
+            "entityId"
           ],
           "columnsTo": [
             "id"
@@ -460,12 +550,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "case_tree_created_by_users_id_fk": {
-          "name": "case_tree_created_by_users_id_fk",
+        "case_tree_createdBy_users_id_fk": {
+          "name": "case_tree_createdBy_users_id_fk",
           "tableFrom": "case_tree",
           "tableTo": "users",
           "columnsFrom": [
-            "created_by"
+            "createdBy"
           ],
           "columnsTo": [
             "id"
@@ -473,12 +563,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "case_tree_updated_by_users_id_fk": {
-          "name": "case_tree_updated_by_users_id_fk",
+        "case_tree_updatedBy_users_id_fk": {
+          "name": "case_tree_updatedBy_users_id_fk",
           "tableFrom": "case_tree",
           "tableTo": "users",
           "columnsFrom": [
-            "updated_by"
+            "updatedBy"
           ],
           "columnsTo": [
             "id"
@@ -522,34 +612,34 @@
           "primaryKey": false,
           "notNull": false
         },
-        "entity_type": {
-          "name": "entity_type",
+        "entityType": {
+          "name": "entityType",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "default": "'case'"
         },
-        "created_by": {
-          "name": "created_by",
+        "createdBy": {
+          "name": "createdBy",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "created_at": {
-          "name": "created_at",
+        "createdAt": {
+          "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
-        "updated_by": {
-          "name": "updated_by",
+        "updatedBy": {
+          "name": "updatedBy",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "updated_at": {
-          "name": "updated_at",
+        "updatedAt": {
+          "name": "updatedAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -558,12 +648,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "case_type_created_by_users_id_fk": {
-          "name": "case_type_created_by_users_id_fk",
+        "case_type_createdBy_users_id_fk": {
+          "name": "case_type_createdBy_users_id_fk",
           "tableFrom": "case_type",
           "tableTo": "users",
           "columnsFrom": [
-            "created_by"
+            "createdBy"
           ],
           "columnsTo": [
             "id"
@@ -571,12 +661,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "case_type_updated_by_users_id_fk": {
-          "name": "case_type_updated_by_users_id_fk",
+        "case_type_updatedBy_users_id_fk": {
+          "name": "case_type_updatedBy_users_id_fk",
           "tableFrom": "case_type",
           "tableTo": "users",
           "columnsFrom": [
-            "updated_by"
+            "updatedBy"
           ],
           "columnsTo": [
             "id"
@@ -614,8 +704,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "view_name": {
-          "name": "view_name",
+        "viewName": {
+          "name": "viewName",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -638,53 +728,53 @@
           "primaryKey": false,
           "notNull": false
         },
-        "table_id": {
-          "name": "table_id",
+        "tableId": {
+          "name": "tableId",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "is_default": {
-          "name": "is_default",
+        "isDefault": {
+          "name": "isDefault",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
           "default": false
         },
-        "entity_id": {
-          "name": "entity_id",
+        "entityId": {
+          "name": "entityId",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
         "fields": {
           "name": "fields",
-          "type": "uuid[]",
+          "type": "text[]",
           "primaryKey": false,
           "notNull": true,
           "default": "'{}'"
         },
-        "created_by": {
-          "name": "created_by",
+        "createdBy": {
+          "name": "createdBy",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "created_at": {
-          "name": "created_at",
+        "createdAt": {
+          "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
-        "updated_by": {
-          "name": "updated_by",
+        "updatedBy": {
+          "name": "updatedBy",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "updated_at": {
-          "name": "updated_at",
+        "updatedAt": {
+          "name": "updatedAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -693,12 +783,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "case_views_table_id_case_tables_id_fk": {
-          "name": "case_views_table_id_case_tables_id_fk",
+        "case_views_tableId_case_tables_id_fk": {
+          "name": "case_views_tableId_case_tables_id_fk",
           "tableFrom": "case_views",
           "tableTo": "case_tables",
           "columnsFrom": [
-            "table_id"
+            "tableId"
           ],
           "columnsTo": [
             "id"
@@ -706,12 +796,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "case_views_entity_id_case_type_id_fk": {
-          "name": "case_views_entity_id_case_type_id_fk",
+        "case_views_entityId_case_type_id_fk": {
+          "name": "case_views_entityId_case_type_id_fk",
           "tableFrom": "case_views",
           "tableTo": "case_type",
           "columnsFrom": [
-            "entity_id"
+            "entityId"
           ],
           "columnsTo": [
             "id"
@@ -719,12 +809,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "case_views_created_by_users_id_fk": {
-          "name": "case_views_created_by_users_id_fk",
+        "case_views_createdBy_users_id_fk": {
+          "name": "case_views_createdBy_users_id_fk",
           "tableFrom": "case_views",
           "tableTo": "users",
           "columnsFrom": [
-            "created_by"
+            "createdBy"
           ],
           "columnsTo": [
             "id"
@@ -732,12 +822,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "case_views_updated_by_users_id_fk": {
-          "name": "case_views_updated_by_users_id_fk",
+        "case_views_updatedBy_users_id_fk": {
+          "name": "case_views_updatedBy_users_id_fk",
           "tableFrom": "case_views",
           "tableTo": "users",
           "columnsFrom": [
-            "updated_by"
+            "updatedBy"
           ],
           "columnsTo": [
             "id"
@@ -748,11 +838,11 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "case_views_view_name_unique": {
-          "name": "case_views_view_name_unique",
+        "case_views_viewName_unique": {
+          "name": "case_views_viewName_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "view_name"
+            "viewName"
           ]
         }
       },

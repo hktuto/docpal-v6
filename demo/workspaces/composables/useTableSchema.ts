@@ -1,11 +1,12 @@
 import { ColumnFieldType } from '../utils/tableColumnType'
-import type { 
-  CaseTableRecord, 
-  CaseFieldRecord, 
+import type {
+  CaseTableRecord,
+  CaseFieldRecord,
   CaseViewRecord,
   FieldDisplayStructure,
   FieldBusinessType,
-  FieldDatabaseType
+  FieldDatabaseType,
+  CaseTableInsert
 } from '../utils/db/schema/newTableSchema'
 import { v7 as uuidv7 } from 'uuid'
 
@@ -22,7 +23,10 @@ export function useTableSchema() {
    */
   function generateTableName(entityId: string, slug: string): string {
     const sanitizedEntityId = entityId.replace(/-/g, '_')
-    const sanitizedSlug = slug.replace(/-/g, '_').replace(/[^a-zA-Z0-9_]/g, '').toLowerCase()
+    const sanitizedSlug = slug
+      .replace(/-/g, '_')
+      .replace(/[^a-zA-Z0-9_]/g, '')
+      .toLowerCase()
     return `ct_${sanitizedEntityId}_${sanitizedSlug}`
   }
 
@@ -49,31 +53,28 @@ export function useTableSchema() {
    * Reserved column names that cannot be used as field names
    * These are used by the system or PostgreSQL
    */
-  const RESERVED_COLUMN_NAMES = [
-    'id', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy',
-    'oid', 'tableoid', 'xmin', 'cmin', 'xmax', 'cmax', 'ctid'
-  ]
+  const RESERVED_COLUMN_NAMES = ['id', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'oid', 'tableoid', 'xmin', 'cmin', 'xmax', 'cmax', 'ctid']
 
   /**
    * Generate a field name from a title
    * Used for system columns and as fallback
    */
   function generateFieldName(title: string): string {
-    let field = title
-      .toLowerCase()
-      .trim()
-      .replace(/[\s\-\.]+/g, '_')
-      .replace(/[^a-z0-9_]/g, '')
-      .replace(/_+/g, '_')
-      .replace(/^_|_$/g, '')
-      .replace(/^(\d)/, 'col_$1')
-      || 'column'
-    
+    let field =
+      title
+        .toLowerCase()
+        .trim()
+        .replace(/[\s\-\.]+/g, '_')
+        .replace(/[^a-z0-9_]/g, '')
+        .replace(/_+/g, '_')
+        .replace(/^_|_$/g, '')
+        .replace(/^(\d)/, 'col_$1') || 'column'
+
     // If field is a reserved name, prefix with 'col_'
     if (RESERVED_COLUMN_NAMES.includes(field)) {
       field = `col_${field}`
     }
-    
+
     return field
   }
 
@@ -163,7 +164,7 @@ export function useTableSchema() {
     const now = new Date()
     const createDisplayStructure = (type: ColumnFieldType): FieldDisplayStructure => ({
       type,
-      properties: {},
+      properties: {}
     })
 
     return [
@@ -230,9 +231,7 @@ export function useTableSchema() {
    * Generate CREATE TABLE SQL statement from fields
    */
   function generateCreateTableSql(tableName: string, fields: Partial<CaseFieldRecord>[]): string {
-    const columnDefinitions: string[] = [
-      'id UUID PRIMARY KEY DEFAULT gen_random_uuid()'
-    ]
+    const columnDefinitions: string[] = ['id UUID PRIMARY KEY DEFAULT gen_random_uuid()']
 
     // Add user-defined columns (filter out system columns)
     const systemFieldTypes: ColumnFieldType[] = [
@@ -241,15 +240,15 @@ export function useTableSchema() {
       ColumnFieldType.CreatedBy,
       ColumnFieldType.LastModifiedBy
     ]
-    
+
     for (const field of fields) {
       if (!field.fieldName) continue
       const displayType = field.displayStructure?.type
       if (displayType && systemFieldTypes.includes(displayType)) continue
-      
+
       const sqlType = displayType ? mapFieldTypeToSqlType(displayType) : 'TEXT'
       const notNull = field.isRequired ? ' NOT NULL' : ''
-      
+
       columnDefinitions.push(`"${field.fieldName}" ${sqlType}${notNull}`)
     }
 
@@ -281,10 +280,10 @@ export function useTableSchema() {
   ): Promise<{ table: CaseTableRecord; fields: CaseFieldRecord[]; view: CaseViewRecord }> {
     const tableId = tableData.id || uuidv7()
     const now = new Date()
-    
+
     // Generate table name
     const tableName = generateTableName(tableData.entityId!, tableData.name || 'table')
-    
+
     // Filter out system columns from user columns (we'll add them separately)
     const systemFieldTypes: ColumnFieldType[] = [
       ColumnFieldType.CreatedTime,
@@ -292,16 +291,16 @@ export function useTableSchema() {
       ColumnFieldType.CreatedBy,
       ColumnFieldType.LastModifiedBy
     ]
-    const userFields = fields.filter(f => {
+    const userFields = fields.filter((f) => {
       const displayType = f.displayStructure?.type
       return !displayType || !systemFieldTypes.includes(displayType)
     })
-    
+
     // Generate the CREATE TABLE SQL
     const createSql = generateCreateTableSql(tableName, userFields)
-    
+
     // Create the case_tables record
-    const tableRecord: CaseTableRecord = {
+    const tableRecord: CaseTableInsert = {
       id: tableId,
       name: tableData.name!,
       status: 'A',
@@ -314,7 +313,7 @@ export function useTableSchema() {
       updatedBy: null,
       updatedAt: now
     }
-    
+
     // Insert case_tables record
     await query(
       `INSERT INTO case_tables (id, name, status, description, "tableName", "entityId", "createdBy", "createdAt", "updatedAt")
@@ -331,24 +330,27 @@ export function useTableSchema() {
         tableRecord.updatedAt
       ]
     )
-    
+
     // Prepare all fields (user fields + system fields)
     const defaultFields = getDefaultFields(tableId, createdBy)
     const allFields: Partial<CaseFieldRecord>[] = [
-      ...userFields.map(field => ({
-        ...field,
-        id: field.id || uuidv7(),
-        tableId,
-        fieldName: field.fieldName || generateFieldName(field.fieldNameAlias || 'column'),
-        businessType: field.businessType || mapFieldTypeToBusinessType(field.displayStructure?.type || ColumnFieldType.Text),
-        fieldType: field.fieldType || mapFieldTypeToDatabaseType(field.displayStructure?.type || ColumnFieldType.Text),
-        createdBy,
-        createdAt: now,
-        updatedAt: now
-      } as Partial<CaseFieldRecord>)),
+      ...userFields.map(
+        (field) =>
+          ({
+            ...field,
+            id: field.id || uuidv7(),
+            tableId,
+            fieldName: field.fieldName || generateFieldName(field.fieldNameAlias || 'column'),
+            businessType: field.businessType || mapFieldTypeToBusinessType(field.displayStructure?.type || ColumnFieldType.Text),
+            fieldType: field.fieldType || mapFieldTypeToDatabaseType(field.displayStructure?.type || ColumnFieldType.Text),
+            createdBy,
+            createdAt: now,
+            updatedAt: now
+          }) as Partial<CaseFieldRecord>
+      ),
       ...defaultFields
     ]
-    
+
     // Insert all field records
     for (const field of allFields) {
       await query(
@@ -377,10 +379,10 @@ export function useTableSchema() {
         ]
       )
     }
-    
+
     // Create the actual PostgreSQL table
     await exec(createSql)
-    
+
     // Create default view
     const viewId = uuidv7()
     const viewName = generateViewName(tableName, 'default')
@@ -395,7 +397,7 @@ export function useTableSchema() {
       tableId,
       isDefault: true,
       entityId: tableData.entityId!,
-      fields: allFields.filter(f => !f.isHidden).map(f => f.id!),
+      fields: allFields.filter((f) => !f.isHidden).map((f) => f.id!),
       createdBy: createdBy || null,
       createdAt: now,
       updatedBy: null,
@@ -424,7 +426,7 @@ export function useTableSchema() {
         viewRecord.updatedAt
       ]
     )
-    
+
     return {
       table: tableRecord,
       fields: allFields as CaseFieldRecord[],
@@ -435,14 +437,9 @@ export function useTableSchema() {
   /**
    * Import data rows into the created table
    */
-  async function importDataRows(
-    tableName: string,
-    fields: Partial<CaseFieldRecord>[],
-    rows: Record<string, any>[],
-    createdBy?: string
-  ): Promise<number> {
+  async function importDataRows(tableName: string, fields: Partial<CaseFieldRecord>[], rows: Record<string, any>[], createdBy?: string): Promise<number> {
     if (rows.length === 0) return 0
-    
+
     // Filter out system fields
     const systemFieldTypes: ColumnFieldType[] = [
       ColumnFieldType.CreatedTime,
@@ -450,38 +447,38 @@ export function useTableSchema() {
       ColumnFieldType.CreatedBy,
       ColumnFieldType.LastModifiedBy
     ]
-    const userFields = fields.filter(f => {
+    const userFields = fields.filter((f) => {
       const displayType = f.displayStructure?.type
       return !displayType || !systemFieldTypes.includes(displayType)
     })
-    
+
     let importedCount = 0
-    
+
     for (const row of rows) {
       const columnNames: string[] = []
       const placeholders: string[] = []
       const values: any[] = []
       let paramIndex = 1
-      
+
       // Add user data columns - use fieldName for SQL column, fieldNameAlias for row data lookup
       for (const field of userFields) {
         if (!field.fieldName) continue
         // Row data is keyed by fieldNameAlias (from Excel headers)
         const value = row[field.fieldNameAlias!]
-        
+
         columnNames.push(`"${field.fieldName}"`)
         placeholders.push(`$${paramIndex}`)
         values.push(value !== undefined ? value : null)
         paramIndex++
       }
-      
+
       // Add system columns
       columnNames.push('"createdBy"', '"updatedBy"')
       placeholders.push(`$${paramIndex}`, `$${paramIndex + 1}`)
       values.push(createdBy || null, createdBy || null)
-      
+
       const sql = `INSERT INTO "${tableName}" (${columnNames.join(', ')}) VALUES (${placeholders.join(', ')})`
-      
+
       try {
         await query(sql, values)
         importedCount++
@@ -489,7 +486,7 @@ export function useTableSchema() {
         console.error('Error importing row:', error, row)
       }
     }
-    
+
     return importedCount
   }
 
@@ -498,24 +495,21 @@ export function useTableSchema() {
    */
   async function deleteCaseTable(tableId: string): Promise<void> {
     // Get the table info first
-    const tables = await query<CaseTableRecord>(
-      'SELECT * FROM case_tables WHERE id = $1',
-      [tableId]
-    )
-    
+    const tables = await query<CaseTableRecord>('SELECT * FROM case_tables WHERE id = $1', [tableId])
+
     if (tables.length === 0) return
-    
+
     const table = tables[0]
-    
+
     // Drop the actual table
     await exec(generateDropTableSql(table.tableName))
-    
+
     // Delete views
     await query('DELETE FROM case_views WHERE "tableId" = $1', [tableId])
-    
+
     // Delete fields
     await query('DELETE FROM case_fields WHERE "tableId" = $1', [tableId])
-    
+
     // Delete table record
     await query('DELETE FROM case_tables WHERE id = $1', [tableId])
   }
@@ -524,10 +518,7 @@ export function useTableSchema() {
    * Get table by ID
    */
   async function getCaseTableById(tableId: string): Promise<CaseTableRecord | null> {
-    const tables = await query<CaseTableRecord>(
-      'SELECT * FROM case_tables WHERE id = $1',
-      [tableId]
-    )
+    const tables = await query<CaseTableRecord>('SELECT * FROM case_tables WHERE id = $1', [tableId])
     return tables[0] || null
   }
 
@@ -535,10 +526,7 @@ export function useTableSchema() {
    * Get fields for a table
    */
   async function getFieldsByTableId(tableId: string): Promise<CaseFieldRecord[]> {
-    const fields = await query<CaseFieldRecord>(
-      'SELECT * FROM case_fields WHERE "tableId" = $1',
-      [tableId]
-    )
+    const fields = await query<CaseFieldRecord>('SELECT * FROM case_fields WHERE "tableId" = $1', [tableId])
     return fields
   }
 
@@ -546,10 +534,7 @@ export function useTableSchema() {
    * Get views for a table
    */
   async function getViewsByTableId(tableId: string): Promise<CaseViewRecord[]> {
-    const views = await query<CaseViewRecord>(
-      'SELECT * FROM case_views WHERE "tableId" = $1 ORDER BY "isDefault" DESC, name ASC',
-      [tableId]
-    )
+    const views = await query<CaseViewRecord>('SELECT * FROM case_views WHERE "tableId" = $1 ORDER BY "isDefault" DESC, name ASC', [tableId])
     return views
   }
 
@@ -557,10 +542,7 @@ export function useTableSchema() {
    * Get default view for a table
    */
   async function getDefaultView(tableId: string): Promise<CaseViewRecord | null> {
-    const views = await query<CaseViewRecord>(
-      'SELECT * FROM case_views WHERE "tableId" = $1 AND "isDefault" = true LIMIT 1',
-      [tableId]
-    )
+    const views = await query<CaseViewRecord>('SELECT * FROM case_views WHERE "tableId" = $1 AND "isDefault" = true LIMIT 1', [tableId])
     return views[0] || null
   }
 

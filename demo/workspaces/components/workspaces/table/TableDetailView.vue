@@ -11,9 +11,7 @@ const { query } = usePglite()
 
 // Data for detail view
 const caseTable = ref<CaseTableRecord | null>(null)
-const caseFields = ref<CaseFieldRecord[]>([])
-const caseViews = ref<CaseViewRecord[]>([])
-const realTableData = ref<any[]>([])
+
 const realTableError = ref<string | null>(null)
 const isLoading = ref(false)
 
@@ -26,13 +24,10 @@ async function loadTableData() {
   isLoading.value = true
   realTableError.value = null
   tableReady.value = false
-  
+
   try {
     // Fetch case_tables record
-    const tables = await query<CaseTableRecord>(
-      'SELECT * FROM case_tables WHERE id = $1',
-      [props.dataTableId]
-    )
+    const tables = await query<CaseTableRecord>('SELECT * FROM case_tables WHERE id = $1', [props.dataTableId])
     caseTable.value = tables[0] || null
 
     if (!caseTable.value?.tableName) {
@@ -43,18 +38,15 @@ async function loadTableData() {
     // Set IDs on tableView - this is needed for getAllColumns() and getTableData()
     tableView.physicalTableName.value = caseTable.value.tableName
     tableView.tableId.value = caseTable.value.id
+    console.log('caseTable.value', caseTable.value)
 
     // Load columns and table data through tableView
     // This populates the contexts that MdTable will inject
-    const [fields, views, data] = await Promise.all([
+    await Promise.all([
       tableView.getAllColumns(), // Uses tableId to fetch from case_fields
-      tableView.getViews(),       // Uses tableId to fetch from case_views
-      tableView.getTableData()    // Uses physicalTableName to fetch from actual table
+      tableView.getViews() // Uses tableId to fetch from case_views
+      // tableView.getTableData() // Uses physicalTableName to fetch from actual table
     ])
-
-    caseFields.value = tableView.fields.value
-    caseViews.value = tableView.views.value
-    realTableData.value = data
 
     tableReady.value = true
   } catch (error) {
@@ -65,15 +57,16 @@ async function loadTableData() {
   }
 }
 
-const physicalTableName = computed(() => caseTable.value?.tableName || '')
-
 onMounted(async () => {
   await loadTableData()
 })
 
-watch(() => props.dataTableId, async () => {
-  await loadTableData()
-})
+watch(
+  () => props.dataTableId,
+  async () => {
+    await loadTableData()
+  }
+)
 </script>
 
 <template>
@@ -90,12 +83,11 @@ watch(() => props.dataTableId, async () => {
       <div v-else class="table-content">
         <!-- Use wrapper component that sets up MdTable providers -->
         <MdTable v-if="tableReady" />
-        
       </div>
     </div>
 
     <!-- Debug Sidebar -->
-    <WorkspacesTableDataDebugSidebar
+    <!-- <WorkspacesTableDataDebugSidebar
       v-if="!isLoading"
       :menu-item="menuItem"
       :case-table="caseTable"
@@ -103,7 +95,7 @@ watch(() => props.dataTableId, async () => {
       :case-views="caseViews"
       :real-table-data="realTableData"
       :real-table-error="realTableError"
-    />
+    /> -->
   </div>
 </template>
 
@@ -127,13 +119,13 @@ watch(() => props.dataTableId, async () => {
 .table-header {
   flex-shrink: 0;
   margin-bottom: 24px;
-  
+
   h2 {
     margin: 0 0 8px;
     font-size: 24px;
     font-weight: 600;
   }
-  
+
   p {
     margin: 0;
     color: var(--el-text-color-secondary);
@@ -148,7 +140,7 @@ watch(() => props.dataTableId, async () => {
   flex: 1;
   gap: 12px;
   color: var(--el-text-color-secondary);
-  
+
   .el-icon {
     font-size: 32px;
   }
@@ -159,12 +151,12 @@ watch(() => props.dataTableId, async () => {
   display: flex;
   flex-direction: column;
   overflow: auto;
-  
+
   .empty-icon {
     font-size: 80px;
     color: var(--el-text-color-placeholder);
   }
-  
+
   :deep(.el-empty__image) {
     width: auto;
   }
@@ -178,7 +170,7 @@ watch(() => props.dataTableId, async () => {
   flex: 1;
   gap: 12px;
   color: var(--el-text-color-secondary);
-  
+
   p {
     margin: 0;
   }

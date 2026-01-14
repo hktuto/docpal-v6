@@ -342,7 +342,7 @@ export const useTableView = () => {
     }
     const data = await query<CaseViewRecord>(`SELECT * FROM case_views WHERE "tableId" = $1 ORDER BY "isDefault" DESC, name ASC`, [tableId.value])
     views.value = data
-
+    console.log('views', views.value)
     // Set current view to default if not set
     if (!currentView.value && data.length > 0) {
       currentView.value = data.find((v) => v.isDefault) || data[0]

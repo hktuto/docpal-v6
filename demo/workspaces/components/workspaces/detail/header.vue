@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { WorkspaceRouteParams, TreeItem } from '../../../composables/useSingleWorkspace'
+import { ArrowDown, Folder, Grid, Postcard, DataAnalysis } from '@element-plus/icons-vue'
 
 const { workspaceRouteParams, workspace, menuState, navigateToItem, findItemById } = useSingleWorkspaceContext()
 
@@ -12,6 +13,9 @@ defineSlots<{
 type BreadcrumbItem = {
   label: string
   params: WorkspaceRouteParams
+  isFolder: boolean
+  children?: TreeItem[] // Children items for dropdown (only for folders)
+  itemId?: string | null // Original item ID for finding children
 }
 
 const breadcrumbList = ref<BreadcrumbItem[]>([])
@@ -28,7 +32,10 @@ function findPathToItem(items: TreeItem[], targetId: string, path: BreadcrumbIte
       params: {
         detailId: item.id,
         detailType: item.itemType
-      }
+      },
+      isFolder: item.itemType === 'folder',
+      itemId: item.id,
+      children: item.itemType === 'folder' ? item.children : undefined
     }
     path.push(breadcrumbItem)
 
@@ -57,7 +64,10 @@ function createBreadcrumb() {
     params: {
       detailId: null,
       detailType: 'root'
-    }
+    },
+    isFolder: true, // Workspace root acts like a folder
+    itemId: null,
+    children: menuState.value.items // Root children are the top-level items
   }
 
   if (workspaceRouteParams.value.detailType === 'root' || !workspaceRouteParams.value.detailId) {
@@ -83,6 +93,19 @@ function handleBreadcrumbClick(item: BreadcrumbItem) {
   }
 }
 
+function handleDropdownItemClick(item: TreeItem) {
+  navigateToItem(item)
+}
+
+watch(
+  menuState,
+  () => {
+    createBreadcrumb()
+  },
+  {
+    deep: true
+  }
+)
 watch(
   workspaceRouteParams,
   () => {
@@ -95,13 +118,67 @@ watch(
 <template>
   <div class="headerContainer">
     <div class="headerLeft">
-      <div class="headerLeft">
+      <div class="header-left-slot">
         <slot name="left" />
       </div>
       <el-breadcrumb separator="/">
         <el-breadcrumb-item v-for="(item, index) in breadcrumbList" :key="item.params.detailId ?? 'root'">
+          <!-- Dropdown for folder items (except last item) -->
+          <el-dropdown
+            v-if="item.isFolder && index < breadcrumbList.length - 1"
+            trigger="hover"
+            placement="bottom-start"
+            @command="handleDropdownItemClick"
+            :hide-timeout="100"
+            :show-timeout="100"
+          >
+            <span class="breadcrumb-link breadcrumb-dropdown">
+              {{ item.label }}
+              <el-icon class="dropdown-icon"><ArrowDown /></el-icon>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu v-if="item.children && item.children.length > 0" class="breadcrumb-dropdown-menu">
+                <!-- Child items -->
+                <el-dropdown-item
+                  v-for="child in item.children"
+                  :key="child.id"
+                  :command="child"
+                  :class="{ 'is-current': child.id === workspaceRouteParams.detailId }"
+                >
+                  <div class="dropdown-item-content">
+                    <el-icon v-if="child.itemType === 'folder'" class="folder-icon">
+                      <Folder />
+                    </el-icon>
+                    <el-icon v-else-if="child.itemType === 'table'" class="table-icon">
+                      <Grid />
+                    </el-icon>
+                    <el-icon v-else-if="child.itemType === 'view'" class="view-icon">
+                      <Postcard />
+                    </el-icon>
+                    <el-icon v-else-if="child.itemType === 'dashboard'" class="dashboard-icon">
+                      <DataAnalysis />
+                    </el-icon>
+                    <span class="dropdown-label">{{ child.label }}</span>
+                    <span v-if="child.children && child.children.length > 0" class="dropdown-child-count"> ({{ child.children.length }}) </span>
+                  </div>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+              <el-dropdown-menu v-else class="breadcrumb-dropdown-menu">
+                <el-dropdown-item disabled>
+                  <div class="dropdown-item-content">
+                    <el-icon class="folder-icon">
+                      <Folder />
+                    </el-icon>
+                    <span class="dropdown-label">Empty folder</span>
+                  </div>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+
+          <!-- Regular clickable link for non-folder items or last item -->
           <span
-            v-if="index < breadcrumbList.length - 1"
+            v-else-if="index < breadcrumbList.length - 1"
             class="breadcrumb-link"
             tabindex="0"
             @click="handleBreadcrumbClick(item)"
@@ -109,6 +186,8 @@ watch(
           >
             {{ item.label }}
           </span>
+
+          <!-- Current (last) item - not clickable -->
           <span v-else class="breadcrumb-current">
             {{ item.label }}
           </span>
@@ -149,11 +228,30 @@ watch(
   color: var(--el-text-color-regular);
   cursor: pointer;
   transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
 
   &:hover,
   &:focus {
     color: var(--el-color-primary);
   }
+}
+
+.breadcrumb-dropdown {
+  padding-right: 4px;
+
+  &:hover {
+    .dropdown-icon {
+      color: var(--el-color-primary);
+    }
+  }
+}
+
+.dropdown-icon {
+  margin-left: 4px;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+  transition: color 0.2s;
 }
 
 .breadcrumb-current {
@@ -165,5 +263,85 @@ watch(
   display: flex;
   align-items: center;
   gap: var(--app-space-s);
+}
+
+.header-left-slot {
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-item-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.folder-icon {
+  color: var(--el-color-warning);
+}
+
+.table-icon {
+  color: var(--el-color-primary);
+}
+
+.view-icon {
+  color: var(--el-color-success);
+}
+
+.dashboard-icon {
+  color: var(--el-color-info);
+}
+
+.dropdown-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-child-count {
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+  margin-left: 4px;
+  opacity: 0.8;
+}
+
+:deep(.el-dropdown-menu__item) {
+  padding: 8px 12px;
+
+  &.is-current {
+    background-color: var(--el-color-primary-light-9);
+    color: var(--el-color-primary);
+    font-weight: 500;
+
+    &:hover {
+      background-color: var(--el-color-primary-light-8);
+    }
+  }
+}
+
+.breadcrumb-dropdown-menu {
+  max-height: 400px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--el-fill-color-lighter);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--el-border-color);
+    border-radius: 3px;
+
+    &:hover {
+      background: var(--el-border-color-darker);
+    }
+  }
 }
 </style>
