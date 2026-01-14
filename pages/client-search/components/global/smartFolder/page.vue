@@ -19,7 +19,7 @@ const {
 } = useVxeTable({
   id: "my_task",
   api: async(pageParams: any) => {
-    const res = await clientApi.api.getNuxeoSfolder({
+    const res = await clientApi.api.getDmsSmartFolder({
       ...pageParams,
       ...extraParams
     }).then(res => res.data)

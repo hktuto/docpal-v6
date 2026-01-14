@@ -22,7 +22,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { routeSmartFolderDetail } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -35,7 +35,7 @@ const state = reactive<any>({})
 const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   id: 'a-smartFolder',
   api: async (pageParams: any) => {
-    return await adminApi.api.postNuxeoSfolderPage({
+    return await clientApi.api.postDmsSmartFolderPage({
       ...pageParams,
       ...extraParams
     })
@@ -90,7 +90,7 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   }
 })
 
-function handleDblclick(row:any) {
+function handleDblclick(row: any) {
   routerProvider?.navigateTo(routeSmartFolderDetail(row), false)
 }
 
@@ -110,7 +110,7 @@ async function handleDelete(id: string) {
       }
     )
     if (action !== 'confirm') return
-    await adminApi.api.deleteNuxeoSfolderId(id)
+    await clientApi.api.deleteDmsSmartFolderId(id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('file_smartFolder') }))
     query()
   } catch (error) {
@@ -126,7 +126,7 @@ function handleFilterFormChange(formModel: any) {
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
-  const filters = await adminApi.api.getNuxeoSfolderPageConditions().then((res) => {
+  const filters = await clientApi.api.getDmsSmartFolderPageConditions().then((res) => {
     return res.data
   })
   ResponsiveFilterRef.value.init(filters)

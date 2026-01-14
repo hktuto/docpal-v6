@@ -18,7 +18,7 @@ const tableRef = ref()
 async function getSfolder() {
   const sfSetting = sessionStorage.getItem('smartFolder')
   if(!sfSetting) {
-      const sfolderList = await clientApi.api.getNuxeoSfolder().then(res => res.data)
+      const sfolderList = await clientApi.api.getDmsSmartFolder().then(res => res.data)
       sfolder = sfolderList?.find(item => item.id === id)
   } else {
     sfolder = JSON.parse(sfSetting) 

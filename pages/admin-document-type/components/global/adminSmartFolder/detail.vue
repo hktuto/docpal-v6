@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { onMounted } from 'vue'
 const routerProvider = inject(MenuRouterKey)
 const { id } = defineProps<{
@@ -17,7 +17,7 @@ const tableRef = ref()
 async function handleInit() {
   try {
     state.loading = true
-    state.setting = await adminApi.api.getNuxeoSfolderId(id).then((res) => res.data)
+    state.setting = await clientApi.api.getDmsSmartFolderId(id).then((res) => res.data)
     if (!!state.setting.json_value) {
       state.setting.json = JSON.parse(state.setting.json_value)
       tableRef.value.initBar(state.setting.json)
@@ -77,8 +77,7 @@ async function handleSave() {
   try {
     state.loading = true
     const data = await filterRef.value.getData()
-    const res = await adminApi.api
-      .patchNuxeoSfolder({
+    const res = await clientApi.api.patchDmsSmartFolder({
         ...state.setting,
         json_value: JSON.stringify(data)
       })
