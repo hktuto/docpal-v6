@@ -1,9 +1,11 @@
 import { v7 as uuidv7 } from 'uuid'
+import { parseImportError, type ParsedImportError } from '../utils/importErrorParser'
 
 export interface ImportRowError {
   rowIndex: number
   rowData: Record<string, any>
   error: string
+  parsedError?: ParsedImportError
 }
 
 export interface ImportJob {
@@ -54,7 +56,7 @@ const eventBus = {
     this.listeners.get(event)?.delete(callback)
   },
   emit(event: string, data?: any) {
-    this.listeners.get(event)?.forEach(cb => cb(data))
+    this.listeners.get(event)?.forEach((cb) => cb(data))
   }
 }
 
@@ -68,7 +70,7 @@ export function useImportQueue() {
     const reportId = uuidv7()
     currentReportId.value = reportId
 
-    const newJobs: ImportJob[] = jobs.map(job => ({
+    const newJobs: ImportJob[] = jobs.map((job) => ({
       ...job,
       id: uuidv7(),
       status: 'pending',
@@ -80,7 +82,7 @@ export function useImportQueue() {
     }))
 
     importQueue.value.push(...newJobs)
-    
+
     // Start processing if not already running
     if (!isProcessing.value) {
       processQueue(reportId)
@@ -95,10 +97,10 @@ export function useImportQueue() {
   async function processQueue(reportId: string) {
     if (isProcessing.value) return
     isProcessing.value = true
-    
+
     const startedAt = new Date().toISOString()
     const processedJobs: ImportJob[] = [] // Track processed jobs for report
-    
+
     eventBus.emit('import-started', { reportId })
 
     while (importQueue.value.length > 0) {
@@ -106,7 +108,7 @@ export function useImportQueue() {
       currentJob.value = job
       job.status = 'importing'
       job.startedAt = new Date().toISOString()
-      
+
       eventBus.emit('job-started', job)
 
       try {
@@ -119,10 +121,10 @@ export function useImportQueue() {
 
       job.completedAt = new Date().toISOString()
       eventBus.emit('job-completed', job)
-      
+
       // Save to processed jobs before removing
       processedJobs.push({ ...job })
-      
+
       // Remove from queue
       importQueue.value.shift()
     }
@@ -152,12 +154,12 @@ export function useImportQueue() {
    */
   async function processJob(job: ImportJob) {
     const { physicalTableName, columns, rows } = job
-    
+
     // Filter out system columns for import
     // System columns: CreatedTime, LastModifiedTime, CreatedBy, LastModifiedBy
     const systemColumnTypes = [21, 22, 23, 24]
     const systemFieldNames = ['createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'id']
-    
+
     const userColumns = columns.filter((c: any) => {
       // Check by type (old schema)
       if (c.type && systemColumnTypes.includes(c.type)) return false
@@ -168,7 +170,7 @@ export function useImportQueue() {
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]
-      
+
       try {
         const columnNames: string[] = []
         const placeholders: string[] = []
@@ -182,11 +184,41 @@ export function useImportQueue() {
           const colName = column.fieldName || column.field
           // Get the display name for row data lookup (fieldNameAlias in new schema, title in old)
           const displayName = column.fieldNameAlias || column.title
-          
+
           if (!colName && !displayName) continue
-          
+
           const sqlColName = colName || displayName.toLowerCase().replace(/\s+/g, '_')
-          const value = row[displayName]
+          let value = row[displayName]
+
+          // Handle empty values
+          if (value === '' || value === undefined || value === null) {
+            value = null
+          } else if (typeof value === 'string') {
+            // Try to convert string values based on column type
+            const trimmed = value.trim()
+
+            // Check column type information
+            const columnType = column.type || column.fieldType
+            const fieldType = column.fieldType || ''
+            const businessType = column.businessType || ''
+
+            // Check if this is a numeric column
+            const isNumericType = columnType === 1 || columnType === 2 || columnType === 3 // Number types
+            const isNumericField = fieldType === 'number' || fieldType === 'integer' || fieldType === 'decimal' || fieldType === 'numeric'
+            const isNumericBusiness = businessType === 'number' || businessType === 'integer'
+
+            if ((isNumericType || isNumericField || isNumericBusiness) && trimmed !== '') {
+              // Try to parse as number
+              const num = Number(trimmed)
+              if (!isNaN(num) && trimmed !== '') {
+                value = num
+              }
+              // If conversion fails, leave as string - database will error with helpful message
+            } else if (trimmed === '') {
+              // Empty string after trimming
+              value = null
+            }
+          }
 
           columnNames.push(`"${sqlColName}"`)
           placeholders.push(`$${paramIndex}`)
@@ -199,7 +231,13 @@ export function useImportQueue() {
           job.progress.errors.push({
             rowIndex: i + 2,
             rowData: row,
-            error: 'No valid columns to insert'
+            error: 'No valid columns to insert. Check if all columns are system columns or if column names are properly defined.',
+            parsedError: {
+              technicalError: 'No valid columns to insert',
+              userFriendlyMessage: 'No valid columns to insert. Check if all columns are system columns or if column names are properly defined.',
+              errorType: 'validation',
+              suggestedFix: 'Make sure your Excel file has at least one non-system column with valid column names.'
+            }
           })
           continue
         }
@@ -211,13 +249,26 @@ export function useImportQueue() {
 
         const sql = `INSERT INTO "${physicalTableName}" (${columnNames.join(', ')}) VALUES (${placeholders.join(', ')})`
         await query(sql, values)
-        
+
         job.progress.imported++
       } catch (error: any) {
+        // Create column mapping for error parsing
+        const columnMapping: Record<string, string> = {}
+        for (const column of userColumns) {
+          const colName = column.fieldName || column.field
+          const displayName = column.fieldNameAlias || column.title
+          if (colName && displayName) {
+            columnMapping[displayName] = colName
+          }
+        }
+
+        const parsedError = parseImportError(error.message || 'Unknown error', row, columnMapping)
+
         job.progress.errors.push({
           rowIndex: i + 2, // +2 because: +1 for header row, +1 for 1-based index
           rowData: row,
-          error: error.message || 'Unknown error'
+          error: parsedError.userFriendlyMessage,
+          parsedError
         })
       }
 
@@ -239,7 +290,7 @@ export function useImportQueue() {
    * Clear a report from history
    */
   function clearReport(reportId: string) {
-    const index = completedReports.value.findIndex(r => r.id === reportId)
+    const index = completedReports.value.findIndex((r) => r.id === reportId)
     if (index !== -1) {
       completedReports.value.splice(index, 1)
     }
@@ -259,7 +310,7 @@ export function useImportQueue() {
     currentJob: readonly(currentJob),
     isProcessing: readonly(isProcessing),
     completedReports: readonly(completedReports),
-    
+
     // Actions
     queueImportJobs,
     getLatestReport,

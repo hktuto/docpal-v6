@@ -26,7 +26,7 @@ export interface WorkspaceContext {
   workspaceRouteParams: Ref<WorkspaceRouteParams>
   getWorkspaceById: (id: string) => Promise<void>
   saveWorkspaceToDb: (workspace?: CaseTypeRecord) => Promise<void>
-  openMenuItemActions: (data: {item: TreeItem | null, isAdmin: boolean}, target?: HTMLElement, highlight?: HTMLElement) => void
+  openMenuItemActions: (data: { item: TreeItem | null; isAdmin: boolean }, target?: HTMLElement, highlight?: HTMLElement) => void
   // Menu functions
   toggleFolder: (id: string) => void
   startEdit: (id: string) => void
@@ -39,7 +39,7 @@ export interface WorkspaceContext {
   getMenuFromDb: () => Promise<void>
   saveMenuItemToDb: (item: Partial<CaseTreeRecord>) => Promise<void>
   findItemById: (items: TreeItem[], id: string) => TreeItem | undefined
-  recursiveUpdateItem: (items: TreeItem[], id: string, data: Partial<TreeItem>) => void
+
   getMenuIcon: (menuItem: TreeItem) => string
   buildTreeFromFlat: (flatItems: CaseTreeRecord[]) => TreeItem[]
 }
@@ -53,7 +53,7 @@ export function useSingleWorkspaceContext() {
 }
 
 export type WorkspaceRouteParams = {
-  detailId: string | null,
+  detailId: string | null
   detailType: 'folder' | 'table' | 'view' | 'dashboard' | 'root'
 }
 
@@ -66,7 +66,7 @@ export function useSingleWorkspace() {
 
   const workspaceRouteParams = ref<WorkspaceRouteParams>({
     detailId: null,
-    detailType: 'root',
+    detailType: 'root'
   })
 
   const menuState = ref<MenuState>({
@@ -76,7 +76,7 @@ export function useSingleWorkspace() {
     isDragging: false
   })
 
-  function openMenuItemActions(data: {item: TreeItem | null, isAdmin: boolean}, target?: HTMLElement, highlight?: HTMLElement) {
+  function openMenuItemActions(data: { item: TreeItem | null; isAdmin: boolean }, target?: HTMLElement, highlight?: HTMLElement) {
     console.log('openMenuItemActions', data, menuActionsRef.value)
     menuActionsRef.value?.open(data, target, highlight)
   }
@@ -95,10 +95,7 @@ export function useSingleWorkspace() {
     newWorkspaceData ||= workspace.value as CaseTypeRecord
     const { name, description, icon, id } = newWorkspaceData
     const now = new Date().toISOString()
-    await query(
-      `UPDATE case_type SET name = $1, icon = $2, description = $3, "updatedAt" = $4 WHERE id = $5`,
-      [name, icon, description, now, id]
-    )
+    await query(`UPDATE case_type SET name = $1, icon = $2, description = $3, "updatedAt" = $4 WHERE id = $5`, [name, icon, description, now, id])
   }
 
   /**
@@ -128,7 +125,7 @@ export function useSingleWorkspace() {
     // Sort by order
     const sortByOrder = (items: TreeItem[]) => {
       items.sort((a, b) => (a.order || 0) - (b.order || 0))
-      items.forEach(item => {
+      items.forEach((item) => {
         if (item.children && item.children.length > 0) {
           sortByOrder(item.children)
         }
@@ -154,7 +151,7 @@ export function useSingleWorkspace() {
         itemType: item.itemType,
         itemId: item.itemId,
         parentId: parentId,
-        order: index,
+        order: index
       })
       if (item.children && item.children.length > 0) {
         result.push(...flattenTree(item.children, item.id))
@@ -166,31 +163,18 @@ export function useSingleWorkspace() {
   // Menu Functions
   async function saveMenuItemToDb(item: Partial<CaseTreeRecord>) {
     const now = new Date().toISOString()
-    
+
     // Check if item exists
-    const existing = await query<CaseTreeRecord[]>(
-      `SELECT id FROM case_tree WHERE id = $1`,
-      [item.id]
-    )
+    const existing = await query<CaseTreeRecord[]>(`SELECT id FROM case_tree WHERE id = $1`, [item.id])
 
     if (existing.length > 0) {
       // Update existing item
       await query(
-        `UPDATE case_tree 
-         SET label = $1, slug = $2, description = $3, "itemType" = $4, "itemId" = $5, 
+        `UPDATE case_tree
+         SET label = $1, slug = $2, description = $3, "itemType" = $4, "itemId" = $5,
              "parentId" = $6, "order" = $7, "updatedAt" = $8
          WHERE id = $9`,
-        [
-          item.label,
-          item.slug,
-          item.description || null,
-          item.itemType,
-          item.itemId || null,
-          item.parentId || null,
-          item.order || 0,
-          now,
-          item.id
-        ]
+        [item.label, item.slug, item.description || null, item.itemType, item.itemId || null, item.parentId || null, item.order || 0, now, item.id]
       )
     } else {
       // Insert new item
@@ -216,14 +200,11 @@ export function useSingleWorkspace() {
 
   async function getMenuFromDb() {
     if (!workspace.value) return
-    
-    const data = await query<CaseTreeRecord>(
-      `SELECT * FROM case_tree WHERE "entityId" = $1 ORDER BY "order" ASC`,
-      [workspace.value.id]
-    )
+
+    const data = await query<CaseTreeRecord>(`SELECT * FROM case_tree WHERE "entityId" = $1 ORDER BY "order" ASC`, [workspace.value.id])
     console.log('getMenuFromDb', data)
     const treeItems = buildTreeFromFlat(data)
-    
+
     // Expand all folders by default
     const expandFolders = (items: TreeItem[]) => {
       for (const item of items) {
@@ -236,7 +217,7 @@ export function useSingleWorkspace() {
       }
     }
     expandFolders(treeItems)
-    
+
     menuState.value.items = treeItems
   }
 
@@ -256,7 +237,7 @@ export function useSingleWorkspace() {
   }
 
   function removeItemById(items: TreeItem[], id: string): TreeItem[] {
-    return items.filter(item => {
+    return items.filter((item) => {
       if (item.id === id) return false
       if (item.children) {
         item.children = removeItemById(item.children, id)
@@ -277,24 +258,11 @@ export function useSingleWorkspace() {
     menuState.value.editingItemId = id
   }
 
-  function recursiveUpdateItem(items: TreeItem[], id: string, data: Partial<TreeItem>) {
-    for (const item of items) {
-      if (item.id === id) {
-        Object.keys(data).forEach((key: any) => {
-          (item as any)[key] = (data as any)[key]
-        })
-        console.log('update item', item, data)
-      }
-      if (item.children) {
-        recursiveUpdateItem(item.children, id, data)
-      }
-    }
-  }
-
   async function saveEdit(id: string, newLabel: string) {
-    recursiveUpdateItem(menuState.value.items, id, { label: newLabel })
     const item = findItemById(menuState.value.items, id)
+
     if (item) {
+      item.label = newLabel
       await saveMenuItemToDb(item)
     }
     cancelEdit()
@@ -319,16 +287,13 @@ export function useSingleWorkspace() {
     if (item.itemType === 'table' && item.itemId) {
       try {
         // Get the physical table name first
-        const tableRecords = await query<{ tableName: string }>(
-          `SELECT "tableName" FROM case_tables WHERE id = $1`,
-          [item.itemId]
-        )
-        
+        const tableRecords = await query<{ tableName: string }>(`SELECT "tableName" FROM case_tables WHERE id = $1`, [item.itemId])
+
         if (tableRecords.length > 0 && tableRecords[0].tableName) {
           // Drop the physical table
           await exec(`DROP TABLE IF EXISTS "${tableRecords[0].tableName}" CASCADE`)
         }
-        
+
         // Delete metadata: fields, views, then table record
         await query(`DELETE FROM case_fields WHERE "tableId" = $1`, [item.itemId])
         await query(`DELETE FROM case_views WHERE "tableId" = $1`, [item.itemId])
@@ -343,7 +308,7 @@ export function useSingleWorkspace() {
 
     // Update local state
     menuState.value.items = removeItemById(menuState.value.items, id)
-    
+
     // If the deleted item was currently being viewed, navigate to root
     if (workspaceRouteParams.value.detailId === id) {
       workspaceRouteParams.value.detailId = null
@@ -356,14 +321,14 @@ export function useSingleWorkspace() {
     const treeItemId = uuidv7()
     const label = `New ${type}`
     const slug = `new-${type}-${Date.now()}`
-    
+
     let itemId: string | null = null
-    
+
     // For tables, automatically create the physical table with default columns
     if (type === 'table' && workspace.value?.id) {
       const { createCaseTable, generateSlug } = useTableSchema()
       const tableId = uuidv7()
-      
+
       try {
         // Create the table with only default system columns (no user columns)
         await createCaseTable(
@@ -382,7 +347,7 @@ export function useSingleWorkspace() {
         throw error
       }
     }
-    
+
     const newItem: TreeItem = {
       id: treeItemId,
       entityId: workspace.value?.id || null,
@@ -397,7 +362,7 @@ export function useSingleWorkspace() {
       createdAt: now,
       updatedBy: null,
       updatedAt: now,
-      children: type === 'folder' ? [] : undefined,
+      children: type === 'folder' ? [] : undefined
     }
 
     // Save to database
@@ -487,9 +452,8 @@ export function useSingleWorkspace() {
     getMenuFromDb,
     saveMenuItemToDb,
     findItemById,
-    recursiveUpdateItem,
     getMenuIcon,
-    buildTreeFromFlat,
+    buildTreeFromFlat
   }
 
   provide(SingleWorkspaceContextKey, context)

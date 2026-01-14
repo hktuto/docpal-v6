@@ -6,7 +6,7 @@ const createWorkspacePopover = ref()
 const viewMode = ref<'grid' | 'table'>('grid')
 
 // Use workspaces composable
-const { workspaces, loading, getWorkspaces, searchWorkspaces, clearAllWorkspaces } = useWorkspaces()
+const { workspaces, loading, getWorkspaces, searchWorkspaces, clearAllWorkspaces, deleteWorkspace } = useWorkspaces()
 
 // Grid container ref and responsive columns
 const gridContainerRef = ref<HTMLElement>()
@@ -29,7 +29,7 @@ const routerProvider = inject(MenuRouterKey)
 // Provide search handler to SearchableList (returns filtered results)
 provide('onSearchParamsChange', async (params: any) => {
   if (!useDbSearch.value) return null // Use client-side filtering
-  
+
   // Call database search and return results (doesn't modify workspaces.value)
   return await searchWorkspaces({
     keyword: params.keyword,
@@ -54,8 +54,7 @@ function handleCreateWorkspace(e: MouseEvent) {
   createWorkspacePopover.value.open(e.currentTarget as HTMLElement)
 }
 
-
-function handleCreateWorkspaceSuccess(workspace:any) {
+function handleCreateWorkspaceSuccess(workspace: any) {
   getWorkspaces()
   createWorkspacePopover.value.close()
   const newItem = {
@@ -69,7 +68,6 @@ function handleCreateWorkspaceSuccess(workspace:any) {
     }
   }
   routerProvider?.navigateTo(newItem)
-  
 }
 
 function handleWorkspaceSelected(workspace: CaseTypeRecord) {
@@ -87,11 +85,19 @@ function handleWorkspaceSelected(workspace: CaseTypeRecord) {
   // Handle workspace selection (e.g., navigate to workspace)
 }
 
+async function handleWorkspaceDelete(workspaceId: string) {
+  try {
+    await deleteWorkspace(workspaceId)
+    // Workspace list will be automatically refreshed by deleteWorkspace
+  } catch (error) {
+    console.error('Failed to delete workspace:', error)
+    // You might want to show an error message to the user here
+  }
+}
+
 async function clearData() {
   await clearAllWorkspaces()
 }
-
-
 
 function handleFiltered() {
   // Scroll to top when filters are applied
@@ -116,7 +122,7 @@ onMounted(() => {
     <div class="pageHeader">
       <h1 class="title">Databases</h1>
       <div class="actions">
-        <ElButton type="primary" @click="handleCreateWorkspace">Create Databases ({{workspaces.length }})</ElButton>
+        <ElButton type="primary" @click="handleCreateWorkspace">Create Databases ({{ workspaces.length }})</ElButton>
       </div>
     </div>
     <div class="workspaceList">
@@ -129,49 +135,31 @@ onMounted(() => {
         @selected="handleWorkspaceSelected"
         @filtered="handleFiltered"
       >
-      <template #actions>
-        <!-- Toggle database search -->
-        <ElTooltip :content="useDbSearch ? 'Using Database Search' : 'Using Client-side Search'" placement="bottom">
-          <div 
-            :class="['action-button', { 'db-search-active': useDbSearch }]"
-            @click="useDbSearch = !useDbSearch"
-          >
-            <Icon :name="useDbSearch ? 'lucide:database' : 'lucide:search'" />
+        <template #actions>
+          <!-- Toggle database search -->
+          <ElTooltip :content="useDbSearch ? 'Using Database Search' : 'Using Client-side Search'" placement="bottom">
+            <div :class="['action-button', { 'db-search-active': useDbSearch }]" @click="useDbSearch = !useDbSearch">
+              <Icon :name="useDbSearch ? 'lucide:database' : 'lucide:search'" />
+            </div>
+          </ElTooltip>
+
+          <!-- Toggle table/grid view -->
+          <div class="action-button" @click="viewMode = viewMode === 'grid' ? 'table' : 'grid'">
+            <Icon :name="viewMode === 'grid' ? 'lucide:grid-3x2' : 'lucide:table'" />
           </div>
-        </ElTooltip>
-        
-        <!-- Toggle table/grid view -->
-        <div class="action-button" @click="viewMode = viewMode === 'grid' ? 'table' : 'grid'">
-          <Icon :name="viewMode === 'grid' ? 'lucide:grid-3x2' : 'lucide:table'" />
-        </div>
-      </template>
+        </template>
         <template #default="{ items, keyword }">
           <template v-if="viewMode === 'grid'">
-            <div ref="gridContainerRef" style="height: 100%; width: 100%;">
-              <VirtGrid
-                ref="virtGridRef"
-                :list="items"
-                :buffer="10"
-                :itemPreSize="120"
-                :gridItems="columnCount"
-              >
-                <template #default="{itemData, index, rowIndex}">
-                  <WorkspacesListCard
-                    :workspace="itemData"
-                    :keyword="keyword"
-                    @selected="handleWorkspaceSelected"
-                  />
+            <div ref="gridContainerRef" style="height: 100%; width: 100%">
+              <VirtGrid ref="virtGridRef" :list="items" :buffer="10" itemPreSize="120px" :gridItems="columnCount">
+                <template #default="{ itemData, index, rowIndex }">
+                  <WorkspacesListCard :workspace="itemData" :keyword="keyword" @selected="handleWorkspaceSelected" @delete="handleWorkspaceDelete" />
                 </template>
               </VirtGrid>
             </div>
           </template>
           <template v-if="viewMode === 'table'">
-            <WorkspacesListTable
-              ref="tableRef"
-              :items="items"
-              :keyword="keyword"
-              @selected="handleWorkspaceSelected"
-            />
+            <WorkspacesListTable ref="tableRef" :items="items" :keyword="keyword" @selected="handleWorkspaceSelected" />
           </template>
         </template>
       </UiSearchableList>
@@ -184,60 +172,59 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
-  .pageContainer{
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: var(--app-space-s);
+.pageContainer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-s);
+}
+.searchable-list {
+  height: 100%;
+}
+:deep(.cardGridContainer) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--app-space-s);
+}
+.pageHeader {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--app-space-s);
+  padding: var(--app-space-xs) var(--app-space-s);
+  .title {
+    flex: 1 0 auto;
+    line-height: 1;
   }
-  .searchable-list{
-    height: 100%;
+}
+.workspaceList {
+  padding: var(--app-space-xs) var(--app-space-s);
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-s);
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+.action-button {
+  display: flex;
+  background: var(--app-grey-800);
+  color: var(--app-text-color-secondary);
+  font-size: var(--app-font-size-m);
+  padding: var(--app-space-xs);
+  border-radius: var(--app-border-radius-m);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-radius: var(--app-border-radius-s);
+    background: var(--app-text-color);
   }
-  :deep(.cardGridContainer){
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: var(--app-space-s);
-    }
-  .pageHeader{
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: var(--app-space-s);
-    padding: var(--app-space-xs) var(--app-space-s);
-    .title{
-      flex: 1 0 auto;
-      line-height: 1;
-    }
-    
+
+  &.db-search-active {
+    background: var(--app-primary-color);
+    color: var(--app-paper);
   }
-  .workspaceList{
-    padding: var(--app-space-xs) var(--app-space-s);
-    display:flex;
-    flex-direction: column;
-    gap: var(--app-space-s);
-    height: 100%;
-    overflow: hidden;
-    position: relative;
-  }
-  .action-button{
-    display: flex;
-    background: var(--app-grey-800);
-    color: var(--app-text-color-secondary);
-    font-size: var(--app-font-size-m);
-    padding: var(--app-space-xs);
-    border-radius: var(--app-border-radius-m);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    
-    &:hover{
-      border-radius: var(--app-border-radius-s);
-      background: var(--app-text-color);
-    }
-    
-    &.db-search-active {
-      background: var(--app-primary-color);
-      color: var(--app-paper);
-    }
-  }
+}
 </style>

@@ -1,6 +1,6 @@
 <template>
-  <div class="md-table-header" @click="handleClick">
-    {{ column.title }}
+  <div :class="{ 'md-table-header': true, ellipsis: true, [headerAlign]: true }" @click="handleClick">
+    <div class="title">{{ column.title }}</div>
     <div class="mdTableHeader-trigger" ref="triggerRef">
       <SvgIcon src="/icons/tools/more.svg" />
     </div>
@@ -17,6 +17,10 @@ const mdTableHeaderPopover = inject('mdTableHeaderPopover')
 const mdTable = useMDTableInject()
 const triggerRef = ref()
 
+const headerAlign = computed(() => {
+  return props.column.headerAlign || 'left'
+})
+
 /**
  * 从 columns 中获取完整的列配置（包含 properties）
  */
@@ -27,7 +31,7 @@ function getFullColumnConfig() {
 
   // 从 columns 中查找对应的列配置
   const fullColumn = mdTable.columns.value.find((col: any) => col.field === props.column.field)
-  
+
   if (fullColumn) {
     // 合并 vxe-table 传递的 column 和完整的列配置
     // 优先使用 fullColumn 的 properties，确保获取到完整的自定义属性
@@ -59,11 +63,33 @@ function handleClick() {
 </script>
 <style scoped lang="scss">
 .md-table-header {
+  --align: left;
   height: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--app-space-xs);
+  &.right {
+    --align: right;
+  }
+  &.ellipsis {
+    .title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+  .title {
+    flex: 1 0 auto;
+    text-align: var(--align);
+    line-height: 1.2;
+  }
   .mdTableHeader-trigger {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    display: grid;
+    place-items: center;
     cursor: pointer;
     opacity: 0;
   }

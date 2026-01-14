@@ -1,11 +1,5 @@
 <template>
-  <el-form
-    ref="formRef"
-    :model="form"
-    :rules="rules"
-    label-position="top"
-    class="create-workspace-form"
-  >
+  <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="create-workspace-form" @submit.prevent.stop="handleCreateWorkspace">
     <el-form-item label="Database Name" prop="name">
       <el-input v-model="form.name" placeholder="Enter Database name" />
     </el-form-item>
@@ -16,7 +10,7 @@
       <UiIconPicker v-model="form.icon" />
     </el-form-item>
     <el-form-item>
-      <div style="display: flex; gap: var(--app-space-xs);">
+      <div style="display: flex; gap: var(--app-space-xs)">
         <ElButton type="primary" @click="handleCreateWorkspace" :loading="loading">Create Database</ElButton>
       </div>
     </el-form-item>
@@ -34,13 +28,11 @@ const loading = ref(false)
 const form = ref({
   name: '',
   description: '',
-  icon: '',
+  icon: ''
 })
 
 const rules = reactive<FormRules>({
-  name: [
-    { required: true, message: 'Please enter Database name', trigger: 'blur' }
-  ]
+  name: [{ required: true, message: 'Please enter Database name', trigger: 'blur' }]
 })
 
 const emits = defineEmits<{
@@ -49,7 +41,7 @@ const emits = defineEmits<{
 
 async function handleCreateWorkspace() {
   if (!formRef.value) return
-  
+
   const valid = await formRef.value.validate().catch(() => false)
   if (!valid) return
 
@@ -58,7 +50,7 @@ async function handleCreateWorkspace() {
     const name = form.value.name.trim()
     const description = form.value.description.trim()
     const icon = form.value.icon.trim()
-    
+
     // Check if name already exists
     const existing = await query(`SELECT id FROM case_type WHERE name = $1`, [name])
     if (existing && existing.length > 0) {
@@ -67,15 +59,16 @@ async function handleCreateWorkspace() {
     }
 
     // Create workspace - let database handle id (defaultRandom) and timestamps (defaultNow)
-    const result = await query<CaseTypeRecord>(
-      `INSERT INTO case_type (name, description, icon) VALUES ($1, $2, $3) RETURNING *`, 
-      [name, description || null, icon || null]
-    )
-    
+    const result = await query<CaseTypeRecord>(`INSERT INTO case_type (name, description, icon) VALUES ($1, $2, $3) RETURNING *`, [
+      name,
+      description || null,
+      icon || null
+    ])
+
     console.log('Created workspace:', result[0])
     ElMessage.success('Database created successfully')
     emits('created', result[0])
-    
+
     // Reset form
     form.value = { name: '', description: '', icon: '' }
   } catch (error) {
