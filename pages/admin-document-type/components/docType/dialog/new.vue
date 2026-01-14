@@ -97,7 +97,7 @@ async function handleSubmit() {
 
     state.loading = true
 
-    const result = await clientApi.admin.postAdmindmsDocType(data).then(r => r.data)
+    const result = await clientApi.admin.postAdmindmsDocpalTypeCreate(data).then(r => r.data)
     ElMessage.success(t('tip_createdMsg', {
       modelName: t('tip_newMsg') + t('docType_documentType'),
       name: data.name
