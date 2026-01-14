@@ -47,7 +47,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, nextTick, onMounted, useSlots } from 'vue'
 import type { VxeGridProps, VxeGridListeners, VxeGridInstance } from 'vxe-table'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
@@ -60,8 +59,6 @@ const slots = useSlots()
 interface Props {
   tableName: string
 }
-
-
 
 const emit = defineEmits<{
   refresh: []
@@ -124,10 +121,9 @@ const handleAddColumn = (e: MouseEvent) => {
 const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) => {
   switch (type) {
     case 'edit':
-      console.log('edit', {triggerEl}, column)
       addColumnPopoverRef.value.show(triggerEl, column)
       break
-    case 'sortAz': 
+    case 'sortAz':
       gridRef.value.sort(column.field, 'asc')
       break
     case 'sortZa':
@@ -152,7 +148,7 @@ defineExpose({
 
 <style scoped lang="scss">
 .multi-dimension-table {
-  width:100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -166,7 +162,7 @@ defineExpose({
     position: relative;
     overflow: hidden;
     position: relative;
-    .table-left-panel{
+    .table-left-panel {
       height: 100%;
       flex: 1 0 auto;
       position: relative;
@@ -216,7 +212,9 @@ defineExpose({
     // 虚拟滚动优化
     contain: layout style paint;
   }
-
+  .vxe-cell--tree-node {
+    padding-left: var(--app-space-xs) !important;
+  }
   .vxe-table--footer-wrapper {
     .vxe-table--footer {
       background-color: #fafafa;

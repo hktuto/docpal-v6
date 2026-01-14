@@ -40,7 +40,20 @@ function createMockData({ page }: any, tableName: string) {
   }
   return mockData
 }
-
+function createMockAggregateData({ page }: any, tableName: string) {
+  const mockAggregateData = []
+  for (let i = 0; i < 8; i++) {
+    mockAggregateData.push({
+      id: i,
+      isAggregate: true,
+      title: `Aggregate ${i}`,
+    })
+  }
+  return mockAggregateData
+}
+function createMockAggChildData(page: any, tableName: string) {
+  return createMockData(page, tableName)
+}
 export interface TableDataContext {
   tableData: Ref<any[]>,
   loading : Ref<boolean>,
@@ -52,8 +65,8 @@ export interface TableDataContext {
     addRow: (row: any) => void,
     updateRow: (index: number, row: any) => void,
     deleteRow: (index: number) => void,
-
-   
+    getAggregateData?: (params?: any) => Promise<any[] | undefined>,
+    getAggChildData?: (params?: any) => Promise<any[] | undefined>,
 }
 
 export const TableDataContextKey:InjectionKey<TableDataContext> = Symbol('TableDataContextKey')
@@ -81,7 +94,13 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
   /**
    * 获取表格数据
    */
-  const getTableData = async (params?: any) => {
+  const getTableData = async (params: any = {}, aggregate: any = {})=> {
+    console.log('params', params)
+    console.log('aggregate', aggregate)
+    if(aggregate?.length > 0) {
+      tableData.value = getAggregateData(params)
+      return tableData.value
+    }
     if (tableName) {
       tableData.value = createMockData(tableName, params)
       // const data = createGroupTree(tableData.value, groupOptions.value)
@@ -96,7 +115,13 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
     loading.value = true
     error.value = null
   }
-
+  function getAggregateData(params?: any) {
+    return createMockAggregateData(params, tableName)
+  }
+  function getAggChildData(params?: any) {
+    console.log('getAggChildData', params)
+    return createMockAggChildData(params, tableName)
+  }
   /**
    * 刷新数据
    */
@@ -158,6 +183,7 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
 
     // 方法
     getTableData,
+    getAggChildData,
     refresh,
     addRow,
     updateRow,

@@ -33,6 +33,8 @@ export interface TableConfigOptions {
   /** 加载状态 */
   loading: Ref<boolean> | ComputedRef<boolean>
   apiMethod: Function
+  /** 子节点加载方法 */
+  childApiMethod?: Function
 }
 
 /**
@@ -52,23 +54,10 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     columns,
     loading,
     apiMethod,
+    childApiMethod,
     groupBy
   } = options
-  const aggregateConfig = ref<any>({
-    groupFields: [],
-    expandGroupFields: [],
-    calcValuesMethod(params: any) {
-      const { column, children, groupValue, groupField } = params
-      // 优先使用 column.countMethod 进行计数
-      if (column.countMethod && column.countMethod !== 'none') {
-        const flattenedData = flattenAggregatedData(children)
-        const total = calculateCount(column.countMethod as CountMethod, column.field, flattenedData)
-        return total
-      }
-      return ''
-      
-    }
-  })
+
   /**
    * 计算表格高度
    */
@@ -87,9 +76,11 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
    */
   const processedColumns = computed(() => {
     let _columns: any[] = JSON.parse(JSON.stringify(columns.value))
+    _columns[0].treeNode = true
     _columns.unshift({
       type: 'checkbox'
     })
+    console.log('columns', _columns)
     return _columns.map((col) => {
       if (!col.type) col.type = ColumnFieldType.Text
       if (col.field === 'name') col.rowGroupNode = true
@@ -99,11 +90,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         header: 'header'
       }
       // 数字类型默认右对齐
-      if (
-        col.type === ColumnFieldType.Number ||
-        col.type === ColumnFieldType.Currency ||
-        col.type === ColumnFieldType.Percent
-      ) {
+      if (col.type === ColumnFieldType.Number || col.type === ColumnFieldType.Currency || col.type === ColumnFieldType.Percent) {
         colConfig.align = 'right'
       }
       return colConfig
@@ -118,26 +105,8 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         acc[col.field].push({ required: true, message: '必填项' })
       }
       return acc
-    }, {}) 
+    }, {})
   })
-  function updateAggregateConfig(newGroupBy: any) {
-    if (!newGroupBy) {
-      aggregateConfig.value.groupFields = []
-      aggregateConfig.value.expandGroupFields = []
-    } else {
-      const _newGroupBy = newGroupBy instanceof Array ? newGroupBy : newGroupBy.value
-      const _group = JSON.parse(JSON.stringify(_newGroupBy))
-      const _groupFields = _group[0] instanceof String ? _group : _group.map((field: any) => field.field)
-      aggregateConfig.value.groupFields = _groupFields
-      aggregateConfig.value.expandGroupFields = _groupFields
-      if (gridRef.value) {
-        gridRef.value.setRowGroups(_groupFields)
-      }
-    }
-    if (gridRef.value) {
-      gridRef.value.commitProxy('reload')
-    }
-  }
   // function updateColumns(newRules: any, _columns: any[]) {
   //   const _newRules = newRules instanceof Array ? newRules : newRules.value
   //   const columnIndexs: number[] = []
@@ -174,7 +143,10 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       columns: processedColumns.value as any,
       editRules: processedEditRules.value,
       // 虚拟滚动配置 - 性能优化
-      virtualYConfig:{
+      // 注意：虚拟滚动与树形懒加载存在兼容性问题，当启用树形结构时，建议禁用虚拟滚动或使用固定行高
+      virtualYConfig: {
+        oSize: 20,
+        rSize: 100,
         enabled: true,
         gt: 20 // 大于20条数据时启用虚拟滚动
       },
@@ -189,7 +161,6 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         showIcon: false
       },
       // 分组配置
-      aggregateConfig: aggregateConfig.value,
       showFooter: true,
       footerData: [{ type: 'footerData' }],
       checkboxConfig: {
@@ -207,6 +178,20 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
           field: 'age',
           order: 'asc'
         }
+      },
+      treeConfig: {
+        transform: false,
+        rowField: 'id',
+        parentField: 'parentId',
+        lazy: true,
+        hasChild: 'isAggregate',
+        loadMethod: treeLoadData
+      },
+      // 行配置 - 确保行高计算正确，避免虚拟滚动白屏
+      rowConfig: {
+        keyField: rowId,
+        isHover: true,
+        useKey: true
       }
     }
     // 编辑配置
@@ -220,27 +205,43 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         mode: 'cell',
         showIcon: false,
         showStatus: false,
-        ...(editConfig as any || {}),
+        ...((editConfig as any) || {}),
+        beforeEditMethod: ({ row }: any) => {
+          return row.isAggregate !== true
+        }
       }
-      
     }
     if (apiMethod) {
       options.proxyConfig = {
         ajax: {
-          query: ({ page }: any) => {
-            // 默认接收 Promise<{ result: [], page: { total: 100 } }>
-            return apiMethod(page)
-          }
+          query: loadData
         }
       }
     }
     return options
   })
-
+  function loadData(pageParams: any) {
+    const gb: any = (options?.groupBy as any)?.value
+    return apiMethod(pageParams, gb.length > 0 ? gb : null)
+  }
+  async function treeLoadData(params: any) {
+    try {
+      console.log('treeLoadData params', params)
+      if (!childApiMethod) {
+        console.warn('childApiMethod is not defined')
+        return []
+      }
+      return childApiMethod(params)
+    } catch (error) {
+      console.error('treeLoadData error:', error)
+      return []
+    }
+  }
   watch(
     () => options.groupBy,
     (newGroupBy) => {
-      updateAggregateConfig(newGroupBy)
+      console.log('newGroupBy', newGroupBy)
+      gridRef.value?.commitProxy('reload')
     },
     { immediate: true, deep: true }
   )

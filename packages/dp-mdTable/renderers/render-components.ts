@@ -1,26 +1,27 @@
 // renderers/separate-components.ts
 import { h } from 'vue'
 import type { VNode } from 'vue'
-import { ElRate,ElInput } from 'element-plus'
+import { ElRate, ElInput } from 'element-plus'
 import { EditPen } from '@element-plus/icons-vue'
 import type { RenderComponentConfig, ViewRenderFunctionParams } from '../types/column-types'
-import { ElSelect,ElOption,ElInputNumber } from 'element-plus'
+import { ElSelect, ElOption, ElInputNumber } from 'element-plus'
 import { renderSelectView, renderMultipleSelectView } from './components/select/view'
 import SelectEdit from './components/select/edit.vue'
 import { NumberView } from './components/number/view'
 import { DateTimeView } from './components/DateTime/view'
 import { EmailView, EmailEdit } from './components/email/view'
-import { MultiTextView, MultiTextEdit } from './components/MultiText/view'  
+import { MultiTextView, MultiTextEdit } from './components/MultiText/view'
 import { TextView, TextEdit } from './components/text/view'
 import { UserView } from './components/user/view'
+import { TreeNode } from './components/treeNode'
 // 分离模式组件配置
 export const MDTableComponents: Record<string, RenderComponentConfig> = {
   Text: {
     edit: {
-      render: TextEdit
+      render: (params: any) => TreeNode(params, TextEdit)
     },
     view: {
-      render: TextView
+      render: (params: any) => TreeNode(params, TextView)
     }
     // titleConfig: {
     //   icon: 'vxe-icon-user-fill',
@@ -28,12 +29,12 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     //   content: '点击链接：<a href="https://vxeui.com" target="_blank" style="color:#95c7fb;">vxe-ui 官网</a>'
     // }
   },
-  MultiText:{
+  MultiText: {
     edit: {
-      render: MultiTextEdit
+      render: (params: any) => TreeNode(params, MultiTextEdit)
     },
     view: {
-      render: MultiTextView
+      render: (params: any) => TreeNode(params, MultiTextView)
     }
   },
   Rating: {
@@ -50,9 +51,9 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
             // $table.updateStatus(row)  // 如果需要触发表格的更新事件
           },
           max,
-          allowHalf,
+          allowHalf
         })
-      },
+      }
     }
   },
   URL: {
@@ -67,116 +68,123 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
       render({ options, params }: ViewRenderFunctionParams<string>): VNode {
         const { $table, row, column } = params
         const data = row[column.field]?.length > 0 ? row[column.field][0] : { text: '', title: '' }
-        return h(ElInput, { 
-          modelValue: data.text, 
-          'onUpdate:modelValue': (value: string) => { row[column.field] = [{ text: value, title: value }] },
+        return h(ElInput, {
+          modelValue: data.text,
+          'onUpdate:modelValue': (value: string) => {
+            row[column.field] = [{ text: value, title: value }]
+          },
           'suffix-icon': EditPen
         })
       }
     }
   },
   Number: {
-    edit: { 
-      render({options, params}: ViewRenderFunctionParams<number>): VNode {
+    edit: {
+      render({ options, params }: ViewRenderFunctionParams<number>): VNode {
         const { $table, row, column } = params
         const { options: numberOptions } = options?.props
         return h(ElInputNumber, {
           modelValue: row[column.field],
-          'onUpdate:modelValue': (value: number) => { row[column.field] = value },
+          'onUpdate:modelValue': (value: number) => {
+            row[column.field] = value
+          }
         })
       }
-     },
-    view: { render: NumberView }
+    },
+    view: { render: (params: any) => TreeNode(params, NumberView) }
   },
   SingleSelect: {
-    edit: { 
-      render({options, params}: ViewRenderFunctionParams<string>): VNode {
+    edit: {
+      render({ options, params }: ViewRenderFunctionParams<string>): VNode {
         const { $table, row, column } = params
         const { options: selectOptions } = options?.props
-        return h(SelectEdit, { 
+        return h(SelectEdit, {
           options: selectOptions,
           multiple: false,
           collapseTags: true,
-          filterable:true,
-          modelValue: row[column.field], 
-          popperClass:'vxe-table--ignore-clear', // 加这个类名，让 table 不會 outside click 改變
-          'onUpdate:modelValue': (value: any) => { 
-            row[column.field] = value 
-          } 
-          })
+          filterable: true,
+          modelValue: row[column.field],
+          popperClass: 'vxe-table--ignore-clear', // 加这个类名，让 table 不會 outside click 改變
+          'onUpdate:modelValue': (value: any) => {
+            row[column.field] = value
+          }
+        })
       }
-     },
-    view: { 
-      render: renderSelectView
-     }
+    },
+    view: {
+      render: (params: any) => TreeNode(params, renderSelectView)
+    }
   },
   MultiSelect: {
-    edit: { 
-      render({options, params}: ViewRenderFunctionParams<string>): VNode {
+    edit: {
+      render({ options, params }: ViewRenderFunctionParams<string>): VNode {
         const { $table, row, column } = params
         const { options: selectOptions } = options?.props
-        return h(SelectEdit, { 
+        return h(SelectEdit, {
           options: selectOptions,
           multiple: true,
           collapseTags: true,
-          filterable:true,
-          modelValue: row[column.field], 
-          popperClass:'vxe-table--ignore-clear', // 加这个类名，让 table 不會 outside click 改變
-          'onUpdate:modelValue': (value: any) => { 
-            row[column.field] = value } 
-          })
+          filterable: true,
+          modelValue: row[column.field],
+          popperClass: 'vxe-table--ignore-clear', // 加这个类名，让 table 不會 outside click 改變
+          'onUpdate:modelValue': (value: any) => {
+            row[column.field] = value
+          }
+        })
       }
-     },
+    },
     view: {
-      render: renderMultipleSelectView
+      render: (params: any) => TreeNode(params, renderMultipleSelectView)
     }
   },
-  DateTime:{
+  DateTime: {
     edit: {
-      render({options, params}: ViewRenderFunctionParams<string>): VNode {
+      render({ options, params }: ViewRenderFunctionParams<string>): VNode {
         const { $table, row, column } = params
         const { options: dateTimeOptions } = options?.props
         return h(ElInput, {
           modelValue: row[column.field],
-          'onUpdate:modelValue': (value: string) => { row[column.field] = value },
+          'onUpdate:modelValue': (value: string) => {
+            row[column.field] = value
+          }
         })
       }
     },
     view: {
-      render: DateTimeView
+      render: (params: any) => TreeNode(params, DateTimeView)
     }
   },
-  CreatedTime:{
-    both:{
-      render: DateTimeView
+  CreatedTime: {
+    both: {
+      render: (params: any) => TreeNode(params, DateTimeView)
     }
   },
-  LastModifiedTime:{
-    both:{
-      render: DateTimeView
+  LastModifiedTime: {
+    both: {
+      render: (params: any) => TreeNode(params, DateTimeView)
     }
   },
-  Email:{
-    edit:{
-      render: EmailEdit
+  Email: {
+    edit: {
+      render: (params: any) => TreeNode(params, EmailEdit)
     },
-    view:{
-      render: EmailView
+    view: {
+      render: (params: any) => TreeNode(params, EmailView)
     }
   },
-  CreatedBy:{
-    both:{
-      render: UserView
+  CreatedBy: {
+    both: {
+      render: (params: any) => TreeNode(params, UserView)
     }
   },
-  LastModifiedBy:{
-    both:{
-      render: UserView
+  LastModifiedBy: {
+    both: {
+      render: (params: any) => TreeNode(params, UserView)
     }
   },
-  Member:{
-    both:{
-      render: UserView
+  Member: {
+    both: {
+      render: (params: any) => TreeNode(params, UserView)
     }
   }
 } as const

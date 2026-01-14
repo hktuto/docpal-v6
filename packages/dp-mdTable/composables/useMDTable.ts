@@ -10,7 +10,7 @@ interface mdTable {
 }
 
 export function useMDTable(props: any) {
-  const gridRef = ref<VxeGridInstance<any>>()
+  const gridRef = ref<any>()
   const { columns, addColumn, updateColumn, deleteColumn, columnGroupRules } = useColumnsContext()
   const {
     loading,
@@ -20,12 +20,14 @@ export function useMDTable(props: any) {
     updateRow: updateTableRow,
     deleteRow: deleteTableRow,
     getTableData,
+    getAggChildData,
   } = useTableDataContext()
   const { gridOptions } = useTableConfig({
     ...props,
     groupBy: columnGroupRules,
     columns,
     loading,
+    childApiMethod: getAggChildData,
     apiMethod: getTableData,
   }, gridRef)
   provide<mdTable>('mdTable', {
@@ -35,6 +37,7 @@ export function useMDTable(props: any) {
     columnGroupRules,
     gridRef
   })
+
   return {
     columns,
     addColumn,
