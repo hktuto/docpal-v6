@@ -1,6 +1,6 @@
-import type { 
-  CaseFieldRecord, 
-  CaseViewRecord, 
+import type {
+  CaseFieldRecord,
+  CaseViewRecord,
   CaseTableRecord,
   FieldDisplayStructure,
   ViewFilter,
@@ -9,14 +9,7 @@ import type {
 } from '../utils/db/schema/newTableSchema'
 
 // Import context keys from dp-mdTable so MdTable can inject them
-import { 
-  ColumnContextKey,
-  TableDataContextKey,  
-  type ColumnContext, 
-  type ColumnConfig,
-  type TableDataContext 
-} from '#imports'
-
+import { ColumnContextKey, TableDataContextKey, type ColumnContext, type ColumnConfig, type TableDataContext } from '#imports'
 
 export interface ViewContext {
   currentView: Ref<CaseViewRecord | null>
@@ -35,9 +28,9 @@ export const useTableView = () => {
   const { query, exec } = usePglite()
 
   // Region: IDs and State
-  const tableId = ref<string>('')         // case_tables.id
+  const tableId = ref<string>('') // case_tables.id
   const physicalTableName = ref<string>('') // case_tables.table_name (actual PG table)
-  const entityId = ref<string>('')        // case_type.id
+  const entityId = ref<string>('') // case_type.id
   const loading = ref(false)
   const error = ref<Error | null>(null)
   const tableData = ref<any[]>([])
@@ -66,12 +59,12 @@ export const useTableView = () => {
     if (!physicalTableName.value) {
       throw new Error('physicalTableName is required')
     }
-    
-    const columnNames = Object.keys(row).filter(k => k !== 'id')
+
+    const columnNames = Object.keys(row).filter((k) => k !== 'id')
     const placeholders = columnNames.map((_, i) => `$${i + 1}`)
-    const values = columnNames.map(k => row[k])
-    
-    const sql = `INSERT INTO "${physicalTableName.value}" (${columnNames.map(c => `"${c}"`).join(', ')}) 
+    const values = columnNames.map((k) => row[k])
+
+    const sql = `INSERT INTO "${physicalTableName.value}" (${columnNames.map((c) => `"${c}"`).join(', ')})
                  VALUES (${placeholders.join(', ')}) RETURNING *`
     const data = await query(sql, values)
     tableData.value.push(data[0])
@@ -84,16 +77,16 @@ export const useTableView = () => {
     if (!row.id) {
       throw new Error('row id is required')
     }
-    
-    const updateKeys = Object.keys(row).filter(k => k !== 'id')
+
+    const updateKeys = Object.keys(row).filter((k) => k !== 'id')
     const setClauses = updateKeys.map((k, i) => `"${k}" = $${i + 1}`)
-    const values = [...updateKeys.map(k => row[k]), row.id]
-    
-    const sql = `UPDATE "${physicalTableName.value}" SET ${setClauses.join(', ')}, "updatedAt" = NOW() 
+    const values = [...updateKeys.map((k) => row[k]), row.id]
+
+    const sql = `UPDATE "${physicalTableName.value}" SET ${setClauses.join(', ')}, "updatedAt" = NOW()
                  WHERE id = $${values.length} RETURNING *`
     const data = await query(sql, values)
-    
-    const index = tableData.value.findIndex(item => item.id === row.id)
+
+    const index = tableData.value.findIndex((item) => item.id === row.id)
     if (index !== -1) {
       tableData.value[index] = data[0]
     }
@@ -107,7 +100,7 @@ export const useTableView = () => {
       throw new Error('row id is required')
     }
     await query(`DELETE FROM "${physicalTableName.value}" WHERE id = $1`, [id])
-    tableData.value = tableData.value.filter(item => item.id !== id)
+    tableData.value = tableData.value.filter((item) => item.id !== id)
   }
 
   // Provide TableDataContext using dp-mdTable's key so MdTable can inject it
@@ -137,24 +130,21 @@ export const useTableView = () => {
       if (existingRow?.id) {
         deleteRow(existingRow.id)
       }
-    },
+    }
   } as TableDataContext)
 
   // Region: Field Logic
   const fields = ref<CaseFieldRecord[]>([])
 
   function getField(fieldName: string): CaseFieldRecord | undefined {
-    return fields.value.find(item => item.fieldName === fieldName)
+    return fields.value.find((item) => item.fieldName === fieldName)
   }
 
   async function getAllFields(): Promise<CaseFieldRecord[]> {
     if (!tableId.value) {
       throw new Error('tableId is required')
     }
-    const data = await query<CaseFieldRecord>(
-      `SELECT * FROM case_fields WHERE "tableId" = $1`,
-      [tableId.value]
-    )
+    const data = await query<CaseFieldRecord>(`SELECT * FROM case_fields WHERE "tableId" = $1`, [tableId.value])
     fields.value = data
     return data
   }
@@ -200,7 +190,7 @@ export const useTableView = () => {
         newField.updatedAt
       ]
     )
-    
+
     fields.value.push(newField as CaseFieldRecord)
   }
 
@@ -211,45 +201,43 @@ export const useTableView = () => {
     if (!fieldName) {
       throw new Error('fieldName is required')
     }
-    
+
     const field = getField(fieldName)
     if (!field?.id) {
       throw new Error('field not found')
     }
-    
-    const updateKeys = Object.keys(updates).filter(key => key !== 'id')
+
+    const updateKeys = Object.keys(updates).filter((key) => key !== 'id')
     if (updateKeys.length === 0) {
       return
     }
-    
+
     // Column names now use camelCase in database
     const setClauses: string[] = []
     const values: any[] = []
     let paramIndex = 1
-    
+
     for (const key of updateKeys) {
       setClauses.push(`"${key}" = $${paramIndex}`)
-      
-      const value = (key === 'displayStructure') 
-        ? JSON.stringify(updates[key as keyof CaseFieldRecord]) 
-        : updates[key as keyof CaseFieldRecord]
+
+      const value = key === 'displayStructure' ? JSON.stringify(updates[key as keyof CaseFieldRecord]) : updates[key as keyof CaseFieldRecord]
       values.push(value)
       paramIndex++
     }
-    
+
     // Always update updatedAt
     setClauses.push(`"updatedAt" = $${paramIndex}`)
     values.push(new Date().toISOString())
     paramIndex++
-    
+
     // Add the WHERE clause parameter
     values.push(field.id)
-    
+
     const sql = `UPDATE case_fields SET ${setClauses.join(', ')} WHERE id = $${paramIndex}`
     await query(sql, values)
-    
+
     // Update local state
-    const index = fields.value.findIndex(f => f.fieldName === fieldName)
+    const index = fields.value.findIndex((f) => f.fieldName === fieldName)
     if (index !== -1) {
       fields.value[index] = { ...fields.value[index], ...updates }
     }
@@ -262,16 +250,13 @@ export const useTableView = () => {
     if (!fieldName) {
       throw new Error('fieldName is required')
     }
-    await query(
-      'DELETE FROM case_fields WHERE "tableId" = $1 AND "fieldName" = $2',
-      [tableId.value, fieldName]
-    )
-    fields.value = fields.value.filter(item => item.fieldName !== fieldName)
+    await query('DELETE FROM case_fields WHERE "tableId" = $1 AND "fieldName" = $2', [tableId.value, fieldName])
+    fields.value = fields.value.filter((item) => item.fieldName !== fieldName)
   }
 
   // Region: Column mapping - convert CaseFieldRecord to ColumnConfig for dp-mdTable
   const columns = computed<ColumnConfig[]>(() => {
-    return fields.value.map(field => fieldToColumnConfig(field))
+    return fields.value.map((field) => fieldToColumnConfig(field))
   })
 
   const columnGroupRules = ref<any[]>([])
@@ -280,13 +265,20 @@ export const useTableView = () => {
    * Convert CaseFieldRecord to ColumnConfig for dp-mdTable compatibility
    */
   function fieldToColumnConfig(field: CaseFieldRecord): ColumnConfig {
+    // set column width by fieldNameAlias length
+    const width = Math.max(field.fieldNameAlias.length * 13, 100) + 20
+    // if field.displayStructure?.type is  2, set headerAlign to right
+    const headerAlign = field.displayStructure?.type === 2 ? 'right' : 'left'
+
     return {
       id: field.id,
       dataTableId: field.tableId ?? undefined, // Convert null to undefined
       field: field.fieldName,
       title: field.fieldNameAlias,
+      width,
       type: field.displayStructure?.type as any, // ColumnFieldType from displayStructure
       properties: field.displayStructure?.properties as Record<string, any> | undefined,
+      headerAlign
     }
   }
 
@@ -301,8 +293,8 @@ export const useTableView = () => {
       fieldNameAlias: column.title,
       displayStructure: {
         type: column.type,
-        properties: column.properties || {},
-      } as unknown as FieldDisplayStructure,
+        properties: column.properties || {}
+      } as unknown as FieldDisplayStructure
     }
   }
 
@@ -313,7 +305,7 @@ export const useTableView = () => {
 
   async function getAllColumns(): Promise<ColumnConfig[]> {
     const fieldRecords = await getAllFields()
-    return fieldRecords.map(field => fieldToColumnConfig(field))
+    return fieldRecords.map((field) => fieldToColumnConfig(field))
   }
 
   async function addColumn(column: ColumnConfig): Promise<void> {
@@ -337,7 +329,7 @@ export const useTableView = () => {
     deleteColumn,
     updateColumn,
     columns,
-    columnGroupRules,
+    columnGroupRules
   } as ColumnContext)
 
   // Region: View Logic
@@ -348,25 +340,19 @@ export const useTableView = () => {
     if (!tableId.value) {
       throw new Error('tableId is required')
     }
-    const data = await query<CaseViewRecord>(
-      `SELECT * FROM case_views WHERE "tableId" = $1 ORDER BY "isDefault" DESC, name ASC`,
-      [tableId.value]
-    )
+    const data = await query<CaseViewRecord>(`SELECT * FROM case_views WHERE "tableId" = $1 ORDER BY "isDefault" DESC, name ASC`, [tableId.value])
     views.value = data
-    
+
     // Set current view to default if not set
     if (!currentView.value && data.length > 0) {
-      currentView.value = data.find(v => v.isDefault) || data[0]
+      currentView.value = data.find((v) => v.isDefault) || data[0]
     }
-    
+
     return data
   }
 
   async function getViewById(viewId: string): Promise<CaseViewRecord | null> {
-    const data = await query<CaseViewRecord>(
-      `SELECT * FROM case_views WHERE id = $1`,
-      [viewId]
-    )
+    const data = await query<CaseViewRecord>(`SELECT * FROM case_views WHERE id = $1`, [viewId])
     return data[0] || null
   }
 
@@ -382,7 +368,7 @@ export const useTableView = () => {
     const now = new Date()
     const viewId = viewData.id || crypto.randomUUID()
     const viewName = viewData.viewName || `view_${viewId.replace(/-/g, '_')}`
-    
+
     const newView: CaseViewRecord = {
       id: viewId,
       name: viewData.name || 'New View',
@@ -430,36 +416,36 @@ export const useTableView = () => {
 
   async function updateView(viewId: string, updates: Partial<CaseViewRecord>): Promise<void> {
     const now = new Date()
-    
-    const updateKeys = Object.keys(updates).filter(k => k !== 'id')
+
+    const updateKeys = Object.keys(updates).filter((k) => k !== 'id')
     if (updateKeys.length === 0) return
-    
+
     // Column names now use camelCase in database
     const setClauses: string[] = []
     const values: any[] = []
     let paramIndex = 1
-    
+
     for (const key of updateKeys) {
       setClauses.push(`"${key}" = $${paramIndex}`)
-      
+
       const value = ['filter', 'sorting', 'grouping'].includes(key)
         ? JSON.stringify(updates[key as keyof CaseViewRecord])
         : updates[key as keyof CaseViewRecord]
       values.push(value)
       paramIndex++
     }
-    
+
     setClauses.push(`"updatedAt" = $${paramIndex}`)
     values.push(now)
     paramIndex++
-    
+
     values.push(viewId)
-    
+
     const sql = `UPDATE case_views SET ${setClauses.join(', ')} WHERE id = $${paramIndex}`
     await query(sql, values)
-    
+
     // Update local state
-    const index = views.value.findIndex(v => v.id === viewId)
+    const index = views.value.findIndex((v) => v.id === viewId)
     if (index !== -1) {
       views.value[index] = { ...views.value[index], ...updates, updatedAt: now }
     }
@@ -470,10 +456,10 @@ export const useTableView = () => {
 
   async function deleteView(viewId: string): Promise<void> {
     await query(`DELETE FROM case_views WHERE id = $1`, [viewId])
-    views.value = views.value.filter(v => v.id !== viewId)
-    
+    views.value = views.value.filter((v) => v.id !== viewId)
+
     if (currentView.value?.id === viewId) {
-      currentView.value = views.value.find(v => v.isDefault) || views.value[0] || null
+      currentView.value = views.value.find((v) => v.isDefault) || views.value[0] || null
     }
   }
 
@@ -485,7 +471,7 @@ export const useTableView = () => {
     setCurrentView,
     createView,
     updateView,
-    deleteView,
+    deleteView
   })
 
   /**
@@ -497,36 +483,29 @@ export const useTableView = () => {
   ): Promise<{ table: CaseTableRecord; fields: CaseFieldRecord[]; views: CaseViewRecord[] }> {
     tableId.value = caseTableId
     entityId.value = caseEntityId
-    
+
     // Get table info
-    const tableData = await query<CaseTableRecord>(
-      `SELECT * FROM case_tables WHERE id = $1`,
-      [caseTableId]
-    )
-    
+    const tableData = await query<CaseTableRecord>(`SELECT * FROM case_tables WHERE id = $1`, [caseTableId])
+
     if (tableData.length === 0) {
       throw new Error('Table not found')
     }
-    
+
     const table = tableData[0]
     physicalTableName.value = table.tableName
-    
+
     // Get fields and views
-    const [fieldsData, viewsData] = await Promise.all([
-      getAllFields(),
-      getViews()
-    ])
-    
+    const [fieldsData, viewsData] = await Promise.all([getAllFields(), getViews()])
+
     return { table, fields: fieldsData, views: viewsData }
   }
-
 
   return {
     // IDs
     tableId,
     physicalTableName,
     entityId,
-    
+
     // Table Data
     loading,
     error,
@@ -537,7 +516,7 @@ export const useTableView = () => {
     addRow,
     updateRow,
     deleteRow,
-    
+
     // Fields (CaseFieldRecord)
     fields,
     getField,
@@ -545,7 +524,7 @@ export const useTableView = () => {
     addField,
     updateField,
     deleteField,
-    
+
     // Columns (ColumnConfig - for dp-mdTable compatibility)
     columns,
     columnGroupRules,
@@ -554,7 +533,7 @@ export const useTableView = () => {
     addColumn,
     updateColumn,
     deleteColumn,
-    
+
     // Views
     currentView,
     views,
@@ -564,8 +543,8 @@ export const useTableView = () => {
     createView,
     updateView,
     deleteView,
-    
+
     // Initialize
-    initializeTableView,
+    initializeTableView
   }
 }

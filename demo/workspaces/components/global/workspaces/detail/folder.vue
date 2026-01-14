@@ -1,14 +1,9 @@
-
-
-
 <script setup lang="ts">
-
-
 const props = defineProps<{
   isAdmin: boolean
 }>()
 
-const { menuState, workspaceRouteParams, findItemById, recursiveUpdateItem, saveMenuToDb } = useSingleWorkspaceContext()
+const { menuState, workspaceRouteParams, findItemById, saveMenuItemToDb } = useSingleWorkspaceContext()
 
 const currentFolder = ref()
 
@@ -24,35 +19,34 @@ onMounted(() => {
 function handleLabelSave(newLabel: string) {
   if (currentFolder.value) {
     currentFolder.value.label = newLabel
-    recursiveUpdateItem(menuState.value.items, workspaceRouteParams.value.detailId as string, currentFolder.value)
-    saveMenuToDb()
+    // recursiveUpdateItem(menuState.value.items, workspaceRouteParams.value.detailId as string, currentFolder.value)
+    saveMenuItemToDb(currentFolder.value)
   }
 }
 
 function handleDescriptionSave(newDescription: string) {
   if (currentFolder.value) {
     currentFolder.value.description = newDescription
-    recursiveUpdateItem(menuState.value.items, workspaceRouteParams.value.detailId as string, currentFolder.value)
-    saveMenuToDb()
+    // recursiveUpdateItem(menuState.value.items, workspaceRouteParams.value.detailId as string, currentFolder.value)
+    saveMenuItemToDb(currentFolder.value)
   }
 }
 
-watch(workspaceRouteParams, () => {
-  currentFolder.value = getCurrentFolder()
-}, {
-  deep: true,
-})
+watch(
+  workspaceRouteParams,
+  () => {
+    currentFolder.value = getCurrentFolder()
+  },
+  {
+    deep: true
+  }
+)
 </script>
 
 <template>
   <div class="folder-detail">
     <div v-if="currentFolder" class="innerGrid">
-      <UiInlineEditor
-        :model-value="currentFolder.label"
-        wrapper="h1"
-        :editable="isAdmin"
-        @save="handleLabelSave"
-      />
+      <UiInlineEditor :model-value="currentFolder.label" wrapper="h1" :editable="isAdmin" @save="handleLabelSave" />
       <UiInlineEditor
         :model-value="currentFolder.description || ''"
         wrapper="p"
@@ -61,10 +55,7 @@ watch(workspaceRouteParams, () => {
         placeholder="No description. Double-click to add one."
         @save="handleDescriptionSave"
       />
-      <WorkspacesMenuChildrenGrid
-        v-if="currentFolder?.children?.length"
-        :children="currentFolder.children"
-      />
+      <WorkspacesMenuChildrenGrid v-if="currentFolder?.children?.length" :children="currentFolder.children" />
     </div>
   </div>
 </template>
