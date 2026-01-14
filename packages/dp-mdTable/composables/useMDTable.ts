@@ -8,10 +8,11 @@ export interface mdTable {
   columnGroupRules: any
   gridRef: Ref<VxeGridInstance | undefined>
 }
-export const MdTableContextKey:InjectionKey<mdTable> = Symbol('MdTableContextKey')
+export const MdTableContextKey: InjectionKey<mdTable> = Symbol('MdTableContextKey')
 export function useMDTable(props: any) {
   const gridRef = ref<any>()
-  const { columns, addColumn, updateColumn, deleteColumn, columnGroupRules } = useColumnsContext()
+  const editable = ref(props.editable)
+  const { columns, addColumn, updateColumn, deleteColumn, columnGroupRules, saveColumnOrder } = useColumnsContext()
   const {
     loading,
     queryParams,
@@ -20,16 +21,19 @@ export function useMDTable(props: any) {
     updateRow: updateTableRow,
     deleteRow: deleteTableRow,
     getTableData,
-    getAggChildData,
+    getAggChildData
   } = useTableDataContext()
-  const { gridOptions } = useTableConfig({
-    ...props,
-    groupBy: columnGroupRules,
-    columns,
-    loading,
-    childApiMethod: getAggChildData,
-    apiMethod: getTableData,
-  }, gridRef)
+  const { gridOptions } = useTableConfig(
+    {
+      ...props,
+      groupBy: columnGroupRules,
+      columns,
+      loading,
+      childApiMethod: getAggChildData,
+      apiMethod: getTableData
+    },
+    gridRef
+  )
   provide(MdTableContextKey, {
     columns,
     addColumn,
@@ -45,7 +49,9 @@ export function useMDTable(props: any) {
     columnGroupRules,
     gridOptions,
     gridRef,
-    refreshTableData
+    refreshTableData,
+    editable,
+    saveColumnOrder
   }
 }
 

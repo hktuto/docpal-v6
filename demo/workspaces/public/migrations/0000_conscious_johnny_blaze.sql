@@ -46,6 +46,7 @@ CREATE TABLE "case_tables" (
 	"status" text DEFAULT 'A' NOT NULL,
 	"description" text,
 	"tableName" text NOT NULL,
+	"viewName" uuid,
 	"entityId" uuid NOT NULL,
 	"formStructure" jsonb,
 	"createdBy" uuid,

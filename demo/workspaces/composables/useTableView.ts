@@ -15,8 +15,7 @@ export interface ViewContext {
   currentView: Ref<CaseViewRecord | null>
   views: Ref<CaseViewRecord[]>
   getViews: () => Promise<CaseViewRecord[]>
-  getViewById: (viewId: string) => Promise<CaseViewRecord | null>
-  setCurrentView: (view: CaseViewRecord) => void
+  getViewById: (viewId: string) => Promise<void>
   createView: (view: Partial<CaseViewRecord>) => Promise<CaseViewRecord>
   updateView: (viewId: string, updates: Partial<CaseViewRecord>) => Promise<void>
   deleteView: (viewId: string) => Promise<void>
@@ -255,9 +254,7 @@ export const useTableView = () => {
   }
 
   // Region: Column mapping - convert CaseFieldRecord to ColumnConfig for dp-mdTable
-  const columns = computed<ColumnConfig[]>(() => {
-    return fields.value.map((field) => fieldToColumnConfig(field))
-  })
+  const columns = ref<ColumnConfig[]>([])
 
   const columnGroupRules = ref<any[]>([])
 
@@ -304,8 +301,16 @@ export const useTableView = () => {
   }
 
   async function getAllColumns(): Promise<ColumnConfig[]> {
-    const fieldRecords = await getAllFields()
-    return fieldRecords.map((field) => fieldToColumnConfig(field))
+    if (!currentView.value) {
+      throw new Error('No current view')
+    }
+    let columnsData = currentView.value.fields.reduce<ColumnConfig[]>((result: ColumnConfig[], fieldName: string) => {
+      const field = getField(fieldName)
+      return field ? [...result, fieldToColumnConfig(field)] : result
+    }, [] as ColumnConfig[])
+    columns.value = columnsData
+    console.log('columns: in getAllColumns', columnsData)
+    return columnsData
   }
 
   async function addColumn(column: ColumnConfig): Promise<void> {
@@ -316,6 +321,100 @@ export const useTableView = () => {
     await deleteField(fieldName)
   }
 
+  function saveColumnOrder(newOrder: OrdersParam) {
+    if (!currentView.value) {
+      console.error('No current view to save column order')
+      return
+    }
+
+    const { newColumn, oldColumn, dragPos } = newOrder
+
+    // Get current columns array and save original for error recovery
+    const originalColumns = [...columns.value]
+    const currentColumns = [...originalColumns]
+
+    console.log(
+      'current order',
+      currentColumns.map((col) => col.field)
+    )
+
+    // Find indices of the dragged and target columns
+    // oldColumn: the column being dragged (moving)
+    // newColumn: the drop target column
+    const draggedColumnIndex = currentColumns.findIndex((col: ColumnConfig) => col.field === oldColumn.field)
+    const targetColumnIndex = currentColumns.findIndex((col: ColumnConfig) => col.field === newColumn.field)
+
+    console.log('draggedColumnIndex', draggedColumnIndex)
+    console.log('targetColumnIndex', targetColumnIndex, dragPos)
+
+    if (draggedColumnIndex === -1 || targetColumnIndex === -1) {
+      console.error('Could not find columns to reorder', { draggedColumnIndex, targetColumnIndex })
+      return
+    }
+
+    // If dragging to same position, no-op
+    if (draggedColumnIndex === targetColumnIndex) {
+      console.log('Column dropped in same position, no change needed')
+      return
+    }
+
+    // Remove the dragged column from its current position
+    const [draggedColumn] = currentColumns.splice(draggedColumnIndex, 1)
+    console.log('draggedColumn', draggedColumn, currentColumns)
+
+    // Calculate new position based on drag position and relative positions
+    let insertIndex = targetColumnIndex
+
+    if (draggedColumnIndex < targetColumnIndex) {
+      // Moving from left to right
+      if (dragPos === 'left') {
+        // Insert to the left of target, but we've removed a column from before the target
+        insertIndex = Math.max(0, targetColumnIndex - 1)
+      } else {
+        // dragPos === 'right'
+        // Insert to the right of target, but we've removed a column from before the target
+        insertIndex = targetColumnIndex
+      }
+    } else {
+      // Moving from right to left (draggedColumnIndex > targetColumnIndex)
+      if (dragPos === 'left') {
+        // Insert to the left of target, target position unchanged
+        insertIndex = targetColumnIndex
+      } else {
+        // dragPos === 'right'
+        // Insert to the right of target, target position unchanged
+        insertIndex = targetColumnIndex + 1
+      }
+    }
+
+    // Ensure insertIndex is within bounds
+    insertIndex = Math.max(0, Math.min(insertIndex, currentColumns.length))
+
+    // Insert the dragged column at the new position
+    currentColumns.splice(insertIndex, 0, draggedColumn)
+
+    // Extract field names in new order
+    const newFieldOrder = currentColumns.map((col) => col.field)
+    console.log('newFieldOrder', newFieldOrder)
+
+    // Update the current view's fields array immediately for UI consistency
+    currentView.value = { ...currentView.value, fields: newFieldOrder }
+
+    // Save to database
+    updateView(currentView.value.id, { fields: newFieldOrder })
+      .then(() => {
+        console.log('Column order saved successfully')
+      })
+      .catch((error) => {
+        console.error('Failed to save column order:', error)
+        // Revert columns and view fields on error using original state
+        columns.value = originalColumns
+        if (currentView.value) {
+          // Restore original field order
+          currentView.value = { ...currentView.value, fields: originalColumns.map((col) => col.field) }
+        }
+      })
+  }
   async function updateColumn(fieldName: string, updates: Partial<ColumnConfig>): Promise<void> {
     const fieldUpdates = columnConfigToField(updates as ColumnConfig)
     await updateField(fieldName, fieldUpdates)
@@ -329,20 +428,19 @@ export const useTableView = () => {
     deleteColumn,
     updateColumn,
     columns,
+    saveColumnOrder,
     columnGroupRules
   } as ColumnContext)
 
   // Region: View Logic
   const currentView = ref<CaseViewRecord | null>(null)
   const views = ref<CaseViewRecord[]>([])
-
   async function getViews(): Promise<CaseViewRecord[]> {
     if (!tableId.value) {
       throw new Error('tableId is required')
     }
     const data = await query<CaseViewRecord>(`SELECT * FROM case_views WHERE "tableId" = $1 ORDER BY "isDefault" DESC, name ASC`, [tableId.value])
     views.value = data
-    console.log('views', views.value)
     // Set current view to default if not set
     if (!currentView.value && data.length > 0) {
       currentView.value = data.find((v) => v.isDefault) || data[0]
@@ -351,13 +449,16 @@ export const useTableView = () => {
     return data
   }
 
-  async function getViewById(viewId: string): Promise<CaseViewRecord | null> {
+  async function getViewById(viewId: string): Promise<void> {
     const data = await query<CaseViewRecord>(`SELECT * FROM case_views WHERE id = $1`, [viewId])
-    return data[0] || null
-  }
-
-  function setCurrentView(view: CaseViewRecord): void {
-    currentView.value = view
+    if (!data || !data.length) {
+      throw new Error(`View with id ${viewId} not found`)
+    }
+    currentView.value = data[0]
+    if (!fields.value || !fields.value.length) {
+      await getAllFields()
+    }
+    await getAllColumns()
   }
 
   async function createView(viewData: Partial<CaseViewRecord>): Promise<CaseViewRecord> {
@@ -468,7 +569,6 @@ export const useTableView = () => {
     views,
     getViews,
     getViewById,
-    setCurrentView,
     createView,
     updateView,
     deleteView
@@ -477,12 +577,8 @@ export const useTableView = () => {
   /**
    * Initialize table view with IDs
    */
-  async function initializeTableView(
-    caseTableId: string,
-    caseEntityId: string
-  ): Promise<{ table: CaseTableRecord; fields: CaseFieldRecord[]; views: CaseViewRecord[] }> {
+  async function initializeTableView(caseTableId: string): Promise<void> {
     tableId.value = caseTableId
-    entityId.value = caseEntityId
 
     // Get table info
     const tableData = await query<CaseTableRecord>(`SELECT * FROM case_tables WHERE id = $1`, [caseTableId])
@@ -493,11 +589,14 @@ export const useTableView = () => {
 
     const table = tableData[0]
     physicalTableName.value = table.tableName
-
+    entityId.value = table.id
     // Get fields and views
-    const [fieldsData, viewsData] = await Promise.all([getAllFields(), getViews()])
-
-    return { table, fields: fieldsData, views: viewsData }
+    // chekc if viewName in table
+    if (!table.viewName) {
+      throw new Error('Table viewName not found')
+    }
+    await getAllFields()
+    await getViewById(table.viewName)
   }
 
   return {
@@ -539,7 +638,6 @@ export const useTableView = () => {
     views,
     getViews,
     getViewById,
-    setCurrentView,
     createView,
     updateView,
     deleteView,

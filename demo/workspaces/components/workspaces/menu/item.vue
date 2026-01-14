@@ -8,7 +8,8 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const {menuState, toggleFolder, startEdit, saveEdit, cancelEdit, navigateToItem, openMenuItemActions, workspaceRouteParams, getMenuIcon} = useSingleWorkspaceContext()
+const { menuState, toggleFolder, startEdit, saveEdit, cancelEdit, navigateToItem, openMenuItemActions, workspaceRouteParams, getMenuIcon } =
+  useSingleWorkspaceContext()
 
 const isHovered = ref(false)
 const isDragOver = ref(false)
@@ -28,8 +29,6 @@ const isExpanded = computed(() => {
   return menuState.value.expandedFolders.has(props.item.id)
 })
 
-
-
 // Toggle folder expand/collapse
 function handleToggle() {
   if (props.item.itemType === 'folder') {
@@ -40,7 +39,7 @@ function handleToggle() {
 // Handle item click - navigate to the item
 function handleItemClick() {
   setTimeout(() => {
-    if(isEditing.value)return;
+    if (isEditing.value) return
     navigateToItem(props.item)
   }, 100)
 }
@@ -48,7 +47,7 @@ const itemContentRef = ref<HTMLElement>()
 // Handle actions menu
 function handleActionsClick(event: MouseEvent) {
   event.stopPropagation()
-  openMenuItemActions({item: props.item, isAdmin: props.isAdmin}, event.currentTarget as HTMLElement, itemContentRef.value as HTMLElement)
+  openMenuItemActions({ item: props.item, isAdmin: props.isAdmin }, event.currentTarget as HTMLElement, itemContentRef.value as HTMLElement)
   // actionsPopover.value?.open(event.currentTarget as HTMLElement, itemContentRef.value as HTMLElement)
 }
 
@@ -72,10 +71,10 @@ function handleCancelEdit() {
 // Folder drop handlers
 function onFolderDragOver(event: DragEvent) {
   if (props.item.itemType !== 'folder' || !props.isAdmin) return
-  
+
   event.preventDefault()
   event.stopPropagation()
-  
+
   if (event.dataTransfer?.types.includes('Files')) {
     isDragOver.value = true
     event.dataTransfer.dropEffect = 'copy'
@@ -85,21 +84,30 @@ function onFolderDragOver(event: DragEvent) {
 function onFolderDragLeave(event: DragEvent) {
   event.preventDefault()
   event.stopPropagation()
-  isDragOver.value = false
+
+  // Check if we're leaving the folder element
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+  const x = event.clientX
+  const y = event.clientY
+
+  // Only reset if leaving the element boundaries
+  if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+    isDragOver.value = false
+  }
 }
 
 async function onFolderDrop(event: DragEvent) {
   event.preventDefault()
   event.stopPropagation()
   isDragOver.value = false
-  
+
   if (props.item.itemType !== 'folder' || !props.isAdmin) return
-  
+
   const files = event.dataTransfer?.files
   if (!files || files.length === 0) return
-  
+
   // Find Excel file
-  const excelFile = Array.from(files).find(f => isExcelFile?.(f))
+  const excelFile = Array.from(files).find((f) => isExcelFile?.(f))
   if (excelFile && handleFolderDrop) {
     await handleFolderDrop(props.item.id, excelFile)
   }
@@ -109,9 +117,9 @@ async function onFolderDrop(event: DragEvent) {
 <template>
   <div
     class="menu-item"
-    :class="{ 
-      'is-folder': item.itemType === 'folder', 
-      'is-expanded': isExpanded, 
+    :class="{
+      'is-folder': item.itemType === 'folder',
+      'is-expanded': isExpanded,
       'is-selected': isSelected,
       'is-drag-over': isDragOver
     }"
@@ -120,24 +128,18 @@ async function onFolderDrop(event: DragEvent) {
     @dragover="onFolderDragOver"
     @dragleave="onFolderDragLeave"
     @drop="onFolderDrop"
+    @dragenter.prevent
+    @dragstart.prevent
   >
     <div ref="itemContentRef" class="item-content" @click="handleItemClick">
       <!-- Drag Handle (admin only, shown on hover) -->
-      <div
-        v-if="isAdmin"
-        class="drag-handle"
-        :class="{ visible: isHovered }"
-        @mousedown.stop
-        @click.stop
-      >
-        <Icon name="material-symbols:drag-indicator"  />
+      <div v-if="isAdmin" class="drag-handle" :class="{ visible: isHovered }" @mousedown.stop @click.stop>
+        <Icon name="material-symbols:drag-indicator" />
       </div>
-
-
 
       <!-- Item Icon -->
       <div class="item-icon">
-        <Icon :name="calItemIcon"  />
+        <Icon :name="calItemIcon" />
       </div>
       <!-- Label or Label Editor -->
       <div class="item-label">
@@ -146,7 +148,7 @@ async function onFolderDrop(event: DragEvent) {
           :editing="isEditing"
           :editable="isAdmin"
           wrapper="span"
-          @update:editing="(val) => val ? startEdit(item.id) : cancelEdit()"
+          @update:editing="(val) => (val ? startEdit(item.id) : cancelEdit())"
           @save="handleSaveEdit"
           @cancel="handleCancelEdit"
         />
@@ -154,28 +156,15 @@ async function onFolderDrop(event: DragEvent) {
 
       <!-- Actions Menu (shown on hover) -->
       <div v-if="isAdmin" class="item-actions" :class="{ visible: isHovered }">
-        <el-button
-          text
-          circle
-          size="small"
-          @click="handleActionsClick"
-        >
+        <el-button text circle size="small" @click="handleActionsClick">
           <Icon name="material-symbols:more-horiz" size="16" />
         </el-button>
       </div>
-            <!-- Expand/Collapse Icon (folders only) -->
-      <div
-        v-if="item.itemType === 'folder'"
-        class="expand-icon"
-        @click.stop="handleToggle"
-      >
-        <Icon
-          :name="isExpanded ? 'material-symbols:expand-more' : 'material-symbols:chevron-right'"
-          size="18"
-        />
+      <!-- Expand/Collapse Icon (folders only) -->
+      <div v-if="item.itemType === 'folder'" class="expand-icon" @click.stop="handleToggle">
+        <Icon :name="isExpanded ? 'material-symbols:expand-more' : 'material-symbols:chevron-right'" size="18" />
       </div>
     </div>
-
   </div>
 </template>
 
@@ -206,7 +195,7 @@ async function onFolderDrop(event: DragEvent) {
 
 .drag-handle {
   position: absolute;
-  left:-4px;
+  left: -4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -287,10 +276,9 @@ async function onFolderDrop(event: DragEvent) {
     border: 1px dashed var(--el-color-primary);
     border-radius: var(--app-border-radius-s);
   }
-  
+
   .item-icon {
     color: var(--el-color-primary);
   }
 }
 </style>
-

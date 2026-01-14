@@ -87,8 +87,6 @@ provide('isMobileView', readonly(isMobileView))
 watch(
   workspaceRouteParams,
   () => {
-    console.log('clean sidebar on route change', isMobileView.value, isSidebarVisible.value)
-
     if (isMobileView.value && isSidebarVisible.value) {
       isSidebarVisible.value = false
     }

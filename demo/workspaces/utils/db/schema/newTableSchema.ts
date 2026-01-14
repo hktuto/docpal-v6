@@ -130,7 +130,7 @@ export const caseTable = pgTable('case_tables', {
   status: text('status').$type<CaseTableStatus>().notNull().default('A'),
   description: text('description'),
   tableName: text('tableName').notNull().unique(),
-  viewName: text('viewName'),
+  viewName: uuid('viewName'),
   entityId: uuid('entityId')
     .notNull()
     .references(() => caseType.id),

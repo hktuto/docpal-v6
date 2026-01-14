@@ -27,26 +27,27 @@ async function loadTableData() {
 
   try {
     // Fetch case_tables record
-    const tables = await query<CaseTableRecord>('SELECT * FROM case_tables WHERE id = $1', [props.dataTableId])
-    caseTable.value = tables[0] || null
+    await tableView.initializeTableView(props.dataTableId)
+    // const tables = await query<CaseTableRecord>('SELECT * FROM case_tables WHERE id = $1', [props.dataTableId])
+    // caseTable.value = tables[0] || null
 
-    if (!caseTable.value?.tableName) {
-      console.error('Table not found or has no physical table name')
-      return
-    }
+    // if (!caseTable.value?.tableName) {
+    //   console.error('Table not found or has no physical table name')
+    //   return
+    // }
 
-    // Set IDs on tableView - this is needed for getAllColumns() and getTableData()
-    tableView.physicalTableName.value = caseTable.value.tableName
-    tableView.tableId.value = caseTable.value.id
-    console.log('caseTable.value', caseTable.value)
+    // // Set IDs on tableView - this is needed for getAllColumns() and getTableData()
+    // tableView.physicalTableName.value = caseTable.value.tableName
+    // tableView.tableId.value = caseTable.value.id
+    // console.log('caseTable.value', caseTable.value)
 
-    // Load columns and table data through tableView
-    // This populates the contexts that MdTable will inject
-    await Promise.all([
-      tableView.getAllColumns(), // Uses tableId to fetch from case_fields
-      tableView.getViews() // Uses tableId to fetch from case_views
-      // tableView.getTableData() // Uses physicalTableName to fetch from actual table
-    ])
+    // // Load columns and table data through tableView
+    // // This populates the contexts that MdTable will inject
+    // await Promise.all([
+    //   tableView.getAllColumns(), // Uses tableId to fetch from case_fields
+    //   tableView.getViews() // Uses tableId to fetch from case_views
+    //   // tableView.getTableData() // Uses physicalTableName to fetch from actual table
+    // ])
 
     tableReady.value = true
   } catch (error) {

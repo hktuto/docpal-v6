@@ -76,6 +76,9 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
    */
   const processedColumns = computed(() => {
     let _columns: any[] = JSON.parse(JSON.stringify(columns.value))
+    if (_columns.length === 0) {
+      return []
+    }
     _columns[0].treeNode = true
     _columns.unshift({
       type: 'checkbox'
@@ -142,6 +145,9 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       loading: loading.value,
       columns: processedColumns.value as any,
       editRules: processedEditRules.value,
+      columnConfig: {
+        drag: true
+      },
       // 虚拟滚动配置 - 性能优化
       // 注意：虚拟滚动与树形懒加载存在兼容性问题，当启用树形结构时，建议禁用虚拟滚动或使用固定行高
       virtualYConfig: {

@@ -284,6 +284,10 @@ export function useTableSchema() {
     // Generate table name
     const tableName = generateTableName(tableData.entityId!, tableData.name || 'table')
 
+    // Generate view name and ID for default view
+    const viewName = generateViewName(tableName, 'default')
+    const viewId = uuidv7()
+
     // Filter out system columns from user columns (we'll add them separately)
     const systemFieldTypes: ColumnFieldType[] = [
       ColumnFieldType.CreatedTime,
@@ -306,6 +310,7 @@ export function useTableSchema() {
       status: 'A',
       description: tableData.description || null,
       tableName,
+      viewName: viewId,
       entityId: tableData.entityId!,
       formStructure: null,
       createdBy: createdBy || null,
@@ -316,14 +321,15 @@ export function useTableSchema() {
 
     // Insert case_tables record
     await query(
-      `INSERT INTO case_tables (id, name, status, description, "tableName", "entityId", "createdBy", "createdAt", "updatedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      `INSERT INTO case_tables (id, name, status, description, "tableName", "viewName", "entityId", "createdBy", "createdAt", "updatedAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
       [
         tableRecord.id,
         tableRecord.name,
         tableRecord.status,
         tableRecord.description,
         tableRecord.tableName,
+        tableRecord.viewName,
         tableRecord.entityId,
         tableRecord.createdBy,
         tableRecord.createdAt,
@@ -384,8 +390,6 @@ export function useTableSchema() {
     await exec(createSql)
 
     // Create default view
-    const viewId = uuidv7()
-    const viewName = generateViewName(tableName, 'default')
     const viewRecord: CaseViewRecord = {
       id: viewId,
       name: 'Default View',
@@ -397,7 +401,7 @@ export function useTableSchema() {
       tableId,
       isDefault: true,
       entityId: tableData.entityId!,
-      fields: allFields.filter((f) => !f.isHidden).map((f) => f.id!),
+      fields: allFields.map((f) => f.fieldName!),
       createdBy: createdBy || null,
       createdAt: now,
       updatedBy: null,
@@ -428,7 +432,7 @@ export function useTableSchema() {
     )
 
     return {
-      table: tableRecord,
+      table: tableRecord as CaseTableRecord,
       fields: allFields as CaseFieldRecord[],
       view: viewRecord
     }

@@ -58,7 +58,13 @@ const slots = useSlots()
 
 interface Props {
   tableName: string
+  editable: boolean
 }
+
+const props = withDefaults(defineProps<Props>(), {
+  tableName: '',
+  editable: false
+})
 
 const emit = defineEmits<{
   refresh: []
@@ -73,7 +79,7 @@ const emit = defineEmits<{
 const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
 const addColumnPopoverRef = ref()
-const { columns, addColumn, columnGroupRules, gridOptions, gridRef, refreshTableData } = useMDTable({})
+const { columns, addColumn, columnGroupRules, gridOptions, gridRef, refreshTableData, editable, saveColumnOrder } = useMDTable(props)
 
 // 表格事件
 const gridEvents = computed<VxeGridListeners>(() => ({
@@ -82,6 +88,10 @@ const gridEvents = computed<VxeGridListeners>(() => ({
   },
   'cell-click': (params: any) => {
     emit('cell-click', params)
+  },
+  columnDragend({ newColumn, oldColumn, dragPos }) {
+    console.log(`拖拽完成，被拖拽列：${oldColumn.field} 目标列：${newColumn.field} 目标位置：${dragPos}`)
+    saveColumnOrder({ newColumn, oldColumn, dragPos })
   }
 }))
 

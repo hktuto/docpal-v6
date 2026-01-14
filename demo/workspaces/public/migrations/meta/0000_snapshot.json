@@ -1,5 +1,5 @@
 {
-  "id": "39a65791-8bba-488d-af05-a3dc781c4fc9",
+  "id": "62c0112c-a209-4e1a-a47d-56090d1c59e4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -351,6 +351,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "viewName": {
+          "name": "viewName",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
         },
         "entityId": {
           "name": "entityId",

@@ -1,21 +1,24 @@
 // composables/useColumns.ts
 import { ref, type Ref } from 'vue'
 import { ColumnFieldType } from '../types/column-types'
-
+import type { VxeTableDefines } from 'vxe-table'
+export type OrdersParam = {
+  newColumn: VxeTableDefines.ColumnInfo
+  oldColumn: VxeTableDefines.ColumnInfo
+  dragPos: 'left' | 'right'
+}
 export interface ColumnContext {
   getColumn: (field: string) => ColumnConfig | undefined
   getAllColumns: () => Promise<ColumnConfig[]>
   addColumn: (column: ColumnConfig) => Promise<void>
   deleteColumn: (field: string) => Promise<void>
   updateColumn: (field: string, updates: Partial<ColumnConfig>) => Promise<void>
-
-
+  saveColumnOrder: (ordersParam: OrdersParam) => void
   columns: Ref<ColumnConfig[]>
   columnGroupRules: Ref<any[]>
 }
 
-export const ColumnContextKey:InjectionKey<ColumnContext> = Symbol('ColumnContextKey')
-
+export const ColumnContextKey: InjectionKey<ColumnContext> = Symbol('ColumnContextKey')
 
 export interface ColumnConfig {
   id?: string
@@ -39,7 +42,7 @@ export interface ColumnConfig {
   properties?: Record<string, any>
   /** 统计方法 */
   countMethod?: 'sum' | 'max' | 'min' | 'avg' | 'count' | 'empty' | 'filled' | 'unique' | 'emptyPercent' | 'filledPercent' | 'none'
-  
+
   [key: string]: any
 }
 
@@ -83,7 +86,7 @@ const inferColumnsFromData = (data: any[]): ColumnConfig[] => {
 }
 function createMockColumns(tableName: string) {
   const mockColumns = []
-  const names = ['name', 'age', 'gender', 'email', 'phone', 'address', "singleSelect", "multiSelect", 'city', 'state', 'zip', 'country', 'url', 'rate']
+  const names = ['name', 'age', 'gender', 'email', 'phone', 'address', 'singleSelect', 'multiSelect', 'city', 'state', 'zip', 'country', 'url', 'rate']
   for (let i = 0; i < names.length; i++) {
     let type = ColumnFieldType.Text
     let properties = {}
@@ -208,13 +211,12 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
     return [...columns.value]
   }
 
-
   /**
    * 添加列
    * @param column 列配置
    * @returns 是否添加成功
    */
-  const addColumn = async(column: ColumnConfig): Promise<void> => {
+  const addColumn = async (column: ColumnConfig): Promise<void> => {
     // 验证必填字段
     if (!column.field || !column.title) {
       console.error('添加列失败: title 是必填项')
@@ -241,7 +243,6 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
 
     // // 触发回调
     // options?.onColumnAdd?.(newColumn)
-
   }
 
   /**
@@ -249,7 +250,7 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
    * @param field 字段名
    * @returns 是否删除成功
    */
-  const deleteColumn = async(field: string): Promise<void> => {
+  const deleteColumn = async (field: string): Promise<void> => {
     const index = columns.value.findIndex((col) => col.field === field)
 
     if (index === -1) {
@@ -262,7 +263,10 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
 
     // 触发回调
     // options?.onColumnDelete?.(field)
+  }
 
+  function saveColumnOrder(newOrder: OrdersParam) {
+    // TODO: implement
   }
 
   /**
@@ -271,7 +275,7 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
    * @param updates 要更新的列配置
    * @returns 是否更新成功
    */
-  const updateColumn = async(field: string, updates: Partial<ColumnConfig>): Promise<void> => {
+  const updateColumn = async (field: string, updates: Partial<ColumnConfig>): Promise<void> => {
     console.log('updateColumn', field, updates)
     const index = columns.value.findIndex((col) => col.field === field)
 
@@ -288,10 +292,6 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
     console.log('columns', columns.value)
   }
 
-
-
-
-
   onMounted(() => {
     getAllColumns()
   })
@@ -302,8 +302,7 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
     addColumn,
     deleteColumn,
     updateColumn,
-
-
+    saveColumnOrder,
 
     columns,
     columnGroupRules
@@ -325,7 +324,7 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
 
 export const useColumnsContext = () => {
   const columnContext = inject(ColumnContextKey)
-  if(!columnContext) {
+  if (!columnContext) {
     throw new Error('ColumnContext not found')
   }
   return columnContext

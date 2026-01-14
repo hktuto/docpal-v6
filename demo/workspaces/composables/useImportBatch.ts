@@ -23,29 +23,26 @@ interface ImportBatchResult {
 /**
  * Reserved column names that cannot be used as field names
  */
-const RESERVED_COLUMN_NAMES = [
-  'id', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy',
-  'oid', 'tableoid', 'xmin', 'cmin', 'xmax', 'cmax', 'ctid'
-]
+const RESERVED_COLUMN_NAMES = ['id', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'oid', 'tableoid', 'xmin', 'cmin', 'xmax', 'cmax', 'ctid']
 
 /**
  * Generate a field name from a title
  */
 function generateFieldName(title: string): string {
-  let field = title
-    .toLowerCase()
-    .trim()
-    .replace(/[\s\-\.]+/g, '_')
-    .replace(/[^a-z0-9_]/g, '')
-    .replace(/_+/g, '_')
-    .replace(/^_|_$/g, '')
-    .replace(/^(\d)/, 'col_$1')
-    || 'column'
-  
+  let field =
+    title
+      .toLowerCase()
+      .trim()
+      .replace(/[\s\-\.]+/g, '_')
+      .replace(/[^a-z0-9_]/g, '')
+      .replace(/_+/g, '_')
+      .replace(/^_|_$/g, '')
+      .replace(/^(\d)/, 'col_$1') || 'column'
+
   if (RESERVED_COLUMN_NAMES.includes(field)) {
     field = `col_${field}`
   }
-  
+
   return field
 }
 
@@ -55,7 +52,7 @@ function generateFieldName(title: string): string {
 function generateUniqueFieldNames(titles: string[]): string[] {
   const fieldCounts: Record<string, number> = {}
   const fields: string[] = []
-  
+
   for (const title of titles) {
     let baseField = generateFieldName(title)
     if (fieldCounts[baseField] !== undefined) {
@@ -66,77 +63,75 @@ function generateUniqueFieldNames(titles: string[]): string[] {
       fields.push(baseField)
     }
   }
-  
+
   return fields
 }
 
 /**
  * Detect the column type based on cell values
  */
-function detectColumnType(
-  samples: any[]
-): { type: ColumnFieldType; properties: Record<string, any> } {
+function detectColumnType(samples: any[]): { type: ColumnFieldType; properties: Record<string, any> } {
   if (samples.length === 0) {
     return { type: ColumnFieldType.Text, properties: { defaultValue: '' } }
   }
-  
+
   // Check for Date type
-  const dateCount = samples.filter(v => v instanceof Date && !isNaN(v.getTime())).length
+  const dateCount = samples.filter((v) => v instanceof Date && !isNaN(v.getTime())).length
   if (dateCount >= samples.length * 0.8) {
-    return { 
-      type: ColumnFieldType.DateTime, 
-      properties: { 
+    return {
+      type: ColumnFieldType.DateTime,
+      properties: {
         autoFill: false,
         dateFormat: 'YYYY-MM-DD HH:mm:ss',
         timeZone: 'local',
         timeFormat: 24
-      } 
+      }
     }
   }
-  
+
   // Check for Number type
-  const numberCount = samples.filter(v => typeof v === 'number').length
+  const numberCount = samples.filter((v) => typeof v === 'number').length
   if (numberCount >= samples.length * 0.8) {
-    return { 
-      type: ColumnFieldType.Number, 
-      properties: { symbol: '', precision: 2, symbolAlign: 2 } 
+    return {
+      type: ColumnFieldType.Number,
+      properties: { symbol: '', precision: 2, symbolAlign: 2 }
     }
   }
-  
+
   // Check for Boolean type
-  const boolCount = samples.filter(v => typeof v === 'boolean').length
+  const boolCount = samples.filter((v) => typeof v === 'boolean').length
   if (boolCount >= samples.length * 0.8) {
-    return { 
-      type: ColumnFieldType.Checkbox, 
-      properties: { trueIcon: 'check', falseIcon: '' } 
+    return {
+      type: ColumnFieldType.Checkbox,
+      properties: { trueIcon: 'check', falseIcon: '' }
     }
   }
-  
+
   // Check for text patterns
-  const stringValues = samples.filter(v => typeof v === 'string')
+  const stringValues = samples.filter((v) => typeof v === 'string')
   if (stringValues.length > 0) {
     // Check for Email pattern
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    const emailCount = stringValues.filter(v => emailPattern.test(v)).length
+    const emailCount = stringValues.filter((v) => emailPattern.test(v)).length
     if (emailCount >= stringValues.length * 0.8) {
       return { type: ColumnFieldType.Email, properties: {} }
     }
-    
+
     // Check for URL pattern
     const urlPattern = /^https?:\/\//i
-    const urlCount = stringValues.filter(v => urlPattern.test(v)).length
+    const urlCount = stringValues.filter((v) => urlPattern.test(v)).length
     if (urlCount >= stringValues.length * 0.8) {
       return { type: ColumnFieldType.URL, properties: { openInNewTab: true } }
     }
-    
+
     // Check for Phone pattern
     const phonePattern = /^[\+\d\s\-\(\)]{7,}$/
-    const phoneCount = stringValues.filter(v => phonePattern.test(v)).length
+    const phoneCount = stringValues.filter((v) => phonePattern.test(v)).length
     if (phoneCount >= stringValues.length * 0.8) {
       return { type: ColumnFieldType.Phone, properties: { includeCountryCode: false } }
     }
   }
-  
+
   // Default to Text
   return { type: ColumnFieldType.Text, properties: { defaultValue: '' } }
 }
@@ -148,22 +143,22 @@ function cellValueToString(value: any): string {
   if (value === undefined || value === null) {
     return ''
   }
-  
+
   if (value instanceof Date) {
     if (isNaN(value.getTime())) {
       return ''
     }
     return value.toISOString()
   }
-  
+
   if (typeof value === 'number') {
     return String(value)
   }
-  
+
   if (typeof value === 'boolean') {
     return value ? 'true' : 'false'
   }
-  
+
   return String(value)
 }
 
@@ -183,14 +178,10 @@ function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
  * Check if a file is an Excel file
  */
 export function isExcelFile(file: File): boolean {
-  const validTypes = [
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'application/vnd.ms-excel',
-    'text/csv'
-  ]
+  const validTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'text/csv']
   const validExtensions = ['xlsx', 'xls', 'csv']
   const extension = file.name.split('.').pop()?.toLowerCase()
-  
+
   return validTypes.includes(file.type) || validExtensions.includes(extension || '')
 }
 
@@ -257,7 +248,7 @@ export function useImportBatch() {
   function getExistingTableNames(): { names: string[]; slugs: string[] } {
     const names: string[] = []
     const slugs: string[] = []
-    
+
     function collectFromItems(items: any[]) {
       for (const item of items) {
         if (item.itemType === 'table') {
@@ -271,7 +262,7 @@ export function useImportBatch() {
         }
       }
     }
-    
+
     collectFromItems(menuState.value.items)
     return { names, slugs }
   }
@@ -283,12 +274,12 @@ export function useImportBatch() {
     let baseSlug = generateSlug(name)
     let slug = baseSlug
     let counter = 1
-    
+
     while (existingSlugs.includes(slug.toLowerCase())) {
       counter++
       slug = `${baseSlug}-${counter}`
     }
-    
+
     return slug
   }
 
@@ -298,47 +289,46 @@ export function useImportBatch() {
   async function parseExcelFile(file: File, entityId: string): Promise<SheetData[]> {
     const data = await readFileAsArrayBuffer(file)
     const workbook = XLSX.read(data, { type: 'array', cellDates: true })
-    
+
     const sheetNames = workbook.SheetNames || []
     if (sheetNames.length === 0) {
       throw new Error('No sheets found in the file')
     }
-    
+
     const { slugs: existingSlugs } = getExistingTableNames()
     const parsedSheets: SheetData[] = []
     const usedSlugs = [...existingSlugs]
-    
+
     for (const sheetName of sheetNames) {
       const sheet = workbook.Sheets[sheetName]
       const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][]
-      
+
       // Get headers from first row
       const headerRow = jsonData[0] || []
-      const validHeaders = headerRow
-        .filter((h: any) => h !== undefined && h !== null && String(h).trim() !== '')
-        .map((h: any) => String(h).trim())
-      
+      const validHeaders = headerRow.filter((h: any) => h !== undefined && h !== null && String(h).trim() !== '').map((h: any) => String(h).trim())
+
       // Skip sheets with no valid headers
       if (validHeaders.length === 0) {
         continue
       }
-      
+
       // Generate unique field names
       const fieldNames = generateUniqueFieldNames(validHeaders)
-      
+
       // Get data rows (excluding header)
-      const dataRows = jsonData.slice(1).filter((row: any[]) => 
-        row && !row.every((cell: any) => cell === undefined || cell === null || cell === '')
-      )
-      
+      const dataRows = jsonData.slice(1).filter((row: any[]) => row && !row.every((cell: any) => cell === undefined || cell === null || cell === ''))
+
       // Create field definitions with auto-detected types
       const fields: Partial<CaseFieldRecord>[] = validHeaders.map((header, idx) => {
-        const originalIdx = headerRow.findIndex((h: any, i: number) => 
-          h !== undefined && h !== null && String(h).trim() === header && 
-          headerRow.slice(0, i).filter((hh: any) => hh !== undefined && hh !== null && String(hh).trim() === header).length === 
-          validHeaders.slice(0, idx).filter(vh => vh === header).length
+        const originalIdx = headerRow.findIndex(
+          (h: any, i: number) =>
+            h !== undefined &&
+            h !== null &&
+            String(h).trim() === header &&
+            headerRow.slice(0, i).filter((hh: any) => hh !== undefined && hh !== null && String(hh).trim() === header).length ===
+              validHeaders.slice(0, idx).filter((vh) => vh === header).length
         )
-        
+
         // Collect samples for type detection
         const samples: any[] = []
         for (let i = 0; i < Math.min(20, dataRows.length) && samples.length < 10; i++) {
@@ -347,15 +337,15 @@ export function useImportBatch() {
             samples.push(value)
           }
         }
-        
+
         const { type, properties } = detectColumnType(samples)
-        
+
         // Create display structure
         const displayStructure: FieldDisplayStructure = {
           type,
-          properties,
+          properties
         }
-        
+
         return {
           id: uuidv7(),
           fieldName: fieldNames[idx],
@@ -367,10 +357,10 @@ export function useImportBatch() {
           isHidden: false,
           isArray: false,
           isUnique: false,
-          fieldLength: 0,
+          fieldLength: 0
         }
       })
-      
+
       // Parse data rows with proper value conversion
       const rows: Record<string, any>[] = []
       for (let i = 1; i < jsonData.length; i++) {
@@ -378,7 +368,7 @@ export function useImportBatch() {
         if (!rowData || rowData.every((cell: any) => cell === undefined || cell === null || cell === '')) {
           continue
         }
-        
+
         const row: Record<string, any> = {}
         headerRow.forEach((header: any, idx: number) => {
           if (header !== undefined && header !== null && String(header).trim() !== '') {
@@ -388,11 +378,11 @@ export function useImportBatch() {
         })
         rows.push(row)
       }
-      
+
       // Generate unique table slug
       const tableSlug = generateUniqueTableSlug(sheetName, usedSlugs)
       usedSlugs.push(tableSlug.toLowerCase())
-      
+
       parsedSheets.push({
         name: sheetName,
         tableName: sheetName,
@@ -402,42 +392,36 @@ export function useImportBatch() {
         rows
       })
     }
-    
+
     return parsedSheets
   }
 
   /**
    * Import Excel file directly without dialog
    */
-  async function importExcelFile(
-    file: File, 
-    entityId: string, 
-    parentFolderId?: string | null
-  ): Promise<ImportBatchResult> {
+  async function importExcelFile(file: File, entityId: string, parentFolderId?: string | null): Promise<ImportBatchResult> {
     // Validate file type
     if (!isExcelFile(file)) {
       ElMessage.error('Please drop an Excel file (.xlsx, .xls) or CSV file (.csv)')
       return { success: false, error: 'Invalid file type' }
     }
-    
+
     try {
       // Parse the Excel file
       const sheets = await parseExcelFile(file, entityId)
-      
+
       if (sheets.length === 0) {
         ElMessage.warning('No valid sheets found in the file')
         return { success: false, error: 'No valid sheets found' }
       }
-      
+
       // Check for duplicate table names
       const { names: existingNames } = getExistingTableNames()
-      const duplicates = sheets
-        .map(s => s.tableName.toLowerCase())
-        .filter(name => existingNames.includes(name))
-      
+      const duplicates = sheets.map((s) => s.tableName.toLowerCase()).filter((name) => existingNames.includes(name))
+
       if (duplicates.length > 0) {
         const duplicateList = [...new Set(duplicates)].join(', ')
-        
+
         try {
           await ElMessageBox.confirm(
             `The following sheet names already exist as tables: ${duplicateList}. These sheets will be skipped. Continue importing the remaining sheets?`,
@@ -451,22 +435,19 @@ export function useImportBatch() {
         } catch {
           return { success: false, duplicates: [...new Set(duplicates)], error: 'User cancelled due to duplicates' }
         }
-        
+
         // Filter out duplicate sheets
-        const filteredSheets = sheets.filter(
-          s => !existingNames.includes(s.tableName.toLowerCase())
-        )
-        
+        const filteredSheets = sheets.filter((s) => !existingNames.includes(s.tableName.toLowerCase()))
+
         if (filteredSheets.length === 0) {
           ElMessage.warning('All sheets have duplicate names. No tables to import.')
           return { success: false, duplicates: [...new Set(duplicates)], error: 'All sheets are duplicates' }
         }
-        
+
         return await createTablesFromSheets(filteredSheets, entityId, parentFolderId, file.name)
       }
-      
+
       return await createTablesFromSheets(sheets, entityId, parentFolderId, file.name)
-      
     } catch (error: any) {
       console.error('Error importing Excel file:', error)
       ElMessage.error(error.message || 'Failed to import Excel file')
@@ -484,12 +465,12 @@ export function useImportBatch() {
     fileName: string
   ): Promise<ImportBatchResult> {
     const createdTables: { id: string; name: string; physicalTableName: string; fields: any[]; rows: any[] }[] = []
-    
+
     try {
       // Phase 1: Create tables, fields, views
       for (const sheet of sheets) {
         const tableId = uuidv7()
-        
+
         // Create the case table structure
         const result = await createCaseTable(
           {
@@ -501,7 +482,7 @@ export function useImportBatch() {
           sheet.fields,
           undefined
         )
-        
+
         // Create tree item
         const treeItem: Partial<CaseTreeRecord> = {
           id: uuidv7(),
@@ -511,12 +492,12 @@ export function useImportBatch() {
           itemType: 'table',
           itemId: tableId,
           parentId: parentFolderId || null,
-          order: 0,
+          order: 0
         }
-        
+
         // Save tree item to database
         await saveMenuItemToDb(treeItem)
-        
+
         // Add to local menu state
         if (parentFolderId) {
           const parentFolder = findItemById(menuState.value.items, parentFolderId)
@@ -531,46 +512,45 @@ export function useImportBatch() {
         } else {
           menuState.value.items.push(treeItem as any)
         }
-        
-        createdTables.push({ 
-          id: tableId, 
+
+        createdTables.push({
+          id: tableId,
           name: sheet.tableName,
           physicalTableName: result.table.tableName,
           fields: result.fields,
           rows: sheet.rows
         })
       }
-      
+
       // Show success message
       const tableCount = createdTables.length
       const rowCount = createdTables.reduce((sum, t) => sum + t.rows.length, 0)
-      
+
       if (rowCount > 0) {
         ElMessage.success(`${tableCount} table(s) created. Importing ${rowCount} rows in background...`)
       } else {
         ElMessage.success(`${tableCount} table(s) created successfully!`)
       }
-      
+
       // Phase 2: Queue row imports for background processing
       if (rowCount > 0) {
         const importJobs = createdTables
-          .filter(t => t.rows.length > 0)
-          .map(t => ({
+          .filter((t) => t.rows.length > 0)
+          .map((t) => ({
             tableName: t.id,
             tableDisplayName: t.name,
             physicalTableName: t.physicalTableName,
             columns: t.fields,
             rows: t.rows
           }))
-        
+
         queueImportJobs(importJobs)
       }
-      
+
       return {
         success: true,
-        tablesCreated: createdTables.map(t => ({ id: t.id, name: t.name }))
+        tablesCreated: createdTables.map((t) => ({ id: t.id, name: t.name }))
       }
-      
     } catch (error: any) {
       console.error('Error creating tables:', error)
       ElMessage.error('Failed to create tables. Please try again.')

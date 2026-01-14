@@ -12,7 +12,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   workspaceId: '',
   initialMenu: [] as any,
-  isAdmin: true,
+  isAdmin: true
 })
 
 const { menuState: state, addItem, saveMenuToDb, getMenuFromDb, workspace } = useSingleWorkspaceContext()
@@ -23,10 +23,10 @@ const isDraggingOver = ref(false)
 
 function handleDragOver(event: DragEvent) {
   if (!props.isAdmin) return
-  
+
   event.preventDefault()
   event.stopPropagation()
-  
+
   // Check if dragging files
   if (event.dataTransfer?.types.includes('Files')) {
     isDraggingOver.value = true
@@ -37,27 +37,21 @@ function handleDragOver(event: DragEvent) {
 function handleDragLeave(event: DragEvent) {
   event.preventDefault()
   event.stopPropagation()
-  
-  // Only set to false if leaving the container entirely
-  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
-  const x = event.clientX
-  const y = event.clientY
-  
-  if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
-    isDraggingOver.value = false
-  }
+
+  // Reset drag state when leaving
+  isDraggingOver.value = false
 }
 
 async function handleDrop(event: DragEvent) {
   event.preventDefault()
   event.stopPropagation()
   isDraggingOver.value = false
-  
+
   if (!props.isAdmin) return
-  
+
   const files = event.dataTransfer?.files
   if (!files || files.length === 0) return
-  
+
   // Find Excel files
   const excelFile = Array.from(files).find(isExcelFile)
   if (excelFile && workspace.value?.id) {
@@ -75,8 +69,6 @@ async function handleFolderDrop(folderId: string, file: File) {
 // Expose for child components
 provide('handleFolderDrop', handleFolderDrop)
 provide('isExcelFile', isExcelFile)
-
-
 
 const { saveMenuItemToDb } = useSingleWorkspaceContext()
 
@@ -100,7 +92,7 @@ function flattenTree(items: TreeItem[], parentId: string | null = null): Partial
       itemType: item.itemType,
       itemId: item.itemId,
       parentId: parentId,
-      order: index,
+      order: index
     })
     if (item.children && item.children.length > 0) {
       result.push(...flattenTree(item.children, item.id))
@@ -114,18 +106,18 @@ function updateOrderNumbers(items: TreeItem[]): TreeItem[] {
   return items.map((item, index) => ({
     ...item,
     order: index,
-    children: item.children ? updateOrderNumbers(item.children) : undefined,
+    children: item.children ? updateOrderNumbers(item.children) : undefined
   }))
 }
 
 // Handle menu changes from draggable list (v-model update)
 async function handleMenuChange(newItems: TreeItem[]) {
   console.log('[Menu] Menu changed from drag:', newItems.length, 'items')
-  
+
   // Update order numbers
   const orderedMenu = updateOrderNumbers(newItems)
   state.value.items = orderedMenu
-  
+
   // Debounced save to server
   debouncedSave(orderedMenu)
 }
@@ -136,13 +128,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div 
-    class="workspace-menu"
-    :class="{ 'is-drag-over': isDraggingOver }"
-    @dragover="handleDragOver"
-    @dragleave="handleDragLeave"
-    @drop="handleDrop"
-  >
+  <div class="workspace-menu" :class="{ 'is-drag-over': isDraggingOver }" @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop">
     <!-- Drop Overlay -->
     <Transition name="fade">
       <div v-if="isDraggingOver && isAdmin" class="drop-overlay">
@@ -154,7 +140,7 @@ onMounted(async () => {
     </Transition>
 
     <!-- Menu Content -->
-    <div class="menu-content">
+    <div class="menu-content" :class="{ 'is-hidden': isDraggingOver && isAdmin }">
       <!-- Empty State -->
       <div v-if="state.items.length === 0" class="empty-state">
         <Icon name="material-symbols:folder-open-outline" size="48" />
@@ -165,17 +151,10 @@ onMounted(async () => {
       </div>
 
       <!-- Draggable Menu Items -->
-      <WorkspacesMenuDraggableList
-        v-else
-        v-model="state.items"
-        :level="0"
-        :parent-id="null"
-        :is-admin="isAdmin"
-        @update:model-value="handleMenuChange"
-      />
+      <WorkspacesMenuDraggableList v-else v-model="state.items" :level="0" :parent-id="null" :is-admin="isAdmin" @update:model-value="handleMenuChange" />
     </div>
 
-    <slot/>
+    <slot />
   </div>
 </template>
 
@@ -185,7 +164,6 @@ onMounted(async () => {
   flex-direction: column;
   flex: 1 0 auto;
   position: relative;
-
 }
 
 .drop-overlay {
@@ -207,7 +185,7 @@ onMounted(async () => {
   align-items: center;
   gap: var(--app-space-s);
   color: var(--el-color-primary);
-  
+
   p {
     margin: 0;
     font-size: var(--app-font-size-m);
@@ -243,6 +221,11 @@ onMounted(async () => {
   flex: 1;
   overflow-y: auto;
   padding: var(--app-space-s);
+
+  &.is-hidden {
+    opacity: 0.3;
+    pointer-events: none;
+  }
 }
 
 .empty-state {
