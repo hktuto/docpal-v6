@@ -1,6 +1,4 @@
 <script setup lang="ts">
-
-
 const props = defineProps<{
   isAdmin: boolean
 }>()
@@ -26,19 +24,14 @@ function handleDescriptionSave(description: string) {
   workspace.value.description = description
   saveWorkspaceToDb()
 }
-
-
 </script>
 
 <template>
   <div class="rootDetailContainer">
-    <UiIconPicker :style="{'--icon-size': 'var(--app-font-size-xxl)'}" :modelValue="workspace?.icon || ''" @update:modelValue="handleIconSelected" />
-    <UiInlineEditor
-      :model-value="workspace?.name || ''"
-      wrapper="h1"
-      :editable="isAdmin"
-      @save="handleLabelSave"
-    />
+    <UiIconPicker :style="{ '--icon-size': 'var(--app-font-size-xxl)' }" :modelValue="workspace?.icon || ''" @update:modelValue="handleIconSelected">
+      {{ workspace?.name.slice(0, 1).toUpperCase() }}
+    </UiIconPicker>
+    <UiInlineEditor :model-value="workspace?.name || ''" wrapper="h1" :editable="isAdmin" @save="handleLabelSave" />
     <UiInlineEditor
       :model-value="workspace?.description || ''"
       wrapper="p"
@@ -47,9 +40,7 @@ function handleDescriptionSave(description: string) {
       placeholder="No description. Double-click to add one."
       @save="handleDescriptionSave"
     />
-    <WorkspacesMenuChildrenGrid
-      :children="menuState.items || []"
-    />
+    <WorkspacesMenuChildrenGrid :children="menuState.items || []" />
   </div>
 </template>
 
