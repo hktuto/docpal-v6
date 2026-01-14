@@ -231,7 +231,11 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         console.warn('childApiMethod is not defined')
         return []
       }
-      return childApiMethod(params)
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(childApiMethod(params))
+        }, 100)
+      })
     } catch (error) {
       console.error('treeLoadData error:', error)
       return []

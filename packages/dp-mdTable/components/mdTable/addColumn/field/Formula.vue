@@ -3,7 +3,7 @@
     <el-form-item label="Formula">
       <el-input v-model="formData.formula" @click="handleFormulaClick" />
     </el-form-item>
-    <!-- <MdTableAddColumnFieldFormulaDialog v-model="dialogVisible" :formData="formData" @confirm="handleFormulaConfirm" /> -->
+    <ToolsFormulaEditorDialog v-model="dialogVisible" :formData="formData" @confirm="handleFormulaConfirm" />
   </div>
 </template>
 
@@ -24,6 +24,6 @@ function handleFormulaClick() {
   dialogVisible.value = true
 }
 function handleFormulaConfirm(formula: string) {
-  console.log('handleFormulaConfirm', formula)
+  props.formData.formula = formula
 }
 </script>
