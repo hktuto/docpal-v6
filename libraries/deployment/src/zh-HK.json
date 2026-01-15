@@ -2243,6 +2243,27 @@
     "table": "表格"
   },
   "mdTable": {
+    "formulaEditor": {
+      "inputLabel": "請輸入公式",
+      "inputPlaceholder": "請輸入公式, 例如: IF({field1} > 100, 'High', 'Low')",
+      "sidebarTitle": "選擇字段或函數",
+      "emptyText": "請選擇函數或變量以查看詳情",
+      "description": "描述",
+      "usage": "用法",
+      "params": "參數",
+      "example": "例子",
+      "category": {
+        "variable": "變量",
+        "text": "文本函數",
+        "number": "數字函數",
+        "date": "日期函數",
+        "logical": "邏輯函數"
+      },
+      "learnMore": "了解更多",
+      "variableDescription": "變量: {label}",
+      "unrecognizedVariable": "未識別{0}",
+      "missingOperator": "變量或函數之間缺少運算符"
+    },
     "countMethod": {
       "statistics": "統計",
       "none": "不展示",

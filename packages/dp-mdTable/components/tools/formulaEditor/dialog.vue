@@ -1,15 +1,15 @@
 <template>
-  <el-dialog v-model="dialogVisible" title="配置公式" width="900px" :close-on-click-modal="false" @close="handleClose">
+  <el-dialog v-model="dialogVisible" :title="t('mdTable.formulaEditor.dialogTitle')" width="900px" :close-on-click-modal="false" @close="handleClose">
     <div class="formula-dialog"></div>
     <ToolsFormulaEditor v-model="formulaText" ref="formulaEditorRef" :variables="variables" />
     <template #footer>
       <div class="dialog-footer">
         <div class="help-link">
-          <a href="https://www.google.com" target="_blank">学习更多公式使用技巧</a>
+          <a href="https://www.google.com" target="_blank">{{ t('mdTable.formulaEditor.learnMore') }}</a>
         </div>
         <div>
-          <el-button @click="handleClose">取消</el-button>
-          <el-button type="primary" @click="handleConfirm">确定</el-button>
+          <el-button @click="handleClose">{{ t('dpButtom_cancel') }}</el-button>
+          <el-button type="primary" @click="handleConfirm">{{ t('dpButtom_confirm') }}</el-button>
         </div>
       </div>
     </template>
@@ -18,6 +18,8 @@
 
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
+
+const { t } = useI18n();
 interface Props {
   modelValue: boolean
   formData: any
@@ -48,7 +50,7 @@ function handleConfirm() {
     emit('confirm', formulaText.value)
     handleClose()
   } else {
-    ElMessage.error('公式格式不正确')
+    ElMessage.error(t('mdTable.formulaEditor.invalidFormula'))
   }
 }
 

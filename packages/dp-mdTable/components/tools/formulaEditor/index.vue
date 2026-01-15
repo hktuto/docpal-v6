@@ -2,13 +2,13 @@
   <div class="formula-editor">
     <!-- 顶部输入框 -->
     <div class="formula-input-section">
-      <div class="input-label">请输入公式</div>
+      <div class="input-label">{{ t('mdTable.formulaEditor.inputLabel') }}</div>
       <el-input
         ref="formulaInputRef"
         v-model="formulaText"
         type="textarea"
         :rows="3"
-        placeholder="请输入公式，例如：IF({字段1} > 100, '高', '低')"
+        :placeholder="t('mdTable.formulaEditor.inputPlaceholder')"
         class="formula-input"
         @input="handleFormulaInput"
       />
@@ -21,13 +21,9 @@
     <div class="formula-content">
       <!-- 左侧选择列表 -->
       <div class="formula-sidebar">
-        <div class="sidebar-title">选择维格列或函数</div>
+        <div class="sidebar-title">{{ t('mdTable.formulaEditor.sidebarTitle') }}</div>
 
-        <div
-          v-for="category in categoryList"
-          :key="category.type"
-          class="category-section"
-        >
+        <div v-for="category in categoryList" :key="category.type" class="category-section">
           <div class="category-title">{{ category.title }}</div>
           <div class="item-list">
             <div
@@ -40,7 +36,6 @@
             </div>
           </div>
         </div>
-
       </div>
 
       <!-- 右侧详情区域 -->
@@ -51,13 +46,13 @@
 
           <!-- 描述 -->
           <div class="detail-section">
-            <div class="section-label">描述</div>
+            <div class="section-label">{{ t('mdTable.formulaEditor.description') }}</div>
             <div class="section-content">{{ selectedItem.description }}</div>
           </div>
 
           <!-- 用法 -->
           <div class="detail-section">
-            <div class="section-label">用法</div>
+            <div class="section-label">{{ t('mdTable.formulaEditor.usage') }}</div>
             <div class="section-content">
               <code class="usage-code">{{ selectedItem.usage }}</code>
             </div>
@@ -65,7 +60,7 @@
 
           <!-- 参数说明 -->
           <div v-if="selectedItem.params && selectedItem.params.length > 0" class="detail-section">
-            <div class="section-label">参数</div>
+            <div class="section-label">{{ t('mdTable.formulaEditor.params') }}</div>
             <div class="section-content">
               <div v-for="(param, index) in selectedItem.params" :key="index" class="param-item">
                 <code class="param-name">{{ param.name }}</code>
@@ -76,14 +71,14 @@
 
           <!-- 例子 -->
           <div v-if="selectedItem.example" class="detail-section">
-            <div class="section-label">举个例子</div>
+            <div class="section-label">{{ t('mdTable.formulaEditor.example') }}</div>
             <div class="section-content">
               <code class="example-code">{{ selectedItem.example }}</code>
             </div>
           </div>
         </div>
         <div v-else class="detail-empty">
-          <div class="empty-text">请从左侧选择一个函数或变量查看详情</div>
+          <div class="empty-text">{{ t('mdTable.formulaEditor.emptyText') }}</div>
         </div>
       </div>
     </div>
@@ -91,101 +86,103 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue';
-import { textFunctions, numberFunctions, dateFunctions, logicalFunctions } from './formulaHelper';
-import { validateFormula, type ValidateResult } from './formulaValid';
+import { ref, computed, nextTick } from 'vue'
+import { textFunctions, numberFunctions, dateFunctions, logicalFunctions } from './formulaHelper'
+import { validateFormula, type ValidateResult } from './formulaValid'
+
+const { t } = useI18n()
 interface Variable {
-  label: string;
-  value: string;
+  label: string
+  value: string
 }
 
 interface SelectedItem {
-  type: 'variable' | 'text' | 'number' | 'date' | 'logical';
-  name?: string;
-  label?: string;
-  value?: string;
-  description?: string;
-  usage?: string;
+  type: 'variable' | 'text' | 'number' | 'date' | 'logical'
+  name?: string
+  label?: string
+  value?: string
+  description?: string
+  usage?: string
   params?: Array<{
-    name: string;
-    description: string;
-  }>;
-  example?: string;
+    name: string
+    description: string
+  }>
+  example?: string
 }
 
 interface Category {
-  type: 'variable' | 'text' | 'number' | 'date' | 'logical';
-  title: string;
-  items: Array<Variable | any>;
+  type: 'variable' | 'text' | 'number' | 'date' | 'logical'
+  title: string
+  items: Array<Variable | any>
 }
 
 interface Props {
-  modelValue: string;
-  variables?: Variable[];
+  modelValue: string
+  variables?: Variable[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: '',
   variables: () => []
-});
+})
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string];
-}>();
+  'update:modelValue': [value: string]
+}>()
 
 const formulaText = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value)
-});
-const formulaValidateResult = ref<ValidateResult | null>(null);
-const formulaInputRef = ref();
-const selectedItem = ref<SelectedItem | null>(null);
+})
+const formulaValidateResult = ref<ValidateResult | null>(null)
+const formulaInputRef = ref()
+const selectedItem = ref<SelectedItem | null>(null)
 
 // 获取变量列表
-const variables = computed(() => props.variables || []);
+const variables = computed(() => props.variables || [])
 
 // 分类列表
 const categoryList = computed<Category[]>(() => [
   {
     type: 'variable',
-    title: '变量',
+    title: 'Variables',
     items: variables.value
   },
   {
     type: 'text',
-    title: '文本函数',
+    title: 'Text Functions',
     items: textFunctions
   },
   {
     type: 'number',
-    title: '数值函数',
+    title: 'Number Functions',
     items: numberFunctions
   },
   {
     type: 'date',
-    title: '日期函数',
+    title: 'Date Functions',
     items: dateFunctions
   },
   {
     type: 'logical',
-    title: '逻辑函数',
+    title: 'Logical Functions',
     items: logicalFunctions
   }
-]);
+])
 
 // 判断项目是否激活
 function isItemActive(type: string, item: any): boolean {
   if (type === 'variable') {
-    return selectedItem.value?.type === 'variable' && selectedItem.value?.value === item.value;
+    return selectedItem.value?.type === 'variable' && selectedItem.value?.value === item.value
   } else {
-    return selectedItem.value?.type === type && selectedItem.value?.name === item.name;
+    return selectedItem.value?.type === type && selectedItem.value?.name === item.name
   }
 }
 
 // 处理公式输入变化
 function handleFormulaInput() {
   nextTick(() => {
-    formulaValidateResult.value = validateFormula(formulaText.value, variables.value);
+    formulaValidateResult.value = validateFormula(formulaText.value, variables.value)
   })
 }
 
@@ -196,12 +193,13 @@ function selectItem(type: 'variable' | 'text' | 'number' | 'date' | 'logical', i
       type: 'variable',
       label: item.label,
       value: item.value,
-      description: `变量：${item.label}`,
+
+      description: `Variable: ${item.label}`,
       usage: `{${item.value}}`
-    };
+    }
     // 插入变量到公式，光标在 } 右侧
-    const variableText = `{${item.value}}`;
-    insertToFormula(variableText, variableText.length);
+    const variableText = `{${item.value}}`
+    insertToFormula(variableText, variableText.length)
   } else {
     selectedItem.value = {
       type,
@@ -210,12 +208,12 @@ function selectItem(type: 'variable' | 'text' | 'number' | 'date' | 'logical', i
       usage: item.usage,
       params: item.params,
       example: item.example
-    };
+    }
     // 插入函数到公式，需要插入函数名 + ( + )，光标在 ( 和 ) 之间
-    const functionName = item.usage.split('(')[0];
-    const functionText = `${functionName}()`;
+    const functionName = item.usage.split('(')[0]
+    const functionText = `${functionName}()`
     // 光标应该在 ( 后面，也就是 functionName.length + 1 的位置
-    insertToFormula(functionText, functionName.length + 1);
+    insertToFormula(functionText, functionName.length + 1)
   }
 }
 
@@ -223,34 +221,34 @@ function selectItem(type: 'variable' | 'text' | 'number' | 'date' | 'logical', i
 // @param text - 要插入的文本
 // @param cursorOffset - 光标偏移量，相对于插入文本开始位置的偏移（默认在文本末尾）
 function insertToFormula(text: string, cursorOffset?: number) {
-  const inputComponent = formulaInputRef.value;
+  const inputComponent = formulaInputRef.value
   if (inputComponent) {
-    const textarea = inputComponent.$el?.querySelector('textarea') as HTMLTextAreaElement;
+    const textarea = inputComponent.$el?.querySelector('textarea') as HTMLTextAreaElement
     if (textarea) {
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const currentText = formulaText.value || '';
-      const newText = currentText.substring(0, start) + text + currentText.substring(end);
-      formulaText.value = newText;
+      const start = textarea.selectionStart
+      const end = textarea.selectionEnd
+      const currentText = formulaText.value || ''
+      const newText = currentText.substring(0, start) + text + currentText.substring(end)
+      formulaText.value = newText
       // 设置光标位置
       // 如果没有指定 cursorOffset，默认在文本末尾
-      const finalCursorPosition = start + (cursorOffset !== undefined ? cursorOffset : text.length);
+      const finalCursorPosition = start + (cursorOffset !== undefined ? cursorOffset : text.length)
       nextTick(() => {
-        textarea.focus();
-        textarea.setSelectionRange(finalCursorPosition, finalCursorPosition);
+        textarea.focus()
+        textarea.setSelectionRange(finalCursorPosition, finalCursorPosition)
         handleFormulaInput()
-      });
-      return;
+      })
+      return
     }
   }
   // 如果无法获取 textarea，直接追加到末尾
-  formulaText.value = (formulaText.value || '') + text;
+  formulaText.value = (formulaText.value || '') + text
   handleFormulaInput()
 }
 function checkFormulaValid() {
-  return formulaValidateResult.value?.valid;
+  return formulaValidateResult.value?.valid
 }
-defineExpose({ checkFormulaValid });
+defineExpose({ checkFormulaValid })
 </script>
 
 <style scoped lang="scss">

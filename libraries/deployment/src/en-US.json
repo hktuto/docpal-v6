@@ -2246,6 +2246,27 @@
     "table": "Table"
   },
   "mdTable": {
+    "formulaEditor": {
+      "inputLabel": "Please enter the formula",
+      "inputPlaceholder": "Please enter the formula, for example: IF({field1} > 100, 'High', 'Low')",
+      "sidebarTitle": "Select a field or function",
+      "emptyText": "Please select a function or variable to view details",
+      "description": "Description",
+      "usage": "Usage",
+      "params": "Parameters",
+      "example": "Example",
+      "category": {
+        "variable": "Variables",
+        "text": "Text Functions",
+        "number": "Number Functions",
+        "date": "Date Functions",
+        "logical": "Logical Functions"
+      },
+      "learnMore": "Learn More",
+      "variableDescription": "Variable: {label}",
+      "unrecognizedVariable": "Unrecognized variable {0}",
+      "missingOperator": "Missing operator between variables or functions"
+    },
     "countMethod": {
       "statistics": "Statistics",
       "none": "Don't Show",

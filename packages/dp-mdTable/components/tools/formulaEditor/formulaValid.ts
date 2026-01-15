@@ -98,7 +98,15 @@ interface Element {
  */
 function validateVariable(variableValue: string, validVariableValues: Set<string>): string | null {
   if (validVariableValues.size > 0 && !validVariableValues.has(variableValue)) {
-    return `未识别{${variableValue}}`
+    try {
+      const i18n = useNuxtApp().$i18n as any
+      const translated = i18n.t('mdTable.formulaEditor.unrecognizedVariable', `{${variableValue}}`)
+      // 如果翻译函数没有自动替换占位符，手动替换
+      return translated.includes('{0}') ? translated.replace('{0}', `{${variableValue}}`) : translated
+    } catch (e) {
+      // 如果 i18n 不可用，使用默认中文消息
+      return `未识别{${variableValue}}`
+    }
   }
   return null
 }
@@ -175,7 +183,14 @@ function validateBetweenElements(current: Element, next: Element, formulaNoSpace
 
   // 如果直接相邻或之间没有运算符，则校验失败
   if (betweenNoSpace.length === 0 || !hasOperator(betweenNoSpace)) {
-    return '变量或函数之间缺少运算符'
+    try {
+      const i18n = useNuxtApp().$i18n as any
+      return i18n.t('mdTable.formulaEditor.missingOperator')
+    } catch (e) {
+      console.error(e)
+      // 如果 i18n 不可用，使用默认中文消息
+      return '变量或函数之间缺少运算符'
+    }
   }
 
   return null

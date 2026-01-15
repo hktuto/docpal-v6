@@ -2245,6 +2245,27 @@
     "table": "表格"
   },
   "mdTable": {
+    "formulaEditor": {
+      "inputLabel": "请输入公式",
+      "inputPlaceholder": "请输入公式, 例如: IF({field1} > 100, 'High', 'Low')",
+      "sidebarTitle": "选择字段或函数",
+      "emptyText": "请选择函数或变量以查看详情",
+      "description": "描述",
+      "usage": "用法",
+      "params": "参数",
+      "example": "例子",
+      "category": {
+        "variable": "变量",
+        "text": "文本函数",
+        "number": "数字函数",
+        "date": "日期函数",
+        "logical": "逻辑函数"
+      },
+      "learnMore": "了解更多",
+      "variableDescription": "变量: {label}",
+      "unrecognizedVariable": "未识别{0}",
+      "missingOperator": "变量或函数之间缺少运算符"
+    },
     "countMethod": {
       "statistics": "统计",
       "none": "不展示",
