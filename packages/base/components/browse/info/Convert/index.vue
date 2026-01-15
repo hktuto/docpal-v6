@@ -59,7 +59,7 @@ async function handleDownload(row) {
     position: 'bottom-right'
   })
   try {
-    const response = (await clientApi.api.postNuxeoConversionDownloadfile([row.documentPath], {
+    const response = (await clientApi.api.postDmsConversionFormatDownload([row.documentPath], {
       format: 'blob'
     })) as any
     const blobStream = new Blob([response], { type: 'application/octet-stream' })
@@ -74,7 +74,7 @@ async function handleDownload(row) {
 const handleGetConversionHistory = async () => {
   refreshLoading.value = true
   timeStamp.value = new Date()
-  tableList.value = (await clientApi.api.getNuxeoConversionGetconversionhistory({ idOrPath: props.doc.id }).then((res) => res.data)) as any
+  tableList.value = (await clientApi.api.getDmsConversionList({ idOrPath: props.doc.id }).then((res) => res.data)) as any
   setTimeout(() => {
     refreshLoading.value = false
   }, 300)

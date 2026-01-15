@@ -122,7 +122,7 @@ export async function login() {
   try {
     // get access token from local storage
     const storageToken = localStorage.getItem('access_token')
-    console.log('useAuth',storageToken)
+    console.log('useAuth', storageToken)
     if (!storageToken) {
       throw new Error('access token not found')
     }
@@ -300,7 +300,7 @@ async function getUser() {
   const user = useUserState()
   const userId = useUserId()
   const userRole = useUserRole()
-  const { data } = (await clientApi.api.getDmsUserGetapplication()) as any
+  const data: any = await clientApi.api.getDmsUserGetapplication().then(r => r.data)
   userId.value = data.userId
   userRole.value = data.aclUserDetail?.roleId
   localStorage.setItem('docpal-user', JSON.stringify(data))
