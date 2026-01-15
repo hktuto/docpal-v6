@@ -74,6 +74,13 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
+          <el-popover width="300" title="Warning" content="An excessively long path may prevent normal access!" placement="top">
+            <template #reference>
+              <el-icon style="cursor: pointer; color: #909399;">
+                <QuestionFilled />
+              </el-icon>
+            </template>
+          </el-popover>
         </el-form-item>
         <el-form-item :label="$t('externalStorage.fileName')" prop="file_name">
           <el-input class="fileName" v-model="form.file_name" ref="fileNameInput" />
@@ -85,6 +92,13 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
+          <el-popover width="300" title="Warning" content="An excessively long File Name may prevent normal access!" placement="top">
+            <template #reference>
+              <el-icon style="cursor: pointer; color: #909399;">
+                <QuestionFilled />
+              </el-icon>
+            </template>
+          </el-popover>
         </el-form-item>
       </template>
       <template v-else>
@@ -112,6 +126,7 @@
 <script lang="ts" setup>
 import { ref, reactive } from 'vue'
 import { adminApi } from 'api'
+import { QuestionFilled } from '@element-plus/icons-vue'
 const props = defineProps({
   storageId: String,
   id: String,
@@ -247,8 +262,7 @@ async function save() {
     await formRef.value.validate()
     const _params = getParams()
     if (form.value.workflow) {
-      const workflowMapping = WorkflowVariableMappingRef.value.getData()
-      _params.workflow_mapping = workflowMapping
+      _params.workflow_mapping = WorkflowVariableMappingRef.value.getData()
     }
     if (isEdit.value) {
       await adminApi.api.patchExternalstorageProfilesProfileidOutputrecordOutputrecordid(props.id as string, setting.value.id, _params)
