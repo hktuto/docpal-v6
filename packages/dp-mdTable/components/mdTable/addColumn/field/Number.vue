@@ -48,8 +48,9 @@
 const props = defineProps<{
   formData: any
 }>()
-function getPrecisionOptions(value: 'number' = 0) {
-  const decimalPart = '0'.repeat(value - 1)
+function getPrecisionOptions(value: number = 0) {
+  console.log('getPrecisionOptions', value)
+  const decimalPart = '0'.repeat(value)
   const _decimalPart = decimalPart.length > 0 ? '.' + decimalPart : ''
   const showThouComma = props.formData.showThouComma || false
   return showThouComma ? '1,000' + _decimalPart : '1' + _decimalPart

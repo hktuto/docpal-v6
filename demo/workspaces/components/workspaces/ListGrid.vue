@@ -10,7 +10,7 @@ const { workspaces, loading, getWorkspaces, searchWorkspaces, clearAllWorkspaces
 
 // Grid container ref and responsive columns
 const gridContainerRef = ref<HTMLElement>()
-const { columnCount } = useGridColumns(gridContainerRef, {
+const { columnCount, columnWidthPerScreen } = useGridColumns(gridContainerRef, {
   minColumnWidth: 260,
   minColumns: 1,
   maxColumns: 6,
@@ -151,7 +151,7 @@ onMounted(() => {
         <template #default="{ items, keyword }">
           <template v-if="viewMode === 'grid'">
             <div ref="gridContainerRef" style="height: 100%; width: 100%">
-              <VirtGrid ref="virtGridRef" :list="items" :buffer="10" itemPreSize="120px" :gridItems="columnCount">
+              <VirtGrid ref="virtGridRef" :list="items" :buffer="10" :gridItems="columnCount" :style="`--list-card-width:${columnWidthPerScreen}`">
                 <template #default="{ itemData, index, rowIndex }">
                   <WorkspacesListCard :workspace="itemData" :keyword="keyword" @selected="handleWorkspaceSelected" @delete="handleWorkspaceDelete" />
                 </template>

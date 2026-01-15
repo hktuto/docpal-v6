@@ -25,14 +25,16 @@ const emit = defineEmits<{
 
 const wrapperRef = ref<HTMLElement>()
 const inputRef = ref<HTMLInputElement | HTMLTextAreaElement>()
+
 const internalEditing = ref(false)
 const localValue = ref(props.modelValue)
 const isCancelling = ref(false)
 const inputStyles = ref<Record<string, string>>({})
+const containerStyle = ref<Record<string, string>>({})
 
 // Computed to handle both controlled and uncontrolled modes
 const isEditing = computed({
-  get: () => props.editing !== undefined ? props.editing : internalEditing.value,
+  get: () => (props.editing !== undefined ? props.editing : internalEditing.value),
   set: (val: boolean) => {
     if (props.editing !== undefined) {
       emit('update:editing', val)
@@ -43,20 +45,26 @@ const isEditing = computed({
 })
 
 // Sync localValue when modelValue changes externally
-watch(() => props.modelValue, (newVal) => {
-  if (!isEditing.value) {
-    localValue.value = newVal
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    if (!isEditing.value) {
+      localValue.value = newVal
+    }
   }
-})
+)
 
 // Watch for external editing changes (controlled mode)
-watch(() => props.editing, (newVal) => {
-  if (newVal === true) {
-    captureWrapperStyles()
-    localValue.value = props.modelValue
-    isCancelling.value = false
+watch(
+  () => props.editing,
+  (newVal) => {
+    if (newVal === true) {
+      captureWrapperStyles()
+      localValue.value = props.modelValue
+      isCancelling.value = false
+    }
   }
-})
+)
 
 // Watch for input becoming available and focus it
 watch(inputRef, (newRef) => {
@@ -80,14 +88,20 @@ function captureWrapperStyles() {
       lineHeight: computed.lineHeight,
       color: computed.color,
       fontFamily: computed.fontFamily,
-      letterSpacing: computed.letterSpacing
+      letterSpacing: computed.letterSpacing,
+      padding: computed.padding,
+      border: computed.border
+    }
+    containerStyle.value = {
+      margin: computed.margin,
+      padding: computed.padding
     }
   }
 }
 
 function startEditing() {
   if (!props.editable) return
-  
+
   captureWrapperStyles()
   localValue.value = props.modelValue
   isCancelling.value = false
@@ -104,15 +118,15 @@ function autoResize() {
 
 function handleSave() {
   if (isCancelling.value) return
-  
+
   const trimmedValue = localValue.value.trim()
-  
+
   // For non-multiline, don't save empty values
   if (!props.multiline && !trimmedValue) {
     handleCancel()
     return
   }
-  
+
   emit('update:modelValue', trimmedValue)
   emit('save', trimmedValue)
   isEditing.value = false
@@ -161,7 +175,7 @@ function handleInput() {
   </component>
 
   <!-- Edit Mode -->
-  <div v-else class="inline-editor" @click.stop>
+  <div v-else class="inline-editor" :style="containerStyle" @click.stop>
     <textarea
       v-if="multiline"
       ref="inputRef"
@@ -183,14 +197,7 @@ function handleInput() {
       @blur="handleSave"
       @keydown="handleKeydown"
     />
-    <el-button
-      text
-      circle
-      size="small"
-      class="cancel-btn"
-      @mousedown.prevent
-      @click="handleCancel"
-    >
+    <el-button text circle size="small" class="cancel-btn" @mousedown.prevent @click="handleCancel">
       <Icon name="material-symbols:close" size="14" />
     </el-button>
   </div>
@@ -200,12 +207,12 @@ function handleInput() {
 .inline-editor-view {
   &.is-editable {
     cursor: pointer;
-    
+
     &:hover {
       opacity: 0.8;
     }
   }
-  
+
   .placeholder {
     color: var(--app-grey-600);
     font-style: italic;
@@ -218,18 +225,19 @@ function handleInput() {
   gap: var(--app-space-xs);
   flex: 1;
   min-width: 0;
+  outline: 1px solid var(--app-primary-color);
+  border-radius: var(--app-border-radius-s);
 }
 
 .inline-editor-input {
   flex: 1;
   min-width: 0;
   padding: 4px 8px;
-  border: 1px solid var(--el-border-color);
-  border-radius: var(--app-border-radius-s);
+
   background: var(--el-bg-color);
   outline: none;
   transition: border-color 0.2s ease;
-  
+
   // Reset for textarea
   resize: none;
   overflow: hidden;

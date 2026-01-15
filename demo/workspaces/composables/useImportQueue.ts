@@ -168,114 +168,131 @@ export function useImportQueue() {
       return true
     })
 
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i]
+    // Create column mapping for error parsing (used by all rows)
+    const columnMapping: Record<string, string> = {}
+    for (const column of userColumns) {
+      const colName = column.fieldName || column.field
+      const displayName = column.fieldNameAlias || column.title
+      if (colName && displayName) {
+        columnMapping[displayName] = colName
+      }
+    }
 
-      try {
-        const columnNames: string[] = []
-        const placeholders: string[] = []
-        const values: any[] = []
-        let paramIndex = 1
+    // Process rows in batches for better performance
+    const BATCH_SIZE = 10
+    const totalBatches = Math.ceil(rows.length / BATCH_SIZE)
 
-        // Add user data columns
-        // Support both old schema (field/title) and new schema (fieldName/fieldNameAlias)
-        for (const column of userColumns) {
-          // Get the SQL column name (fieldName in new schema, field in old)
-          const colName = column.fieldName || column.field
-          // Get the display name for row data lookup (fieldNameAlias in new schema, title in old)
-          const displayName = column.fieldNameAlias || column.title
+    for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+      const startIndex = batchIndex * BATCH_SIZE
+      const endIndex = Math.min(startIndex + BATCH_SIZE, rows.length)
+      const batchRows = rows.slice(startIndex, endIndex)
 
-          if (!colName && !displayName) continue
+      // Create promises for all rows in this batch
+      const batchPromises = batchRows.map((row, batchRowIndex) => {
+        const rowIndex = startIndex + batchRowIndex
 
-          const sqlColName = colName || displayName.toLowerCase().replace(/\s+/g, '_')
-          let value = row[displayName]
+        return (async () => {
+          try {
+            const columnNames: string[] = []
+            const placeholders: string[] = []
+            const values: any[] = []
+            let paramIndex = 1
 
-          // Handle empty values
-          if (value === '' || value === undefined || value === null) {
-            value = null
-          } else if (typeof value === 'string') {
-            // Try to convert string values based on column type
-            const trimmed = value.trim()
+            // Add user data columns
+            // Support both old schema (field/title) and new schema (fieldName/fieldNameAlias)
+            for (const column of userColumns) {
+              // Get the SQL column name (fieldName in new schema, field in old)
+              const colName = column.fieldName || column.field
+              // Get the display name for row data lookup (fieldNameAlias in new schema, title in old)
+              const displayName = column.fieldNameAlias || column.title
 
-            // Check column type information
-            const columnType = column.type || column.fieldType
-            const fieldType = column.fieldType || ''
-            const businessType = column.businessType || ''
+              if (!colName && !displayName) continue
 
-            // Check if this is a numeric column
-            const isNumericType = columnType === 1 || columnType === 2 || columnType === 3 // Number types
-            const isNumericField = fieldType === 'number' || fieldType === 'integer' || fieldType === 'decimal' || fieldType === 'numeric'
-            const isNumericBusiness = businessType === 'number' || businessType === 'integer'
+              const sqlColName = colName || displayName.toLowerCase().replace(/\s+/g, '_')
+              let value = row[displayName]
 
-            if ((isNumericType || isNumericField || isNumericBusiness) && trimmed !== '') {
-              // Try to parse as number
-              const num = Number(trimmed)
-              if (!isNaN(num) && trimmed !== '') {
-                value = num
+              // Handle empty values
+              if (value === '' || value === undefined || value === null) {
+                value = null
+              } else if (typeof value === 'string') {
+                // Try to convert string values based on column type
+                const trimmed = value.trim()
+
+                // Check column type information
+                const columnType = column.type || column.fieldType
+                const fieldType = column.fieldType || ''
+                const businessType = column.businessType || ''
+
+                // Check if this is a numeric column
+                const isNumericType = columnType === 1 || columnType === 2 || columnType === 3 // Number types
+                const isNumericField = fieldType === 'number' || fieldType === 'integer' || fieldType === 'decimal' || fieldType === 'numeric'
+                const isNumericBusiness = businessType === 'number' || businessType === 'integer'
+
+                if ((isNumericType || isNumericField || isNumericBusiness) && trimmed !== '') {
+                  // Try to parse as number
+                  const num = Number(trimmed)
+                  if (!isNaN(num) && trimmed !== '') {
+                    value = num
+                  }
+                  // If conversion fails, leave as string - database will error with helpful message
+                } else if (trimmed === '') {
+                  // Empty string after trimming
+                  value = null
+                }
               }
-              // If conversion fails, leave as string - database will error with helpful message
-            } else if (trimmed === '') {
-              // Empty string after trimming
-              value = null
+
+              columnNames.push(`"${sqlColName}"`)
+              placeholders.push(`$${paramIndex}`)
+              values.push(value !== undefined ? value : null)
+              paramIndex++
             }
-          }
 
-          columnNames.push(`"${sqlColName}"`)
-          placeholders.push(`$${paramIndex}`)
-          values.push(value !== undefined ? value : null)
-          paramIndex++
-        }
-
-        // Skip if no columns to insert
-        if (columnNames.length === 0) {
-          job.progress.errors.push({
-            rowIndex: i + 2,
-            rowData: row,
-            error: 'No valid columns to insert. Check if all columns are system columns or if column names are properly defined.',
-            parsedError: {
-              technicalError: 'No valid columns to insert',
-              userFriendlyMessage: 'No valid columns to insert. Check if all columns are system columns or if column names are properly defined.',
-              errorType: 'validation',
-              suggestedFix: 'Make sure your Excel file has at least one non-system column with valid column names.'
+            // Skip if no columns to insert
+            if (columnNames.length === 0) {
+              job.progress.errors.push({
+                rowIndex: rowIndex + 2,
+                rowData: row,
+                error: 'No valid columns to insert. Check if all columns are system columns or if column names are properly defined.',
+                parsedError: {
+                  technicalError: 'No valid columns to insert',
+                  userFriendlyMessage: 'No valid columns to insert. Check if all columns are system columns or if column names are properly defined.',
+                  errorType: 'validation',
+                  suggestedFix: 'Make sure your Excel file has at least one non-system column with valid column names.'
+                }
+              })
+              return { success: false, rowIndex }
             }
-          })
-          continue
-        }
 
-        // Add system columns
-        columnNames.push('"createdBy"', '"updatedBy"')
-        placeholders.push(`$${paramIndex}`, `$${paramIndex + 1}`)
-        values.push(null, null)
+            // Add system columns
+            columnNames.push('"createdBy"', '"updatedBy"')
+            placeholders.push(`$${paramIndex}`, `$${paramIndex + 1}`)
+            values.push(null, null)
 
-        const sql = `INSERT INTO "${physicalTableName}" (${columnNames.join(', ')}) VALUES (${placeholders.join(', ')})`
-        await query(sql, values)
+            const sql = `INSERT INTO "${physicalTableName}" (${columnNames.join(', ')}) VALUES (${placeholders.join(', ')})`
+            await query(sql, values)
 
-        job.progress.imported++
-      } catch (error: any) {
-        // Create column mapping for error parsing
-        const columnMapping: Record<string, string> = {}
-        for (const column of userColumns) {
-          const colName = column.fieldName || column.field
-          const displayName = column.fieldNameAlias || column.title
-          if (colName && displayName) {
-            columnMapping[displayName] = colName
+            // Update progress atomically
+            job.progress.imported++
+            return { success: true, rowIndex }
+          } catch (error: any) {
+            const parsedError = parseImportError(error.message || 'Unknown error', row, columnMapping)
+
+            job.progress.errors.push({
+              rowIndex: rowIndex + 2, // +2 because: +1 for header row, +1 for 1-based index
+              rowData: row,
+              error: parsedError.userFriendlyMessage,
+              parsedError
+            })
+            return { success: false, rowIndex }
           }
-        }
+        })()
+      })
 
-        const parsedError = parseImportError(error.message || 'Unknown error', row, columnMapping)
+      // Process all rows in this batch concurrently
+      await Promise.all(batchPromises)
 
-        job.progress.errors.push({
-          rowIndex: i + 2, // +2 because: +1 for header row, +1 for 1-based index
-          rowData: row,
-          error: parsedError.userFriendlyMessage,
-          parsedError
-        })
-      }
-
-      // Emit progress update every 10 rows or on last row
-      if (i % 10 === 0 || i === rows.length - 1) {
-        eventBus.emit('job-progress', job)
-      }
+      // Emit progress update after each batch
+      eventBus.emit('job-progress', job)
     }
   }
 

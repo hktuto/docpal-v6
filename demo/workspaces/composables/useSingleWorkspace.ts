@@ -202,7 +202,6 @@ export function useSingleWorkspace() {
     if (!workspace.value) return
 
     const data = await query<CaseTreeRecord>(`SELECT * FROM case_tree WHERE "entityId" = $1 ORDER BY "order" ASC`, [workspace.value.id])
-    console.log('getMenuFromDb', data)
     const treeItems = buildTreeFromFlat(data)
 
     // Expand all folders by default

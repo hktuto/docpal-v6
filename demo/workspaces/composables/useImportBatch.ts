@@ -3,6 +3,11 @@ import { v7 as uuidv7 } from 'uuid'
 import type { CaseTreeRecord, CaseFieldRecord, FieldDisplayStructure } from '../utils/db/schema/newTableSchema'
 import { ColumnFieldType } from '../utils/tableColumnType'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import dayjs from 'dayjs'
+
+interface ImportField extends Partial<CaseFieldRecord> {
+  originalIdx?: number
+}
 
 interface SheetData {
   name: string
@@ -70,31 +75,150 @@ function generateUniqueFieldNames(titles: string[]): string[] {
 /**
  * Detect the column type based on cell values
  */
-function detectColumnType(samples: any[]): { type: ColumnFieldType; properties: Record<string, any> } {
+function detectColumnType(samples: any[], excelFormat?: string): { type: ColumnFieldType; properties: Record<string, any> } {
   if (samples.length === 0) {
     return { type: ColumnFieldType.Text, properties: { defaultValue: '' } }
   }
 
-  // Check for Date type
-  const dateCount = samples.filter((v) => v instanceof Date && !isNaN(v.getTime())).length
-  if (dateCount >= samples.length * 0.8) {
+  // Check for Date type - first check if we have Excel format string
+  if (excelFormat && isExcelDateFormat(excelFormat)) {
+    const dateFormat = excelFormatToDateFormat(excelFormat)
     return {
       type: ColumnFieldType.DateTime,
       properties: {
         autoFill: false,
-        dateFormat: 'YYYY-MM-DD HH:mm:ss',
+        dateFormat,
         timeZone: 'local',
-        timeFormat: 24
+        timeFormat: dateFormat.includes('HH') || dateFormat.includes('hh') ? 24 : undefined
       }
     }
   }
 
-  // Check for Number type
-  const numberCount = samples.filter((v) => typeof v === 'number').length
-  if (numberCount >= samples.length * 0.8) {
+  // Helper function to parse numbers with currency symbols and commas
+  function parseNumberWithSymbols(value: any): { parsed: number | null; symbol: string | null; hasComma: boolean; hasSpace: boolean; precision: number } {
+    if (value === null || value === undefined) {
+      return { parsed: null, symbol: null, hasComma: false, hasSpace: false, precision: 0 }
+    }
+
+    const strValue = String(value).trim()
+    if (strValue === '') {
+      return { parsed: null, symbol: null, hasComma: false, hasSpace: false, precision: 0 }
+    }
+
+    // Check for spaces between digits - if there are spaces between digits, it's likely not a number
+    // (e.g., "123 456" could be a phone number or ID, not a number)
+    const hasSpaceBetweenDigits = /\d\s+\d/.test(strValue)
+    if (hasSpaceBetweenDigits) {
+      return { parsed: null, symbol: null, hasComma: false, hasSpace: true, precision: 0 }
+    }
+
+    // Check for common currency symbols at start or end
+    const currencySymbols = ['$', '€', '£', '¥', '₹', '₩', '₽', '₴', '₫', '₭', '₮', '₱', '₲', '₵', '₸', '₺', '₼', '₾', '₿']
+    let symbol = null
+    let cleanStr = strValue
+
+    // Check for symbol at start (with optional space after)
+    for (const sym of currencySymbols) {
+      if (cleanStr.startsWith(sym)) {
+        symbol = sym
+        cleanStr = cleanStr.substring(sym.length).trim()
+        break
+      }
+    }
+
+    // Check for symbol at end if not found at start
+    if (!symbol) {
+      for (const sym of currencySymbols) {
+        if (cleanStr.endsWith(sym)) {
+          symbol = sym
+          cleanStr = cleanStr.substring(0, cleanStr.length - sym.length).trim()
+          break
+        }
+      }
+    }
+
+    // Check for percent symbol
+    if (!symbol && cleanStr.endsWith('%')) {
+      symbol = '%'
+      cleanStr = cleanStr.substring(0, cleanStr.length - 1).trim()
+    }
+
+    // Check for commas (thousand separators)
+    const hasComma = cleanStr.includes(',')
+    if (hasComma) {
+      // Remove commas for parsing
+      cleanStr = cleanStr.replace(/,/g, '')
+    }
+
+    // Check for spaces as thousand separators (common in European formats like "1 234.56")
+    const hasSpaceAsSeparator = /\d\s\d/.test(cleanStr)
+    if (hasSpaceAsSeparator) {
+      // Remove spaces for parsing
+      cleanStr = cleanStr.replace(/\s/g, '')
+    }
+
+    // Parse the number
+    const parsed = parseFloat(cleanStr)
+    if (isNaN(parsed)) {
+      return { parsed: null, symbol: null, hasComma: false, hasSpace: hasSpaceBetweenDigits || hasSpaceAsSeparator, precision: 0 }
+    }
+
+    // Calculate precision (decimal places)
+    let precision = 0
+    const decimalMatch = cleanStr.match(/\.(\d+)/)
+    if (decimalMatch) {
+      precision = decimalMatch[1].length
+    }
+
+    return { parsed, symbol, hasComma, hasSpace: hasSpaceBetweenDigits || hasSpaceAsSeparator, precision }
+  }
+
+  // Check for Number type with improved detection
+  const parsedNumbers = samples.map(parseNumberWithSymbols)
+  const validNumbers = parsedNumbers.filter((n) => n.parsed !== null)
+
+  // Check if there are too many values with spaces between digits (not numbers)
+  const hasSpaceCount = parsedNumbers.filter((n) => n.hasSpace).length
+  if (hasSpaceCount >= samples.length * 0.3) {
+    // If 30% or more have spaces between digits, it's likely not a number column
+    // Skip to next type detection
+  } else if (validNumbers.length >= samples.length * 0.8) {
+    // Calculate average precision
+    const avgPrecision = Math.round(validNumbers.reduce((sum, n) => sum + n.precision, 0) / validNumbers.length)
+    const precision = Math.min(Math.max(avgPrecision, 0), 6) // Clamp between 0 and 6
+
+    // Check for common symbols
+    const symbols = validNumbers.map((n) => n.symbol).filter((sym): sym is string => sym !== null)
+    const symbolCounts: Record<string, number> = {}
+    symbols.forEach((sym) => {
+      symbolCounts[sym] = (symbolCounts[sym] || 0) + 1
+    })
+
+    // Find most common symbol
+    let mostCommonSymbol = ''
+    let maxCount = 0
+    for (const [sym, count] of Object.entries(symbolCounts)) {
+      if (count > maxCount) {
+        maxCount = count
+        mostCommonSymbol = sym
+      }
+    }
+
+    // Use symbol if it appears in majority of valid numbers with symbols
+    const symbol = maxCount >= symbols.length * 0.8 ? mostCommonSymbol : ''
+
+    // Check for commas
+    const hasCommaCount = validNumbers.filter((n) => n.hasComma).length
+    const showThouComma = hasCommaCount >= validNumbers.length * 0.8
+
     return {
       type: ColumnFieldType.Number,
-      properties: { symbol: '', precision: 2, symbolAlign: 2 }
+      properties: {
+        symbol,
+        precision,
+        symbolAlign: symbol ? 'left' : 'default',
+        showThouComma
+      }
     }
   }
 
@@ -137,18 +261,327 @@ function detectColumnType(samples: any[]): { type: ColumnFieldType; properties: 
 }
 
 /**
- * Convert a cell value to string
+ * Check if an Excel format string is a date format
  */
-function cellValueToString(value: any): string {
+export function isExcelDateFormat(format: string): boolean {
+  if (!format || format === 'General') return false
+  console.log('format', format)
+  // Remove locale prefix like [$-F800]
+  const cleanFormat = format.replace(/\[\$-[^\]]*\]/g, '')
+
+  // Check for date patterns
+  const datePatterns = [
+    /[dy]/i, // day, year
+    /[m]/i, // month
+    /[h]/i, // hour
+    /[s]/i // second
+  ]
+
+  // Excel date formats often contain these patterns
+  const hasDatePattern = datePatterns.some((pattern) => pattern.test(cleanFormat))
+
+  // Also check for common date format strings
+  const commonDateFormats = ['yyyy', 'yy', 'mmmm', 'mmm', 'mm', 'm', 'dddd', 'ddd', 'dd', 'd', 'hh', 'h', 'ss', 's', 'am/pm', 'a/p']
+
+  const hasDateFormat = commonDateFormats.some((df) => cleanFormat.toLowerCase().includes(df.toLowerCase()))
+
+  return hasDatePattern || hasDateFormat
+}
+
+/**
+ * Convert Excel format string to dayjs date format
+ */
+export function excelFormatToDateFormat(excelFormat: string): string {
+  if (!excelFormat) return 'YYYY-MM-DD HH:mm:ss'
+
+  // Remove locale prefix
+  let format = excelFormat.replace(/\[\$-[^\]]*\]/g, '')
+
+  // Unescape escaped characters
+  format = format.replace(/\\/g, '')
+
+  // Map Excel format codes to dayjs format codes
+  const formatMap: Array<{ pattern: RegExp; replacement: string }> = [
+    // Years - must be exact matches (not part of other patterns)
+    { pattern: /(?<![dy])yyyy(?![dy])/gi, replacement: 'YYYY' },
+    { pattern: /(?<![dy])yy(?![dy])/gi, replacement: 'YY' },
+
+    // Months - full and abbreviated (not part of other patterns)
+    { pattern: /(?<![m])mmmm(?![m])/gi, replacement: 'MMMM' }, // January
+    { pattern: /(?<![m])mmm(?![m])/gi, replacement: 'MMM' }, // Jan
+
+    // Days - handle with negative lookaround to avoid partial matches
+    { pattern: /(?<![d])dddd(?![d])/gi, replacement: 'dddd' }, // Monday
+    { pattern: /(?<![d])ddd(?![d])/gi, replacement: 'ddd' }, // Mon
+    { pattern: /(?<![d])dd(?![d])/gi, replacement: 'DD' }, // 01-31
+    { pattern: /(?<![d])d(?![d])/gi, replacement: 'D' }, // 1-31
+
+    // Seconds (not part of other patterns)
+    { pattern: /(?<![s])ss(?![s])/gi, replacement: 'ss' },
+    { pattern: /(?<![s])s(?![s])/gi, replacement: 's' },
+
+    // AM/PM - exact matches
+    { pattern: /am\/pm/gi, replacement: 'A' },
+    { pattern: /a\/p/gi, replacement: 'A' },
+    { pattern: /AM\/PM/gi, replacement: 'A' },
+    { pattern: /A\/P/gi, replacement: 'A' }
+  ]
+
+  // First, handle hours and minutes which need context awareness
+  let result = format
+
+  // Check if AM/PM appears anywhere in the format (handle escaped versions)
+  const hasAmPm =
+    result.toLowerCase().includes('am/pm') ||
+    result.toLowerCase().includes('a/p') ||
+    result.toLowerCase().includes('am\\/pm') ||
+    result.toLowerCase().includes('a\\/p')
+
+  // Handle hours based on AM/PM presence
+  if (hasAmPm) {
+    // 12-hour format - use negative lookaround to avoid partial matches
+    result = result.replace(/(?<![h])hh(?![h])/gi, 'hh')
+    result = result.replace(/(?<![h])h(?![h])/gi, 'h')
+  } else {
+    // 24-hour format
+    result = result.replace(/(?<![h])hh(?![h])/gi, 'HH')
+    result = result.replace(/(?<![h])h(?![h])/gi, 'H')
+  }
+
+  // Handle minutes vs months - use negative lookaround
+  // First, handle minutes: mm/m that appear in time context (after h/H or :)
+  // We need to be careful to not match mm in date context like "mm/dd"
+
+  // Pattern for minutes: mm or m that comes after h/H or : and before s/S or end
+  // This handles: h:mm, hh:mm, :mm, h:mm:ss, etc.
+  const minutePattern = /([hH:])\s*(mm?)(?=\s*[:sS]|$)/gi
+  result = result.replace(minutePattern, (match, before, mm) => {
+    // This is in time context, so it's minutes
+    return before + (mm === 'mm' ? 'mm' : 'm')
+  })
+
+  // Now handle remaining mm/m patterns - these are months
+  // Use negative lookaround: mm not preceded by h/H or : and not part of mmmm/mmm
+  result = result.replace(/(?<![hH:m])mm(?![m])/gi, 'MM')
+  result = result.replace(/(?<![hH:m])m(?![m])/gi, 'M')
+
+  // Now replace all other patterns using the format map
+  for (const { pattern, replacement } of formatMap) {
+    result = result.replace(pattern, replacement)
+  }
+
+  // Clean up any remaining Excel-specific codes
+  result = result.replace(/\[.*?\]/g, '')
+
+  // Also remove escaped backslashes since we've already processed them
+  result = result.replace(/\\/g, '')
+
+  // If no date components found, return default
+  if (!/[YMDHmsA]/.test(result)) {
+    return 'YYYY-MM-DD'
+  }
+
+  return result
+}
+
+/**
+ * Check if a string is a valid date
+ */
+export function isDateString(str: string): boolean {
+  if (typeof str !== 'string') return false
+
+  // Try Date.parse first (handles many common formats)
+  const timestamp = Date.parse(str)
+  if (!isNaN(timestamp)) return true
+
+  // Try dayjs parsing with common formats
+  try {
+    // Try common date formats
+    const formats = [
+      'YYYY-MM-DD',
+      'MM/DD/YYYY',
+      'DD/MM/YYYY',
+      'YYYY/MM/DD',
+      'MM-DD-YYYY',
+      'DD-MM-YYYY',
+      'YYYY.MM.DD',
+      'MM.DD.YYYY',
+      'DD.MM.YYYY',
+      'MMMM D, YYYY', // January 15, 2024
+      'D MMMM YYYY', // 15 January 2024
+      'MMM D, YYYY', // Jan 15, 2024
+      'D MMM YYYY', // 15 Jan 2024
+      'YYYY-MM-DD HH:mm:ss',
+      'MM/DD/YYYY HH:mm:ss',
+      'DD/MM/YYYY HH:mm:ss',
+      'YYYY-MM-DD HH:mm',
+      'MM/DD/YYYY HH:mm',
+      'DD/MM/YYYY HH:mm',
+      'YYYY-MM-DDTHH:mm:ss', // ISO with T
+      'YYYY-MM-DD HH:mm:ss.SSS' // ISO with milliseconds
+    ]
+
+    for (const format of formats) {
+      const parsed = dayjs(str, format, true) // strict parsing
+      if (parsed.isValid()) {
+        return true
+      }
+    }
+
+    return false
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Guess date format from sample date strings
+ */
+export function guessDateFormatFromSamples(dateStrings: string[]): string {
+  if (dateStrings.length === 0) return 'YYYY-MM-DD HH:mm:ss'
+
+  // Try to detect common patterns
+  const samples = dateStrings.slice(0, 5) // Use first 5 samples
+
+  for (const sample of samples) {
+    // Check for ISO format
+    if (/^\d{4}-\d{2}-\d{2}(T|\s)\d{2}:\d{2}:\d{2}/.test(sample)) {
+      return 'YYYY-MM-DD HH:mm:ss'
+    }
+
+    // Check for date only ISO
+    if (/^\d{4}-\d{2}-\d{2}$/.test(sample)) {
+      return 'YYYY-MM-DD'
+    }
+
+    // Check for US format with slashes
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(sample)) {
+      if (sample.includes(':')) {
+        return 'MM/DD/YYYY HH:mm:ss'
+      }
+      return 'MM/DD/YYYY'
+    }
+
+    // Check for European format with slashes (already matched US format above)
+    // This regex is the same as above, need different approach
+    // Let's check if it could be DD/MM/YYYY
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(sample)) {
+      const parts = sample.split('/')
+      if (parts.length === 3) {
+        const first = parseInt(parts[0])
+        const second = parseInt(parts[1])
+        if (first > 12 && second <= 12) {
+          // First > 12, second <= 12, likely DD/MM/YYYY
+          if (sample.includes(':')) {
+            return 'DD/MM/YYYY HH:mm:ss'
+          }
+          return 'DD/MM/YYYY'
+        } else if (first <= 12 && second > 12) {
+          // First <= 12, second > 12, likely MM/DD/YYYY
+          if (sample.includes(':')) {
+            return 'MM/DD/YYYY HH:mm:ss'
+          }
+          return 'MM/DD/YYYY'
+        }
+      }
+    }
+
+    // Check for dot separators
+    if (/^\d{1,2}\.\d{1,2}\.\d{4}/.test(sample)) {
+      const parts = sample.split('.')
+      if (parts.length === 3) {
+        const first = parseInt(parts[0])
+        const second = parseInt(parts[1])
+        if (first > 12 && second <= 12) {
+          // First > 12, second <= 12, likely DD.MM.YYYY
+          if (sample.includes(':')) {
+            return 'DD.MM.YYYY HH:mm:ss'
+          }
+          return 'DD.MM.YYYY'
+        } else if (first <= 12 && second > 12) {
+          // First <= 12, second > 12, likely MM.DD.YYYY
+          if (sample.includes(':')) {
+            return 'MM.DD.YYYY HH:mm:ss'
+          }
+          return 'MM.DD.YYYY'
+        } else {
+          // Ambiguous, default to DD.MM.YYYY (more common internationally)
+          if (sample.includes(':')) {
+            return 'DD.MM.YYYY HH:mm:ss'
+          }
+          return 'DD.MM.YYYY'
+        }
+      }
+    }
+  }
+
+  // Default format
+  return 'YYYY-MM-DD HH:mm:ss'
+}
+
+/**
+ * Convert cell value to string for database storage
+ * @param value The cell value to convert
+ * @param dateFormat Optional date format to use for parsing date strings
+ * @param fieldProperties Optional field properties for parsing numbers with symbols
+ */
+function cellValueToString(value: any, dateFormat?: string, fieldType?: ColumnFieldType, fieldProperties?: Record<string, any>): string {
   if (value === undefined || value === null) {
     return ''
   }
 
-  if (value instanceof Date) {
-    if (isNaN(value.getTime())) {
-      return ''
+  // Note: Excel values come as strings when cellNF option is used
+  // Dates will be string values that need to be parsed with dateFormat
+
+  if (typeof value === 'string') {
+    // If we have a date format, try to parse with it first
+    if (dateFormat) {
+      // First try strict parsing with the exact format
+      const parsedStrict = dayjs(value, dateFormat, true)
+      if (parsedStrict.isValid()) {
+        return parsedStrict.toISOString()
+      }
+
+      // If strict parsing fails, try non-strict parsing
+      const parsedNonStrict = dayjs(value, dateFormat, false)
+      if (parsedNonStrict.isValid()) {
+        return parsedNonStrict.toISOString()
+      }
     }
-    return value.toISOString()
+
+    // Check if this might be a number with symbols (currency, commas, etc.)
+    // Only parse as number if we have field type indicating it's a number field
+    if (fieldType === ColumnFieldType.Number || fieldType === ColumnFieldType.Rating) {
+      const trimmedValue = value.trim()
+      if (trimmedValue !== '') {
+        // Remove currency symbols and commas for parsing
+        let cleanValue = trimmedValue
+
+        // Remove common currency symbols
+        const currencySymbols = ['$', '€', '£', '¥', '₹', '₩', '₽', '₴', '₫', '₭', '₮', '₱', '₲', '₵', '₸', '₺', '₼', '₾', '₿', '%']
+        for (const symbol of currencySymbols) {
+          if (cleanValue.startsWith(symbol)) {
+            cleanValue = cleanValue.substring(symbol.length).trim()
+          } else if (cleanValue.endsWith(symbol)) {
+            cleanValue = cleanValue.substring(0, cleanValue.length - symbol.length).trim()
+          }
+        }
+
+        // Remove thousand separators (commas)
+        cleanValue = cleanValue.replace(/,/g, '')
+
+        // Remove spaces that might be used as thousand separators (e.g., "1 234.56")
+        cleanValue = cleanValue.replace(/\s/g, '')
+
+        // Try to parse as number
+        const parsedNumber = parseFloat(cleanValue)
+        if (!isNaN(parsedNumber)) {
+          return String(parsedNumber)
+        }
+      }
+    }
+
+    return value
   }
 
   if (typeof value === 'number') {
@@ -288,7 +721,7 @@ export function useImportBatch() {
    */
   async function parseExcelFile(file: File, entityId: string): Promise<SheetData[]> {
     const data = await readFileAsArrayBuffer(file)
-    const workbook = XLSX.read(data, { type: 'array', cellDates: true })
+    const workbook = XLSX.read(data, { type: 'array', cellDates: false, cellNF: true })
 
     const sheetNames = workbook.SheetNames || []
     if (sheetNames.length === 0) {
@@ -301,7 +734,8 @@ export function useImportBatch() {
 
     for (const sheetName of sheetNames) {
       const sheet = workbook.Sheets[sheetName]
-      const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][]
+
+      const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false }) as any[][]
 
       // Get headers from first row
       const headerRow = jsonData[0] || []
@@ -319,7 +753,7 @@ export function useImportBatch() {
       const dataRows = jsonData.slice(1).filter((row: any[]) => row && !row.every((cell: any) => cell === undefined || cell === null || cell === ''))
 
       // Create field definitions with auto-detected types
-      const fields: Partial<CaseFieldRecord>[] = validHeaders.map((header, idx) => {
+      const fields: ImportField[] = validHeaders.map((header, idx) => {
         const originalIdx = headerRow.findIndex(
           (h: any, i: number) =>
             h !== undefined &&
@@ -338,7 +772,19 @@ export function useImportBatch() {
           }
         }
 
-        const { type, properties } = detectColumnType(samples)
+        // Get Excel format string for this column if available
+        let excelFormat: string | undefined
+        // Try to get format from first data cell in this column
+        const firstDataRowIndex = 1 // Row 0 is header
+        if (firstDataRowIndex < jsonData.length) {
+          const cellAddress = XLSX.utils.encode_cell({ r: firstDataRowIndex, c: originalIdx })
+          const cell = sheet[cellAddress]
+          if (cell && cell.z) {
+            excelFormat = cell.z
+          }
+        }
+        console.log('excelFormat', excelFormat)
+        const { type, properties } = detectColumnType(samples, excelFormat)
 
         // Create display structure
         const displayStructure: FieldDisplayStructure = {
@@ -357,12 +803,21 @@ export function useImportBatch() {
           isHidden: false,
           isArray: false,
           isUnique: false,
-          fieldLength: 0
+          fieldLength: 0,
+          originalIdx // Store the original column index for row parsing
+        }
+      })
+      // Parse data rows with proper value conversion
+      const rows: Record<string, any>[] = []
+
+      // Create a map from column index to field for quick lookup
+      const fieldByColumnIndex: Record<number, ImportField> = {}
+      fields.forEach((field) => {
+        if (field.originalIdx !== undefined && field.originalIdx !== -1) {
+          fieldByColumnIndex[field.originalIdx] = field
         }
       })
 
-      // Parse data rows with proper value conversion
-      const rows: Record<string, any>[] = []
       for (let i = 1; i < jsonData.length; i++) {
         const rowData = jsonData[i]
         if (!rowData || rowData.every((cell: any) => cell === undefined || cell === null || cell === '')) {
@@ -373,7 +828,11 @@ export function useImportBatch() {
         headerRow.forEach((header: any, idx: number) => {
           if (header !== undefined && header !== null && String(header).trim() !== '') {
             const colTitle = String(header).trim()
-            row[colTitle] = cellValueToString(rowData[idx])
+            const field = fieldByColumnIndex[idx]
+            const dateFormat = field?.displayStructure?.type === ColumnFieldType.DateTime ? field.displayStructure.properties?.dateFormat : undefined
+            const fieldType = field?.displayStructure?.type
+            const fieldProperties = field?.displayStructure?.properties
+            row[colTitle] = cellValueToString(rowData[idx], dateFormat, fieldType, fieldProperties)
           }
         })
         rows.push(row)

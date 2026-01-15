@@ -144,6 +144,7 @@ export const useTableView = () => {
       throw new Error('tableId is required')
     }
     const data = await query<CaseFieldRecord>(`SELECT * FROM case_fields WHERE "tableId" = $1`, [tableId.value])
+    console.log('fields', data)
     fields.value = data
     return data
   }
@@ -202,10 +203,11 @@ export const useTableView = () => {
     }
 
     const field = getField(fieldName)
-    if (!field?.id) {
+    console.log(fieldName, field)
+    if (!field) {
       throw new Error('field not found')
     }
-
+    console.log('updates', updates)
     const updateKeys = Object.keys(updates).filter((key) => key !== 'id')
     if (updateKeys.length === 0) {
       return
@@ -218,7 +220,7 @@ export const useTableView = () => {
 
     for (const key of updateKeys) {
       setClauses.push(`"${key}" = $${paramIndex}`)
-
+      console.log(key, updates[key as keyof CaseFieldRecord])
       const value = key === 'displayStructure' ? JSON.stringify(updates[key as keyof CaseFieldRecord]) : updates[key as keyof CaseFieldRecord]
       values.push(value)
       paramIndex++
@@ -233,13 +235,20 @@ export const useTableView = () => {
     values.push(field.id)
 
     const sql = `UPDATE case_fields SET ${setClauses.join(', ')} WHERE id = $${paramIndex}`
+    console.log('sql', sql, values)
     await query(sql, values)
 
     // Update local state
     const index = fields.value.findIndex((f) => f.fieldName === fieldName)
     if (index !== -1) {
+      console.log(fields.value[index])
       fields.value[index] = { ...fields.value[index], ...updates }
+      const columnIndex = columns.value.findIndex((col) => col.field === fieldName)
+      if (columnIndex !== -1) {
+        columns.value[columnIndex] = fieldToColumnConfig(fields.value[index])
+      }
     }
+    // update columns
   }
 
   async function deleteField(fieldName: string): Promise<void> {
@@ -283,9 +292,13 @@ export const useTableView = () => {
    * Convert ColumnConfig back to CaseFieldRecord for storage
    */
   function columnConfigToField(column: ColumnConfig): Partial<CaseFieldRecord> {
+    const field = getField(column.field)
+    if (!field) {
+      throw new Error('Field not found')
+    }
     return {
-      id: column.id,
-      tableId: column.dataTableId ?? null, // Convert undefined to null
+      id: field.id,
+      tableId: field.tableId ?? null, // Convert undefined to null
       fieldName: column.field,
       fieldNameAlias: column.title,
       displayStructure: {
@@ -309,7 +322,7 @@ export const useTableView = () => {
       return field ? [...result, fieldToColumnConfig(field)] : result
     }, [] as ColumnConfig[])
     columns.value = columnsData
-    console.log('columns: in getAllColumns', columnsData)
+
     return columnsData
   }
 

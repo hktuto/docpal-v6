@@ -79,7 +79,7 @@ function openPopover(event: MouseEvent) {
 
 <style lang="scss" scoped>
 .cardContainer {
-  width: 100%;
+  width: var(--list-card-width, 100%);
   margin: var(--app-space-xs);
   background-color: var(--app-paper);
   padding: var(--app-space-s);

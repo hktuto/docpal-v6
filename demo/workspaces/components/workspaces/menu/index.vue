@@ -2,6 +2,9 @@
 import type { TreeItem } from '../../../composables/useSingleWorkspace'
 import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspace'
 import { useImportBatch, isExcelFile } from '../../../composables/useImportBatch'
+import { ElMessage } from 'element-plus'
+import { useDebounceFn } from '@vueuse/core'
+import { onUnmounted } from 'vue'
 
 interface Props {
   workspaceId: string
@@ -15,11 +18,15 @@ const props = withDefaults(defineProps<Props>(), {
   isAdmin: true
 })
 
-const { menuState: state, addItem, saveMenuToDb, getMenuFromDb, workspace } = useSingleWorkspaceContext()
+const { menuState: state, addItem, openMenuItemActions, getMenuFromDb, workspace } = useSingleWorkspaceContext()
 const { importExcelFile } = useImportBatch()
+
+// File upload input ref
+const fileInputRef = ref<HTMLInputElement>()
 
 // Excel drop import
 const isDraggingOver = ref(false)
+const dragLeaveTimeout = ref<NodeJS.Timeout | null>(null)
 
 function handleDragOver(event: DragEvent) {
   if (!props.isAdmin) return
@@ -29,22 +36,56 @@ function handleDragOver(event: DragEvent) {
 
   // Check if dragging files
   if (event.dataTransfer?.types.includes('Files')) {
-    isDraggingOver.value = true
     event.dataTransfer.dropEffect = 'copy'
   }
 }
 
-function handleDragLeave(event: DragEvent) {
+function handleDragEnter(event: DragEvent) {
+  if (!props.isAdmin) return
+
   event.preventDefault()
   event.stopPropagation()
 
-  // Reset drag state when leaving
+  // Check if dragging files
+  console.log(event.dataTransfer)
+  if (event.dataTransfer?.files) {
+    // Clear any pending drag leave timeout
+    if (dragLeaveTimeout.value) {
+      clearTimeout(dragLeaveTimeout.value)
+      dragLeaveTimeout.value = null
+    }
+
+    isDraggingOver.value = true
+  }
+}
+const menuRef = ref()
+function handleDragLeave(event: DragEvent) {
+  event.preventDefault()
+  event.stopPropagation()
+  const relatedTarget = event.relatedTarget as Node | null
+  if (!relatedTarget) {
+    isDraggingOver.value = false
+    dragLeaveTimeout.value = null
+    return
+  }
+  if (relatedTarget.classList.contains('workspace-menu') || relatedTarget.classList.contains('menu-content')) return
+  // Use a timeout to debounce drag leave
+  // This prevents flickering when moving between child elements
   isDraggingOver.value = false
+  dragLeaveTimeout.value = null
 }
 
 async function handleDrop(event: DragEvent) {
   event.preventDefault()
   event.stopPropagation()
+
+  // Clear any pending drag leave timeout
+  if (dragLeaveTimeout.value) {
+    clearTimeout(dragLeaveTimeout.value)
+    dragLeaveTimeout.value = null
+  }
+
+  // Reset drag state
   isDraggingOver.value = false
 
   if (!props.isAdmin) return
@@ -60,10 +101,51 @@ async function handleDrop(event: DragEvent) {
   }
 }
 
+// Handle drag end (when drag operation is completed)
+function handleDragEnd() {
+  // Clear any pending drag leave timeout
+  if (dragLeaveTimeout.value) {
+    clearTimeout(dragLeaveTimeout.value)
+    dragLeaveTimeout.value = null
+  }
+
+  // Reset drag state when drag operation ends
+  isDraggingOver.value = false
+}
+
 async function handleFolderDrop(folderId: string, file: File) {
   if (workspace.value?.id) {
     await importExcelFile(file, workspace.value.id, folderId)
   }
+}
+
+// Handle file input change
+async function handleFileInputChange(event: Event) {
+  if (!props.isAdmin) return
+
+  const input = event.target as HTMLInputElement
+  const files = input.files
+
+  if (!files || files.length === 0 || !workspace.value?.id) return
+
+  const file = files[0]
+
+  if (isExcelFile(file)) {
+    await importExcelFile(file, workspace.value.id, null)
+  } else {
+    ElMessage.error('Please select an Excel file (.xlsx, .xls) or CSV file (.csv)')
+  }
+
+  // Reset the input so the same file can be selected again
+  if (fileInputRef.value) {
+    fileInputRef.value.value = ''
+  }
+}
+
+// Trigger file input click
+function triggerFileInput() {
+  if (!props.isAdmin) return
+  fileInputRef.value?.click()
 }
 
 // Expose for child components
@@ -109,7 +191,10 @@ function updateOrderNumbers(items: TreeItem[]): TreeItem[] {
     children: item.children ? updateOrderNumbers(item.children) : undefined
   }))
 }
-
+const editIconRef = ref()
+function handleOpenActions() {
+  openMenuItemActions({ item: null, isAdmin: true }, editIconRef.value || undefined)
+}
 // Handle menu changes from draggable list (v-model update)
 async function handleMenuChange(newItems: TreeItem[]) {
   console.log('[Menu] Menu changed from drag:', newItems.length, 'items')
@@ -125,16 +210,32 @@ async function handleMenuChange(newItems: TreeItem[]) {
 onMounted(async () => {
   await getMenuFromDb()
 })
+
+// Clean up timeout on unmount
+onUnmounted(() => {
+  if (dragLeaveTimeout.value) {
+    clearTimeout(dragLeaveTimeout.value)
+    dragLeaveTimeout.value = null
+  }
+})
 </script>
 
 <template>
-  <div class="workspace-menu" :class="{ 'is-drag-over': isDraggingOver }" @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop">
+  <div
+    class="workspace-menu"
+    :class="{ 'is-drag-over': isDraggingOver }"
+    @dragover="handleDragOver"
+    @dragenter="handleDragEnter"
+    @dragleave="handleDragLeave"
+    @drop="handleDrop"
+    @dragend="handleDragEnd"
+  >
     <!-- Drop Overlay -->
     <Transition name="fade">
       <div v-if="isDraggingOver && isAdmin" class="drop-overlay">
         <div class="drop-content">
           <Icon name="material-symbols:upload-file-outline" size="48" />
-          <p>Drop Excel file to import tables</p>
+          <p style="text-align: center">Drop Excel file here to import tables</p>
         </div>
       </div>
     </Transition>
@@ -146,7 +247,11 @@ onMounted(async () => {
         <Icon name="material-symbols:folder-open-outline" size="48" />
         <p class="empty-title">No items yet</p>
         <p class="empty-description">
-          {{ isAdmin ? 'Click + to add your first table, or drop an Excel file' : 'No items to display' }}
+          <template v-if="isAdmin">
+            Click <Icon ref="editIconRef" class="plusIcon" name="material-symbols:add" @click="handleOpenActions" /> to add your first table, or
+            <strong class="excel-upload-link" @click="triggerFileInput">upload an Excel file</strong> (or drag and drop)
+          </template>
+          <template v-else> No items to display </template>
         </p>
       </div>
 
@@ -154,11 +259,34 @@ onMounted(async () => {
       <WorkspacesMenuDraggableList v-else v-model="state.items" :level="0" :parent-id="null" :is-admin="isAdmin" @update:model-value="handleMenuChange" />
     </div>
 
+    <!-- Hidden file input for Excel upload -->
+    <input
+      v-show="false"
+      ref="fileInputRef"
+      type="file"
+      accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"
+      @change="handleFileInputChange"
+    />
+
     <slot />
   </div>
 </template>
 
 <style scoped lang="scss">
+.plusIcon {
+  cursor: pointer;
+  color: var(--app-primary-color);
+}
+
+.excel-upload-link {
+  cursor: pointer;
+  color: var(--app-primary-color);
+  text-decoration: underline;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
 .workspace-menu {
   display: flex;
   flex-direction: column;
@@ -173,7 +301,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--el-color-primary-light-9);
+  /* background: var(--el-color-primary-light-9); */
   border: 2px dashed var(--el-color-primary);
   border-radius: var(--app-border-radius-m);
   pointer-events: none;
@@ -223,8 +351,8 @@ onMounted(async () => {
   padding: var(--app-space-s);
 
   &.is-hidden {
-    opacity: 0.3;
-    pointer-events: none;
+    /* opacity: 0.3; */
+    /* pointer-events: none; */
   }
 }
 
@@ -239,13 +367,16 @@ onMounted(async () => {
 
   .empty-title {
     margin: var(--app-space-m) 0 var(--app-space-xs);
-    font-size: var(--app-font-size-m);
+    font-size: var(--app-font-size-l);
     font-weight: 500;
   }
 
   .empty-description {
     margin: 0;
-    font-size: var(--app-font-size-s);
+    font-size: var(--app-font-size-m);
+    strong {
+      color: var(--app-primary-color);
+    }
   }
 }
 
