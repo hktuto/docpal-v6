@@ -7,6 +7,9 @@
     flex: 0 0 auto;
   }
 }
+.vxe-table--render-default .vxe-cell--drag-handle + span {
+  padding: 0;
+}
 .mb-table-cell {
   // Tooltip base - always present but hidden
   // TODO : add tooltip styles here

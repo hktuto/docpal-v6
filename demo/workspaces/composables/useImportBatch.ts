@@ -94,12 +94,131 @@ function detectColumnType(samples: any[], excelFormat?: string): { type: ColumnF
     }
   }
 
-  // Check for Number type
-  const numberCount = samples.filter((v) => !isNaN(v) && !isNaN(parseFloat(v))).length
-  if (numberCount >= samples.length * 0.8) {
+  // Helper function to parse numbers with currency symbols and commas
+  function parseNumberWithSymbols(value: any): { parsed: number | null; symbol: string | null; hasComma: boolean; hasSpace: boolean; precision: number } {
+    if (value === null || value === undefined) {
+      return { parsed: null, symbol: null, hasComma: false, hasSpace: false, precision: 0 }
+    }
+
+    const strValue = String(value).trim()
+    if (strValue === '') {
+      return { parsed: null, symbol: null, hasComma: false, hasSpace: false, precision: 0 }
+    }
+
+    // Check for spaces between digits - if there are spaces between digits, it's likely not a number
+    // (e.g., "123 456" could be a phone number or ID, not a number)
+    const hasSpaceBetweenDigits = /\d\s+\d/.test(strValue)
+    if (hasSpaceBetweenDigits) {
+      return { parsed: null, symbol: null, hasComma: false, hasSpace: true, precision: 0 }
+    }
+
+    // Check for common currency symbols at start or end
+    const currencySymbols = ['$', '€', '£', '¥', '₹', '₩', '₽', '₴', '₫', '₭', '₮', '₱', '₲', '₵', '₸', '₺', '₼', '₾', '₿']
+    let symbol = null
+    let cleanStr = strValue
+
+    // Check for symbol at start (with optional space after)
+    for (const sym of currencySymbols) {
+      if (cleanStr.startsWith(sym)) {
+        symbol = sym
+        cleanStr = cleanStr.substring(sym.length).trim()
+        break
+      }
+    }
+
+    // Check for symbol at end if not found at start
+    if (!symbol) {
+      for (const sym of currencySymbols) {
+        if (cleanStr.endsWith(sym)) {
+          symbol = sym
+          cleanStr = cleanStr.substring(0, cleanStr.length - sym.length).trim()
+          break
+        }
+      }
+    }
+
+    // Check for percent symbol
+    if (!symbol && cleanStr.endsWith('%')) {
+      symbol = '%'
+      cleanStr = cleanStr.substring(0, cleanStr.length - 1).trim()
+    }
+
+    // Check for commas (thousand separators)
+    const hasComma = cleanStr.includes(',')
+    if (hasComma) {
+      // Remove commas for parsing
+      cleanStr = cleanStr.replace(/,/g, '')
+    }
+
+    // Check for spaces as thousand separators (common in European formats like "1 234.56")
+    const hasSpaceAsSeparator = /\d\s\d/.test(cleanStr)
+    if (hasSpaceAsSeparator) {
+      // Remove spaces for parsing
+      cleanStr = cleanStr.replace(/\s/g, '')
+    }
+
+    // Parse the number
+    const parsed = parseFloat(cleanStr)
+    if (isNaN(parsed)) {
+      return { parsed: null, symbol: null, hasComma: false, hasSpace: hasSpaceBetweenDigits || hasSpaceAsSeparator, precision: 0 }
+    }
+
+    // Calculate precision (decimal places)
+    let precision = 0
+    const decimalMatch = cleanStr.match(/\.(\d+)/)
+    if (decimalMatch) {
+      precision = decimalMatch[1].length
+    }
+
+    return { parsed, symbol, hasComma, hasSpace: hasSpaceBetweenDigits || hasSpaceAsSeparator, precision }
+  }
+
+  // Check for Number type with improved detection
+  const parsedNumbers = samples.map(parseNumberWithSymbols)
+  const validNumbers = parsedNumbers.filter((n) => n.parsed !== null)
+
+  // Check if there are too many values with spaces between digits (not numbers)
+  const hasSpaceCount = parsedNumbers.filter((n) => n.hasSpace).length
+  if (hasSpaceCount >= samples.length * 0.3) {
+    // If 30% or more have spaces between digits, it's likely not a number column
+    // Skip to next type detection
+  } else if (validNumbers.length >= samples.length * 0.8) {
+    // Calculate average precision
+    const avgPrecision = Math.round(validNumbers.reduce((sum, n) => sum + n.precision, 0) / validNumbers.length)
+    const precision = Math.min(Math.max(avgPrecision, 0), 6) // Clamp between 0 and 6
+
+    // Check for common symbols
+    const symbols = validNumbers.map((n) => n.symbol).filter((sym): sym is string => sym !== null)
+    const symbolCounts: Record<string, number> = {}
+    symbols.forEach((sym) => {
+      symbolCounts[sym] = (symbolCounts[sym] || 0) + 1
+    })
+
+    // Find most common symbol
+    let mostCommonSymbol = ''
+    let maxCount = 0
+    for (const [sym, count] of Object.entries(symbolCounts)) {
+      if (count > maxCount) {
+        maxCount = count
+        mostCommonSymbol = sym
+      }
+    }
+
+    // Use symbol if it appears in majority of valid numbers with symbols
+    const symbol = maxCount >= symbols.length * 0.8 ? mostCommonSymbol : ''
+
+    // Check for commas
+    const hasCommaCount = validNumbers.filter((n) => n.hasComma).length
+    const showThouComma = hasCommaCount >= validNumbers.length * 0.8
+
     return {
       type: ColumnFieldType.Number,
-      properties: { symbol: '', precision: 2, symbolAlign: 2 }
+      properties: {
+        symbol,
+        precision,
+        symbolAlign: symbol ? 'left' : 'default',
+        showThouComma
+      }
     }
   }
 
@@ -401,21 +520,18 @@ export function guessDateFormatFromSamples(dateStrings: string[]): string {
 }
 
 /**
- * Convert a cell value to string
+ * Convert cell value to string for database storage
  * @param value The cell value to convert
  * @param dateFormat Optional date format to use for parsing date strings
+ * @param fieldProperties Optional field properties for parsing numbers with symbols
  */
-function cellValueToString(value: any, dateFormat?: string): string {
+function cellValueToString(value: any, dateFormat?: string, fieldType?: ColumnFieldType, fieldProperties?: Record<string, any>): string {
   if (value === undefined || value === null) {
     return ''
   }
 
-  if (value instanceof Date) {
-    if (isNaN(value.getTime())) {
-      return ''
-    }
-    return value.toISOString()
-  }
+  // Note: Excel values come as strings when cellNF option is used
+  // Dates will be string values that need to be parsed with dateFormat
 
   if (typeof value === 'string') {
     // If we have a date format, try to parse with it first
@@ -430,6 +546,38 @@ function cellValueToString(value: any, dateFormat?: string): string {
       const parsedNonStrict = dayjs(value, dateFormat, false)
       if (parsedNonStrict.isValid()) {
         return parsedNonStrict.toISOString()
+      }
+    }
+
+    // Check if this might be a number with symbols (currency, commas, etc.)
+    // Only parse as number if we have field type indicating it's a number field
+    if (fieldType === ColumnFieldType.Number || fieldType === ColumnFieldType.Rating) {
+      const trimmedValue = value.trim()
+      if (trimmedValue !== '') {
+        // Remove currency symbols and commas for parsing
+        let cleanValue = trimmedValue
+
+        // Remove common currency symbols
+        const currencySymbols = ['$', '€', '£', '¥', '₹', '₩', '₽', '₴', '₫', '₭', '₮', '₱', '₲', '₵', '₸', '₺', '₼', '₾', '₿', '%']
+        for (const symbol of currencySymbols) {
+          if (cleanValue.startsWith(symbol)) {
+            cleanValue = cleanValue.substring(symbol.length).trim()
+          } else if (cleanValue.endsWith(symbol)) {
+            cleanValue = cleanValue.substring(0, cleanValue.length - symbol.length).trim()
+          }
+        }
+
+        // Remove thousand separators (commas)
+        cleanValue = cleanValue.replace(/,/g, '')
+
+        // Remove spaces that might be used as thousand separators (e.g., "1 234.56")
+        cleanValue = cleanValue.replace(/\s/g, '')
+
+        // Try to parse as number
+        const parsedNumber = parseFloat(cleanValue)
+        if (!isNaN(parsedNumber)) {
+          return String(parsedNumber)
+        }
       }
     }
 
@@ -682,7 +830,9 @@ export function useImportBatch() {
             const colTitle = String(header).trim()
             const field = fieldByColumnIndex[idx]
             const dateFormat = field?.displayStructure?.type === ColumnFieldType.DateTime ? field.displayStructure.properties?.dateFormat : undefined
-            row[colTitle] = cellValueToString(rowData[idx], dateFormat)
+            const fieldType = field?.displayStructure?.type
+            const fieldProperties = field?.displayStructure?.properties
+            row[colTitle] = cellValueToString(rowData[idx], dateFormat, fieldType, fieldProperties)
           }
         })
         rows.push(row)

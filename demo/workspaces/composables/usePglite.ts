@@ -1,4 +1,4 @@
-type WorkerRequestType = "init" | "exec" | "query" | "transaction" | "close"
+type WorkerRequestType = 'init' | 'exec' | 'query' | 'transaction' | 'close'
 
 interface WorkerRequest<T = any> {
   id: string
@@ -15,22 +15,19 @@ interface WorkerResponse<T = any> {
 
 let worker: Worker | null = null
 let requestId = 0
-const pendingRequests = new Map<
-  string,
-  { resolve: (value: any) => void; reject: (error: any) => void }
->()
+const pendingRequests = new Map<string, { resolve: (value: any) => void; reject: (error: any) => void }>()
 
 // Initialize worker
 function getWorker(): Worker {
   if (!worker) {
-    if (typeof window === "undefined" || typeof Worker === "undefined") {
-      throw new Error("Workers are not available in this environment")
+    if (typeof window === 'undefined' || typeof Worker === 'undefined') {
+      throw new Error('Workers are not available in this environment')
     }
-    const workerUrl = new URL("../workers/pglite.worker.ts", import.meta.url)
-    worker = new Worker(workerUrl.href, { type: "module" })
+    const workerUrl = new URL('../workers/pglite.worker.ts', import.meta.url)
+    worker = new Worker(workerUrl.href, { type: 'module' })
     worker.onmessage = handleMessage
     worker.onerror = (event) => {
-      console.error("Worker error:", event.error)
+      console.error('Worker error:', event.error)
     }
   }
   return worker
@@ -46,7 +43,7 @@ function handleMessage(event: MessageEvent<WorkerResponse>) {
     if (ok) {
       pendingRequest.resolve(result)
     } else {
-      pendingRequest.reject(new Error(error || "Worker error"))
+      pendingRequest.reject(new Error(error || 'Worker error'))
     }
   }
 }
@@ -61,7 +58,7 @@ function send<T = any>(type: WorkerRequestType, payload?: any): Promise<T> {
     workerInstance.postMessage({
       id,
       type,
-      payload,
+      payload
     } as WorkerRequest)
   })
 }
@@ -69,34 +66,23 @@ function send<T = any>(type: WorkerRequestType, payload?: any): Promise<T> {
 export function usePglite() {
   // Initialize database and apply migrations
   async function init(): Promise<void> {
-    return send("init")
+    return send('init')
   }
 
   // Execute SQL (for migrations, DDL, etc.)
   async function exec(sql: string): Promise<void> {
-    return send("exec", { sql })
+    return send('exec', { sql })
   }
 
   // Query database and return results
-  async function query<T = any>(
-    sql: string,
-    params?: any[]
-  ): Promise<T[]> {
-    const startTime = performance.now()
-    const result = await send<T[]>("query", { sql, params })
-    const endTime = performance.now()
-    const duration = (endTime - startTime).toFixed(2)
-    
-    console.log(`📡 [Main Thread] Total round-trip: ${duration}ms`)
-    
+  async function query<T = any>(sql: string, params?: any[]): Promise<T[]> {
+    const result = await send<T[]>('query', { sql, params })
     return result
   }
 
   // Execute a transaction
-  async function transaction(
-    operations: Array<{ type: "exec" | "query"; sql: string; params?: any[] }>
-  ): Promise<void> {
-    return send("transaction", { operations })
+  async function transaction(operations: Array<{ type: 'exec' | 'query'; sql: string; params?: any[] }>): Promise<void> {
+    return send('transaction', { operations })
   }
 
   // Remove all tables from the database
@@ -104,15 +90,15 @@ export function usePglite() {
     try {
       // Get all table names from the public schema
       const result = await query<{ tablename: string }[]>(`
-        SELECT tablename 
-        FROM pg_tables 
+        SELECT tablename
+        FROM pg_tables
         WHERE schemaname = 'public'
       `)
 
-      const tableNames = result.map((row:any) => row.tablename)
+      const tableNames = result.map((row: any) => row.tablename)
 
       if (tableNames.length === 0) {
-        console.log("No tables to drop")
+        console.log('No tables to drop')
         return
       }
 
@@ -123,9 +109,9 @@ export function usePglite() {
         await exec(`DROP TABLE IF EXISTS "${tableName}" CASCADE`)
       }
 
-      console.log("All tables dropped successfully")
+      console.log('All tables dropped successfully')
     } catch (error) {
-      console.error("Failed to drop tables:", error)
+      console.error('Failed to drop tables:', error)
       throw error
     }
   }
@@ -133,7 +119,7 @@ export function usePglite() {
   // Close database connection
   async function close(): Promise<void> {
     if (worker) {
-      await send("close")
+      await send('close')
       worker.terminate()
       worker = null
     }
@@ -155,17 +141,8 @@ export function usePglite() {
     offset?: number
   }): Promise<T[]> {
     const searchStartTime = performance.now()
-    
-    const {
-      table,
-      searchKeys = [],
-      keyword = '',
-      filters = {},
-      sortBy,
-      sortOrder = 'asc',
-      limit,
-      offset = 0
-    } = options
+
+    const { table, searchKeys = [], keyword = '', filters = {}, sortBy, sortOrder = 'asc', limit, offset = 0 } = options
 
     const whereClauses: string[] = []
     const params: any[] = []
@@ -173,8 +150,11 @@ export function usePglite() {
 
     // Handle keyword search (split by spaces)
     if (keyword && keyword.trim()) {
-      const keywords = keyword.trim().split(/\s+/).filter(k => k.length > 0)
-      
+      const keywords = keyword
+        .trim()
+        .split(/\s+/)
+        .filter((k) => k.length > 0)
+
       if (keywords.length > 0 && searchKeys.length > 0) {
         // For each keyword, create OR conditions across all search keys
         const keywordClauses = keywords.map((kw) => {
@@ -187,7 +167,7 @@ export function usePglite() {
           })
           return `(${keyConditions.join(' OR ')})`
         })
-        
+
         whereClauses.push(`(${keywordClauses.join(' OR ')})`)
       }
     }
@@ -226,7 +206,7 @@ export function usePglite() {
 
     // Build the query
     let sql = `SELECT * FROM "${table}"`
-    
+
     if (whereClauses.length > 0) {
       sql += ` WHERE ${whereClauses.join(' AND ')}`
     }
@@ -247,17 +227,17 @@ export function usePglite() {
       sql += ` OFFSET $${paramIndex}`
       params.push(offset)
     }
-    
+
     const sqlGenTime = performance.now() - searchStartTime
     console.log(`⚙️ [Search] SQL generation: ${sqlGenTime.toFixed(2)}ms`)
     console.log('SQL:', sql)
     console.log('Params:', params)
-    
+
     const result = await query<T>(sql, params)
-    
+
     const totalSearchTime = performance.now() - searchStartTime
     console.log(`🔎 [Search] Total search time: ${totalSearchTime.toFixed(2)}ms`)
-    
+
     return result
   }
 
@@ -268,7 +248,6 @@ export function usePglite() {
     transaction,
     removeAllTables,
     close,
-    search,
+    search
   }
 }
-

@@ -65,7 +65,9 @@ function handleClick() {
 .md-table-header {
   --align: left;
   height: 100%;
-  display: inline-flex;
+  display: inline;
+  overflow: hidden;
+  width: 100%;
   gap: var(--app-space-xs);
   &.right {
     --align: right;
