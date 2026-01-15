@@ -2,6 +2,8 @@
 import type { TreeItem } from '../../../composables/useSingleWorkspace'
 import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspace'
 import { useImportBatch, isExcelFile } from '../../../composables/useImportBatch'
+import { ElMessage } from 'element-plus'
+import { useDebounceFn } from '@vueuse/core'
 
 interface Props {
   workspaceId: string
@@ -15,8 +17,11 @@ const props = withDefaults(defineProps<Props>(), {
   isAdmin: true
 })
 
-const { menuState: state, addItem, saveMenuToDb, getMenuFromDb, workspace } = useSingleWorkspaceContext()
+const { menuState: state, addItem, openMenuItemActions, getMenuFromDb, workspace } = useSingleWorkspaceContext()
 const { importExcelFile } = useImportBatch()
+
+// File upload input ref
+const fileInputRef = ref<HTMLInputElement>()
 
 // Excel drop import
 const isDraggingOver = ref(false)
@@ -66,6 +71,35 @@ async function handleFolderDrop(folderId: string, file: File) {
   }
 }
 
+// Handle file input change
+async function handleFileInputChange(event: Event) {
+  if (!props.isAdmin) return
+
+  const input = event.target as HTMLInputElement
+  const files = input.files
+
+  if (!files || files.length === 0 || !workspace.value?.id) return
+
+  const file = files[0]
+
+  if (isExcelFile(file)) {
+    await importExcelFile(file, workspace.value.id, null)
+  } else {
+    ElMessage.error('Please select an Excel file (.xlsx, .xls) or CSV file (.csv)')
+  }
+
+  // Reset the input so the same file can be selected again
+  if (fileInputRef.value) {
+    fileInputRef.value.value = ''
+  }
+}
+
+// Trigger file input click
+function triggerFileInput() {
+  if (!props.isAdmin) return
+  fileInputRef.value?.click()
+}
+
 // Expose for child components
 provide('handleFolderDrop', handleFolderDrop)
 provide('isExcelFile', isExcelFile)
@@ -109,7 +143,10 @@ function updateOrderNumbers(items: TreeItem[]): TreeItem[] {
     children: item.children ? updateOrderNumbers(item.children) : undefined
   }))
 }
-
+const editIconRef = ref()
+function handleOpenActions() {
+  openMenuItemActions({ item: null, isAdmin: true }, editIconRef.value || undefined)
+}
 // Handle menu changes from draggable list (v-model update)
 async function handleMenuChange(newItems: TreeItem[]) {
   console.log('[Menu] Menu changed from drag:', newItems.length, 'items')
@@ -134,7 +171,7 @@ onMounted(async () => {
       <div v-if="isDraggingOver && isAdmin" class="drop-overlay">
         <div class="drop-content">
           <Icon name="material-symbols:upload-file-outline" size="48" />
-          <p>Drop Excel file to import tables</p>
+          <p>Drop Excel file here to import tables</p>
         </div>
       </div>
     </Transition>
@@ -146,7 +183,11 @@ onMounted(async () => {
         <Icon name="material-symbols:folder-open-outline" size="48" />
         <p class="empty-title">No items yet</p>
         <p class="empty-description">
-          {{ isAdmin ? 'Click + to add your first table, or drop an Excel file' : 'No items to display' }}
+          <template v-if="isAdmin">
+            Click <Icon ref="editIconRef" class="plusIcon" name="material-symbols:add" @click="handleOpenActions" /> to add your first table, or
+            <strong class="excel-upload-link" @click="triggerFileInput">upload an Excel file</strong> (or drag and drop)
+          </template>
+          <template v-else> No items to display </template>
         </p>
       </div>
 
@@ -154,11 +195,34 @@ onMounted(async () => {
       <WorkspacesMenuDraggableList v-else v-model="state.items" :level="0" :parent-id="null" :is-admin="isAdmin" @update:model-value="handleMenuChange" />
     </div>
 
+    <!-- Hidden file input for Excel upload -->
+    <input
+      v-show="false"
+      ref="fileInputRef"
+      type="file"
+      accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"
+      @change="handleFileInputChange"
+    />
+
     <slot />
   </div>
 </template>
 
 <style scoped lang="scss">
+.plusIcon {
+  cursor: pointer;
+  color: var(--app-primary-color);
+}
+
+.excel-upload-link {
+  cursor: pointer;
+  color: var(--app-primary-color);
+  text-decoration: underline;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
 .workspace-menu {
   display: flex;
   flex-direction: column;
@@ -239,13 +303,16 @@ onMounted(async () => {
 
   .empty-title {
     margin: var(--app-space-m) 0 var(--app-space-xs);
-    font-size: var(--app-font-size-m);
+    font-size: var(--app-font-size-l);
     font-weight: 500;
   }
 
   .empty-description {
     margin: 0;
-    font-size: var(--app-font-size-s);
+    font-size: var(--app-font-size-m);
+    strong {
+      color: var(--app-primary-color);
+    }
   }
 }
 

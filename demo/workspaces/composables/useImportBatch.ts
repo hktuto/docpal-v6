@@ -301,8 +301,9 @@ export function useImportBatch() {
 
     for (const sheetName of sheetNames) {
       const sheet = workbook.Sheets[sheetName]
-      const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][]
 
+      const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false }) as any[][]
+      console.log(jsonData)
       // Get headers from first row
       const headerRow = jsonData[0] || []
       const validHeaders = headerRow.filter((h: any) => h !== undefined && h !== null && String(h).trim() !== '').map((h: any) => String(h).trim())
@@ -337,7 +338,6 @@ export function useImportBatch() {
             samples.push(value)
           }
         }
-
         const { type, properties } = detectColumnType(samples)
 
         // Create display structure
@@ -360,7 +360,6 @@ export function useImportBatch() {
           fieldLength: 0
         }
       })
-
       // Parse data rows with proper value conversion
       const rows: Record<string, any>[] = []
       for (let i = 1; i < jsonData.length; i++) {

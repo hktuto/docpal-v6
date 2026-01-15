@@ -70,5 +70,6 @@ watch(
 :deep(p) {
   color: var(--el-text-color-regular);
   white-space: pre-line;
+  font-size: var(--app-font-size-l);
 }
 </style>
