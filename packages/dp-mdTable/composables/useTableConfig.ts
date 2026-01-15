@@ -79,11 +79,12 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     if (_columns.length === 0) {
       return []
     }
-    _columns[0].treeNode = true
+    _columns[0].treeNode = !!groupBy.value && groupBy.value.length > 0
     _columns.unshift({
-      type: 'checkbox'
+      type: 'checkbox',
+      width: 40
     })
-    console.log('columns', _columns)
+    console.log('columns', groupBy.value, groupBy.value.length)
     return _columns.map((col) => {
       if (!col.type) col.type = ColumnFieldType.Text
       if (col.field === 'name') col.rowGroupNode = true
