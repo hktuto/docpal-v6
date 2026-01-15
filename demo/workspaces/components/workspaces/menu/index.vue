@@ -4,6 +4,7 @@ import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspa
 import { useImportBatch, isExcelFile } from '../../../composables/useImportBatch'
 import { ElMessage } from 'element-plus'
 import { useDebounceFn } from '@vueuse/core'
+import { onUnmounted } from 'vue'
 
 interface Props {
   workspaceId: string
@@ -25,6 +26,7 @@ const fileInputRef = ref<HTMLInputElement>()
 
 // Excel drop import
 const isDraggingOver = ref(false)
+const dragLeaveTimeout = ref<NodeJS.Timeout | null>(null)
 
 function handleDragOver(event: DragEvent) {
   if (!props.isAdmin) return
@@ -34,8 +36,25 @@ function handleDragOver(event: DragEvent) {
 
   // Check if dragging files
   if (event.dataTransfer?.types.includes('Files')) {
-    isDraggingOver.value = true
     event.dataTransfer.dropEffect = 'copy'
+  }
+}
+
+function handleDragEnter(event: DragEvent) {
+  if (!props.isAdmin) return
+
+  event.preventDefault()
+  event.stopPropagation()
+
+  // Check if dragging files
+  if (event.dataTransfer?.types.includes('Files')) {
+    // Clear any pending drag leave timeout
+    if (dragLeaveTimeout.value) {
+      clearTimeout(dragLeaveTimeout.value)
+      dragLeaveTimeout.value = null
+    }
+
+    isDraggingOver.value = true
   }
 }
 
@@ -43,13 +62,29 @@ function handleDragLeave(event: DragEvent) {
   event.preventDefault()
   event.stopPropagation()
 
-  // Reset drag state when leaving
-  isDraggingOver.value = false
+  // Use a timeout to debounce drag leave
+  // This prevents flickering when moving between child elements
+  if (dragLeaveTimeout.value) {
+    clearTimeout(dragLeaveTimeout.value)
+  }
+
+  dragLeaveTimeout.value = setTimeout(() => {
+    isDraggingOver.value = false
+    dragLeaveTimeout.value = null
+  }, 100)
 }
 
 async function handleDrop(event: DragEvent) {
   event.preventDefault()
   event.stopPropagation()
+
+  // Clear any pending drag leave timeout
+  if (dragLeaveTimeout.value) {
+    clearTimeout(dragLeaveTimeout.value)
+    dragLeaveTimeout.value = null
+  }
+
+  // Reset drag state
   isDraggingOver.value = false
 
   if (!props.isAdmin) return
@@ -63,6 +98,18 @@ async function handleDrop(event: DragEvent) {
     // Directly import without dialog
     await importExcelFile(excelFile, workspace.value.id, null)
   }
+}
+
+// Handle drag end (when drag operation is completed)
+function handleDragEnd() {
+  // Clear any pending drag leave timeout
+  if (dragLeaveTimeout.value) {
+    clearTimeout(dragLeaveTimeout.value)
+    dragLeaveTimeout.value = null
+  }
+
+  // Reset drag state when drag operation ends
+  isDraggingOver.value = false
 }
 
 async function handleFolderDrop(folderId: string, file: File) {
@@ -162,10 +209,26 @@ async function handleMenuChange(newItems: TreeItem[]) {
 onMounted(async () => {
   await getMenuFromDb()
 })
+
+// Clean up timeout on unmount
+onUnmounted(() => {
+  if (dragLeaveTimeout.value) {
+    clearTimeout(dragLeaveTimeout.value)
+    dragLeaveTimeout.value = null
+  }
+})
 </script>
 
 <template>
-  <div class="workspace-menu" :class="{ 'is-drag-over': isDraggingOver }" @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop">
+  <div
+    class="workspace-menu"
+    :class="{ 'is-drag-over': isDraggingOver }"
+    @dragover="handleDragOver"
+    @dragenter="handleDragEnter"
+    @dragleave="handleDragLeave"
+    @drop="handleDrop"
+    @dragend="handleDragEnd"
+  >
     <!-- Drop Overlay -->
     <Transition name="fade">
       <div v-if="isDraggingOver && isAdmin" class="drop-overlay">

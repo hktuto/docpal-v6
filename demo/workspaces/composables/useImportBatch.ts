@@ -3,6 +3,11 @@ import { v7 as uuidv7 } from 'uuid'
 import type { CaseTreeRecord, CaseFieldRecord, FieldDisplayStructure } from '../utils/db/schema/newTableSchema'
 import { ColumnFieldType } from '../utils/tableColumnType'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import dayjs from 'dayjs'
+
+interface ImportField extends Partial<CaseFieldRecord> {
+  originalIdx?: number
+}
 
 interface SheetData {
   name: string
@@ -70,27 +75,27 @@ function generateUniqueFieldNames(titles: string[]): string[] {
 /**
  * Detect the column type based on cell values
  */
-function detectColumnType(samples: any[]): { type: ColumnFieldType; properties: Record<string, any> } {
+function detectColumnType(samples: any[], excelFormat?: string): { type: ColumnFieldType; properties: Record<string, any> } {
   if (samples.length === 0) {
     return { type: ColumnFieldType.Text, properties: { defaultValue: '' } }
   }
 
-  // Check for Date type
-  const dateCount = samples.filter((v) => v instanceof Date && !isNaN(v.getTime())).length
-  if (dateCount >= samples.length * 0.8) {
+  // Check for Date type - first check if we have Excel format string
+  if (excelFormat && isExcelDateFormat(excelFormat)) {
+    const dateFormat = excelFormatToDateFormat(excelFormat)
     return {
       type: ColumnFieldType.DateTime,
       properties: {
         autoFill: false,
-        dateFormat: 'YYYY-MM-DD HH:mm:ss',
+        dateFormat,
         timeZone: 'local',
-        timeFormat: 24
+        timeFormat: dateFormat.includes('HH') || dateFormat.includes('hh') ? 24 : undefined
       }
     }
   }
 
   // Check for Number type
-  const numberCount = samples.filter((v) => typeof v === 'number').length
+  const numberCount = samples.filter((v) => !isNaN(v) && !isNaN(parseFloat(v))s).length
   if (numberCount >= samples.length * 0.8) {
     return {
       type: ColumnFieldType.Number,
@@ -137,9 +142,270 @@ function detectColumnType(samples: any[]): { type: ColumnFieldType; properties: 
 }
 
 /**
- * Convert a cell value to string
+ * Check if an Excel format string is a date format
  */
-function cellValueToString(value: any): string {
+export function isExcelDateFormat(format: string): boolean {
+  if (!format || format === 'General') return false
+  console.log('format', format)
+  // Remove locale prefix like [$-F800]
+  const cleanFormat = format.replace(/\[\$-[^\]]*\]/g, '')
+
+  // Check for date patterns
+  const datePatterns = [
+    /[dy]/i, // day, year
+    /[m]/i, // month
+    /[h]/i, // hour
+    /[s]/i // second
+  ]
+
+  // Excel date formats often contain these patterns
+  const hasDatePattern = datePatterns.some((pattern) => pattern.test(cleanFormat))
+
+  // Also check for common date format strings
+  const commonDateFormats = ['yyyy', 'yy', 'mmmm', 'mmm', 'mm', 'm', 'dddd', 'ddd', 'dd', 'd', 'hh', 'h', 'ss', 's', 'am/pm', 'a/p']
+
+  const hasDateFormat = commonDateFormats.some((df) => cleanFormat.toLowerCase().includes(df.toLowerCase()))
+
+  return hasDatePattern || hasDateFormat
+}
+
+/**
+ * Convert Excel format string to dayjs date format
+ */
+export function excelFormatToDateFormat(excelFormat: string): string {
+  if (!excelFormat) return 'YYYY-MM-DD HH:mm:ss'
+
+  // Remove locale prefix
+  let format = excelFormat.replace(/\[\$-[^\]]*\]/g, '')
+
+  // Unescape escaped characters
+  format = format.replace(/\\/g, '')
+
+  // Map Excel format codes to dayjs format codes
+  const formatMap: Array<{ pattern: RegExp; replacement: string }> = [
+    // Years - must be exact matches (not part of other patterns)
+    { pattern: /(?<![dy])yyyy(?![dy])/gi, replacement: 'YYYY' },
+    { pattern: /(?<![dy])yy(?![dy])/gi, replacement: 'YY' },
+
+    // Months - full and abbreviated (not part of other patterns)
+    { pattern: /(?<![m])mmmm(?![m])/gi, replacement: 'MMMM' }, // January
+    { pattern: /(?<![m])mmm(?![m])/gi, replacement: 'MMM' }, // Jan
+
+    // Days - handle with negative lookaround to avoid partial matches
+    { pattern: /(?<![d])dddd(?![d])/gi, replacement: 'dddd' }, // Monday
+    { pattern: /(?<![d])ddd(?![d])/gi, replacement: 'ddd' }, // Mon
+    { pattern: /(?<![d])dd(?![d])/gi, replacement: 'DD' }, // 01-31
+    { pattern: /(?<![d])d(?![d])/gi, replacement: 'D' }, // 1-31
+
+    // Seconds (not part of other patterns)
+    { pattern: /(?<![s])ss(?![s])/gi, replacement: 'ss' },
+    { pattern: /(?<![s])s(?![s])/gi, replacement: 's' },
+
+    // AM/PM - exact matches
+    { pattern: /am\/pm/gi, replacement: 'A' },
+    { pattern: /a\/p/gi, replacement: 'A' },
+    { pattern: /AM\/PM/gi, replacement: 'A' },
+    { pattern: /A\/P/gi, replacement: 'A' }
+  ]
+
+  // First, handle hours and minutes which need context awareness
+  let result = format
+
+  // Check if AM/PM appears anywhere in the format (handle escaped versions)
+  const hasAmPm =
+    result.toLowerCase().includes('am/pm') ||
+    result.toLowerCase().includes('a/p') ||
+    result.toLowerCase().includes('am\\/pm') ||
+    result.toLowerCase().includes('a\\/p')
+
+  // Handle hours based on AM/PM presence
+  if (hasAmPm) {
+    // 12-hour format - use negative lookaround to avoid partial matches
+    result = result.replace(/(?<![h])hh(?![h])/gi, 'hh')
+    result = result.replace(/(?<![h])h(?![h])/gi, 'h')
+  } else {
+    // 24-hour format
+    result = result.replace(/(?<![h])hh(?![h])/gi, 'HH')
+    result = result.replace(/(?<![h])h(?![h])/gi, 'H')
+  }
+
+  // Handle minutes vs months - use negative lookaround
+  // First, handle minutes: mm/m that appear in time context (after h/H or :)
+  // We need to be careful to not match mm in date context like "mm/dd"
+
+  // Pattern for minutes: mm or m that comes after h/H or : and before s/S or end
+  // This handles: h:mm, hh:mm, :mm, h:mm:ss, etc.
+  const minutePattern = /([hH:])\s*(mm?)(?=\s*[:sS]|$)/gi
+  result = result.replace(minutePattern, (match, before, mm) => {
+    // This is in time context, so it's minutes
+    return before + (mm === 'mm' ? 'mm' : 'm')
+  })
+
+  // Now handle remaining mm/m patterns - these are months
+  // Use negative lookaround: mm not preceded by h/H or : and not part of mmmm/mmm
+  result = result.replace(/(?<![hH:m])mm(?![m])/gi, 'MM')
+  result = result.replace(/(?<![hH:m])m(?![m])/gi, 'M')
+
+  // Now replace all other patterns using the format map
+  for (const { pattern, replacement } of formatMap) {
+    result = result.replace(pattern, replacement)
+  }
+
+  // Clean up any remaining Excel-specific codes
+  result = result.replace(/\[.*?\]/g, '')
+
+  // Also remove escaped backslashes since we've already processed them
+  result = result.replace(/\\/g, '')
+
+  // If no date components found, return default
+  if (!/[YMDHmsA]/.test(result)) {
+    return 'YYYY-MM-DD'
+  }
+
+  return result
+}
+
+/**
+ * Check if a string is a valid date
+ */
+export function isDateString(str: string): boolean {
+  if (typeof str !== 'string') return false
+
+  // Try Date.parse first (handles many common formats)
+  const timestamp = Date.parse(str)
+  if (!isNaN(timestamp)) return true
+
+  // Try dayjs parsing with common formats
+  try {
+    // Try common date formats
+    const formats = [
+      'YYYY-MM-DD',
+      'MM/DD/YYYY',
+      'DD/MM/YYYY',
+      'YYYY/MM/DD',
+      'MM-DD-YYYY',
+      'DD-MM-YYYY',
+      'YYYY.MM.DD',
+      'MM.DD.YYYY',
+      'DD.MM.YYYY',
+      'MMMM D, YYYY', // January 15, 2024
+      'D MMMM YYYY', // 15 January 2024
+      'MMM D, YYYY', // Jan 15, 2024
+      'D MMM YYYY', // 15 Jan 2024
+      'YYYY-MM-DD HH:mm:ss',
+      'MM/DD/YYYY HH:mm:ss',
+      'DD/MM/YYYY HH:mm:ss',
+      'YYYY-MM-DD HH:mm',
+      'MM/DD/YYYY HH:mm',
+      'DD/MM/YYYY HH:mm',
+      'YYYY-MM-DDTHH:mm:ss', // ISO with T
+      'YYYY-MM-DD HH:mm:ss.SSS' // ISO with milliseconds
+    ]
+
+    for (const format of formats) {
+      const parsed = dayjs(str, format, true) // strict parsing
+      if (parsed.isValid()) {
+        return true
+      }
+    }
+
+    return false
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Guess date format from sample date strings
+ */
+export function guessDateFormatFromSamples(dateStrings: string[]): string {
+  if (dateStrings.length === 0) return 'YYYY-MM-DD HH:mm:ss'
+
+  // Try to detect common patterns
+  const samples = dateStrings.slice(0, 5) // Use first 5 samples
+
+  for (const sample of samples) {
+    // Check for ISO format
+    if (/^\d{4}-\d{2}-\d{2}(T|\s)\d{2}:\d{2}:\d{2}/.test(sample)) {
+      return 'YYYY-MM-DD HH:mm:ss'
+    }
+
+    // Check for date only ISO
+    if (/^\d{4}-\d{2}-\d{2}$/.test(sample)) {
+      return 'YYYY-MM-DD'
+    }
+
+    // Check for US format with slashes
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(sample)) {
+      if (sample.includes(':')) {
+        return 'MM/DD/YYYY HH:mm:ss'
+      }
+      return 'MM/DD/YYYY'
+    }
+
+    // Check for European format with slashes (already matched US format above)
+    // This regex is the same as above, need different approach
+    // Let's check if it could be DD/MM/YYYY
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(sample)) {
+      const parts = sample.split('/')
+      if (parts.length === 3) {
+        const first = parseInt(parts[0])
+        const second = parseInt(parts[1])
+        if (first > 12 && second <= 12) {
+          // First > 12, second <= 12, likely DD/MM/YYYY
+          if (sample.includes(':')) {
+            return 'DD/MM/YYYY HH:mm:ss'
+          }
+          return 'DD/MM/YYYY'
+        } else if (first <= 12 && second > 12) {
+          // First <= 12, second > 12, likely MM/DD/YYYY
+          if (sample.includes(':')) {
+            return 'MM/DD/YYYY HH:mm:ss'
+          }
+          return 'MM/DD/YYYY'
+        }
+      }
+    }
+
+    // Check for dot separators
+    if (/^\d{1,2}\.\d{1,2}\.\d{4}/.test(sample)) {
+      const parts = sample.split('.')
+      if (parts.length === 3) {
+        const first = parseInt(parts[0])
+        const second = parseInt(parts[1])
+        if (first > 12 && second <= 12) {
+          // First > 12, second <= 12, likely DD.MM.YYYY
+          if (sample.includes(':')) {
+            return 'DD.MM.YYYY HH:mm:ss'
+          }
+          return 'DD.MM.YYYY'
+        } else if (first <= 12 && second > 12) {
+          // First <= 12, second > 12, likely MM.DD.YYYY
+          if (sample.includes(':')) {
+            return 'MM.DD.YYYY HH:mm:ss'
+          }
+          return 'MM.DD.YYYY'
+        } else {
+          // Ambiguous, default to DD.MM.YYYY (more common internationally)
+          if (sample.includes(':')) {
+            return 'DD.MM.YYYY HH:mm:ss'
+          }
+          return 'DD.MM.YYYY'
+        }
+      }
+    }
+  }
+
+  // Default format
+  return 'YYYY-MM-DD HH:mm:ss'
+}
+
+/**
+ * Convert a cell value to string
+ * @param value The cell value to convert
+ * @param dateFormat Optional date format to use for parsing date strings
+ */
+function cellValueToString(value: any, dateFormat?: string): string {
   if (value === undefined || value === null) {
     return ''
   }
@@ -149,6 +415,25 @@ function cellValueToString(value: any): string {
       return ''
     }
     return value.toISOString()
+  }
+
+  if (typeof value === 'string') {
+    // If we have a date format, try to parse with it first
+    if (dateFormat) {
+      // First try strict parsing with the exact format
+      const parsedStrict = dayjs(value, dateFormat, true)
+      if (parsedStrict.isValid()) {
+        return parsedStrict.toISOString()
+      }
+
+      // If strict parsing fails, try non-strict parsing
+      const parsedNonStrict = dayjs(value, dateFormat, false)
+      if (parsedNonStrict.isValid()) {
+        return parsedNonStrict.toISOString()
+      }
+    }
+
+    return value
   }
 
   if (typeof value === 'number') {
@@ -288,7 +573,7 @@ export function useImportBatch() {
    */
   async function parseExcelFile(file: File, entityId: string): Promise<SheetData[]> {
     const data = await readFileAsArrayBuffer(file)
-    const workbook = XLSX.read(data, { type: 'array', cellDates: true })
+    const workbook = XLSX.read(data, { type: 'array', cellDates: false, cellNF: true })
 
     const sheetNames = workbook.SheetNames || []
     if (sheetNames.length === 0) {
@@ -303,7 +588,7 @@ export function useImportBatch() {
       const sheet = workbook.Sheets[sheetName]
 
       const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false }) as any[][]
-      console.log(jsonData)
+
       // Get headers from first row
       const headerRow = jsonData[0] || []
       const validHeaders = headerRow.filter((h: any) => h !== undefined && h !== null && String(h).trim() !== '').map((h: any) => String(h).trim())
@@ -320,7 +605,7 @@ export function useImportBatch() {
       const dataRows = jsonData.slice(1).filter((row: any[]) => row && !row.every((cell: any) => cell === undefined || cell === null || cell === ''))
 
       // Create field definitions with auto-detected types
-      const fields: Partial<CaseFieldRecord>[] = validHeaders.map((header, idx) => {
+      const fields: ImportField[] = validHeaders.map((header, idx) => {
         const originalIdx = headerRow.findIndex(
           (h: any, i: number) =>
             h !== undefined &&
@@ -338,7 +623,20 @@ export function useImportBatch() {
             samples.push(value)
           }
         }
-        const { type, properties } = detectColumnType(samples)
+
+        // Get Excel format string for this column if available
+        let excelFormat: string | undefined
+        // Try to get format from first data cell in this column
+        const firstDataRowIndex = 1 // Row 0 is header
+        if (firstDataRowIndex < jsonData.length) {
+          const cellAddress = XLSX.utils.encode_cell({ r: firstDataRowIndex, c: originalIdx })
+          const cell = sheet[cellAddress]
+          if (cell && cell.z) {
+            excelFormat = cell.z
+          }
+        }
+        console.log('excelFormat', excelFormat)
+        const { type, properties } = detectColumnType(samples, excelFormat)
 
         // Create display structure
         const displayStructure: FieldDisplayStructure = {
@@ -357,11 +655,21 @@ export function useImportBatch() {
           isHidden: false,
           isArray: false,
           isUnique: false,
-          fieldLength: 0
+          fieldLength: 0,
+          originalIdx // Store the original column index for row parsing
         }
       })
       // Parse data rows with proper value conversion
       const rows: Record<string, any>[] = []
+
+      // Create a map from column index to field for quick lookup
+      const fieldByColumnIndex: Record<number, ImportField> = {}
+      fields.forEach((field) => {
+        if (field.originalIdx !== undefined && field.originalIdx !== -1) {
+          fieldByColumnIndex[field.originalIdx] = field
+        }
+      })
+
       for (let i = 1; i < jsonData.length; i++) {
         const rowData = jsonData[i]
         if (!rowData || rowData.every((cell: any) => cell === undefined || cell === null || cell === '')) {
@@ -372,7 +680,9 @@ export function useImportBatch() {
         headerRow.forEach((header: any, idx: number) => {
           if (header !== undefined && header !== null && String(header).trim() !== '') {
             const colTitle = String(header).trim()
-            row[colTitle] = cellValueToString(rowData[idx])
+            const field = fieldByColumnIndex[idx]
+            const dateFormat = field?.displayStructure?.type === ColumnFieldType.DateTime ? field.displayStructure.properties?.dateFormat : undefined
+            row[colTitle] = cellValueToString(rowData[idx], dateFormat)
           }
         })
         rows.push(row)
