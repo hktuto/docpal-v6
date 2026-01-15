@@ -47,7 +47,8 @@ function handleDragEnter(event: DragEvent) {
   event.stopPropagation()
 
   // Check if dragging files
-  if (event.dataTransfer?.types.includes('Files')) {
+  console.log(event.dataTransfer)
+  if (event.dataTransfer?.files) {
     // Clear any pending drag leave timeout
     if (dragLeaveTimeout.value) {
       clearTimeout(dragLeaveTimeout.value)
@@ -57,21 +58,21 @@ function handleDragEnter(event: DragEvent) {
     isDraggingOver.value = true
   }
 }
-
+const menuRef = ref()
 function handleDragLeave(event: DragEvent) {
   event.preventDefault()
   event.stopPropagation()
-
-  // Use a timeout to debounce drag leave
-  // This prevents flickering when moving between child elements
-  if (dragLeaveTimeout.value) {
-    clearTimeout(dragLeaveTimeout.value)
-  }
-
-  dragLeaveTimeout.value = setTimeout(() => {
+  const relatedTarget = event.relatedTarget as Node | null
+  if (!relatedTarget) {
     isDraggingOver.value = false
     dragLeaveTimeout.value = null
-  }, 100)
+    return
+  }
+  if (relatedTarget.classList.contains('workspace-menu') || relatedTarget.classList.contains('menu-content')) return
+  // Use a timeout to debounce drag leave
+  // This prevents flickering when moving between child elements
+  isDraggingOver.value = false
+  dragLeaveTimeout.value = null
 }
 
 async function handleDrop(event: DragEvent) {
@@ -234,7 +235,7 @@ onUnmounted(() => {
       <div v-if="isDraggingOver && isAdmin" class="drop-overlay">
         <div class="drop-content">
           <Icon name="material-symbols:upload-file-outline" size="48" />
-          <p>Drop Excel file here to import tables</p>
+          <p style="text-align: center">Drop Excel file here to import tables</p>
         </div>
       </div>
     </Transition>
@@ -300,7 +301,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--el-color-primary-light-9);
+  /* background: var(--el-color-primary-light-9); */
   border: 2px dashed var(--el-color-primary);
   border-radius: var(--app-border-radius-m);
   pointer-events: none;
@@ -350,8 +351,8 @@ onUnmounted(() => {
   padding: var(--app-space-s);
 
   &.is-hidden {
-    opacity: 0.3;
-    pointer-events: none;
+    /* opacity: 0.3; */
+    /* pointer-events: none; */
   }
 }
 

@@ -71,7 +71,7 @@ function handleCancelEdit() {
 // Folder drop handlers
 function onFolderDragOver(event: DragEvent) {
   if (props.item.itemType !== 'folder' || !props.isAdmin) return
-
+  // console.log('onFolderDragOver', event)
   event.preventDefault()
   event.stopPropagation()
 

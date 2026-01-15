@@ -95,7 +95,7 @@ function detectColumnType(samples: any[], excelFormat?: string): { type: ColumnF
   }
 
   // Check for Number type
-  const numberCount = samples.filter((v) => !isNaN(v) && !isNaN(parseFloat(v))s).length
+  const numberCount = samples.filter((v) => !isNaN(v) && !isNaN(parseFloat(v))).length
   if (numberCount >= samples.length * 0.8) {
     return {
       type: ColumnFieldType.Number,
