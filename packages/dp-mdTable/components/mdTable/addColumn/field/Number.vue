@@ -38,6 +38,9 @@
         </el-form-item>
       </el-col>
     </el-row>
+    <el-form-item label="Default Value" prop="defaultValue">
+      <el-input-number v-model="formData.defaultValue" :min="formData.min" :max="formData.max" :step="1" />
+    </el-form-item>
     <el-checkbox v-model="formData.showThouComma" label="显示千分位" />
   </div>
 </template>

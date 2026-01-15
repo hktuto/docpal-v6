@@ -18,7 +18,7 @@
           </el-select-v2>
         </el-form-item>
         <component :is="AsyncComponent" v-if="AsyncComponent" :form-data="formData" />
-        <el-form-item v-if="![ColumnFieldType.DateTime].includes(formData.type)" label="Default Value" prop="defaultValue">
+        <el-form-item v-if="[ColumnFieldType.Text, ColumnFieldType.MultiText].includes(formData.type)" label="Default Value" prop="defaultValue">
           <el-input v-model="formData.defaultValue" />
         </el-form-item>
         <el-form-item>

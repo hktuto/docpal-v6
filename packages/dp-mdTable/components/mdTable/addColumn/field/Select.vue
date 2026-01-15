@@ -5,6 +5,11 @@
       <draggable v-model="options" item-key="id" handle=".drag-handle" :animation="200" ghost-class="ghost-item" @change="handleOptionsChange">
         <template #item="{ element, index }">
           <div class="option-item">
+            <el-checkbox
+              :model-value="isOptionSelected(element.id)"
+              @change="(checked: boolean) => handleDefaultValueChange(element.id, checked)"
+              @click.stop
+            />
             <div class="drag-handle">
               <svg-icon src="/icons/drag.svg" />
             </div>
@@ -24,14 +29,28 @@
       </draggable>
     </div>
     <!-- 添加选项按钮 -->
-    <el-button type="primary" :icon="Plus" size="small" text class="add-option-btn" @click="handleAddOption"> 添加一个选项 </el-button>
+    <div class="action-buttons">
+      <el-button type="primary" :icon="Plus" size="small" text class="add-option-btn" @click="handleAddOption"> 添加一个选项 </el-button>
+      <el-button
+        type="warning"
+        :icon="Close"
+        size="small"
+        text
+        class="clear-default-btn"
+        :disabled="!hasDefaultValue"
+        @click="handleClearDefaultValue"
+      >
+        清除默认值
+      </el-button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, inject, nextTick } from 'vue'
-import { Delete, Plus } from '@element-plus/icons-vue'
+import { ref, watch, inject, nextTick, computed, onMounted } from 'vue'
+import { Delete, Plus, Close } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
+
 const props = defineProps<{
   formData: any
 }>()
@@ -58,6 +77,75 @@ const handleSelectVisibleChange = inject<(visible: boolean) => void>('handleSele
 
 // 选项列表
 const options = ref<SelectOption[]>([])
+
+// 判断是否为多选类型
+const isMultiSelect = computed(() => {
+  return props.formData?.type === ColumnFieldType.MultiSelect
+})
+
+// 判断是否有默认值
+const hasDefaultValue = computed(() => {
+  if (!props.formData?.defaultValue) {
+    return false
+  }
+  if (isMultiSelect.value) {
+    // 多选：检查数组是否有值
+    return Array.isArray(props.formData.defaultValue) && props.formData.defaultValue.length > 0
+  } else {
+    // 单选：检查是否有值
+    return props.formData.defaultValue !== undefined && props.formData.defaultValue !== null && props.formData.defaultValue !== ''
+  }
+})
+
+// 判断选项是否被选为默认值
+const isOptionSelected = (optionId: string): boolean => {
+  if (!props.formData?.defaultValue) {
+    return false
+  }
+  if (isMultiSelect.value) {
+    // 多选：defaultValue 应该是数组
+    const defaultValue = Array.isArray(props.formData.defaultValue) ? props.formData.defaultValue : []
+    return defaultValue.includes(optionId)
+  } else {
+    // 单选：defaultValue 应该是单个值
+    return props.formData.defaultValue === optionId
+  }
+}
+
+// 处理默认值变化
+const handleDefaultValueChange = (optionId: string, checked: boolean) => {
+  if (!props.formData) {
+    return
+  }
+
+  if (isMultiSelect.value) {
+    // 多选模式
+    if (!Array.isArray(props.formData.defaultValue)) {
+      props.formData.defaultValue = []
+    }
+    if (checked) {
+      // 添加选项
+      if (!props.formData.defaultValue.includes(optionId)) {
+        props.formData.defaultValue.push(optionId)
+      }
+    } else {
+      // 移除选项
+      const index = props.formData.defaultValue.indexOf(optionId)
+      if (index > -1) {
+        props.formData.defaultValue.splice(index, 1)
+      }
+    }
+  } else {
+    // 单选模式
+    if (checked) {
+      // 选中当前选项，取消其他选项
+      props.formData.defaultValue = optionId
+    } else {
+      // 取消选中
+      props.formData.defaultValue = undefined
+    }
+  }
+}
 
 // 生成唯一ID
 const generateId = (): string => {
@@ -93,6 +181,21 @@ const initOptions = () => {
       props.formData.options = []
     }
   }
+  
+  // 初始化 defaultValue
+  if (props.formData) {
+    if (isMultiSelect.value) {
+      // 多选模式：确保 defaultValue 是数组
+      if (!Array.isArray(props.formData.defaultValue)) {
+        props.formData.defaultValue = props.formData.defaultValue ? [props.formData.defaultValue] : []
+      }
+    } else {
+      // 单选模式：确保 defaultValue 是单个值或 undefined
+      if (Array.isArray(props.formData.defaultValue) && props.formData.defaultValue.length > 0) {
+        props.formData.defaultValue = props.formData.defaultValue[0]
+      }
+    }
+  }
 }
 
 // 添加选项
@@ -106,9 +209,41 @@ const handleAddOption = () => {
   updateFormData()
 }
 
+// 清除默认值
+const handleClearDefaultValue = () => {
+  if (!props.formData) {
+    return
+  }
+  if (isMultiSelect.value) {
+    props.formData.defaultValue = []
+  } else {
+    props.formData.defaultValue = undefined
+  }
+}
+
 // 删除选项
 const handleDeleteOption = (index: number) => {
+  const deletedOption = options.value[index]
   options.value.splice(index, 1)
+  
+  // 如果删除的选项是默认值，需要从 defaultValue 中移除
+  if (deletedOption && props.formData?.defaultValue) {
+    if (isMultiSelect.value) {
+      // 多选模式：从数组中移除
+      if (Array.isArray(props.formData.defaultValue)) {
+        const index = props.formData.defaultValue.indexOf(deletedOption.id)
+        if (index > -1) {
+          props.formData.defaultValue.splice(index, 1)
+        }
+      }
+    } else {
+      // 单选模式：如果删除的是默认值，清空 defaultValue
+      if (props.formData.defaultValue === deletedOption.id) {
+        props.formData.defaultValue = undefined
+      }
+    }
+  }
+  
   updateFormData()
 }
 
@@ -201,6 +336,34 @@ watch(
   },
   { immediate: true, deep: true }
 )
+
+// 监听类型变化，重新初始化 defaultValue
+watch(
+  () => props.formData?.type,
+  () => {
+    if (props.formData) {
+      if (isMultiSelect.value) {
+        // 多选模式：确保 defaultValue 是数组
+        if (!Array.isArray(props.formData.defaultValue)) {
+          props.formData.defaultValue = props.formData.defaultValue ? [props.formData.defaultValue] : []
+        }
+      } else {
+        // 单选模式：确保 defaultValue 是单个值或 undefined
+        if (Array.isArray(props.formData.defaultValue) && props.formData.defaultValue.length > 0) {
+          props.formData.defaultValue = props.formData.defaultValue[0]
+        } else if (Array.isArray(props.formData.defaultValue)) {
+          props.formData.defaultValue = undefined
+        }
+      }
+    }
+  },
+  { immediate: true }
+)
+
+// 组件挂载时初始化
+onMounted(() => {
+  initOptions()
+})
 </script>
 
 <style scoped lang="scss">
@@ -208,30 +371,29 @@ watch(
   .config-title {
     font-size: 14px;
     color: var(--el-text-color-primary);
-    margin-bottom: 12px;
   }
 
   .options-list {
-    margin-bottom: 12px;
   }
 
   .option-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 0;
-    margin-bottom: 4px;
+    gap: var(--app-space-xs);
+    padding: var(--app-space-xs) 0;
 
     &:last-child {
       margin-bottom: 0;
+    }
+
+    .el-checkbox {
+      margin-right: var(--app-space-xs);
     }
 
     .drag-handle {
       cursor: move;
       display: flex;
       align-items: center;
-      padding: 4px;
-      margin-right: 4px;
     }
   }
 
@@ -239,10 +401,20 @@ watch(
     opacity: 0.5;
   }
 
-  .add-option-btn {
-    width: 100%;
-    justify-content: center;
-    margin-top: 8px;
+  .action-buttons {
+    display: flex;
+    gap: var(--app-space-xs);
+    margin-top: var(--app-space-xs);
+
+    .add-option-btn {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .clear-default-btn {
+      flex: 1;
+      justify-content: center;
+    }
   }
 }
 </style>
