@@ -8,7 +8,7 @@
   }
 }
 .vxe-table--render-default .vxe-cell--drag-handle + span {
-  padding: 0;
+  padding: 0 !important;
 }
 .mb-table-cell {
   // Tooltip base - always present but hidden
@@ -47,24 +47,31 @@
     width: 12px;
   }
 }
-
+.vxe-table--column {
+  overflow: hidden;
+}
 .vxe-header-cell--wrapper {
   &:hover {
     .vxe-cell--drag-handle {
-      display: block;
-      position: absolute;
-      left: 0;
-      top: 0;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      transform: translateX(0);
+      background: linear-gradient(to right, var(--vxe-ui-table-border-color) 50%, transparent);
     }
   }
 }
 // handle drag over handler styles
 .vxe-cell--drag-handle {
-  display: none;
+  /* display: none; */
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  transform: translateX(-40px);
+  transition: all 0.2s ease-in-out;
   .vxe-table-icon-drag-handle {
     transform: rotate(90deg);
   }
