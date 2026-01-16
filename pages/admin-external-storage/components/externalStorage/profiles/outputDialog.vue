@@ -74,13 +74,6 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          <el-popover width="300" title="Warning" content="An excessively long path may prevent normal access!" placement="top">
-            <template #reference>
-              <el-icon style="cursor: pointer; color: #909399;">
-                <QuestionFilled />
-              </el-icon>
-            </template>
-          </el-popover>
         </el-form-item>
         <el-form-item :label="$t('externalStorage.fileName')" prop="file_name">
           <el-input class="fileName" v-model="form.file_name" ref="fileNameInput" />
@@ -92,14 +85,8 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          <el-popover width="300" title="Warning" content="An excessively long File Name may prevent normal access!" placement="top">
-            <template #reference>
-              <el-icon style="cursor: pointer; color: #909399;">
-                <QuestionFilled />
-              </el-icon>
-            </template>
-          </el-popover>
         </el-form-item>
+        <el-alert title="An excessively long 'Path' may prevent normal access!" type="warning" show-icon />
       </template>
       <template v-else>
         <el-form-item :label="$t('workflow_workflow')" prop="workflow">
