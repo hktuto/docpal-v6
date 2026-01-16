@@ -181,7 +181,7 @@ watch(
   --app-header-height: 48px;
   container-type: inline-size;
   container-name: workspace-container;
-  transform: translateX(0);
+  /* transform: translateX(0); */
 }
 
 .sideBarContainer {
@@ -193,7 +193,7 @@ watch(
 
   @container workspace-container (max-width: 800px) {
     display: grid;
-    position: fixed;
+    position: absolute;
     left: 0;
     top: 0;
     bottom: 0;

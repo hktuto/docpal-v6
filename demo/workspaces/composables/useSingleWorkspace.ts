@@ -280,6 +280,7 @@ export function useSingleWorkspace() {
       for (const child of item.children) {
         await deleteItem(child.id)
       }
+      menuState.value.expandedFolders.delete(id)
     }
 
     // For tables, delete the physical table and all metadata
@@ -307,7 +308,6 @@ export function useSingleWorkspace() {
 
     // Update local state
     menuState.value.items = removeItemById(menuState.value.items, id)
-
     // If the deleted item was currently being viewed, navigate to root
     if (workspaceRouteParams.value.detailId === id) {
       workspaceRouteParams.value.detailId = null
@@ -378,7 +378,9 @@ export function useSingleWorkspace() {
     } else {
       menuState.value.items.push(newItem)
     }
-
+    if (type === 'folder') {
+      menuState.value.expandedFolders.add(newItem.id)
+    }
     startEdit(newItem.id)
     return newItem
   }
