@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { CaseTypeRecord } from '../../utils/db/schema/newTableSchema'
 import { VirtGrid } from 'vue-virt-list'
+import { ElMessageBox } from 'element-plus'
 
 const createWorkspacePopover = ref()
 const viewMode = ref<'grid' | 'table'>('grid')
@@ -85,13 +86,27 @@ function handleWorkspaceSelected(workspace: CaseTypeRecord) {
   // Handle workspace selection (e.g., navigate to workspace)
 }
 
-async function handleWorkspaceDelete(workspaceId: string) {
+async function handleWorkspaceDelete(workspace: CaseTypeRecord) {
   try {
-    await deleteWorkspace(workspaceId)
+    await ElMessageBox.confirm(
+      `Are you sure you want to delete "${workspace.name}"?<br><br>This will permanently delete the workspace and all related data. This action cannot be undone.`,
+      'Delete Workspace',
+      {
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+        dangerouslyUseHTMLString: true
+      }
+    )
+
+    await deleteWorkspace(workspace.id)
     // Workspace list will be automatically refreshed by deleteWorkspace
   } catch (error) {
-    console.error('Failed to delete workspace:', error)
-    // You might want to show an error message to the user here
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('Failed to delete workspace:', error)
+      // You might want to show an error message to the user here
+    }
+    // User cancelled the deletion - do nothing
   }
 }
 
@@ -159,7 +174,7 @@ onMounted(() => {
             </div>
           </template>
           <template v-if="viewMode === 'table'">
-            <WorkspacesListTable ref="tableRef" :items="items" :keyword="keyword" @selected="handleWorkspaceSelected" />
+            <WorkspacesListTable ref="tableRef" :items="items" :keyword="keyword" @selected="handleWorkspaceSelected" @delete="handleWorkspaceDelete" />
           </template>
         </template>
       </UiSearchableList>

@@ -8,7 +8,7 @@ const props = defineProps<{
 const { items } = toRefs(props)
 
 const { highlightText } = useTextHighlight()
-const emits = defineEmits(['selected'])
+const emits = defineEmits(['selected', 'delete'])
 const { tableRef, tableConfig, tableEvent, reload } = useVxeTable({
   id: 'workspaces-table',
   columns: [
@@ -43,6 +43,22 @@ const { tableRef, tableConfig, tableEvent, reload } = useVxeTable({
         return formatDate(cellValue)
       }
     }
+  ],
+  bodyActions: [
+    [
+      {
+        name: 'View',
+        action: ({ row }) => {
+          emits('selected', row)
+        }
+      },
+      {
+        name: 'Delete',
+        action: ({ row }) => {
+          emits('delete', row)
+        }
+      }
+    ]
   ],
   virtualScroll: true,
   dblClickAction: ({ row, column, event }) => {

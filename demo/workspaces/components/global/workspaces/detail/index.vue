@@ -178,7 +178,7 @@ watch(
 .pageContainer {
   height: 100%;
   width: 100%;
-  --app-header-height: 60px;
+  --app-header-height: 48px;
   container-type: inline-size;
   container-name: workspace-container;
   transform: translateX(0);

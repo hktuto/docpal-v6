@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { CaseTypeRecord } from '../../../utils/db/schema/newTableSchema'
-import { ElMessageBox } from 'element-plus'
 
 const props = defineProps<{
   workspace: CaseTypeRecord
@@ -21,24 +20,9 @@ function handleView() {
   popoverRef.value?.close()
 }
 
-async function handleDelete() {
-  try {
-    await ElMessageBox.confirm(
-      `Are you sure you want to delete "${props.workspace.name}"?<br><br>This will permanently delete the workspace and all related data. This action cannot be undone.`,
-      'Delete Workspace',
-      {
-        confirmButtonText: 'Delete',
-        cancelButtonText: 'Cancel',
-        type: 'warning',
-        dangerouslyUseHTMLString: true
-      }
-    )
-
-    emits('delete', props.workspace.id)
-    popoverRef.value?.close()
-  } catch {
-    // User cancelled the deletion
-  }
+function handleDelete() {
+  emits('delete', props.workspace)
+  popoverRef.value?.close()
 }
 
 function openPopover(event: MouseEvent) {
