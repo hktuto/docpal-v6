@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { adminApi } from 'api'
+import { adminApi,clientApi } from 'api'
 
 const props = defineProps<{
   workflowList: any[]
@@ -89,7 +89,7 @@ async function handleCreateWorkflow(caseResult: any, masterTableResult: any, doc
 
     // update e-form
     for (const formItem of item.form) {
-      await adminApi.api.postRelationSave({
+      await clientApi.api.postDmsFormPropertiesSave({
         userTaskId: formItem.formId,
         processKey: nameToId,
         versionId: data?.latestVersionId,

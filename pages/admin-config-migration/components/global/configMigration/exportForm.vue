@@ -60,7 +60,7 @@ async function getListData() {
 }
 
 async function getCaseList() {
-  const res = await adminApi.api.postCaseTypesPage({ pageNum: 0, pageSize: 1000 })
+  const res = await clientApi.api.postCaseTypesPage({ pageNum: 0, pageSize: 1000 })
   caseList.value = res.data?.entryList.filter((item: any) => item.productionVersion) || []
 }
 

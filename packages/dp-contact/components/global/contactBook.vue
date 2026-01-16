@@ -17,7 +17,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { globalApi } from 'api'
+import { clientApi } from 'api'
 import { routeContactList } from '~/utils/routerHelper'
 const { getPermission, isDelete, isManage } = useContactPermissionHelper()
 const platform = useAppPlatform()
@@ -48,7 +48,7 @@ const bodyActions = {
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'contactBook',
   api: (pageParams: any) => {
-    return globalApi.api.postContactgroupPage({ ...pageParams, ...extraParams })
+    return clientApi.api.postDmsContactGroupPage({ ...pageParams, ...extraParams })
   },
   columns: [
     { field: 'name', title: 'tableHeader_name', fixed: 'left' },
@@ -145,8 +145,8 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   }
 })
 async function getRowPermission(row: any) {
-  const { data } = await globalApi.api.getContactgroupIdUserUseridPermission(row.id, userId.value)
-  getPermission(data)
+  const data = await clientApi.api.getDmsContactGroupIdUserUseridPermission(row.id, userId.value).then(r => r.data)
+  await getPermission(data)
   return isDelete.value || isManage.value
 }
 function formatPermission(permissions: any, key: string = 'Read') {
@@ -167,7 +167,7 @@ async function deleteItem(row: any) {
   try {
     const action = await ElMessageBox.confirm(t('msg_confirmWhetherToDelete'))
     if (action !== 'confirm') return
-    await globalApi.api.deleteContactgroupId(row.id)
+    await clientApi.api.deleteDmsContactGroupId(row.id)
     routerProvider?.message.success(
       t('tip_deleteSuccessMsg', {
         modelName: t('contactBook.title'),

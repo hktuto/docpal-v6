@@ -1,4 +1,4 @@
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 
 
 type UserGroupList = {
@@ -97,7 +97,7 @@ const useAllWorkflowList = () => useState<any[]>('all-workflow-list', () => [])
 
 async function getAllCaseList() {
   const allCaseList = useAllCaseList()
-  const res = await adminApi.api.postCaseTypesPage({ pageNum: 0, pageSize: 1000 })
+  const res = await clientApi.api.postCaseTypesPage({ pageNum: 0, pageSize: 1000 })
   if(!res.data || !res.data.entryList) {
     throw new Error('Failed to get all case list')
   }
@@ -137,15 +137,15 @@ export async function getCaseExportData(caseId: string) {
   result.caseIdPrefix = caseDetails.caseIdPrefix
   result.startNumber = caseDetails.startNumber
 
-  let {data: caseStyleJson} = await adminApi.api.getCaseTypesIdStylejson(selectedCaseData.id, {versionNumber: selectedCaseData?.latestVersion})
+  let caseStyleJson = await clientApi.api.getCaseTypesIdStylejson(selectedCaseData.id, {versionNumber: selectedCaseData?.latestVersion}).then(r => r.data)
   caseStyleJson = caseStyleJson ? JSON.parse(caseStyleJson) : null
-  const blob = await adminApi.api.getCaseTypesIdDownloadXml(selectedCaseData.id, {versionNumber: selectedCaseData?.latestVersion}, {
+  const blob = await clientApi.api.getCaseTypesIdDownloadXml(selectedCaseData.id, {versionNumber: selectedCaseData?.latestVersion}, {
     format: 'blob'
   }) as any
   const cmmnString = await blob.text()
   result.xml = cmmnString
   result.styleJson = caseStyleJson
-  const caseDashboard = await adminApi.api.postCaseDashboardPage({caseTypeId: selectedCaseData.id, pageNum: 0, pageSize: 1000})
+  const caseDashboard = await clientApi.api.postCaseDashboardPage({caseTypeId: selectedCaseData.id, pageNum: 0, pageSize: 1000})
   result.dashboard = (caseDashboard.data?.entryList || [])
 
   // get case form
@@ -174,7 +174,7 @@ export async function getCaseExportData(caseId: string) {
       const item = steps.humanTask[i]
       console.log("try to get form", item)
       if(!item.data.attr_id) continue;
-      const form = await adminApi.api.getRelationQuery({
+      const form = await clientApi.api.getDmsFormPropertiesQuery({
         processKey: selectedCaseData.name,
         userTaskId: item.data.attr_id,
         versionId: selectedCaseData?.latestVersion

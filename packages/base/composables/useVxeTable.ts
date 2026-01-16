@@ -161,7 +161,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
             if (!perference.value.tableSettings) perference.value.tableSettings = {}
             perference.value.tableSettings[id] = storeData
             // save perference
-            return clientApi.api.putUserSetting(perference.value)
+            return clientApi.api.putDmsUserSetting(perference.value)
           } catch (error) {
             console.error('error', error)
           }

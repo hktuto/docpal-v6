@@ -24,7 +24,7 @@ async function getList() {
 }
 
 async function getSystemRecords() {
-  const { data }: any = await clientApi.api.getNuxeoSfolder()
+  const data: any = await clientApi.api.getDmsSmartFolder().then(r => r.data)
   state.systemRecords = data.map((item: any) => ({
     label: item.name,
     queryCondition: item.json_value
@@ -61,7 +61,7 @@ async function handleDelete(row: any) {
     await clientApi.api.deleteNuxeoSearchDeleteNestedSearchLogId(row.id)
     getList()
   } catch (error) {
-    
+
   }
 }
 

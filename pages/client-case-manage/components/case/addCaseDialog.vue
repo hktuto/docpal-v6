@@ -24,7 +24,7 @@ async function handleOpen(id: string, caseDetail: any) {
     }
     // get cmmn xml
     primaryForm.value = startForm
-    const form = await clientApi.api.getRelationQuery({
+    const form = await clientApi.api.getDmsFormPropertiesQuery({
       processKey: caseDetail.caseDefinitionKey,
       userTaskId: startForm[0].key,
       versionId: caseDetail.productionVersionId

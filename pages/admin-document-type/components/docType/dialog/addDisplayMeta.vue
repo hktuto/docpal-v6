@@ -73,7 +73,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { ElMessage, type FormInstance } from 'element-plus'
 import { initMetadataOpts, metadataOpts } from '@/composables/useDocumentTypeOptioins'
 
@@ -134,13 +134,13 @@ async function handleSubmit(addMore: boolean = false) {
     state.loading = true
     // Add or update metadata
     if (state.isEdit) {
-      await adminApi.api.postDocpaltypeSettingsDocpalTypeV2UpdateMetadataDocpaltypeid(props.id, formData)
+      await clientApi.admin.putAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, formData)
       routerProvider?.message.success(t('tip_updateMsg', {
         modelName: t('tip_SelectedMsg') + t('docType_displayMeta'),
         name: null
       }))
     } else {
-      await adminApi.api.postDocpaltypeSettingsDocpalTypeV2AddMetadataDocpaltypeid(props.id, formData)
+      await clientApi.admin.postAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, formData).then(r => r.data)
       ElMessage.success(t('common_addSuccess'))
     }
     const newMetadata = JSON.parse(JSON.stringify(formData))

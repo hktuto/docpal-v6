@@ -72,11 +72,6 @@ function handleAdd() {
   TemplateAddStep1DialogRef.value.handleOpen()
 }
 
-async function handleActive(row: any, enable: boolean) {
-  await adminApi.api.putCaseTypesEnable({ id: row.id, enable })
-  tableRef.value.reload()
-}
-
 const TemplateReplaceDialogRef = ref()
 
 async function handleReplace(row: any) {
@@ -174,7 +169,6 @@ provide(DocumentTemplateProviderKey, {
     const item = createNewDocumentTemplateDetail(row, true)
     routerProvider?.navigateTo(item)
   },
-  handleActive,
   handleReplace,
   handleEdit,
   handleEditInfo,
@@ -203,7 +197,7 @@ provide(DocumentTemplateProviderKey, {
         </div>
       </template>
     </DocumentTemplateListTable>
-    <TemplateAddStep1Dialog ref="TemplateAddStep1DialogRef" @update="tableRef?.reload"></TemplateAddStep1Dialog>
+    <TemplateAddStep1Dialog ref="TemplateAddStep1DialogRef" @update="tableRef?.reload"/>
     <TemplateReplaceDialog ref="TemplateReplaceDialogRef" @refresh="tableRef?.reload" />
   </div>
 </template>

@@ -55,7 +55,7 @@ const responsiveFilter = ref()
 
 async function initCondition() {
   try {
-    const { data } = await clientApi.api.getCaseTypesCasetypeidRecordsPageConditions(id)
+    const data = await clientApi.api.getCaseTypesCasetypeidRecordsPageConditions(id).then(r =>r.data)
     const order = [
       {
         key: 'orderBy',
@@ -106,7 +106,7 @@ function handleFilterFormChange(formModel: any) {
 
 async function reorderColumn() {
   try {
-    const { data: { fields } } = await clientApi.api.getCaseDashboardCasetypeCasetypeidPrimaryform(id)
+    const { fields } = await clientApi.api.getCaseDashboardCasetypeCasetypeidPrimaryform(id).then(r => r.data)
     const columns = [
       // { field: 'case_id', title: 'caseManagement.id' },
       {

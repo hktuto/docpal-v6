@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 
 const { node } = defineProps<{
   node: Node
@@ -89,7 +89,7 @@ function setEmailTemplateId(value: string) {
       })
     newData.data.extensionElements['flowable:field'] = [newItem, ...variable]
   }
-  
+
   templateVariables.value = nodeData.data.extensionElements['flowable:field'].filter(
     (item: any) =>
       item.attr_name !== 'notificationType' && item.attr_name !== 'hostUrl' && item.attr_name !== 'processInstanceId' && !item.attr_name.includes(',')
@@ -134,8 +134,9 @@ function generateFieldList() {
       item.attr_name !== 'notificationType' && item.attr_name !== 'hostUrl' && item.attr_name !== 'processInstanceId' && !item.attr_name.includes(',')
   )
 }
+
 async function getContactBookFieldList() {
-  const response = await adminApi.api.getContactgroupList()
+  const response = await clientApi.api.getDmsContactGroupList().then(r => r.data)
   contactBookFieldList.value = response.data
 }
 onMounted(async () => {

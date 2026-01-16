@@ -35,7 +35,7 @@ export const getFromServer = async function(loadUserList: boolean, loadRoleList:
     }
 
     if (loadRoleList) {
-      const role = await clientApi.api.postAclRoleList([{
+      const role = await clientApi.api.postDocpalAclRoleList([{
         column: 'status',
         type: 'EQ',
         values: '1'
@@ -84,6 +84,15 @@ export const getPermissionSelectOption = async () => {
   return convertId(options.value)
 }
 
+// User, Role Select option
+export const getUserAndRolePermissionSelectOption = async () => {
+  const options = usePermissionOption()
+  if (options.value.length === 0) {
+    await getFromServer(true, true, false)
+  }
+  return convertId(options.value)
+}
+
 // User, Group Select option
 export const getUserAndGroupPermissionSelectOption = async () => {
   const options = usePermissionOption()
@@ -124,8 +133,12 @@ function convertId(options: any) {
   }))
 }
 
-// From the select array, convert permissions to objects. format: { "user": ["joshua"], "group": ['group_IT'], "role": ['role_cxv']}
-export const convertPermissionObjectByPermissions = (permissions: any) => {
+/**
+ * From the select array, convert permissions to objects.
+ * ['user_joshua', 'role_cxv', 'group_IT'] To format: { "user": ["joshua"], "group": ['IT'], "role": ['cxv']}
+ * @param permissions string array
+ */
+export const convertPermissionObjectByPermissions = (permissions: string[]) => {
   if (!permissions) return {}
   const item: Record<string, string[]> = {}
   permissions.forEach((key: string) => {
@@ -142,19 +155,27 @@ export const convertPermissionObjectByPermissions = (permissions: any) => {
   return item
 }
 
-// Convert permissions object to permission array.  format: [ "user_joshua","group_IT","role_cxv"  ]
+/**
+ * Convert permissions object to permission array.
+ * { "user": ["joshua"], "group": ['IT'], "role": ['cxv']} To format: [ "user_joshua", "group_IT", "role_cxv" ]
+ * @param permissions { 'user': ['joshua'], 'group': ['group_IT'], 'role': ['role_cxv']}
+ */
 export const convertPermissionsByPermissionObject = (permissions: {
-  user: string[],
-  role: string[],
-  group: string[]
+  user?: string[],
+  role?: string[],
+  group?: string[]
 }) => {
   return Object.entries(permissions).flatMap(([key, values]) =>
     values.map(value => `${key}_${value}`)
   )
 }
 
-// Exclude the permission content that has been selected
-export const excludeItemSelectList = (permission: any, permissionOptionList: any[]) => {
+/**
+ * Exclude the permission content that has been selected
+ * @param permission string Array
+ * @param permissionOptionList <PermissionOption[]>
+ */
+export const excludeItemSelectList = (permission: any, permissionOptionList: PermissionOption[]) => {
   const userIdsToRemove = new Set(permission.exitList.map((item: any) => item.userId))
   return permissionOptionList.reduce((acc: any[], allItem: any) => {
     const newOptions = allItem.options.filter((option: any) => {
@@ -167,14 +188,18 @@ export const excludeItemSelectList = (permission: any, permissionOptionList: any
   }, [])
 }
 
-// To Select Options. output Data
+/**
+ * Convert permissions array Object to permission array.
+ * [{"dataType": "group", "value": "administrators", "name": "Administrators Group"}] To format: [ "group_administrators" ]
+ * @param permissions
+ */
 export const convertSelectOptions = (permissions: any) => {
   const permission: any = []
   permissions.forEach((item: any) => {
     const type = item.dataType
     switch (type) {
       case 'user':
-        permission.push(`user_${item.value}`)
+        permission.push(`user_${item.value}`)()
         break
       case 'role':
         permission.push(`role_${item.value}`)
@@ -260,7 +285,7 @@ export const getUserSelectOption = async () => {
 
 export const getRoleSelectOption = async () => {
   try {
-    const list: any = await clientApi.api.postAclRoleList([{
+    const list: any = await clientApi.api.postDocpalAclRoleList([{
       column: 'status',
       type: 'EQ',
       values: '1'

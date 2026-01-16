@@ -122,6 +122,7 @@ export async function login() {
   try {
     // get access token from local storage
     const storageToken = localStorage.getItem('access_token')
+    console.log('useAuth', storageToken)
     if (!storageToken) {
       throw new Error('access token not found')
     }
@@ -250,7 +251,7 @@ const uiSize = [
  */
 export async function getUserPreference() {
   const preference = useUserPreference()
-  const { data } = await clientApi.api.getUserSetting()
+  const data = await clientApi.api.getDmsUserSetting().then(r => r.data)
   if (!data) {
     throw new Error('get user preference fail')
   }
@@ -299,7 +300,7 @@ async function getUser() {
   const user = useUserState()
   const userId = useUserId()
   const userRole = useUserRole()
-  const { data } = (await clientApi.api.getDmsUserGetapplication()) as any
+  const data: any = await clientApi.api.getDmsUserGetapplication().then(r => r.data)
   userId.value = data.userId
   userRole.value = data.aclUserDetail?.roleId
   localStorage.setItem('docpal-user', JSON.stringify(data))

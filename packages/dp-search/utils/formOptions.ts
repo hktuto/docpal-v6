@@ -103,7 +103,7 @@ export const getMetadataOptions = async () => {
     let metadataOpts
     const platform = window.location.pathname.includes('admin') ? 'admin' : 'client'
     if (platform === 'admin') {
-      metadataOpts = await adminApi.api.getDocpaltypeSettingsMetadataV2QueryCache().then((res: any) => res.data)
+      metadataOpts = await clientApi.admin.getAdmindmsDocpalTypeCache().then((res: any) => res.data)
     } else {
       metadataOpts = await clientApi.api.getTypesMetadataV2QueryCache().then((res: any) => res.data)
     }

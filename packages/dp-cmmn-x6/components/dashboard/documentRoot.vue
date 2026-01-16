@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi, globalApi } from 'api'
+import { clientApi } from 'api'
 import { CaseManagementDashboardKey } from '../../utils/caseProvider'
 import { inject, provide, ref } from 'vue';
 const props = withDefaults(
@@ -31,11 +31,9 @@ async function getCDBasciInfo() {
     const id = caseProvider.instanceId?.value || null
     const versionId = caseProvider.versionId?.value || null
     if (id) {
-      const { data } = await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(id)
-      caseData = data
+      caseData = await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(id).then(r =>r.data)
     } else if (versionId) {
-      const { data } = await globalApi.api.getCaseDashboardVersionVersionidPrimaryform(versionId)
-      caseData = data
+      caseData = await clientApi.api.getCaseDashboardVersionVersionidPrimaryform(versionId).then(r =>r.data)
     } else {
       caseData = {
         fields: [],

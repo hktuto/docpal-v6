@@ -10,8 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
-import { globalApi } from 'api'
+import { clientApi } from 'api'
 const dialogOpened = ref(false)
 const { t } = useI18n()
 const props = defineProps<{
@@ -31,11 +30,11 @@ async function handleSubmit() {
     state.loading = true
     const data = await FormVariablesRendererRef.value.getData()
     if (state.setting.id) {
-      await globalApi.api.putContactgroupIdContactdetailContactdetailid(contactBookDetail.value.id, state.setting.id, data)
+      await clientApi.api.putDmsContactGroupIdContactdetailContactdetailid(contactBookDetail.value.id, state.setting.id, data)
     } else {
-      await globalApi.api.postContactgroupIdContactdetail(contactBookDetail.value.id, JSON.stringify(data))
-      emits('refresh')
+      await clientApi.api.postDmsContactGroupIdContactdetail(contactBookDetail.value.id, JSON.stringify(data))
     }
+    emits('refresh')
     dialogOpened.value = false
   } catch (error) {
     console.log(error)

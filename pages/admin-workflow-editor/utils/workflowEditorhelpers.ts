@@ -1,4 +1,4 @@
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 
 export async function saveWorkflowFormToNewVersion(xml: string, processKey: string, oldVersion: string, newVersion: string) {
   if (!xml) {
@@ -54,7 +54,7 @@ export async function getAllFormFromXML(xml: string, processKey: string, version
     allFormsID.push(endEvent.attr_id)
   })
   for await (const formId of allFormsID) {
-    const response = await adminApi.api.getRelationQuery({
+    const response = await clientApi.api.getDmsFormPropertiesQuery({
       processKey: processKey,
       userTaskId: formId,
       versionId: version
@@ -94,7 +94,7 @@ export async function getAllFormFromXML(xml: string, processKey: string, version
 export async function batchSaveForm(forms: BatchForms, processKey: string, version: string, oldVersion: string) {
   console.log('batchSaveForm', forms, processKey, version)
   forms.forEach(async (form) => {
-    const res = await adminApi.api.postRelationSave({
+    const res = await clientApi.api.postDmsFormPropertiesSave({
       processKey: processKey,
       userTaskId: form.formId,
       jsonValue: form.json,

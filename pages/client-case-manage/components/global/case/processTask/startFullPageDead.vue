@@ -26,11 +26,7 @@ async function setUpForm() {
   try {
     loading.value = true
     // get action item detail from case instance
-    const stepDetail = (await clientApi.api
-      .postCaseDashboardInstanceActionPreRequisite({
-        id: actionStepId
-      })
-      .then((res) => res.data)) as any
+    const stepDetail = (await clientApi.api.postCaseDashboardInstanceActionPreRequisite({ id: actionStepId }).then((res) => res.data)) as any
 
     // get latest case detail
     const caseData = (await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(caseInstanceId).then((res) => res.data)) as any
@@ -53,8 +49,7 @@ async function setUpForm() {
     formData.value.case_id = caseInstanceId
 
     // get form json with lateset versiion
-    formJson.value = await clientApi.api
-      .getRelationQuery({
+    formJson.value = await clientApi.api.getDmsFormPropertiesQuery({
         userTaskId: 'start',
         processKey: stepDetail.processDefinitionKey,
         versionId: stepDetail.processDefinitionVersionId

@@ -12,7 +12,7 @@
 </template>
 <script lang="ts" setup>
 import { emitBus, EventType } from 'eventbus'
-import { globalApi } from 'api'
+import { globalApi, clientApi } from 'api'
 const props = withDefaults(defineProps<{
   ignoreList: string[],
 }>(), {
@@ -82,7 +82,7 @@ async function handleOpen(taskId, actionItem, actionList) {
     if(item.value) prev[item.id] = item.value
     return prev
   }, {})
-  const form = await globalApi.api.getRelationQuery({
+  const form = await clientApi.api.getDmsFormPropertiesQuery({
       processKey: CMDProvider?.caseDefinitionKey.value,
       userTaskId: actionItem.planItemDefinitionId,
       versionId: CMDProvider?.versionId.value

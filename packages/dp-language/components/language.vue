@@ -29,7 +29,7 @@ import { ElMessage } from 'element-plus'
 import * as XLSX from 'xlsx'
 
 type TranslationSection = 'client' | 'admin' | 'meta'
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 
 const opened = ref(false)
 
@@ -212,7 +212,7 @@ async function GetLanguages() {
 
   async function getLanguage(code: any) {
     const key = getStoreKey(code)
-    const { data } = await adminApi.api.getRelationQuerylanguage({
+    const { data } = await clientApi.api.getDmsFormPropertiesLanguageList({
       locale: code,
       languageKey: state.selectedSection
     }) as any
@@ -231,7 +231,7 @@ function getStoreKey(code: any) {
 
 // #endregion
 onMounted(async () => {
-  const { data } = await adminApi.api.getNuxeoAdminSettingLanguage() as any
+  const data = await clientApi.api.getDmsSettingSystemLanguage().then(r =>r.data) as any
 
   state.locales = JSON.parse(data).locale
   GetLanguages()

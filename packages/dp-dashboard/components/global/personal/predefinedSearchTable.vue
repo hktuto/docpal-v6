@@ -6,7 +6,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
 import { clientApi } from "api";
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -23,8 +22,7 @@ const {
   zoom: false,
   virtualScroll: true,
   api: async (pageParams: any) => {
-    const { data } = await clientApi.api.getNuxeoSfolder({ ...pageParams, ...extraParams })
-    return data
+    return await clientApi.api.getDmsSmartFolder({ ...pageParams, ...extraParams }).then(r => r.data)
   },
   columns: [
     { field: "name", title: "table_name", fixed: "left" },

@@ -285,11 +285,7 @@ async function getWorkflow() {
 
 async function getCase() {
   if (caseList.length === 0) {
-    const res = await adminApi.api
-      .postCaseTypesPage({
-        pageSize: 9999
-      })
-      .then((res) => res.data)
+    const res = await clientApi.api.postCaseTypesPage({ pageSize: 9999 }).then((res) => res.data)
     caseList = res.entryList.map((item) => ({
       label: item.name,
       value: item.id,
@@ -376,7 +372,7 @@ async function getCaseProps(key: string) {
   try {
     const caseItem = caseList.find(item => item.value === key)
 
-    const options = await adminApi.api.getCaseDashboardVersionVersionidPrimaryform(caseItem.productionVersionId).then((res) => res.data)
+    const options: any = await clientApi.api.getCaseDashboardVersionVersionidPrimaryform(caseItem.productionVersionId).then((res) => res.data)
     if (!options || options.length == 0) {
       return []
     }

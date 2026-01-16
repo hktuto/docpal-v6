@@ -1,14 +1,12 @@
 // import { availableLocales } from 'i18n/makeI18nSetting';
-import { adminApi } from 'api'
+import { adminApi,clientApi } from 'api'
 import { ElNotification } from 'element-plus'
 const availableLocales = [ 'en-US', 'zh-CN', 'zh-HK']
 const pageKeys: any = {
     '/trash': ['commons_success', 'Fail', 'trash_error_noAction', 'dpTip_noSelection']
 }
 const GetLanguageApi = async(locale: string, languageKey: string) => {
-
-    
-    const data: any = await adminApi.api.getRelationQuerylanguage({locale, languageKey}, {
+    const data: any = await clientApi.api.getDmsFormPropertiesLanguageList({locale, languageKey}, {
         headers: { 'noRouteErrorPage' : "true" }
     }).then(res=>res.data)
     if(!!data && !!data[0]) return {

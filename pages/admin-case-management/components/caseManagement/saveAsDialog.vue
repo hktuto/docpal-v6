@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElDialog } from 'element-plus'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import formJson from './copy.vform.json'
 
 const opened = ref(false)
@@ -16,17 +16,24 @@ const form = reactive({
   name: '',
   copyVersion: 'V1'
 })
+
 function close() {
   opened.value = false
   emits('close')
 }
+
 const FormRendererRef = ref()
 
 let versionList: any[] = []
+
 async function getVersionList() {
   // get version list
-  const response = await adminApi.api.postCaseTypesVersionPage({ pageNum: 0, pageSize: 1000, caseTypeId: data.id || data.draftId })
-  versionList = response.data?.entryList || []
+  const response = await clientApi.api.postCaseTypesVersionPage({
+    pageNum: 0,
+    pageSize: 1000,
+    caseTypeId: data.id || data.draftId
+  }).then(r => r.data)
+  versionList = response.entryList || []
   const copy = FormRendererRef.value.vFormRenderRef.getWidgetRef('copyVersion')
   copy.loadOptions(
     versionList.map((item) => ({
@@ -61,10 +68,10 @@ async function save() {
       versionId: versionId
     }
 
-    const copyRes: any = await adminApi.api.postCaseTypesIdCopy(data.id, params).then((res) => res.data)
+    const copyRes: any = await clientApi.api.postCaseTypesIdCopy(data.id, params).then((res) => res.data)
     // get case detail
 
-    const blob = (await adminApi.api.getCaseTypesIdDownloadXml(
+    const blob = (await clientApi.api.getCaseTypesIdDownloadXml(
       data.id,
       { versionNumber: formData.copyVersion },
       {
@@ -75,25 +82,25 @@ async function save() {
     const v = cmmnToJson(cmmnString)
     const humanTasks = v.definitions.case.casePlanModel.humanTask || []
 
-    // const {data} = await adminApi.api.postCaseTypesVersionVersionidNew(props.caseTypeId)
+    // const {data} = await clientApi.api.postCaseTypesVersionVersionidNew(props.caseTypeId)
     //TODO : get all form in case and save as to new version
     // Step 1 : get all form in case
     // const allFrom = await xmlRef.value.getAllForm()
     for (let i = 0; i < humanTasks.length; i++) {
       const task = humanTasks[i] as any
-      const response = await adminApi.api.getRelationQuery({
+      const response = await clientApi.api.getDmsFormPropertiesQuery({
         processKey: data.name,
         userTaskId: task.attr_id,
         versionId: versionId
-      })
-      if (response && response.data && response.data.length > 0 && response.data[0].jsonValue && JSON.parse(response.data[0].jsonValue)) {
+      }).then(r => r.data)
+      if (response && response.length > 0 && response[0].jsonValue && JSON.parse(response[0].jsonValue)) {
         const params: any = {
           processKey: copyRes?.name,
           userTaskId: task.attr_id,
           versionId: copyRes?.latestVersionId
         }
-        params.jsonValue = response.data[0].jsonValue
-        await adminApi.api.postRelationSave(params)
+        params.jsonValue = response[0].jsonValue
+        await clientApi.api.postDmsFormPropertiesSave(params).then(r => r.data)
       }
     }
     // TODO : copy form data

@@ -26,8 +26,8 @@ async function handleOpen() {
 
 async function getImageUrl() {
   try {
-    const response = await clientApi.api.getUserprofileUseridSignature(props.userId, { format: 'blob' })
-    if (response && response.size > 0) {
+    const response:any = await clientApi.api.getDmsUserprofileUseridSignature(props.userId, { format: 'blob' })
+    if (!!response && response.size > 0) {
       const blob = new Blob([response], { type: response.type })
       const url = URL.createObjectURL(blob)
 
@@ -47,7 +47,7 @@ async function getImageUrl() {
 
 async function handleSubmit() {
   if (!state.isCreate && state.fileList.length === 0) {
-    await clientApi.api.deleteUserprofileUseridSignature(props.userId)
+    await clientApi.api.deleteDmsUserprofileUseridSignature(props.userId).then(r => r.data)
     routerProvider?.message.success(
       t('tip_updateSuccessMsg', {
         modelName: t('user.setting.userSignature'),
@@ -67,9 +67,9 @@ async function handleSubmit() {
 
     // TODO: swagger APi 文檔需要移除 query 參數
     if (state.isCreate) {
-      await clientApi.api.postUserprofileUseridSignature(props.userId, {}, form as any)
+      await clientApi.api.postDmsUserprofileUseridSignature(props.userId, {} as any, form as any)
     } else {
-      await clientApi.api.putUserprofileUseridSignature(props.userId, {}, form as any)
+      await clientApi.api.putDmsUserprofileUseridSignature(props.userId, {} as any, form as any)
     }
   } catch (e) {
     routerProvider?.message.error(t('user.setting.userSignatureUploadFailed'))

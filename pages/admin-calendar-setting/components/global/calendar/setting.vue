@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { ElFormItem, ElSwitch } from 'element-plus'
 import { useDebounceFn } from '@vueuse/core'
 
@@ -12,10 +12,8 @@ const { t } = useI18n()
 const { setting, getCalendarsSetting, calendarViewOptions, weekDayOptions } = useCalendarStore()
 const loading = ref(false)
 
-const categoryMasterTable = ref()
-
 const saveSetting = useDebounceFn(async () => {
-  await adminApi.api.postCalendarsSetting(setting.value)
+  await clientApi.api.postDmsCalendarsSetting(setting.value).then(r => r.data)
   routerProvider?.message.success(t('dpMsg_success'))
 }, 500)
 
@@ -113,7 +111,6 @@ onMounted(() => {
         </ElForm>
       </div>
       <CalendarSettingCategories />
-
       <el-divider />
     </template>
   </div>

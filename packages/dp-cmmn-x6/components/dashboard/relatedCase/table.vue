@@ -117,11 +117,7 @@ async function handleTask(actionItem: any, row?: any) {
     emits('refresh')
   } else if (actionItem.planItemDefinitionType === 'processtask') {
     const caseInstanceId = actionItem.caseInstanceId
-    const res = await clientApi.api
-      .postCaseDashboardInstanceActionPreRequisite({
-        id: actionItem.id
-      })
-      .then((res) => res.data)
+    const res = await clientApi.api.postCaseDashboardInstanceActionPreRequisite({ id: actionItem.id }).then((res) => res.data)
     // Get Form Json and XML
 
     // check start event additional setting

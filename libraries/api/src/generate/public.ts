@@ -1485,11 +1485,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags UserDashboardController
-         * @name PutUserDashboard
+         * @name PutDocpalUserDashboard
          * @summary Update user dashboard
          * @request PUT:/api/docpal/user/dashboard
          */
-        putUserDashboard: (data: UserDashboard, params: RequestParams = {}) =>
+        putDocpalUserDashboard: (data: UserDashboard, params: RequestParams = {}) =>
             this.request<ResultUserDashboard, Result>({
                 path: `/api/docpal/user/dashboard`,
                 method: "PUT",
@@ -1502,11 +1502,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags UserDashboardController
-         * @name PostUserDashboard
+         * @name PostDocpalUserDashboard
          * @summary Create user dashboard
          * @request POST:/api/docpal/user/dashboard
          */
-        postUserDashboard: (data: UserDashboard, params: RequestParams = {}) =>
+        postDocpalUserDashboard: (data: UserDashboard, params: RequestParams = {}) =>
             this.request<ResultUserDashboard, Result>({
                 path: `/api/docpal/user/dashboard`,
                 method: "POST",
@@ -1519,11 +1519,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags UserDashboardController
-         * @name GetPlugins
+         * @name GetDocpalPlugins
          * @summary Obtain all dashboard plugin
          * @request GET:/api/docpal/plugins
          */
-        getPlugins: (params: RequestParams = {}) =>
+        getDocpalPlugins: (params: RequestParams = {}) =>
             this.request<ResultListPlugin, Result>({
                 path: `/api/docpal/plugins`,
                 method: "GET",
@@ -1534,11 +1534,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags UserDashboardController
-         * @name PutPlugins
+         * @name PutDocpalPlugins
          * @summary Update plugin
          * @request PUT:/api/docpal/plugins
          */
-        putPlugins: (data: Plugin, params: RequestParams = {}) =>
+        putDocpalPlugins: (data: Plugin, params: RequestParams = {}) =>
             this.request<ResultPlugin, Result>({
                 path: `/api/docpal/plugins`,
                 method: "PUT",
@@ -1551,11 +1551,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags UserDashboardController
-         * @name PostPlugins
+         * @name PostDocpalPlugins
          * @summary Create Dashboard Plugin
          * @request POST:/api/docpal/plugins
          */
-        postPlugins: (data: Plugin, params: RequestParams = {}) =>
+        postDocpalPlugins: (data: Plugin, params: RequestParams = {}) =>
             this.request<ResultPlugin, Result>({
                 path: `/api/docpal/plugins`,
                 method: "POST",
@@ -1964,10 +1964,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Workflow
-         * @name PostWorkflowProcessListDeprecate
+         * @name PostDocpalWorkflowProcessListDeprecate
          * @request POST:/api/docpal/workflow/process/list/
          */
-        postWorkflowProcessListDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowProcessListDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListProcessDTO, Result>({
                 path: `/api/docpal/workflow/process/list/`,
                 method: "POST",
@@ -1980,10 +1980,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Workflow
-         * @name PostWorkflowProcessList
+         * @name PostDocpalWorkflowProcessList
          * @request POST:/api/docpal/workflow/process/list
          */
-        postWorkflowProcessList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowProcessList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListProcessDTO, Result>({
                 path: `/api/docpal/workflow/process/list`,
                 method: "POST",
@@ -1996,10 +1996,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Workflow
-         * @name PostWorkflowProcessCombineList
+         * @name PostDocpalWorkflowProcessCombineList
          * @request POST:/api/docpal/workflow/process/combine/list
          */
-        postWorkflowProcessCombineList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowProcessCombineList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListProcessDTO, Result>({
                 path: `/api/docpal/workflow/process/combine/list`,
                 method: "POST",
@@ -2012,10 +2012,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Workflow
-         * @name PostWorkflowJobList
+         * @name PostDocpalWorkflowJobList
          * @request POST:/api/docpal/workflow/job/list
          */
-        postWorkflowJobList: (data: WorkflowJobRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowJobList: (data: WorkflowJobRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOWorkflowJobOutlineDTO, Result>({
                 path: `/api/docpal/workflow/job/list`,
                 method: "POST",
@@ -2028,10 +2028,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Workflow
-         * @name PostWorkflowJobListDeprecate
+         * @name PostDocpalWorkflowJobListDeprecate
          * @request POST:/api/docpal/workflow/job/list/
          */
-        postWorkflowJobListDeprecate: (data: WorkflowJobRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowJobListDeprecate: (data: WorkflowJobRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOWorkflowJobOutlineDTO, Result>({
                 path: `/api/docpal/workflow/job/list/`,
                 method: "POST",
@@ -2044,10 +2044,13 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Workflow
-         * @name PostWorkflowJobFilterDataDeprecate
+         * @name PostDocpalWorkflowJobFilterDataDeprecate
          * @request POST:/api/docpal/workflow/job/filter_data/
          */
-        postWorkflowJobFilterDataDeprecate: (data: QueryWorkflowVariablesRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowJobFilterDataDeprecate: (
+            data: QueryWorkflowVariablesRequestDTO,
+            params: RequestParams = {},
+        ) =>
             this.request<ResultListWorkflowVariableDTO, Result>({
                 path: `/api/docpal/workflow/job/filter_data/`,
                 method: "POST",
@@ -2060,10 +2063,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Workflow
-         * @name PostWorkflowJobFilterData
+         * @name PostDocpalWorkflowJobFilterData
          * @request POST:/api/docpal/workflow/job/filter_data
          */
-        postWorkflowJobFilterData: (data: QueryWorkflowVariablesRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowJobFilterData: (data: QueryWorkflowVariablesRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListWorkflowVariableDTO, Result>({
                 path: `/api/docpal/workflow/job/filter_data`,
                 method: "POST",
@@ -2076,11 +2079,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags UserDashboardController
-         * @name PostUserDashboardPage
+         * @name PostDocpalUserDashboardPage
          * @summary Pagination search
          * @request POST:/api/docpal/user/dashboard/page
          */
-        postUserDashboardPage: (data: UserDashboardRequestDTO, params: RequestParams = {}) =>
+        postDocpalUserDashboardPage: (data: UserDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOUserDashboardResponseDTO, Result>({
                 path: `/api/docpal/user/dashboard/page`,
                 method: "POST",
@@ -2093,11 +2096,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags UserDashboardController
-         * @name PostPluginsPage
+         * @name PostDocpalPluginsPage
          * @summary Pagination Search
          * @request POST:/api/docpal/plugins/page
          */
-        postPluginsPage: (data: PluginRequestDTO, params: RequestParams = {}) =>
+        postDocpalPluginsPage: (data: PluginRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOPluginResponseDTO, Result>({
                 path: `/api/docpal/plugins/page`,
                 method: "POST",
@@ -2110,10 +2113,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags ocr-statistical-controller
-         * @name PostOcrQueryWorkflowInfo
+         * @name PostDocpalOcrQueryWorkflowInfo
          * @request POST:/api/docpal/ocr/query_workflow_info
          */
-        postOcrQueryWorkflowInfo: (data: OcrProcessedRequestDTO, params: RequestParams = {}) =>
+        postDocpalOcrQueryWorkflowInfo: (data: OcrProcessedRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListOcrProcessedDetailDTO, Result>({
                 path: `/api/docpal/ocr/query_workflow_info`,
                 method: "POST",
@@ -2126,10 +2129,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags ocr-statistical-controller
-         * @name PostOcrQueryScanTypeInfo
+         * @name PostDocpalOcrQueryScanTypeInfo
          * @request POST:/api/docpal/ocr/query_scan_type_info
          */
-        postOcrQueryScanTypeInfo: (data: OcrProcessedRequestDTO, params: RequestParams = {}) =>
+        postDocpalOcrQueryScanTypeInfo: (data: OcrProcessedRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListOcrProcessedDetailDTO, Result>({
                 path: `/api/docpal/ocr/query_scan_type_info`,
                 method: "POST",
@@ -2142,10 +2145,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags ocr-statistical-controller
-         * @name PostOcrQueryOcrTransactionLogs
+         * @name PostDocpalOcrQueryOcrTransactionLogs
          * @request POST:/api/docpal/ocr/query_ocr_transaction_logs
          */
-        postOcrQueryOcrTransactionLogs: (data: OcrTransactionLogRequestDTO, params: RequestParams = {}) =>
+        postDocpalOcrQueryOcrTransactionLogs: (data: OcrTransactionLogRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOOcrTransactionLogDTO, Result>({
                 path: `/api/docpal/ocr/query_ocr_transaction_logs`,
                 method: "POST",
@@ -2158,10 +2161,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags ocr-statistical-controller
-         * @name PostOcrQueryOcrThreshold
+         * @name PostDocpalOcrQueryOcrThreshold
          * @request POST:/api/docpal/ocr/query_ocr_threshold
          */
-        postOcrQueryOcrThreshold: (data: OcrThredsholdRequestDTO, params: RequestParams = {}) =>
+        postDocpalOcrQueryOcrThreshold: (data: OcrThredsholdRequestDTO, params: RequestParams = {}) =>
             this.request<ResultOcrThresholdDTO, Result>({
                 path: `/api/docpal/ocr/query_ocr_threshold`,
                 method: "POST",
@@ -2174,10 +2177,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags ocr-statistical-controller
-         * @name PostOcrQueryDailyWorkflowInfo
+         * @name PostDocpalOcrQueryDailyWorkflowInfo
          * @request POST:/api/docpal/ocr/query_daily_workflow_info
          */
-        postOcrQueryDailyWorkflowInfo: (data: OcrProcessedRequestDTO, params: RequestParams = {}) =>
+        postDocpalOcrQueryDailyWorkflowInfo: (data: OcrProcessedRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListOcrProcessedDetailDTO, Result>({
                 path: `/api/docpal/ocr/query_daily_workflow_info`,
                 method: "POST",
@@ -2190,10 +2193,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags ocr-statistical-controller
-         * @name PostOcrQueryDailyScanTypeInfo
+         * @name PostDocpalOcrQueryDailyScanTypeInfo
          * @request POST:/api/docpal/ocr/query_daily_scan_type_info
          */
-        postOcrQueryDailyScanTypeInfo: (data: OcrProcessedRequestDTO, params: RequestParams = {}) =>
+        postDocpalOcrQueryDailyScanTypeInfo: (data: OcrProcessedRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListOcrProcessedDetailDTO, Result>({
                 path: `/api/docpal/ocr/query_daily_scan_type_info`,
                 method: "POST",
@@ -2206,10 +2209,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocPalEmailController
-         * @name PostEmailTemplateSend
+         * @name PostDocpalEmailTemplateSend
          * @request POST:/api/docpal/email/template/send
          */
-        postEmailTemplateSend: (data: MailSendRequest, params: RequestParams = {}) =>
+        postDocpalEmailTemplateSend: (data: MailSendRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/docpal/email/template/send`,
                 method: "POST",
@@ -2222,11 +2225,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocPalEmailController
-         * @name PostEmailSend
+         * @name PostDocpalEmailSend
          * @summary Send test email using email template
          * @request POST:/api/docpal/email/send
          */
-        postEmailSend: (data: MailSendRequest, params: RequestParams = {}) =>
+        postDocpalEmailSend: (data: MailSendRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/docpal/email/send`,
                 method: "POST",
@@ -2239,10 +2242,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocPalEmailController
-         * @name PostEmailSendFrom
+         * @name PostDocpalEmailSendFrom
          * @request POST:/api/docpal/email/send/from
          */
-        postEmailSendFrom: (
+        postDocpalEmailSendFrom: (
             query: {
                 mailSendRequest: MailSendRequest;
                 multipartFiles: File[];
@@ -2260,10 +2263,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocPalEmailController
-         * @name PostEmailCustomizeSend
+         * @name PostDocpalEmailCustomizeSend
          * @request POST:/api/docpal/email/customize/send
          */
-        postEmailCustomizeSend: (data: MailSendRequest, params: RequestParams = {}) =>
+        postDocpalEmailCustomizeSend: (data: MailSendRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/docpal/email/customize/send`,
                 method: "POST",
@@ -2276,10 +2279,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocPalEmailController
-         * @name PostEmailBatchSend
+         * @name PostDocpalEmailBatchSend
          * @request POST:/api/docpal/email/batch/send
          */
-        postEmailBatchSend: (data: BatchMailSendRequest, params: RequestParams = {}) =>
+        postDocpalEmailBatchSend: (data: BatchMailSendRequest, params: RequestParams = {}) =>
             this.request<ResultBatchSendEmailResponseDTO, Result>({
                 path: `/api/docpal/email/batch/send`,
                 method: "POST",
@@ -2292,10 +2295,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocPalEmailController
-         * @name PostEmailBatchSendundefined
+         * @name PostDocpalEmailBatchSendundefined
          * @request POST:/api/docpal/email/batch-send
          */
-        postEmailBatchSendundefined: (
+        postDocpalEmailBatchSendundefined: (
             query: {
                 request: string;
             },
@@ -2317,10 +2320,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardWorkflowspendtime
+         * @name PostDocpalDashboardWorkflowspendtime
          * @request POST:/api/docpal/dashboard/WorkflowSpendTime
          */
-        postDashboardWorkflowspendtime: (data: DashBoardWorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalDashboardWorkflowspendtime: (data: DashBoardWorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringInteger, Result>({
                 path: `/api/docpal/dashboard/WorkflowSpendTime`,
                 method: "POST",
@@ -2333,10 +2336,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardWorkflowactivelist
+         * @name PostDocpalDashboardWorkflowactivelist
          * @request POST:/api/docpal/dashboard/WorkflowActiveList
          */
-        postDashboardWorkflowactivelist: (data: DashBoardWorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalDashboardWorkflowactivelist: (data: DashBoardWorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result>({
                 path: `/api/docpal/dashboard/WorkflowActiveList`,
                 method: "POST",
@@ -2349,10 +2352,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardWorkflowactivatetasktrend
+         * @name PostDocpalDashboardWorkflowactivatetasktrend
          * @request POST:/api/docpal/dashboard/WorkflowActivateTaskTrend
          */
-        postDashboardWorkflowactivatetasktrend: (data: DashBoardWorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalDashboardWorkflowactivatetasktrend: (data: DashBoardWorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultLinkedListDashBoardWorkflowResponseDTO, Result>({
                 path: `/api/docpal/dashboard/WorkflowActivateTaskTrend`,
                 method: "POST",
@@ -2365,10 +2368,13 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardWorkflowactivatetaskspendtime
+         * @name PostDocpalDashboardWorkflowactivatetaskspendtime
          * @request POST:/api/docpal/dashboard/WorkflowActivateTaskSpendTime
          */
-        postDashboardWorkflowactivatetaskspendtime: (data: DashBoardWorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalDashboardWorkflowactivatetaskspendtime: (
+            data: DashBoardWorkflowRequestDTO,
+            params: RequestParams = {},
+        ) =>
             this.request<ResultMapStringDouble, Result>({
                 path: `/api/docpal/dashboard/WorkflowActivateTaskSpendTime`,
                 method: "POST",
@@ -2381,10 +2387,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardNewworkflowcounttrend
+         * @name PostDocpalDashboardNewworkflowcounttrend
          * @request POST:/api/docpal/dashboard/NewWorkflowCountTrend
          */
-        postDashboardNewworkflowcounttrend: (data: DashBoardWorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalDashboardNewworkflowcounttrend: (data: DashBoardWorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultLinkedListDashBoardWorkflowResponseDTO, Result>({
                 path: `/api/docpal/dashboard/NewWorkflowCountTrend`,
                 method: "POST",
@@ -2397,10 +2403,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardNewfilesofuserssizebydtypebymonthlycumulation
+         * @name PostDocpalDashboardNewfilesofuserssizebydtypebymonthlycumulation
          * @request POST:/api/docpal/dashboard/NewFilesOfUsersSizeByDTypeBymonthlyCumulation
          */
-        postDashboardNewfilesofuserssizebydtypebymonthlycumulation: (
+        postDocpalDashboardNewfilesofuserssizebydtypebymonthlycumulation: (
             data: DashBoardRequestDTO,
             params: RequestParams = {},
         ) =>
@@ -2416,10 +2422,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardNewfilesofusersmetabydtypebyrange
+         * @name PostDocpalDashboardNewfilesofusersmetabydtypebyrange
          * @request POST:/api/docpal/dashboard/NewFilesOfUsersMetaByDTypeByRange
          */
-        postDashboardNewfilesofusersmetabydtypebyrange: (data: DashBoardRequestDTO, params: RequestParams = {}) =>
+        postDocpalDashboardNewfilesofusersmetabydtypebyrange: (data: DashBoardRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result>({
                 path: `/api/docpal/dashboard/NewFilesOfUsersMetaByDTypeByRange`,
                 method: "POST",
@@ -2432,10 +2438,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardNewfilesofuserscountbydtypebymonthlycumulation
+         * @name PostDocpalDashboardNewfilesofuserscountbydtypebymonthlycumulation
          * @request POST:/api/docpal/dashboard/NewFilesOfUsersCountByDTypeBymonthlyCumulation
          */
-        postDashboardNewfilesofuserscountbydtypebymonthlycumulation: (
+        postDocpalDashboardNewfilesofuserscountbydtypebymonthlycumulation: (
             data: DashBoardRequestDTO,
             params: RequestParams = {},
         ) =>
@@ -2451,10 +2457,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardNewfilesofuserbydtypebyrangefiltermatedata
+         * @name PostDocpalDashboardNewfilesofuserbydtypebyrangefiltermatedata
          * @request POST:/api/docpal/dashboard/NewFilesOfUserByDTypeByRangeFilterMatedata
          */
-        postDashboardNewfilesofuserbydtypebyrangefiltermatedata: (
+        postDocpalDashboardNewfilesofuserbydtypebyrangefiltermatedata: (
             data: DashBoardRequestDTO,
             params: RequestParams = {},
         ) =>
@@ -2470,10 +2476,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardNewfilesofspecifyusersizebydtypebymonthlycumulation
+         * @name PostDocpalDashboardNewfilesofspecifyusersizebydtypebymonthlycumulation
          * @request POST:/api/docpal/dashboard/NewFilesOfSpecifyUserSizeByDTypeBymonthlyCumulation
          */
-        postDashboardNewfilesofspecifyusersizebydtypebymonthlycumulation: (
+        postDocpalDashboardNewfilesofspecifyusersizebydtypebymonthlycumulation: (
             data: DashBoardRequestDTO,
             params: RequestParams = {},
         ) =>
@@ -2489,10 +2495,13 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardNewfilesofspecifyusermetabydtypebyrange
+         * @name PostDocpalDashboardNewfilesofspecifyusermetabydtypebyrange
          * @request POST:/api/docpal/dashboard/NewFilesOfSpecifyUserMetaByDTypeByRange
          */
-        postDashboardNewfilesofspecifyusermetabydtypebyrange: (data: DashBoardRequestDTO, params: RequestParams = {}) =>
+        postDocpalDashboardNewfilesofspecifyusermetabydtypebyrange: (
+            data: DashBoardRequestDTO,
+            params: RequestParams = {},
+        ) =>
             this.request<Result, Result>({
                 path: `/api/docpal/dashboard/NewFilesOfSpecifyUserMetaByDTypeByRange`,
                 method: "POST",
@@ -2505,10 +2514,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardNewfilesofspecifyusercountbydtypebymonthlycumulation
+         * @name PostDocpalDashboardNewfilesofspecifyusercountbydtypebymonthlycumulation
          * @request POST:/api/docpal/dashboard/NewFilesOfSpecifyUserCountByDTypeBymonthlyCumulation
          */
-        postDashboardNewfilesofspecifyusercountbydtypebymonthlycumulation: (
+        postDocpalDashboardNewfilesofspecifyusercountbydtypebymonthlycumulation: (
             data: DashBoardRequestDTO,
             params: RequestParams = {},
         ) =>
@@ -2524,10 +2533,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardNewfilesofspecifyuserbydtypebyrangefiltermatedata
+         * @name PostDocpalDashboardNewfilesofspecifyuserbydtypebyrangefiltermatedata
          * @request POST:/api/docpal/dashboard/NewFilesOfSpecifyUserByDTypeByRangeFilterMatedata
          */
-        postDashboardNewfilesofspecifyuserbydtypebyrangefiltermatedata: (
+        postDocpalDashboardNewfilesofspecifyuserbydtypebyrangefiltermatedata: (
             data: DashBoardRequestDTO,
             params: RequestParams = {},
         ) =>
@@ -2543,10 +2552,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardNewfileslist
+         * @name PostDocpalDashboardNewfileslist
          * @request POST:/api/docpal/dashboard/NewFilesList
          */
-        postDashboardNewfileslist: (data: DashBoardRequestDTO, params: RequestParams = {}) =>
+        postDocpalDashboardNewfileslist: (data: DashBoardRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result>({
                 path: `/api/docpal/dashboard/NewFilesList`,
                 method: "POST",
@@ -2559,10 +2568,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardDocumenttypeofsizebyrange
+         * @name PostDocpalDashboardDocumenttypeofsizebyrange
          * @request POST:/api/docpal/dashboard/DocumentTypeOfSizeByRange
          */
-        postDashboardDocumenttypeofsizebyrange: (data: DateRangeRequestDTO, params: RequestParams = {}) =>
+        postDocpalDashboardDocumenttypeofsizebyrange: (data: DateRangeRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result>({
                 path: `/api/docpal/dashboard/DocumentTypeOfSizeByRange`,
                 method: "POST",
@@ -2575,10 +2584,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardDocumenttypeofsizebymonthlyrangecumulation
+         * @name PostDocpalDashboardDocumenttypeofsizebymonthlyrangecumulation
          * @request POST:/api/docpal/dashboard/DocumentTypeOfSizeByMonthlyRangeCumulation
          */
-        postDashboardDocumenttypeofsizebymonthlyrangecumulation: (
+        postDocpalDashboardDocumenttypeofsizebymonthlyrangecumulation: (
             data: DashBoardRequestDTO,
             params: RequestParams = {},
         ) =>
@@ -2594,10 +2603,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags dash-board-controller
-         * @name PostDashboardDocumenttypeofcountbyrange
+         * @name PostDocpalDashboardDocumenttypeofcountbyrange
          * @request POST:/api/docpal/dashboard/DocumentTypeOfCountByRange
          */
-        postDashboardDocumenttypeofcountbyrange: (data: DateRangeRequestDTO, params: RequestParams = {}) =>
+        postDocpalDashboardDocumenttypeofcountbyrange: (data: DateRangeRequestDTO, params: RequestParams = {}) =>
             this.request<Result, Result>({
                 path: `/api/docpal/dashboard/DocumentTypeOfCountByRange`,
                 method: "POST",
@@ -2661,11 +2670,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags UserDashboardController
-         * @name PatchUserDashboardIdStatusStatus
+         * @name PatchDocpalUserDashboardIdStatusStatus
          * @summary Update status through id
          * @request PATCH:/api/docpal/user/dashboard/{id}/status/{status}
          */
-        patchUserDashboardIdStatusStatus: (id: number, status: string, params: RequestParams = {}) =>
+        patchDocpalUserDashboardIdStatusStatus: (id: number, status: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/docpal/user/dashboard/${id}/status/${status}`,
                 method: "PATCH",
@@ -2982,10 +2991,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Workflow
-         * @name GetWorkflowJobQueryStartCreatorListDeprecate
+         * @name GetDocpalWorkflowJobQueryStartCreatorListDeprecate
          * @request GET:/api/docpal/workflow/job/query_start_creator_list/
          */
-        getWorkflowJobQueryStartCreatorListDeprecate: (params: RequestParams = {}) =>
+        getDocpalWorkflowJobQueryStartCreatorListDeprecate: (params: RequestParams = {}) =>
             this.request<ResultListString, Result>({
                 path: `/api/docpal/workflow/job/query_start_creator_list/`,
                 method: "GET",
@@ -2996,10 +3005,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Workflow
-         * @name GetWorkflowJobQueryStartCreatorList
+         * @name GetDocpalWorkflowJobQueryStartCreatorList
          * @request GET:/api/docpal/workflow/job/query_start_creator_list
          */
-        getWorkflowJobQueryStartCreatorList: (params: RequestParams = {}) =>
+        getDocpalWorkflowJobQueryStartCreatorList: (params: RequestParams = {}) =>
             this.request<ResultListString, Result>({
                 path: `/api/docpal/workflow/job/query_start_creator_list`,
                 method: "GET",
@@ -3010,10 +3019,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Workflow
-         * @name GetWorkflowJobQueryApproverListDeprecate
+         * @name GetDocpalWorkflowJobQueryApproverListDeprecate
          * @request GET:/api/docpal/workflow/job/query_approver_list/
          */
-        getWorkflowJobQueryApproverListDeprecate: (params: RequestParams = {}) =>
+        getDocpalWorkflowJobQueryApproverListDeprecate: (params: RequestParams = {}) =>
             this.request<ResultListString, Result>({
                 path: `/api/docpal/workflow/job/query_approver_list/`,
                 method: "GET",
@@ -3024,10 +3033,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags Workflow
-         * @name GetWorkflowJobQueryApproverList
+         * @name GetDocpalWorkflowJobQueryApproverList
          * @request GET:/api/docpal/workflow/job/query_approver_list
          */
-        getWorkflowJobQueryApproverList: (params: RequestParams = {}) =>
+        getDocpalWorkflowJobQueryApproverList: (params: RequestParams = {}) =>
             this.request<ResultListString, Result>({
                 path: `/api/docpal/workflow/job/query_approver_list`,
                 method: "GET",
@@ -3038,10 +3047,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags user-controller
-         * @name GetUserMembers
+         * @name GetDocpalUserMembers
          * @request GET:/api/docpal/user/members
          */
-        getUserMembers: (
+        getDocpalUserMembers: (
             query: {
                 userId: string;
             },
@@ -3058,11 +3067,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags UserDashboardController
-         * @name GetUserDashboardId
+         * @name GetDocpalUserDashboardId
          * @summary Obtain a dashboard detail
          * @request GET:/api/docpal/user/dashboard/{id}
          */
-        getUserDashboardId: (id: number, params: RequestParams = {}) =>
+        getDocpalUserDashboardId: (id: number, params: RequestParams = {}) =>
             this.request<ResultUserDashboard, Result>({
                 path: `/api/docpal/user/dashboard/${id}`,
                 method: "GET",
@@ -3073,11 +3082,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags UserDashboardController
-         * @name DeleteUserDashboardId
+         * @name DeleteDocpalUserDashboardId
          * @summary Delete through id
          * @request DELETE:/api/docpal/user/dashboard/{id}
          */
-        deleteUserDashboardId: (id: number, params: RequestParams = {}) =>
+        deleteDocpalUserDashboardId: (id: number, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/docpal/user/dashboard/${id}`,
                 method: "DELETE",
@@ -3088,11 +3097,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags UserDashboardController
-         * @name GetPluginsId
+         * @name GetDocpalPluginsId
          * @summary Obtain a plugin detail
          * @request GET:/api/docpal/plugins/{id}
          */
-        getPluginsId: (id: number, params: RequestParams = {}) =>
+        getDocpalPluginsId: (id: number, params: RequestParams = {}) =>
             this.request<ResultPlugin, Result>({
                 path: `/api/docpal/plugins/${id}`,
                 method: "GET",
@@ -3103,11 +3112,11 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags UserDashboardController
-         * @name DeletePluginsId
+         * @name DeleteDocpalPluginsId
          * @summary Delete plugin through id
          * @request DELETE:/api/docpal/plugins/{id}
          */
-        deletePluginsId: (id: number, params: RequestParams = {}) =>
+        deleteDocpalPluginsId: (id: number, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result>({
                 path: `/api/docpal/plugins/${id}`,
                 method: "DELETE",
@@ -3118,10 +3127,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags ocr-statistical-controller
-         * @name GetOcrConditionsDeprecate
+         * @name GetDocpalOcrConditionsDeprecate
          * @request GET:/api/docpal/ocr/conditions/
          */
-        getOcrConditionsDeprecate: (params: RequestParams = {}) =>
+        getDocpalOcrConditionsDeprecate: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result>({
                 path: `/api/docpal/ocr/conditions/`,
                 method: "GET",
@@ -3132,10 +3141,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags ocr-statistical-controller
-         * @name GetOcrConditions
+         * @name GetDocpalOcrConditions
          * @request GET:/api/docpal/ocr/conditions
          */
-        getOcrConditions: (params: RequestParams = {}) =>
+        getDocpalOcrConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result>({
                 path: `/api/docpal/ocr/conditions`,
                 method: "GET",
@@ -3146,10 +3155,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags DocPalEmailController
-         * @name GetEmailTemplateList
+         * @name GetDocpalEmailTemplateList
          * @request GET:/api/docpal/email/template/list
          */
-        getEmailTemplateList: (params: RequestParams = {}) =>
+        getDocpalEmailTemplateList: (params: RequestParams = {}) =>
             this.request<ResultListDocPalEmailTemplate, Result>({
                 path: `/api/docpal/email/template/list`,
                 method: "GET",
@@ -3160,10 +3169,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags azure-ocr-controller
-         * @name GetAzureOcrQueryazureocrsetting
+         * @name GetDocpalAzureOcrQueryazureocrsetting
          * @request GET:/api/docpal/azure/ocr/queryAzureOcrSetting
          */
-        getAzureOcrQueryazureocrsetting: (params: RequestParams = {}) =>
+        getDocpalAzureOcrQueryazureocrsetting: (params: RequestParams = {}) =>
             this.request<ResultAzureOcrSettingDTO, Result>({
                 path: `/api/docpal/azure/ocr/queryAzureOcrSetting`,
                 method: "GET",
@@ -3174,10 +3183,10 @@ export class Public<SecurityDataType extends unknown> extends HttpClient<Securit
          * No description
          *
          * @tags azure-ocr-controller
-         * @name GetAzureOcrQueryazureocrsettingDeprecate
+         * @name GetDocpalAzureOcrQueryazureocrsettingDeprecate
          * @request GET:/api/docpal/azure/ocr/queryAzureOcrSetting/
          */
-        getAzureOcrQueryazureocrsettingDeprecate: (params: RequestParams = {}) =>
+        getDocpalAzureOcrQueryazureocrsettingDeprecate: (params: RequestParams = {}) =>
             this.request<ResultAzureOcrSettingDTO, Result>({
                 path: `/api/docpal/azure/ocr/queryAzureOcrSetting/`,
                 method: "GET",

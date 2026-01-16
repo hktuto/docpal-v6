@@ -29,7 +29,7 @@ function switchPlatform() {
 async function changeLanguage(langCode:string) {
     const perference = useUserPreference()
     perference.value.language = langCode
-    await clientApi.api.putUserSetting(perference.value as any)
+    await clientApi.api.putDmsUserSetting(perference.value as any)
     setLocale(langCode);
     window.location.reload()
 }

@@ -2,13 +2,15 @@
   <div class="pageContainer--padding">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="q" inputPlaceHolder="documentType_metaFilter" />
+        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="q"
+                          inputPlaceHolder="documentType_metaFilter" />
         <el-button id="DocumentType__DisplayMeta__AddNewDisplayMeta" type="primary" @click="handleDialogShow()">
           {{ $t('documentType_metaAdd') }}
         </el-button>
       </template>
       <template #display="{ row }">
-        <el-switch v-model="row.display" :loading="row.loading" @click.native.stop @change="handleDisplayChange(row)"></el-switch>
+        <el-switch v-model="row.display" :loading="row.loading" @click.native.stop
+                   @change="handleDisplayChange(row)"></el-switch>
       </template>
       <!-- <template #isRequire="{ row }">
         <el-icon v-if="row.isRequire" style="--color: var(--app-primary-color)"><Select /></el-icon>
@@ -21,9 +23,8 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
-import { Select, CloseBold } from '@element-plus/icons-vue'
+import { ElMessageBox } from 'element-plus'
+import { adminApi, clientApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -123,7 +124,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 
 async function getList() {
   if (!isFilter.value) {
-    const data: any = await adminApi.api.postDocpaltypeSettingsDocpalTypeV2MetadataQuery({ docpalTypeName: props.documentType }).then((res) => res.data)
+    const data: any = await clientApi.admin.postAdmindmsDocpalTypeMetadata({ docpalTypeName: props.documentType }).then((res) => res.data)
     tableData = data.metadataList.map((item: any) => ({
       ...item,
       display: !!item.display
@@ -143,6 +144,7 @@ async function getList() {
   isFilter.value = false
   return filterData
 }
+
 function handleRefresh(addMore: boolean = false) {
   isFilter.value = false
   if (addMore) handleDialogShow()
@@ -156,10 +158,10 @@ async function handleDelete(row: any) {
       confirmButtonText: t('common_confirmDelete')
     })
     if (action !== 'confirm') return
-    const res = await adminApi.api.deleteDocpaltypeSettingsDocpalTypeV2DeleteMetadataDocpaltypeid(props.id, {
+    const res = await clientApi.admin.deleteAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, {
       metadataId: row.id
-    })
-    routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('tip_SelectedMsg') + t('docType_displayMeta')}))
+    }).then(r => r.data)
+    routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('tip_SelectedMsg') + t('docType_displayMeta') }))
     reload()
   } catch (error) {
     console.log(error)
@@ -180,7 +182,7 @@ function handleFilterFormChange(formModel: any) {
 
 async function handleMove(row: any, moveIndex: number, isReload: boolean = true) {
   try {
-    await adminApi.api.postDocpaltypeSettingsDocpalTypeV2MoveMetadata({
+    await clientApi.admin.postAdmindmsDocpalTypeMetadataSort({
       docpalTypeId: props.id,
       metadataId: row.id,
       moveIndex

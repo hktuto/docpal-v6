@@ -1,9 +1,10 @@
 <template>
-  <el-dialog v-model="state.visible" :title="$t('companyProfile.create')" class="scroll-dialog" append-to-body :close-on-click-modal="false" destroy-on-close>
-    <FormRenderer ref="FormRendererRef" :form-json="formJson"> </FormRenderer>
+  <el-dialog v-model="state.visible" :title="$t('companyProfile.create')" class="scroll-dialog" append-to-body
+             :close-on-click-modal="false" destroy-on-close>
+    <FormRenderer ref="FormRendererRef" :form-json="formJson"></FormRenderer>
     <template #footer>
       <div class="footer-grid">
-        <el-button id="EasyForm__CreateNewForm__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
+        <el-button id="CompanyProfile__NewProfile__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
           {{ $t('common_submit') }}
         </el-button>
       </div>
@@ -12,8 +13,9 @@
 </template>
 <script lang="ts" setup>
 import formJson from './newDialog.vform.json'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { ElMessage } from 'element-plus'
+
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const emits = defineEmits(['refresh'])
@@ -30,7 +32,7 @@ async function handleSubmit() {
     const data = await FormRendererRef.value.getFormData()
     data.status = data.status ? 'A' : 'D'
     state.loading = true
-    const result = await adminApi.api.postCompanyprofiles(data)
+    const result = await clientApi.api.postDmsCompanyprofiles(data).then(r => r.data)
     ElMessage.success(t('tip_createdSuccessMsg', { modelName: t('companyProfile.name'), name: null }))
     state.visible = false
     emits('refresh')

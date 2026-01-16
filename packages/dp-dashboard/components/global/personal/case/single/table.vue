@@ -79,11 +79,7 @@ async function handleTask(actionItem: any, row?: any) {
   } else if (actionItem.planItemDefinitionType === 'processtask') {
     console.log('handleTask', actionItem, row)
     const caseInstanceId = actionItem.caseInstanceId
-    const res = await clientApi.api
-      .postCaseDashboardInstanceActionPreRequisite({
-        id: actionItem.id
-      })
-      .then((res) => res.data)
+    const res = await clientApi.api.postCaseDashboardInstanceActionPreRequisite({ id: actionItem.id }).then((res) => res.data)
     // Get Form Json and XML
 
     // check start event additional setting

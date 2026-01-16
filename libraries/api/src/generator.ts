@@ -12,7 +12,7 @@ const publicUrl = process.env.PUBLIC_URL || setting.PUBLIC_URL
 const templateUrl = process.env.OPEN_PROXY || setting.TEMPLATE_URL
 
 const endpoint = [
-    {name: 'client', url:`${clientUrl}/v3/api-docs`, className:"Client"},
+    {name: 'newClient', url:`${clientUrl}/v3/api-docs`, className:"Standard"},
     {name: 'public', url:`${publicUrl}/v3/api-docs`, className:"Public"},
     {name: 'template', url:`${templateUrl}/docs/swagger.json`, className:"Template"},
 ]
@@ -36,6 +36,7 @@ async function generate(){
             endpoint.map( 
                 point => {
                     let finalRoute:Record<string, any> = {}
+                    
                     generateApi({
                         name: point.name + '.ts',
                         output: path.resolve(process.cwd(), "./src/generate"),
@@ -70,7 +71,7 @@ async function generate(){
                                 if(paths[paths.length -1] === '') {
                                     paths[paths.length -1] = 'deprecate'
                                 }
-                                const ignoreList = ['api', 'docpal'];
+                                const ignoreList = ['api'];
                                 const allPath = paths.reduce((all, curr, index) => {
                                     if(ignoreList.includes(curr)) return all
                                     // if curr contain "${}", replace it
@@ -82,7 +83,6 @@ async function generate(){
                                 },[])
                                
                                 let newName = routeInfo.method + toPascalCase(allPath.join('-'))
-                                let oldName = newName;
                                 if(finalRoute[newName]) {
                                     newName += finalRoute[newName].length
                                 }

@@ -1,4 +1,4 @@
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 export const localeKeys = ['en-US', 'zh-CN', 'zh-HK']
 export async function getMetaI18n(lKey: string) {
     const languages = await getMetaLanguageList()
@@ -20,7 +20,7 @@ export async function getMetaLanguageList(languageKey: string = 'meta') {
     let pList: any = []
     localeKeys.forEach(async (locale) => {
         pList.push(
-            adminApi.api.getRelationQuerylanguage({
+            clientApi.api.getDmsFormPropertiesLanguageList({
                 locale,
                 languageKey
             }).then(res => res.data[0])

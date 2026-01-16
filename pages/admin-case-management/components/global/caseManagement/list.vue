@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { CaseManagementListProviderKey, MenuRouterKey } from '#imports'
 import { CaseManagementNewDialog, CaseManagementSaveAsDialog, ResponsiveFilter } from '#components'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { newCaseManagementDetail } from '~/utils/caseManagementHelper'
 import tableComponent from '../../caseManagement/list/table.vue'
 
@@ -148,7 +148,7 @@ provide(CaseManagementListProviderKey, {
       isDesc: params.isDesc,
       filters
     })
-    return adminApi.api.postCaseTypesPage(params)
+    return clientApi.api.postCaseTypesPage(params)
   },
   updatePageParams,
   openLatestVersion,

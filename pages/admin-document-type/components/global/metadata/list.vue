@@ -3,7 +3,8 @@
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
         <div class="actionsButtonsContainer">
-          <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="metadataName" inputPlaceHolder="documentType_filter" />
+          <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="metadataName"
+                            inputPlaceHolder="documentType_filter" />
           <div class="btns">
             <el-button id="DocumentType__CreateNewDocumentType__Create" type="primary" @click="handleCreate">
               {{ t('metadata.new') }}
@@ -25,7 +26,7 @@
 </template>
 
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { useDebounceFn } from '@vueuse/core'
 import { ElLoading, ElMessage, ElMessageBox } from 'element-plus'
 
@@ -41,7 +42,7 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   id: 'metadataList',
   api: async (params: any) => {
-    return await adminApi.api.postDocpaltypeSettingsMetadataV2Query({
+    return await clientApi.admin.postAdmindmsMetadataPage({
       ...params,
       ...extraParams
     })
@@ -118,7 +119,7 @@ async function handleExport() {
     background: 'rgba(0, 0, 0, 0.7)'
   })
   console.log('export')
-  const result = await adminApi.api.postDocpaltypeSettingsMetadataV2ExportMetadataCvs(
+  const result = await clientApi.admin.postAdmindmsMetadataExportMetadataCvs(
     { pageNum: 0, pageSize: 1000 },
     { format: 'blob', timeout: 0 }
   )
@@ -166,13 +167,14 @@ const handleRemove = async (row: any) => {
     console.log('action', action)
     if (action !== 'confirm') return
 
-    const result = await adminApi.api.deleteDocpaltypeSettingsMetadataV2DeleteMetadataid(row.id)
+    const result = await clientApi.admin.deleteAdmindmsMetadataMetadataid(row.id)
     if (result) {
       ElMessage.success(t('tip_deleteSuccessMessage'))
       reload()
     } else {
       ElMessage.error(t('metadata.remove_error'))
     }
+    query()
   } catch (error) {
     console.log(error)
   }

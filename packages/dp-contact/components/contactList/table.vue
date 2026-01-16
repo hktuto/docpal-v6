@@ -21,8 +21,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { globalApi } from 'api'
-import { routeContactList } from '~/utils/routerHelper'
+import { clientApi } from 'api'
 
 const props = defineProps<{
   id: string
@@ -37,7 +36,7 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: `contactBook-${props.id}`,
   api: (pageParams: any) => {
-    return globalApi.api.postContactgroupIdContactdetailPage(props.id, { ...pageParams, ...extraParams })
+    return clientApi.api.postDmsContactGroupIdContactdetailPage(props.id, { ...pageParams, ...extraParams })
   },
   columns: [],
   bodyActions: [
@@ -113,7 +112,7 @@ async function handleEditRowValid(row: any, rowIndex: number) {
     props.detail.attributes.forEach((item: any) => {
       params[item.value] = row[item.value]
     })
-    await globalApi.api.putContactgroupIdContactdetailContactdetailid(props.id, row.id, params)
+    await clientApi.api.putDmsContactGroupIdContactdetailContactdetailid(props.id, row.id, params)
   } catch (error) {
     console.error(error)
   }
@@ -122,7 +121,7 @@ async function deleteItem(row: any) {
   try {
     const action = await ElMessageBox.confirm(t('msg_confirmWhetherToDelete'))
     if (action !== 'confirm') return
-    await globalApi.api.deleteContactgroupIdContactdetailContactdetailid(props.id, row.id)
+    await clientApi.api.deleteDmsContactGroupIdContactdetailContactdetailid(props.id, row.id)
     routerProvider?.message.success(
       t('tip_deleteSuccessMsg', {
         modelName: props.name,

@@ -29,7 +29,12 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
+import {
+  getRoleAndGroupPermissionSelectOption,
+  convertPermissionObjectByPermissions,
+  convertSelectOptions
+} from '#imports'
 
 const permissionOptions = ref<any>([])
 const emits = defineEmits(['refresh'])
@@ -61,12 +66,12 @@ async function handleSubmit() {
     }
 
     if (!state.isEdit) {
-      await adminApi.api.postCaseDashboard(form as any)
+      await clientApi.api.postCaseDashboard(form)
     } else {
-      await adminApi.api.putCaseDashboard({
+      await clientApi.api.putCaseDashboard({
         ...form,
         id: state.id
-      } as any)
+      })
     }
     state.visible = false
     emits('refresh')
@@ -81,28 +86,12 @@ function handleOpen(setting: any) {
     state.isEdit = true
     state.id = setting.id
     state.label = setting.label
-    state.permission = toPermissions(setting.permissions)
+    state.permission = convertSelectOptions(setting.permissions)
   } else {
     state.isEdit = false
     state.label = ''
     state.permission = []
   }
-}
-
-function toPermissions(permissions: any) {
-  const permission = []
-  permissions.forEach((item: any) => {
-    const type = item.dataType
-    switch (type) {
-      case 'role':
-        permission.push(`role_${item.value}`)
-        break
-      case 'group':
-        permission.push(`group_${item.value}`)
-        break
-    }
-  })
-  return permission
 }
 
 onMounted(async () => {

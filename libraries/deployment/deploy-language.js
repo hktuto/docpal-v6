@@ -1,33 +1,33 @@
-
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 const enJson = require('./src/en-US.json')
 const zhJson = require('./src/zh-CN.json')
 const zhHKJson = require('./src/zh-HK.json')
 
 function parseArgv() {
-  const args = {};
+  const args = {}
   for (let i = 2; i < process.argv.length; i++) {
-      let arg = process.argv[i];
-      if (arg.startsWith('--')) {
-          const key = arg.slice(2);
-          let value = true;
-          if (i + 1 < process.argv.length && !process.argv[i + 1].startsWith('--')) {
-              value = process.argv[i + 1];
-              i++;
-          }
-          args[key] = value;
+    let arg = process.argv[i]
+    if (arg.startsWith('--')) {
+      const key = arg.slice(2)
+      let value = true
+      if (i + 1 < process.argv.length && !process.argv[i + 1].startsWith('--')) {
+        value = process.argv[i + 1]
+        i++
       }
+      args[key] = value
+    }
   }
-  return args;
+  return args
 }
-const argv = parseArgv();
 
+const argv = parseArgv()
 
-const { SUPERADMIN, PASSWORD, ADMINURL } = argv;
+const { SUPERADMIN, PASSWORD, ADMINURL } = argv
+const URL = ADMINURL.replace('/admin/api', '')
 
 async function loginAdmin() {
-  const data = await fetch(`${ADMINURL}/auth/login`, {
+  const data = await fetch(`${URL}/api/auth/login`, {
     method: 'POST',
     body: JSON.stringify({
       username: SUPERADMIN,
@@ -38,13 +38,13 @@ async function loginAdmin() {
     }
   }).then(async (res) => await res.json())
     .catch(error => {
-      console.log("error", error)
+      console.log('error', error)
     })
   return data.access_token
 }
 
 async function updateLanguage(code, token) {
-  const { data } = await fetch(`${ADMINURL}/docpal/relation/queryLanguage?locale=${code}&languageKey=client`, {
+  const { data } = await fetch(`${URL}/api/dms/form-properties/language/list?locale=${code}&languageKey=client`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -52,7 +52,7 @@ async function updateLanguage(code, token) {
     }
   }).then(async (res) => await res.json())
     .catch(error => {
-      console.log("error", error)
+      console.log('error', error)
     })
   // const newJson = await fs.readFileSync(path.join(__dirname, `./lang/${code}.json`), {
   //     encoding: 'utf-8'
@@ -62,7 +62,7 @@ async function updateLanguage(code, token) {
     ...data[0],
     languageContent: JSON.stringify(newJson)
   }
-  const res = await fetch(`${ADMINURL}/docpal/relation/updateLanguage`, {
+  const res = await fetch(`${URL}/api/dms/form-properties/language`, {
     method: 'POST',
     body: JSON.stringify(newData),
     headers: {
@@ -74,16 +74,15 @@ async function updateLanguage(code, token) {
     if (data.code !== 200) {
       throw new Error(data.message)
     }
+  }).catch(error => {
+    console.log('error', error)
   })
-    .catch(error => {
-      console.log("error", error)
-    })
-  console.log('finish update language', ADMINURL, code)
+  console.log('finish update language', ADMINURL, URL, code)
 }
 
 async function deployLanguage() {
   // const { superAdmin, password, adminUrl } = argv;
-  const avalibleLang = ['en-US', 'zh-CN', 'zh-HK'];
+  const avalibleLang = ['en-US', 'zh-CN', 'zh-HK']
   const token = await loginAdmin()
   console.log(token)
   for (let i = 0; i < avalibleLang.length; i++) {

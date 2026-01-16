@@ -132,8 +132,9 @@
                 "onFocus": "",
                 "onBlur": "",
                 "onEnter": "",
-                "onValidate": "if(value === ''){\n  callback()\n  return\n}\nif (!/^((([569]\\d{7})|(1[3-9]\\d{9})))$/.test(value)) {\n  callback(new Error($t('validateFn_mobilePhone')))  //fail\n} else {\n  callback();  //pass\n}\n",
-                "onAppendButtonClick": ""
+                "onValidate": "",
+                "onAppendButtonClick": "",
+                "validation": "number"
               },
               "id": "input82465"
             },
@@ -160,7 +161,6 @@
                 "showPassword": false,
                 "required": false,
                 "requiredHint": "",
-                "validation": "",
                 "validationHint": "",
                 "customClass": "",
                 "labelIconClass": null,
@@ -185,7 +185,7 @@
                 "onFocus": "",
                 "onBlur": "",
                 "onEnter": "",
-                "onValidate": "",
+                "onValidate": "  /* sample code */\n  /*\n  if ((value > 100) || (value < 0)) {\n    callback(new Error('error message'))  //fail\n  } else {\n    callback();  //pass\n  }\n  */\n  \n  if(value === ''){\n    callback()\n    return\n  }\n  const regex = /^(((ht|f)tps?):\\/\\/)?([^!@#$%^&*?.\\s-]([^!@#$%^&*?.\\s]{0,63}[^!@#$%^&*?.\\s])?\\.)+[a-z]{2,6}\\/?/\n  if (!regex.test(value)) {\n    callback(new Error($t('validateFn_url')))  //fail\n  } \n  else {\n    callback();  //pass\n  }\n",
                 "onAppendButtonClick": ""
               },
               "id": "input68112"

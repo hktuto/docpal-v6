@@ -13,25 +13,28 @@
     <div class="card-main">
       <el-card class="process-item" v-for="item in state.layout">
         <div class="title">
-          <SvgIcon :style="`--icon-color: ${getIconColor(item.state)}`" :src="`/icons/status/${getIcon(item.state)}.svg`"></SvgIcon>
+          <SvgIcon :style="`--icon-color: ${getIconColor(item.state)}`"
+                   :src="`/icons/status/${getIcon(item.state)}.svg`"></SvgIcon>
           {{ item.name }}
         </div>
         <el-progress :percentage="getPercent(item)" />
         <el-divider />
         <div>
           <div class="process-item--sub" v-for="sItem in item.subItems">
-            <SvgIcon :style="`--icon-color: ${getIconColor(sItem.state)}`" :src="`/icons/status/${getIcon(sItem.state)}.svg`"></SvgIcon>
+            <SvgIcon :style="`--icon-color: ${getIconColor(sItem.state)}`"
+                     :src="`/icons/status/${getIcon(sItem.state)}.svg`"></SvgIcon>
             {{ sItem.name }}
           </div>
         </div>
       </el-card>
     </div>
-    <DashboardProcessSetting ref="settingRef" :allList="state.allList" @delete="handleDelete" @refresh="handleRefresh" />
+    <DashboardProcessSetting ref="settingRef" :allList="state.allList" @delete="handleDelete"
+                             @refresh="handleRefresh" />
   </DashboardCard>
 </template>
 <script lang="ts" setup>
-import { watchDebounced } from '@vueuse/core'
-import { globalApi } from 'api'
+import { clientApi } from 'api'
+
 const props = withDefaults(
   defineProps<{
     dates?: any
@@ -52,9 +55,11 @@ const state = reactive<any>({
 function handleDelete() {
   emits('delete')
 }
+
 function handleRefresh(chartSetting: any) {
   emits('refreshSetting', chartSetting)
 }
+
 // #endregion
 
 function getIcon(state: any) {
@@ -67,6 +72,7 @@ function getIcon(state: any) {
       return 'pendding'
   }
 }
+
 function getIconColor(state: any) {
   switch (state) {
     case 'completed':
@@ -75,6 +81,7 @@ function getIconColor(state: any) {
       return '#000'
   }
 }
+
 function getPercent(process: any) {
   if (process.subItems && process.subItems.length > 0) {
     let finish = 0,
@@ -90,17 +97,16 @@ function getPercent(process: any) {
 }
 
 const CMDProvider = inject(CaseManagementDashboardKey)
+
 async function getCDProcess() {
   try {
     if (state.allList.length > 0) return state.allList
     const id = CMDProvider?.instanceId?.value || null
     const versionId = CMDProvider?.versionId?.value || null
     if (id) {
-      const { data } = await globalApi.api.getCaseDashboardInstanceCaseidStages(id)
-      state.allList = data
+      state.allList = await clientApi.api.getCaseDashboardInstanceCaseidStages(id).then(r => r.data)
     } else if (versionId) {
-      const { data: caseTypeData } = await globalApi.api.getCaseDashboardVersionVersionidStages(versionId)
-      state.allList = caseTypeData
+      state.allList = await clientApi.api.getCaseDashboardVersionVersionidStages(versionId).then(r => r.data)
     }
   } catch (error) {
     state.allList = []
@@ -132,29 +138,37 @@ const { settingRef, cardRef, refresh, loading } = useDashboardCard({
   flex-wrap: warp;
   --icon-size: 18px;
 }
+
 .process-item {
   min-width: 200px;
+
   .title {
     display: flex;
     flex-wrap: nowrap;
     gap: var(--app-space-xs);
   }
+
   .el-progress {
     margin-top: var(--app-space-xs);
   }
+
   .el-divider--horizontal {
     margin: 12px 0;
   }
+
   padding: var(--app-space-xs);
   border-radius: 5px;
+
   &--sub {
     display: flex;
     gap: var(--app-space-xs);
   }
+
   &:last-child {
     flex: 1;
   }
 }
+
 .o-auto > .el-card__body {
   overflow: auto;
 }

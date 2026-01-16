@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 import { BulkImportListTable } from '#components'
 import { newBulkImportDetail } from '~/utils/bulkImportRouter'
 import { ElMessageBox } from 'element-plus'
@@ -32,7 +32,7 @@ provide(BulkImportListProviderKey, {
       { data: documentTypeProfileList },
       { data: metaMappingList }
     ]: any = await Promise.all([
-      adminApi.api.getNuxeoAdminSetting(''),
+      clientApi.api.getDmsSettingSystem(''),
       adminApi.api.getWorkflowQuerydocumenttypeprofile(),
       adminApi.api.getWorkflowQuerymetadatamapping()
     ])

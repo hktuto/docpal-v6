@@ -13,8 +13,9 @@
   </DashboardCard>
 </template>
 <script lang="ts" setup>
-import { emitBus, EventType } from 'eventbus'
-import { globalApi, clientApi} from 'api'
+import { EventType } from 'eventbus'
+import { clientApi } from 'api'
+
 const props = withDefaults(
   defineProps<{
     dates?: any
@@ -29,9 +30,11 @@ const props = withDefaults(
 const { t } = useI18n()
 const CMDProvider = inject(CaseManagementDashboardKey)
 const emits = defineEmits(['delete', 'refresh'])
+
 async function handleDelete() {
   emits('delete')
 }
+
 const refreshBus = useEventBus(EventType.CASE_NEED_REFRESH)
 
 function needRefresh(detail: any) {
@@ -40,6 +43,7 @@ function needRefresh(detail: any) {
     init()
   }
 }
+
 const state = reactive<any>({
   data: [],
   loading: false
@@ -53,35 +57,39 @@ function filterActions(action: any) {
   }
   return action.state !== 'completed'
 }
+
 const userId: string = useUserId().value
+
 async function init() {
   const id = CMDProvider?.instanceId?.value || null
   // const _caseTypeId = CMDProvider.caseTypeId?.value || null
   const _versionId = CMDProvider?.versionId?.value || null
-  const appPlatform = useAppPlatform()
   if (id) {
-    const { data: userAction } = appPlatform.value === 'admin' ? await globalApi.api.getCaseDashboardInstanceCaseidActions(id, { userId }) : await clientApi.api.getCaseDashboardInstanceCaseidActions(id, { userId })
+    const userAction = await clientApi.api.getCaseDashboardInstanceCaseidActions(id, { userId }).then(r => r.data)
     state.data = userAction?.filter(filterActions).sort((a: any, b: any) => a.name.localeCompare(b.name))
   }
-  // else if(_caseTypeId){
-  //   const { data: dashboardActions } = await globalApi.api.getCaseDashboardCasetypeCasetypeidActions(_caseTypeId)
-  //   state.data = dashboardActions?.filter(s => s.state !== 'completed')
+    // else if(_caseTypeId){
+    //   const { data: dashboardActions } = await clientApi.api.getCaseDashboardCasetypeCasetypeidActions(_caseTypeId).then(r
+    //   state.data = dashboardActions?.filter(s => s.state !== 'completed')
   // }
   else if (_versionId) {
-    const { data: dashboardActions } = await globalApi.api.getCaseDashboardVersionVersionidActions(_versionId)
+    const dashboardActions = await clientApi.api.getCaseDashboardVersionVersionidActions(_versionId).then(r => r.data)
     state.data = dashboardActions?.filter(filterActions)
   }
 }
+
 const { cardRef, refresh, loading } = useDashboardCard({
   props,
   handleRefreshAction: async (setting: any) => {
     await init()
   }
 })
+
 function handleRefresh() {
   emits('refresh')
   init()
 }
+
 onMounted(() => {
   refreshBus.on(needRefresh)
 })

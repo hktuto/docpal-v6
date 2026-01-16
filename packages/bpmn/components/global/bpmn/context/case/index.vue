@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import type { Node } from '@antv/x6'
 import { ElMessage } from 'element-plus'
 
@@ -13,7 +13,7 @@ if (!graphProvider || !editorProvider) {
   throw createError('graph provider not found')
 }
 
-const { setBpmnRules, getBpmnRuleType, bpmnGlobalRules } = editorProvider.BpmnRule
+const { setBpmnRules, bpmnGlobalRules } = editorProvider.BpmnRule
 
 const allFields = computed(() => {
   if (!bpmnGlobalRules.value || bpmnGlobalRules.value.length === 0) return []
@@ -38,25 +38,20 @@ const caseList = ref()
 const caseOptionList = ref([])
 
 async function getCaseLise() {
-  try {
-    const data: any = await adminApi.api.getCaseTypes({ deployed: true }).then((r: any) => r.data)
-    caseList.value = data.map((item: any) => {
-      return {
-        id: item.id,
-        name: item.name
-      }
-    })
-  } catch (e) {
-    console.error(e)
-  }
+  const data: any = await clientApi.api.getCaseTypes({ deployed: true }).then((r: any) => r.data)
+  caseList.value = data.map((item: any) => {
+    return {
+      id: item.id,
+      name: item.name
+    }
+  }) || []
 }
 
 async function init() {
-  await getCaseLise()
-
+  if (!caseList.value) {
+    await getCaseLise()
+  }
   const extensionElements = node.data.data.extensionElements
-  if ('' == extensionElements['flowable:newCase'].attr_caseTypeId) return
-
   form.value.attr_caseTypeId = extensionElements['flowable:newCase'].attr_caseTypeId
   form.value.attr_name = extensionElements['flowable:newCase'].attr_name
   form.value.attr_systemCaseInstanceId = extensionElements['flowable:newCase'].attr_systemCaseInstanceId
@@ -87,7 +82,7 @@ async function init() {
 async function getCaseOption() {
   loading.value = true
   try {
-    const caseData: any = await adminApi.api.getCaseTypesIdStarttask(form.value.attr_caseTypeId).then((r) => r.data)
+    const caseData: any = await clientApi.api.getCaseTypesIdStarttask(form.value.attr_caseTypeId).then((r) => r.data)
 
     if (caseData.length == 0) {
       caseOptionList.value = []
@@ -113,6 +108,10 @@ async function getCaseOption() {
 
 async function handleCase(caseId: string) {
   const find = caseList.value.find((item: any) => item.id === caseId)
+  if (!find) {
+    return
+  }
+
   form.value.attr_name = find.name
   form.value.field = []
   await getCaseOption()
@@ -150,7 +149,7 @@ function setData() {
   const nodeData = node.getData()
   const newData = {
     ...nodeData,
-    version: nodeData.version + 1 || 1,
+    version: (nodeData.version || 0) + 1,
     data: {
       ...nodeData.data,
       extensionElements: {
@@ -213,7 +212,15 @@ async function importFields() {
   }
 }
 
+watch(() => node, async () => {
+  await init()
+}, {
+  immediate: true,
+  deep: true
+})
+
 onMounted(async () => {
+  await getCaseLise()
   await init()
 })
 </script>
@@ -237,16 +244,16 @@ onMounted(async () => {
       <template v-if="caseOptionList.length > 0">
         <el-divider />
         <el-button size="small" type="primary" @click="importFields">Auto Import</el-button>
+        <div v-loading="loading">
+          <template v-for="item in caseOptionList" :key="item.id">
+            <el-form-item :label="item.name">
+              <el-select v-model="item.formProperty" filterable clearable @change="handleCaseField(item)">
+                <el-option v-for="field in allFields" :key="field.id" :label="field.name" :value="field.id" />
+              </el-select>
+            </el-form-item>
+          </template>
+        </div>
       </template>
-      <div v-loading="loading">
-        <template v-for="item in caseOptionList" :key="item.id">
-          <el-form-item :label="item.name">
-            <el-select v-model="item.formProperty" filterable clearable @change="handleCaseField(item)">
-              <el-option v-for="field in allFields" :key="field.id" :label="field.name" :value="field.id" />
-            </el-select>
-          </el-form-item>
-        </template>
-      </div>
     </el-form>
   </div>
 </template>

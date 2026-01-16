@@ -15,7 +15,6 @@
 </template>
 <script lang="ts" setup>
 import { adminApi } from 'api'
-import { ElMessageBox } from 'element-plus'
 import { routeImportJobsDetailPage } from '../../../util/routerHelper'
 const ResponsiveFilterRef = ref()
 const routerProvider = inject(MenuRouterKey)
@@ -28,6 +27,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   id: 'a-company-profile',
   api: (pageParams: any) => adminApi.api.postImportjobsPage({ ...pageParams, ...extraParams }),
   columns: [
+    { field: 'batchId', title: 'Batch Id', fixed: 'left' },
     { field: 'profileName', title: 'importJobs.profileName', fixed: 'left' },
     { field: 'fileName', title: 'externalStorage.fileName' },
     { field: 'status', title: 'common_status' },

@@ -86,6 +86,7 @@
             </template>
           </el-dropdown>
         </el-form-item>
+        <el-alert title="An excessively long 'Path' may prevent normal access!" type="warning" show-icon />
       </template>
       <template v-else>
         <el-form-item :label="$t('workflow_workflow')" prop="workflow">
@@ -112,6 +113,7 @@
 <script lang="ts" setup>
 import { ref, reactive } from 'vue'
 import { adminApi } from 'api'
+import { QuestionFilled } from '@element-plus/icons-vue'
 const props = defineProps({
   storageId: String,
   id: String,
@@ -247,8 +249,7 @@ async function save() {
     await formRef.value.validate()
     const _params = getParams()
     if (form.value.workflow) {
-      const workflowMapping = WorkflowVariableMappingRef.value.getData()
-      _params.workflow_mapping = workflowMapping
+      _params.workflow_mapping = WorkflowVariableMappingRef.value.getData()
     }
     if (isEdit.value) {
       await adminApi.api.patchExternalstorageProfilesProfileidOutputrecordOutputrecordid(props.id as string, setting.value.id, _params)

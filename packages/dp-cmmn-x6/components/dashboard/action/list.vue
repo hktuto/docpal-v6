@@ -34,9 +34,7 @@ const caseProvider: any = inject(CaseManagementDashboardKey)
 async function handleProcessTask(actionItem) {
   // get action item detail for process task
   const caseInstanceId = caseProvider.instanceId?.value ;
-  const res = await clientApi.api.postCaseDashboardInstanceActionPreRequisite({
-    id: actionItem.id
-  }).then(res => res.data)
+  const res = await clientApi.api.postCaseDashboardInstanceActionPreRequisite({ id: actionItem.id }).then(res => res.data)
   // Get Form Json and XML
   // check start event additional setting
   const routerItem = caseProcessTaskFormPage({

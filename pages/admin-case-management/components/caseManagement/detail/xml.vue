@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {Edit} from '@element-plus/icons-vue'
-import {adminApi} from 'api'
+import {adminApi,clientApi} from 'api'
 import {newCaseManagementEditor} from "~/utils/caseManagementHelper";
 const { caseId } = useCmmnGraph();
 const caseDetailProvider = inject(CaseManagementDetailProviderKey)
@@ -28,12 +28,12 @@ async function save() {
     const bslob = xmlStringToFile(data.xml, 'ordercase.cmmn.xml')
     const formData = new FormData()
     formData.append('file', bslob)
-    await adminApi.instance.patch(`/docpal/case/types/version/${props.caseTypeId}/save`, formData, {
+    await clientApi.instance.patch(`/api/case/types/version/${props.caseTypeId}/save`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
     })
-    // await adminApi.api.patchCaseTypesVersionVersionidSave(props.id, formData)
+    // await clientApi.api.patchCaseTypesVersionVersionidSave(props.id, formData)
 
     updateCaseInfo()
 }
@@ -46,7 +46,7 @@ async function getAllForm(){
         const element = nodes[i]
         const nodeData = element.getData()
         if(nodeData.type === 'humanTask') {
-            const response = await adminApi.api.getRelationQuery({
+            const response = await clientApi.api.getDmsFormPropertiesQuery({
                 processKey,
                 userTaskId: nodeData.data.attr_id,
                 versionId:  props.caseTypeId
@@ -77,10 +77,10 @@ function xmlStringToFile(xmlString, fileName) {
 
 async function init() {
     console.log("xml init")
-    const blob = await adminApi.api.getCaseTypesIdDownloadXml(caseDetailProvider?.caseInfo.value.caseTypeId, {versionNumber: props.currentVersion}, {
+    const blob = await clientApi.api.getCaseTypesIdDownloadXml(caseDetailProvider?.caseInfo.value.caseTypeId, {versionNumber: props.currentVersion}, {
         format: 'blob'
     }) as any
-    let {data: styleJson} = await adminApi.api.getCaseTypesIdStylejson(caseDetailProvider?.caseInfo.value.caseTypeId, {versionNumber: props.currentVersion})
+    let {data: styleJson} = await clientApi.api.getCaseTypesIdStylejson(caseDetailProvider?.caseInfo.value.caseTypeId, {versionNumber: props.currentVersion})
     styleJson = styleJson ? JSON.parse(styleJson) : null
     const cmmnString = await blob.text()
     state.cmmn = editorEl.value.init(cmmnString, styleJson)
@@ -89,8 +89,6 @@ async function init() {
 }
 
 function updateCaseInfo() {
-    console.log('?????????????????????');
-
     setTimeout(() => {
         state.caseNode = null
         state.caseInformation = null
