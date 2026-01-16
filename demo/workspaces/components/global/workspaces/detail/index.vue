@@ -57,22 +57,27 @@ function handleViewImportReport(report: ImportReport) {
 const detailComponent = computed(() => {
   switch (workspaceRouteParams.value.detailType) {
     case 'root':
-      return 'LazyWorkspacesDetailRoot'
+      if (!workspaceRouteParams.value.detailId) {
+        return 'LazyWorkspacesDetailRoot'
+      }
+      if (workspaceRouteParams.value.detailId === 'setting') {
+        return 'LazyWorkspacesSettingRoot'
+      }
     case 'folder':
       return 'LazyWorkspacesDetailFolder'
     case 'table':
       if (workspaceRouteParams.value.detailId === 'setting') {
-        return 'LazyWorkspacesDetailTableSetting'
+        return 'LazyWorkspacesSettingTable'
       }
       return 'LazyWorkspacesDetailTable'
     case 'view':
       if (workspaceRouteParams.value.detailId === 'setting') {
-        return 'LazyWorkspacesDetailViewSetting'
+        return 'LazyWorkspacesSettingView'
       }
       return 'LazyWorkspacesDetailView'
     case 'dashboard':
       if (workspaceRouteParams.value.detailId === 'setting') {
-        return 'LazyWorkspacesDetailDashboardSetting'
+        return 'LazyWorkspacesSettingDashoard'
       }
       return 'LazyWorkspacessDetailDashboard'
     default:

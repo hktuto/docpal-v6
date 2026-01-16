@@ -1,0 +1,16 @@
+{
+  "name": "DocPal v6 Development",
+  "image": "mcr.microsoft.com/devcontainers/node:22",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "nodeGypDependencies": true,
+      "version": "22",
+      "pnpmVersion": "latest"
+    }
+  },
+  "forwardPorts": [3000],
+  "postCreateCommand": "pnpm install",
+  "containerEnv": {
+    "NODE_ENV": "development"
+  }
+}

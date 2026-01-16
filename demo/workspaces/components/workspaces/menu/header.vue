@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { openMenuItemActions: openActions, workspace, navigateToItem, saveWorkspaceToDb } = useSingleWorkspaceContext()
+const { openMenuItemActions: openActions, workspace, navigateToItem, saveWorkspaceToDb, workspaceRouteParams } = useSingleWorkspaceContext()
 const editIconRef = ref<HTMLElement>()
 const routerProvider = inject(MenuRouterKey)
 function handleOpenActions() {
@@ -10,6 +10,13 @@ function handleIconSelected(icon: string) {
   if (!workspace.value) return
   workspace.value.icon = icon
   saveWorkspaceToDb()
+}
+
+function openDatabaseSetting() {
+  workspaceRouteParams.value = {
+    detailType: 'root',
+    detailId: 'setting'
+  }
 }
 
 function goBackList() {
@@ -36,7 +43,7 @@ function goBackList() {
     </div>
     <h3 @click="navigateToItem()">{{ workspace?.name }}</h3>
     <div class="actions">
-      <div class="actionIcon" ref="editIconRef">
+      <div class="actionIcon" ref="editIconRef" @click="openDatabaseSetting">
         <Icon name="material-symbols:edit" />
       </div>
       <div class="actionIcon" ref="editIconRef" @click="handleOpenActions">

@@ -149,8 +149,8 @@ export const caseField = pgTable('case_fields', {
   defaultValue: text('defaultValue'),
   displayStructure: jsonb('displayStructure').$type<FieldDisplayStructure>(),
   fieldLength: integer('fieldLength').notNull().default(0),
-  fieldName: text('fieldName').notNull(),
-  fieldNameAlias: text('fieldNameAlias').notNull(),
+  fieldName: text('fieldName').notNull(), // related field id
+  fieldNameAlias: text('fieldNameAlias').notNull(), // label
   fieldType: text('fieldType').$type<FieldDatabaseType>().notNull().default('text'),
   formulaExpression: text('formulaExpression'),
   isArray: boolean('isArray').notNull().default(false),
