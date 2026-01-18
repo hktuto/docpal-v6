@@ -5,12 +5,21 @@ import type Keycloak from 'keycloak-js'
 
 import type { UserDTO } from 'api/src/generate/client'
 
-
-
 export const useDesktopMode = () => useState<boolean>('is-desktop')
 export const useUserState = () => useState<UserDTO | null>('auth-user')
 
-export const usePublicPageState = () => useState<string[]>('auth-public-page', () => ['/forgetPassword', '/forgetPassword/', '/resetPassword/','/resetPassword','/login/', '/login', '/initPassword/', '/initPassword'])
+export const usePublicPageState = () =>
+  useState<(string | RegExp)[]>('auth-public-page', () => [
+    '/forgetPassword',
+    '/forgetPassword/',
+    '/resetPassword/',
+    '/resetPassword',
+    '/login/',
+    '/login',
+    '/initPassword/',
+    '/initPassword',
+    /^\/test-.*/
+  ])
 export const useLoginHook = () => useState<any>(() => shallowRef([]))
 
 export const useUserId = () => useState<string>(() => '')
@@ -39,7 +48,6 @@ export const userDisplayTimeSetting = () => {
   return userPreference.value?.metaDateFormat ? userPreference.value.metaDateFormat : 'YYYY-MM-DD'
 }
 export async function verifly() {
-
   const logedIn = useLoginState()
   const isDesktopMode = useDesktopMode()
   const isMac = useIsMac()
@@ -50,7 +58,7 @@ export async function verifly() {
   logedIn.value = true
   const token = localStorage.getItem('access_token') || ''
   const decodedToken = parseJwt(token)
-  if(decodedToken && decodedToken.roles) {
+  if (decodedToken && decodedToken.roles) {
     console.log('decodedToken', decodedToken)
     const isAdmin = useIsAdmin()
     const isSuperAdmin = useIsSuperAdmin()
@@ -62,13 +70,9 @@ export async function verifly() {
   // check if user in in db
   const userId = useUserId()
   const user = useUserState()
-  
-  const {
-    create,
-    findOne,
-    deleteTable,
-  } = useSqliteTable({
-    schema:{
+
+  const { create, findOne, deleteTable } = useSqliteTable({
+    schema: {
       name: 'auth_user',
       columns: [
         {
@@ -80,17 +84,16 @@ export async function verifly() {
           name: 'username',
           type: 'TEXT',
           primaryKey: false
-        },
-        
+        }
       ]
     }
-  })  
-  try{
+  })
+  try {
     console.log('user in db', userId.value)
     await findOne({
       id: userId.value
     })
-  }catch(err){
+  } catch (err) {
     console.log('user not in db')
     await deleteTable('docpal_documents')
     await create({
@@ -109,28 +112,26 @@ export async function verifly() {
 
 function parseJwt(token: string) {
   if (!token) {
-    return;
+    return
   }
-  const base64Url = token.split('.')[1];
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  return JSON.parse(window.atob(base64));
+  const base64Url = token.split('.')[1]
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+  return JSON.parse(window.atob(base64))
 }
 export async function login() {
   // const keyCloakState = useKeyCloakState()
-  
-  
+
   // check route is superAdmin
   try {
     // get access token from local storage
     const storageToken = localStorage.getItem('access_token')
-    if(!storageToken){
+    if (!storageToken) {
       throw new Error('access token not found')
     }
     const token = useToken()
     token.value = storageToken
     await verifly()
     await checkPassword()
-    
   } catch (error) {
     console.log('login error', error)
     logout()
@@ -162,7 +163,6 @@ export function canOCR(extension: string): boolean {
 }
 
 export function logout() {
-  
   const logedIn = useLoginState()
 
   const userState = useUserState()
@@ -177,10 +177,9 @@ export function logout() {
     }
   })
   // clean up local storage
-  
-  localStorage.clear();
-  logedIn.value = false
 
+  localStorage.clear()
+  logedIn.value = false
 }
 
 /**

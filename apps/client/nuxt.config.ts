@@ -74,6 +74,9 @@ export default defineNuxtConfig({
         // demo packages
         "../../demo/database",
         "../../demo/workspaces",
+        // demo packages
+        '../../demo/canvas-renderer',
+    
     ],
     features: {
         inlineStyles: true,

@@ -291,6 +291,9 @@ export default defineAppConfig({
     {
       name: 'admin-calendar-setting'
     },
+    {
+      name: 'canvas-renderer'
+    },
 
     
     {
