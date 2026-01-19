@@ -27,13 +27,13 @@ const handleChange = (value: any) => {
 </script>
 
 <template>
-  <ElSelect class="vxe-cell-absolute" v-bind="props" @change="handleChange">
+  <ElSelect :class="['vxe-cell-absolute', 'mdTable-input-edit', multiple ? 'mdTable-multiSelect-edit' : 'mdTable-singleSelect-edit']" v-bind="props" @change="handleChange">
     <ElOption v-for="option in options" :key="option.id" :label="option.label" :value="option.id">
       <span class="table-tag round" :style="{ '--color': option.color }"></span> <span class="table-tag-label">{{ option.label }}</span>
     </ElOption>
     <template #tag>
       <div class="table-tag-container">
-        <span v-for="id in modelValue" :key="id" class="table-tag" :style="{ '--color': getOption(id)?.color }">{{ getOption(id)?.label }}</span>
+        <div v-for="id in modelValue" :key="id" class="table-tag" :style="{ '--color': getOption(id)?.color }">{{ getOption(id)?.label }}</div>
       </div>
     </template>
     <template #label>
@@ -43,7 +43,9 @@ const handleChange = (value: any) => {
 </template>
 
 <style scoped>
-.table-tag {
-  margin-bottom: var(--app-space-xs);
+.table-tag-container {
+  .table-tag {
+    margin-bottom: var(--app-space-xs);
+  }
 }
 </style>

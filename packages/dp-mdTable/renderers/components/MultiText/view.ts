@@ -32,10 +32,10 @@ export const MultiTextEdit = ({options, params}: ViewRenderFunctionParams<string
     type: 'textarea',
     modelValue: row[column.field] ?? '',
     'onUpdate:modelValue': (value: string) => { row[column.field] = value },
-    class: 'vxe-cell-absolute',
+    class: 'vxe-cell-absolute mdTable-input-edit',
     autosize: {
       minRows: 2,
-      maxRows: 10,
+      maxRows: 8,
     },
     onKeydown: handleKeydown
   } as any)
