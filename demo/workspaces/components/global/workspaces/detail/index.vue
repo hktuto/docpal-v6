@@ -54,6 +54,10 @@ function handleViewImportReport(report: ImportReport) {
   importReportDialogRef.value?.open(report)
 }
 
+function openSetting() {
+  workspaceRouteParams.value.pageType = 'setting'
+}
+
 const detailComponent = computed(() => {
   switch (workspaceRouteParams.value.detailType) {
     case 'root':
@@ -66,17 +70,17 @@ const detailComponent = computed(() => {
     case 'folder':
       return 'LazyWorkspacesDetailFolder'
     case 'table':
-      if (workspaceRouteParams.value.detailId === 'setting') {
+      if (workspaceRouteParams.value.pageType === 'setting') {
         return 'LazyWorkspacesSettingTable'
       }
       return 'LazyWorkspacesDetailTable'
     case 'view':
-      if (workspaceRouteParams.value.detailId === 'setting') {
+      if (workspaceRouteParams.value.pageType === 'setting') {
         return 'LazyWorkspacesSettingView'
       }
       return 'LazyWorkspacesDetailView'
     case 'dashboard':
-      if (workspaceRouteParams.value.detailId === 'setting') {
+      if (workspaceRouteParams.value.pageType === 'setting') {
         return 'LazyWorkspacesSettingDashoard'
       }
       return 'LazyWorkspacessDetailDashboard'
@@ -139,6 +143,11 @@ watch(
                   <el-button v-if="isMobileView" class="sidebar-toggle-btn" @click="toggleSidebar" circle plain size="small" type="primary">
                     <el-icon><Menu /></el-icon>
                   </el-button>
+                </template>
+                <template #right>
+                  <template v-if="workspaceRouteParams.detailType !== 'root'">
+                    <Icon name="lucide:settings" @click="openSetting" />
+                  </template>
                 </template>
               </WorkspacesDetailHeader>
               <component :is="detailComponent" :is-admin="true" />

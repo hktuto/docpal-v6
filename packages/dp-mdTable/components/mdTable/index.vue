@@ -79,7 +79,7 @@ const emit = defineEmits<{
 const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
 const addColumnPopoverRef = ref()
-const { columns, addColumn, columnGroupRules, gridOptions, gridRef, refreshTableData, editable, saveColumnOrder } = useMDTable(props)
+const { columns, addColumn, columnGroupRules, gridOptions, gridRef, refreshTableData, deleteColumn, saveColumnOrder } = useMDTable(props)
 
 // 表格事件
 const gridEvents = computed<VxeGridListeners>(() => ({
@@ -147,7 +147,6 @@ const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) =>
       } as unknown as ColumnConfig
       // 
       addColumn(defaultNewColumn, column.field, 'left')
-      console.log('insertLeft', column)
       break;
     case 'insertRight':
       const defaultNewColumnRight = {
@@ -166,6 +165,7 @@ const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) =>
     case 'hide':
       break;
     case 'delete':
+      deleteColumn(column.field)
       break;
   }
 }

@@ -45,6 +45,7 @@ export function useMDTable(props: any) {
   return {
     columns,
     addColumn,
+    deleteColumn,
     updateColumn,
     columnGroupRules,
     gridOptions,

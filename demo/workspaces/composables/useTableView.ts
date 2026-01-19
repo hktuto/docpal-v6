@@ -275,6 +275,13 @@ export const useTableView = () => {
     }
     await query('DELETE FROM case_fields WHERE "tableId" = $1 AND "fieldName" = $2', [tableId.value, fieldName])
     fields.value = fields.value.filter((item) => item.fieldName !== fieldName)
+    // remove field from default view
+    const defaultView = await getDefaultView()
+    if(defaultView) {
+      const fields = new Set(JSON.parse(JSON.stringify(defaultView.fields)))
+      fields.delete(fieldName)
+      await updateView(defaultView.id, { fields: Array.from(fields) as string[] })
+    }
   }
 
   // Region: Column mapping - convert CaseFieldRecord to ColumnConfig for dp-mdTable
@@ -395,6 +402,10 @@ export const useTableView = () => {
 
   async function deleteColumn(fieldName: string): Promise<void> {
     await deleteField(fieldName)
+    const currentViewFieldsSet = new Set(JSON.parse(JSON.stringify(currentView.value?.fields)))
+    currentViewFieldsSet.delete(fieldName)
+    await updateView(currentView.value?.id, { fields: Array.from(currentViewFieldsSet) as string[] })
+    await getAllColumns()
   }
 
   function saveColumnOrder(newOrder: OrdersParam) {
