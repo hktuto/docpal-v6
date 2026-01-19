@@ -306,8 +306,11 @@ export const useTableView = () => {
       throw new Error('fieldName is required')
     }
 
-    const field = getField(fieldName)
-    console.log(fieldName, field)
+    // Extract base field name if it's in dot notation (e.g., "rel_company.name" -> "rel_company")
+    const baseFieldName = fieldName.includes('.') ? fieldName.split('.')[0] : fieldName
+    
+    const field = getField(baseFieldName)
+    console.log(fieldName, baseFieldName, field)
     if (!field) {
       throw new Error('field not found')
     }
@@ -315,6 +318,37 @@ export const useTableView = () => {
     const updateKeys = Object.keys(updates).filter((key) => key !== 'id')
     if (updateKeys.length === 0) {
       return
+    }
+
+    // Check if this is a data type change (businessType or fieldType change)
+    const isBusinessTypeChange = updates.businessType && updates.businessType !== field.businessType
+    const isFieldTypeChange = updates.fieldType && updates.fieldType !== field.fieldType
+    const isTypeChange = isBusinessTypeChange || isFieldTypeChange
+    
+    // Handle data type changes
+    if (isTypeChange && physicalTableName.value) {
+      const oldType = field.fieldType
+      const newType = updates.fieldType || field.fieldType
+      const oldBusinessType = field.businessType
+      const newBusinessType = updates.businessType || field.businessType
+      
+      // Check if we can convert the data (use base field name for physical column)
+      const canConvert = await handleDataTypeConversion(
+        baseFieldName,
+        oldType,
+        newType,
+        oldBusinessType,
+        newBusinessType
+      )
+      
+      if (!canConvert) {
+        throw new Error('Cannot convert data type. Please clear the column data first.')
+      }
+    }
+    
+    // Handle relation field display field changes
+    if (field.businessType === 'relation' && updates.displayFieldIds) {
+      await handleRelationDisplayFieldUpdate(field, updates.displayFieldIds)
     }
 
     // Column names now use camelCase in database
@@ -342,17 +376,143 @@ export const useTableView = () => {
     console.log('sql', sql, values)
     await query(sql, values)
 
-    // Update local state
-    const index = fields.value.findIndex((f) => f.fieldName === fieldName)
+    // Update local state (use base field name)
+    const index = fields.value.findIndex((f) => f.fieldName === baseFieldName)
     if (index !== -1) {
       console.log(fields.value[index])
       fields.value[index] = { ...fields.value[index], ...updates }
-      const columnIndex = columns.value.findIndex((col) => col.field === fieldName)
-      if (columnIndex !== -1) {
-        columns.value[columnIndex] = fieldToColumnConfig(fields.value[index])
-      }
+      
+      // Update all columns that reference this field (including dot notation variants)
+      columns.value.forEach((col, colIndex) => {
+        const colBaseFieldName = col.field.includes('.') ? col.field.split('.')[0] : col.field
+        if (colBaseFieldName === baseFieldName) {
+          columns.value[colIndex] = fieldToColumnConfig(fields.value[index])
+        }
+      })
     }
     // update columns
+  }
+  
+  /**
+   * Handle data type conversion when updating a field
+   * Returns true if conversion is successful or not needed, false if conversion failed
+   */
+  async function handleDataTypeConversion(
+    fieldName: string,
+    oldType: string,
+    newType: string,
+    oldBusinessType: string,
+    newBusinessType: string
+  ): Promise<boolean> {
+    if (!physicalTableName.value) return false
+    
+    // If changing from/to relation, handle specially
+    if (oldBusinessType === 'relation' || newBusinessType === 'relation') {
+      // Changing to/from relation requires clearing data
+      await query(
+        `UPDATE "${physicalTableName.value}" SET "${fieldName}" = NULL`
+      )
+      
+      // If changing column type in database, use ALTER TABLE
+      if (oldType !== newType) {
+        try {
+          await exec(
+            `ALTER TABLE "${physicalTableName.value}" 
+             ALTER COLUMN "${fieldName}" TYPE ${newType} USING NULL`
+          )
+        } catch (error) {
+          console.error('Error altering column type:', error)
+          return false
+        }
+      }
+      return true
+    }
+    
+    // Try to convert to text/string if possible
+    if (newType === 'text' || newType === 'varchar') {
+      try {
+        await exec(
+          `ALTER TABLE "${physicalTableName.value}" 
+           ALTER COLUMN "${fieldName}" TYPE text USING "${fieldName}"::text`
+        )
+        return true
+      } catch (error) {
+        console.error('Error converting to text:', error)
+        // If conversion fails, clear the data
+        await query(
+          `UPDATE "${physicalTableName.value}" SET "${fieldName}" = NULL`
+        )
+        await exec(
+          `ALTER TABLE "${physicalTableName.value}" 
+           ALTER COLUMN "${fieldName}" TYPE text`
+        )
+        return true
+      }
+    }
+    
+    // For other type changes, try direct conversion
+    try {
+      await exec(
+        `ALTER TABLE "${physicalTableName.value}" 
+         ALTER COLUMN "${fieldName}" TYPE ${newType} USING "${fieldName}"::${newType}`
+      )
+      return true
+    } catch (error) {
+      console.error('Error converting column type:', error)
+      // If conversion fails, clear the data
+      await query(
+        `UPDATE "${physicalTableName.value}" SET "${fieldName}" = NULL`
+      )
+      try {
+        await exec(
+          `ALTER TABLE "${physicalTableName.value}" 
+           ALTER COLUMN "${fieldName}" TYPE ${newType}`
+        )
+        return true
+      } catch (alterError) {
+        console.error('Error altering column after clearing:', alterError)
+        return false
+      }
+    }
+  }
+  
+  /**
+   * Handle updates to relation field display fields
+   * Adds new display fields to the view if they don't exist
+   */
+  async function handleRelationDisplayFieldUpdate(
+    field: CaseFieldRecord,
+    newDisplayFieldIds: string[]
+  ): Promise<void> {
+    if (!field.relationTableId || !currentView.value) return
+    
+    const oldDisplayFieldIds = field.displayFieldIds || []
+    const addedFieldIds = newDisplayFieldIds.filter(id => !oldDisplayFieldIds.includes(id))
+    
+    if (addedFieldIds.length === 0) return
+    
+    // Get the target table's fields to get field names
+    const targetFields = await query<CaseFieldRecord>(
+      `SELECT * FROM case_fields WHERE "tableId" = $1 AND id = ANY($2)`,
+      [field.relationTableId, addedFieldIds]
+    )
+    
+    // Add new view fields for each added display field
+    const currentFields = new Set(currentView.value.fields)
+    
+    for (const targetField of targetFields) {
+      const viewFieldName = `${field.fieldName}.${targetField.fieldName}`
+      currentFields.add(viewFieldName)
+    }
+    
+    // Update the view
+    await query(
+      `UPDATE case_views SET fields = $1, "updatedAt" = $2 WHERE id = $3`,
+      [Array.from(currentFields), new Date(), currentView.value.id]
+    )
+    
+    // Update local state
+    currentView.value.fields = Array.from(currentFields)
   }
 
   async function deleteField(fieldName: string): Promise<void> {
