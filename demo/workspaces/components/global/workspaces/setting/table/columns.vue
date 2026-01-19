@@ -5,15 +5,15 @@ import type { CaseFieldRecord } from '../../../../../utils/db/schema/newTableSch
 import draggable from 'vuedraggable'
 
 const { workspaceRouteParams, findItemById, menuState } = useSingleWorkspaceContext()
-const { query } = usePglite()
-
-const fields = ref<CaseFieldRecord[]>([])
-const loading = ref(false)
+// Initialize tableView composable which provides column management
+const tableView = useTableView()
 const isDragging = ref(false)
 
 // Column editor state
-const showColumnEditor = ref(false)
+const columnPopoverRef = ref()
 const editingColumn = ref<CaseFieldRecord | null>(null)
+const addButtonRef = ref()
+const tableReady = ref(false)
 
 // Column type labels
 const columnTypeLabels: Record<number, { label: string; color: string }> = {
@@ -33,33 +33,34 @@ function getColumnTypeLabel(type: number) {
   return columnTypeLabels[type] || { label: 'Unknown', color: '#909399' }
 }
 
-async function loadFields() {
+async function initializeTable() {
   const treeItem = findItemById(menuState.value.items, workspaceRouteParams.value.detailId || '')
   if (!treeItem || treeItem.itemType !== 'table' || !treeItem.itemId) return
 
-  loading.value = true
   try {
-    const data = await query<CaseFieldRecord[]>(
-      `SELECT * FROM case_fields WHERE "tableId" = $1 ORDER BY "createdAt" ASC`,
-      [treeItem.itemId]
-    )
-    fields.value = data
+    await tableView.initializeTableView(treeItem.itemId)
+    tableReady.value = true
   } catch (error) {
-    console.error('Error loading fields:', error)
-    ElMessage.error('Failed to load columns')
-  } finally {
-    loading.value = false
+    console.error('Error initializing table:', error)
+    ElMessage.error('Failed to load table')
   }
 }
 
 function handleAddColumn() {
   editingColumn.value = null
-  showColumnEditor.value = true
+  columnPopoverRef.value?.show(addButtonRef.value, null)
 }
 
-function handleEditColumn(field: CaseFieldRecord) {
+function handleEditColumn(field: CaseFieldRecord, event: Event) {
   editingColumn.value = field
-  showColumnEditor.value = true
+  // Convert CaseFieldRecord to column format expected by MdTableAddColumnPopover
+  const columnData = {
+    field: field.fieldName,
+    title: field.fieldNameAlias,
+    type: field.displayStructure?.type,
+    properties: field.displayStructure?.properties || {}
+  }
+  columnPopoverRef.value?.show(event.target, columnData)
 }
 
 async function handleDeleteColumn(field: CaseFieldRecord) {
@@ -75,14 +76,8 @@ async function handleDeleteColumn(field: CaseFieldRecord) {
       }
     )
 
-    const treeItem = findItemById(menuState.value.items, workspaceRouteParams.value.detailId || '')
-    if (!treeItem || !treeItem.itemId) return
-
-    // Delete field from case_fields
-    await query(`DELETE FROM case_fields WHERE id = $1`, [field.id])
-    
-    // Remove from local state
-    fields.value = fields.value.filter(f => f.id !== field.id)
+    // Use tableView's deleteField method which handles both case_fields and view updates
+    await tableView.deleteField(field.fieldName)
     
     ElMessage.success(`Column "${field.fieldNameAlias}" deleted`)
   } catch (error) {
@@ -94,10 +89,37 @@ async function handleDeleteColumn(field: CaseFieldRecord) {
   }
 }
 
-function handleColumnSaved() {
-  showColumnEditor.value = false
-  editingColumn.value = null
-  loadFields()
+async function handleColumnSubmit(columnConfig: any) {
+  try {
+    if (editingColumn.value) {
+      // Update existing column using tableView's updateField method
+      await tableView.updateField(editingColumn.value.fieldName, {
+        fieldName: columnConfig.field,
+        fieldNameAlias: columnConfig.title,
+        displayStructure: {
+          type: columnConfig.type,
+          properties: columnConfig.properties || {}
+        }
+      })
+      ElMessage.success(`Column "${columnConfig.title}" updated`)
+    } else {
+      // Add new column using tableView's addField method
+      await tableView.addField({
+        fieldName: columnConfig.field,
+        fieldNameAlias: columnConfig.title,
+        displayStructure: {
+          type: columnConfig.type,
+          properties: columnConfig.properties || {}
+        }
+      })
+      ElMessage.success(`Column "${columnConfig.title}" added`)
+    }
+    
+    editingColumn.value = null
+  } catch (error) {
+    console.error('Error saving column:', error)
+    ElMessage.error('Failed to save column')
+  }
 }
 
 function handleDragStart() {
@@ -106,8 +128,17 @@ function handleDragStart() {
 
 async function handleDragEnd() {
   isDragging.value = false
-  // TODO: Implement column reordering in database
-  ElMessage.success('Column order updated')
+  try {
+    // Update the view's field order with the new order from draggable
+    if (tableView.currentView.value) {
+      const newFieldOrder = tableView.fields.value.map(f => f.fieldName)
+      await tableView.updateView(tableView.currentView.value.id, { fields: newFieldOrder })
+      ElMessage.success('Column order updated')
+    }
+  } catch (error) {
+    console.error('Error updating column order:', error)
+    ElMessage.error('Failed to update column order')
+  }
 }
 
 function getColumnDescription(field: CaseFieldRecord): string {
@@ -123,23 +154,23 @@ function getColumnDescription(field: CaseFieldRecord): string {
 }
 
 onMounted(() => {
-  loadFields()
+  initializeTable()
 })
 
 watch(
   () => workspaceRouteParams.value.detailId,
   () => {
-    loadFields()
+    initializeTable()
   }
 )
 </script>
 
 <template>
-  <el-card class="setting-section" v-loading="loading">
+  <el-card class="setting-section" v-loading="tableView.loading.value">
     <template #header>
       <div class="card-header">
         <h3>Columns</h3>
-        <el-button type="primary" size="small" @click="handleAddColumn">
+        <el-button ref="addButtonRef" type="primary" size="small" @click="handleAddColumn">
           <Icon name="lucide:plus" />
           Add Column
         </el-button>
@@ -154,13 +185,13 @@ watch(
       <!-- Column Count -->
       <div class="columns-info">
         <Icon name="lucide:columns" />
-        <span>{{ fields.length }} {{ fields.length === 1 ? 'column' : 'columns' }}</span>
+        <span>{{ tableView.fields.value.length }} {{ tableView.fields.value.length === 1 ? 'column' : 'columns' }}</span>
       </div>
 
       <!-- Columns List -->
       <draggable
-        v-if="fields.length > 0"
-        v-model="fields"
+        v-if="tableView.fields.value.length > 0"
+        v-model="tableView.fields.value"
         :animation="200"
         handle=".drag-handle"
         item-key="id"
@@ -188,17 +219,17 @@ watch(
                   {{ getColumnTypeLabel(field.displayStructure.type).label }}
                 </el-tag>
               </div>
-              <div class="column-meta">
+              <!-- <div class="column-meta">
                 <span class="column-field">{{ field.fieldName }}</span>
                 <span v-if="getColumnDescription(field)" class="column-desc">
                   {{ getColumnDescription(field) }}
                 </span>
-              </div>
+              </div> -->
             </div>
 
             <!-- Column Actions -->
             <div class="column-actions">
-              <el-button size="small" @click="handleEditColumn(field)">
+              <el-button size="small" @click="handleEditColumn(field, $event)">
                 <Icon name="lucide:edit" />
                 Edit
               </el-button>
@@ -227,12 +258,10 @@ watch(
       </div>
     </div>
 
-    <!-- Column Editor Dialog -->
-    <WorkspacesSettingTableColumnsEditor
-      v-if="showColumnEditor"
-      :column="editingColumn"
-      @close="showColumnEditor = false"
-      @saved="handleColumnSaved"
+    <!-- Column Editor Popover -->
+    <MdTableAddColumnPopover
+      ref="columnPopoverRef"
+      @submit="handleColumnSubmit"
     />
   </el-card>
 </template>
@@ -260,7 +289,7 @@ watch(
 
 .section-content {
   padding: var(--app-space-m);
-  background: var(--app-grey-50);
+  background: var(--app-grey-900);
   border-radius: var(--app-border-radius);
   min-height: 300px;
 }
@@ -270,7 +299,7 @@ watch(
   align-items: center;
   gap: var(--app-space-xs);
   padding: var(--app-space-s) var(--app-space-m);
-  background: var(--app-grey-100);
+  background: var(--app-grey-850);
   border-radius: var(--app-border-radius);
   margin-bottom: var(--app-space-m);
   font-size: var(--app-font-size-s);
@@ -289,12 +318,12 @@ watch(
   gap: var(--app-space-m);
   padding: var(--app-space-m);
   background: white;
-  border: 1px solid var(--app-grey-200);
-  border-radius: var(--app-border-radius);
+  
+  border-radius: var(--app-border-radius-s);
   transition: all 0.2s ease;
 
   &:hover {
-    background: var(--app-grey-50);
+    background: var(--app-grey-950);
     border-color: var(--app-primary-color);
     
     .drag-handle {
@@ -340,7 +369,7 @@ watch(
 .column-title {
   font-size: var(--app-font-size-m);
   font-weight: 500;
-  color: var(--app-grey-900);
+  color: var(--app-grey-300);
 }
 
 .column-meta {

@@ -62,7 +62,8 @@ const props = withDefaults(defineProps<Props>(), {
   placement: 'left-start',
   popperClass: ''
 })
-const mdTable = useMDTableInject()
+const { updateColumn } = useColumnsContext()
+
 const emit = defineEmits<{
   submit: [column: ColumnConfig]
   cancel: []
@@ -130,6 +131,7 @@ const loadComponent = (value: any) => {
     return acc
   }, [])
   const fieldSetting = options.find((item: any) => item.value === value)
+  console.log('fieldSetting', fieldSetting)
   if (fieldSetting?.component) {
     AsyncComponent.value = defineAsyncComponent(() => import(`./field/${fieldSetting.component}.vue`))
   } else {
@@ -175,7 +177,7 @@ const handleSubmit = async () => {
 
     console.log('columnConfig', columnConfig)
     if (state.isEdit) {
-      mdTable.updateColumn(columnConfig.field, columnConfig)
+      updateColumn(columnConfig.field, columnConfig as any)
     } else {
       emit('submit', columnConfig)
     }

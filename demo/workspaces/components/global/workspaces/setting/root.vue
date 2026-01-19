@@ -1,10 +1,26 @@
 <script lang="ts" setup>
 // Navigation state
 const activeSection = ref('general')
-const sections = [
-  { id: 'general', label: 'General', icon: 'lucide:settings' },
-  { id: 'permissions', label: 'Permissions', icon: 'lucide:shield' },
-  { id: 'danger', label: 'Danger Zone', icon: 'lucide:alert-triangle' }
+
+const settingsSections = [
+  {
+    group: 'GENERAL',
+    items: [
+      { id: 'general', label: 'General', icon: 'lucide:settings' }
+    ]
+  },
+  {
+    group: 'ACCESS & SECURITY',
+    items: [
+      { id: 'permissions', label: 'Permissions', icon: 'lucide:shield' }
+    ]
+  },
+  {
+    group: 'SETTINGS',
+    items: [
+      { id: 'danger', label: 'Danger Zone', icon: 'lucide:alert-triangle' }
+    ]
+  }
 ]
 
 function switchSection(sectionId: string) {
@@ -30,17 +46,24 @@ const sectionComponent = computed(() => {
     <!-- Navigation Sidebar -->
     <div class="setting-nav">
       <div class="nav-title">Settings</div>
-      <div class="nav-menu">
-        <div
-          v-for="section in sections"
-          :key="section.id"
-          class="nav-item"
-          :class="{ active: activeSection === section.id }"
-          @click="switchSection(section.id)"
-        >
-          <Icon :name="section.icon" />
-          <span>{{ section.label }}</span>
-        </div>
+      <div class="nav-content">
+        <template v-for="section in settingsSections" :key="section.group">
+          <div class="settings-group">
+            <div class="group-title">{{ section.group }}</div>
+            <div class="group-items">
+              <div
+                v-for="item in section.items"
+                :key="item.id"
+                class="nav-item"
+                :class="{ active: activeSection === item.id }"
+                @click="switchSection(item.id)"
+              >
+                <Icon :name="item.icon" />
+                <span>{{ item.label }}</span>
+              </div>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
 
@@ -63,21 +86,46 @@ const sectionComponent = computed(() => {
   height: 100%;
   background: var(--app-grey-950);
   border-right: 1px solid var(--app-grey-800);
-  padding: var(--app-space-m);
+  padding: var(--app-space-m) 0;
   display: flex;
   flex-direction: column;
-  gap: var(--app-space-m);
+  overflow-y: auto;
 
   .nav-title {
     font-size: var(--app-font-size-xl);
     font-weight: 600;
     color: var(--app-grey-300);
-    padding: var(--app-space-s) 0;
+    padding: var(--app-space-s) var(--app-space-m);
+    margin-bottom: var(--app-space-m);
   }
 
-  .nav-menu {
+  .nav-content {
     display: flex;
-    flex-flow: column nowrap;
+    flex-direction: column;
+  }
+
+  .settings-group {
+    margin-bottom: var(--app-space-l);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .group-title {
+    padding: 0 var(--app-space-m);
+    margin-bottom: var(--app-space-xs);
+    font-size: var(--app-font-size-xs);
+    font-weight: 600;
+    color: var(--app-grey-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .group-items {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
   .nav-item {
@@ -85,24 +133,22 @@ const sectionComponent = computed(() => {
     flex-flow: row nowrap;
     align-items: center;
     gap: var(--app-space-s);
-    padding: var(--app-space-s) var(--app-space-m);
-    border-radius: var(--app-border-radius);
+    padding: var(--app-space-xs) var(--app-space-m);
     cursor: pointer;
     transition: all 0.2s;
     color: var(--app-grey-300);
     font-size: var(--app-font-size-m);
-    & + .nav-item {
-      border-top: 1px solid var(--app-grey-800);
-    }
+
     &:hover {
-      background: var(--app-grey-400);
-      color: var(--app-grey-900);
+      background: var(--app-grey-800);
+      color: var(--app-grey-100);
     }
 
     &.active {
       background: var(--app-primary-color);
       color: white;
       font-weight: 500;
+      border-right: 2px solid var(--app-primary-color);
     }
   }
 }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElMessage } from 'element-plus'
 import type { TreeItem } from '../../../composables/useSingleWorkspace'
 import type { CaseTableRecord, CaseFieldRecord, CaseViewRecord } from '../../../utils/db/schema/newTableSchema'
 
@@ -20,6 +21,12 @@ const isLoading = ref(false)
 const tableView = useTableView()
 const tableReady = ref(false)
 
+// Create Relation Dialogs
+const createRelationDialogRef = ref()
+const createReverseRelationDialogRef = ref()
+const pendingRelationColumn = ref<any>(null)
+const pendingReverseRelationColumn = ref<any>(null)
+
 async function loadTableData() {
   isLoading.value = true
   realTableError.value = null
@@ -28,26 +35,6 @@ async function loadTableData() {
   try {
     // Fetch case_tables record
     await tableView.initializeTableView(props.dataTableId)
-    // const tables = await query<CaseTableRecord>('SELECT * FROM case_tables WHERE id = $1', [props.dataTableId])
-    // caseTable.value = tables[0] || null
-
-    // if (!caseTable.value?.tableName) {
-    //   console.error('Table not found or has no physical table name')
-    //   return
-    // }
-
-    // // Set IDs on tableView - this is needed for getAllColumns() and getTableData()
-    // tableView.physicalTableName.value = caseTable.value.tableName
-    // tableView.tableId.value = caseTable.value.id
-    // console.log('caseTable.value', caseTable.value)
-
-    // // Load columns and table data through tableView
-    // // This populates the contexts that MdTable will inject
-    // await Promise.all([
-    //   tableView.getAllColumns(), // Uses tableId to fetch from case_fields
-    //   tableView.getViews() // Uses tableId to fetch from case_views
-    //   // tableView.getTableData() // Uses physicalTableName to fetch from actual table
-    // ])
 
     tableReady.value = true
   } catch (error) {
@@ -57,6 +44,90 @@ async function loadTableData() {
     isLoading.value = false
   }
 }
+
+function handleCreateRelation(column: any) {
+  pendingRelationColumn.value = column
+  createRelationDialogRef.value?.open(
+    column,
+    tableView.tableId.value,
+    tableView.physicalTableName.value
+  )
+}
+
+async function handleRelationCreated(data: {
+  targetTableId: string
+  targetFieldId: string
+  displayFieldId: string
+  relationColumnName: string
+  allowMultiple: boolean
+}) {
+  if (!pendingRelationColumn.value) return
+
+  try {
+    await tableView.createRelationFromColumn(
+      pendingRelationColumn.value.field,
+      data.targetTableId,
+      data.targetFieldId,
+      data.displayFieldId,
+      data.relationColumnName,
+      data.allowMultiple
+    )
+    
+    ElMessage.success('Relation column created successfully')
+    pendingRelationColumn.value = null
+  } catch (error) {
+    console.error('Error creating relation:', error)
+    ElMessage.error('Failed to create relation column')
+  }
+}
+
+function handleCreateReverseRelation(column: any) {
+  pendingReverseRelationColumn.value = column
+  
+  // Get the current table name for display
+  const currentTable = tableView.tableId.value
+  query<any>(`SELECT name FROM case_tables WHERE id = $1`, [currentTable])
+    .then(result => {
+      const tableName = result[0]?.name || 'Current Table'
+      createReverseRelationDialogRef.value?.open(
+        column,
+        tableView.tableId.value,
+        tableName,
+        tableView.physicalTableName.value
+      )
+    })
+}
+
+async function handleReverseRelationCreated(data: {
+  targetTableId: string
+  targetFieldId: string
+  relationColumnName: string
+  displayFieldId: string
+  allowMultiple: boolean
+}) {
+  if (!pendingReverseRelationColumn.value) return
+
+  try {
+    await tableView.createReverseRelationToOtherTable(
+      pendingReverseRelationColumn.value.field,
+      data.targetTableId,
+      data.targetFieldId,
+      data.relationColumnName,
+      data.displayFieldId,
+      data.allowMultiple
+    )
+    
+    ElMessage.success('Reverse relation column created successfully in target table')
+    pendingReverseRelationColumn.value = null
+  } catch (error) {
+    console.error('Error creating reverse relation:', error)
+    ElMessage.error('Failed to create reverse relation column')
+  }
+}
+
+// Provide the create relation handlers so MdTable can access them
+provide('handleCreateRelation', handleCreateRelation)
+provide('handleCreateReverseRelation', handleCreateReverseRelation)
 
 onMounted(async () => {
   await loadTableData()
@@ -86,6 +157,16 @@ watch(
         <MdTable v-if="tableReady" />
       </div>
     </div>
+
+    <!-- Create Relation Dialogs -->
+    <WorkspacesDialogsCreateRelationDialog
+      ref="createRelationDialogRef"
+      @created="handleRelationCreated"
+    />
+    <WorkspacesDialogsCreateReverseRelationDialog
+      ref="createReverseRelationDialogRef"
+      @created="handleReverseRelationCreated"
+    />
 
     <!-- Debug Sidebar -->
     <!-- <WorkspacesTableDataDebugSidebar

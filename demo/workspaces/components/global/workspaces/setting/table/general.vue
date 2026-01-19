@@ -64,9 +64,6 @@ async function handleSaveGeneral() {
   }
 }
 
-function handleManageColumns() {
-  ElMessage.info('Column management coming soon')
-}
 
 onMounted(() => {
   loadTableData()
@@ -101,14 +98,6 @@ watch(
         />
       </el-form-item>
 
-      <el-form-item label="Columns">
-        <div class="columns-info">
-          <span>{{ fieldsData.length }} columns configured</span>
-          <el-button size="small" @click="handleManageColumns">
-            Manage Columns
-          </el-button>
-        </div>
-      </el-form-item>
 
       <el-form-item>
         <el-button type="primary" @click="handleSaveGeneral">

@@ -51,6 +51,10 @@ export const columnBasic: any = {
     isBasic: false,
     component: 'Formula',
     order: 1
+  },
+  [ColumnFieldType.MagicLink]: {
+    isBasic: false,
+    component: 'Relation'
   }
 }
 export function getColumnFieldOptions() {

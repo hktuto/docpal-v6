@@ -58,15 +58,20 @@ function openSetting() {
   workspaceRouteParams.value.pageType = 'setting'
 }
 
+const openDetail = () => {
+  workspaceRouteParams.value.pageType = 'detail'
+}
+
 const detailComponent = computed(() => {
   switch (workspaceRouteParams.value.detailType) {
     case 'root':
+    if (workspaceRouteParams.value.pageType === 'setting') {
+        return 'LazyWorkspacesSettingRoot'
+      }
       if (!workspaceRouteParams.value.detailId) {
         return 'LazyWorkspacesDetailRoot'
       }
-      if (workspaceRouteParams.value.detailId === 'setting') {
-        return 'LazyWorkspacesSettingRoot'
-      }
+      
     case 'folder':
       return 'LazyWorkspacesDetailFolder'
     case 'table':
@@ -145,8 +150,11 @@ watch(
                   </el-button>
                 </template>
                 <template #right>
-                  <template v-if="workspaceRouteParams.detailType !== 'root'">
+                  <template v-if="workspaceRouteParams.pageType !== 'setting'">
                     <Icon name="lucide:settings" @click="openSetting" />
+                  </template>
+                  <template v-if="workspaceRouteParams.pageType === 'setting'">
+                    <Icon name="lucide:table" @click="openDetail" />
                   </template>
                 </template>
               </WorkspacesDetailHeader>
