@@ -98,6 +98,7 @@
     "konva": "^10.2.0",
     "menus": "link:@tiptap/vue-3/menus",
     "mime-types": "^2.1.35",
+    "nanoid": "^5.1.6",
     "nuxt": "3.19.3",
     "playwright-core": "^1.56.1",
     "pptx-preview": "^1.0.7",

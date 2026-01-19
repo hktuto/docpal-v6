@@ -140,9 +140,23 @@ const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) =>
       gridRef.value.sort(column.field, 'desc')
       break
     case 'insertLeft':
+      const defaultNewColumn = {
+        field: createFieldId(),
+        title: `New Column`,
+        type: ColumnFieldType.MultiText
+      } as unknown as ColumnConfig
+      // 
+      addColumn(defaultNewColumn, column.field, 'left')
       console.log('insertLeft', column)
       break;
     case 'insertRight':
+      const defaultNewColumnRight = {
+          field: createFieldId(),
+          title: `New Column`,
+          type: ColumnFieldType.MultiText
+        } as unknown as ColumnConfig
+      // 
+      addColumn(defaultNewColumnRight, column.field, 'right')
       console.log('insertRight', column)
       break;
     case 'editDescription':
