@@ -162,6 +162,8 @@ interface MatchPreview {
 }
 
 const { query } = usePglite()
+const tableView = inject('tableView') as any
+
 const emit = defineEmits<{
   created: [data: {
     targetTableId: string
@@ -179,7 +181,6 @@ const sourceColumn = ref<any>(null)
 const sourceTableId = ref<string>('')
 const sourceTableName = ref<string>('')
 const sourcePhysicalTableName = ref<string>('')
-const sourceEntityId = ref<string>('')
 const availableTables = ref<CaseTableRecord[]>([])
 const sourceFields = ref<CaseFieldRecord[]>([])
 const targetFields = ref<CaseFieldRecord[]>([])
@@ -211,15 +212,6 @@ async function open(column: any, tableId: string, tableName: string, physicalTab
   sourcePhysicalTableName.value = physicalTableName
   visible.value = true
   
-  // Get entityId from the source table
-  const sourceTableData = await query<CaseTableRecord>(
-    `SELECT "entityId" FROM case_tables WHERE id = $1`,
-    [tableId]
-  )
-  if (sourceTableData.length > 0) {
-    sourceEntityId.value = sourceTableData[0].entityId
-  }
-  
   // Load source table fields
   await loadSourceFields()
   
@@ -232,11 +224,14 @@ async function open(column: any, tableId: string, tableName: string, physicalTab
 
 async function loadSourceFields() {
   try {
+    if (!tableView?.getFieldsForTable) {
+      console.error('getFieldsForTable not available')
+      ElMessage.error('Failed to load source fields')
+      return
+    }
+    
     // Load all fields from the source table
-    const fields = await query<CaseFieldRecord>(
-      `SELECT * FROM case_fields WHERE "tableId" = $1 ORDER BY "fieldNameAlias"`,
-      [sourceTableId.value]
-    )
+    const fields = await tableView.getFieldsForTable(sourceTableId.value)
     sourceFields.value = fields
     
     // Set default display field to the source column
@@ -254,14 +249,14 @@ async function loadSourceFields() {
 
 async function loadAvailableTables() {
   try {
-    // Get all tables from the same entity, except the current one, use DISTINCT ON to avoid duplicates
-    const tables = await query<CaseTableRecord>(
-      `SELECT DISTINCT ON (name, "tableName") * 
-       FROM case_tables 
-       WHERE id != $1 AND "entityId" = $2 AND status = 'A' 
-       ORDER BY name, "tableName", "createdAt" DESC`,
-      [sourceTableId.value, sourceEntityId.value]
-    )
+    if (!tableView?.getAvailableTablesForRelation) {
+      console.error('getAvailableTablesForRelation not available')
+      ElMessage.error('Failed to load tables')
+      return
+    }
+    
+    // Get all tables from the same entity, excluding current table
+    const tables = await tableView.getAvailableTablesForRelation(true)
     availableTables.value = tables
   } catch (error) {
     console.error('Error loading tables:', error)
@@ -277,11 +272,14 @@ async function handleTableChange() {
   if (!formData.targetTableId) return
   
   try {
+    if (!tableView?.getFieldsForTable) {
+      console.error('getFieldsForTable not available')
+      ElMessage.error('Failed to load fields')
+      return
+    }
+    
     // Load fields for the selected table
-    const fields = await query<CaseFieldRecord>(
-      `SELECT * FROM case_fields WHERE "tableId" = $1 ORDER BY "fieldNameAlias"`,
-      [formData.targetTableId]
-    )
+    const fields = await tableView.getFieldsForTable(formData.targetTableId)
     targetFields.value = fields
   } catch (error) {
     console.error('Error loading fields:', error)
@@ -382,7 +380,6 @@ function handleClose() {
   sourceTableId.value = ''
   sourceTableName.value = ''
   sourcePhysicalTableName.value = ''
-  sourceEntityId.value = ''
   sourceFields.value = []
   targetFields.value = []
   matchPreview.value = null

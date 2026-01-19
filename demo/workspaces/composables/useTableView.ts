@@ -798,6 +798,54 @@ export const useTableView = () => {
     await updateField(fieldName, fieldUpdates)
   }
 
+  /**
+   * Get available tables for relation (filtered by entityId, no duplicates)
+   */
+  async function getAvailableTablesForRelation(excludeCurrentTable: boolean = false): Promise<CaseTableRecord[]> {
+    if (!entityId.value) {
+      throw new Error('Entity ID not available')
+    }
+    
+    try {
+      // Get all tables from the same entity, use DISTINCT ON to avoid duplicates
+      const whereClause = excludeCurrentTable && tableId.value
+        ? `WHERE status = 'A' AND "entityId" = $1 AND id != $2`
+        : `WHERE status = 'A' AND "entityId" = $1`
+      
+      const params = excludeCurrentTable && tableId.value
+        ? [entityId.value, tableId.value]
+        : [entityId.value]
+
+      const tables = await query<CaseTableRecord>(
+        `SELECT DISTINCT ON (name, "tableName") * 
+         FROM case_tables 
+         ${whereClause}
+         ORDER BY name, "tableName", "createdAt" DESC`,
+        params
+      )
+      return tables
+    } catch (error) {
+      console.error('Error loading available tables:', error)
+      throw error
+    }
+  }
+  
+  /**
+   * Get fields for a specific table
+   */
+  async function getFieldsForTable(targetTableId: string): Promise<CaseFieldRecord[]> {
+    try {
+      const fields = await query<CaseFieldRecord>(
+        `SELECT * FROM case_fields WHERE "tableId" = $1 ORDER BY "fieldNameAlias"`,
+        [targetTableId]
+      )
+      return fields
+    } catch (error) {
+      console.error('Error loading fields for table:', error)
+      throw error
+    }
+  }
+
   // Provide ColumnContext using dp-mdTable's key so MdTable can inject it
   provide(ColumnContextKey, {
     getColumn,
@@ -809,7 +857,12 @@ export const useTableView = () => {
     saveColumnOrder,
     columnGroupRules,
     addColumnPopoverRef,
-    gridRef
+    gridRef,
+    // Relation helpers
+    getAvailableTablesForRelation,
+    getFieldsForTable,
+    tableId,
+    entityId
   } as ColumnContext)
 
   // Region: View Logic
@@ -962,14 +1015,13 @@ export const useTableView = () => {
 
     // Get table info
     const tableData = await query<CaseTableRecord>(`SELECT * FROM case_tables WHERE id = $1`, [caseTableId])
-
     if (tableData.length === 0) {
       throw new Error('Table not found')
     }
 
     const table = tableData[0]
     physicalTableName.value = table.tableName
-    entityId.value = table.id
+    entityId.value = table.entityId
     // Get fields and views
     // chekc if viewName in table
     if (!table.viewName) {
@@ -1452,6 +1504,7 @@ export const useTableView = () => {
     addRow,
     updateRow,
     deleteRow,
+    getAvailableTablesForRelation,
 
     // Fields (CaseFieldRecord)
     fields,

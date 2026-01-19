@@ -76,16 +76,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, computed } from 'vue'
+import { ref, watch, onMounted, inject } from 'vue'
+import { ColumnContextKey } from '../../../../composables/useColumns'
 import type { CaseTableRecord, CaseFieldRecord } from '../../../../../../demo/workspaces/utils/db/schema/newTableSchema'
 
 const props = defineProps<{
   formData: any
 }>()
 
-// Get pglite query function - this needs to be injected or imported from your demo
-// For now, we'll assume it's available globally or through composable
-const { query } = usePglite()
+// Inject column context from parent
+const columnContext = inject(ColumnContextKey)
 
 const availableTables = ref<CaseTableRecord[]>([])
 const targetFields = ref<CaseFieldRecord[]>([])
@@ -106,13 +106,15 @@ const initializeFormData = () => {
   }
 }
 
-// Load available tables
+// Load available tables using context
 async function loadAvailableTables() {
   try {
-    // Get all active tables
-    const tables = await query<CaseTableRecord>(
-      `SELECT * FROM case_tables WHERE status = 'A' ORDER BY name`
-    )
+    if (!columnContext?.getAvailableTablesForRelation) {
+      console.error('getAvailableTablesForRelation not available in context')
+      return
+    }
+    
+    const tables = await columnContext.getAvailableTablesForRelation(false)
     availableTables.value = tables
   } catch (error) {
     console.error('Error loading tables:', error)
@@ -128,11 +130,12 @@ async function handleTableChange() {
   if (!props.formData.relationTableId) return
   
   try {
-    // Load fields for the selected table
-    const fields = await query<CaseFieldRecord>(
-      `SELECT * FROM case_fields WHERE "tableId" = $1 ORDER BY "fieldNameAlias"`,
-      [props.formData.relationTableId]
-    )
+    if (!columnContext?.getFieldsForTable) {
+      console.error('getFieldsForTable not available in context')
+      return
+    }
+    
+    const fields = await columnContext.getFieldsForTable(props.formData.relationTableId)
     targetFields.value = fields
     
     // Auto-select first text field as display field if available
@@ -174,10 +177,12 @@ onMounted(async () => {
   // This preserves the existing displayField value
   if (props.formData.relationTableId) {
     try {
-      const fields = await query<CaseFieldRecord>(
-        `SELECT * FROM case_fields WHERE "tableId" = $1 ORDER BY "fieldNameAlias"`,
-        [props.formData.relationTableId]
-      )
+      if (!columnContext?.getFieldsForTable) {
+        console.error('getFieldsForTable not available in context')
+        return
+      }
+      
+      const fields = await columnContext.getFieldsForTable(props.formData.relationTableId)
       targetFields.value = fields
       
       // Only auto-select if no displayField is set yet

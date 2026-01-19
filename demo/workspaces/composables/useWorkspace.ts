@@ -13,6 +13,7 @@ export function useWorkspaces() {
     try {
       const data = await query<CaseTypeRecord>(`SELECT * FROM case_type ORDER BY name ASC`)
       workspaces.value = data
+      console.log('workspaces', data)
       return data
     } finally {
       loading.value = false

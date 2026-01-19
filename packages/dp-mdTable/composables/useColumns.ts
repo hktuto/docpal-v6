@@ -18,6 +18,11 @@ export interface ColumnContext {
   columnGroupRules: Ref<any[]>
   addColumnPopoverRef: Ref<any>
   gridRef: Ref<any>
+  // Relation helpers
+  getAvailableTablesForRelation?: (excludeCurrentTable?: boolean) => Promise<any[]>
+  getFieldsForTable?: (tableId: string) => Promise<any[]>
+  tableId?: Ref<string>
+  entityId?: Ref<string>
 }
 
 export const ColumnContextKey: InjectionKey<ColumnContext> = Symbol('ColumnContextKey')
