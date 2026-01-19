@@ -23,8 +23,8 @@ function getWorker(): Worker {
     if (typeof window === 'undefined' || typeof Worker === 'undefined') {
       throw new Error('Workers are not available in this environment')
     }
-    const workerUrl = new URL('../workers/pglite.worker.ts', import.meta.url)
-    worker = new Worker(workerUrl.href, { type: 'module' })
+
+    worker = new Worker('/worker/pglite.worker.js', { type: 'module' })
     worker.onmessage = handleMessage
     worker.onerror = (event) => {
       console.error('Worker error:', event.error)
