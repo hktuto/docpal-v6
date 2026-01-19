@@ -37,6 +37,7 @@ export const useOutputOptioins = () => {
   ])
 
   const pathVOpts = useState('pathVOpts', () => [
+    { label: 'Batch_id', value: '${Batch_id}' },
     { label: 'Profile_id', value: '${Profile_id}' },
     { label: 'File_name', value: '${File_name}' },
     { label: 'Original_path', value: '${Original_path}' },
