@@ -139,10 +139,20 @@ const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) =>
     case 'sortZa':
       gridRef.value.sort(column.field, 'desc')
       break
+    case 'insertLeft':
+      console.log('insertLeft', column)
+      break;
+    case 'insertRight':
+      console.log('insertRight', column)
+      break;
     case 'editDescription':
       break
     case 'permission':
       break
+    case 'hide':
+      break;
+    case 'delete':
+      break;
   }
 }
 const mdTableHeaderPopoverRef = ref()
