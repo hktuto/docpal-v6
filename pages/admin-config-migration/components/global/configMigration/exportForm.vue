@@ -70,7 +70,7 @@ async function getUserGroupList() {
 }
 
 async function getWorkflowList() {
-  const res = await adminApi.api.postWorkflowProcessList({ pageNum: 0, pageSize: 1000 })
+  const res = await clientApi.api.postDsbWorkflowProcessList({ pageNum: 0, pageSize: 1000 })
   workflowList.value = res.data || []
 }
 
@@ -153,11 +153,11 @@ async function handleIdGeneratorExport(idGeneratorId: string) {
 }
 
 async function handleDocumentTemplateExport(documentTemplateId: string) {
-  const templateData = await adminApi.api.getTemplateDocumentId(documentTemplateId)
-  if(!templateData.data) {
+  const templateData = await clientApi.admin.getAdmindmsTemplateDocumentId(documentTemplateId).then(r => r.data)
+  if(!templateData) {
     return
   }
-  const fileBlob = await adminApi.api.postNuxeoDocumentPreview({ idOrPath: templateData.data.documentId }, {
+  const fileBlob = await clientApi.admin.postAdmindmsDocumentPreview({ idOrPath: templateData.documentId }, {
     format: 'blob'
   })
   // check if fileBlob is a json
@@ -165,12 +165,12 @@ async function handleDocumentTemplateExport(documentTemplateId: string) {
   try {
     const jsonData = JSON.parse(isJson)
     exportData.value.documentTemplate[documentTemplateId] = {
-      ...templateData.data,
+      ...templateData,
       fileBlob: jsonData
     }
   } catch (error) {
     exportData.value.documentTemplate[documentTemplateId] = {
-      ...templateData.data,
+      ...templateData,
       fileBlob: null
     }
   }

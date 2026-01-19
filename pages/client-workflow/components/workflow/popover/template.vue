@@ -128,7 +128,7 @@ async function generatePreviewFile() {
 
 async function generateFile() {
   const data = await FormVariablesRendererRef.value.getData()
-  return await clientApi.api.postNuxeoTemplateSummitanddownloadfile({
+  return await clientApi.api.postDmsTemplateDocumentGenerateFile({
     templatePath: form.templatePath,
     paramsMap: data
   }, {
@@ -178,7 +178,7 @@ async function templateParamGet(templatePath: string) {
 
   // word
   if (state.fileType === 'json') {
-    const dataJson = await clientApi.api.postNuxeoDocumentPreview({ idOrPath: form.templatePath })
+    const dataJson = await clientApi.api.postDmsDocumentPreview({ idOrPath: form.templatePath })
     state.wordJson = dataJson
     state.jsonData = dataJson.json.content
     state.documentOptions = dataJson.json.options
@@ -192,7 +192,7 @@ async function templateParamGet(templatePath: string) {
 
   // excel and ppt
   try {
-    const res: any = await clientApi.api.postNuxeoTemplateGettemplateparams({
+    const res: any = await clientApi.api.postDmsTemplateDocumentVariables({
       templatePath
     }).then(res => res.data)
     form.paramList = [...new Set(res.paramsList)].map(item => ({
@@ -201,7 +201,7 @@ async function templateParamGet(templatePath: string) {
       required: true
     }))
     // get preview file
-    previewFile.blob = await clientApi.api.postNuxeoDocumentPreview(
+    previewFile.blob = await clientApi.api.postDmsDocumentPreview(
       { idOrPath: templatePath },
       {
         format: 'blob',
@@ -222,8 +222,7 @@ async function templateParamGet(templatePath: string) {
 // @ts-ignore
 onMounted(async () => {
   try {
-
-    state.templateList = await clientApi.api.postNuxeoTemplateGettemplatelist().then(res => res.data) || []
+    state.templateList = await clientApi.api.postDmsTemplateDocumentList().then(res => res.data) || []
   } catch (error) {
     console.log(error)
     state.templateList = []

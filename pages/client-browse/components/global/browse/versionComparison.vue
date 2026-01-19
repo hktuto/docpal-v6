@@ -51,7 +51,7 @@ const back = () => {
 async function getPreviewFile(previewFile: any, id: string, version: any) {
   previewFile.loading = true
   try {
-    previewFile.blob = await clientApi.api.postNuxeoDocumentPreview(
+    previewFile.blob = await clientApi.api.postDmsDocumentPreview(
       { idOrPath: id, version },
       {
         format: 'blob',

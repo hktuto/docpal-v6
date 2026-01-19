@@ -96,7 +96,7 @@
         "labelIconPosition": "rear",
         "labelTooltip": null,
         "onCreated": "",
-        "onMounted": "// const _this = this\n// $api.get('/docpal/template/document/support/fileType').then(res => {\n//   const options = res.data.data.reduce((prev, item) => {\n//     prev.push({\n//       label: item,\n//       value: item\n//     })\n//     return prev\n//   }, [])\n//   _this.loadOptions(options)\n// }).catch(err => {\n// })\n",
+        "onMounted": "",
         "onRemoteQuery": "",
         "onChange": "",
         "onFocus": "",

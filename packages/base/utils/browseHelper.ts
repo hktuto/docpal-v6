@@ -219,7 +219,7 @@ export const getPermission = async (idOrPath: string, userId: string): Promise<a
 }
 
 async function DownloadDocApi(idOrPath: string, cb?: Function) {
-  return clientApi.api.postNuxeoDocumentDownload(
+  return clientApi.api.postDmsDocumentDownload(
     { idOrPath },
     {
       format: 'blob',

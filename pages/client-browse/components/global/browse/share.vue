@@ -98,7 +98,7 @@ async function handleDblclick(row: any) {
         }
       }, 1000)
     } else {
-      previewFile.blob = await clientApi.api.postNuxeoDocumentPreview(
+      previewFile.blob = await clientApi.api.postDmsDocumentPreview(
         { idOrPath: row.id },
         {
           format: 'blob'

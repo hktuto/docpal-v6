@@ -56,7 +56,7 @@ async function sendPdfAndAnnotation() {
     if(props.doc.isFolder) return; // 如果是文件夹，不要拿预览
     loading.value = true;
     try {
-        const b = await clientApi.api.postNuxeoDocumentPreview({idOrPath: props.doc.id},{
+        const b = await clientApi.api.postDmsDocumentPreview({idOrPath: props.doc.id},{
             format:'blob',
             timeout: 0,
             headers: {

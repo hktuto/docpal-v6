@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Download } from '@element-plus/icons-vue'
 import { ElNotification } from 'element-plus'
-import { adminApi, templateApi } from 'api'
+import { clientApi, templateApi } from 'api'
 import InitWordEditCheckingDialog from '~/components/template/initWordEditCheckingDialog.vue'
 import { getJsonConfig, variablesSchema } from 'docpal-document-editor/src/client'
 import cloneDeep from 'lodash/cloneDeep'
@@ -48,15 +48,14 @@ const wordEditCheckingDialogRef = ref()
 const templateViewerRef = ref()
 
 async function getInfo() {
-  const { data } = await adminApi.api.getTemplateDocumentId(id)
-  state.info = data
+  state.info = await clientApi.admin.getAdmindmsTemplateDocumentId(id).then(r => r.data)
 }
 
 async function getPreviewFile() {
   console.log('getPreviewFile', state.info.documentId)
   state.previewFile.loading = true
   try {
-    state.previewFile.blob = await adminApi.api.postNuxeoDocumentPreview({ idOrPath: state.info.documentId }, {
+    state.previewFile.blob = await clientApi.admin.postAdmindmsDocumentPreview({ idOrPath: state.info.documentId }, {
       format: 'blob',
       timeout: 0,
       headers: {
@@ -73,8 +72,7 @@ async function getVariables() {
   console.log('getVariables', id)
   try {
     // const date = new Date().valueOf()
-    const { data: res } = await adminApi.api.getTemplateDocumentRefreshId(id) as any
-    console.log('res', res)
+    const res = await clientApi.admin.getAdmindmsTemplateDocumentRefreshId(id).then(r => r.data)
     if (!res.templateVariable) return
     const templateVariable = [...new Set(JSON.parse(res.templateVariable))]
     state.variables = []
@@ -143,7 +141,7 @@ async function handleTest(fileType: string) {
     } else {
       const data = await templateVariablesRendererRef.value.getData(state.fileType)
       if (!data) return
-      blob = await adminApi.api.postTemplateDocumentGenerateFile({
+      blob = await clientApi.admin.postAdmindmsTemplateDocumentGenerateFile({
         id: state.info.id,
         variables: data
       }, {
@@ -222,10 +220,10 @@ async function handleSaveWord() {
     const form = new FormData()
     form.append('file', file)
     form.append('id', id)
-    await adminApi.api.putTemplateDocumentUpload({ requestDTO: {} }, form as any)
+    await clientApi.admin.putAdmindmsTemplateDocumentUpload({ requestDTO: {} }, form as any)
 
     const schema = variablesSchema(variables.value)
-    await adminApi.api.patchTemplateDocumentUpdatetemplatevariable({ id: id, templateVariable: JSON.stringify(schema) })
+    await clientApi.admin.patchAdmindmsTemplateDocumentUpdatetemplatevariable({ id: id, templateVariable: JSON.stringify(schema) })
     state.oldVariables = JSON.parse(JSON.stringify(variables.value))
     routerProvider?.message.success(t('tip_updateSuccessMsg', { modelName: null, name: state.info.name }))
   } catch (e) {
@@ -264,7 +262,7 @@ async function updateVariables(newData: any) {
 }
 
 async function getWordJsonFile() {
-  const blob = await adminApi.api.postNuxeoDocumentPreview({ idOrPath: state.info.documentId }, {
+  const blob = await clientApi.admin.postAdmindmsDocumentPreview({ idOrPath: state.info.documentId }, {
     format: 'blob'
   })
 

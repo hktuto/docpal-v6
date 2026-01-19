@@ -28,7 +28,7 @@ const baseSearch = ref<any>({
 })
 async function downloadAndUpload(row: any) {
   try {
-    const blob = await clientApi.api.postNuxeoDocumentDownload(
+    const blob = await clientApi.api.postDmsDocumentDownload(
       { idOrPath: row.id },
       {
         format: 'blob'
