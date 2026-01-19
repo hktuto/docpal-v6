@@ -77,6 +77,7 @@ function handleClick(htmlElement: HTMLElement) {
     }
   }
   .title {
+    margin-left: var(--app-space-xs);
     flex: 1 0 auto;
     text-align: var(--align);
     line-height: 1.2;
