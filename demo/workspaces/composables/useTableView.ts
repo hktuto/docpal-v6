@@ -478,7 +478,7 @@ export const useTableView = () => {
   
   /**
    * Handle updates to relation field display fields
-   * Adds new display fields to the view if they don't exist
+   * Replaces old display fields with new ones in the view
    */
   async function handleRelationDisplayFieldUpdate(
     field: CaseFieldRecord,
@@ -486,33 +486,56 @@ export const useTableView = () => {
   ): Promise<void> {
     if (!field.relationTableId || !currentView.value) return
     
+    console.log('handleRelationDisplayFieldUpdate', {
+      fieldName: field.fieldName,
+      oldDisplayFieldIds: field.displayFieldIds,
+      newDisplayFieldIds
+    })
+    
     const oldDisplayFieldIds = field.displayFieldIds || []
-    const addedFieldIds = newDisplayFieldIds.filter(id => !oldDisplayFieldIds.includes(id))
     
-    if (addedFieldIds.length === 0) return
-    
-    // Get the target table's fields to get field names
-    const targetFields = await query<CaseFieldRecord>(
+    // Get old and new field names
+    const oldFields = oldDisplayFieldIds.length > 0 ? await query<CaseFieldRecord>(
       `SELECT * FROM case_fields WHERE "tableId" = $1 AND id = ANY($2)`,
-      [field.relationTableId, addedFieldIds]
+      [field.relationTableId, oldDisplayFieldIds]
+    ) : []
+    
+    const newFields = await query<CaseFieldRecord>(
+      `SELECT * FROM case_fields WHERE "tableId" = $1 AND id = ANY($2)`,
+      [field.relationTableId, newDisplayFieldIds]
     )
     
-    // Add new view fields for each added display field
+    console.log('Old fields:', oldFields.map(f => f.fieldName))
+    console.log('New fields:', newFields.map(f => f.fieldName))
+    
+    // Remove old view fields and add new ones
     const currentFields = new Set(currentView.value.fields)
     
-    for (const targetField of targetFields) {
-      const viewFieldName = `${field.fieldName}.${targetField.fieldName}`
-      currentFields.add(viewFieldName)
+    // Remove old relation view fields
+    for (const oldField of oldFields) {
+      const oldViewFieldName = `${field.fieldName}.${oldField.fieldName}`
+      currentFields.delete(oldViewFieldName)
+      console.log('Removing old view field:', oldViewFieldName)
     }
+    
+    // Add new relation view fields
+    for (const newField of newFields) {
+      const newViewFieldName = `${field.fieldName}.${newField.fieldName}`
+      currentFields.add(newViewFieldName)
+      console.log('Adding new view field:', newViewFieldName)
+    }
+    
+    const updatedFields = Array.from(currentFields)
+    console.log('Updated view fields:', updatedFields)
     
     // Update the view
     await query(
       `UPDATE case_views SET fields = $1, "updatedAt" = $2 WHERE id = $3`,
-      [Array.from(currentFields), new Date(), currentView.value.id]
+      [updatedFields, new Date(), currentView.value.id]
     )
     
     // Update local state
-    currentView.value.fields = Array.from(currentFields)
+    currentView.value.fields = updatedFields
   }
 
   async function deleteField(fieldName: string): Promise<void> {
@@ -562,32 +585,48 @@ export const useTableView = () => {
   /**
    * Convert ColumnConfig back to CaseFieldRecord for storage
    */
-  function columnConfigToField(column: ColumnConfig): Partial<CaseFieldRecord> {
-    const field = getField(column.field)
+  async function columnConfigToField(column: ColumnConfig): Promise<Partial<CaseFieldRecord>> {
     if(!currentView.value) {
       throw new Error('No current view')
     }
-    if (!field) {
-      return {
-        tableId: currentView.value.tableId,
-        fieldName: column.field,
-        fieldNameAlias: column.title,
-        displayStructure: {
-          type: column.type,
-          properties: column.properties || {}
-        } as unknown as FieldDisplayStructure
-      }
-    }
-    return {
-      id: field.id,
-      tableId: field.tableId ?? null, // Convert undefined to null
-      fieldName: column.field,
+    
+    // Extract base field name if it's in dot notation (e.g., "rel_company.name" -> "rel_company")
+    const baseFieldName = column.field.includes('.') ? column.field.split('.')[0] : column.field
+    const field = getField(baseFieldName)
+    
+    const baseUpdate: Partial<CaseFieldRecord> = {
+      tableId: field?.tableId ?? currentView.value.tableId ?? null,
+      fieldName: baseFieldName, // Use base field name, not the full dot notation
       fieldNameAlias: column.title,
       displayStructure: {
         type: column.type,
         properties: column.properties || {}
       } as unknown as FieldDisplayStructure
     }
+    
+    if (field) {
+      baseUpdate.id = field.id
+    }
+    
+    // Handle relation field updates - convert displayField to displayFieldIds
+    if (field?.businessType === 'relation' && column.properties?.displayField && field.relationTableId) {
+      try {
+        // Get the target field by name to find its ID
+        const targetFields = await query<CaseFieldRecord>(
+          `SELECT id FROM case_fields WHERE "tableId" = $1 AND "fieldName" = $2`,
+          [field.relationTableId, column.properties.displayField]
+        )
+        
+        if (targetFields.length > 0) {
+          // Add displayFieldIds to the update
+          baseUpdate.displayFieldIds = [targetFields[0].id]
+        }
+      } catch (error) {
+        console.error('Error converting displayField to displayFieldIds:', error)
+      }
+    }
+    
+    return baseUpdate
   }
 
   function getColumn(fieldName: string): ColumnConfig | undefined {
@@ -638,7 +677,7 @@ export const useTableView = () => {
 
   async function addColumn(column: ColumnConfig, targetColumnName:string, position: 'left' | 'right'): Promise<void> {
     // new field is added to the default view, 
-    const newField = await addField(columnConfigToField(column))
+    const newField = await addField(await columnConfigToField(column))
     if(!targetColumnName){
       return
     }
@@ -794,7 +833,7 @@ export const useTableView = () => {
       })
   }
   async function updateColumn(fieldName: string, updates: Partial<ColumnConfig>): Promise<void> {
-    const fieldUpdates = columnConfigToField(updates as ColumnConfig)
+    const fieldUpdates = await columnConfigToField(updates as ColumnConfig)
     await updateField(fieldName, fieldUpdates)
   }
 
