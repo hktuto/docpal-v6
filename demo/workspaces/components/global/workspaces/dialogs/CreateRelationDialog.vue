@@ -237,14 +237,14 @@ async function handleTableChange() {
   if (!formData.targetTableId) return
   
   try {
-    if (!tableView?.getFieldsForTable) {
+    if (!getFieldsForTable) {
       console.error('getFieldsForTable not available')
       ElMessage.error('Failed to load fields')
       return
     }
     
     // Load fields for the selected table
-    const fields = await tableView.getFieldsForTable(formData.targetTableId)
+    const fields = await getFieldsForTable(formData.targetTableId)
     targetFields.value = fields
     
     // Set default display field to the first field (usually 'name' or similar)
