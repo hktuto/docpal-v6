@@ -149,7 +149,12 @@ export const useTableView = () => {
     return data
   }
 
-  async function addField(field: Partial<CaseFieldRecord>): Promise<void> {
+  async function getDefaultView(): Promise<CaseViewRecord> {
+    const data = await query<CaseViewRecord>(`SELECT * FROM case_views WHERE "tableId" = $1 AND "isDefault" = true`, [tableId.value])
+    return data[0]
+  }
+
+  async function addField(field: Partial<CaseFieldRecord>): Promise<CaseFieldRecord> {
     if (!tableId.value) {
       throw new Error('tableId is required')
     }
@@ -166,12 +171,12 @@ export const useTableView = () => {
       updatedAt: now
     }
 
-    await query(
+    const newFieldData = await query(
       `INSERT INTO case_fields (
         id, "tableId", "fieldName", "fieldNameAlias", "businessType", "fieldType",
         "displayStructure", "isRequired", "isHidden", "isArray", "isUnique",
         "defaultValue", "fieldLength", "createdAt", "updatedAt"
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *`,
       [
         newField.id,
         newField.tableId,
@@ -192,6 +197,16 @@ export const useTableView = () => {
     )
 
     fields.value.push(newField as CaseFieldRecord)
+    const defaultView = await getDefaultView()
+    // get default view and add column to view
+    if(defaultView) {
+      const fields = new Set(JSON.parse(JSON.stringify(defaultView.fields)))
+      fields.add(newFieldData[0].fieldName)
+
+      await updateView(defaultView.id, { fields: Array.from(fields) as string[] })
+      // await getAllColumns()
+    }
+    return newFieldData[0]
   }
 
   async function updateField(fieldName: string, updates: Partial<CaseFieldRecord>): Promise<void> {
@@ -293,8 +308,19 @@ export const useTableView = () => {
    */
   function columnConfigToField(column: ColumnConfig): Partial<CaseFieldRecord> {
     const field = getField(column.field)
+    if(!currentView.value) {
+      throw new Error('No current view')
+    }
     if (!field) {
-      throw new Error('Field not found')
+      return {
+        tableId: currentView.value.tableId,
+        fieldName: column.field,
+        fieldNameAlias: column.title,
+        displayStructure: {
+          type: column.type,
+          properties: column.properties || {}
+        } as unknown as FieldDisplayStructure
+      }
     }
     return {
       id: field.id,
@@ -326,8 +352,45 @@ export const useTableView = () => {
     return columnsData
   }
 
-  async function addColumn(column: ColumnConfig): Promise<void> {
-    await addField(columnConfigToField(column))
+
+  async function addColumn(column: ColumnConfig, targetColumnName:string, position: 'left' | 'right'): Promise<void> {
+    // new field is added to the default view, 
+    const newField = await addField(columnConfigToField(column))
+    if(!targetColumnName){
+      return
+    }
+    // add new field to target column
+    // make sure target column is in the current view
+    const fieldSet = new Set(JSON.parse(JSON.stringify(currentView.value?.fields)))
+    fieldSet.add(newField.fieldName as string)
+    // change new field position base on targetColumnName and position
+    const fieldsArray = Array.from(fieldSet) as string[]
+    
+    // Find the index of the target column
+    const targetIndex = fieldsArray.findIndex((field) => field === targetColumnName)
+    
+    if (targetIndex === -1) {
+      console.error('Target column not found in current view')
+      return
+    }
+    
+    // Remove the new field from its current position (end of array)
+    const newFieldIndex = fieldsArray.findIndex((field) => field === newField.fieldName)
+    if (newFieldIndex !== -1) {
+      fieldsArray.splice(newFieldIndex, 1)
+    }
+    
+    // Calculate insert position based on position parameter
+    let insertIndex = position === 'left' ? targetIndex : targetIndex + 1
+    
+    // Insert the new field at the correct position
+    fieldsArray.splice(insertIndex, 0, newField.fieldName as string)
+    
+    // Update the current view with the new field order
+    if (currentView.value) {
+      await updateView(currentView.value.id, { fields: fieldsArray })
+      await getAllColumns()
+    }
   }
 
   async function deleteColumn(fieldName: string): Promise<void> {

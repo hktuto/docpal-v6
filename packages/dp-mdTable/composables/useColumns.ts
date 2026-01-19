@@ -10,7 +10,7 @@ export type OrdersParam = {
 export interface ColumnContext {
   getColumn: (field: string) => ColumnConfig | undefined
   getAllColumns: () => Promise<ColumnConfig[]>
-  addColumn: (column: ColumnConfig) => Promise<void>
+  addColumn: (column: ColumnConfig, targetColumnName?: string, position?: 'left' | 'right') => Promise<void>
   deleteColumn: (field: string) => Promise<void>
   updateColumn: (field: string, updates: Partial<ColumnConfig>) => Promise<void>
   saveColumnOrder: (ordersParam: OrdersParam) => void

@@ -70,11 +70,17 @@
         <div class="instructions-panel">
           <h3>Instructions</h3>
           <ul>
-            <li>Click <strong>Add Layer</strong> buttons to add different layer types</li>
-            <li>Click on a layer in the list to toggle its visibility</li>
-            <li>Use ↑↓ buttons to change layer z-index (drawing order)</li>
-            <li>Drag the canvas background to pan</li>
-            <li>Use mouse wheel to zoom in/out</li>
+            <li>Click <strong>Add Table Layer</strong> to create scrollable tables</li>
+            <li><strong>Hover over table</strong> to show custom resize handles on edges</li>
+            <li>Drag <strong>right edge handle</strong> to resize width</li>
+            <li>Drag <strong>bottom edge handle</strong> to resize height</li>
+            <li>Drag <strong>corner handle</strong> to resize both dimensions</li>
+            <li>Use <strong>mouse wheel</strong> on tables to scroll vertically</li>
+            <li>Hold <strong>Shift + wheel</strong> on tables to scroll horizontally</li>
+            <li>Drag scrollbar thumbs for precise scrolling</li>
+            <li>Drag tables by their container to move them</li>
+            <li>Click on layer in list to toggle visibility</li>
+            <li>Use ↑↓ buttons to change layer z-index</li>
           </ul>
         </div>
       </div>
@@ -94,6 +100,12 @@ interface CanvasLayer {
   visible: boolean
   nodes: Konva.Node[]
   config: any
+  scrollState?: {
+    scrollX: number
+    scrollY: number
+    contentWidth: number
+    contentHeight: number
+  }
 }
 
 interface LayerConfig {
@@ -138,9 +150,23 @@ function generateLayerId(type: string): string {
 
 // Layer renderers
 function createTableLayer(config: LayerConfig): Konva.Node[] {
-  const group = new Konva.Group({
+  const rows = config.rows || 10
+  const cols = config.cols || 8
+  const cellWidth = 100
+  const cellHeight = 40
+  const contentWidth = cols * cellWidth
+  const contentHeight = rows * cellHeight
+  
+  // Store current dimensions
+  let currentWidth = config.width
+  let currentHeight = config.height
+  
+  // Main container group
+  const containerGroup = new Konva.Group({
     x: config.x,
-    y: config.y
+    y: config.y,
+    draggable: true,
+    name: 'tableContainer'
   })
 
   // Table background
@@ -148,57 +174,480 @@ function createTableLayer(config: LayerConfig): Konva.Node[] {
     width: config.width,
     height: config.height,
     fill: config.color || '#ffffff',
-    stroke: '#ddd',
-    strokeWidth: 1,
-    cornerRadius: 4
+    stroke: '#409eff',
+    strokeWidth: 2,
+    cornerRadius: 4,
+    shadowColor: 'rgba(0,0,0,0.1)',
+    shadowBlur: 10,
+    shadowOffset: { x: 0, y: 2 },
+    shadowOpacity: 0.5
   })
 
-  // Grid lines
-  const rows = config.rows || 5
-  const cols = config.cols || 5
-  const cellWidth = config.width / cols
-  const cellHeight = config.height / rows
+  // Create clipping group for scrollable content
+  const clipGroup = new Konva.Group({
+    clipFunc: (ctx) => {
+      ctx.rect(0, 0, config.width, config.height)
+    }
+  })
 
-  const gridGroup = new Konva.Group()
+  // Content group (this will move for scrolling)
+  const contentGroup = new Konva.Group({
+    x: 0,
+    y: 0
+  })
 
-  // Draw grid
+  // Draw grid lines and cells
   for (let i = 0; i <= rows; i++) {
     const line = new Konva.Line({
-      points: [0, i * cellHeight, config.width, i * cellHeight],
-      stroke: '#e0e0e0',
-      strokeWidth: i === 0 || i === rows ? 2 : 1
+      points: [0, i * cellHeight, contentWidth, i * cellHeight],
+      stroke: i === 0 ? '#409eff' : '#e0e0e0',
+      strokeWidth: i === 0 ? 2 : 1
     })
-    gridGroup.add(line)
+    contentGroup.add(line)
   }
 
   for (let j = 0; j <= cols; j++) {
     const line = new Konva.Line({
-      points: [j * cellWidth, 0, j * cellWidth, config.height],
-      stroke: '#e0e0e0',
-      strokeWidth: j === 0 || j === cols ? 2 : 1
+      points: [j * cellWidth, 0, j * cellWidth, contentHeight],
+      stroke: j === 0 ? '#409eff' : '#e0e0e0',
+      strokeWidth: j === 0 ? 2 : 1
     })
-    gridGroup.add(line)
+    contentGroup.add(line)
   }
 
-  // Add some sample text in cells
-  for (let i = 0; i < rows; i++) {
+  // Add header row with different styling
+  for (let j = 0; j < cols; j++) {
+    const headerBg = new Konva.Rect({
+      x: j * cellWidth,
+      y: 0,
+      width: cellWidth,
+      height: cellHeight,
+      fill: '#f0f7ff',
+      stroke: '#409eff',
+      strokeWidth: 1
+    })
+    contentGroup.add(headerBg)
+
+    const headerText = new Konva.Text({
+      x: j * cellWidth + 5,
+      y: cellHeight / 2,
+      text: `Col ${j + 1}`,
+      fontSize: 12,
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      fill: '#409eff',
+      verticalAlign: 'middle'
+    })
+    contentGroup.add(headerText)
+  }
+
+  // Add data cells
+  for (let i = 1; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
       const text = new Konva.Text({
         x: j * cellWidth + 5,
         y: i * cellHeight + 5,
-        text: `R${i + 1}C${j + 1}`,
-        fontSize: 10,
+        text: `R${i}C${j + 1}`,
+        fontSize: 11,
         fontFamily: 'Arial',
-        fill: '#333'
+        fill: '#333',
+        width: cellWidth - 10,
+        height: cellHeight - 10,
+        align: 'left',
+        verticalAlign: 'top'
       })
-      gridGroup.add(text)
+      contentGroup.add(text)
     }
   }
 
-  group.add(background)
-  group.add(gridGroup)
+  // Scrollbars
+  const scrollbarWidth = 12
+  const scrollbarColor = '#409eff'
+  const scrollbarBgColor = '#f0f0f0'
 
-  return [group]
+  // Vertical scrollbar background
+  const vScrollBg = new Konva.Rect({
+    x: currentWidth - scrollbarWidth,
+    y: 0,
+    width: scrollbarWidth,
+    height: currentHeight,
+    fill: scrollbarBgColor,
+    cornerRadius: 4,
+    name: 'vScrollBg'
+  })
+
+  // Vertical scrollbar thumb
+  let vScrollHeight = Math.min(currentHeight, (currentHeight / contentHeight) * currentHeight)
+  const vScrollThumb = new Konva.Rect({
+    x: currentWidth - scrollbarWidth,
+    y: 0,
+    width: scrollbarWidth,
+    height: vScrollHeight,
+    fill: scrollbarColor,
+    cornerRadius: 4,
+    opacity: 0.7,
+    name: 'vScrollThumb'
+  })
+
+  // Horizontal scrollbar background
+  const hScrollBg = new Konva.Rect({
+    x: 0,
+    y: currentHeight - scrollbarWidth,
+    width: currentWidth - scrollbarWidth,
+    height: scrollbarWidth,
+    fill: scrollbarBgColor,
+    cornerRadius: 4,
+    name: 'hScrollBg'
+  })
+
+  // Horizontal scrollbar thumb
+  let hScrollWidth = Math.min(currentWidth, (currentWidth / contentWidth) * currentWidth)
+  const hScrollThumb = new Konva.Rect({
+    x: 0,
+    y: currentHeight - scrollbarWidth,
+    width: hScrollWidth,
+    height: scrollbarWidth,
+    fill: scrollbarColor,
+    cornerRadius: 4,
+    opacity: 0.7,
+    name: 'hScrollThumb'
+  })
+
+  // Custom resize handles
+  const handleSize = 8
+  const handleColor = '#409eff'
+  const handleHoverColor = '#1c7ed6'
+
+  // Right edge resize handle
+  const rightHandle = new Konva.Rect({
+    x: currentWidth - handleSize / 2,
+    y: currentHeight / 2 - 20,
+    width: handleSize,
+    height: 40,
+    fill: handleColor,
+    cornerRadius: handleSize / 2,
+    opacity: 0,
+    name: 'rightHandle',
+    draggable: true,
+    dragBoundFunc: function (pos) {
+      return {
+        x: pos.x,
+        y: this.absolutePosition().y
+      }
+    }
+  })
+
+  // Bottom edge resize handle
+  const bottomHandle = new Konva.Rect({
+    x: currentWidth / 2 - 20,
+    y: currentHeight - handleSize / 2,
+    width: 40,
+    height: handleSize,
+    fill: handleColor,
+    cornerRadius: handleSize / 2,
+    opacity: 0,
+    name: 'bottomHandle',
+    draggable: true,
+    dragBoundFunc: function (pos) {
+      return {
+        x: this.absolutePosition().x,
+        y: pos.y
+      }
+    }
+  })
+
+  // Corner resize handle (bottom-right)
+  const cornerHandle = new Konva.Circle({
+    x: currentWidth,
+    y: currentHeight,
+    radius: handleSize,
+    fill: handleColor,
+    opacity: 0,
+    name: 'cornerHandle',
+    draggable: true
+  })
+
+  clipGroup.add(contentGroup)
+  containerGroup.add(background)
+  containerGroup.add(clipGroup)
+  containerGroup.add(vScrollBg)
+  containerGroup.add(vScrollThumb)
+  containerGroup.add(hScrollBg)
+  containerGroup.add(hScrollThumb)
+  containerGroup.add(rightHandle)
+  containerGroup.add(bottomHandle)
+  containerGroup.add(cornerHandle)
+
+  // Scrolling logic
+  let scrollY = 0
+  let scrollX = 0
+  let maxScrollY = Math.max(0, contentHeight - currentHeight)
+  let maxScrollX = Math.max(0, contentWidth - currentWidth)
+
+  function updateScrollbars() {
+    // Recalculate scroll thumb sizes
+    vScrollHeight = Math.min(currentHeight, (currentHeight / contentHeight) * currentHeight)
+    hScrollWidth = Math.min(currentWidth - scrollbarWidth, (currentWidth / contentWidth) * currentWidth)
+
+    // Update scrollbar sizes and positions
+    vScrollBg.height(currentHeight)
+    vScrollBg.x(currentWidth - scrollbarWidth)
+    vScrollThumb.height(vScrollHeight)
+    vScrollThumb.x(currentWidth - scrollbarWidth)
+
+    hScrollBg.width(currentWidth - scrollbarWidth)
+    hScrollBg.y(currentHeight - scrollbarWidth)
+    hScrollThumb.width(hScrollWidth)
+    hScrollThumb.y(currentHeight - scrollbarWidth)
+
+    // Update vertical scrollbar position
+    const vScrollRange = currentHeight - vScrollHeight
+    const vScrollPos = maxScrollY > 0 ? (scrollY / maxScrollY) * vScrollRange : 0
+    vScrollThumb.y(vScrollPos)
+
+    // Update horizontal scrollbar position
+    const hScrollRange = currentWidth - hScrollWidth - scrollbarWidth
+    const hScrollPos = maxScrollX > 0 ? (scrollX / maxScrollX) * hScrollRange : 0
+    hScrollThumb.x(hScrollPos)
+
+    // Update content position
+    contentGroup.y(-scrollY)
+    contentGroup.x(-scrollX)
+
+    // Update resize handles positions
+    rightHandle.x(currentWidth - handleSize / 2)
+    rightHandle.y(currentHeight / 2 - 20)
+    
+    bottomHandle.x(currentWidth / 2 - 20)
+    bottomHandle.y(currentHeight - handleSize / 2)
+    
+    cornerHandle.x(currentWidth)
+    cornerHandle.y(currentHeight)
+  }
+
+  function updateTableSize(newWidth: number, newHeight: number) {
+    // Minimum size constraints
+    currentWidth = Math.max(200, newWidth)
+    currentHeight = Math.max(150, newHeight)
+
+    // Update background size
+    background.width(currentWidth)
+    background.height(currentHeight)
+
+    // Update clip function
+    clipGroup.clipFunc((ctx) => {
+      ctx.rect(0, 0, currentWidth, currentHeight)
+    })
+
+    // Constrain scroll positions
+    maxScrollY = Math.max(0, contentHeight - currentHeight)
+    maxScrollX = Math.max(0, contentWidth - currentWidth)
+    scrollY = Math.min(scrollY, maxScrollY)
+    scrollX = Math.min(scrollX, maxScrollX)
+
+    updateScrollbars()
+  }
+
+  // Mouse wheel scrolling
+  containerGroup.on('wheel', (e) => {
+    e.evt.preventDefault()
+    
+    const delta = e.evt.deltaY
+    
+    if (e.evt.shiftKey) {
+      // Horizontal scroll with shift key
+      scrollX = Math.max(0, Math.min(maxScrollX, scrollX + delta))
+    } else {
+      // Vertical scroll
+      scrollY = Math.max(0, Math.min(maxScrollY, scrollY + delta))
+    }
+    
+    updateScrollbars()
+  })
+
+  // Drag vertical scrollbar thumb
+  let isDraggingVScroll = false
+  vScrollThumb.on('mousedown touchstart', (e) => {
+    isDraggingVScroll = true
+    e.cancelBubble = true
+  })
+
+  vScrollThumb.on('mousemove touchmove', (e) => {
+    if (!isDraggingVScroll) return
+    
+    const pos = konvaLayer.value?.getRelativePointerPosition()
+    if (!pos) return
+    
+    const localY = pos.y - containerGroup.y()
+    const scrollRatio = localY / (config.height - vScrollHeight)
+    scrollY = Math.max(0, Math.min(maxScrollY, scrollRatio * maxScrollY))
+    updateScrollbars()
+  })
+
+  // Drag horizontal scrollbar thumb
+  let isDraggingHScroll = false
+  hScrollThumb.on('mousedown touchstart', (e) => {
+    isDraggingHScroll = true
+    e.cancelBubble = true
+  })
+
+  hScrollThumb.on('mousemove touchmove', (e) => {
+    if (!isDraggingHScroll) return
+    
+    const pos = konvaLayer.value?.getRelativePointerPosition()
+    if (!pos) return
+    
+    const localX = pos.x - containerGroup.x()
+    const scrollRatio = localX / (config.width - hScrollWidth - scrollbarWidth)
+    scrollX = Math.max(0, Math.min(maxScrollX, scrollRatio * maxScrollX))
+    updateScrollbars()
+  })
+
+  // Stop dragging on mouseup
+  containerGroup.on('mouseup touchend', () => {
+    isDraggingVScroll = false
+    isDraggingHScroll = false
+  })
+
+  // Hover effects for scrollbars
+  vScrollThumb.on('mouseenter', () => {
+    vScrollThumb.opacity(1)
+  })
+  vScrollThumb.on('mouseleave', () => {
+    vScrollThumb.opacity(0.7)
+  })
+
+  hScrollThumb.on('mouseenter', () => {
+    hScrollThumb.opacity(1)
+  })
+  hScrollThumb.on('mouseleave', () => {
+    hScrollThumb.opacity(0.7)
+  })
+
+  // Show/hide resize handles on hover
+  containerGroup.on('mouseenter', () => {
+    rightHandle.opacity(0.8)
+    bottomHandle.opacity(0.8)
+    cornerHandle.opacity(0.8)
+  })
+
+  containerGroup.on('mouseleave', () => {
+    if (!rightHandle.isDragging() && !bottomHandle.isDragging() && !cornerHandle.isDragging()) {
+      rightHandle.opacity(0)
+      bottomHandle.opacity(0)
+      cornerHandle.opacity(0)
+    }
+  })
+
+  // Right handle resize
+  let startWidth = currentWidth
+  rightHandle.on('dragstart', (e) => {
+    e.cancelBubble = true
+    containerGroup.draggable(false)
+    startWidth = currentWidth
+    rightHandle.opacity(1)
+  })
+
+  rightHandle.on('dragmove', (e) => {
+    e.cancelBubble = true
+    const localPos = containerGroup.getRelativePointerPosition()
+    if (localPos) {
+      updateTableSize(localPos.x, currentHeight)
+    }
+  })
+
+  rightHandle.on('dragend', (e) => {
+    e.cancelBubble = true
+    containerGroup.draggable(true)
+  })
+
+  rightHandle.on('mouseenter', () => {
+    rightHandle.fill(handleHoverColor)
+    rightHandle.opacity(1)
+    document.body.style.cursor = 'ew-resize'
+  })
+
+  rightHandle.on('mouseleave', () => {
+    rightHandle.fill(handleColor)
+    if (!rightHandle.isDragging()) {
+      rightHandle.opacity(0.8)
+    }
+    document.body.style.cursor = 'default'
+  })
+
+  // Bottom handle resize
+  let startHeight = currentHeight
+  bottomHandle.on('dragstart', (e) => {
+    e.cancelBubble = true
+    containerGroup.draggable(false)
+    startHeight = currentHeight
+    bottomHandle.opacity(1)
+  })
+
+  bottomHandle.on('dragmove', (e) => {
+    e.cancelBubble = true
+    const localPos = containerGroup.getRelativePointerPosition()
+    if (localPos) {
+      updateTableSize(currentWidth, localPos.y)
+    }
+  })
+
+  bottomHandle.on('dragend', (e) => {
+    e.cancelBubble = true
+    containerGroup.draggable(true)
+  })
+
+  bottomHandle.on('mouseenter', () => {
+    bottomHandle.fill(handleHoverColor)
+    bottomHandle.opacity(1)
+    document.body.style.cursor = 'ns-resize'
+  })
+
+  bottomHandle.on('mouseleave', () => {
+    bottomHandle.fill(handleColor)
+    if (!bottomHandle.isDragging()) {
+      bottomHandle.opacity(0.8)
+    }
+    document.body.style.cursor = 'default'
+  })
+
+  // Corner handle resize (both width and height)
+  cornerHandle.on('dragstart', (e) => {
+    e.cancelBubble = true
+    containerGroup.draggable(false)
+    startWidth = currentWidth
+    startHeight = currentHeight
+    cornerHandle.opacity(1)
+  })
+
+  cornerHandle.on('dragmove', (e) => {
+    e.cancelBubble = true
+    const localPos = containerGroup.getRelativePointerPosition()
+    if (localPos) {
+      updateTableSize(localPos.x, localPos.y)
+    }
+  })
+
+  cornerHandle.on('dragend', (e) => {
+    e.cancelBubble = true
+    containerGroup.draggable(true)
+  })
+
+  cornerHandle.on('mouseenter', () => {
+    cornerHandle.fill(handleHoverColor)
+    cornerHandle.opacity(1)
+    document.body.style.cursor = 'nwse-resize'
+  })
+
+  cornerHandle.on('mouseleave', () => {
+    cornerHandle.fill(handleColor)
+    if (!cornerHandle.isDragging()) {
+      cornerHandle.opacity(0.8)
+    }
+    document.body.style.cursor = 'default'
+  })
+
+  return [containerGroup]
 }
 
 function createRectangleLayer(config: LayerConfig): Konva.Node[] {
@@ -280,13 +729,13 @@ function createGridLayer(config: LayerConfig): Konva.Node[] {
 // Layer management
 function addLayer(type: CanvasLayer['type'], config?: Partial<LayerConfig>) {
   const defaultConfig: LayerConfig = {
-    x: Math.random() * (canvasWidth - 200),
-    y: Math.random() * (canvasHeight - 150),
-    width: 200 + Math.random() * 100,
-    height: 150 + Math.random() * 100,
+    x: Math.random() * (canvasWidth - 300),
+    y: Math.random() * (canvasHeight - 200),
+    width: 300,
+    height: 200,
     color: `hsl(${Math.random() * 360}, 70%, 80%)`,
-    rows: 5,
-    cols: 5
+    rows: type === 'table' ? 15 : 5,
+    cols: type === 'table' ? 8 : 5
   }
 
   const layerConfig = { ...defaultConfig, ...config }
@@ -473,42 +922,30 @@ function initCanvas() {
     })
   }
 
-  // Add pan and zoom
-  let isDragging = false
-  let lastPointerPosition: { x: number; y: number } | null = null
-
-  stage.value.on('mousedown touchstart', () => {
-    isDragging = true
-    lastPointerPosition = stage.value?.getPointerPosition() || null
+  // Background layer for better interaction
+  const backgroundRect = new Konva.Rect({
+    x: 0,
+    y: 0,
+    width: canvasWidth,
+    height: canvasHeight,
+    fill: 'transparent',
+    listening: true
   })
+  konvaLayer.value?.add(backgroundRect)
+  backgroundRect.moveToBottom()
 
-  stage.value.on('mouseup touchend', () => {
-    isDragging = false
-    lastPointerPosition = null
-  })
-
-  stage.value.on('mousemove touchmove', () => {
-    if (!isDragging || !lastPointerPosition || !stage.value) return
-
-    const pos = stage.value.getPointerPosition()
-    if (!pos) return
-
-    const dx = pos.x - lastPointerPosition.x
-    const dy = pos.y - lastPointerPosition.y
-
-    // Move all layers
-    layers.value.forEach((layer) => {
-      layer.nodes.forEach((node) => {
-        node.x(node.x() + dx)
-        node.y(node.y() + dy)
-      })
-    })
-
-    lastPointerPosition = pos
-  })
-
-  // Zoom with wheel
+  // Zoom with wheel (only when not over a table)
   stage.value.on('wheel', (e) => {
+    // Check if we're over a table (tables handle their own wheel events)
+    const target = e.target
+    const isOverTable = target.getParent()?.getClassName() === 'Group' || 
+                        target.getClassName() === 'Group'
+    
+    if (isOverTable) {
+      // Let the table handle the wheel event for scrolling
+      return
+    }
+
     e.evt.preventDefault()
 
     const scaleBy = 1.1

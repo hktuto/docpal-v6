@@ -36,12 +36,13 @@
 import { ref, reactive, nextTick, provide } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
+import { v7 as uuidv7 } from 'uuid'
 import { defineAsyncComponent } from 'vue'
 import { getColumnFieldOptions } from './columnBasic'
 interface ColumnConfig {
   field: string
   title: string
-  type?: 'string' | 'number' | 'integer'
+  type?: ColumnFieldType
   visible?: boolean
   sortable?: boolean
   filterable?: boolean
@@ -77,7 +78,7 @@ const openSelectCount = ref(0)
 const formData = ref<ColumnConfig>({
   field: '',
   title: '',
-  type: 'string'
+  type: ColumnFieldType.MultiText
 })
 function show(targetParams: any, column: any) {
   console.log('show', targetParams, JSON.stringify(column))
@@ -140,7 +141,7 @@ const resetForm = () => {
   formData.value = {
     field: '',
     title: '',
-    type: 'string'
+    type: ColumnFieldType.MultiText
   }
   formRef.value?.clearValidate()
 }
@@ -154,7 +155,7 @@ const handleSubmit = async () => {
     // 基本字段
     const basicFields = ['field', 'title', 'type']
     const columnConfig: ColumnConfig = {
-      field: formData.value.field || createField(),
+      field: formData.value.field || createFieldId(),
       title: formData.value.title,
       type: formData.value.type
     }
@@ -183,15 +184,6 @@ const handleSubmit = async () => {
   } catch (error) {
     console.error('表单验证失败:', error)
   }
-}
-function createField(length: number = 8): string {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  let result = ''
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length)
-    result += characters[randomIndex]
-  }
-  return 'fld' + result
 }
 
 // 取消
