@@ -331,6 +331,12 @@ defineExpose({
     border-radius: 2px;
   }
 }
+:deep(.mdTable-multiSelect-edit) {
+  min-height: 48px;
+  .el-select__wrapper {
+    min-height: 48px;
+  }
+}
 :deep(.mdTable-singleSelect-edit) {
   height: 100%;
   .el-select__wrapper,
