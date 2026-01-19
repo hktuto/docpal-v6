@@ -45,7 +45,7 @@
                 "labelIconPosition": "rear",
                 "labelTooltip": null,
                 "onCreated": "",
-                "onMounted": "if(window.workflowProcessCombineList) {\n   this.loadOptions(window.workflowProcessCombineList)\n   return\n}\n$api.post('/docpal/workflow/process/combine/list', {}).then(res => {\n   res = res.data.data\n   \n  const reponse = res.map(item => ({\n    value: item.key,\n    label: item.name\n  }))\n  window.workflowProcessCombineList = reponse\n  this.loadOptions(reponse)\n}).catch(err => {\n})",
+                "onMounted": "if(window.workflowProcessCombineList) {\n   this.loadOptions(window.workflowProcessCombineList)\n   return\n}\n$api.post('/api/dsb/workflow/process/combine/list', {}).then(res => {\n   res = res.data.data\n   \n  const reponse = res.map(item => ({\n    value: item.key,\n    label: item.name\n  }))\n  window.workflowProcessCombineList = reponse\n  this.loadOptions(reponse)\n}).catch(err => {\n})",
                 "onRemoteQuery": "",
                 "onChange": "",
                 "onFocus": "",

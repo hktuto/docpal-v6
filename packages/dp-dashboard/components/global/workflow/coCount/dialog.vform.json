@@ -46,7 +46,7 @@
                 "labelIconPosition": "rear",
                 "labelTooltip": null,
                 "onCreated": "",
-                "onMounted": "const _this = this\n$api.post('/docpal/workflow/process/list',{}).then(res => {\n  res = res.data.data\n  console.log(res)\nconst reponse = res.map(item => ({\n    value: item.key,\n    label: item.name,\n  }))\n  _this.loadOptions(reponse)\n}).catch(err => {\n})",
+                "onMounted": "const _this = this\n$api.post('/api/dsb/workflow/process/list',{}).then(res => {\n  res = res.data.data\n  console.log(res)\nconst reponse = res.map(item => ({\n    value: item.key,\n    label: item.name,\n  }))\n  _this.loadOptions(reponse)\n}).catch(err => {\n})",
                 "onRemoteQuery": "",
                 "onChange": "if (value) {\n  try {\n  const options = this.getOptionItems()\n  const workflowName = this.getWidgetRef('workflowName')\n  const o = options.find(item => item.value === value)\n  if(!!o) workflowName.setValue(o.label)\n  } catch (e) {}\n}",
                 "onFocus": "",
