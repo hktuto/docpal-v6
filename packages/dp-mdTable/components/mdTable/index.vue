@@ -145,28 +145,28 @@ const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) =>
         title: `New Column`,
         type: ColumnFieldType.MultiText
       } as unknown as ColumnConfig
-      // 
+      //
       addColumn(defaultNewColumn, column.field, 'left')
       console.log('insertLeft', column)
-      break;
+      break
     case 'insertRight':
       const defaultNewColumnRight = {
-          field: createFieldId(),
-          title: `New Column`,
-          type: ColumnFieldType.MultiText
-        } as unknown as ColumnConfig
-      // 
+        field: createFieldId(),
+        title: `New Column`,
+        type: ColumnFieldType.MultiText
+      } as unknown as ColumnConfig
+      //
       addColumn(defaultNewColumnRight, column.field, 'right')
       console.log('insertRight', column)
-      break;
+      break
     case 'editDescription':
       break
     case 'permission':
       break
     case 'hide':
-      break;
+      break
     case 'delete':
-      break;
+      break
   }
 }
 const mdTableHeaderPopoverRef = ref()
@@ -306,7 +306,7 @@ defineExpose({
   }
 }
 :deep(.vxe-header--row) {
-  .vxe-cell{
+  .vxe-cell {
     padding: 0 !important;
   }
 }
@@ -325,9 +325,17 @@ defineExpose({
   }
 }
 :deep(.mdTable-input-edit) {
-  .el-input__wrapper, textarea {
+  .el-input__wrapper,
+  .el-select__wrapper,
+  textarea {
     border-radius: 2px;
   }
 }
-
+:deep(.mdTable-singleSelect-edit) {
+  height: 100%;
+  .el-select__wrapper,
+  .el-select__selection {
+    height: 100%;
+  }
+}
 </style>
