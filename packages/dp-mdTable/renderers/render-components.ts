@@ -83,10 +83,20 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
       render({ options, params }: ViewRenderFunctionParams<number>): VNode {
         const { $table, row, column } = params
         const { options: numberOptions } = options?.props
-        return h(ElInputNumber, {
+        return h(ElInput, {
           modelValue: row[column.field],
           'onUpdate:modelValue': (value: number) => {
             row[column.field] = value
+          },
+          class: 'mdTable-input-common-edit',
+          type: 'number',
+          onKeydown: (event: KeyboardEvent) => {
+            if (event.key === 'Enter') {
+              event.preventDefault()
+              event.stopPropagation()
+              // 结束编辑
+              $table.clearEdit?.()
+            }
           }
         })
       }

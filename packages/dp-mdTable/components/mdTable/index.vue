@@ -305,9 +305,15 @@ defineExpose({
       position: absolute;
       top: 0;
       left: 0;
-      width: 100%;
+      width: calc(100% - 1px);
       z-index: 1000;
     }
   }
 }
+:deep(.mdTable-input-edit) {
+  .el-input__wrapper, textarea {
+    border-radius: 2px;
+  }
+}
+
 </style>

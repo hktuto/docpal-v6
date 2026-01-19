@@ -33,7 +33,7 @@ const handleChange = (value: any) => {
     </ElOption>
     <template #tag>
       <div class="table-tag-container">
-        <span v-for="id in modelValue" :key="id" class="table-tag" :style="{ '--color': getOption(id)?.color }">{{ getOption(id)?.label }}</span>
+        <div v-for="id in modelValue" :key="id" class="table-tag" :style="{ '--color': getOption(id)?.color }">{{ getOption(id)?.label }}</div>
       </div>
     </template>
     <template #label>
@@ -43,7 +43,9 @@ const handleChange = (value: any) => {
 </template>
 
 <style scoped>
-.table-tag {
-  margin-bottom: var(--app-space-xs);
+.table-tag-container {
+  .table-tag {
+    margin-bottom: var(--app-space-xs);
+  }
 }
 </style>
