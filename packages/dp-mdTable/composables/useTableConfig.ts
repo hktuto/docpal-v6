@@ -27,7 +27,7 @@ export interface TableConfigOptions {
   /** 编辑配置 */
   editConfig?: boolean | object
   /** 分组字段 */
-  groupBy?: string[] | Ref<string[]> | ComputedRef<string[]>
+  groupBy?: any
   /** 列配置 */
   columns: Ref<ColumnConfig[]> | ComputedRef<ColumnConfig[]>
   /** 加载状态 */

@@ -281,4 +281,23 @@ defineExpose({
     }
   }
 }
+:deep(.vxe-header--row) {
+  .vxe-cell{
+    padding: 0 !important;
+  }
+}
+:deep(.col--active) {
+  position: relative;
+  overflow: visible;
+  .vxe-cell {
+    padding: 0 !important;
+    .vxe-cell-absolute {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+  }
+}
 </style>

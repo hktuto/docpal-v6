@@ -1,7 +1,7 @@
 <template>
-  <div :class="{ 'md-table-header': true, ellipsis: true, [headerAlign]: true }" @click="handleClick">
+  <div :class="{ 'md-table-header': true, ellipsis: true, [headerAlign]: true }" @contextmenu.prevent="handleContextMenu">
     <div class="title">{{ column.title }}</div>
-    <div class="mdTableHeader-trigger" ref="triggerRef">
+    <div class="mdTableHeader-trigger" ref="triggerRef" @click="handleClick(triggerRef)">
       <SvgIcon src="/icons/tools/more.svg" />
     </div>
   </div>
@@ -49,16 +49,12 @@ function getFullColumnConfig() {
     properties: props.column.properties || props.column.cellRender?.props || props.column.editRender?.props || {}
   }
 }
-
-function handleClick() {
+const handleContextMenu = (event: MouseEvent) => {
+  handleClick(event.target as HTMLElement)
+}
+function handleClick(htmlElement: HTMLElement) {
   const fullColumn = getFullColumnConfig()
-  console.log('handleClick - fullColumn with properties:', {
-    field: fullColumn.field,
-    title: fullColumn.title,
-    type: fullColumn.type,
-    properties: fullColumn.properties
-  })
-  mdTableHeaderPopover?.value?.open(triggerRef.value, fullColumn)
+  mdTableHeaderPopover?.value?.open(htmlElement, fullColumn)
 }
 </script>
 <style scoped lang="scss">
@@ -69,6 +65,7 @@ function handleClick() {
   overflow: hidden;
   width: 100%;
   gap: var(--app-space-xs);
+  padding: 0 var(--app-space-xs);
   &.right {
     --align: right;
   }
