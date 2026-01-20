@@ -63,7 +63,6 @@ const eventBus = {
 
 export function useImportQueue() {
   const { query } = usePglite()
-  const { analyzeTableForRelations } = useRelationSuggestions()
 
   /**
    * Add jobs to the import queue and start processing
@@ -169,47 +168,19 @@ export function useImportQueue() {
     }
     
     if (allTableIds.length > 0) {
-      // Batch update all tables to 'analyzing' status
+      // Batch update all tables to 'pending' status
+      // The background poller will pick them up and process them
       const now = new Date()
       const placeholders = allTableIds.map((_, i) => `$${i + 2}`).join(', ')
       await query(
         `UPDATE case_tables 
-         SET "suggestionStatus" = 'analyzing', "updatedAt" = $1 
+         SET "suggestionStatus" = 'pending', "updatedAt" = $1 
          WHERE id IN (${placeholders})`,
         [now, ...allTableIds]
       )
       
-      console.log(`🔍 Starting relation analysis for ${allTableIds.length} table(s)...`)
+      console.log(`📋 Queued ${allTableIds.length} table(s) for relation analysis (background poller will process)`)
     }
-    
-    // Analyze tables for each entity (in background, don't block)
-    Promise.all(
-      Array.from(jobsByEntity.entries()).map(async ([entityId, tableIds]) => {
-        for (const tableId of tableIds) {
-          try {
-            const suggestionsCount = await analyzeTableForRelations(tableId, entityId)
-            
-            // Update status based on results
-            const newStatus = suggestionsCount > 0 ? 'ready' : 'none'
-            await query(
-              `UPDATE case_tables SET "suggestionStatus" = $1, "updatedAt" = $2 WHERE id = $3`,
-              [newStatus, new Date(), tableId]
-            )
-            
-            if (suggestionsCount > 0) {
-              console.log(`✨ Found ${suggestionsCount} relation suggestion(s) for table: ${tableId}`)
-            }
-          } catch (error) {
-            console.error(`Error analyzing relations for table ${tableId}:`, error)
-            // Set error status
-            await query(
-              `UPDATE case_tables SET "suggestionStatus" = 'error', "updatedAt" = $1 WHERE id = $2`,
-              [new Date(), tableId]
-            ).catch(err => console.error('Failed to update error status:', err))
-          }
-        }
-      })
-    ).catch(err => console.error('Error in batch analysis:', err))
   }
 
   /**

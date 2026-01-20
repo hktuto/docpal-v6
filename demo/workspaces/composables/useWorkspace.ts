@@ -103,6 +103,15 @@ export function useWorkspaces() {
     // Delete all related records in case_views
     await query(`DELETE FROM case_views WHERE "entityId" = $1`, [id])
 
+    // Delete relation suggestions for tables in this workspace
+    // (CASCADE should handle this, but explicit cleanup for clarity)
+    await query(
+      `DELETE FROM relation_suggestions WHERE "sourceTableId" IN (
+        SELECT id FROM case_tables WHERE "entityId" = $1
+      )`,
+      [id]
+    )
+
     // Delete all related records in case_fields
     // Note: case_fields are linked through case_tables, but we'll clean them up too
     await query(

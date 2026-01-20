@@ -295,6 +295,14 @@ export function useSingleWorkspace() {
           await exec(`DROP TABLE IF EXISTS "${tableRecords[0].tableName}" CASCADE`)
         }
 
+        // Delete relation suggestions for this table
+        // (CASCADE should handle this, but explicit cleanup for clarity)
+        await query(
+          `DELETE FROM relation_suggestions 
+           WHERE "sourceTableId" = $1 OR "targetTableId" = $1`,
+          [item.itemId]
+        )
+
         // Delete metadata: fields, views, then table record
         await query(`DELETE FROM case_fields WHERE "tableId" = $1`, [item.itemId])
         await query(`DELETE FROM case_views WHERE "tableId" = $1`, [item.itemId])

@@ -20,7 +20,7 @@ export type CaseTableStatus = 'A' | 'I' // Active | Inactive
 /**
  * Suggestion status for relation analysis
  */
-export type SuggestionStatus = 'none' | 'analyzing' | 'ready' | 'error' // none: not analyzed, analyzing: in progress, ready: has suggestions, error: analysis failed
+export type SuggestionStatus = 'none' | 'pending' | 'processing' | 'ready' | 'error' // none: not analyzed, pending: queued, processing: in progress, ready: has suggestions, error: analysis failed
 
 /**
  * Business types for fields (backend logic)

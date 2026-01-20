@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import type { CaseFieldRecord } from '../../../utils/db/schema/newTableSchema'
+import type { CaseFieldRecord } from '../../../../utils/db/schema/newTableSchema'
 
 interface SuggestionItem {
   id: string
@@ -39,15 +39,15 @@ const {
   ANALYSIS_ROW_LIMIT 
 } = useRelationSuggestions()
 
-const visible = ref(false)
+const popoverRef = ref()
 const loading = ref(false)
 const suggestions = ref<SuggestionWithState[]>([])
 const currentTableId = ref('')
 const currentTableName = ref('')
 
-async function open(tableId: string) {
+async function open(tableId: string, target: HTMLElement) {
   currentTableId.value = tableId
-  visible.value = true
+
   
   // Get current table name
   const tableData = await query<any>(
@@ -57,6 +57,7 @@ async function open(tableId: string) {
   currentTableName.value = tableData[0]?.name || 'Current Table'
   
   await loadSuggestions()
+  popoverRef.value.open(target)
 }
 
 async function loadSuggestions() {
@@ -111,7 +112,7 @@ async function handleAccept(suggestion: SuggestionWithState) {
     suggestions.value = suggestions.value.filter(s => s.id !== suggestion.id)
     
     if (suggestions.value.length === 0) {
-      visible.value = false
+      popoverRef.value.close()
     }
   } catch (error) {
     suggestion.loading = false
@@ -125,7 +126,7 @@ async function handleDismiss(suggestionId: string) {
     ElMessage.success('Suggestion dismissed')
     
     if (suggestions.value.length === 0) {
-      visible.value = false
+      popoverRef.value.close()
     }
     
     emit('dismissed', suggestionId)
@@ -139,7 +140,7 @@ async function handleDismissAll() {
   try {
     await dismissAllSuggestions(currentTableId.value)
     suggestions.value = []
-    visible.value = false
+    popoverRef.value.close()
     ElMessage.success('All suggestions dismissed')
     emit('dismissedAll')
   } catch (error) {
@@ -156,12 +157,12 @@ defineExpose({ open })
 </script>
 
 <template>
-  <el-dialog
-    v-model="visible"
-    title="Suggested Relations"
+  <UiPopoverDialog
+    ref="popoverRef"
     width="700px"
     :close-on-click-modal="false"
   >
+    <h3>Suggested Relations</h3>
     <div v-loading="loading" class="suggestions-content">
       <div v-if="suggestions.length === 0 && !loading" class="empty-state">
         <el-empty description="No suggestions found" />
@@ -250,17 +251,15 @@ defineExpose({ open })
       </div>
     </div>
 
-    <template #footer>
-      <div class="dialog-footer">
+    <div class="dialog-footer">
         <el-button @click="handleDismissAll">
           Dismiss All
         </el-button>
-        <el-button type="primary" @click="visible = false">
+        <el-button type="primary" @click="popoverRef.close()">
           Close
         </el-button>
       </div>
-    </template>
-  </el-dialog>
+  </UiPopoverDialog>
 </template>
 
 <style lang="scss" scoped>
@@ -395,6 +394,7 @@ defineExpose({ open })
 }
 
 .dialog-footer {
+  padding-block: var(--app-space-s);
   display: flex;
   justify-content: space-between;
 }

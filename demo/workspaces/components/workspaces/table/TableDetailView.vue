@@ -31,6 +31,9 @@ const { getPendingSuggestions, acceptSuggestion } = useRelationSuggestions()
 const suggestionStatus = ref<string>('none')
 const suggestionCount = ref(0)
 
+// Use suggestion context from parent
+const { tableStatuses } = useSuggestionContext()
+
 async function loadTableData() {
   isLoading.value = true
   realTableError.value = null
@@ -54,7 +57,7 @@ async function loadTableData() {
 
 async function loadSuggestionStatus() {
   try {
-    // Get table's suggestion status
+    // Get table's suggestion status from database (initial load only)
     const tableData = await query<CaseTableRecord>(
       `SELECT "suggestionStatus" FROM case_tables WHERE id = $1`,
       [props.dataTableId]
@@ -74,8 +77,9 @@ async function loadSuggestionStatus() {
   }
 }
 
-function openSuggestionsDialog() {
-  relationSuggestionsDialogRef.value?.open(props.dataTableId)
+function openSuggestionsDialog(e: Event) {
+  e.preventDefault()
+  relationSuggestionsDialogRef.value?.open(props.dataTableId, e.target)
 }
 
 function handleCreateRelation(column: any) {
@@ -104,7 +108,7 @@ async function handleRelationCreated(data: {
       data.relationColumnName
     )
     
-    ElMessage.success('Relation column created successfully')
+    // Success message is now handled by createRelationFromColumn
     pendingRelationColumn.value = null
   } catch (error) {
     console.error('Error creating relation:', error)
@@ -186,6 +190,27 @@ onMounted(async () => {
   await loadTableData()
 })
 
+// Watch for status changes from global poller
+watch(
+  () => tableStatuses.value[props.dataTableId],
+  (newStatusData, oldStatusData) => {
+    if (!newStatusData) return
+    
+    const previousStatus = suggestionStatus.value
+    suggestionStatus.value = newStatusData.status
+    suggestionCount.value = newStatusData.count
+    
+    // Show notification when analysis completes
+    if (previousStatus === 'processing' && newStatusData.status === 'ready' && newStatusData.count > 0) {
+      ElMessage.success({
+        message: `Found ${newStatusData.count} relation suggestion${newStatusData.count > 1 ? 's' : ''}!`,
+        duration: 5000
+      })
+    }
+  },
+  { deep: true }
+)
+
 watch(
   () => props.dataTableId,
   async () => {
@@ -209,6 +234,7 @@ watch(
         <!-- Suggestion Status Badge -->
         <div v-if="suggestionStatus !== 'none'" class="suggestion-badge-container">
           <Teleport to="#database-table-header-right">
+            <!-- Ready: Show badge with count -->
             <el-badge
               v-if="suggestionStatus === 'ready' && suggestionCount > 0"
               :value="suggestionCount"
@@ -224,11 +250,19 @@ watch(
               </el-button>
             </el-badge>
             
-            <el-tag v-else-if="suggestionStatus === 'analyzing'" type="info" size="large">
+            <!-- Pending: Queued for analysis -->
+            <el-tag v-else-if="suggestionStatus === 'pending'" type="info" size="large">
+              <Icon name="lucide:clock" class="badge-icon" />
+              Queued for analysis...
+            </el-tag>
+            
+            <!-- Processing: Currently analyzing -->
+            <el-tag v-else-if="suggestionStatus === 'processing'" type="info" size="large">
               <Icon name="lucide:loader-2" class="badge-icon spinning" />
               Analyzing relations...
             </el-tag>
             
+            <!-- Error: Analysis failed -->
             <el-tag v-else-if="suggestionStatus === 'error'" type="danger" size="large">
               <Icon name="lucide:alert-circle" class="badge-icon" />
               Error analyzing relations

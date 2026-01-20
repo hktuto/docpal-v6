@@ -10,6 +10,7 @@ import type {
 
 // Import context keys from dp-mdTable so MdTable can inject them
 import { ColumnContextKey, TableDataContextKey, type ColumnContext, type ColumnConfig, type TableDataContext } from '#imports'
+import { ElMessage } from 'element-plus'
 
 export interface ViewContext {
   currentView: Ref<CaseViewRecord | null>
@@ -65,7 +66,6 @@ export const useTableView = () => {
           relationDisplayFields.get(relationFieldName)!.add(displayFieldName)
         }
       }
-      console.log("relationDisplayFields", relationDisplayFields, currentView.value.fields)
       // Fetch display values for each relation field
       if (relationDisplayFields.size > 0 && data.length > 0) {
         for (const [relationFieldName, displayFieldNames] of relationDisplayFields.entries()) {
@@ -73,7 +73,8 @@ export const useTableView = () => {
           
           if (!field || field.businessType !== 'relation' || !field.relationTableId) continue
           
-          const allowMultiple = field.displayStructure?.properties?.allowMultiple || false
+          // All relations are now arrays (uuid[])
+          const isArray = field.isArray || true
           
           // Get the target table info
           const targetTableData = await query<CaseTableRecord>(
@@ -129,11 +130,15 @@ export const useTableView = () => {
             for (const row of data) {
               const value = row[field.fieldName]
               if (value) {
-                if (allowMultiple && Array.isArray(value)) {
+                if (Array.isArray(value)) {
+                  // Map each UUID to its display value
                   row[displayKey] = value.map(id => displayMap.get(id) || id)
                 } else {
+                  // Single value (shouldn't happen anymore, but keep for safety)
                   row[displayKey] = displayMap.get(value) || value
                 }
+              } else {
+                row[displayKey] = null
               }
             }
           }
@@ -141,7 +146,6 @@ export const useTableView = () => {
       }
       
       tableData.value = data
-      
       return data
     } finally {
       loading.value = false
@@ -1162,6 +1166,7 @@ export const useTableView = () => {
 
     let relationFieldName: string
     let relationField: CaseFieldRecord
+    let isAddingToExistingRelation = false
     
     if (existingRelations.length > 0) {
       // Relation exists - check if display field is already in displayFieldIds
@@ -1183,6 +1188,8 @@ export const useTableView = () => {
          WHERE id = $3`,
         [ensurePlainArray(updatedDisplayFieldIds), new Date(), relationField.id]
       )
+      
+      isAddingToExistingRelation = true
     } else {
       // Create new relation field
       const now = new Date()
@@ -1272,12 +1279,42 @@ export const useTableView = () => {
       }
     }
 
-    // Refresh fields only (don't add to view or modify columns)
+    // Refresh fields
     await getAllFields()
     
-    // Note: We don't add the relation field to the view automatically
-    // The user can manually add it later if needed via "Add Column"
-    // This keeps the original column unchanged
+    // Always add the new display field to the view (first time or adding to existing)
+    if (currentView.value) {
+      const viewFieldName = `${relationFieldName}.${displayField.fieldName}`
+      const currentFields = [...currentView.value.fields]
+      
+      // Find the position of any existing display field from this relation
+      const existingRelationFieldIndex = currentFields.findIndex(f => f.startsWith(`${relationFieldName}.`))
+      
+      if (existingRelationFieldIndex !== -1) {
+        // Insert the new display field right after the existing one
+        currentFields.splice(existingRelationFieldIndex + 1, 0, viewFieldName)
+      } else {
+        // If no existing display field found, insert after source field
+        const sourceFieldIndex = currentFields.indexOf(sourceFieldName)
+        if (sourceFieldIndex !== -1) {
+          currentFields.splice(sourceFieldIndex + 1, 0, viewFieldName)
+        } else {
+          // Fallback: append to end
+          currentFields.push(viewFieldName)
+        }
+      }
+      
+      await updateView(currentView.value.id, { fields: currentFields })
+      
+      // Show appropriate success message
+      if (isAddingToExistingRelation) {
+        ElMessage.success(`Added "${displayField.fieldNameAlias}" display field`)
+      } else {
+        ElMessage.success(`Relation created with "${displayField.fieldNameAlias}" display field`)
+      }
+      await initializeTableView(tableId.value)
+      await gridRef.value?.commitProxy('reload')
+    }
   }
   return {
     // IDs
