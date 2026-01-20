@@ -19,7 +19,7 @@ import { TreeNode } from './components/treeNode'
 export const MDTableComponents: Record<string, RenderComponentConfig> = {
   Text: {
     edit: {
-      render: (params: any) => TreeNode(params, TextEdit)
+      render: TextEdit
     },
     view: {
       render: (params: any) => TreeNode(params, TextView)
@@ -32,7 +32,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   },
   MultiText: {
     edit: {
-      render: (params: any) => TreeNode(params, MultiTextEdit)
+      render: MultiTextEdit
     },
     view: {
       render: (params: any) => TreeNode(params, MultiTextView)
@@ -175,7 +175,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   },
   MagicLink: {
     edit: {
-      render: (params: any) => TreeNode(params, RelationEdit)
+      render: RelationEdit
     },
     view: {
       render: (params: any) => TreeNode(params, RelationView)
