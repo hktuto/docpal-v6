@@ -18,6 +18,11 @@ export type CaseTreeItemType = 'folder' | 'table' | 'view' | 'dashboard'
 export type CaseTableStatus = 'A' | 'I' // Active | Inactive
 
 /**
+ * Suggestion status for relation analysis
+ */
+export type SuggestionStatus = 'none' | 'analyzing' | 'ready' | 'error' // none: not analyzed, analyzing: in progress, ready: has suggestions, error: analysis failed
+
+/**
  * Business types for fields (backend logic)
  */
 export type FieldBusinessType = 'text' | 'number' | 'boolean' | 'date' | 'relation' | 'formula' | 'aggregation'
@@ -135,6 +140,7 @@ export const caseTable = pgTable('case_tables', {
     .notNull()
     .references(() => caseType.id),
   formStructure: jsonb('formStructure').$type<FormStructure>(),
+  suggestionStatus: text('suggestionStatus').$type<SuggestionStatus>().notNull().default('none'),
   createdBy: uuid('createdBy').references(() => users.id),
   createdAt: timestamp('createdAt').notNull().defaultNow(),
   updatedBy: uuid('updatedBy').references(() => users.id),
@@ -191,6 +197,22 @@ export const caseView = pgTable('case_views', {
   updatedAt: timestamp('updatedAt').notNull().defaultNow()
 })
 
+export const relationSuggestion = pgTable('relation_suggestions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  sourceTableId: uuid('sourceTableId').notNull().references(() => caseTable.id, { onDelete: 'cascade' }),
+  sourceFieldId: uuid('sourceFieldId').notNull().references(() => caseField.id, { onDelete: 'cascade' }),
+  targetTableId: uuid('targetTableId').notNull().references(() => caseTable.id, { onDelete: 'cascade' }),
+  targetFieldId: uuid('targetFieldId').notNull().references(() => caseField.id, { onDelete: 'cascade' }),
+  matchReason: text('matchReason').notNull(), // 'name_and_value' or 'value_only'
+  matchCount: integer('matchCount').notNull(), // How many values matched
+  totalCount: integer('totalCount').notNull(), // Total rows analyzed
+  sampleValues: text('sampleValues').array().notNull().default([]), // Sample matching values
+  suggestedType: text('suggestedType').notNull().default('multiple'), // Always 'multiple'
+  status: text('status').notNull().default('pending'), // 'pending', 'accepted', 'dismissed'
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow()
+})
+
 // =============================================================================
 // Type Exports (inferred from schema)
 // =============================================================================
@@ -209,3 +231,6 @@ export type CaseFieldInsert = typeof caseField.$inferInsert
 
 export type CaseViewRecord = typeof caseView.$inferSelect
 export type CaseViewInsert = typeof caseView.$inferInsert
+
+export type RelationSuggestionRecord = typeof relationSuggestion.$inferSelect
+export type RelationSuggestionInsert = typeof relationSuggestion.$inferInsert

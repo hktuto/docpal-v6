@@ -57,7 +57,7 @@ export const useTableView = () => {
           relationDisplayFields.get(relationFieldName)!.add(displayFieldName)
         }
       }
-      
+      console.log("relationDisplayFields", relationDisplayFields, currentView.value.fields)
       // Fetch display values for each relation field
       if (relationDisplayFields.size > 0 && data.length > 0) {
         for (const [relationFieldName, displayFieldNames] of relationDisplayFields.entries()) {
@@ -133,6 +133,7 @@ export const useTableView = () => {
       }
       
       tableData.value = data
+      console.log("data", data)
       return data
     } finally {
       loading.value = false
@@ -1130,7 +1131,7 @@ export const useTableView = () => {
        AND "relationTableId" = $2`,
       [tableId.value, targetTableId]
     )
-    
+
     let relationFieldName: string
     let relationField: CaseFieldRecord
     
@@ -1296,237 +1297,6 @@ export const useTableView = () => {
       gridRef.value?.commitProxy('reload')
     })
   }
-
-  /**
-   * Create a relation column in another table that links back to the current table
-   * This is the reverse of createRelationFromColumn
-   */
-  async function createReverseRelationToOtherTable(
-    sourceFieldName: string,
-    targetTableId: string,
-    targetFieldId: string,
-    relationColumnName: string,
-    displayFieldId: string,
-    allowMultiple: boolean = false
-  ): Promise<void> {
-    if (!tableId.value || !physicalTableName.value) {
-      throw new Error('Table not initialized')
-    }
-
-    // Get source field (in current table)
-    const sourceField = getField(sourceFieldName)
-    if (!sourceField) {
-      throw new Error('Source field not found')
-    }
-
-    // Get display field (in current table)
-    const displayFieldData = await query<CaseFieldRecord>(
-      `SELECT * FROM case_fields WHERE id = $1`,
-      [displayFieldId]
-    )
-    if (displayFieldData.length === 0) {
-      throw new Error('Display field not found')
-    }
-    const displayField = displayFieldData[0]
-
-    // Get target table info
-    const targetTableData = await query<CaseTableRecord>(
-      `SELECT * FROM case_tables WHERE id = $1`,
-      [targetTableId]
-    )
-    if (targetTableData.length === 0) {
-      throw new Error('Target table not found')
-    }
-    const targetTable = targetTableData[0]
-
-    // Get target field (field in target table to match against)
-    const targetFieldData = await query<CaseFieldRecord>(
-      `SELECT * FROM case_fields WHERE id = $1`,
-      [targetFieldId]
-    )
-    if (targetFieldData.length === 0) {
-      throw new Error('Target field not found')
-    }
-    const targetField = targetFieldData[0]
-
-    // Check if the target table already has a relation back to the current table
-    const existingRelations = await query<CaseFieldRecord>(
-      `SELECT * FROM case_fields 
-       WHERE "tableId" = $1 
-       AND "businessType" = 'relation' 
-       AND "relationTableId" = $2`,
-      [targetTableId, tableId.value]
-    )
-    
-    // Get current table name for error message
-    const currentTableData = await query<CaseTableRecord>(
-      `SELECT name FROM case_tables WHERE id = $1`,
-      [tableId.value]
-    )
-    const currentTableName = currentTableData[0]?.name || 'this table'
-    
-    let relationFieldName: string
-    let relationField: CaseFieldRecord
-    
-    if (existingRelations.length > 0) {
-      // Relation exists - check if display field is already in displayFieldIds
-      relationField = existingRelations[0]
-      relationFieldName = relationField.fieldName
-      
-      const currentDisplayFieldIds = relationField.displayFieldIds || []
-      
-      if (currentDisplayFieldIds.includes(displayFieldId)) {
-        throw new Error(`Display field "${displayField.fieldNameAlias}" is already in the relation from "${targetTable.name}" to "${currentTableName}".`)
-      }
-      
-      // Add the new display field to the existing relation
-      const updatedDisplayFieldIds = [...currentDisplayFieldIds, displayFieldId]
-      
-      await query(
-        `UPDATE case_fields 
-         SET "displayFieldIds" = $1, "updatedAt" = $2 
-         WHERE id = $3`,
-        [updatedDisplayFieldIds, new Date(), relationField.id]
-      )
-    } else {
-      // Create new relation field in the TARGET table
-      const now = new Date()
-      relationFieldName = `rel_to_${physicalTableName.value}`
-      const newFieldId = crypto.randomUUID()
-
-      // The display field should be the one selected by the user
-      const displayStructure: FieldDisplayStructure = {
-        type: 14, // ColumnFieldType.MagicLink
-        properties: {
-          relationTableId: tableId.value, // Links back to current table
-          allowMultiple
-        }
-      }
-
-      // Store the display field ID in displayFieldIds array (schema expects UUIDs)
-      const displayFieldIds = [displayFieldId]
-
-      // Insert the new relation field into target table's case_fields
-      await query(
-        `INSERT INTO case_fields (
-          id, "tableId", "fieldName", "fieldNameAlias", "businessType", "fieldType",
-          "displayStructure", "isRequired", "isHidden", "isArray", "isUnique",
-          "isReference", "relationTableId", "displayFieldIds",
-          "createdAt", "updatedAt"
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
-        [
-          newFieldId,
-          targetTableId,           // Add to target table
-          relationFieldName,
-          relationColumnName,
-          'relation',
-          allowMultiple ? 'uuid[]' : 'uuid',
-          JSON.stringify(displayStructure),
-          false,
-          false,
-          allowMultiple,
-          false,
-          true,
-          tableId.value,          // Links back to current table
-          displayFieldIds,
-          now,
-          now
-        ]
-      )
-
-      // Add the new relation column to the target table's physical table
-      const columnType = allowMultiple ? 'uuid[]' : 'uuid'
-      await exec(`ALTER TABLE "${targetTable.tableName}" ADD COLUMN "${relationFieldName}" ${columnType}`)
-      
-      // Now populate the relation column by matching values
-      // Get all rows from current table (source)
-      const sourceRows = await query<Record<string, any>>(
-        `SELECT id, "${sourceFieldName}" FROM "${physicalTableName.value}" 
-         WHERE "${sourceFieldName}" IS NOT NULL`
-      )
-
-      if (allowMultiple) {
-        // Build a lookup map: sourceFieldValue -> array of sourceRowIds
-        const valueLookup = new Map<string, string[]>()
-        for (const sourceRow of sourceRows) {
-          const value = String(sourceRow[sourceFieldName])
-          if (!valueLookup.has(value)) {
-            valueLookup.set(value, [])
-          }
-          valueLookup.get(value)!.push(sourceRow.id)
-        }
-
-        // Get all rows from target table
-        const targetRows = await query<Record<string, any>>(
-          `SELECT id, "${targetField.fieldName}" FROM "${targetTable.tableName}" 
-           WHERE "${targetField.fieldName}" IS NOT NULL`
-        )
-
-        // Update each target row with all matched source row IDs
-        for (const targetRow of targetRows) {
-          const targetValue = String(targetRow[targetField.fieldName])
-          const sourceIds = valueLookup.get(targetValue)
-          
-          if (sourceIds && sourceIds.length > 0) {
-            await query(
-              `UPDATE "${targetTable.tableName}" 
-               SET "${relationFieldName}" = $1 
-               WHERE id = $2`,
-              [sourceIds, targetRow.id]
-            )
-          }
-        }
-      } else {
-        // Build a lookup map: sourceFieldValue -> sourceRowId (single)
-        const valueLookup = new Map<string, string>()
-        for (const sourceRow of sourceRows) {
-          const value = String(sourceRow[sourceFieldName])
-          valueLookup.set(value, sourceRow.id)
-        }
-
-        // Get all rows from target table
-        const targetRows = await query<Record<string, any>>(
-          `SELECT id, "${targetField.fieldName}" FROM "${targetTable.tableName}" 
-           WHERE "${targetField.fieldName}" IS NOT NULL`
-        )
-
-        // Update each target row with the matched source row ID
-        for (const targetRow of targetRows) {
-          const targetValue = String(targetRow[targetField.fieldName])
-          const sourceId = valueLookup.get(targetValue)
-          
-          if (sourceId) {
-            await query(
-              `UPDATE "${targetTable.tableName}" 
-               SET "${relationFieldName}" = $1 
-               WHERE id = $2`,
-              [sourceId, targetRow.id]
-            )
-          }
-        }
-      }
-    }
-
-    // Add the new field to the target table's default view
-    // Use format: relationFieldName.displayFieldName
-    const targetDefaultView = await query<CaseViewRecord>(
-      `SELECT * FROM case_views WHERE "tableId" = $1 AND "isDefault" = true`,
-      [targetTableId]
-    )
-    
-    if (targetDefaultView.length > 0) {
-      const defaultView = targetDefaultView[0]
-      const fields = new Set(JSON.parse(JSON.stringify(defaultView.fields)))
-      const viewFieldName = `${relationFieldName}.${displayField.fieldName}`
-      fields.add(viewFieldName)
-
-      await query(
-        `UPDATE case_views SET fields = $1, "updatedAt" = $2 WHERE id = $3`,
-        [Array.from(fields), new Date(), defaultView.id]
-      )
-    }
-  }
-
   return {
     // IDs
     tableId,
@@ -1575,7 +1345,6 @@ export const useTableView = () => {
     initializeTableView,
     
     // Relations
-    createRelationFromColumn,
-    createReverseRelationToOtherTable
+    createRelationFromColumn
   }
 }

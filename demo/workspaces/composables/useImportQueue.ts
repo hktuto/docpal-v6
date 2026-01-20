@@ -23,6 +23,7 @@ export interface ImportJob {
   }
   startedAt?: string
   completedAt?: string
+  entityId?: string // For relation analysis after import
 }
 
 export interface ImportReport {
@@ -62,6 +63,7 @@ const eventBus = {
 
 export function useImportQueue() {
   const { query } = usePglite()
+  const { analyzeTableForRelations } = useRelationSuggestions()
 
   /**
    * Add jobs to the import queue and start processing
@@ -147,6 +149,67 @@ export function useImportQueue() {
     completedReports.value.push(report)
     eventBus.emit('import-completed', report)
     currentReportId.value = null
+    
+    // Phase 3: Analyze tables for relation suggestions (after all data is imported)
+    // Group jobs by entityId to avoid duplicate analysis
+    const jobsByEntity = new Map<string, Set<string>>()
+    for (const job of processedJobs) {
+      if (job.entityId && job.status === 'completed') {
+        if (!jobsByEntity.has(job.entityId)) {
+          jobsByEntity.set(job.entityId, new Set())
+        }
+        jobsByEntity.get(job.entityId)!.add(job.tableName)
+      }
+    }
+    
+    // Set all tables to 'analyzing' status immediately (before actual analysis starts)
+    const allTableIds: string[] = []
+    for (const tableIds of jobsByEntity.values()) {
+      allTableIds.push(...Array.from(tableIds))
+    }
+    
+    if (allTableIds.length > 0) {
+      // Batch update all tables to 'analyzing' status
+      const now = new Date()
+      const placeholders = allTableIds.map((_, i) => `$${i + 2}`).join(', ')
+      await query(
+        `UPDATE case_tables 
+         SET "suggestionStatus" = 'analyzing', "updatedAt" = $1 
+         WHERE id IN (${placeholders})`,
+        [now, ...allTableIds]
+      )
+      
+      console.log(`🔍 Starting relation analysis for ${allTableIds.length} table(s)...`)
+    }
+    
+    // Analyze tables for each entity (in background, don't block)
+    Promise.all(
+      Array.from(jobsByEntity.entries()).map(async ([entityId, tableIds]) => {
+        for (const tableId of tableIds) {
+          try {
+            const suggestionsCount = await analyzeTableForRelations(tableId, entityId)
+            
+            // Update status based on results
+            const newStatus = suggestionsCount > 0 ? 'ready' : 'none'
+            await query(
+              `UPDATE case_tables SET "suggestionStatus" = $1, "updatedAt" = $2 WHERE id = $3`,
+              [newStatus, new Date(), tableId]
+            )
+            
+            if (suggestionsCount > 0) {
+              console.log(`✨ Found ${suggestionsCount} relation suggestion(s) for table: ${tableId}`)
+            }
+          } catch (error) {
+            console.error(`Error analyzing relations for table ${tableId}:`, error)
+            // Set error status
+            await query(
+              `UPDATE case_tables SET "suggestionStatus" = 'error', "updatedAt" = $1 WHERE id = $2`,
+              [new Date(), tableId]
+            ).catch(err => console.error('Failed to update error status:', err))
+          }
+        }
+      })
+    ).catch(err => console.error('Error in batch analysis:', err))
   }
 
   /**
@@ -179,7 +242,7 @@ export function useImportQueue() {
     }
 
     // Process rows in batches for better performance
-    const BATCH_SIZE = 10
+    const BATCH_SIZE = 50 // Increased from 10 - single INSERT can handle many rows
     const totalBatches = Math.ceil(rows.length / BATCH_SIZE)
 
     for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
@@ -187,56 +250,136 @@ export function useImportQueue() {
       const endIndex = Math.min(startIndex + BATCH_SIZE, rows.length)
       const batchRows = rows.slice(startIndex, endIndex)
 
-      // Create promises for all rows in this batch
-      const batchPromises = batchRows.map((row, batchRowIndex) => {
-        const rowIndex = startIndex + batchRowIndex
+      try {
+        // Prepare all rows for batch insert
+        const batchData: Array<{
+          values: any[]
+          rowIndex: number
+          rowData: Record<string, any>
+        }> = []
 
-        return (async () => {
+        // First pass: validate and prepare all rows
+        for (let batchRowIndex = 0; batchRowIndex < batchRows.length; batchRowIndex++) {
+          const row = batchRows[batchRowIndex]
+          const rowIndex = startIndex + batchRowIndex
+          const values: any[] = []
+
+          // Add user data columns
+          for (const column of userColumns) {
+            const colName = column.fieldName || column.field
+            const displayName = column.fieldNameAlias || column.title
+
+            if (!colName && !displayName) continue
+
+            const sqlColName = colName || displayName.toLowerCase().replace(/\s+/g, '_')
+            let value = row[displayName]
+
+            // Handle empty values
+            if (value === '' || value === undefined || value === null) {
+              value = null
+            } else if (typeof value === 'string') {
+              const trimmed = value.trim()
+              const columnType = column.type || column.fieldType
+              const fieldType = column.fieldType || ''
+              const businessType = column.businessType || ''
+
+              // Check if this is a numeric column
+              const isNumericType = columnType === 1 || columnType === 2 || columnType === 3
+              const isNumericField = fieldType === 'number' || fieldType === 'integer' || fieldType === 'decimal' || fieldType === 'numeric'
+              const isNumericBusiness = businessType === 'number' || businessType === 'integer'
+
+              if ((isNumericType || isNumericField || isNumericBusiness) && trimmed !== '') {
+                const num = Number(trimmed)
+                if (!isNaN(num) && trimmed !== '') {
+                  value = num
+                }
+              } else if (trimmed === '') {
+                value = null
+              }
+            }
+
+            values.push(value !== undefined ? value : null)
+          }
+
+          // Add system columns (createdBy, updatedBy)
+          values.push(null, null)
+
+          batchData.push({ values, rowIndex, rowData: row })
+        }
+
+        // Skip batch if no valid rows
+        if (batchData.length === 0) continue
+
+        // Build column names (once for the whole batch)
+        const columnNames: string[] = []
+        for (const column of userColumns) {
+          const colName = column.fieldName || column.field
+          const displayName = column.fieldNameAlias || column.title
+          if (!colName && !displayName) continue
+          const sqlColName = colName || displayName.toLowerCase().replace(/\s+/g, '_')
+          columnNames.push(`"${sqlColName}"`)
+        }
+        columnNames.push('"createdBy"', '"updatedBy"')
+
+        // Build multi-row INSERT statement
+        const valueSets: string[] = []
+        const allValues: any[] = []
+        let paramIndex = 1
+
+        for (const { values } of batchData) {
+          const placeholders = values.map(() => `$${paramIndex++}`)
+          valueSets.push(`(${placeholders.join(', ')})`)
+          allValues.push(...values)
+        }
+
+        const sql = `INSERT INTO "${physicalTableName}" (${columnNames.join(', ')}) VALUES ${valueSets.join(', ')}`
+        
+        // Execute single batch INSERT
+        await query(sql, allValues)
+
+        // All rows in batch succeeded
+        job.progress.imported += batchData.length
+
+      } catch (error: any) {
+        // If batch INSERT fails, fall back to individual inserts to identify problem rows
+        console.warn(`Batch insert failed, falling back to individual inserts: ${error.message}`)
+        
+        for (let batchRowIndex = 0; batchRowIndex < batchRows.length; batchRowIndex++) {
+          const row = batchRows[batchRowIndex]
+          const rowIndex = startIndex + batchRowIndex
+
           try {
             const columnNames: string[] = []
             const placeholders: string[] = []
             const values: any[] = []
             let paramIndex = 1
 
-            // Add user data columns
-            // Support both old schema (field/title) and new schema (fieldName/fieldNameAlias)
             for (const column of userColumns) {
-              // Get the SQL column name (fieldName in new schema, field in old)
               const colName = column.fieldName || column.field
-              // Get the display name for row data lookup (fieldNameAlias in new schema, title in old)
               const displayName = column.fieldNameAlias || column.title
-
               if (!colName && !displayName) continue
 
               const sqlColName = colName || displayName.toLowerCase().replace(/\s+/g, '_')
               let value = row[displayName]
 
-              // Handle empty values
               if (value === '' || value === undefined || value === null) {
                 value = null
               } else if (typeof value === 'string') {
-                // Try to convert string values based on column type
                 const trimmed = value.trim()
-
-                // Check column type information
                 const columnType = column.type || column.fieldType
                 const fieldType = column.fieldType || ''
                 const businessType = column.businessType || ''
 
-                // Check if this is a numeric column
-                const isNumericType = columnType === 1 || columnType === 2 || columnType === 3 // Number types
+                const isNumericType = columnType === 1 || columnType === 2 || columnType === 3
                 const isNumericField = fieldType === 'number' || fieldType === 'integer' || fieldType === 'decimal' || fieldType === 'numeric'
                 const isNumericBusiness = businessType === 'number' || businessType === 'integer'
 
                 if ((isNumericType || isNumericField || isNumericBusiness) && trimmed !== '') {
-                  // Try to parse as number
                   const num = Number(trimmed)
                   if (!isNaN(num) && trimmed !== '') {
                     value = num
                   }
-                  // If conversion fails, leave as string - database will error with helpful message
                 } else if (trimmed === '') {
-                  // Empty string after trimming
                   value = null
                 }
               }
@@ -247,49 +390,40 @@ export function useImportQueue() {
               paramIndex++
             }
 
-            // Skip if no columns to insert
             if (columnNames.length === 0) {
               job.progress.errors.push({
                 rowIndex: rowIndex + 2,
                 rowData: row,
-                error: 'No valid columns to insert. Check if all columns are system columns or if column names are properly defined.',
+                error: 'No valid columns to insert',
                 parsedError: {
                   technicalError: 'No valid columns to insert',
-                  userFriendlyMessage: 'No valid columns to insert. Check if all columns are system columns or if column names are properly defined.',
+                  userFriendlyMessage: 'No valid columns to insert. Check if all columns are system columns.',
                   errorType: 'validation',
-                  suggestedFix: 'Make sure your Excel file has at least one non-system column with valid column names.'
+                  suggestedFix: 'Make sure your Excel file has at least one non-system column.'
                 }
               })
-              return { success: false, rowIndex }
+              continue
             }
 
-            // Add system columns
             columnNames.push('"createdBy"', '"updatedBy"')
             placeholders.push(`$${paramIndex}`, `$${paramIndex + 1}`)
             values.push(null, null)
 
             const sql = `INSERT INTO "${physicalTableName}" (${columnNames.join(', ')}) VALUES (${placeholders.join(', ')})`
             await query(sql, values)
-
-            // Update progress atomically
             job.progress.imported++
-            return { success: true, rowIndex }
-          } catch (error: any) {
-            const parsedError = parseImportError(error.message || 'Unknown error', row, columnMapping)
 
+          } catch (rowError: any) {
+            const parsedError = parseImportError(rowError.message || 'Unknown error', row, columnMapping)
             job.progress.errors.push({
-              rowIndex: rowIndex + 2, // +2 because: +1 for header row, +1 for 1-based index
+              rowIndex: rowIndex + 2,
               rowData: row,
               error: parsedError.userFriendlyMessage,
               parsedError
             })
-            return { success: false, rowIndex }
           }
-        })()
-      })
-
-      // Process all rows in this batch concurrently
-      await Promise.all(batchPromises)
+        }
+      }
 
       // Emit progress update after each batch
       eventBus.emit('job-progress', job)

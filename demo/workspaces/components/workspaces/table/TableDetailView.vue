@@ -21,11 +21,15 @@ const isLoading = ref(false)
 const tableView = useTableView()
 const tableReady = ref(false)
 
-// Create Relation Dialogs
+// Create Relation Dialog
 const createRelationDialogRef = ref()
-const createReverseRelationDialogRef = ref()
+const relationSuggestionsDialogRef = ref()
 const pendingRelationColumn = ref<any>(null)
-const pendingReverseRelationColumn = ref<any>(null)
+
+// Relation Suggestions
+const { getPendingSuggestions, acceptSuggestion } = useRelationSuggestions()
+const suggestionStatus = ref<string>('none')
+const suggestionCount = ref(0)
 
 async function loadTableData() {
   isLoading.value = true
@@ -37,12 +41,41 @@ async function loadTableData() {
     await tableView.initializeTableView(props.dataTableId)
 
     tableReady.value = true
+    
+    // Load suggestion status
+    await loadSuggestionStatus()
   } catch (error) {
     console.error('Error loading table data:', error)
     realTableError.value = error instanceof Error ? error.message : 'Unknown error'
   } finally {
     isLoading.value = false
   }
+}
+
+async function loadSuggestionStatus() {
+  try {
+    // Get table's suggestion status
+    const tableData = await query<CaseTableRecord>(
+      `SELECT "suggestionStatus" FROM case_tables WHERE id = $1`,
+      [props.dataTableId]
+    )
+    
+    if (tableData.length > 0) {
+      suggestionStatus.value = tableData[0].suggestionStatus || 'none'
+      
+      // If ready, count pending suggestions
+      if (suggestionStatus.value === 'ready') {
+        const suggestions = await getPendingSuggestions(props.dataTableId)
+        suggestionCount.value = suggestions.length
+      }
+    }
+  } catch (error) {
+    console.error('Error loading suggestion status:', error)
+  }
+}
+
+function openSuggestionsDialog() {
+  relationSuggestionsDialogRef.value?.open(props.dataTableId)
 }
 
 function handleCreateRelation(column: any) {
@@ -81,53 +114,76 @@ async function handleRelationCreated(data: {
   }
 }
 
-function handleCreateReverseRelation(column: any) {
-  pendingReverseRelationColumn.value = column
+async function handleSuggestionAccepted(data: { suggestion: any; displayFieldId: string }) {
+  const { suggestion, displayFieldId } = data
   
-  // Get the current table name for display
-  const currentTable = tableView.tableId.value
-  query<any>(`SELECT name FROM case_tables WHERE id = $1`, [currentTable])
-    .then(result => {
-      const tableName = result[0]?.name || 'Current Table'
-      createReverseRelationDialogRef.value?.open(
-        column,
-        tableView.tableId.value,
-        tableName,
-        tableView.physicalTableName.value
-      )
-    })
-}
-
-async function handleReverseRelationCreated(data: {
-  targetTableId: string
-  targetFieldId: string
-  relationColumnName: string
-  displayFieldId: string
-  allowMultiple: boolean
-}) {
-  if (!pendingReverseRelationColumn.value) return
-
   try {
-    await tableView.createReverseRelationToOtherTable(
-      pendingReverseRelationColumn.value.field,
-      data.targetTableId,
-      data.targetFieldId,
-      data.relationColumnName,
-      data.displayFieldId,
-      data.allowMultiple
+    // Get the source field by ID from database
+    const sourceFieldData = await query<CaseFieldRecord>(
+      `SELECT * FROM case_fields WHERE id = $1`,
+      [suggestion.sourceFieldId]
     )
     
-    ElMessage.success('Reverse relation column created successfully in target table')
-    pendingReverseRelationColumn.value = null
+    if (sourceFieldData.length === 0) {
+      ElMessage.error('Source field not found')
+      return
+    }
+    
+    const sourceField = sourceFieldData[0]
+
+    // Create the relation using the suggestion (always multiple)
+    await tableView.createRelationFromColumn(
+      sourceField.fieldName,
+      suggestion.targetTableId,
+      suggestion.targetFieldId,
+      displayFieldId, // Use user-selected display field
+      `${sourceField.fieldNameAlias} → ${suggestion.targetTableName}`,
+      true // Always create as multiple relation
+    )
+    
+    // Mark suggestion as accepted
+    await acceptSuggestion(suggestion.id)
+    
+    // Reload suggestion status and check if we need to update table status
+    await updateSuggestionStatusAfterChange()
+    
+    ElMessage.success('Relation created from suggestion')
   } catch (error) {
-    console.error('Error creating reverse relation:', error)
-    ElMessage.error('Failed to create reverse relation column')
+    console.error('Error creating relation from suggestion:', error)
+    ElMessage.error('Failed to create relation')
   }
 }
 
-// Provide the create relation handlers so MdTable can access them
+async function handleSuggestionDismissed() {
+  // Reload suggestion status after dismissal
+  await updateSuggestionStatusAfterChange()
+}
+
+async function handleAllSuggestionsDismissed() {
+  // All suggestions dismissed, update table status to 'none'
+  await query(
+    `UPDATE case_tables SET "suggestionStatus" = 'none', "updatedAt" = $1 WHERE id = $2`,
+    [new Date(), props.dataTableId]
+  )
+  await loadSuggestionStatus()
+}
+
+async function updateSuggestionStatusAfterChange() {
+  // Reload suggestion status to update badge
+  await loadSuggestionStatus()
+  
+  // If no more pending suggestions, update table status to 'none'
+  if (suggestionCount.value === 0 && suggestionStatus.value === 'ready') {
+    await query(
+      `UPDATE case_tables SET "suggestionStatus" = 'none', "updatedAt" = $1 WHERE id = $2`,
+      [new Date(), props.dataTableId]
+    )
+    suggestionStatus.value = 'none'
+  }
+}
+
+// Provide the create relation handler so MdTable can access it
 provide('handleCreateRelation', handleCreateRelation)
-provide('handleCreateReverseRelation', handleCreateReverseRelation)
 
 onMounted(async () => {
   await loadTableData()
@@ -153,19 +209,53 @@ watch(
       </div>
 
       <div v-else class="table-content">
+        <!-- Suggestion Status Badge -->
+        <div v-if="suggestionStatus !== 'none'" class="suggestion-badge-container">
+          <Teleport to="#database-table-header-right">
+            <el-badge
+              v-if="suggestionStatus === 'ready' && suggestionCount > 0"
+              :value="suggestionCount"
+              class="suggestion-badge"
+            >
+              <el-button
+                type="primary"
+                size="small"
+                @click="openSuggestionsDialog"
+              >
+                <Icon name="lucide:lightbulb" class="badge-icon" />
+                View Relation Suggestions
+              </el-button>
+            </el-badge>
+            
+            <el-tag v-else-if="suggestionStatus === 'analyzing'" type="info" size="large">
+              <Icon name="lucide:loader-2" class="badge-icon spinning" />
+              Analyzing relations...
+            </el-tag>
+            
+            <el-tag v-else-if="suggestionStatus === 'error'" type="danger" size="large">
+              <Icon name="lucide:alert-circle" class="badge-icon" />
+              Error analyzing relations
+            </el-tag>
+          </Teleport>
+        </div>
+        
         <!-- Use wrapper component that sets up MdTable providers -->
         <MdTable v-if="tableReady" />
       </div>
     </div>
 
-    <!-- Create Relation Dialogs -->
+    <!-- Create Relation Dialog -->
     <WorkspacesDialogsCreateRelationDialog
       ref="createRelationDialogRef"
       @created="handleRelationCreated"
     />
-    <WorkspacesDialogsCreateReverseRelationDialog
-      ref="createReverseRelationDialogRef"
-      @created="handleReverseRelationCreated"
+
+    <!-- Relation Suggestions Dialog -->
+    <WorkspacesDialogsRelationSuggestionsDialog
+      ref="relationSuggestionsDialogRef"
+      @accepted="handleSuggestionAccepted"
+      @dismissed="handleSuggestionDismissed"
+      @dismissed-all="handleAllSuggestionsDismissed"
     />
 
     <!-- Debug Sidebar -->
@@ -241,6 +331,32 @@ watch(
 
   :deep(.el-empty__image) {
     width: auto;
+  }
+}
+
+.suggestion-badge-container {
+  margin-bottom: var(--app-space-m);
+  display: flex;
+  justify-content: center;
+}
+
+.suggestion-badge {
+  .badge-icon {
+    margin-right: var(--app-space-xs);
+    vertical-align: middle;
+  }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 

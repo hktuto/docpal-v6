@@ -150,6 +150,9 @@ watch(
                   </el-button>
                 </template>
                 <template #right>
+                  <div id="database-table-header-right">
+
+                  </div>
                   <template v-if="workspaceRouteParams.pageType !== 'setting'">
                     <Icon name="lucide:settings" @click="openSetting" />
                   </template>
@@ -178,6 +181,17 @@ watch(
             <template #left>
               <Icon name="lucide:menu" @click.stop="toggleSidebar" />
             </template>
+            <template #right>
+                <div id="database-table-header-right">
+                  
+                </div>
+                <template v-if="workspaceRouteParams.pageType !== 'setting'">
+                  <Icon name="lucide:settings" @click="openSetting" />
+                </template>
+                <template v-if="workspaceRouteParams.pageType === 'setting'">
+                  <Icon name="lucide:table" @click="openDetail" />
+                </template>
+              </template>
           </WorkspacesDetailHeader>
           <component :is="detailComponent" :is-admin="true" />
         </div>
