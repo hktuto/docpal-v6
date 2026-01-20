@@ -426,7 +426,11 @@ export function useSingleWorkspace() {
   }
 
   function openSetting(slug: string, type: CaseTreeItemType) {
-    router.push(`/workspaces/${workspace.value?.id}/${type}/${slug}/setting`)
+    console.log('openSetting', slug, type)
+    workspaceRouteParams.value.pageType = 'setting'
+    workspaceRouteParams.value.detailId = slug
+    workspaceRouteParams.value.detailType = type
+    // router.push(`/workspaces/${workspace.value?.id}/${type}/${slug}/setting`)
   }
 
   function getMenuIcon(menuItem: TreeItem) {
