@@ -28,10 +28,10 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="Match Field" prop="targetFieldId">
+        <el-form-item label="Match Column" prop="targetFieldId">
           <el-select
             v-model="formData.targetFieldId"
-            placeholder="Select field to match against"
+            placeholder="Select Column to match against"
             style="width: 100%"
             :disabled="!formData.targetTableId"
           >
@@ -52,10 +52,10 @@
           </div>
         </el-form-item>
 
-        <el-form-item label="Display Field" prop="displayFieldId">
+        <el-form-item label="Display Column" prop="displayFieldId">
           <el-select
             v-model="formData.displayFieldId"
-            placeholder="Select field to display"
+            placeholder="Select Column to display"
             style="width: 100%"
             :disabled="!formData.targetTableId"
           >

@@ -28,7 +28,7 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="Match Field in Target Table" prop="targetFieldId">
+        <el-form-item label="Match Column in Target Table" prop="targetFieldId">
           <el-select
             v-model="formData.targetFieldId"
             placeholder="Select field to match against"
@@ -49,7 +49,7 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="New Relation Column Name" prop="relationColumnName">
+        <el-form-item label="New Column Name" prop="relationColumnName">
           <el-input
             v-model="formData.relationColumnName"
             placeholder="Enter name for the new relation column"
@@ -59,7 +59,7 @@
           </div>
         </el-form-item>
 
-        <el-form-item label="Display Field" prop="displayFieldId">
+        <el-form-item label="Display Column" prop="displayFieldId">
           <el-select
             v-model="formData.displayFieldId"
             placeholder="Select field to display from this table"
