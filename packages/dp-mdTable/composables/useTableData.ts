@@ -23,7 +23,7 @@ function createMockData({ page }: any, tableName: string) {
       address: `address${i}`,
       city: `city${i}`,
       state: `state${i}`,
-      zip: `zip${i}`,
+      startDate: 1735708800000, //时间戳 1735708800000
       singleSelect: [1],
       multiSelect: [1,2,3],
       country: `country${i}`,

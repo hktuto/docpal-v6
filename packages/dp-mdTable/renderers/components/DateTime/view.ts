@@ -1,29 +1,27 @@
 import type { ViewRenderFunctionParams } from '../../../types/column-types'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import { ElDatePicker } from 'element-plus'
+dayjs.extend(utc)
+dayjs.extend(timezone)
 export const DateTimeView = ({ options, params }: ViewRenderFunctionParams<string>) => {
   const { $table, row, column } = params
-  const { dateFormat } = options?.props
-  // console.log('dateTimeOptions', dateTimeOptions)
-  // check if value is a date object
-  if (row[column.field] instanceof Date) {
-    const displayValue = dayjs(row[column.field]).format(dateFormat || 'YYYY-MM-DD')
+  const { dateFormat, includeTime, dateTimeFormat, timezone, includeTimeZone } = options?.props
+  if (typeof row[column.field] === 'number' || row[column.field] instanceof Date) {
+    const format = includeTime ? dateFormat + ' ' + dateTimeFormat : dateFormat
+    let displayValue = dayjs(row[column.field]).format(format || 'YYYY-MM-DD')
+    if (includeTime && timezone) {
+      displayValue = dayjs(row[column.field]).tz(timezone).format(format)
+    }
+    if (includeTimeZone) {
+      displayValue += ' (' + timezone + ')'
+    }
     return h(
       'div',
       {
         class: 'date-time-view mb-table-cell',
-        'data-title': displayValue
-      },
-      displayValue
-    )
-  }
-  // check if value is a timestamp
-  if (typeof row[column.field] === 'number') {
-    const displayValue = dayjs(row[column.field]).format(dateFormat || 'YYYY-MM-DD')
-    return h(
-      'div',
-      {
-        class: 'date-time-view mb-table-cell',
-        'data-title': displayValue
+        'title': displayValue
       },
       displayValue
     )
@@ -33,8 +31,31 @@ export const DateTimeView = ({ options, params }: ViewRenderFunctionParams<strin
     'div',
     {
       class: 'date-time-view mb-table-cell',
-      'data-title': row[column.field]
+      'title': row[column.field]
     },
     row[column.field]
   )
+}
+export const DateTimeEdit = ({ options, params }: ViewRenderFunctionParams<string>) => {
+  const { $table, row, column } = params
+  const { dateFormat, includeTime, dateTimeFormat } = options?.props
+  console.log('options', options)
+  const inputRef = ref<any>(null)
+  const format = includeTime ? dateFormat + ' ' + dateTimeFormat : dateFormat
+  return h(ElDatePicker, {
+    type: includeTime ? 'datetime' : 'date',
+    modelValue: row[column.field],
+    valueFormat: 'x',
+    class: 'vxe-cell-absolute mdTable-height-edit mdTable-input-radius',
+    format: format || 'YYYY-MM-DD',
+    'onUpdate:modelValue': (value: string) => {
+      row[column.field] = value
+    },
+    ref: inputRef,
+    onVnodeMounted: () => {
+      nextTick(() => {
+        inputRef.value.focus()
+      })
+    }
+  })
 }

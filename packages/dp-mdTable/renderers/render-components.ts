@@ -7,8 +7,8 @@ import type { RenderComponentConfig, ViewRenderFunctionParams } from '../types/c
 import { ElSelect, ElOption, ElInputNumber } from 'element-plus'
 import { renderSelectView, renderMultipleSelectView } from './components/select/view'
 import SelectEdit from './components/select/edit.vue'
-import { NumberView } from './components/number/view'
-import { DateTimeView } from './components/DateTime/view'
+import { NumberView, NumberEdit } from './components/number/view'
+import { DateTimeView, DateTimeEdit } from './components/DateTime/view'
 import { EmailView, EmailEdit } from './components/email/view'
 import { MultiTextView, MultiTextEdit } from './components/MultiText/view'
 import { TextView, TextEdit } from './components/text/view'
@@ -80,26 +80,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   },
   Number: {
     edit: {
-      render({ options, params }: ViewRenderFunctionParams<number>): VNode {
-        const { $table, row, column } = params
-        const { options: numberOptions } = options?.props
-        return h(ElInput, {
-          modelValue: row[column.field],
-          'onUpdate:modelValue': (value: number) => {
-            row[column.field] = value
-          },
-          class: 'mdTable-input-common-edit',
-          type: 'number',
-          onKeydown: (event: KeyboardEvent) => {
-            if (event.key === 'Enter') {
-              event.preventDefault()
-              event.stopPropagation()
-              // 结束编辑
-              $table.clearEdit?.()
-            }
-          }
-        })
-      }
+      render: NumberEdit
     },
     view: { render: (params: any) => TreeNode(params, NumberView) }
   },
@@ -149,16 +130,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   },
   DateTime: {
     edit: {
-      render({ options, params }: ViewRenderFunctionParams<string>): VNode {
-        const { $table, row, column } = params
-        const { options: dateTimeOptions } = options?.props
-        return h(ElInput, {
-          modelValue: row[column.field],
-          'onUpdate:modelValue': (value: string) => {
-            row[column.field] = value
-          }
-        })
-      }
+      render: DateTimeEdit
     },
     view: {
       render: (params: any) => TreeNode(params, DateTimeView)

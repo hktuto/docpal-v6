@@ -324,7 +324,7 @@ defineExpose({
     }
   }
 }
-:deep(.mdTable-input-edit) {
+:deep(.mdTable-input-radius) {
   .el-input__wrapper,
   .el-select__wrapper,
   textarea {
@@ -337,7 +337,7 @@ defineExpose({
     min-height: 48px;
   }
 }
-:deep(.mdTable-singleSelect-edit) {
+:deep(.mdTable-height-edit) {
   height: 100%;
   .el-select__wrapper,
   .el-select__selection {

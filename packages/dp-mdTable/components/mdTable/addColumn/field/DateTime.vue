@@ -7,7 +7,7 @@
     </el-form-item>
     <div class="switch-container">
       <div>显示时间与地区</div>
-      <el-switch v-model="formData.includeTime" />
+      <el-switch v-model="formData.includeTime" @change="onIncludeTimeChange" />
     </div>
     <template v-if="formData.includeTime">
       <el-select v-model="formData.dateTimeFormat" style="margin-bottom: var(--app-space-s)" placeholder="请选择时间" @visible-change="onSelectVisibleChange">
@@ -42,23 +42,27 @@ const onSelectVisibleChange = (visible: boolean) => {
     handleSelectVisibleChange(visible)
   }
 }
+function onIncludeTimeChange(value: boolean) {
+  if (value) {
+    props.formData.dateTimeFormat = 'HH:mm'
+    props.formData.timezone = getCurrentTimezoneAndOffset()
+    const index = timezoneOptions.findIndex((option) => option.value === props.formData.timezone)
+    if (index !== -1) {
+      timezoneOptions.unshift(timezoneOptions.splice(index, 1)[0])
+    }
+  } else {
+    props.formData.dateTimeFormat = undefined
+    props.formData.timezone = undefined
+  }
+}
 // 获取当前用户时区与偏移量
 const getCurrentTimezoneAndOffset = () => {
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-  const date = new Date()
-  const timezoneOffset = date.getTimezoneOffset() // 以分钟为单位
-  const offsetInHours = timezoneOffset / 60
-  return { label: timezone, value: timezone, offset: offsetInHours }
+  // const date = new Date()
+  // const timezoneOffset = date.getTimezoneOffset() // 以分钟为单位
+  // const offsetInHours = timezoneOffset / 60
+  return timezone
 }
-const timezoneOptions = [
-  getCurrentTimezoneAndOffset(),
-  { label: 'UTC', value: 'UTC', offset: 0 },
-  { label: 'Asia/Shanghai', value: 'Asia/Shanghai', offset: -8 },
-  { label: 'America/New_York', value: 'America/New_York', offset: 5 },
-  { label: 'Europe/London', value: 'Europe/London', offset: -1 }
-]
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>
