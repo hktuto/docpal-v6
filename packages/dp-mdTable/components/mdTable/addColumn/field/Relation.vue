@@ -38,13 +38,6 @@
       </el-select>
     </el-form-item>
 
-    <el-form-item label="Allow Multiple" prop="allowMultiple">
-      <div class="switch-container">
-        <span>Allow selecting multiple records</span>
-        <el-switch v-model="formData.allowMultiple" />
-      </div>
-    </el-form-item>
-
     <!-- <el-form-item label="Allow Create" prop="allowCreate">
       <div class="switch-container">
         <span>Allow creating new records</span>
@@ -68,7 +61,7 @@
         </div>
         <div class="info-item">
           <span class="label">Type:</span>
-          <span class="value">{{ formData.allowMultiple ? 'Many-to-Many' : 'Many-to-One' }}</span>
+          <span class="value">One-to-Many (Array)</span>
         </div>
       </div>
     </div> -->
@@ -97,9 +90,6 @@ const initializeFormData = () => {
   }
   if (!props.formData.displayField) {
     props.formData.displayField = ''
-  }
-  if (props.formData.allowMultiple === undefined) {
-    props.formData.allowMultiple = false
   }
   if (props.formData.allowCreate === undefined) {
     props.formData.allowCreate = false

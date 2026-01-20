@@ -124,21 +124,6 @@
           />
         </el-form-item>
 
-        <el-form-item label="Relation Type">
-          <el-switch
-            v-model="formData.allowMultiple"
-            active-text="Allow Multiple (One-to-Many)"
-            inactive-text="Single (Many-to-One)"
-            style="--el-switch-on-color: var(--el-color-primary)"
-          />
-          <div class="field-hint">
-            {{ formData.allowMultiple 
-              ? 'Each row can link to multiple records in the target table' 
-              : 'Each row can link to only one record in the target table' 
-            }}
-          </div>
-        </el-form-item>
-
         <div v-if="matchPreview" class="match-preview">
           <div class="preview-header">
             <Icon name="lucide:info" />
@@ -207,7 +192,6 @@ const emit = defineEmits<{
     targetFieldId: string
     displayFieldId: string
     relationColumnName: string
-    allowMultiple: boolean
   }]
 }>()
 
@@ -227,7 +211,6 @@ const formData = reactive({
   targetFieldId: '',
   displayFieldId: '',
   relationColumnName: '',
-  allowMultiple: false
 })
 
 const rules: FormRules = {
@@ -285,7 +268,6 @@ async function applySuggestion(suggestion: any) {
   formData.targetTableId = suggestion.targetTableId
   formData.targetFieldId = suggestion.targetFieldId
   formData.displayFieldId = suggestion.targetFieldId // Use match field as display field
-  formData.allowMultiple = suggestion.suggestedType === 'multiple'
   
   // Load target fields
   await handleTableChange()
@@ -419,7 +401,6 @@ async function handleCreate() {
       targetFieldId: formData.targetFieldId,
       displayFieldId: formData.displayFieldId,
       relationColumnName: formData.relationColumnName,
-      allowMultiple: formData.allowMultiple
     })
     
     handleClose()

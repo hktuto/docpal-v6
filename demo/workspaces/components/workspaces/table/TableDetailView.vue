@@ -92,7 +92,6 @@ async function handleRelationCreated(data: {
   targetFieldId: string
   displayFieldId: string
   relationColumnName: string
-  allowMultiple: boolean
 }) {
   if (!pendingRelationColumn.value) return
 
@@ -102,8 +101,7 @@ async function handleRelationCreated(data: {
       data.targetTableId,
       data.targetFieldId,
       data.displayFieldId,
-      data.relationColumnName,
-      data.allowMultiple
+      data.relationColumnName
     )
     
     ElMessage.success('Relation column created successfully')
@@ -137,8 +135,7 @@ async function handleSuggestionAccepted(data: { suggestion: any; displayFieldId:
       suggestion.targetTableId,
       suggestion.targetFieldId,
       displayFieldId, // Use user-selected display field
-      `${sourceField.fieldNameAlias} → ${suggestion.targetTableName}`,
-      true // Always create as multiple relation
+      `${sourceField.fieldNameAlias} → ${suggestion.targetTableName}`
     )
     
     // Mark suggestion as accepted

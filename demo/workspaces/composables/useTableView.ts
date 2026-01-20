@@ -25,6 +25,14 @@ export const ViewContextKey: InjectionKey<ViewContext> = Symbol('ViewContext')
 
 export const useTableView = () => {
   const { query, exec } = usePglite()
+  
+  /**
+   * Ensure arrays are plain JavaScript arrays for PGlite compatibility
+   * PGlite uses Web Workers which can't clone Proxy objects or other non-cloneable types
+   */
+  const ensurePlainArray = <T>(arr: T[] | readonly T[]): T[] => {
+    return Array.isArray(arr) ? [...arr] : arr as T[]
+  }
 
   // Region: IDs and State
   const tableId = ref<string>('') // case_tables.id
@@ -133,7 +141,7 @@ export const useTableView = () => {
       }
       
       tableData.value = data
-      console.log("data", data)
+      
       return data
     } finally {
       loading.value = false
@@ -348,8 +356,9 @@ export const useTableView = () => {
     }
     
     // Handle relation field display field changes
-    if (field.businessType === 'relation' && updates.displayFieldIds) {
-      await handleRelationDisplayFieldUpdate(field, updates.displayFieldIds)
+    const isRelationDisplayFieldUpdate = field.businessType === 'relation' && updates.displayFieldIds
+    if (isRelationDisplayFieldUpdate) {
+      await handleRelationDisplayFieldUpdate(field, updates.displayFieldIds!)
     }
 
     // Column names now use camelCase in database
@@ -360,7 +369,17 @@ export const useTableView = () => {
     for (const key of updateKeys) {
       setClauses.push(`"${key}" = $${paramIndex}`)
       console.log(key, updates[key as keyof CaseFieldRecord])
-      const value = key === 'displayStructure' ? JSON.stringify(updates[key as keyof CaseFieldRecord]) : updates[key as keyof CaseFieldRecord]
+      
+      let value = updates[key as keyof CaseFieldRecord]
+      
+      // Handle special types for PGlite compatibility
+      if (key === 'displayStructure') {
+        value = JSON.stringify(value)
+      } else if (key === 'displayFieldIds' && Array.isArray(value)) {
+        // Ensure arrays are plain JavaScript arrays (not Proxy or other non-cloneable objects)
+        value = ensurePlainArray(value) as any
+      }
+      
       values.push(value)
       paramIndex++
     }
@@ -382,8 +401,15 @@ export const useTableView = () => {
     if (index !== -1) {
       console.log(fields.value[index])
       fields.value[index] = { ...fields.value[index], ...updates }
-      
-      // Update all columns that reference this field (including dot notation variants)
+    }
+    
+    // If this is a relation field update, reload all columns to pick up new view fields
+    if (isRelationDisplayFieldUpdate) {
+      // Small delay to ensure all database updates are complete before reloading columns
+      await initializeTableView(tableId.value)
+      await gridRef.value?.commitProxy('reload')
+    } else {
+      // For non-relation updates, just update the affected columns
       columns.value.forEach((col, colIndex) => {
         const colBaseFieldName = col.field.includes('.') ? col.field.split('.')[0] : col.field
         if (colBaseFieldName === baseFieldName) {
@@ -391,7 +417,6 @@ export const useTableView = () => {
         }
       })
     }
-    // update columns
   }
   
   /**
@@ -498,41 +523,45 @@ export const useTableView = () => {
     // Get old and new field names
     const oldFields = oldDisplayFieldIds.length > 0 ? await query<CaseFieldRecord>(
       `SELECT * FROM case_fields WHERE "tableId" = $1 AND id = ANY($2)`,
-      [field.relationTableId, oldDisplayFieldIds]
+      [field.relationTableId, ensurePlainArray(oldDisplayFieldIds)]
     ) : []
     
     const newFields = await query<CaseFieldRecord>(
       `SELECT * FROM case_fields WHERE "tableId" = $1 AND id = ANY($2)`,
-      [field.relationTableId, newDisplayFieldIds]
+      [field.relationTableId, ensurePlainArray(newDisplayFieldIds)]
     )
     
     console.log('Old fields:', oldFields.map(f => f.fieldName))
     console.log('New fields:', newFields.map(f => f.fieldName))
     
-    // Remove old view fields and add new ones
-    const currentFields = new Set(currentView.value.fields)
+    // Build list of old and new view field names
+    const oldViewFieldNames = oldFields.map(f => `${field.fieldName}.${f.fieldName}`)
+    const newViewFieldNames = newFields.map(f => `${field.fieldName}.${f.fieldName}`)
     
-    // Remove old relation view fields
-    for (const oldField of oldFields) {
-      const oldViewFieldName = `${field.fieldName}.${oldField.fieldName}`
-      currentFields.delete(oldViewFieldName)
-      console.log('Removing old view field:', oldViewFieldName)
-    }
+    console.log('Removing old view fields:', oldViewFieldNames)
+    console.log('Adding new view fields:', newViewFieldNames)
     
-    // Add new relation view fields
-    for (const newField of newFields) {
-      const newViewFieldName = `${field.fieldName}.${newField.fieldName}`
-      currentFields.add(newViewFieldName)
-      console.log('Adding new view field:', newViewFieldName)
-    }
+    // Preserve field order: replace old fields with new ones at the same position
+    const updatedFields = currentView.value.fields.reduce<string[]>((result, viewFieldName) => {
+      // If this is one of the old relation fields, replace it with the new ones
+      if (oldViewFieldNames.includes(viewFieldName)) {
+        // Only add new fields once (at the position of the first old field)
+        if (viewFieldName === oldViewFieldNames[0]) {
+          return [...result, ...newViewFieldNames]
+        }
+        // Skip other old fields (they're being replaced)
+        return result
+      }
+      // Keep all other fields in their original position
+      return [...result, viewFieldName]
+    }, [])
     
-    const updatedFields = Array.from(currentFields)
     console.log('Updated view fields:', updatedFields)
     
     // Update the view
     await query(
       `UPDATE case_views SET fields = $1, "updatedAt" = $2 WHERE id = $3`,
-      [updatedFields, new Date(), currentView.value.id]
+      [ensurePlainArray(updatedFields), new Date(), currentView.value.id]
     )
     
     // Update local state
@@ -1080,8 +1109,7 @@ export const useTableView = () => {
     targetTableId: string,
     targetFieldId: string,
     displayFieldId: string,
-    relationColumnName: string,
-    allowMultiple: boolean = false
+    relationColumnName: string
   ): Promise<void> {
     if (!tableId.value || !physicalTableName.value) {
       throw new Error('Table not initialized')
@@ -1153,7 +1181,7 @@ export const useTableView = () => {
         `UPDATE case_fields 
          SET "displayFieldIds" = $1, "updatedAt" = $2 
          WHERE id = $3`,
-        [updatedDisplayFieldIds, new Date(), relationField.id]
+        [ensurePlainArray(updatedDisplayFieldIds), new Date(), relationField.id]
       )
     } else {
       // Create new relation field
@@ -1165,8 +1193,7 @@ export const useTableView = () => {
         type: 14, // ColumnFieldType.Relation
         properties: {
           relationTableId: targetTableId,
-          relationFieldId: targetFieldId,
-          allowMultiple
+          relationFieldId: targetFieldId
         }
       }
 
@@ -1186,11 +1213,11 @@ export const useTableView = () => {
           relationFieldName,
           relationColumnName,
           'relation',
-          allowMultiple ? 'uuid[]' : 'uuid',
+          'uuid[]', // Always use array
           JSON.stringify(displayStructure),
           false,
           false,
-          allowMultiple,
+          true, // isArray = true
           false,
           true,
           targetTableId,
@@ -1203,9 +1230,8 @@ export const useTableView = () => {
 
     // Only create the physical column and populate data if this is a new relation
     if (existingRelations.length === 0) {
-      // Add the new relation column to the physical table
-      const columnType = allowMultiple ? 'uuid[]' : 'uuid'
-      await exec(`ALTER TABLE "${physicalTableName.value}" ADD COLUMN "${relationFieldName}" ${columnType}`)
+      // Add the new relation column to the physical table (always use array)
+      await exec(`ALTER TABLE "${physicalTableName.value}" ADD COLUMN "${relationFieldName}" uuid[]`)
 
       // Now populate the relation column by matching values
       // Get all rows from source table with the source field values
@@ -1220,82 +1246,38 @@ export const useTableView = () => {
          WHERE "${targetField.fieldName}" IS NOT NULL`
       )
 
-      if (allowMultiple) {
-        // Build a lookup map: targetFieldValue -> array of targetRowIds
-        const valueLookup = new Map<string, string[]>()
-        for (const targetRow of targetRows) {
-          const value = String(targetRow[targetField.fieldName])
-          if (!valueLookup.has(value)) {
-            valueLookup.set(value, [])
-          }
-          valueLookup.get(value)!.push(targetRow.id)
+      // Build a lookup map: targetFieldValue -> array of targetRowIds
+      const valueLookup = new Map<string, string[]>()
+      for (const targetRow of targetRows) {
+        const value = String(targetRow[targetField.fieldName])
+        if (!valueLookup.has(value)) {
+          valueLookup.set(value, [])
         }
+        valueLookup.get(value)!.push(targetRow.id)
+      }
 
-        // Update each source row with all matched target row IDs
-        for (const sourceRow of sourceRows) {
-          const sourceValue = String(sourceRow[sourceFieldName])
-          const targetIds = valueLookup.get(sourceValue)
-          
-          if (targetIds && targetIds.length > 0) {
-            await query(
-              `UPDATE "${physicalTableName.value}" 
-               SET "${relationFieldName}" = $1 
-               WHERE id = $2`,
-              [targetIds, sourceRow.id]
-            )
-          }
-        }
-      } else {
-        // Build a lookup map: targetFieldValue -> targetRowId (single)
-        const valueLookup = new Map<string, string>()
-        for (const targetRow of targetRows) {
-          const value = String(targetRow[targetField.fieldName])
-          valueLookup.set(value, targetRow.id)
-        }
-
-        // Update each source row with the matched target row ID
-        for (const sourceRow of sourceRows) {
-          const sourceValue = String(sourceRow[sourceFieldName])
-          const targetId = valueLookup.get(sourceValue)
-          
-          if (targetId) {
-            await query(
-              `UPDATE "${physicalTableName.value}" 
-               SET "${relationFieldName}" = $1 
-               WHERE id = $2`,
-              [targetId, sourceRow.id]
-            )
-          }
+      // Update each source row with all matched target row IDs
+      for (const sourceRow of sourceRows) {
+        const sourceValue = String(sourceRow[sourceFieldName])
+        const targetIds = valueLookup.get(sourceValue)
+        
+        if (targetIds && targetIds.length > 0) {
+          await query(
+            `UPDATE "${physicalTableName.value}" 
+             SET "${relationFieldName}" = $1 
+             WHERE id = $2`,
+            [targetIds, sourceRow.id]
+          )
         }
       }
     }
 
-    // Refresh fields and columns
+    // Refresh fields only (don't add to view or modify columns)
     await getAllFields()
     
-    // Add the new field to the current view, positioned right after the source field
-    // Use format: relationFieldName.displayFieldName
-    if (currentView.value) {
-      const currentFields = [...currentView.value.fields]
-      const sourceFieldIndex = currentFields.indexOf(sourceFieldName)
-      const viewFieldName = `${relationFieldName}.${displayField.fieldName}`
-      
-      if (sourceFieldIndex !== -1) {
-        // Insert the new relation field right after the source field
-        currentFields.splice(sourceFieldIndex + 1, 0, viewFieldName)
-      } else {
-        // If source field not found in view, append to end
-        currentFields.push(viewFieldName)
-      }
-      
-      await updateView(currentView.value.id, { fields: currentFields })
-      await getAllColumns()
-    }
-    
-    // Refresh table data to show the new column with populated values
-    nextTick(() => {
-      gridRef.value?.commitProxy('reload')
-    })
+    // Note: We don't add the relation field to the view automatically
+    // The user can manually add it later if needed via "Add Column"
+    // This keeps the original column unchanged
   }
   return {
     // IDs
