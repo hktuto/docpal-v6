@@ -162,7 +162,7 @@ interface MatchPreview {
 }
 
 const { query } = usePglite()
-const tableView = inject('tableView') as any
+const {getAvailableTablesForRelation, getFieldsForTable} = useColumnsContext()
 
 const emit = defineEmits<{
   created: [data: {
@@ -224,14 +224,14 @@ async function open(column: any, tableId: string, tableName: string, physicalTab
 
 async function loadSourceFields() {
   try {
-    if (!tableView?.getFieldsForTable) {
+    if (!getFieldsForTable) {
       console.error('getFieldsForTable not available')
       ElMessage.error('Failed to load source fields')
       return
     }
     
     // Load all fields from the source table
-    const fields = await tableView.getFieldsForTable(sourceTableId.value)
+    const fields = await getFieldsForTable(sourceTableId.value)
     sourceFields.value = fields
     
     // Set default display field to the source column
@@ -249,14 +249,14 @@ async function loadSourceFields() {
 
 async function loadAvailableTables() {
   try {
-    if (!tableView?.getAvailableTablesForRelation) {
+    if (!getAvailableTablesForRelation) {
       console.error('getAvailableTablesForRelation not available')
       ElMessage.error('Failed to load tables')
       return
     }
     
     // Get all tables from the same entity, excluding current table
-    const tables = await tableView.getAvailableTablesForRelation(true)
+    const tables = await getAvailableTablesForRelation(true)
     availableTables.value = tables
   } catch (error) {
     console.error('Error loading tables:', error)
@@ -272,14 +272,14 @@ async function handleTableChange() {
   if (!formData.targetTableId) return
   
   try {
-    if (!tableView?.getFieldsForTable) {
+    if (!getFieldsForTable) {
       console.error('getFieldsForTable not available')
       ElMessage.error('Failed to load fields')
       return
     }
     
     // Load fields for the selected table
-    const fields = await tableView.getFieldsForTable(formData.targetTableId)
+    const fields = await getFieldsForTable(formData.targetTableId)
     targetFields.value = fields
   } catch (error) {
     console.error('Error loading fields:', error)
