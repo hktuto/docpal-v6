@@ -12,10 +12,6 @@ const { workspace, menuActionsRef, getWorkspaceById, workspaceRouteParams } = us
 
 const importReportDialogRef = ref()
 
-// Initialize suggestion poller for background processing
-// This will automatically provide SuggestionContext to all children
-const suggestionPoller = useSuggestionPoller()
-
 // Responsive sidebar state
 const isSidebarVisible = ref(true)
 const pageContainerRef = ref<HTMLElement | null>(null)
@@ -47,14 +43,6 @@ onMounted(() => {
       resizeObserver.disconnect()
     })
   }
-
-  // Start background suggestion poller with workspace entityId
-  suggestionPoller.start(workspace.value?.id)
-})
-
-onUnmounted(() => {
-  // Stop poller when component unmounts
-  suggestionPoller.stop()
 })
 
 // Toggle sidebar with mobile awareness

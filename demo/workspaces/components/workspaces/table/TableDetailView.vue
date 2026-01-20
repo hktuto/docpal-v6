@@ -27,12 +27,10 @@ const relationSuggestionsDialogRef = ref()
 const pendingRelationColumn = ref<any>(null)
 
 // Relation Suggestions
-const { getPendingSuggestions, acceptSuggestion } = useRelationSuggestions()
+const { getPendingSuggestions, acceptSuggestion, analyzeTableForRelations } = useRelationSuggestions()
 const suggestionStatus = ref<string>('none')
 const suggestionCount = ref(0)
-
-// Use suggestion context from parent
-const { tableStatuses } = useSuggestionContext()
+const isAnalyzing = ref(false)
 
 async function loadTableData() {
   isLoading.value = true
@@ -57,23 +55,93 @@ async function loadTableData() {
 
 async function loadSuggestionStatus() {
   try {
-    // Get table's suggestion status from database (initial load only)
+    // Get table's suggestion status from database
     const tableData = await query<CaseTableRecord>(
-      `SELECT "suggestionStatus" FROM case_tables WHERE id = $1`,
+      `SELECT "suggestionStatus", "entityId" FROM case_tables WHERE id = $1`,
       [props.dataTableId]
     )
     
     if (tableData.length > 0) {
-      suggestionStatus.value = tableData[0].suggestionStatus || 'none'
+      const currentStatus = tableData[0].suggestionStatus || 'none'
+      suggestionStatus.value = currentStatus
       
       // If ready, count pending suggestions
-      if (suggestionStatus.value === 'ready') {
+      if (currentStatus === 'ready') {
         const suggestions = await getPendingSuggestions(props.dataTableId)
         suggestionCount.value = suggestions.length
+      }
+      
+      // If pending, trigger analysis immediately
+      if (currentStatus === 'pending' && !isAnalyzing.value) {
+         runAnalysis(tableData[0].entityId)
       }
     }
   } catch (error) {
     console.error('Error loading suggestion status:', error)
+  }
+}
+
+async function runAnalysis(entityId: string) {
+  if (isAnalyzing.value) {
+    console.log('[TableDetailView] Analysis already in progress, skipping')
+    return
+  }
+  
+  try {
+    isAnalyzing.value = true
+    suggestionStatus.value = 'processing'
+    
+    // Update database status to 'processing'
+    await query(
+      `UPDATE case_tables 
+       SET "suggestionStatus" = 'processing', "updatedAt" = $1 
+       WHERE id = $2`,
+      [new Date(), props.dataTableId]
+    )
+    
+    console.log(`[TableDetailView] Starting analysis for table: ${props.dataTableId}`)
+    
+    // Run the analysis
+    const suggestionsCount = await analyzeTableForRelations(props.dataTableId, entityId)
+    
+    console.log(`[TableDetailView] Analysis complete. Found ${suggestionsCount} suggestions`)
+    
+    // Update status based on results
+    const newStatus = suggestionsCount > 0 ? 'ready' : 'none'
+    await query(
+      `UPDATE case_tables 
+       SET "suggestionStatus" = $1, "updatedAt" = $2 
+       WHERE id = $3`,
+      [newStatus, new Date(), props.dataTableId]
+    )
+    
+    // Update local state
+    suggestionStatus.value = newStatus
+    suggestionCount.value = suggestionsCount
+    
+    // Show notification if suggestions found
+    if (suggestionsCount > 0) {
+      ElMessage.success({
+        message: `Found ${suggestionsCount} relation suggestion${suggestionsCount > 1 ? 's' : ''}!`,
+        duration: 5000
+      })
+    }
+  } catch (error) {
+    console.error('[TableDetailView] Error during analysis:', error)
+    
+    // Update status to 'error'
+    await query(
+      `UPDATE case_tables 
+       SET "suggestionStatus" = 'error', "updatedAt" = $1 
+       WHERE id = $2`,
+      [new Date(), props.dataTableId]
+    )
+    
+    suggestionStatus.value = 'error'
+    
+    ElMessage.error('Failed to analyze table for relation suggestions')
+  } finally {
+    isAnalyzing.value = false
   }
 }
 
@@ -189,27 +257,6 @@ provide('handleCreateRelation', handleCreateRelation)
 onMounted(async () => {
   await loadTableData()
 })
-
-// Watch for status changes from global poller
-watch(
-  () => tableStatuses.value[props.dataTableId],
-  (newStatusData, oldStatusData) => {
-    if (!newStatusData) return
-    
-    const previousStatus = suggestionStatus.value
-    suggestionStatus.value = newStatusData.status
-    suggestionCount.value = newStatusData.count
-    
-    // Show notification when analysis completes
-    if (previousStatus === 'processing' && newStatusData.status === 'ready' && newStatusData.count > 0) {
-      ElMessage.success({
-        message: `Found ${newStatusData.count} relation suggestion${newStatusData.count > 1 ? 's' : ''}!`,
-        duration: 5000
-      })
-    }
-  },
-  { deep: true }
-)
 
 watch(
   () => props.dataTableId,

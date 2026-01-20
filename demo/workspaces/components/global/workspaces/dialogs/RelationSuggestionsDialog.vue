@@ -25,6 +25,13 @@ interface SuggestionWithState extends SuggestionItem {
   loading: boolean
 }
 
+interface GroupedSuggestion {
+  targetTableName: string
+  targetTableId: string
+  suggestions: SuggestionWithState[]
+  displayFieldOptions: CaseFieldRecord[]
+}
+
 const emit = defineEmits<{
   accepted: [data: { suggestion: SuggestionItem; displayFieldId: string }]
   dismissed: [suggestionId: string]
@@ -42,6 +49,7 @@ const {
 const popoverRef = ref()
 const loading = ref(false)
 const suggestions = ref<SuggestionWithState[]>([])
+const groupedSuggestions = ref<GroupedSuggestion[]>([])
 const currentTableId = ref('')
 const currentTableName = ref('')
 
@@ -85,6 +93,26 @@ async function loadSuggestions() {
         }
       })
     )
+    
+    // Group suggestions by target table
+    const grouped = new Map<string, GroupedSuggestion>()
+    
+    for (const suggestion of suggestions.value) {
+      const key = suggestion.targetTableId
+      
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          targetTableName: suggestion.targetTableName,
+          targetTableId: suggestion.targetTableId,
+          suggestions: [],
+          displayFieldOptions: suggestion.displayFieldOptions
+        })
+      }
+      
+      grouped.get(key)!.suggestions.push(suggestion)
+    }
+    
+    groupedSuggestions.value = Array.from(grouped.values())
   } catch (error) {
     console.error('Error loading suggestions:', error)
     ElMessage.error('Failed to load suggestions')
@@ -176,75 +204,89 @@ defineExpose({ open })
           </p>
         </div>
 
+        <!-- Grouped by target table -->
         <div
-          v-for="suggestion in suggestions"
-          :key="suggestion.id"
-          class="suggestion-item"
+          v-for="group in groupedSuggestions"
+          :key="group.targetTableId"
+          class="suggestion-group"
         >
-          <div class="suggestion-main">
-            <div class="suggestion-info">
-              <div class="relation-title">
-                <span class="table-name">{{ currentTableName }}</span>
-                <Icon name="lucide:arrow-left" class="arrow-icon" />
-                <span class="table-name">{{ suggestion.targetTableName }}</span>
-              </div>
-              
-              <div class="relation-details">
-                <span class="detail-label">Match field:</span>
-                <span class="detail-value">{{ suggestion.sourceFieldName }} ↔ {{ suggestion.targetFieldName }}</span>
-              </div>
-              
-              <div class="suggestion-meta">
-                <el-tag size="small" type="info">
-                  {{ suggestion.matchCount }}/{{ suggestion.totalCount }} matched
-                  ({{ getMatchPercentage(suggestion) }}%)
-                </el-tag>
-                <el-tag v-if="suggestion.matchReason === 'name_and_value'" size="small" type="success">
-                  Name + Value Match
-                </el-tag>
-                <el-tag v-else size="small">
-                  Value Match
-                </el-tag>
-              </div>
-
-              <div v-if="suggestion.sampleValues.length > 0" class="sample-values">
-                <span class="sample-label">Sample:</span>
-                <span class="sample-text">{{ suggestion.sampleValues.join(', ') }}</span>
-              </div>
-              
-              <div class="display-field-select">
-                <span class="select-label">Display field:</span>
-                <el-select
-                  v-model="suggestion.selectedDisplayFieldId"
-                  size="small"
-                  style="width: 200px"
-                >
-                  <el-option
-                    v-for="field in suggestion.displayFieldOptions"
-                    :key="field.id"
-                    :label="field.fieldNameAlias"
-                    :value="field.id"
-                  />
-                </el-select>
-              </div>
+          <!-- Group Header -->
+          <div class="group-header">
+            <div class="relation-title">
+              <span class="table-name">{{ currentTableName }}</span>
+              <Icon name="lucide:arrow-left" class="arrow-icon" />
+              <span class="table-name">{{ group.targetTableName }}</span>
             </div>
+            <el-tag size="small" type="info">
+              {{ group.suggestions.length }} match{{ group.suggestions.length > 1 ? 'es' : '' }}
+            </el-tag>
+          </div>
 
-            <div class="suggestion-actions">
-              <el-button
-                type="primary"
-                size="small"
-                :loading="suggestion.loading"
-                @click="handleAccept(suggestion)"
-              >
-                Create
-              </el-button>
-              <el-button
-                size="small"
-                :disabled="suggestion.loading"
-                @click="handleDismiss(suggestion.id)"
-              >
-                Dismiss
-              </el-button>
+          <!-- Individual suggestions in this group -->
+          <div
+            v-for="suggestion in group.suggestions"
+            :key="suggestion.id"
+            class="suggestion-item"
+          >
+            <div class="suggestion-main">
+              <div class="suggestion-info">
+                <div class="relation-details">
+                  <span class="detail-label">Match field:</span>
+                  <span class="detail-value">{{ suggestion.sourceFieldName }} ↔ {{ suggestion.targetFieldName }}</span>
+                </div>
+                
+                <div class="suggestion-meta">
+                  <el-tag size="small" type="info">
+                    {{ suggestion.matchCount }}/{{ suggestion.totalCount }} matched
+                    ({{ getMatchPercentage(suggestion) }}%)
+                  </el-tag>
+                  <el-tag v-if="suggestion.matchReason === 'name_and_value'" size="small" type="success">
+                    Name + Value Match
+                  </el-tag>
+                  <el-tag v-else size="small">
+                    Value Match
+                  </el-tag>
+                </div>
+
+                <div v-if="suggestion.sampleValues.length > 0" class="sample-values">
+                  <span class="sample-label">Sample:</span>
+                  <span class="sample-text">{{ suggestion.sampleValues.join(', ') }}</span>
+                </div>
+                
+                <div class="display-field-select">
+                  <span class="select-label">Display field:</span>
+                  <el-select
+                    v-model="suggestion.selectedDisplayFieldId"
+                    size="small"
+                    style="width: 200px"
+                  >
+                    <el-option
+                      v-for="field in suggestion.displayFieldOptions"
+                      :key="field.id"
+                      :label="field.fieldNameAlias"
+                      :value="field.id"
+                    />
+                  </el-select>
+                </div>
+              </div>
+
+              <div class="suggestion-actions">
+                <el-button
+                  type="primary"
+                  size="small"
+                  :loading="suggestion.loading"
+                  @click="handleAccept(suggestion)"
+                >
+                  Create
+                </el-button>
+                <el-button
+                  size="small"
+                  :disabled="suggestion.loading"
+                  @click="handleDismiss(suggestion.id)"
+                >
+                  Dismiss
+                </el-button>
+              </div>
             </div>
           </div>
         </div>
@@ -287,13 +329,30 @@ defineExpose({ open })
 .suggestions-list {
   display: flex;
   flex-direction: column;
-  gap: var(--app-space-m);
+  gap: var(--app-space-l);
+}
+
+.suggestion-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-s);
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--app-space-s) var(--app-space-m);
+  background: var(--el-fill-color-light);
+  border-radius: 8px;
+  margin-bottom: var(--app-space-xs);
 }
 
 .suggestion-item {
   border: 1px solid var(--el-border-color);
   border-radius: 8px;
   padding: var(--app-space-m);
+  margin-left: var(--app-space-m);
   transition: all 0.2s;
 
   &:hover {
