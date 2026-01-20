@@ -69,12 +69,20 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
       render({ options, params }: ViewRenderFunctionParams<string>): VNode {
         const { $table, row, column } = params
         const data = row[column.field]?.length > 0 ? row[column.field][0] : { text: '', title: '' }
+        const inputRef = ref<any>(null)
         return h(ElInput, {
           modelValue: data.text,
           'onUpdate:modelValue': (value: string) => {
             row[column.field] = [{ text: value, title: value }]
           },
-          'suffix-icon': EditPen
+          class: 'vxe-cell-absolute mdTable-height-edit mdTable-input-radius',
+          'suffix-icon': EditPen,
+          ref: inputRef,
+          onVnodeMounted: () => {
+            nextTick(() => {
+              inputRef.value.focus()
+            })
+          }
         })
       }
     }
@@ -149,7 +157,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   },
   Email: {
     edit: {
-      render: (params: any) => TreeNode(params, EmailEdit)
+      render: EmailEdit
     },
     view: {
       render: (params: any) => TreeNode(params, EmailView)
