@@ -7,8 +7,8 @@ import type { RenderComponentConfig, ViewRenderFunctionParams } from '../types/c
 import { ElSelect, ElOption, ElInputNumber } from 'element-plus'
 import { renderSelectView, renderMultipleSelectView } from './components/select/view'
 import SelectEdit from './components/select/edit.vue'
-import { NumberView } from './components/number/view'
-import { DateTimeView } from './components/DateTime/view'
+import { NumberView, NumberEdit } from './components/number/view'
+import { DateTimeView, DateTimeEdit } from './components/DateTime/view'
 import { EmailView, EmailEdit } from './components/email/view'
 import { MultiTextView, MultiTextEdit } from './components/MultiText/view'
 import { TextView, TextEdit } from './components/text/view'
@@ -19,7 +19,7 @@ import { TreeNode } from './components/treeNode'
 export const MDTableComponents: Record<string, RenderComponentConfig> = {
   Text: {
     edit: {
-      render: (params: any) => TreeNode(params, TextEdit)
+      render: TextEdit
     },
     view: {
       render: (params: any) => TreeNode(params, TextView)
@@ -32,7 +32,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   },
   MultiText: {
     edit: {
-      render: (params: any) => TreeNode(params, MultiTextEdit)
+      render: MultiTextEdit
     },
     view: {
       render: (params: any) => TreeNode(params, MultiTextView)
@@ -69,38 +69,27 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
       render({ options, params }: ViewRenderFunctionParams<string>): VNode {
         const { $table, row, column } = params
         const data = row[column.field]?.length > 0 ? row[column.field][0] : { text: '', title: '' }
+        const inputRef = ref<any>(null)
         return h(ElInput, {
           modelValue: data.text,
           'onUpdate:modelValue': (value: string) => {
             row[column.field] = [{ text: value, title: value }]
           },
-          'suffix-icon': EditPen
+          class: 'vxe-cell-absolute mdTable-height-edit mdTable-input-radius',
+          'suffix-icon': EditPen,
+          ref: inputRef,
+          onVnodeMounted: () => {
+            nextTick(() => {
+              inputRef.value.focus()
+            })
+          }
         })
       }
     }
   },
   Number: {
     edit: {
-      render({ options, params }: ViewRenderFunctionParams<number>): VNode {
-        const { $table, row, column } = params
-        const { options: numberOptions } = options?.props
-        return h(ElInput, {
-          modelValue: row[column.field],
-          'onUpdate:modelValue': (value: number) => {
-            row[column.field] = value
-          },
-          class: 'mdTable-input-common-edit',
-          type: 'number',
-          onKeydown: (event: KeyboardEvent) => {
-            if (event.key === 'Enter') {
-              event.preventDefault()
-              event.stopPropagation()
-              // 结束编辑
-              $table.clearEdit?.()
-            }
-          }
-        })
-      }
+      render: NumberEdit
     },
     view: { render: (params: any) => TreeNode(params, NumberView) }
   },
@@ -150,16 +139,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   },
   DateTime: {
     edit: {
-      render({ options, params }: ViewRenderFunctionParams<string>): VNode {
-        const { $table, row, column } = params
-        const { options: dateTimeOptions } = options?.props
-        return h(ElInput, {
-          modelValue: row[column.field],
-          'onUpdate:modelValue': (value: string) => {
-            row[column.field] = value
-          }
-        })
-      }
+      render: DateTimeEdit
     },
     view: {
       render: (params: any) => TreeNode(params, DateTimeView)
@@ -177,7 +157,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   },
   Email: {
     edit: {
-      render: (params: any) => TreeNode(params, EmailEdit)
+      render: EmailEdit
     },
     view: {
       render: (params: any) => TreeNode(params, EmailView)
@@ -195,7 +175,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   },
   MagicLink: {
     edit: {
-      render: (params: any) => TreeNode(params, RelationEdit)
+      render: RelationEdit
     },
     view: {
       render: (params: any) => TreeNode(params, RelationView)

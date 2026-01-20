@@ -27,16 +27,23 @@ export const MultiTextEdit = ({options, params}: ViewRenderFunctionParams<string
       $table.clearEdit?.()
     }
   }
-  
+  const inputRef = ref<any>(null)
+
   return h(ElInput, {
     type: 'textarea',
     modelValue: row[column.field] ?? '',
     'onUpdate:modelValue': (value: string) => { row[column.field] = value },
-    class: 'vxe-cell-absolute mdTable-input-edit',
+    class: 'vxe-cell-absolute mdTable-input-radius',
     autosize: {
       minRows: 2,
       maxRows: 8,
     },
-    onKeydown: handleKeydown
+    ref: inputRef,
+    onKeydown: handleKeydown,
+    onVnodeMounted: () => {
+      nextTick(() => {
+        inputRef.value.focus()
+      })
+    }
   } as any)
 }

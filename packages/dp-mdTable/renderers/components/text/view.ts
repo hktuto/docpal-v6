@@ -18,5 +18,6 @@ export const TextEdit = ({options, params}: ViewRenderFunctionParams<string>) =>
   return h(ElInput, {
     modelValue: row[column.field],
     'onUpdate:modelValue': (value: string) => { row[column.field] = value },
+    class: 'vxe-cell-absolute mdTable-height-edit mdTable-input-radius',
   })
 }

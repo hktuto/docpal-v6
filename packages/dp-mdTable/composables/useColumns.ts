@@ -93,9 +93,18 @@ const inferColumnsFromData = (data: any[]): ColumnConfig[] => {
 }
 function createMockColumns(tableName: string) {
   const mockColumns = []
+  mockColumns.push({
+    field: 'startDate',
+    title: 'Start Date',
+    width: 150,
+    minWidth: 100,
+    sortable: true,
+    type: ColumnFieldType.DateTime,
+    properties: { dateFormat: 'YYYY-MM-DD' }
+  })
   const names = ['name', 'age', 'gender', 'email', 'phone', 'address', 'singleSelect', 'multiSelect', 'city', 'state', 'zip', 'country', 'url', 'rate']
   for (let i = 0; i < names.length; i++) {
-    let type = ColumnFieldType.Text
+    let type = ColumnFieldType.MultiText
     let properties = {}
     if (names[i] === 'age') {
       type = ColumnFieldType.Number
