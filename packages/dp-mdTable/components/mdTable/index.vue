@@ -78,8 +78,7 @@ const emit = defineEmits<{
 // 引用
 const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
-const addColumnPopoverRef = ref()
-const { columns, addColumn, columnGroupRules, gridOptions, gridRef, refreshTableData, editable, saveColumnOrder } = useMDTable(props)
+const { addColumnPopoverRef, columns, addColumn, columnGroupRules, gridOptions, gridRef, refreshTableData, deleteColumn, saveColumnOrder } = useMDTable(props)
 
 // 表格事件
 const gridEvents = computed<VxeGridListeners>(() => ({
@@ -128,6 +127,9 @@ const handleAddColumn = (e: MouseEvent) => {
     addColumnPopoverRef.value.show(rightPanelHeaderRef.value || null)
   }
 }
+const handleCreateRelation = inject<((column: any) => void) | undefined>('handleCreateRelation', undefined)
+const handleCreateReverseRelation = inject<((column: any) => void) | undefined>('handleCreateReverseRelation', undefined)
+
 const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) => {
   switch (type) {
     case 'edit':
@@ -147,8 +149,7 @@ const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) =>
       } as unknown as ColumnConfig
       //
       addColumn(defaultNewColumn, column.field, 'left')
-      console.log('insertLeft', column)
-      break
+      break;
     case 'insertRight':
       const defaultNewColumnRight = {
         field: createFieldId(),
@@ -159,6 +160,20 @@ const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) =>
       addColumn(defaultNewColumnRight, column.field, 'right')
       console.log('insertRight', column)
       break
+    case 'createRelation':
+      if (handleCreateRelation) {
+        handleCreateRelation(column)
+      } else {
+        console.warn('handleCreateRelation not provided')
+      }
+      break
+    case 'createReverseRelation':
+      if (handleCreateReverseRelation) {
+        handleCreateReverseRelation(column)
+      } else {
+        console.warn('handleCreateReverseRelation not provided')
+      }
+      break
     case 'editDescription':
       break
     case 'permission':
@@ -166,7 +181,8 @@ const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) =>
     case 'hide':
       break
     case 'delete':
-      break
+      deleteColumn(column.field)
+      break;
   }
 }
 const mdTableHeaderPopoverRef = ref()

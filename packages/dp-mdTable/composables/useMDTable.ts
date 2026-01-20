@@ -10,9 +10,9 @@ export interface mdTable {
 }
 export const MdTableContextKey: InjectionKey<mdTable> = Symbol('MdTableContextKey')
 export function useMDTable(props: any) {
-  const gridRef = ref<any>()
   const editable = ref(props.editable)
-  const { columns, addColumn, updateColumn, deleteColumn, columnGroupRules, saveColumnOrder } = useColumnsContext()
+
+  const { gridRef, columns, addColumn, updateColumn, deleteColumn, columnGroupRules, saveColumnOrder, addColumnPopoverRef } = useColumnsContext()
   const {
     loading,
     queryParams,
@@ -45,13 +45,15 @@ export function useMDTable(props: any) {
   return {
     columns,
     addColumn,
+    deleteColumn,
     updateColumn,
     columnGroupRules,
     gridOptions,
     gridRef,
     refreshTableData,
     editable,
-    saveColumnOrder
+    saveColumnOrder,
+    addColumnPopoverRef
   }
 }
 

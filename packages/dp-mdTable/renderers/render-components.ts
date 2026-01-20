@@ -13,6 +13,7 @@ import { EmailView, EmailEdit } from './components/email/view'
 import { MultiTextView, MultiTextEdit } from './components/MultiText/view'
 import { TextView, TextEdit } from './components/text/view'
 import { UserView } from './components/user/view'
+import { RelationView, RelationEdit } from './components/relation/view'
 import { TreeNode } from './components/treeNode'
 // 分离模式组件配置
 export const MDTableComponents: Record<string, RenderComponentConfig> = {
@@ -162,6 +163,14 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   LastModifiedBy: {
     both: {
       render: (params: any) => TreeNode(params, UserView)
+    }
+  },
+  MagicLink: {
+    edit: {
+      render: (params: any) => TreeNode(params, RelationEdit)
+    },
+    view: {
+      render: (params: any) => TreeNode(params, RelationView)
     }
   },
   Member: {

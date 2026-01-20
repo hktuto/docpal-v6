@@ -16,6 +16,13 @@ export interface ColumnContext {
   saveColumnOrder: (ordersParam: OrdersParam) => void
   columns: Ref<ColumnConfig[]>
   columnGroupRules: Ref<any[]>
+  addColumnPopoverRef: Ref<any>
+  gridRef: Ref<any>
+  // Relation helpers
+  getAvailableTablesForRelation?: (excludeCurrentTable?: boolean) => Promise<any[]>
+  getFieldsForTable?: (tableId: string) => Promise<any[]>
+  tableId?: Ref<string>
+  entityId?: Ref<string>
 }
 
 export const ColumnContextKey: InjectionKey<ColumnContext> = Symbol('ColumnContextKey')
@@ -197,8 +204,10 @@ function createMockColumns(tableName: string) {
  * 提供列的增删改查功能，支持从数据自动推断列配置
  */
 export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
+  const gridRef = ref<any>()
   const columns = ref<ColumnConfig[]>([])
   const columnGroupRules = ref<any[]>([])
+  const addColumnPopoverRef = ref()
   /**
    * 获取列
    * @param field 字段名
@@ -312,9 +321,10 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
     deleteColumn,
     updateColumn,
     saveColumnOrder,
-
+    addColumnPopoverRef,
     columns,
-    columnGroupRules
+    columnGroupRules,
+    gridRef
   })
   return {
     // 基础方法
@@ -323,6 +333,8 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
     addColumn,
     deleteColumn,
     updateColumn,
+    addColumnPopoverRef,
+    gridRef,
     // 批量方法
 
     // 原始引用（只读）

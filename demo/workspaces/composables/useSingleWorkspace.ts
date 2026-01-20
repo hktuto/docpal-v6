@@ -54,6 +54,7 @@ export function useSingleWorkspaceContext() {
 
 export type WorkspaceRouteParams = {
   detailId: string | null
+  pageType: "setting" | "detail",
   detailType: 'folder' | 'table' | 'view' | 'dashboard' | 'root'
 }
 
@@ -385,8 +386,7 @@ export function useSingleWorkspace() {
     return newItem
   }
 
-  function navigateToItem(item?: TreeItem) {
-    console.log('navigateToItem', item)
+  function navigateToItem(item?: TreeItem, pageType: "setting" | "detail" = "detail") {
     if (!item) {
       workspaceRouteParams.value.detailId = null
       workspaceRouteParams.value.detailType = 'root'
@@ -400,14 +400,17 @@ export function useSingleWorkspace() {
       case 'table':
         workspaceRouteParams.value.detailId = item.id
         workspaceRouteParams.value.detailType = 'table'
+        workspaceRouteParams.value.pageType = pageType
         break
       case 'view':
         workspaceRouteParams.value.detailId = item.id
         workspaceRouteParams.value.detailType = 'view'
+        workspaceRouteParams.value.pageType = pageType
         break
       case 'dashboard':
         workspaceRouteParams.value.detailId = item.id
         workspaceRouteParams.value.detailType = 'dashboard'
+        workspaceRouteParams.value.pageType = pageType
         break
       default:
         console.warn('Unknown item type:', item.itemType)

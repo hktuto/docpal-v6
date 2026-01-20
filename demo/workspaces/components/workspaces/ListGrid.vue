@@ -178,7 +178,6 @@ onMounted(() => {
           </template>
         </template>
       </UiSearchableList>
-      <ElButton @click="clearData">Clear Data</ElButton>
     </div>
   </div>
   <UiPopoverDialog ref="createWorkspacePopover" title="Create Workspace">
