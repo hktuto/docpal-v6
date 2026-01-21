@@ -38,7 +38,7 @@ async function loginAdmin() {
     }
   }).then(async (res) => await res.json())
     .catch(error => {
-      console.log('error', error)
+      console.log('--login error', error)
     })
   return data.access_token
 }
@@ -52,7 +52,7 @@ async function updateLanguage(code, token) {
     }
   }).then(async (res) => await res.json())
     .catch(error => {
-      console.log('error', error)
+      console.log('--updateLanguage error', error)
     })
   // const newJson = await fs.readFileSync(path.join(__dirname, `./lang/${code}.json`), {
   //     encoding: 'utf-8'
@@ -75,7 +75,7 @@ async function updateLanguage(code, token) {
       throw new Error(data.message)
     }
   }).catch(error => {
-    console.log('error', error)
+    console.log('--language error', error)
   })
   console.log('finish update language', ADMINURL, URL, code)
 }
