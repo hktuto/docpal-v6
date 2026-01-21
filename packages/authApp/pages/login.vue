@@ -82,7 +82,7 @@ onMounted(() => {
 
 <template>
   <div class="login-page">
-    <div v-if="languageReady && systemError" class="fromContainer card glass">
+    <div v-if="languageReady && !systemError" class="fromContainer card glass">
       <AppBigLogo class="logo" mode="withName" />
       <ElForm :model="form" :rules="rules" label-position="top">
         <ElFormItem label="Username" :rules="rules.username">
