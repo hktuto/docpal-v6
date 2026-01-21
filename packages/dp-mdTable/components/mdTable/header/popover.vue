@@ -11,17 +11,17 @@ const emits = defineEmits(['headerClick'])
 let triggerEl: HTMLElement | null = null
 let column: any = null
 const list = [
-  { label: 'Change Column Type', icon: 'lucide:square-pen', type: 'edit' },
+  { label: 'Column Setting', icon: 'lucide:square-pen', type: 'edit' },
   // { label: 'Edit Description', icon: '/icons/edit.svg', type: 'editDescription' },
   // { label: '设置列权限', icon: '/icons/permission.svg', type: 'permission' },
-  { label: 'Insert Column to Left', icon: 'lucide:panel-left-close', type: 'insertLeft' },
-  { label: 'Insert Column to Right', icon: 'lucide:panel-right-close', type: 'insertRight' },
+  // { label: 'Insert Column to Left', icon: 'lucide:panel-left-close', type: 'insertLeft' },
+  { label: 'Insert Column ', icon: 'lucide:panel-right-close', type: 'insertRight' },
   { label: 'Create Relation', icon: 'lucide:link', type: 'createRelation' },
-  { label: 'Create Relation to Other Table', icon: 'lucide:link-2', type: 'createReverseRelation' },
+  // { label: 'Create Relation to Other Table', icon: 'lucide:link-2', type: 'createReverseRelation' },
   // { label: '复制列', icon: '/icons/copy.svg', type: 'copy' },
   // { label: 'Sort A-Z', icon: '/icons/sort-az.svg', type: 'sortAz' },
   // { label: 'Sort Z-A', icon: '/icons/sort-za.svg', type: 'sortZa' },
-  { label: 'Hide Column', icon: 'lucide:eye-off', type: 'hide' },
+  // { label: 'Hide Column', icon: 'lucide:eye-off', type: 'hide' },
   { label: 'Delete Column', icon: 'lucide:trash-2', type: 'delete' }
 ]
 const popoverRef = ref()

@@ -321,8 +321,8 @@ export function useTableSchema() {
 
     // Insert case_tables record
     await query(
-      `INSERT INTO case_tables (id, name, status, description, "tableName", "viewName", "entityId", "createdBy", "createdAt", "updatedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      `INSERT INTO case_tables (id, name, status, description, "tableName", "viewName", "entityId", "suggestionStatus", "createdBy", "createdAt", "updatedAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
       [
         tableRecord.id,
         tableRecord.name,
@@ -331,6 +331,7 @@ export function useTableSchema() {
         tableRecord.tableName,
         tableRecord.viewName,
         tableRecord.entityId,
+        'none', // Initial suggestion status
         tableRecord.createdBy,
         tableRecord.createdAt,
         tableRecord.updatedAt
@@ -357,15 +358,20 @@ export function useTableSchema() {
       ...defaultFields
     ]
 
-    // Insert all field records
-    for (const field of allFields) {
-      await query(
-        `INSERT INTO case_fields (
-          id, "tableId", "fieldName", "fieldNameAlias", "businessType", "fieldType",
-          "displayStructure", "isRequired", "isHidden", "isArray", "isUnique",
-          "defaultValue", "fieldLength", "createdBy", "createdAt", "updatedAt"
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
-        [
+    // Batch insert all field records
+    if (allFields.length > 0) {
+      const fieldValues: any[] = []
+      const valueSets: string[] = []
+      let paramIndex = 1
+
+      for (const field of allFields) {
+        const placeholders = []
+        for (let i = 0; i < 16; i++) {
+          placeholders.push(`$${paramIndex++}`)
+        }
+        valueSets.push(`(${placeholders.join(', ')})`)
+        
+        fieldValues.push(
           field.id,
           field.tableId,
           field.fieldName,
@@ -382,8 +388,16 @@ export function useTableSchema() {
           field.createdBy,
           field.createdAt,
           field.updatedAt
-        ]
-      )
+        )
+      }
+
+      const batchSql = `INSERT INTO case_fields (
+        id, "tableId", "fieldName", "fieldNameAlias", "businessType", "fieldType",
+        "displayStructure", "isRequired", "isHidden", "isArray", "isUnique",
+        "defaultValue", "fieldLength", "createdBy", "createdAt", "updatedAt"
+      ) VALUES ${valueSets.join(', ')}`
+      
+      await query(batchSql, fieldValues)
     }
 
     // Create the actual PostgreSQL table

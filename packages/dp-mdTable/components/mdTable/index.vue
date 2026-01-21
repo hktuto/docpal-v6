@@ -128,7 +128,6 @@ const handleAddColumn = (e: MouseEvent) => {
   }
 }
 const handleCreateRelation = inject<((column: any) => void) | undefined>('handleCreateRelation', undefined)
-const handleCreateReverseRelation = inject<((column: any) => void) | undefined>('handleCreateReverseRelation', undefined)
 
 const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) => {
   switch (type) {
@@ -165,13 +164,6 @@ const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) =>
         handleCreateRelation(column)
       } else {
         console.warn('handleCreateRelation not provided')
-      }
-      break
-    case 'createReverseRelation':
-      if (handleCreateReverseRelation) {
-        handleCreateReverseRelation(column)
-      } else {
-        console.warn('handleCreateReverseRelation not provided')
       }
       break
     case 'editDescription':

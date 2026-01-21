@@ -11,6 +11,47 @@
         Create a relation column by matching values from "{{ sourceColumn?.title }}" with another table's field.
       </div>
 
+      <!-- Suggestions Section -->
+      <div v-if="suggestions.length > 0" class="suggestions-section">
+        <div class="suggestions-header">
+          <Icon name="lucide:lightbulb" class="suggestion-icon" />
+          <span class="suggestions-title">Suggested Relations</span>
+        </div>
+        <div class="suggestions-list">
+          <div
+            v-for="suggestion in suggestions"
+            :key="suggestion.id"
+            class="suggestion-item"
+          >
+            <div class="suggestion-content">
+              <div class="suggestion-label">
+                {{ suggestion.targetTableName }}.{{ suggestion.targetFieldName }}
+              </div>
+              <el-tag size="small" type="info">
+                {{ suggestion.matchCount }}/{{ suggestion.totalCount }} matched
+              </el-tag>
+            </div>
+            <div class="suggestion-actions">
+              <el-button
+                type="primary"
+                size="small"
+                link
+                @click="applySuggestion(suggestion)"
+              >
+                Use This
+              </el-button>
+              <el-button
+                size="small"
+                link
+                @click="dismissSuggestionItem(suggestion.id)"
+              >
+                Dismiss
+              </el-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <el-form ref="formRef" :model="formData" :rules="rules" label-position="top">
         <el-form-item label="Target Table" prop="targetTableId">
           <el-select
@@ -28,10 +69,10 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="Match Field" prop="targetFieldId">
+        <el-form-item label="Match Column" prop="targetFieldId">
           <el-select
             v-model="formData.targetFieldId"
-            placeholder="Select field to match against"
+            placeholder="Select Column to match against"
             style="width: 100%"
             :disabled="!formData.targetTableId"
           >
@@ -52,10 +93,10 @@
           </div>
         </el-form-item>
 
-        <el-form-item label="Display Field" prop="displayFieldId">
+        <el-form-item label="Display Column" prop="displayFieldId">
           <el-select
             v-model="formData.displayFieldId"
-            placeholder="Select field to display"
+            placeholder="Select Column to display"
             style="width: 100%"
             :disabled="!formData.targetTableId"
           >
@@ -81,21 +122,6 @@
             v-model="formData.relationColumnName"
             placeholder="Enter name for the new relation column"
           />
-        </el-form-item>
-
-        <el-form-item label="Relation Type">
-          <el-switch
-            v-model="formData.allowMultiple"
-            active-text="Allow Multiple (One-to-Many)"
-            inactive-text="Single (Many-to-One)"
-            style="--el-switch-on-color: var(--el-color-primary)"
-          />
-          <div class="field-hint">
-            {{ formData.allowMultiple 
-              ? 'Each row can link to multiple records in the target table' 
-              : 'Each row can link to only one record in the target table' 
-            }}
-          </div>
         </el-form-item>
 
         <div v-if="matchPreview" class="match-preview">
@@ -158,6 +184,7 @@ interface MatchPreview {
 
 const { query } = usePglite()
 const { getAvailableTablesForRelation, getFieldsForTable } = useColumnsContext()
+const { getSuggestionsForField, dismissSuggestion } = useRelationSuggestions()
 
 const emit = defineEmits<{
   created: [data: {
@@ -165,7 +192,6 @@ const emit = defineEmits<{
     targetFieldId: string
     displayFieldId: string
     relationColumnName: string
-    allowMultiple: boolean
   }]
 }>()
 
@@ -178,13 +204,13 @@ const sourceTableName = ref<string>('')
 const availableTables = ref<CaseTableRecord[]>([])
 const targetFields = ref<CaseFieldRecord[]>([])
 const matchPreview = ref<MatchPreview | null>(null)
+const suggestions = ref<any[]>([])
 
 const formData = reactive({
   targetTableId: '',
   targetFieldId: '',
   displayFieldId: '',
   relationColumnName: '',
-  allowMultiple: false
 })
 
 const rules: FormRules = {
@@ -209,6 +235,56 @@ async function open(column: any, tableId: string, tableName: string) {
   
   // Load available tables
   await loadAvailableTables()
+  
+  // Load suggestions for this field
+  await loadSuggestions()
+}
+
+async function loadSuggestions() {
+  try {
+    // Get the field name from the column
+    const fieldName = sourceColumn.value?.field
+    if (!fieldName) return
+    
+    // Query to get the field ID from field name
+    const fieldData = await query<CaseFieldRecord>(
+      `SELECT id FROM case_fields WHERE "tableId" = $1 AND "fieldName" = $2`,
+      [sourceTableId.value, fieldName]
+    )
+    
+    if (fieldData.length === 0) return
+    
+    const fieldId = fieldData[0].id
+    const fieldSuggestions = await getSuggestionsForField(sourceTableId.value, fieldId)
+    suggestions.value = fieldSuggestions
+  } catch (error) {
+    console.error('Error loading suggestions:', error)
+    // Don't show error to user, just silently fail
+  }
+}
+
+async function applySuggestion(suggestion: any) {
+  // Auto-fill form with suggestion values
+  formData.targetTableId = suggestion.targetTableId
+  formData.targetFieldId = suggestion.targetFieldId
+  formData.displayFieldId = suggestion.targetFieldId // Use match field as display field
+  
+  // Load target fields
+  await handleTableChange()
+  
+  // Remove this suggestion from the list
+  suggestions.value = suggestions.value.filter(s => s.id !== suggestion.id)
+}
+
+async function dismissSuggestionItem(suggestionId: string) {
+  try {
+    await dismissSuggestion(suggestionId)
+    suggestions.value = suggestions.value.filter(s => s.id !== suggestionId)
+    ElMessage.success('Suggestion dismissed')
+  } catch (error) {
+    console.error('Error dismissing suggestion:', error)
+    ElMessage.error('Failed to dismiss suggestion')
+  }
 }
 
 async function loadAvailableTables() {
@@ -325,7 +401,6 @@ async function handleCreate() {
       targetFieldId: formData.targetFieldId,
       displayFieldId: formData.displayFieldId,
       relationColumnName: formData.relationColumnName,
-      allowMultiple: formData.allowMultiple
     })
     
     handleClose()
@@ -361,6 +436,70 @@ defineExpose({
     color: var(--app-grey-400);
     font-size: var(--app-font-size-s);
   }
+}
+
+.suggestions-section {
+  margin-bottom: var(--app-space-l);
+  padding: var(--app-space-m);
+  background: var(--el-color-primary-light-9);
+  border: 1px solid var(--el-color-primary-light-7);
+  border-radius: var(--app-border-radius);
+}
+
+.suggestions-header {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-s);
+  margin-bottom: var(--app-space-m);
+  font-weight: 500;
+  color: var(--el-color-primary);
+  
+  .suggestion-icon {
+    font-size: 18px;
+  }
+  
+  .suggestions-title {
+    font-size: var(--app-font-size-m);
+  }
+}
+
+.suggestions-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-s);
+}
+
+.suggestion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--app-space-s) var(--app-space-m);
+  background: var(--el-bg-color);
+  border-radius: var(--app-border-radius);
+  border: 1px solid var(--el-border-color);
+  
+  &:hover {
+    border-color: var(--el-color-primary);
+  }
+}
+
+.suggestion-content {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-m);
+  flex: 1;
+}
+
+.suggestion-label {
+  font-size: var(--app-font-size-s);
+  color: var(--el-text-color-primary);
+  font-weight: 500;
+}
+
+.suggestion-actions {
+  display: flex;
+  gap: var(--app-space-s);
+  flex-shrink: 0;
 }
 
 .field-option {

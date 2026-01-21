@@ -1,0 +1,1 @@
+ALTER TABLE "relation_suggestions" ALTER COLUMN "suggestedType" SET DEFAULT 'multiple';

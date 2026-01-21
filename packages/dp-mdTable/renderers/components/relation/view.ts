@@ -23,53 +23,50 @@ export const RelationView = ({options, params}: ViewRenderFunctionParams<string>
   }
   
   // The UUID value(s) are stored in the base relation field
+  // All relations are now arrays (uuid[])
   const value = row[relationFieldName]
-  const allowMultiple = relationOptions?.allowMultiple || false
   
-  if (!value) {
+  if (!value || !Array.isArray(value) || value.length === 0) {
     return h('div', { class: 'relation-view empty' }, '-')
   }
   
-  // Handle multiple relations
-  if (allowMultiple && Array.isArray(value)) {
-    if (value.length === 0) {
-      return h('div', { class: 'relation-view empty' }, '-')
-    }
-    
-    // Display as tags
-    const displayValues = Array.isArray(displayValue) ? displayValue : []
-    return h('div', { 
-      class: 'relation-view multiple',
+  // Display as tags for arrays
+  const displayValues = Array.isArray(displayValue) ? displayValue : []
+  
+  // If only one item, show as a link instead of tag
+  if (value.length === 1) {
+    const displayText = displayValues[0] || value[0]
+    return h('a', {
+      class: 'relation-view single',
+      href: '#',
       style: {
-        display: 'flex',
-        gap: '4px',
-        flexWrap: 'wrap'
+        color: 'var(--el-color-primary)',
+        textDecoration: 'none',
+        cursor: 'pointer'
+      },
+      onClick: (e: Event) => {
+        e.preventDefault()
+        // TODO: Implement navigation to related record
+        console.log('Navigate to related record:', value[0])
       }
-    }, displayValues.map((val: any, index: number) => 
-      h(ElTag, {
-        key: value[index] || index,
-        size: 'small',
-        type: 'info'
-      }, () => val || value[index])
-    ))
+    }, displayText)
   }
   
-  // Handle single relation
-  const displayText = displayValue || value
-  return h('a', {
-    class: 'relation-view single',
-    href: '#',
+  // Multiple items: display as tags
+  return h('div', { 
+    class: 'relation-view multiple',
     style: {
-      color: 'var(--el-color-primary)',
-      textDecoration: 'none',
-      cursor: 'pointer'
-    },
-    onClick: (e: Event) => {
-      e.preventDefault()
-      // TODO: Implement navigation to related record
-      console.log('Navigate to related record:', value)
+      display: 'flex',
+      gap: '4px',
+      flexWrap: 'wrap'
     }
-  }, displayText)
+  }, displayValues.map((val: any, index: number) => 
+    h(ElTag, {
+      key: value[index] || index,
+      size: 'small',
+      type: 'info'
+    }, () => val || value[index])
+  ))
 }
 
 export const RelationEdit = ({options, params}: ViewRenderFunctionParams<string>) => {

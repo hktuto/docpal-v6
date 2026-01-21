@@ -57,7 +57,7 @@ async function handleDelete() {
 }
 async function handleEditSetting(type: CaseTreeItemType) {
   if(!item.value) return
-  await menuContext.openSetting(item.value.slug, type)
+  await menuContext.openSetting(item.value?.id || '', type)
   close()
 }
 async function handleAddItem(type: CaseTreeItemType) {

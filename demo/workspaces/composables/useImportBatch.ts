@@ -674,6 +674,7 @@ export function useImportBatch() {
   const { menuState, saveMenuItemToDb, findItemById, workspace } = useSingleWorkspaceContext()
   const { createCaseTable, generateSlug } = useTableSchema()
   const { queueImportJobs } = useImportQueue()
+  const { analyzeTableForRelations } = useRelationSuggestions()
 
   /**
    * Get all existing table names/slugs in the workspace
@@ -1000,7 +1001,8 @@ export function useImportBatch() {
             tableDisplayName: t.name,
             physicalTableName: t.physicalTableName,
             columns: t.fields,
-            rows: t.rows
+            rows: t.rows,
+            entityId // Pass entityId for relation analysis after import
           }))
 
         queueImportJobs(importJobs)
