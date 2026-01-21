@@ -64,21 +64,25 @@ async function updateLanguage(code, token) {
   }
   console.log('---JSON String', JSON.stringify(data[0].id), JSON.stringify(data[0].locale))
 
-  const res = await fetch(`${URL}/api/dms/form-properties/language`, {
-    method: 'POST',
-    body: JSON.stringify(newData),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  }).then(async (res) => {
-    const data = await res.json()
-    if (data.code !== 200) {
-      throw new Error(data.message)
-    }
-  }).catch(error => {
-    console.log('--updateLanguage error', error)
-  })
+  try {
+    const res = await fetch(`${URL}/api/dms/form-properties/language`, {
+      method: 'POST',
+      body: JSON.stringify(newData),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    }).then(async (res) => {
+      const data = await res.json()
+      if (data.code !== 200) {
+        throw new Error(data.message)
+      }
+    }).catch(error => {
+      console.log('--updateLanguage error', error)
+    })
+  } catch (e) {
+    console.log('Set language', e)
+  }
   console.log('finish update language', ADMINURL, URL, code)
 }
 
