@@ -1,4 +1,4 @@
-// const fs = require('fs')
+const fs = require('fs')
 const path = require('path')
 const enJson = require('./src/en-US.json')
 const zhJson = require('./src/zh-CN.json')
@@ -93,4 +93,4 @@ async function deployLanguage() {
   console.log('deploy language success')
 }
 
-await deployLanguage()
+deployLanguage()
