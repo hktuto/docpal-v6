@@ -135,12 +135,13 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
     return Promise.reject(error)
   }
   console.log('error', error, this)
-  if (error.response.status === 401 && !originalRequest._retry) {
+  const refreshToken = localStorage.getItem('refresh_token')
+  if (error.response.status === 401 && !originalRequest._retry && refreshToken) {
     originalRequest._retry = true
 
     try {
       // 使用 refresh token 获取新的 access token
-      const refreshToken = localStorage.getItem('refresh_token')
+
       localStorage.setItem('access_token', refreshToken as string)
 
       const { data } = await axiosInstance.post(
@@ -179,6 +180,9 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
 
       return Promise.reject(refreshError)
     }
+  } else {
+    // 如果没有 refresh token，则直接退出登录
+    logout()
   }
 
   return Promise.reject(error)
