@@ -62,7 +62,7 @@ async function updateLanguage(code, token) {
     ...data[0],
     languageContent: JSON.stringify(newJson)
   }
-  console.log('---JSON String',JSON.stringify(newData))
+  console.log('---JSON String', JSON.stringify(data[0].id), JSON.stringify(data[0].locale))
 
   const res = await fetch(`${URL}/api/dms/form-properties/language`, {
     method: 'POST',
@@ -86,7 +86,7 @@ async function deployLanguage() {
   // const { superAdmin, password, adminUrl } = argv;
   const availableLang = ['en-US', 'zh-CN', 'zh-HK']
   const token = await loginAdmin()
-  console.log('----getToken',token)
+  console.log('----getToken', JSON.stringify(token))
   for (let i = 0; i < availableLang.length; i++) {
     await updateLanguage(availableLang[i], token)
   }
