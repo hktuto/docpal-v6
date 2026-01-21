@@ -59,7 +59,7 @@ async function checkAllShareInternal() {
   return msg ? `<span class="color__danger">${msg} ${t('msg_isShareInternalFile')}, </span>` : ''
 
   async function checkShareInternal(row: any) {
-    const isShareInternal = await clientApi.api.postInternalshareCheckdocumentisinshare({
+    const isShareInternal = await clientApi.api.postDmsInternalshareCheckDocumentIsInShare({
       documentId: row.id
     })
     if (msg) msg += ','

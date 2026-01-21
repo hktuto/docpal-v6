@@ -1,12 +1,12 @@
 <template>
   <div class="pageContainer--padding">
-    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent"> </VxeGrid>
-    <ExternalShareDialog ref="shareInfoDialogRef" @submit="handleSubmit"></ExternalShareDialog>
+    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent"/>
+    <ExternalShareDialog ref="shareInfoDialogRef" @submit="handleSubmit"/>
   </div>
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -21,7 +21,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     }
     delete params.pageNum
     delete params.pageSize
-    const res = await adminApi.api.postNuxeoShareGet({ ...params, ...extraParams }).then((res) => res.data)
+    const res: any = await clientApi.admin.postAdmindmsShareGet({ ...params, ...extraParams }).then((res) => res.data)
     return {
       data: {
         entryList: res.list,
@@ -86,7 +86,7 @@ async function handleDisabled(row) {
     if (action !== 'confirm') return
     const param = []
     param.push(row.shareID)
-    await adminApi.api.deleteNuxeoShare(param)
+    await clientApi.admin.deleteAdmindmsShare(param).then(r => r.data)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('tip_SelectedMsg') + t('share_externalShareLink') }))
     query()
   } catch (error) {
@@ -101,7 +101,7 @@ function handleDblclick(row) {
 }
 
 async function handleSubmit(shareInfo) {
-  await adminApi.api.patchNuxeoShare(shareInfo)
+  await clientApi.admin.patchAdmindmsShareSave(shareInfo).then(r => r.data)
   query()
 }
 </script>

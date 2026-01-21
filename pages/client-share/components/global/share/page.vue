@@ -27,7 +27,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     }
     delete params.pageNum
     delete params.pageSize
-    const res: any = await clientApi.api.postNuxeoSharePage({ ...params, ...extraParams }).then((res) => res.data)
+    const res: any = await clientApi.api.postDmsSharePage({ ...params, ...extraParams }).then((res) => res.data)
     return {
       data: {
         entryList: res.list,
@@ -89,7 +89,7 @@ async function handleDisabled(row: any) {
     if (action !== 'confirm') return
     const param = []
     param.push(row.shareID)
-    await clientApi.api.deleteNuxeoShare(param)
+    await clientApi.api.deleteDmsShare(param)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('externalSharing_sharingRequest') }))
     query()
   } catch (error) {
@@ -104,7 +104,7 @@ function handleDblclick(row: any) {
 }
 
 async function handleSubmit(shareInfo: any) {
-  await clientApi.api.patchNuxeoShare(shareInfo)
+  await clientApi.api.patchDmsShareSave(shareInfo)
   query()
 }
 
