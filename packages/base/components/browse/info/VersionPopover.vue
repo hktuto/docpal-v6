@@ -3,7 +3,7 @@
     <!-- <div v-if="doc.version || doc.version == '0'" class="noVersionContainer">
       {{ doc.version }}
     </div> -->
-    <el-popover ref="PopoverRef" width="300px" trigger="click" placement="bottom" popper-class="popover__version">
+    <el-popover ref="PopoverRef" :disabled="!RbacAllowTo('write', doc)" width="300px" trigger="click" placement="bottom" popper-class="popover__version">
       <div style="overflow: auto">
         <el-table ref="TableRef" :data="tableData" height="250px" rowKey="version">
           <el-table-column prop="version" :label="$t('file_versionNumber')"> </el-table-column>
@@ -19,7 +19,7 @@
         <CreateVersionButtom :doc="doc" />
       </div>
       <template #reference>
-        <div id="popover__reference" :class="['cursorPointer', { active: popoverShow }]" @click.stop="handlePopoverShow">
+        <div id="popover__reference" :class="['cursorPointer', { active: popoverShow }]" >
           {{ doc.version }}
           <i class="el-icon-arrow-down el-icon--right"></i>
         </div>
@@ -45,9 +45,7 @@ const tableData = ref([])
 const options = ref({
   showPagination: false
 })
-function handlePopoverShow() {
-  popoverShow.value = !popoverShow.value
-}
+
 function handlerRowClick(_row: any, _column: any, _event: any) {}
 function toVersionComparison(row: any) {
   // close detail
