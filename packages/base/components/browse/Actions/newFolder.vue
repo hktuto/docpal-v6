@@ -89,7 +89,7 @@ async function handleSubmit() {
     if (isDuplicate) {
       throw new Error('dpTip.newFolderDuplicateName')
     }
-    const { data: newDoc } = await clientApi.api.postNuxeoDocumentCreatefolders(params) as any
+    const  newDoc = await clientApi.api.postDmsDocumentFolder(params).then(r => r.data)
     dialogOpened.value = false
     emitBus(EventType.FILE_NEED_REFRESH, {
       relatedIdOrPath: newDoc.parentRef,
@@ -100,7 +100,7 @@ async function handleSubmit() {
     //     let parentRef = state.doc.parentRef
     //     if(!parentRef){
     //         // get document detail
-    //         const {data:parentDoc} = await clientApi.api.postNuxeoDocument({idOrPath: state.doc.id}) as any
+    //         const {data:parentDoc} = await clientApi.api.postDmsDocumentFetch({idOrPath: state.doc.id}) as any
     //         parentRef = parentDoc.parentRef
     //     }
     //     emitBus(EventType.FILE_NEED_REFRESH, {

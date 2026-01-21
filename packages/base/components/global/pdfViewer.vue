@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import {clientApi } from 'api'
+import { clientApi } from 'api'
 import { useEventListener } from '@vueuse/core'
 type PdfJsOptions = {
     print: boolean,
@@ -34,11 +34,10 @@ const { options } = toRefs(props)
 const blob = ref();
 async function getAnnotation():Promise<Object> {
     if(!props.options.loadAnnotations) return new Map();
-    const {data:annotation} = await clientApi.api.getNuxeoAnnotation({idOrPath: props.doc.id});
+    const annotation = await clientApi.api.getDmsDocumentAnnotation({idOrPath: props.doc.id}).then(r =>r.data)
     let annotationObj = []
     if(annotation.length > 0) {
         if(annotation[0].object.paths) {
-          
             annotationObj = Array.isArray(JSON.parse(annotation[0].object.paths)) ? JSON.parse(annotation[0].object.paths) : []
         }
     }

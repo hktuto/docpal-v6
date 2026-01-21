@@ -160,12 +160,10 @@ export const getUniqueName = async (file: any) => {
   try {
     const fileName = file.fileName || file.name
     // TODO: check if deprecated
-    const res = await clientApi.api
-      .postNuxeoDocumentIsduplicatename({
+    const res = await clientApi.api.postDmsDocumentIsduplicatename({
         path: file.goPath,
         titles: [fileName]
-      })
-      .then((res) => res.data)
+      }).then((res: any) => res.data)
     console.log('getUniqueName', res)
     // TODO : the uniqueName has bug, will return same name
     const name = res[fileName]?.uniqueName || fileName
@@ -178,7 +176,7 @@ export const getUniqueName = async (file: any) => {
 export const getDocDetail = async (idOrPath: string, userId: string) => {
   try {
     const promise = []
-    promise.push(clientApi.api.postNuxeoDocument({ idOrPath }))
+    promise.push(clientApi.api.postDmsDocumentFetch({ idOrPath }))
     let [{ data: doc }, permission] = await Promise.all(promise)
     return {
       doc,
@@ -194,12 +192,12 @@ export const getPermission = async (idOrPath: string, userId: string): Promise<a
     if (!idOrPath || !userId) {
       return {}
     }
-    const { data } = await clientApi.api.getNuxeoDocumentAclPermission(
+    const data = await clientApi.api.getDmsDocumentDocumentidUserPermissionUserid(
       { docId: idOrPath, userId },
       {
         headers: { noThrowError: 'true' }
       }
-    )
+    ).then(r => r.data)
     if (!data) {
       throw new Error('no permission found')
     }
@@ -286,10 +284,10 @@ export const duplicateNameFilter = async (idOrPath: string, list: any) => {
       prev.push(item.fileName || item.name)
       return prev
     }, [])
-    const { data: res } = (await clientApi.api.postNuxeoDocumentIsduplicatename({
+    const res = await clientApi.api.postDmsDocumentIsduplicatename({
       path: idOrPath,
       titles
-    })) as any
+    }).then(r => r.data)
     if (!res) return { isDuplicate: false }
     if (!res.hasDuplicateTitle) return { isDuplicate: false }
     list.forEach((doc: any) => {

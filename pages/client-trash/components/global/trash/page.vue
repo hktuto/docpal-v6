@@ -67,7 +67,7 @@ const { tableConfig, tableEvent, tableRef, reload, query, cleanSelectedRows } = 
   api: async (pageParams: any) => {
     cleanSelectedRows()
     pageParams = { ...pageParams, ...state.extraParamsFilter }
-    return await clientApi.api.postNuxeoDocumentTrash(pageParams)
+    return await clientApi.api.postDmsDocumentTrashQuery(pageParams)
   },
   columns: [
     { field: 'checkbox', type: 'checkbox', width: '50px', fixed: 'left' },
@@ -215,7 +215,7 @@ async function handleDeleteAll() {
     if (action !== 'confirm') return
 
     state.loading = true
-    await clientApi.api.deleteNuxeoDocumentPurge()
+    await clientApi.api.deleteDmsDocumentTrashPurge()
     setTimeout(async () => {
       state.loading = false
       routerProvider?.message.success(t('trash_emptyTrashSuccessMsg'))
@@ -313,7 +313,7 @@ function handleMsg(messages: string) {
 
 async function deleteOne(idOrPath: string, name: string) {
   try {
-    await clientApi.api.deleteNuxeoDocument({ idOrPath }, { headers: { noErrorMessage: true } })
+    await clientApi.api.deleteDmsDocumentDocumentidPurge({ idOrPath }, { headers: { noErrorMessage: true } })
   } catch (error) {
     console.log(error)
     return `${t('doc_typeSmartFolderSearchName')}: ${name}, ${t('upload_Status_error')}: ` + (error?.response?.data?.message || 'Server Error') + '.</br> '
@@ -322,7 +322,7 @@ async function deleteOne(idOrPath: string, name: string) {
 
 async function restore(idOrPath: string, name: string) {
   try {
-    await clientApi.api.postNuxeoDocumentRestore({ idOrPath }, { headers: { noErrorMessage: true } })
+    await clientApi.api.postDmsDocumentTrashRestore({ idOrPath }, { headers: { noErrorMessage: true } }).then(r => r.data)
     return null
   } catch (error) {
     console.log('call Api error', error)

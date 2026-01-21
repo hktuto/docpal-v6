@@ -97,7 +97,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
         ...extraParams.value
       }
     }
-    const { data: response } = (await clientApi.api.postNuxeoDocumentQueryuploadfiledtopage(pageParams)) as any
+    const response = await clientApi.api.postDmsUploadQuery(pageParams).then(r => r.data)
     return {
       data: {
         entryList: response.content,

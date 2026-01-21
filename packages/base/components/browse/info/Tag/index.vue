@@ -42,7 +42,7 @@ async function handleTagsAdded(tagSelected:any) {
         documentIdOrPath: props.doc.id,
         labels: [tagSelected.value],
       }
-  await clientApi.api.postNuxeoTags(param)
+  await clientApi.api.postDmsDocumentTags(param)
   routerProvider?.message.success(t('msg_successfullyModified') as string)
   emit('update')
 }
@@ -52,7 +52,7 @@ async function handleTagsRemoved(e:any){
         documentIdOrPath: props.doc.id,
         labels: tags.value.map((item:any) => item.value),
       }
-  await clientApi.api.patchNuxeoTags(param)
+  await clientApi.api.patchDmsDocumentTags(param).then(r => r.data)
   ElMessage.success(t('msg_successfullyModified') as string)
   emit('update')
 }
@@ -60,7 +60,7 @@ const tags = ref([]);
 const allTags = ref([]);
 
 async function getAllTags() {
-  const response = await clientApi.api.postNuxeoTagsLabel({keyword:''}).then(res => res.data) as any
+  const response = await clientApi.api.postDmsDocumentTagsSearch({keyword:''}).then(res => res.data)
   allTags.value = response.map((item:string) => {
     return { value: item, key: item };
   });

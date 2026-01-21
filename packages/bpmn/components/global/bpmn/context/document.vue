@@ -70,7 +70,7 @@ const variableForm = ref<any>([])
 const defaultField = ['parentPath', 'storeValue', 'documentName', 'documentType', 'templateId']
 
 async function init() {
-  const documentTypeData: any = await adminApi.api.getTypesActive().then(res => res.data)
+  const documentTypeData: any = await clientApi.api.getDmsDocpalTypeActive().then(res => res.data)
   documentTypeList.value = documentTypeData.filter((item: any) => !item.isFolder)
 
   const documentData: any = await clientApi.admin.getAdmindmsTemplateDocument().then(r => r.data)

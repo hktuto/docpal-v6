@@ -98,7 +98,7 @@ async function handleOptions(exitList: any) {
 }
 
 onMounted(async () => {
-  const { data }: any = await adminApi.api.getTypesActive()
+  const data: any = await clientApi.api.getDmsDocpalTypeActive().then(r => r.data)
   state.allDocTypeList = data?.sort((a: any, b: any) => (a.name.localeCompare(b.name)))
 })
 defineExpose({ handleOpen })

@@ -18,7 +18,7 @@ export const useBrowseBreadcrumbDrop = () => {
     const dropRow = JSON.parse(JSON.stringify(currentRow.value))
     BrowseDragMove.setDropRow(dropRow, true)
     handleDragleave()
-    const docDetail = await clientApi.api.getNuxeoDocument({ idOrPath: dropRow.data.id }).then((res: any) => res.data)
+    const docDetail = await clientApi.api.getDmsDocument({ idOrPath: dropRow.data.id }).then((res: any) => res.data)
     if (!docDetail) return
     const canDrop = RbacAllowTo('create', { ...docDetail })
     if (!canDrop) {

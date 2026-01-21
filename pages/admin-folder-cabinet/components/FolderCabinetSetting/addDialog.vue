@@ -17,7 +17,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi, adminApi } from 'api'
+import { clientApi } from 'api'
 import formJson from './addDialog.vform.json'
 import { ElMessage } from 'element-plus'
 
@@ -128,7 +128,7 @@ function handleOpen(setting: any) {
 
 async function getRootIds(idOrPath: string) {
   try {
-    const data = await adminApi.api.postNuxeoDocumentBreadcrumb({ idOrPath }).then((res) => res.data)
+    const data = await clientApi.admin.postAdmindmsDocumentBreadcrumb({ idOrPath }).then((res) => res.data)
     return data?.map((item) => item.id).filter((item: any) => item !== 'root')
   } catch (error) {
     return []

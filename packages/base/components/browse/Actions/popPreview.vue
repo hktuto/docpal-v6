@@ -18,7 +18,7 @@ const previewSize = ref(500);
 async function getDocPreview(idOrPath:string) {
     loading.value = true
     try{
-        const blob = await clientApi.api.postNuxeoDocumentThumbnail({idOrPath},{
+        const blob = await clientApi.api.postDmsDocumentThumbnail({idOrPath},{
             format:'blob',
             timeout: 0,
             headers:{

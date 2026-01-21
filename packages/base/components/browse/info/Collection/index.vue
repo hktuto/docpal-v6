@@ -58,7 +58,7 @@ function handleAddCollection() {
 }
 
 async function getCollection() {
-  collections.value = await clientApi.api.postNuxeoDocumentCollections({idOrPath: doc.value.id}).then(res => res.data) as any
+  collections.value = await clientApi.api.postDmsDocumentCollections({idOrPath: doc.value.id}).then(res => res.data) as any
 }
 
 watch(

@@ -336,7 +336,7 @@ const handleCreateDocument = async (file) => {
 
   formData.append('files', file.raw)
   formData.append('document', JSON.stringify(document))
-  return clientApi.api.postNuxeoDocumentCreatedocument(formData).then((res) => {
+  return clientApi.api.postDmsDocument(formData).then((res) => {
     return !!res
   })
 }
@@ -348,7 +348,7 @@ async function handleReplaceDocument(file) {
   const formData = new FormData()
   formData.append('file', file.raw)
   formData.append('document', JSON.stringify(document))
-  const res = await clientApi.api.patchNuxeoDocumentReplacefile(formData)
+  const res = await clientApi.api.patchDmsDocumentContent(formData)
   return !!res
 }
 
@@ -378,7 +378,7 @@ async function waitAll(promiseList: any) {
 
 onMounted(async () => {
   useEventListener(document, 'docActionAddFile', (event) => uploadDialog(event.detail))
-  const { data }: any = await adminApi.api.getTypesActive()
+  const data: any = await adminApi.api.getDmsDocpalTypeActive().then(r => r.data)
   state.fileTypes = data?.sort((a: any, b: any) => (a.name.localeCompare(b.name))).filter((item) => !item.isFolder)
 })
 </script>

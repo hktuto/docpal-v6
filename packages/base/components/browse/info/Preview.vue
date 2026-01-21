@@ -9,7 +9,7 @@ async function getPreview(){
     previewUrl.value = "/icons/folder-general.svg"
     return
   }
-  const blob: any = await clientApi.api.postNuxeoDocumentThumbnail({idOrPath:props.doc.id}, {
+  const blob: any = await clientApi.api.postDmsDocumentThumbnail({idOrPath:props.doc.id}, {
     format: 'blob',
     timeout: 0,
     headers: {

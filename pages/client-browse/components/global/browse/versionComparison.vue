@@ -65,7 +65,7 @@ async function getPreviewFile(previewFile: any, id: string, version: any) {
 }
 onMounted(async () => {
   // init(id as string);
-  newVersion.value = await clientApi.api.postNuxeoDocument({ idOrPath: props.id }).then((res) => res.data)
+  newVersion.value = await clientApi.api.postDmsDocumentFetch({ idOrPath: props.id }).then((res) => res.data)
   state.title = newVersion.value.name
   oldVersion.value = await clientApi.api
     .postNuxeoGetspecificversion({

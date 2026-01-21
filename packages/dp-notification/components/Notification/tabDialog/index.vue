@@ -38,8 +38,7 @@ function handleClick() {
   // console.log(state.activeName)
 }
 async function getTypeList() {
-  const { data } = await clientApi.api.getNotificationQueryNotificationUnreadCountList()
-  state.list = data
+  state.list = await clientApi.api.getNotificationUnreadCountList().then(r =>r.data)
   const unreadCount = state.list.reduce((prev: any, item: any) => {
     prev += item.unreadCount
     return prev
@@ -62,7 +61,7 @@ async function handleDismissAll() {
   try {
     state.dismissLoading = true
     if (state.activeName === 'Unread') {
-      await clientApi.api.postNotificationReadAll()
+      await clientApi.api.postNotificationReadAll().then(r => r.data)
       state.list.forEach((item: any) => {
         item.unreadCount = 0
       })

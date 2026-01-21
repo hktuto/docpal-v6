@@ -27,7 +27,7 @@ async function iconClickHandler(doc: any) {
   state.loading = true
 
   try {
-    state.doc = await clientApi.api.postNuxeoDocument({ idOrPath: doc.id }).then(r => r.data)
+    state.doc = await clientApi.api.postDmsDocumentFetch({ idOrPath: doc.id }).then(r => r.data)
     state.dispalyMeta = getDisplayProperties(state.doc.properties)
     if (!state.doc.properties) state.doc.properties = {}
     if (!state.doc.properties.maskList) state.doc.properties.maskList = []
@@ -65,7 +65,7 @@ async function handleSubmit() {
       // idOrPath: `${parentPath}/new Folder${timestamp}`,
     }
     delete params.properties.documentType
-    const res = await clientApi.api.patchNuxeoDocumentChangeType(params)
+    const res = await clientApi.api.patchDmsDocumentType(params).then(r => r.data)
     dialogOpened.value = false
     if (state.doc.id !== route.query.docId) {
       setTimeout(() => {

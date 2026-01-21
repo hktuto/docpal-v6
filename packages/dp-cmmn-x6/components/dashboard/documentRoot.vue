@@ -82,7 +82,7 @@ onMounted(() => {
 })
 provide(BrowseListProviderKey, {
   getchildApi: (pageParams: any) => {
-    return clientApi.api.postNuxeoDocumentChildrenThumbnailV2(pageParams)
+    return clientApi.api.postDmsDocumentChildrenThumbnail(pageParams)
   },
   idOrPath,
   changeRoute

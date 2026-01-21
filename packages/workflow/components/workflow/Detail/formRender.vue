@@ -132,7 +132,7 @@ async function revertUploadFile(ids: any, mode: 'workflow' | 'nuxeo' = 'workflow
   for (const item of ids) {
     if (mode === 'nuxeo') {
       // @ts-ignore
-      const promiseItem = clientApi.api.getNuxeoDocument({ idOrPath: item, nonPermission: true }).then((res) => res.data)
+      const promiseItem = clientApi.api.getDmsDocument({ idOrPath: item, nonPermission: true }).then((res) => res.data)
       pList.push(promiseItem)
     } else {
       const promiseItem = clientApi.api.getWorkflowTaskAttachmentInfo({ attachmentId: item }).then((res) => res.data)

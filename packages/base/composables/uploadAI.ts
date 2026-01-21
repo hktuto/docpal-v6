@@ -19,18 +19,18 @@ export const useUploadAIStore = () => {
   async function createUploadRequest(doc: any, files: any[]) {
     const docList = getUploadFiles(files)
     //doc.path 是 id 的 path 要用 breadcrumb
-    const { data: breadcrumbList } = (await clientApi.api.postNuxeoDocumentBreadcrumb({ idOrPath: doc.path })) as any
+    const breadcrumbList: any = await clientApi.api.postDmsDocumentBreadcrumb({ idOrPath: doc.path }).then(r =>r.data)
     const path = breadcrumbList.reduce((prev: any, item: any) => {
       if (prev !== '/') prev += '/'
       prev += item.name
       return prev
     }, '/')
-    const { data: uploadAiId } = await clientApi.api.postNuxeoDocumentSaveuploadfileoverview({
+    const uploadAiId = await clientApi.api.postDmsUploadBatch({
       userId: userId.value,
       filesCount: docList.length,
       uploadPath: path,
       nuxeoPath: doc.path
-    })
+    }).then(r => r.data)
     if (!uploadAiId) return false
     uploadState.value.uploadRequestList.push({
       doc,
@@ -112,7 +112,7 @@ export const useUploadAIStore = () => {
       console.log('doc', doc)
 
       if (doc.isFolder) {
-        result = await clientApi.api.postNuxeoDocumentUploadtempfolder(_document)
+        result = await clientApi.api.postDmsUploadTmpFolder(_document)
       } else {
         _document.fileModifiedTimestamp = doc.file.lastModified
         const formData = new FormData()

@@ -345,7 +345,7 @@ async function deleteAiSuggestion(deleteName: string) {
     aiId: state.aiDocId
   }
   try {
-    const res = await clientApi.api.patchNuxeoDocumentUpdateaidocument(params)
+    const res = await clientApi.api.patchDmsDocumentUpdateaidocument(params).then(r => r.data)
     delete state.aiAnalysis[deleteName]
   } catch (error) {}
 }
@@ -399,7 +399,7 @@ async function checkMetaValidate(docList: any[], docKey: string = 'name') {
 // #endregion
 function GetActiveDocpalTypeWithIsFolderApi(isFolder: boolean) {
   try {
-    const docList: any = clientApi.api.getTypesActive().then((res) => res.data)
+    const docList: any = clientApi.api.getDmsDocpalTypeActive().then((res: any) => res.data)
     return docList
       ?.filter((item) => item.isFolder === isFolder)
       .map((item) => ({

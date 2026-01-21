@@ -33,8 +33,7 @@ async function getData() {
 
 provide(BrowseListProviderKey, {
   getchildApi: (pageParams: any) => {
-    console.log('getchildApi', pageParams)
-    return clientApi.api.postNuxeoDocumentChildrenThumbnailV2(pageParams)
+    return clientApi.api.postDmsDocumentChildrenThumbnail(pageParams)
   },
   idOrPath,
   changeRoute

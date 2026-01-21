@@ -201,9 +201,8 @@
   </el-form>
 </template>
 <script lang="ts" setup>
-import { isJSON } from '~/utils/searchFormHelper'
 import type { CascaderProps } from 'element-plus'
-import { globalApi } from 'api'
+import { clientApi } from 'api'
 
 const props = defineProps(['form', 'id'])
 const emits = defineEmits(['selectClear', 'formChange'])
@@ -227,8 +226,7 @@ const pathProps: CascaderProps = {
     //   return
     // }
     const idOrPath = level == 0 ? '/' : value
-    globalApi.api
-      .postNuxeoDocumentChildrenThumbnail({ idOrPath, pageSize: 100000 })
+    clientApi.api.postAdmindmsDocumentChildrenThumbnail({ idOrPath, pageSize: 100000 })
       .then((res: any) => {
         const nodes = res.data.entryList.reduce((prev: any, item: any) => {
           if (item.isFolder)

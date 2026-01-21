@@ -54,7 +54,7 @@ async function handleConfirm() {
   formData.append('openAiAnalyzeMetadata', form.value.openAiAnalyzeMetadata)
   state.loading = true
   try {
-    await clientApi.api.patchNuxeoDocumentReplacefileV2({}, formData)
+    await clientApi.api.patchDmsDocumentContent({}, formData).then(r => r.data)
     state.visible = false
     form.value = {
       fileList: [],

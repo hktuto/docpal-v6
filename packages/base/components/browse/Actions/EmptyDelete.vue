@@ -44,7 +44,7 @@ async function deleteItem(doc: any, deleteType?: 'folder' | 'file') {
     position: 'bottom-right'
   })
   try {
-    const response = await clientApi.api.deleteNuxeoDocumentTrash([{ idOrPath }])
+    const response = await clientApi.api.deleteDmsDocumentTrashBatch([{ idOrPath }]).then(r => r.data)
     if (deleteType === 'file') {
       const ev = new CustomEvent('closeFilePreview', { detail: doc })
       document.dispatchEvent(ev)

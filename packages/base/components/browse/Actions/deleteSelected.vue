@@ -34,7 +34,7 @@ async function deleteSelected() {
   })
   try {
     const params = props.selectedList.map((item: any) => ({ idOrPath: item.id }))
-    await clientApi.api.deleteNuxeoDocumentTrash(params)
+    await clientApi.api.deleteDmsDocumentTrashBatch(params).then(r => r.data)
     emits('success')
     ElNotification({
       title: 'Success',

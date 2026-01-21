@@ -85,7 +85,7 @@
                 "labelIconClass": null,
                 "labelIconPosition": "rear",
                 "labelTooltip": null,
-                "onCreated": "const _this = this\n$api.get('/api/dms/doc-type/active', {}).then(res => {\n  res = res.data.data\n  const fileList =  res.reduce((prev, item) => {\n    const _item = {\n      value: item.name,\n      label: $t(item.name)\n    }\n    if(!item.isFolder) prev.push(_item)\n    return prev\n  }, [])\n  _this.loadOptions(fileList)\n}).catch(err => {\n  console.log(\"error\", err)\n})",
+                "onCreated": "const _this = this\n$api.get('/api/dms/docpal-type/active', {}).then(res => {\n  res = res.data.data\n  const fileList =  res.reduce((prev, item) => {\n    const _item = {\n      value: item.name,\n      label: $t(item.name)\n    }\n    if(!item.isFolder) prev.push(_item)\n    return prev\n  }, [])\n  _this.loadOptions(fileList)\n}).catch(err => {\n  console.log(\"error\", err)\n})",
                 "onMounted": "",
                 "onRemoteQuery": "",
                 "onChange": "",

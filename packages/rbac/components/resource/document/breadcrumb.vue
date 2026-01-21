@@ -18,9 +18,7 @@ async function getBreadcrumb() {
     // if idOrPath === home.secondId, then data = []
     let data = []
     const idOrPath = id.value === 'root' ? '/' : id.value
-    data = await clientApi.api.postNuxeoDocumentBreadcrumb({ idOrPath }).then((res: any) => {
-      return res.data
-    })
+    data = await clientApi.api.postDmsDocumentBreadcrumb({ idOrPath }).then((res: any) => res.data)
     // because Royhoo hard core root id ==== root , so ignore it
     breadcrumbList.value = data.filter((item: any) => item.id !== 'root')
   } catch (e) {

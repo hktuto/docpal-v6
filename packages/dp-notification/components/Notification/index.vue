@@ -27,8 +27,7 @@ function handleOpen() {
 }
 
 async function getUnreadCount() {
-  const { data: res } = await clientApi.api.getNotificationUnreadNumber()
-  unreadCount.value = res
+  unreadCount.value = await clientApi.api.getNotificationUnreadNumber().then(r =>r.data)
 }
 
 function handleUnreadCountChange(count: number) {
