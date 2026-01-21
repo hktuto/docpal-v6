@@ -11364,22 +11364,22 @@ export interface ResultListOAuthAppDTO {
     locale?: string;
 }
 
-export interface ResultListExternalStorageDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ExternalStorageDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface ResultListExternalProfileDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
     data?: ExternalProfileDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListExternalStorageDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ExternalStorageDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -13887,11 +13887,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageImportJobController
          * @name GetExt3RdstorageImportjobsId
          * @summary Get import job details
-         * @request GET:/api/ext3rdStorage/ImportJobs/{id}
+         * @request GET:/api/ext3rdStorage/importJobs/{id}
          */
         getExt3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/ImportJobs/${id}`,
+                path: `/api/ext3rdStorage/importJobs/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -13902,11 +13902,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageImportJobController
          * @name PutExt3RdstorageImportjobsId
          * @summary Update import job
-         * @request PUT:/api/ext3rdStorage/ImportJobs/{id}
+         * @request PUT:/api/ext3rdStorage/importJobs/{id}
          */
         putExt3rdstorageImportjobsId: (id: string, data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/ImportJobs/${id}`,
+                path: `/api/ext3rdStorage/importJobs/${id}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13919,11 +13919,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageImportJobController
          * @name DeleteExt3RdstorageImportjobsId
          * @summary Delete import job
-         * @request DELETE:/api/ext3rdStorage/ImportJobs/{id}
+         * @request DELETE:/api/ext3rdStorage/importJobs/{id}
          */
         deleteExt3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/ImportJobs/${id}`,
+                path: `/api/ext3rdStorage/importJobs/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -18558,28 +18558,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name GetExt3Rdstorage
-         * @summary Get External Storage Detail List
-         * @request GET:/api/ext3rdStorage
-         */
-        getExt3rdstorage: (
-            query: {
-                /** External Storage Request DTO */
-                externalStorageVO: ExternalStorageRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
          * @description Create a new external storage configuration
          *
          * @tags ExternalStorageController
@@ -18710,14 +18688,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageImportJobController
          * @name PostExt3RdstorageImportjobsPage
          * @summary Paginated query for import jobs
-         * @request POST:/api/ext3rdStorage/ImportJobs/page
+         * @request POST:/api/ext3rdStorage/importJobs/page
          */
         postExt3rdstorageImportjobsPage: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
             this.request<
                 ResultPaginationDTOExternalStorageImportJobDTO,
                 Result | (ResultObject | Result | ResultString)
             >({
-                path: `/api/ext3rdStorage/ImportJobs/page`,
+                path: `/api/ext3rdStorage/importJobs/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18730,53 +18708,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageImportJobController
          * @name PostExt3RdstorageImportjobsJobqueueFirst
          * @summary Place a task in the first queue
-         * @request POST:/api/ext3rdStorage/ImportJobs/jobQueue/first
+         * @request POST:/api/ext3rdStorage/importJobs/jobQueue/first
          */
         postExt3rdstorageImportjobsJobqueueFirst: (
             data: ExternalStorageImportJobRequestDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/ImportJobs/jobQueue/first`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name GetExt3RdstorageImportjobs
-         * @summary Get all import jobs list
-         * @request GET:/api/ext3rdStorage/ImportJobs
-         */
-        getExt3rdstorageImportjobs: (
-            query: {
-                /** External Storage Import Job Request */
-                requestDTO: ExternalStorageImportJobRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/ImportJobs`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * @description Save a external storage import job
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PostExt3RdstorageImportjobs
-         * @summary Save import job record
-         * @request POST:/api/ext3rdStorage/ImportJobs
-         */
-        postExt3rdstorageImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/ImportJobs`,
+                path: `/api/ext3rdStorage/importJobs/jobQueue/first`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18789,11 +18728,50 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageImportJobController
          * @name PostExt3RdstorageImportjobsAdd
          * @summary Save import job record
-         * @request POST:/api/ext3rdStorage/ImportJobs/add
+         * @request POST:/api/ext3rdStorage/importJobs/add
          */
         postExt3rdstorageImportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/ImportJobs/add`,
+                path: `/api/ext3rdStorage/importJobs/add`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetExt3RdstorageImportjobs
+         * @summary Get all import jobs list
+         * @request GET:/api/ext3rdStorage/importJobs
+         */
+        getExt3rdstorageImportjobs: (
+            query: {
+                /** External Storage Import Job Request */
+                requestDTO: ExternalStorageImportJobRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/importJobs`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * @description Save a external storage import job
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostExt3RdstorageImportjobs
+         * @summary Save import job record
+         * @request POST:/api/ext3rdStorage/importJobs
+         */
+        postExt3rdstorageImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/importJobs`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -26999,6 +26977,45 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
+         * @description Change the status of an external storage (A/D)
+         *
+         * @tags ExternalStorageController
+         * @name PatchExt3RdstorageIdUpdateStatus
+         * @summary Active/Inactive a external storage
+         * @request PATCH:/api/ext3rdStorage/{id}/update-status
+         */
+        patchExt3rdstorageIdUpdateStatus: (id: string, data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/update-status`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Update profile status of a specific external storage, status value=[A/D]
+         *
+         * @tags ExternalStorageController
+         * @name PatchExt3RdstorageIdProfilesProfileidUpdateStatus
+         * @summary Active/Inactive a external profile
+         * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/update-status
+         */
+        patchExt3rdstorageIdProfilesProfileidUpdateStatus: (
+            id: string,
+            profileId: string,
+            data: ExternalProfileDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/profiles/${profileId}/update-status`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
          * No description
          *
          * @tags ExternalStorageController
@@ -27087,45 +27104,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * @description Update profile status of a specific external storage, status value=[A/D]
-         *
-         * @tags ExternalStorageController
-         * @name PatchExt3RdstorageIdProfilesProfileidChangeStatus
-         * @summary Active/Inactive a external profile
-         * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/change-status
-         */
-        patchExt3rdstorageIdProfilesProfileidChangeStatus: (
-            id: string,
-            profileId: string,
-            data: ExternalProfileDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/${id}/profiles/${profileId}/change-status`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * @description Change the status of an external storage (A/D)
-         *
-         * @tags ExternalStorageController
-         * @name PatchExt3RdstorageIdChangeStatus
-         * @summary Active/Inactive a external storage
-         * @request PATCH:/api/ext3rdStorage/{id}/change-status
-         */
-        patchExt3rdstorageIdChangeStatus: (id: string, data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/${id}/change-status`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
          * No description
          *
          * @tags ExternalStorageController
@@ -27151,18 +27129,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchExt3RdstorageProfilesProfileidOutputrecordOutputrecordidChangeStatus
+         * @name PatchExt3RdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus
          * @summary Active/Inactive a external profile output record
-         * @request PATCH:/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}/change-status
+         * @request PATCH:/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}/update-status
          */
-        patchExt3rdstorageProfilesProfileidOutputrecordOutputrecordidChangeStatus: (
+        patchExt3rdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus: (
             profileId: string,
             outputRecordId: string,
             data: ExternalProfileOutputDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}/change-status`,
+                path: `/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}/update-status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -27175,7 +27153,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageImportJobController
          * @name PatchExt3RdstorageImportjobsIdStatus
          * @summary Update import job status
-         * @request PATCH:/api/ext3rdStorage/ImportJobs/{id}/status
+         * @request PATCH:/api/ext3rdStorage/importJobs/{id}/status
          */
         patchExt3rdstorageImportjobsIdStatus: (
             id: string,
@@ -27183,7 +27161,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/ImportJobs/${id}/status`,
+                path: `/api/ext3rdStorage/importJobs/${id}/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -29315,13 +29293,35 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags ExternalStorageController
+         * @name GetExt3RdstorageList
+         * @summary Get External Storage Detail List
+         * @request GET:/api/ext3rdStorage/list
+         */
+        getExt3rdstorageList: (
+            query: {
+                /** External Storage Request DTO */
+                externalStorageVO: ExternalStorageRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags ExternalStorageImportJobController
          * @name GetExt3RdstorageImportjobsPageConditions
-         * @request GET:/api/ext3rdStorage/ImportJobs/page/conditions
+         * @request GET:/api/ext3rdStorage/importJobs/page/conditions
          */
         getExt3rdstorageImportjobsPageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/ImportJobs/page/conditions`,
+                path: `/api/ext3rdStorage/importJobs/page/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -35530,56 +35530,24 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * @description Get detailed information of an import job by ID
-         *
-         * @tags ExternalStorageImportJobController
-         * @name GetAdminext3RdstorageImportjobsId
-         * @summary Get import job details
-         * @request GET:/admin/api/ext3rdStorage/ImportJobs/{id}
-         * @deprecated
-         */
-        getAdminext3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/ImportJobs/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
          * No description
          *
          * @tags ExternalStorageImportJobController
-         * @name PutAdminext3RdstorageImportjobsId
+         * @name PutAdminext3RdstorageImportjobsIdUpdate
          * @summary Update import job
-         * @request PUT:/admin/api/ext3rdStorage/ImportJobs/{id}
+         * @request PUT:/admin/api/ext3rdStorage/importJobs/{id}/update
          * @deprecated
          */
-        putAdminext3rdstorageImportjobsId: (
+        putAdminext3rdstorageImportjobsIdUpdate: (
             id: string,
             data: ExternalStorageImportJobDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/ImportJobs/${id}`,
+                path: `/admin/api/ext3rdStorage/importJobs/${id}/update`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name DeleteAdminext3RdstorageImportjobsId
-         * @summary Delete import job
-         * @request DELETE:/admin/api/ext3rdStorage/ImportJobs/{id}
-         * @deprecated
-         */
-        deleteAdminext3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/ImportJobs/${id}`,
-                method: "DELETE",
                 ...params,
             }),
 
@@ -38324,29 +38292,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name GetAdminext3Rdstorage
-         * @summary Get External Storage Detail List
-         * @request GET:/admin/api/ext3rdStorage
-         * @deprecated
-         */
-        getAdminext3rdstorage: (
-            query: {
-                /** External Storage Request DTO */
-                externalStorageVO: ExternalStorageRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
          * @description Create a new external storage configuration
          *
          * @tags ExternalStorageController
@@ -38510,29 +38455,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordid
-         * @summary Update a external profile output record
-         * @request PATCH:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         * @deprecated
-         */
-        patchAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
-            profileId: string,
-            outputRecordId: string,
-            data: Record<string, object>,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
          * @name PostAdminext3RdstoragePage
          * @summary Paging query External Storage
          * @request POST:/admin/api/ext3rdStorage/page
@@ -38553,7 +38475,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageImportJobController
          * @name PostAdminext3RdstorageImportjobsPage
          * @summary Paginated query for import jobs
-         * @request POST:/admin/api/ext3rdStorage/ImportJobs/page
+         * @request POST:/admin/api/ext3rdStorage/importJobs/page
          * @deprecated
          */
         postAdminext3rdstorageImportjobsPage: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
@@ -38561,7 +38483,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 ResultPaginationDTOExternalStorageImportJobDTO,
                 Result | (ResultObject | Result | ResultString)
             >({
-                path: `/admin/api/ext3rdStorage/ImportJobs/page`,
+                path: `/admin/api/ext3rdStorage/importJobs/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38574,7 +38496,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageImportJobController
          * @name PostAdminext3RdstorageImportjobsJobqueueFirst
          * @summary Place a task in the first queue
-         * @request POST:/admin/api/ext3rdStorage/ImportJobs/jobQueue/first
+         * @request POST:/admin/api/ext3rdStorage/importJobs/jobQueue/first
          * @deprecated
          */
         postAdminext3rdstorageImportjobsJobqueueFirst: (
@@ -38582,7 +38504,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/ImportJobs/jobQueue/first`,
+                path: `/admin/api/ext3rdStorage/importJobs/jobQueue/first`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38595,38 +38517,15 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageImportJobController
          * @name PostAdminext3RdstorageImportjobsAdd
          * @summary Save import job record
-         * @request POST:/admin/api/ext3rdStorage/ImportJobs/add
+         * @request POST:/admin/api/ext3rdStorage/importJobs/add
          * @deprecated
          */
         postAdminext3rdstorageImportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/ImportJobs/add`,
+                path: `/admin/api/ext3rdStorage/importJobs/add`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name GetAdminext3RdstorageImportjobs
-         * @summary Get all import jobs list
-         * @request GET:/admin/api/ext3rdStorage/ImportJobs
-         * @deprecated
-         */
-        getAdminext3rdstorageImportjobs: (
-            query: {
-                /** External Storage Import Job Request */
-                requestDTO: ExternalStorageImportJobRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/ImportJobs`,
-                method: "GET",
-                query: query,
                 ...params,
             }),
 
@@ -38636,12 +38535,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageImportJobController
          * @name PostAdminext3RdstorageImportjobs
          * @summary Save import job record
-         * @request POST:/admin/api/ext3rdStorage/ImportJobs
+         * @request POST:/admin/api/ext3rdStorage/importJobs
          * @deprecated
          */
         postAdminext3rdstorageImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/ImportJobs`,
+                path: `/admin/api/ext3rdStorage/importJobs`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -43146,14 +43045,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Change the status of an external storage (A/D)
          *
          * @tags ExternalStorageController
-         * @name PatchAdminext3RdstorageIdStatus
+         * @name PatchAdminext3RdstorageIdUpdateStatus
          * @summary Active/Inactive a external storage
-         * @request PATCH:/admin/api/ext3rdStorage/{id}/status
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/update-status
          * @deprecated
          */
-        patchAdminext3rdstorageIdStatus: (id: string, data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
+        patchAdminext3rdstorageIdUpdateStatus: (
+            id: string,
+            data: ExternalStorageRequestDTO,
+            params: RequestParams = {},
+        ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/${id}/status`,
+                path: `/admin/api/ext3rdStorage/${id}/update-status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -43164,19 +43067,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update profile status of a specific external storage, status value=[A/D]
          *
          * @tags ExternalStorageController
-         * @name PatchAdminext3RdstorageIdProfilesProfileidStatus
+         * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateStatus
          * @summary Active/Inactive a external profile
-         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/status
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-status
          * @deprecated
          */
-        patchAdminext3rdstorageIdProfilesProfileidStatus: (
+        patchAdminext3rdstorageIdProfilesProfileidUpdateStatus: (
             id: string,
             profileId: string,
             data: ExternalProfileDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/status`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/update-status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -43187,19 +43090,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminext3RdstorageIdProfilesProfileidProcess
+         * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateProcess
          * @summary Update an setting of existing external profile for a specific external storage
-         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/process
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-process
          * @deprecated
          */
-        patchAdminext3rdstorageIdProfilesProfileidProcess: (
+        patchAdminext3rdstorageIdProfilesProfileidUpdateProcess: (
             id: string,
             profileId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/process`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/update-process`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -43210,19 +43113,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminext3RdstorageIdProfilesProfileidImport
+         * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateImport
          * @summary Update an import setting of existing external profile for a specific external storage
-         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/import
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-import
          * @deprecated
          */
-        patchAdminext3rdstorageIdProfilesProfileidImport: (
+        patchAdminext3rdstorageIdProfilesProfileidUpdateImport: (
             id: string,
             profileId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/import`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/update-import`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -43233,19 +43136,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminext3RdstorageIdProfilesProfileidGeneral
+         * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateGeneral
          * @summary Update an general setting of existing external profile for a specific external storage
-         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/general
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-general
          * @deprecated
          */
-        patchAdminext3rdstorageIdProfilesProfileidGeneral: (
+        patchAdminext3rdstorageIdProfilesProfileidUpdateGeneral: (
             id: string,
             profileId: string,
             data: ExternalProfileDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/general`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/update-general`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -43256,19 +43159,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminext3RdstorageIdProfilesProfileidCapture
+         * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateCapture
          * @summary Update an capture setting of existing external profile for a specific external storage
-         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/capture
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-capture
          * @deprecated
          */
-        patchAdminext3rdstorageIdProfilesProfileidCapture: (
+        patchAdminext3rdstorageIdProfilesProfileidUpdateCapture: (
             id: string,
             profileId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/capture`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/update-capture`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -43279,19 +43182,42 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordidStatus
-         * @summary Active/Inactive a external profile output record
-         * @request PATCH:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}/status
+         * @name PatchAdminext3RdstorageProfilesProfileidUpdateOutputrecordOutputrecordid
+         * @summary Update a external profile output record
+         * @request PATCH:/admin/api/ext3rdStorage/profiles/{profileId}/update-outputRecord/{outputRecordId}
          * @deprecated
          */
-        patchAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordidStatus: (
+        patchAdminext3rdstorageProfilesProfileidUpdateOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/update-outputRecord/${outputRecordId}`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PatchAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus
+         * @summary Active/Inactive a external profile output record
+         * @request PATCH:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}/update-status
+         * @deprecated
+         */
+        patchAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus: (
             profileId: string,
             outputRecordId: string,
             data: ExternalProfileOutputDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}/status`,
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}/update-status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -43302,18 +43228,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update the status of an import job
          *
          * @tags ExternalStorageImportJobController
-         * @name PatchAdminext3RdstorageImportjobsIdStatus
+         * @name PatchAdminext3RdstorageImportjobsIdUpdateStatus
          * @summary Update import job status
-         * @request PATCH:/admin/api/ext3rdStorage/ImportJobs/{id}/status
+         * @request PATCH:/admin/api/ext3rdStorage/importJobs/{id}/update-status
          * @deprecated
          */
-        patchAdminext3rdstorageImportjobsIdStatus: (
+        patchAdminext3rdstorageImportjobsIdUpdateStatus: (
             id: string,
             data: ExternalStorageImportJobRequestDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/ImportJobs/${id}/status`,
+                path: `/admin/api/ext3rdStorage/importJobs/${id}/update-status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -44378,15 +44304,93 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags ExternalStorageController
+         * @name GetAdminext3RdstorageList
+         * @summary Get External Storage Detail List
+         * @request GET:/admin/api/ext3rdStorage/list
+         * @deprecated
+         */
+        getAdminext3rdstorageList: (
+            query: {
+                /** External Storage Request DTO */
+                externalStorageVO: ExternalStorageRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * @description Get detailed information of an import job by ID
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetAdminext3RdstorageImportjobsId
+         * @summary Get import job details
+         * @request GET:/admin/api/ext3rdStorage/importJobs/{id}
+         * @deprecated
+         */
+        getAdminext3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/importJobs/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name DeleteAdminext3RdstorageImportjobsId
+         * @summary Delete import job
+         * @request DELETE:/admin/api/ext3rdStorage/importJobs/{id}
+         * @deprecated
+         */
+        deleteAdminext3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/importJobs/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags ExternalStorageImportJobController
          * @name GetAdminext3RdstorageImportjobsPageConditions
-         * @request GET:/admin/api/ext3rdStorage/ImportJobs/page/conditions
+         * @request GET:/admin/api/ext3rdStorage/importJobs/page/conditions
          * @deprecated
          */
         getAdminext3rdstorageImportjobsPageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/ImportJobs/page/conditions`,
+                path: `/admin/api/ext3rdStorage/importJobs/page/conditions`,
                 method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetAdminext3RdstorageImportjobsList
+         * @summary Get all import jobs list
+         * @request GET:/admin/api/ext3rdStorage/importJobs/list
+         * @deprecated
+         */
+        getAdminext3rdstorageImportjobsList: (
+            query: {
+                /** External Storage Import Job Request */
+                requestDTO: ExternalStorageImportJobRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/importJobs/list`,
+                method: "GET",
+                query: query,
                 ...params,
             }),
 
