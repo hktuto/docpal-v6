@@ -52,7 +52,7 @@ async function updateLanguage(code, token) {
     }
   }).then(async (res) => await res.json())
     .catch(error => {
-      console.log('--updateLanguage error', error)
+      console.log('--getLanguage error', error)
     })
   // const newJson = await fs.readFileSync(path.join(__dirname, `./lang/${code}.json`), {
   //     encoding: 'utf-8'
@@ -62,6 +62,8 @@ async function updateLanguage(code, token) {
     ...data[0],
     languageContent: JSON.stringify(newJson)
   }
+  console.log('---JSON String',JSON.stringify(newData))
+
   const res = await fetch(`${URL}/api/dms/form-properties/language`, {
     method: 'POST',
     body: JSON.stringify(newData),
@@ -75,20 +77,20 @@ async function updateLanguage(code, token) {
       throw new Error(data.message)
     }
   }).catch(error => {
-    console.log('--language error', error)
+    console.log('--updateLanguage error', error)
   })
   console.log('finish update language', ADMINURL, URL, code)
 }
 
 async function deployLanguage() {
   // const { superAdmin, password, adminUrl } = argv;
-  const avalibleLang = ['en-US', 'zh-CN', 'zh-HK']
+  const availableLang = ['en-US', 'zh-CN', 'zh-HK']
   const token = await loginAdmin()
-  console.log(token)
-  for (let i = 0; i < avalibleLang.length; i++) {
-    await updateLanguage(avalibleLang[i], token)
+  console.log('----getToken',token)
+  for (let i = 0; i < availableLang.length; i++) {
+    await updateLanguage(availableLang[i], token)
   }
   console.log('deploy language success')
 }
 
-deployLanguage()
+await deployLanguage()
