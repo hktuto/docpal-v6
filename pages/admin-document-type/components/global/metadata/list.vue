@@ -174,6 +174,7 @@ const handleRemove = async (row: any) => {
     } else {
       ElMessage.error(t('metadata.remove_error'))
     }
+    query()
   } catch (error) {
     console.log(error)
   }

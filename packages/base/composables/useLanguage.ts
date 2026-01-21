@@ -1,5 +1,5 @@
 // import { availableLocales } from 'i18n/makeI18nSetting';
-import { adminApi,clientApi } from 'api'
+import { clientApi } from 'api'
 import { ElNotification } from 'element-plus'
 const availableLocales = [ 'en-US', 'zh-CN', 'zh-HK']
 const pageKeys: any = {
@@ -16,8 +16,7 @@ const GetLanguageApi = async(locale: string, languageKey: string) => {
     else return {}
 }
 const SetLanguageApi = async(params: any) => {
-    const data = await adminApi.api.postRelationUpdatelanguage(params).then(res=>res.result)
-    return data
+    return await clientApi.api.postDmsFormPropertiesLanguage(params).then(res=>res.result)
 }
 export const useLanguage = () => {
     const ignoreList:string[] = ['en-US', 'zh-CN', 'zh-HK']

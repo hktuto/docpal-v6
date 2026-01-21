@@ -5,7 +5,7 @@
              :close-on-click-modal="false"
              destroy-on-close
   >
-    <el-form :model="formData" ref="elFormRef" label-position="top" >
+    <el-form :model="formData" ref="elFormRef" label-position="top">
       <el-form-item :label="$t('search.type')" prop="name" required>
         <el-input v-model="formData.name" />
       </el-form-item>
@@ -40,9 +40,10 @@
 
 
 <script lang="ts" setup>
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 import { ElMessage } from 'element-plus'
 import { getPermissionSelectOption, convertPermissionObjectByPermissions } from '#imports'
+
 const emits = defineEmits([
   'refresh'
 ])
@@ -50,7 +51,7 @@ const state = reactive({
   loading: false,
   visible: false,
   setting: {},
-  permission:[]
+  permission: []
 })
 
 const elFormRef = ref()
@@ -61,7 +62,11 @@ const categoryOptions = ref<any[]>([])
 async function getOptions() {
   permissionOptions.value = await getPermissionSelectOption()
 
-  const data = await clientApi.admin.getAdmindmsDocpalTypeCategories().then((res) => res.data)
+  const data: any = await clientApi.admin.getAdmindmsDocpalTypeCategories().then((res) => res.data)
+  if (!data) {
+    categoryOptions.value = []
+    return
+  }
   categoryOptions.value = data.map((item: any) => ({
     label: item,
     value: item
@@ -74,13 +79,13 @@ const formData = reactive({
   isFolder: false,
   permission: {},
   status: 'A',
-  langs:{
-    en:true,
-    zh:true,
-    ja:true,
-    ko:true,
-    fr:true,
-  },
+  langs: {
+    en: true,
+    zh: true,
+    ja: true,
+    ko: true,
+    fr: true
+  }
   // add other fields as needed
 })
 
@@ -92,7 +97,7 @@ async function handleSubmit() {
 
     state.loading = true
 
-    const result = await adminApi.api.postDocpaltypeSettingsDocpalTypeV2Create(data)
+    const result = await clientApi.admin.postAdmindmsDocpalTypeCreate(data).then(r => r.data)
     ElMessage.success(t('tip_createdMsg', {
       modelName: t('tip_newMsg') + t('docType_documentType'),
       name: data.name

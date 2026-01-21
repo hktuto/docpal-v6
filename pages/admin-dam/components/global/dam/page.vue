@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
+import { ElMessageBox } from 'element-plus'
+import { clientApi } from 'api'
 import { DamListTable } from '#components'
 // deepCopy, GetDocDetailApi
 
@@ -28,7 +28,7 @@ async function handleDelete(tag: any) {
     return action
   })
   if (action !== 'confirm') return
-  await adminApi.api.postDamDeletesettings([tag.id])
+  await clientApi.api.deleteDmsDamSettingsBatch([tag.id])
   refresh()
 }
 
@@ -45,9 +45,7 @@ function refresh() {
 provide(DamProviderKey, {
   getListApi: async (params: any) => {
     console.log('getListApi', params, filteredData.value)
-    const {
-      data: { list }
-    } = (await adminApi.api.postDamGetallsetting()) as any
+    const { list } = await clientApi.api.getDmsDamSettingsList().then(r => r.data) as any
     const data = mergeDataByKey(list, 'sourceType') as any
 
     tableData.value = data

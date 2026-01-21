@@ -7,6 +7,7 @@ export const routeExternalStorageDetailPage  = function(params: any){
     component: 'LazyExternalStorageDetail',
     props: {
       id: params.id,
+      host: params.credentials.host
     }
   } as TabItem
 }

@@ -15,7 +15,7 @@ const loading = ref(false);
 async function getData() {
     loading.value = true;
     try {
-        const blob = await clientApi.api.postNuxeoDocumentPreview({idOrPath: props.doc.id},{
+        const blob = await clientApi.api.postDmsDocumentPreview({idOrPath: props.doc.id},{
             format:'blob',
             timeout: 0,
             headers: {

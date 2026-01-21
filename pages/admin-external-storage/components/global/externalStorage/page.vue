@@ -4,7 +4,7 @@
       <template #toolbar_buttons>
         <div class="actions">
           <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange" />
-          <el-button id="ExternalStorage__Add" type="primary" @click="handleAdd()">
+          <el-button id="ExternalStorage__Add" type="primary" @click="handleAdd">
             {{ $t('externalStorage.create') }}
           </el-button>
         </div>
@@ -19,7 +19,6 @@
 </template>
 <script lang="ts" setup>
 import { adminApi } from 'api'
-import { ElMessageBox } from 'element-plus'
 import { routeExternalStorageDetailPage } from '../../../util/routerHelper'
 
 const ResponsiveFilterRef = ref()
@@ -36,6 +35,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     { field: 'name', title: 'dpTable.name', fixed: 'left' },
     { field: 'connection_type', title: 'externalStorage.connection' },
     { field: 'path', title: 'table_path' },
+    { field: 'credentials.host', title: 'Host' },
     {
       field: 'status',
       title: 'common_status',

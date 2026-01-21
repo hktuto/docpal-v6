@@ -4,7 +4,7 @@
       <template #toolbar_buttons>
         <div class="actions">
           <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange" />
-          <el-button id="ExternalStorage__Detail__EditConnection" type="primary" @click="handleEdit()">
+          <el-button id="ExternalStorage__Detail__EditConnection" type="primary" @click="handleEdit">
             {{ $t('externalStorage.editConnection') }}
           </el-button>
           <el-button id="ExternalStorage__Detail__Create" type="primary" @click="handleAdd()">
@@ -26,7 +26,7 @@ import { adminApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 import { routeExternalStorageProfileDetailPage } from '../../../util/routerHelper'
 
-const props = defineProps(['id'])
+const props = defineProps(['id', 'host'])
 const ResponsiveFilterRef = ref()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -53,9 +53,9 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     },
     {
       title: 'externalStorage.profile.sourcePath',
-      field: 'importSetting.path',
+      field: 'importSetting.processing_folder',
       formatter({ row }: any) {
-        return row.importSetting?.path
+        return `${props.host}${row.import_setting?.processing_folder}`
       }
     },
     { field: 'created_by', title: 'search.createdBy' },

@@ -43,7 +43,7 @@ const {
 } = useVxeTable({
   id: 'internal-me',
   api: (pageParams: any) =>
-    clientApi.api.postInternalshareMe({ ...pageParams, ...extraParams }),
+    clientApi.api.postDmsInternalshareMe({ ...pageParams, ...extraParams }),
   columns: [
     {
       field: 'documentNames',

@@ -12,7 +12,7 @@
 </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { adminApi,clientApi } from 'api'
 const emits = defineEmits([
     'refresh'
 ])
@@ -36,7 +36,7 @@ async function handleSubmit() {
         const formData = new FormData()
         formData.append('file', file)
         formData.append('id', state.setting.id)
-        await adminApi.api.putTemplateDocumentUpload({requestDTO:{}},formData as any)
+        await clientApi.admin.putAdmindmsTemplateDocumentUpload({requestDTO:{}},formData as any)
         state.visible = false
     } catch (error) {
     }

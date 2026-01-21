@@ -17,7 +17,7 @@ const state = reactive<any>({
 
 async function init() {
   try {
-    const { properties } = await clientApi.api.getUserProfileSetting().then((res: any) => res.data)
+    const { properties } = await clientApi.api.getDmsUserProfileSetting().then((res: any) => res.data)
     if (!properties || properties.length === 0) {
       return
     }
@@ -43,7 +43,7 @@ async function init() {
     }
 
     if ('groups' in state.form || 'role' in state.form) {
-      const { roleName, groups } = await clientApi.api.getAclUserUserid(userId.value).then((res: any) => res.data)
+      const { roleName, groups } = await clientApi.api.getDocpalAclUserUserid(userId.value).then((res: any) => res.data)
       state.form.role = roleName
       state.form.groups = groups.map((item: any) => item.groupName)
     }
@@ -134,7 +134,7 @@ async function save() {
 
     await clientApi.api.putDmsUserSetting(userPreference.value as any)
 
-    await clientApi.api.postNotificationSettingUserUseridPreferences(userId.value, state.notificationPreferenceList)
+    await clientApi.api.postNotificationSettingUserUseridSavePreferences(userId.value, state.notificationPreferenceList)
 
     routerProvider?.message.success(t('tip_updateSuccessMsg', { modelName: t('user_info'), name: null }))
 
@@ -147,7 +147,6 @@ async function save() {
 onMounted(() => {
   init()
 })
-
 </script>
 
 <template>
@@ -181,7 +180,7 @@ onMounted(() => {
 
           <el-divider />
           <h3>{{ t('user.setting.userSignature') }}</h3>
-          <el-button  type="primary" @click="handleChangeMangeSignatureOpen">
+          <el-button type="primary" @click="handleChangeMangeSignatureOpen">
             {{ t('user.setting.mangeSignature') }}
           </el-button>
 

@@ -39,50 +39,6 @@ export interface ResultObject {
     locale?: string;
 }
 
-/** Document Type */
-export interface DocumentTypeDTO {
-    /** Document Type Name */
-    name?: string;
-    /** Is Folder Type */
-    isFolder?: boolean;
-    /** Document Type keywords */
-    keywords?: KeywordDTO[];
-}
-
-/** Keyword */
-export interface KeywordDTO {
-    /** Keyword Name */
-    name?: string;
-    /** Keyword Type */
-    type?: string;
-    /** Keyword Value */
-    value?: object;
-    /** Schema That Belong To Keyword */
-    schema?: string;
-    /** Keyword Is Multiple Value */
-    isMultiValue?: boolean;
-    /** Keyword Default Value */
-    defaultValue?: object;
-    /** Value Scope Of This Keyword */
-    valueScope?: KeywordValueScope;
-}
-
-/** Value Scope Of This Keyword */
-export interface KeywordValueScope {
-    scope?: string;
-    scopeName?: string;
-}
-
-export interface ResultListDocumentTypeDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocumentTypeDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
 /** Additional role data transfer object */
 export interface AdditionRoleDTO {
     /** Role ID */
@@ -238,16 +194,6 @@ export interface UserDetailDTO {
     additionRoleList?: AdditionRoleDTO[];
 }
 
-export interface ResultListUserDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: UserDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
 /** Document File */
 export interface FileDTO {
     /**
@@ -274,6 +220,50 @@ export interface ResultFileDTO {
     message?: string;
     /** Document File */
     data?: FileDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Document Type */
+export interface DocPalTypeDTO {
+    /** Document Type Name */
+    name?: string;
+    /** Is Folder Type */
+    isFolder?: boolean;
+    /** Document Type keywords */
+    keywords?: KeywordDTO[];
+}
+
+/** Keyword */
+export interface KeywordDTO {
+    /** Keyword Name */
+    name?: string;
+    /** Keyword Type */
+    type?: string;
+    /** Keyword Value */
+    value?: object;
+    /** Schema That Belong To Keyword */
+    schema?: string;
+    /** Keyword Is Multiple Value */
+    isMultiValue?: boolean;
+    /** Keyword Default Value */
+    defaultValue?: object;
+    /** Value Scope Of This Keyword */
+    valueScope?: KeywordValueScope;
+}
+
+/** Value Scope Of This Keyword */
+export interface KeywordValueScope {
+    scope?: string;
+    scopeName?: string;
+}
+
+export interface ResultListDocPalTypeDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocPalTypeDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -408,50 +398,130 @@ export interface ResultUserDTO {
     locale?: string;
 }
 
-/** Updated import job information */
-export interface ExternalStorageImportJobDTO {
-    /** Unique identifier for the import job */
-    id?: string;
-    /**
-     * Type of the job
-     * @example "import_job"
-     */
-    type?: string;
-    /** Profile ID associated with the job */
-    profileId?: string;
-    /** Name of the file being imported */
-    fileName?: string;
-    /** Name of the profile */
-    profileName?: string;
-    /** Source of the import */
-    source?: string;
-    /** Batch ID for grouping related jobs */
-    batchId?: string;
-    /** Status of the import job */
-    status?: string;
-    /** @format int64 */
-    queue_order?: number;
-    /** Activity log in JSON format */
-    activityLog?: Record<string, object>[];
-    /**
-     * Creation timestamp
-     * @format date-time
-     */
-    createdDate?: string;
-    /**
-     * Last modification timestamp
-     * @format date-time
-     */
-    modifiedDate?: string;
-}
-
-export interface ResultExternalStorageImportJobDTO {
+export interface ResultBoolean {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    /** Updated import job information */
-    data?: ExternalStorageImportJobDTO;
+    data?: boolean;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface NotificationRecordDTO {
+    ids?: string[];
+    status?: string;
+}
+
+export interface NotificationSetting {
+    id?: string;
+    type?: "SUB_DOCUMENT" | "SUBSCRIPTION";
+    moduleName?: string;
+    description?: string;
+    funcPoint?: string;
+    pointEnable?: boolean;
+    templateId?: string;
+    scope?: string;
+    realm?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface ResultListNotificationSetting {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: NotificationSetting[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface NotificationManageRequestDTO {
+    ids?: number[];
+    type?: string;
+}
+
+export interface ResultVoid {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: object;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface UpdateSyncTaskRequest {
+    name?: string;
+    cron_expression?: string;
+    is_enabled?: boolean;
+}
+
+export interface ResultSyncTaskDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: SyncTaskDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface SyncTaskDTO {
+    /** @format int32 */
+    id?: number;
+    name?: string;
+    /** @format int32 */
+    cloud_service_id?: number;
+    source_path?: string;
+    target_path?: string;
+    sync_mode?: string;
+    cron_expression?: string;
+    is_enabled?: boolean;
+    /** @format date-time */
+    created_at?: string;
+}
+
+export interface UpdateOAuthAppRequest {
+    name?: string;
+    provider?: string;
+    client_id?: string;
+    client_secret?: string;
+    redirect_uri?: string;
+    scopes?: string;
+    sharepoint_site_url?: string;
+    create_by?: string;
+}
+
+export interface CloudServiceDTO {
+    id?: string;
+    name?: string;
+    provider?: string;
+    status?: string;
+    authorized_at?: string;
+    expires_at?: string;
+}
+
+export interface OAuthAppDTO {
+    id?: string;
+    name?: string;
+    provider?: string;
+    client_id?: string;
+    client_secret?: string;
+    cloud_service?: CloudServiceDTO;
+}
+
+export interface ResultOAuthAppDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: OAuthAppDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -560,72 +630,50 @@ export interface ResultExternalProfileDTO {
     locale?: string;
 }
 
-export interface UpdateSyncTaskRequest {
-    name?: string;
-    cron_expression?: string;
-    is_enabled?: boolean;
-}
-
-export interface ResultSyncTaskDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: SyncTaskDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface SyncTaskDTO {
-    /** @format int32 */
-    id?: number;
-    name?: string;
-    /** @format int32 */
-    cloud_service_id?: number;
-    source_path?: string;
-    target_path?: string;
-    sync_mode?: string;
-    cron_expression?: string;
-    is_enabled?: boolean;
-    /** @format date-time */
-    created_at?: string;
-}
-
-export interface UpdateOAuthAppRequest {
-    name?: string;
-    provider?: string;
-    client_id?: string;
-    client_secret?: string;
-    redirect_uri?: string;
-    scopes?: string;
-    sharepoint_site_url?: string;
-    create_by?: string;
-}
-
-export interface CloudServiceDTO {
+/** Updated import job information */
+export interface ExternalStorageImportJobDTO {
+    /** Unique identifier for the import job */
     id?: string;
-    name?: string;
-    provider?: string;
+    /**
+     * Type of the job
+     * @example "import_job"
+     */
+    type?: string;
+    /** Profile ID associated with the job */
+    profileId?: string;
+    /** Name of the file being imported */
+    fileName?: string;
+    /** Name of the profile */
+    profileName?: string;
+    /** Source of the import */
+    source?: string;
+    /** Batch ID for grouping related jobs */
+    batchId?: string;
+    /** Status of the import job */
     status?: string;
-    authorized_at?: string;
-    expires_at?: string;
+    /** @format int64 */
+    queue_order?: number;
+    /** Activity log in JSON format */
+    activityLog?: Record<string, object>[];
+    /**
+     * Creation timestamp
+     * @format date-time
+     */
+    createdDate?: string;
+    /**
+     * Last modification timestamp
+     * @format date-time
+     */
+    modifiedDate?: string;
 }
 
-export interface OAuthAppDTO {
-    id?: string;
-    name?: string;
-    provider?: string;
-    client_id?: string;
-    client_secret?: string;
-    cloud_service?: CloudServiceDTO;
-}
-
-export interface ResultOAuthAppDTO {
+export interface ResultExternalStorageImportJobDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: OAuthAppDTO;
+    /** Updated import job information */
+    data?: ExternalStorageImportJobDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -734,65 +782,6 @@ export interface PersonalDashboardRequestDTO {
     orderByValue?: string;
     /** @format int32 */
     pageIndex?: number;
-}
-
-export interface ResultVoid {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: object;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultBoolean {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: boolean;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface NotificationRecordDTO {
-    ids?: number[];
-    status?: string;
-}
-
-export interface NotificationSetting {
-    /** @format int64 */
-    id?: number;
-    type?: "SUB_DOCUMENT" | "SUBSCRIPTION";
-    moduleName?: string;
-    description?: string;
-    funcPoint?: string;
-    pointEnable?: boolean;
-    templateId?: string;
-    scope?: string;
-    realm?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-}
-
-export interface ResultListNotificationSetting {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: NotificationSetting[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface NotificationManageRequestDTO {
-    ids?: number[];
-    type?: string;
 }
 
 export interface IdGenerationRuleItem {
@@ -1352,6 +1341,30 @@ export interface DAMConversionSettingRequestDTO {
     operation?: string;
 }
 
+export interface DAMConversionSetting {
+    id?: string;
+    name?: string;
+    label?: string;
+    description?: string;
+    sourceType?: string;
+    targetType?: string;
+    operation?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface ResultDAMConversionSetting {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DAMConversionSetting;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface Company {
     id?: string;
     code?: string;
@@ -1656,6 +1669,13 @@ export interface ResultCmmnDashboardResponseDTO {
     data?: CmmnDashboardResponseDTO;
     messageKey?: string;
     locale?: string;
+}
+
+export interface WhatsAppSettingDTO {
+    accessToken?: string;
+    phoneNum?: string;
+    accountNum?: string;
+    whatsAppSwitch?: boolean;
 }
 
 /** Validation Rule Request DTO */
@@ -2178,11 +2198,12 @@ export interface IdentityRequestDTO {
 }
 
 export interface AddMetadataRequestDTO {
-    docType?: string;
-    name?: string;
+    "DocPal Type ID"?: string;
+    "DocPal Type Name"?: string;
+    "Metadata Name"?: string;
     display?: boolean;
-    metaDataDefinition?: MetaDataDefinitionRequestDTO;
     metadataId?: string;
+    metaDataDefinition?: MetaDataDefinitionRequestDTO;
     metadataPermissionRule?: MetadataPermissionRuleDTO;
     metadataPermission?: MetadataPermissionDTO;
 }
@@ -2288,70 +2309,1128 @@ export type UserValidation = MetadataValidation;
 
 export type WorkflowValidation = MetadataValidation;
 
-export interface DocpalTypeRequestV2DTO {
+/** Workflow (Request) */
+export interface WorkflowRequestDTO {
+    /** Version ID */
+    versionId?: string;
+    /** Deployment ID */
+    deploymentId?: string;
+    /** Process Key */
+    processKey?: string;
+    /** Message Name */
+    messageName?: string;
+    /** Process Business Key */
+    businessKey?: string;
+    /** Fuzzy query process Business Key */
+    businessKeyLike?: string;
+    /** Process Definition Id */
+    processDefinitionId?: string;
+    /** Process Instance Name */
+    processDefinitionName?: string;
+    /** Process Instance Id */
+    processInstanceId?: string;
+    /** creator */
+    creator?: string;
+    /** User ID */
+    userId?: string;
+    /** Task Name */
+    taskName?: string;
+    /** Task ID */
+    taskId?: string;
+    /** Task Delete Reason */
+    deleteReason?: string;
+    /**
+     * Task Due Date
+     * @format date-time
+     */
+    dueDate?: string;
+    /** process Category */
+    processCategory?: string;
+    /** process Category List */
+    categories?: string[];
+    /** Groups */
+    groups?: string[];
+    /** Form Properties */
+    properties?: Record<string, string>;
+    /** Variables */
+    variables?: Record<string, object>;
+    /** Display Columns For Show Extract Variables, frontend haven't used it yet */
+    displayColumns?: string[];
+    /** Form Attachments */
+    attachments?: Record<string, string>;
+    /** Activity ID */
+    activityId?: string;
+    /**
+     * Page num
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** processKeys */
+    processKeys?: string[];
+    /** createdDate */
+    createdDate?: string[];
+    /** Task Due Date */
+    dueDates?: string[];
+    involvedUser?: string;
+    assignedUser?: string;
+    candidateUser?: string;
+    candidateOrAssigned?: string;
+    interrelatedUserId?: string;
+    /** @uniqueItems true */
+    orderList?: string[];
+    /**
+     * Page Index
+     * @deprecated
+     * @format int32
+     */
+    pageIndex?: number;
+}
+
+/** Process Instance */
+export interface InstanceDTO {
+    /** Execution Id */
     id?: string;
+    /** Activity Id */
+    activityId?: string;
+    /** Business Key */
+    businessKey?: string;
+    /** Calllback Id */
+    callbackId?: string;
+    /** Callback Type */
+    callbackType?: string;
+    /** Deployment Id */
+    deploymentId?: string;
+    /** Description */
+    description?: string;
+    /** Localized Description */
+    localizedDescription?: string;
+    /** Localized Name */
+    localizedName?: string;
+    /** Name */
     name?: string;
-    category?: string;
-    isFolder?: boolean;
-    status?: string;
-    langs?: {
-        empty?: boolean;
-        [key: string]: any;
-    };
-    metadataFields?: Record<string, object>[];
-    permission?: Permission;
+    /** Parent Id */
+    parentId?: string;
+    /** Process Definition Id */
+    processDefinitionId?: string;
+    /** Process Definition Key */
+    processDefinitionKey?: string;
+    /** Process Definition Name */
+    processDefinitionName?: string;
+    /**
+     * Process Definition Version
+     * @format int32
+     */
+    processDefinitionVersion?: number;
+    /** Process Instance Id */
+    processInstanceId?: string;
+    /** Process Variables */
+    processVariables?: Record<string, object>;
+    /** Propagated Stage Instance Id */
+    propagatedStageInstanceId?: string;
+    /** Reference Id */
+    referenceId?: string;
+    /** Reference Type */
+    referenceType?: string;
+    /** Root Process Instance Id */
+    rootProcessInstanceId?: string;
+    /** Super Execution Id */
+    superExecutionId?: string;
+    /**
+     * Start Time
+     * @format date-time
+     */
+    startTime?: string;
+    /** Start User Id */
+    startUserId?: string;
+    /** Tenant Id */
+    tenantId?: string;
+    /** Is Ended */
+    isEnded?: boolean;
+    /** Is Suspended */
+    isSuspended?: boolean;
 }
 
-export interface DocPalTypeMetadata {
-    id?: string;
-    docpalTypeId?: string;
-    schemaName?: string;
-    metadata?: string;
-    metaDataType?: string;
-    dataType?: string;
-    display?: boolean;
-    options?: string;
-    isRequire?: boolean;
-    status?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    docPalType?: string;
+export interface PaginationDTOTaskDTO {
+    entryList?: TaskDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
 }
 
-export interface DocPalTypeResponseDTO {
-    id?: string;
-    name?: string;
-    category?: string;
-    dataType?: string;
-    enable?: boolean;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    metadata?: DocPalTypeMetadata[];
-}
-
-export interface ResultDocPalTypeResponseDTO {
+export interface ResultPaginationDTOTaskDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: DocPalTypeResponseDTO;
+    data?: PaginationDTOTaskDTO;
     messageKey?: string;
     locale?: string;
 }
 
-export interface WhatsAppSettingDTO {
-    accessToken?: string;
-    phoneNum?: string;
-    accountNum?: string;
-    whatsAppSwitch?: boolean;
+/** Task */
+export interface TaskDTO {
+    /** Task ID */
+    id?: string;
+    /** Task Name */
+    name?: string;
+    /** Task Description */
+    description?: string;
+    /** Task Definition ID */
+    taskDefinitionId?: string;
+    /** Process Definition Version ID */
+    processDefinitionVersionId?: string;
+    /** Task Definition Key */
+    taskDefinitionKey?: string;
+    /** Task Assignee */
+    assignee?: string;
+    /** Task Form Key */
+    formKey?: string;
+    /** Task Instance ID */
+    instanceId?: string;
+    /** Task Parent ID */
+    parentId?: string;
+    /**
+     * Task Creation Date
+     * @format date-time
+     */
+    createDate?: string;
+    /**
+     * Task Due Date
+     * @format date-time
+     */
+    dueDate?: string;
+    /**
+     * Task Claim Date
+     * @format date-time
+     */
+    claimDate?: string;
+    /** Process Instance */
+    taskInstance?: InstanceDTO;
+    businessKey?: string;
+    processDefinitionName?: string;
+    startUserId?: string;
+    createDateStr?: string;
+    dueDateStr?: string;
+    variables?: Record<string, object>;
+}
+
+export interface ResultTaskDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Task */
+    data?: TaskDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListTaskDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: TaskDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultMapStringString {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: Record<string, string>;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Document */
+export interface DocumentDTO {
+    /** Document ID */
+    id?: string;
+    /** Document Name */
+    name?: string;
+    /** Document Description */
+    description?: string;
+    /** Document Path */
+    path?: string;
+    /** Document Type */
+    type?: string;
+    /** Document Version */
+    version?: string;
+    /**
+     * Document Status
+     * @format int32
+     */
+    status?: number;
+    statusName?: string;
+    /** Document Creator */
+    createdBy?: string;
+    /** Document Modifier */
+    modifiedBy?: string;
+    /**
+     * Document Created Date
+     * @format date-time
+     */
+    createdDate?: string;
+    /**
+     * Document Modification Date
+     * @format date-time
+     */
+    modifiedDate?: string;
+    /** Is Document Folder */
+    isFolder?: boolean;
+    /** Is Document Checked Out */
+    isCheckedOut?: boolean;
+    /** Document Properties */
+    properties?: Record<string, object>;
+    /** Document File Content */
+    fileContent?: FileContentDTO;
+    /** parentRef */
+    parentRef?: string;
+    /** logicalPath */
+    logicalPath?: string;
+    auditComment?: string;
+    auditName?: string;
+    /** Permission Name */
+    permissionName?: string[];
+    /** Contributors */
+    contributors?: string[];
+    /** File Suffix */
+    fileSuffix?: string;
+    /** OCR State */
+    ocrState?: string;
+    /** ID of Document Folder Cabinet */
+    dfcId?: string;
+    permissionIds?: number[];
+    comeFrom?: string;
+    drivePreviewLink?: string;
+    originalPath?: string;
+    fileContentName?: string;
+    fileContentMimeType?: string;
+    /** @format int64 */
+    fileContentLength?: number;
+    fileContentMinioFileVersion?: string;
+    fileContentDigestAlgorithm?: string;
+    fileContentDigest?: string;
+    fileContentData?: string;
+    fileContentExtension?: string;
+}
+
+/** Document File Content */
+export interface FileContentDTO {
+    digestAlgorithm?: string;
+    digest?: string;
+    data?: string;
+    name?: string;
+    mime_type?: string;
+    /** @format int64 */
+    length?: number;
+    minio_file_version?: string;
+}
+
+export interface ResultListDocumentDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocumentDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultDocumentDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Document */
+    data?: DocumentDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface AdhocApprovalDTO {
+    /** @format int64 */
+    id?: number;
+    documentId?: string;
+    documentPath?: string;
+    documentStartVersion?: string;
+    documentApprovalVersion?: string;
+    /** @format int32 */
+    documentStatus?: number;
+    taskId?: string;
+    taskName?: string;
+    businessKey?: string;
+    processInstanceId?: string;
+    /** @format int32 */
+    processInstanceStatus?: number;
+    user_creator_id?: string;
+    /** @format date-time */
+    startTime?: string;
+    approvedBy?: string;
+    user_approver_id?: string;
+    /** @format date-time */
+    approvedDate?: string;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageSize?: number;
+    orderBy?: string;
+    isDesc?: boolean;
+    isComplete?: boolean;
+    participant?: string;
+    /**
+     * Page Index
+     * @deprecated
+     * @format int32
+     */
+    pageIndex?: number;
+}
+
+export interface AdhocApproval {
+    /** @format int64 */
+    id?: number;
+    documentId?: string;
+    documentPath?: string;
+    documentStartVersion?: string;
+    documentApprovalVersion?: string;
+    /** @format int32 */
+    documentStatus?: number;
+    taskId?: string;
+    taskName?: string;
+    processInstanceId?: string;
+    businessKey?: string;
+    /** @format int32 */
+    processInstanceStatus?: number;
+    user_creator_id?: string;
+    /** @format date-time */
+    startTime?: string;
+    approvedBy?: string;
+    user_approver_id?: string;
+    /** @format date-time */
+    approvedDate?: string;
+}
+
+export interface PaginationDTOAdhocApproval {
+    entryList?: AdhocApproval[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOAdhocApproval {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOAdhocApproval;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Form Property */
+export interface FormPropertyDTO {
+    /** Property Key */
+    id?: string;
+    /** Property Name */
+    name?: string;
+    /** Property Type */
+    type?: string;
+    /** Property Value */
+    value?: string;
+    /** Is Property Readable */
+    readable?: boolean;
+    /** Is Property Required */
+    required?: boolean;
+    /** Is Property Writable */
+    writable?: boolean;
+    /** Enum Options */
+    options?: Record<string, string>;
+    /**
+     * time
+     * @format date-time
+     */
+    time?: string;
+}
+
+export interface ResultListFormPropertyDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: FormPropertyDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Form Property */
+export interface FormPropertiesDTO {
+    /** Property Key */
+    id?: string;
+    /** Property Name */
+    name?: string;
+    /** Property Type */
+    type?: string;
+    /** Property Value */
+    value?: string;
+    /** Is Property Readable */
+    readable?: boolean;
+    /** Is Property Required */
+    required?: boolean;
+    /** Is Property Writable */
+    writable?: boolean;
+    /** Property expression */
+    expression?: string;
+    /** Property variable */
+    variable?: string;
+    /** Property defaultExpression */
+    defaultExpression?: string;
+    /** Enum Options */
+    options?: Record<string, string>;
+}
+
+export interface ProcessDefinitionDTO {
+    /** Production Version Number */
+    versionNumber?: string;
+    /** Process Version ID */
+    versionId?: string;
+    /** Production Draft ID */
+    draftId?: string;
+    id?: string;
+    category?: string;
+    name?: string;
+    key?: string;
+    description?: string;
+    /** @format int32 */
+    version?: number;
+    resourceName?: string;
+    deploymentId?: string;
+    diagramResourceName?: string;
+    hasStartFormKey?: boolean;
+    hasGraphicalNotation?: boolean;
+    getTenantId?: string;
+    getDerivedFrom?: string;
+    getDerivedFromRoot?: string;
+    /** @format int32 */
+    getDerivedVersion?: number;
+    getEngineVersion?: string;
+    userTasks?: UserTaskDTO[];
+    permissions?: Record<string, string>[];
+    fcDataMapping?: Record<string, string>[];
+    suspended?: boolean;
+}
+
+export interface ResultProcessDefinitionDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ProcessDefinitionDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface UserTaskDTO {
+    id?: string;
+    name?: string;
+    flowElementType?: string;
+    formProperties?: FormPropertiesDTO[];
+}
+
+export interface ResultInstanceDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Process Instance */
+    data?: InstanceDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Process Definition, Can use ProcessDefinitionDTO to replace */
+export interface ProcessDTO {
+    /** Process ID */
+    id?: string;
+    /** Process Key */
+    key?: string;
+    /** Process Name */
+    name?: string;
+    /** Process Category */
+    category?: string;
+    /** Process Resource Name */
+    resourceName?: string;
+    /** Process Diagram Resource Name */
+    diagramName?: string;
+    /**
+     * Process Version
+     * @format int32
+     */
+    version?: number;
+    /** Production Version Number */
+    versionNumber?: string;
+    /** Process Version ID */
+    versionId?: string;
+    /** Production Draft ID */
+    draftId?: string;
+}
+
+export interface ResultListProcessDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ProcessDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListInstanceDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: InstanceDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ConditionValidationReq {
+    processDefinitionKey?: string;
+    processInstanceId?: string;
+    validationData?: Record<string, object>;
+    conditionRules?: Record<string, string>[][];
+}
+
+/** Workflow History (Request) */
+export interface WorkflowHistoryRequestDTO {
+    /** Process Keys */
+    processKeys?: string[];
+    /** Process Definition ID */
+    processDefinitionId?: string;
+    /** Process Instance ID */
+    processInstanceId?: string;
+    /** Business Key */
+    businessKey?: string;
+    /** Execution ID */
+    executionId?: string;
+    /** User ID */
+    userId?: string;
+    /** Creator */
+    creator?: string;
+    /** Is Completed */
+    completed?: boolean;
+    /** Created Date */
+    createdDate?: string[];
+    /** End Date */
+    endDate?: string[];
+    /**
+     * Page Index
+     * @format int32
+     */
+    pageIndex?: number;
+    /**
+     * Page num
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** @uniqueItems true */
+    orderList?: string[];
+}
+
+export interface PaginationDTOInstanceDTO {
+    entryList?: InstanceDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOInstanceDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOInstanceDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface QueryWorkflowJobRequest {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    state?: string;
+    businessKey?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface PaginationDTOWorkflowRetryManagerDTO {
+    entryList?: WorkflowRetryManagerDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOWorkflowRetryManagerDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOWorkflowRetryManagerDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface WorkflowRetryManagerDTO {
+    /** @format int64 */
+    id?: number;
+    /** @format int32 */
+    tryCount?: number;
+    creator?: string;
+    groupId?: string;
+    messageName?: string;
+    businessKey?: string;
+    startTime?: string;
+    state?: string;
+}
+
+export interface ResultListObject {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: object[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface HistoricProcessInstanceEntityImpl {
+    endActivityId?: string;
+    businessKey?: string;
+    businessStatus?: string;
+    startUserId?: string;
+    startActivityId?: string;
+    superProcessInstanceId?: string;
+    tenantId?: string;
+    name?: string;
+    localizedName?: string;
+    description?: string;
+    localizedDescription?: string;
+    processDefinitionKey?: string;
+    processDefinitionName?: string;
+    /** @format int32 */
+    processDefinitionVersion?: number;
+    deploymentId?: string;
+    callbackId?: string;
+    callbackType?: string;
+    referenceId?: string;
+    referenceType?: string;
+    propagatedStageInstand?: string;
+    queryVariables?: Record<string, object>[];
+    id?: string;
+    processInstanceId?: string;
+    processDefinitionId?: string;
+    processDefinitionVersionId?: string;
+    /** @format date-time */
+    startTime?: string;
+    /** @format int32 */
+    revision?: number;
+    originalPersistentState?: object;
+    /** @format date-time */
+    endTime?: string;
+    /** @format date-time */
+    completeDate?: string;
+    /** @format int64 */
+    durationInMillis?: number;
+    deleteReason?: string;
+    propagatedStageInstanceId?: object;
+    processVariables?: Record<string, object>;
+    persistentState?: Record<string, object>;
+    updated?: boolean;
+    deleted?: boolean;
+    idPrefix?: string;
+    inserted?: boolean;
+    /** @format int32 */
+    revisionNext?: number;
+    durationInMillisStr?: string;
+    startTimeStr?: string;
+    endTimeStr?: string;
+    taskDefinitionKey?: string;
+}
+
+export interface PaginationDTOHistoricProcessInstanceEntityImpl {
+    entryList?: HistoricProcessInstanceEntityImpl[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOHistoricProcessInstanceEntityImpl {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOHistoricProcessInstanceEntityImpl;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListFileDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: FileDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ProcessDefinitionDraftRequestDTO {
+    /** Process Definition Draft ID */
+    draftId?: string;
+    /** Whether draft */
+    isDraft?: boolean;
+    /** Process Definition Draft Key */
+    key?: string;
+    /** Process Definition Draft Name */
+    name?: string;
+    /** Process Definition Draft Status */
+    status?: string;
+    /** Publish Status of process definition */
+    publishStatus?: string;
+    /** Process Definition Name Space */
+    nameSpace?: string;
+    /** Process Definition Json */
+    jsonValue?: string;
+    /** @format binary */
+    file?: File;
+    /** Email Template List */
+    templateIds?: string[];
+    /** Folder Cabinet Setting ID */
+    folderCabinetSettingId?: string;
+    /**  Permissions [Start Or View] */
+    permissions?: Record<string, string>[];
+    /** Process Definition Version Id */
+    versionId?: string;
+    /** Process Definition Version Number */
+    versionNumber?: string;
+}
+
+export interface BizPermissionDTO {
+    id?: string;
+    permissionId?: string;
+    permissionName?: string;
+    licensee?: string;
+}
+
+/** Process Definition ResponseDTO */
+export interface ProcessDefinitionResponseDTO {
+    /** Process Definition ID */
+    id?: string;
+    /** Process Definition Draft ID */
+    draftId?: string;
+    /** Process Definition Name */
+    name?: string;
+    /** Process Definition Key */
+    key?: string;
+    /** Process Definition Status */
+    status?: string;
+    /** Publish Status of process definition */
+    publishStatus?: string;
+    "Latest Version"?: string;
+    "Latest Version Id"?: string;
+    "Production Version"?: string;
+    /** Process Definition Target Name Space */
+    nameSpace?: string;
+    /** Process Definition ID */
+    processDefinitionId?: string;
+    /** Process Definition is draft */
+    isDraft?: boolean;
+    /** Folder Cabinet Setting ID */
+    folderCabinetSettingId?: string;
+    permissions?: BizPermissionDTO[];
+    /** @format int32 */
+    deployVersion?: number;
+}
+
+export interface ResultProcessDefinitionResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Process Definition ResponseDTO */
+    data?: ProcessDefinitionResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Process Definition Version RequestDTO */
+export interface ProcessVersionRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    id?: string;
+    draftId?: string;
+    versionNumber?: string;
+    jsonValue?: string;
+    /** @format binary */
+    file?: File;
+    name?: string;
+    publishStatus?: string;
+    operator?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface PaginationDTOProcessDefinitionVersion {
+    entryList?: ProcessDefinitionVersion[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ProcessDefinitionVersion {
+    id?: string;
+    draftId?: string;
+    versionNumber?: string;
+    productionVersion?: string;
+    source?: string;
+    publishStatus?: string;
+    isProduction?: string;
+    processDefinitionId?: string;
+    processDefinitionKey?: string;
+    bytes?: string[];
+    jsonValue?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface ResultPaginationDTOProcessDefinitionVersion {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOProcessDefinitionVersion;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultProcessDefinitionVersion {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ProcessDefinitionVersion;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ProcessDefinitionDraft {
+    id?: string;
+    key?: string;
+    name?: string;
+    status?: string;
+    publishStatus?: string;
+    latestVersion?: string;
+    productionVersion?: string;
+    bytes?: string[];
+    jsonValue?: string;
+    startFormProperties?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    folderCabinetSettingId?: string;
+    latestVersionId?: string;
+    productionVersionId?: string;
+}
+
+/** Workflow Process Definition RequestDTO */
+export interface ProcessDefinitionRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** Process Definition ID */
+    id?: string;
+    /** Process Definition Key */
+    key?: string;
+    /** Process Definition Name */
+    name?: string;
+    /** DeploymentId of Process Definition */
+    deploymentId?: string;
+    /** Process Definition Status */
+    status?: string;
+    /** publish Status */
+    publishStatus?: string;
+    /** Process categories */
+    categories?: string[];
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
+    /** @format int32 */
+    pageIndex?: number;
+}
+
+export interface PaginationDTOProcessDefinitionDraft {
+    entryList?: ProcessDefinitionDraft[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOProcessDefinitionDraft {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOProcessDefinitionDraft;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface WorkflowDraftRequestDTO {
+    /** Process Definition Draft ID */
+    draftId?: string;
+    /** Whether draft */
+    isDraft?: boolean;
+    /** Process Definition Draft Key */
+    key?: string;
+    /** Process Definition Draft Name */
+    name?: string;
+    /** Process Definition Draft Status */
+    status?: string;
+    /** Publish Status of process definition */
+    publishStatus?: string;
+    /** Process Definition Name Space */
+    nameSpace?: string;
+    /** Process Definition Json */
+    jsonValue?: string;
+    /** @format binary */
+    file?: File;
+    /** Email Template List */
+    templateIds?: string[];
+    /** Folder Cabinet Setting ID */
+    folderCabinetSettingId?: string;
+    /**  Permissions [Start Or View] */
+    permissions?: Record<string, string>[];
+    /** Process Definition Version Id */
+    versionId?: string;
+    /** Process Definition Version Number */
+    versionNumber?: string;
+    /** Process Definition Operator */
+    operator?: string;
 }
 
 export interface WOPIFileDTO {
@@ -2503,8 +3582,7 @@ export interface ResultListString {
     data?: string[];
 }
 
-/** Define access control entry */
-export interface AccessControlEntry {
+export interface AclEntry {
     id?: string;
     /**
      * 名称
@@ -2574,7 +3652,7 @@ export interface AclPermissionDTO {
      * @format date-time
      */
     modifiedDate: string;
-    permissionEntrys?: AccessControlEntry[];
+    permissionEntrys?: AclEntry[];
 }
 
 export interface ResultAclPermissionDTO {
@@ -2744,123 +3822,6 @@ export interface ResultListAclUserGroup {
     code?: number;
     message?: string;
     data?: AclUserGroup[];
-}
-
-export interface ResultAccessControlEntry {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Define access control entry */
-    data?: AccessControlEntry;
-}
-
-/** EasyShare (Request) */
-export interface SharePageRequestDTO {
-    /**
-     * page
-     * @format int32
-     */
-    page?: number;
-    /**
-     * size
-     * @format int32
-     */
-    size?: number;
-    /** orderByAsc */
-    orderByAsc?: string;
-    /** orderByDesc */
-    orderByDesc?: string;
-    /** searchKey */
-    searchKey?: string;
-}
-
-export interface ResultMapObjectObject {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: Record<string, object>;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** The Bind Document List */
-export interface EasyShareDocumentDetails {
-    /** @format int64 */
-    id?: number;
-    path?: string;
-    docId?: string;
-    readOnly?: boolean;
-    watermarkData?: WatermarkData;
-    createdBy?: string;
-    watermarkTemplateId?: string;
-    watermarkStatus?: string;
-    originFilePath?: string;
-    watermarkFile?: string;
-    previewFile?: string;
-    conversionId?: string;
-    watermarkedLocalPath?: string;
-}
-
-/** EasyShare (Request) */
-export interface ShareRequestDTO {
-    /** PATH Size */
-    pathList?: string[];
-    /** Share PWD */
-    sharePWD?: string;
-    /**
-     * Token Expiration Time
-     * @format int32
-     */
-    tokenTime?: number;
-    /** Email List */
-    emailList?: string[];
-    /** Password for shared document(s) */
-    password?: string;
-    /**
-     * How long the token can last for? (in # of minutes)
-     * @format int32
-     */
-    tokenLiveInMinutes?: number;
-    /** The Bind Document List */
-    documentList?: EasyShareDocumentDetails[];
-}
-
-export interface WatermarkData {
-    templateId?: string;
-    originFilePath?: string;
-    previewFile?: string;
-    status?: string;
-    watermarkFile?: string;
-    conversionId?: string;
-}
-
-/** EasyShare */
-export interface EasyShareDTO {
-    /** Token for access shared document */
-    access_token?: string;
-    /** UUID of saved Nuxeo PATH */
-    shareId?: string;
-    /** document in Nuxeo with PATH */
-    documentURL?: string;
-    /** Document ID List */
-    documentIdList?: string;
-    /** How long the token can last for? (in # of minutes) */
-    dueTime?: string;
-    /** Document shared to a list of email */
-    emailList?: string;
-}
-
-export interface ResultEasyShareDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** EasyShare */
-    data?: EasyShareDTO;
-    messageKey?: string;
-    locale?: string;
 }
 
 export interface NestedSearchLogRequestDTO {
@@ -3033,6 +3994,16 @@ export interface TagVO {
     label?: string;
 }
 
+export interface ResultListUserDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: UserDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface ResultListGroupDTO {
     result?: boolean;
     /** @format int32 */
@@ -3064,8 +4035,172 @@ export interface UserBatchActiveDTO {
     active?: string;
 }
 
-/** External Storage Import Job Request */
-export interface ExternalStorageImportJobRequestDTO {
+export interface NotificationRecord {
+    id?: string;
+    scope?: string;
+    realm?: string;
+    functionPoint?: string;
+    content?: string;
+    description?: string;
+    receiveId?: string;
+    status?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    sortBy?: string;
+}
+
+export interface ResultNotificationRecord {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: NotificationRecord;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface NotificationSubscriberRequestDTO {
+    id?: string;
+    subscriber?: string;
+    businessId?: string;
+    businessPath?: string;
+    /** @format date-time */
+    createdDate?: string;
+    idOrPath?: string;
+}
+
+export interface NotificationSubscriber {
+    id?: string;
+    subscriber?: string;
+    businessId?: string;
+    businessPath?: string;
+    /** @format date-time */
+    createdDate?: string;
+}
+
+export interface ResultNotificationSubscriber {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: NotificationSubscriber;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultNotificationSetting {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: NotificationSetting;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Notification Preference List */
+export interface FrontEndBaseDTOBoolean {
+    key?: string;
+    label?: string;
+    value?: boolean;
+}
+
+export interface UserNotifyPreference {
+    /** Name of the module */
+    name?: string;
+    /** Notification Preference List */
+    value?: FrontEndBaseDTOBoolean[];
+}
+
+export interface ResultListUserNotifyPreference {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: UserNotifyPreference[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface SubNotificationRequest {
+    action?:
+        | "DOCUMENT_CREATE"
+        | "DOCUMENT_MODIFY"
+        | "DOCUMENT_REPLACE"
+        | "DOCUMENT_TRASH"
+        | "DOCUMENT_DELETE"
+        | "DOCUMENT_COMMENT_ADD"
+        | "DOCUMENT_FORMAT_CONVERT"
+        | "DOCUMENT_DOWNLOAD"
+        | "DOCUMENT_UPLOAD"
+        | "UPLOAD_REQUEST_OPEN_LINK"
+        | "UPLOAD_REQUEST_UPLOAD_FILE"
+        | "AI_ANALYSIS_MODULE_UPLOAD_FOLDER"
+        | "AI_ANALYSIS_MODULE_REPLACE_FILE"
+        | "DOCUMENT_ACL_MODULE"
+        | "DOCUMENT_ACL_ADD"
+        | "DOCUMENT_ACL_REMOVE"
+        | "DOCUMENT_SHARE_OPEN_LINK"
+        | "DOCUMENT_SHARE_DOWNLOAD_FILE"
+        | "DOCUMENT_FOLDER_CABINET_NOTIFICATION"
+        | "DOCUMENT_FOLDER_CABINET_SUMMARY_REPORT"
+        | "WORKFLOW_CUSTOM"
+        | "WORKFLOW_APPLY"
+        | "WORKFLOW_SUCCESS"
+        | "WORKFLOW_REJECTED";
+    variables?: Record<string, object>;
+    notificationUserId?: string[];
+    businessId?: string;
+    setting?: NotificationSetting;
+    messageBody?: string;
+}
+
+export interface PageNotificationRecord {
+    /** @format int32 */
+    totalPages?: number;
+    /** @format int64 */
+    totalElements?: number;
+    /** @format int32 */
+    number?: number;
+    /** @format int32 */
+    size?: number;
+    /** @format int32 */
+    numberOfElements?: number;
+    content?: NotificationRecord[];
+    sort?: SortObject;
+    first?: boolean;
+    last?: boolean;
+    pageable?: PageableObject;
+    empty?: boolean;
+}
+
+export interface PageableObject {
+    paged?: boolean;
+    unpaged?: boolean;
+    /** @format int32 */
+    pageNumber?: number;
+    /** @format int32 */
+    pageSize?: number;
+    /** @format int64 */
+    offset?: number;
+    sort?: SortObject;
+}
+
+export interface ResultPageNotificationRecord {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PageNotificationRecord;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface QueryNotificationRequestDTO {
     /** Fuzzy Search Parameter */
     q?: string;
     /**
@@ -3082,24 +4217,11 @@ export interface ExternalStorageImportJobRequestDTO {
     orderBy?: string;
     /** The sort ASC or DESC */
     isDesc?: boolean;
-    /** Profile ID filter */
-    id?: string;
-    /** Profile ID filter */
-    profileId?: string;
-    /** File name filter */
-    fileName?: string;
-    /** Profile name filter */
-    profileName?: string;
-    /** Source filter */
-    source?: string;
-    /** Batch ID filter */
-    batchId?: string;
-    /** Status filter */
-    status?: string;
-    /** Start date for filtering */
-    startDate?: string;
-    /** End date for filtering */
-    endDate?: string;
+    description?: string;
+    creator?: string;
+    readStatus?: string;
+    type?: string;
+    action?: string;
     sort?: SortObject;
     sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
@@ -3109,8 +4231,21 @@ export interface ExternalStorageImportJobRequestDTO {
     pageIndex?: number;
 }
 
-export interface PaginationDTOExternalStorageImportJobDTO {
-    entryList?: ExternalStorageImportJobDTO[];
+export interface NotificationInfoDTO {
+    id?: string;
+    description?: string;
+    creator?: string;
+    receiver?: string;
+    /** @format int64 */
+    createdDateTimestamp?: number;
+    type?: string;
+    operate?: string;
+    readStatus?: string;
+    content?: string;
+}
+
+export interface PaginationDTONotificationInfoDTO {
+    entryList?: NotificationInfoDTO[];
     /** @format int32 */
     totalSize?: number;
     /** @format int32 */
@@ -3122,12 +4257,12 @@ export interface PaginationDTOExternalStorageImportJobDTO {
     isNextPageAvailable?: boolean;
 }
 
-export interface ResultPaginationDTOExternalStorageImportJobDTO {
+export interface ResultPaginationDTONotificationInfoDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: PaginationDTOExternalStorageImportJobDTO;
+    data?: PaginationDTONotificationInfoDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -3178,18 +4313,6 @@ export interface PageUploadBatchDTO {
     last?: boolean;
     pageable?: PageableObject;
     empty?: boolean;
-}
-
-export interface PageableObject {
-    paged?: boolean;
-    unpaged?: boolean;
-    /** @format int32 */
-    pageNumber?: number;
-    /** @format int32 */
-    pageSize?: number;
-    /** @format int64 */
-    offset?: number;
-    sort?: SortObject;
 }
 
 export interface ResultPageUploadBatchDTO {
@@ -3357,6 +4480,28 @@ export interface UploadBatchItemDTO {
     parentId?: string;
 }
 
+export interface CreateSyncTaskRequest {
+    name: string;
+    /** @format int32 */
+    cloud_service_id: number;
+    source_path: string;
+    target_path: string;
+    sync_mode: string;
+    cron_expression: string;
+    is_enabled?: boolean;
+}
+
+export interface CreateOAuthAppRequest {
+    name?: string;
+    provider?: string;
+    client_id?: string;
+    client_secret?: string;
+    redirect_uri?: string;
+    scopes?: string;
+    sharepoint_site_url?: string;
+    create_by?: string;
+}
+
 /** External Storage Profile Configuration */
 export interface ExternalProfileRequestDTO {
     /** Fuzzy Search Parameter */
@@ -3513,26 +4658,108 @@ export interface ResultPaginationDTOExternalStorageDTO {
     locale?: string;
 }
 
-export interface CreateSyncTaskRequest {
-    name: string;
+/** External Storage Import Job Request */
+export interface ExternalStorageImportJobRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** Profile ID filter */
+    id?: string;
+    /** Profile ID filter */
+    profileId?: string;
+    /** File name filter */
+    fileName?: string;
+    /** Profile name filter */
+    profileName?: string;
+    /** Source filter */
+    source?: string;
+    /** Batch ID filter */
+    batchId?: string;
+    /** Status filter */
+    status?: string;
+    /** Start date for filtering */
+    startDate?: string;
+    /** End date for filtering */
+    endDate?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
-    cloud_service_id: number;
-    source_path: string;
-    target_path: string;
-    sync_mode: string;
-    cron_expression: string;
-    is_enabled?: boolean;
+    pageIndex?: number;
 }
 
-export interface CreateOAuthAppRequest {
+export interface PaginationDTOExternalStorageImportJobDTO {
+    entryList?: ExternalStorageImportJobDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOExternalStorageImportJobDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOExternalStorageImportJobDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ParamDTO {
     name?: string;
-    provider?: string;
-    client_id?: string;
-    client_secret?: string;
-    redirect_uri?: string;
-    scopes?: string;
-    sharepoint_site_url?: string;
-    create_by?: string;
+    value?: string;
+}
+
+export interface WhatsAppMessageRequestDTO {
+    to?: string;
+    templateName?: string;
+    languageCode?: string;
+    components?: {
+        empty?: boolean;
+        /** @deprecated */
+        componentType?: {
+            typeName?: string;
+        };
+        /** @deprecated */
+        relatedArray?: object;
+    };
+    textParamDTOList?: ParamDTO[];
+}
+
+export interface ResultSendMessageResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: SendMessageResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface SendMessageResponseDTO {
+    successCallWhatsAppApi?: boolean;
+    messageId?: string;
 }
 
 /** Dashboard Workflow Request DTO */
@@ -3576,125 +4803,6 @@ export interface ResultMapStringInteger {
     code?: number;
     message?: string;
     data?: Record<string, number>;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Workflow (Request) */
-export interface WorkflowRequestDTO {
-    /** Version ID */
-    versionId?: string;
-    /** Deployment ID */
-    deploymentId?: string;
-    /** Process Key */
-    processKey?: string;
-    /** Message Name */
-    messageName?: string;
-    /** Process Business Key */
-    businessKey?: string;
-    /** Fuzzy query process Business Key */
-    businessKeyLike?: string;
-    /** Process Definition Id */
-    processDefinitionId?: string;
-    /** Process Instance Name */
-    processDefinitionName?: string;
-    /** Process Instance Id */
-    processInstanceId?: string;
-    /** creator */
-    creator?: string;
-    /** User ID */
-    userId?: string;
-    /** Task Name */
-    taskName?: string;
-    /** Task ID */
-    taskId?: string;
-    /** Task Delete Reason */
-    deleteReason?: string;
-    /**
-     * Task Due Date
-     * @format date-time
-     */
-    dueDate?: string;
-    /** process Category */
-    processCategory?: string;
-    /** process Category List */
-    categories?: string[];
-    /** Groups */
-    groups?: string[];
-    /** Form Properties */
-    properties?: Record<string, string>;
-    /** Variables */
-    variables?: Record<string, object>;
-    /** Display Columns For Show Extract Variables, frontend haven't used it yet */
-    displayColumns?: string[];
-    /** Form Attachments */
-    attachments?: Record<string, string>;
-    /** Activity ID */
-    activityId?: string;
-    /**
-     * Page num
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** processKeys */
-    processKeys?: string[];
-    /** createdDate */
-    createdDate?: string[];
-    /** Task Due Date */
-    dueDates?: string[];
-    involvedUser?: string;
-    assignedUser?: string;
-    candidateUser?: string;
-    candidateOrAssigned?: string;
-    interrelatedUserId?: string;
-    /** @uniqueItems true */
-    orderList?: string[];
-    /**
-     * Page Index
-     * @deprecated
-     * @format int32
-     */
-    pageIndex?: number;
-}
-
-/** Process Definition, Can use ProcessDefinitionDTO to replace */
-export interface ProcessDTO {
-    /** Process ID */
-    id?: string;
-    /** Process Key */
-    key?: string;
-    /** Process Name */
-    name?: string;
-    /** Process Category */
-    category?: string;
-    /** Process Resource Name */
-    resourceName?: string;
-    /** Process Diagram Resource Name */
-    diagramName?: string;
-    /**
-     * Process Version
-     * @format int32
-     */
-    version?: number;
-    /** Production Version Number */
-    versionNumber?: string;
-    /** Process Version ID */
-    versionId?: string;
-    /** Production Draft ID */
-    draftId?: string;
-}
-
-export interface ResultListProcessDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ProcessDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -4174,1011 +5282,6 @@ export interface DateRangeRequestDTO {
     groupBy?: string;
 }
 
-export interface ProcessDefinitionDraftRequestDTO {
-    /** Process Definition Draft ID */
-    draftId?: string;
-    /** Whether draft */
-    isDraft?: boolean;
-    /** Process Definition Draft Key */
-    key?: string;
-    /** Process Definition Draft Name */
-    name?: string;
-    /** Process Definition Draft Status */
-    status?: string;
-    /** Publish Status of process definition */
-    publishStatus?: string;
-    /** Process Definition Name Space */
-    nameSpace?: string;
-    /** Process Definition Json */
-    jsonValue?: string;
-    /** @format binary */
-    file?: File;
-    /** Email Template List */
-    templateIds?: string[];
-    /** Folder Cabinet Setting ID */
-    folderCabinetSettingId?: string;
-    /**  Permissions [Start Or View] */
-    permissions?: Record<string, string>[];
-    /** Process Definition Version Id */
-    versionId?: string;
-    /** Process Definition Version Number */
-    versionNumber?: string;
-}
-
-export interface BizPermissionDTO {
-    id?: string;
-    permissionId?: string;
-    permissionName?: string;
-    licensee?: string;
-}
-
-/** Process Definition ResponseDTO */
-export interface ProcessDefinitionResponseDTO {
-    /** Process Definition ID */
-    id?: string;
-    /** Process Definition Draft ID */
-    draftId?: string;
-    /** Process Definition Name */
-    name?: string;
-    /** Process Definition Key */
-    key?: string;
-    /** Process Definition Status */
-    status?: string;
-    /** Publish Status of process definition */
-    publishStatus?: string;
-    "Latest Version"?: string;
-    "Latest Version Id"?: string;
-    "Production Version"?: string;
-    /** Process Definition Target Name Space */
-    nameSpace?: string;
-    /** Process Definition ID */
-    processDefinitionId?: string;
-    /** Process Definition is draft */
-    isDraft?: boolean;
-    /** Folder Cabinet Setting ID */
-    folderCabinetSettingId?: string;
-    permissions?: BizPermissionDTO[];
-    /** @format int32 */
-    deployVersion?: number;
-}
-
-export interface ResultProcessDefinitionResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Process Definition ResponseDTO */
-    data?: ProcessDefinitionResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Process Definition Version RequestDTO */
-export interface ProcessVersionRequestDTO {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    id?: string;
-    draftId?: string;
-    versionNumber?: string;
-    jsonValue?: string;
-    /** @format binary */
-    file?: File;
-    name?: string;
-    publishStatus?: string;
-    operator?: string;
-    sort?: SortObject;
-    sortOrModifiedDate?: SortObject;
-    descSort?: SortObject;
-    desc?: boolean;
-    orderByValue?: string;
-    /** @format int32 */
-    pageIndex?: number;
-}
-
-export interface PaginationDTOProcessDefinitionVersion {
-    entryList?: ProcessDefinitionVersion[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ProcessDefinitionVersion {
-    id?: string;
-    draftId?: string;
-    versionNumber?: string;
-    productionVersion?: string;
-    source?: string;
-    publishStatus?: string;
-    isProduction?: string;
-    processDefinitionId?: string;
-    processDefinitionKey?: string;
-    bytes?: string[];
-    jsonValue?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-}
-
-export interface ResultPaginationDTOProcessDefinitionVersion {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOProcessDefinitionVersion;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultProcessDefinitionVersion {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ProcessDefinitionVersion;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Document */
-export interface DocumentDTO {
-    /** Document ID */
-    id?: string;
-    /** Document Name */
-    name?: string;
-    /** Document Description */
-    description?: string;
-    /** Document Path */
-    path?: string;
-    /** Document Type */
-    type?: string;
-    /** Document Version */
-    version?: string;
-    /**
-     * Document Status
-     * @format int32
-     */
-    status?: number;
-    statusName?: string;
-    /** Document Creator */
-    createdBy?: string;
-    /** Document Modifier */
-    modifiedBy?: string;
-    /**
-     * Document Created Date
-     * @format date-time
-     */
-    createdDate?: string;
-    /**
-     * Document Modification Date
-     * @format date-time
-     */
-    modifiedDate?: string;
-    /** Is Document Folder */
-    isFolder?: boolean;
-    /** Is Document Checked Out */
-    isCheckedOut?: boolean;
-    /** Document Properties */
-    properties?: Record<string, object>;
-    /** Document File Content */
-    fileContent?: FileContentDTO;
-    /** parentRef */
-    parentRef?: string;
-    /** logicalPath */
-    logicalPath?: string;
-    auditComment?: string;
-    auditName?: string;
-    /** Permission Name */
-    permissionName?: string[];
-    /** Contributors */
-    contributors?: string[];
-    /** File Suffix */
-    fileSuffix?: string;
-    /** OCR State */
-    ocrState?: string;
-    /** ID of Document Folder Cabinet */
-    dfcId?: string;
-    permissionIds?: number[];
-    comeFrom?: string;
-    drivePreviewLink?: string;
-    originalPath?: string;
-    fileContentName?: string;
-    fileContentMimeType?: string;
-    /** @format int64 */
-    fileContentLength?: number;
-    fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
-    fileContentDigest?: string;
-    fileContentData?: string;
-    fileContentExtension?: string;
-}
-
-/** Document File Content */
-export interface FileContentDTO {
-    digestAlgorithm?: string;
-    digest?: string;
-    data?: string;
-    name?: string;
-    mime_type?: string;
-    /** @format int64 */
-    length?: number;
-    minio_file_version?: string;
-}
-
-export interface ResultListDocumentDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocumentDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultDocumentDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Document */
-    data?: DocumentDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Process Instance */
-export interface InstanceDTO {
-    /** Execution Id */
-    id?: string;
-    /** Activity Id */
-    activityId?: string;
-    /** Business Key */
-    businessKey?: string;
-    /** Calllback Id */
-    callbackId?: string;
-    /** Callback Type */
-    callbackType?: string;
-    /** Deployment Id */
-    deploymentId?: string;
-    /** Description */
-    description?: string;
-    /** Localized Description */
-    localizedDescription?: string;
-    /** Localized Name */
-    localizedName?: string;
-    /** Name */
-    name?: string;
-    /** Parent Id */
-    parentId?: string;
-    /** Process Definition Id */
-    processDefinitionId?: string;
-    /** Process Definition Key */
-    processDefinitionKey?: string;
-    /** Process Definition Name */
-    processDefinitionName?: string;
-    /**
-     * Process Definition Version
-     * @format int32
-     */
-    processDefinitionVersion?: number;
-    /** Process Instance Id */
-    processInstanceId?: string;
-    /** Process Variables */
-    processVariables?: Record<string, object>;
-    /** Propagated Stage Instance Id */
-    propagatedStageInstanceId?: string;
-    /** Reference Id */
-    referenceId?: string;
-    /** Reference Type */
-    referenceType?: string;
-    /** Root Process Instance Id */
-    rootProcessInstanceId?: string;
-    /** Super Execution Id */
-    superExecutionId?: string;
-    /**
-     * Start Time
-     * @format date-time
-     */
-    startTime?: string;
-    /** Start User Id */
-    startUserId?: string;
-    /** Tenant Id */
-    tenantId?: string;
-    /** Is Ended */
-    isEnded?: boolean;
-    /** Is Suspended */
-    isSuspended?: boolean;
-}
-
-export interface ResultListTaskDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: TaskDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Task */
-export interface TaskDTO {
-    /** Task ID */
-    id?: string;
-    /** Task Name */
-    name?: string;
-    /** Task Description */
-    description?: string;
-    /** Task Definition ID */
-    taskDefinitionId?: string;
-    /** Process Definition Version ID */
-    processDefinitionVersionId?: string;
-    /** Task Definition Key */
-    taskDefinitionKey?: string;
-    /** Task Assignee */
-    assignee?: string;
-    /** Task Form Key */
-    formKey?: string;
-    /** Task Instance ID */
-    instanceId?: string;
-    /** Task Parent ID */
-    parentId?: string;
-    /**
-     * Task Creation Date
-     * @format date-time
-     */
-    createDate?: string;
-    /**
-     * Task Due Date
-     * @format date-time
-     */
-    dueDate?: string;
-    /**
-     * Task Claim Date
-     * @format date-time
-     */
-    claimDate?: string;
-    /** Process Instance */
-    taskInstance?: InstanceDTO;
-    businessKey?: string;
-    processDefinitionName?: string;
-    startUserId?: string;
-    createDateStr?: string;
-    dueDateStr?: string;
-    variables?: Record<string, object>;
-}
-
-export interface PaginationDTOTaskDTO {
-    entryList?: TaskDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOTaskDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOTaskDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultMapStringString {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: Record<string, string>;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultTaskDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Task */
-    data?: TaskDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface AdhocApprovalDTO {
-    /** @format int64 */
-    id?: number;
-    documentId?: string;
-    documentPath?: string;
-    documentStartVersion?: string;
-    documentApprovalVersion?: string;
-    /** @format int32 */
-    documentStatus?: number;
-    taskId?: string;
-    taskName?: string;
-    businessKey?: string;
-    processInstanceId?: string;
-    /** @format int32 */
-    processInstanceStatus?: number;
-    user_creator_id?: string;
-    /** @format date-time */
-    startTime?: string;
-    approvedBy?: string;
-    user_approver_id?: string;
-    /** @format date-time */
-    approvedDate?: string;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageSize?: number;
-    orderBy?: string;
-    isDesc?: boolean;
-    isComplete?: boolean;
-    participant?: string;
-    /**
-     * Page Index
-     * @deprecated
-     * @format int32
-     */
-    pageIndex?: number;
-}
-
-export interface AdhocApproval {
-    /** @format int64 */
-    id?: number;
-    documentId?: string;
-    documentPath?: string;
-    documentStartVersion?: string;
-    documentApprovalVersion?: string;
-    /** @format int32 */
-    documentStatus?: number;
-    taskId?: string;
-    taskName?: string;
-    processInstanceId?: string;
-    businessKey?: string;
-    /** @format int32 */
-    processInstanceStatus?: number;
-    user_creator_id?: string;
-    /** @format date-time */
-    startTime?: string;
-    approvedBy?: string;
-    user_approver_id?: string;
-    /** @format date-time */
-    approvedDate?: string;
-}
-
-export interface PaginationDTOAdhocApproval {
-    entryList?: AdhocApproval[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOAdhocApproval {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOAdhocApproval;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Form Property */
-export interface FormPropertyDTO {
-    /** Property Key */
-    id?: string;
-    /** Property Name */
-    name?: string;
-    /** Property Type */
-    type?: string;
-    /** Property Value */
-    value?: string;
-    /** Is Property Readable */
-    readable?: boolean;
-    /** Is Property Required */
-    required?: boolean;
-    /** Is Property Writable */
-    writable?: boolean;
-    /** Enum Options */
-    options?: Record<string, string>;
-    /**
-     * time
-     * @format date-time
-     */
-    time?: string;
-}
-
-export interface ResultListFormPropertyDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: FormPropertyDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Form Property */
-export interface FormPropertiesDTO {
-    /** Property Key */
-    id?: string;
-    /** Property Name */
-    name?: string;
-    /** Property Type */
-    type?: string;
-    /** Property Value */
-    value?: string;
-    /** Is Property Readable */
-    readable?: boolean;
-    /** Is Property Required */
-    required?: boolean;
-    /** Is Property Writable */
-    writable?: boolean;
-    /** Property expression */
-    expression?: string;
-    /** Property variable */
-    variable?: string;
-    /** Property defaultExpression */
-    defaultExpression?: string;
-    /** Enum Options */
-    options?: Record<string, string>;
-}
-
-export interface ProcessDefinitionDTO {
-    /** Production Version Number */
-    versionNumber?: string;
-    /** Process Version ID */
-    versionId?: string;
-    /** Production Draft ID */
-    draftId?: string;
-    id?: string;
-    category?: string;
-    name?: string;
-    key?: string;
-    description?: string;
-    /** @format int32 */
-    version?: number;
-    resourceName?: string;
-    deploymentId?: string;
-    diagramResourceName?: string;
-    hasStartFormKey?: boolean;
-    hasGraphicalNotation?: boolean;
-    getTenantId?: string;
-    getDerivedFrom?: string;
-    getDerivedFromRoot?: string;
-    /** @format int32 */
-    getDerivedVersion?: number;
-    getEngineVersion?: string;
-    userTasks?: UserTaskDTO[];
-    permissions?: Record<string, string>[];
-    fcDataMapping?: Record<string, string>[];
-    suspended?: boolean;
-}
-
-export interface ResultProcessDefinitionDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ProcessDefinitionDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface UserTaskDTO {
-    id?: string;
-    name?: string;
-    flowElementType?: string;
-    formProperties?: FormPropertiesDTO[];
-}
-
-export interface ResultInstanceDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Process Instance */
-    data?: InstanceDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListInstanceDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: InstanceDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ProcessDefinitionDraft {
-    id?: string;
-    key?: string;
-    name?: string;
-    status?: string;
-    publishStatus?: string;
-    latestVersion?: string;
-    productionVersion?: string;
-    bytes?: string[];
-    jsonValue?: string;
-    startFormProperties?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    folderCabinetSettingId?: string;
-    latestVersionId?: string;
-    productionVersionId?: string;
-}
-
-/** Workflow Process Definition RequestDTO */
-export interface ProcessDefinitionRequestDTO {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    /** Process Definition ID */
-    id?: string;
-    /** Process Definition Key */
-    key?: string;
-    /** Process Definition Name */
-    name?: string;
-    /** DeploymentId of Process Definition */
-    deploymentId?: string;
-    /** Process Definition Status */
-    status?: string;
-    /** publish Status */
-    publishStatus?: string;
-    /** Process categories */
-    categories?: string[];
-    sort?: SortObject;
-    sortOrModifiedDate?: SortObject;
-    descSort?: SortObject;
-    desc?: boolean;
-    orderByValue?: string;
-    /** @format int32 */
-    pageIndex?: number;
-}
-
-export interface PaginationDTOProcessDefinitionDraft {
-    entryList?: ProcessDefinitionDraft[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOProcessDefinitionDraft {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOProcessDefinitionDraft;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface WorkflowDraftRequestDTO {
-    /** Process Definition Draft ID */
-    draftId?: string;
-    /** Whether draft */
-    isDraft?: boolean;
-    /** Process Definition Draft Key */
-    key?: string;
-    /** Process Definition Draft Name */
-    name?: string;
-    /** Process Definition Draft Status */
-    status?: string;
-    /** Publish Status of process definition */
-    publishStatus?: string;
-    /** Process Definition Name Space */
-    nameSpace?: string;
-    /** Process Definition Json */
-    jsonValue?: string;
-    /** @format binary */
-    file?: File;
-    /** Email Template List */
-    templateIds?: string[];
-    /** Folder Cabinet Setting ID */
-    folderCabinetSettingId?: string;
-    /**  Permissions [Start Or View] */
-    permissions?: Record<string, string>[];
-    /** Process Definition Version Id */
-    versionId?: string;
-    /** Process Definition Version Number */
-    versionNumber?: string;
-    /** Process Definition Operator */
-    operator?: string;
-}
-
-export interface ConditionValidationReq {
-    processDefinitionKey?: string;
-    processInstanceId?: string;
-    validationData?: Record<string, object>;
-    conditionRules?: Record<string, string>[][];
-}
-
-/** Workflow History (Request) */
-export interface WorkflowHistoryRequestDTO {
-    /** Process Keys */
-    processKeys?: string[];
-    /** Process Definition ID */
-    processDefinitionId?: string;
-    /** Process Instance ID */
-    processInstanceId?: string;
-    /** Business Key */
-    businessKey?: string;
-    /** Execution ID */
-    executionId?: string;
-    /** User ID */
-    userId?: string;
-    /** Creator */
-    creator?: string;
-    /** Is Completed */
-    completed?: boolean;
-    /** Created Date */
-    createdDate?: string[];
-    /** End Date */
-    endDate?: string[];
-    /**
-     * Page Index
-     * @format int32
-     */
-    pageIndex?: number;
-    /**
-     * Page num
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** @uniqueItems true */
-    orderList?: string[];
-}
-
-export interface PaginationDTOInstanceDTO {
-    entryList?: InstanceDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOInstanceDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOInstanceDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface QueryWorkflowJobRequest {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    state?: string;
-    businessKey?: string;
-    sort?: SortObject;
-    sortOrModifiedDate?: SortObject;
-    descSort?: SortObject;
-    desc?: boolean;
-    orderByValue?: string;
-    /** @format int32 */
-    pageIndex?: number;
-}
-
-export interface PaginationDTOWorkflowRetryManagerDTO {
-    entryList?: WorkflowRetryManagerDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOWorkflowRetryManagerDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOWorkflowRetryManagerDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface WorkflowRetryManagerDTO {
-    /** @format int64 */
-    id?: number;
-    /** @format int32 */
-    tryCount?: number;
-    creator?: string;
-    groupId?: string;
-    messageName?: string;
-    businessKey?: string;
-    startTime?: string;
-    state?: string;
-}
-
-export interface ResultListObject {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: object[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface HistoricProcessInstanceEntityImpl {
-    endActivityId?: string;
-    businessKey?: string;
-    businessStatus?: string;
-    startUserId?: string;
-    startActivityId?: string;
-    superProcessInstanceId?: string;
-    tenantId?: string;
-    name?: string;
-    localizedName?: string;
-    description?: string;
-    localizedDescription?: string;
-    processDefinitionKey?: string;
-    processDefinitionName?: string;
-    /** @format int32 */
-    processDefinitionVersion?: number;
-    deploymentId?: string;
-    callbackId?: string;
-    callbackType?: string;
-    referenceId?: string;
-    referenceType?: string;
-    propagatedStageInstand?: string;
-    queryVariables?: Record<string, object>[];
-    id?: string;
-    processInstanceId?: string;
-    processDefinitionId?: string;
-    processDefinitionVersionId?: string;
-    /** @format date-time */
-    startTime?: string;
-    /** @format int32 */
-    revision?: number;
-    originalPersistentState?: object;
-    /** @format date-time */
-    endTime?: string;
-    /** @format date-time */
-    completeDate?: string;
-    /** @format int64 */
-    durationInMillis?: number;
-    deleteReason?: string;
-    propagatedStageInstanceId?: object;
-    processVariables?: Record<string, object>;
-    persistentState?: Record<string, object>;
-    updated?: boolean;
-    deleted?: boolean;
-    idPrefix?: string;
-    inserted?: boolean;
-    /** @format int32 */
-    revisionNext?: number;
-    durationInMillisStr?: string;
-    startTimeStr?: string;
-    endTimeStr?: string;
-    taskDefinitionKey?: string;
-}
-
-export interface PaginationDTOHistoricProcessInstanceEntityImpl {
-    entryList?: HistoricProcessInstanceEntityImpl[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOHistoricProcessInstanceEntityImpl {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOHistoricProcessInstanceEntityImpl;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListFileDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: FileDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
 /** Comment */
 export interface CommentDTO {
     /** Comment ID */
@@ -5386,438 +5489,6 @@ export interface ResultPersonalDashboard {
     code?: number;
     message?: string;
     data?: PersonalDashboard;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface NotificationRecord {
-    /** @format int64 */
-    id?: number;
-    scope?: string;
-    realm?: string;
-    functionPoint?: string;
-    content?: string;
-    description?: string;
-    receiveId?: string;
-    status?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    sortBy?: string;
-}
-
-export interface ResultNotificationRecord {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: NotificationRecord;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface NotificationSubscriberRequestDTO {
-    /** @format int64 */
-    id?: number;
-    subscriber?: string;
-    businessId?: string;
-    businessPath?: string;
-    /** @format date-time */
-    createdDate?: string;
-    idOrPath?: string;
-}
-
-export interface NotificationSubscriber {
-    /** @format int64 */
-    id?: number;
-    subscriber?: string;
-    businessId?: string;
-    businessPath?: string;
-    /** @format date-time */
-    createdDate?: string;
-}
-
-export interface ResultNotificationSubscriber {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: NotificationSubscriber;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultNotificationSetting {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: NotificationSetting;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** Notification Preference List */
-export interface FrontEndBaseDTOBoolean {
-    key?: string;
-    label?: string;
-    value?: boolean;
-}
-
-export interface UserNotifyPreference {
-    /** Name of the module */
-    name?: string;
-    /** Notification Preference List */
-    value?: FrontEndBaseDTOBoolean[];
-}
-
-export interface ResultListUserNotifyPreference {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: UserNotifyPreference[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface SubNotificationRequest {
-    action?:
-        | "DOCUMENT_CREATE"
-        | "DOCUMENT_MODIFY"
-        | "DOCUMENT_REPLACE"
-        | "DOCUMENT_TRASH"
-        | "DOCUMENT_DELETE"
-        | "DOCUMENT_COMMENT_ADD"
-        | "DOCUMENT_FORMAT_CONVERT"
-        | "DOCUMENT_DOWNLOAD"
-        | "DOCUMENT_UPLOAD"
-        | "UPLOAD_REQUEST_OPEN_LINK"
-        | "UPLOAD_REQUEST_UPLOAD_FILE"
-        | "AI_ANALYSIS_MODULE_UPLOAD_FOLDER"
-        | "AI_ANALYSIS_MODULE_REPLACE_FILE"
-        | "DOCUMENT_ACL_MODULE"
-        | "DOCUMENT_ACL_ADD"
-        | "DOCUMENT_ACL_REMOVE"
-        | "DOCUMENT_SHARE_OPEN_LINK"
-        | "DOCUMENT_SHARE_DOWNLOAD_FILE"
-        | "DOCUMENT_FOLDER_CABINET_NOTIFICATION"
-        | "DOCUMENT_FOLDER_CABINET_SUMMARY_REPORT"
-        | "WORKFLOW_CUSTOM"
-        | "WORKFLOW_APPLY"
-        | "WORKFLOW_SUCCESS"
-        | "WORKFLOW_REJECTED";
-    variables?: Record<string, object>;
-    notificationUserId?: string[];
-    businessId?: string;
-    setting?: NotificationSetting;
-    messageBody?: string;
-}
-
-export interface QueryNotificationRequestDTO {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    description?: string;
-    creator?: string;
-    readStatus?: string;
-    type?: string;
-    action?: string;
-    sort?: SortObject;
-    sortOrModifiedDate?: SortObject;
-    descSort?: SortObject;
-    desc?: boolean;
-    orderByValue?: string;
-    /** @format int32 */
-    pageIndex?: number;
-}
-
-export interface NotificationInfoDTO {
-    /** @format int64 */
-    id?: number;
-    description?: string;
-    creator?: string;
-    receiver?: string;
-    /** @format int64 */
-    createdDateTimestamp?: number;
-    type?: string;
-    operate?: string;
-    readStatus?: string;
-    content?: string;
-}
-
-export interface PaginationDTONotificationInfoDTO {
-    entryList?: NotificationInfoDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTONotificationInfoDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTONotificationInfoDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface PageNotificationRecord {
-    /** @format int32 */
-    totalPages?: number;
-    /** @format int64 */
-    totalElements?: number;
-    /** @format int32 */
-    number?: number;
-    /** @format int32 */
-    size?: number;
-    /** @format int32 */
-    numberOfElements?: number;
-    content?: NotificationRecord[];
-    sort?: SortObject;
-    first?: boolean;
-    last?: boolean;
-    pageable?: PageableObject;
-    empty?: boolean;
-}
-
-export interface ResultPageNotificationRecord {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PageNotificationRecord;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface InternalShareQueryDTO {
-    /** @format int64 */
-    id?: number;
-    internalShareId?: string;
-    shareByUserId?: string;
-    shareByUserIds?: string[];
-    permission?: string;
-    /** @format date-time */
-    startDate?: string;
-    /** @format date-time */
-    expiredDate?: string;
-    /** @format date-time */
-    beforeExpiredDate?: string;
-    /** @format date-time */
-    afterExpiredDate?: string;
-    isSendEmail?: boolean;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    beforeCreatedDate?: string;
-    /** @format date-time */
-    afterCreatedate?: string;
-    createdUserId?: string;
-    modifiedUserId?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    /** @format int64 */
-    detailId?: number;
-    /** @format int64 */
-    biggerThenDetailId?: number;
-    shareToUserId?: string;
-    shareToUserIds?: string[];
-    documentId?: string;
-    documentIds?: string;
-    documentName?: string;
-    documentType?: string;
-    /** @format date-time */
-    documentLastModifiedDate?: string;
-    permissionId?: string;
-    isAddAcl?: boolean;
-    isFolder?: boolean;
-    /** @format date-time */
-    detailCreatedDate?: string;
-    /** @format date-time */
-    detailModifiedDate?: string;
-    ids?: number[];
-    detailIds?: number[];
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageSize?: number;
-    /** @format int32 */
-    status?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    /** @format int64 */
-    biggerThenId?: number;
-}
-
-export interface PaginableEntityDTOObject {
-    entryList?: object[];
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    currentPageIndex?: number;
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginableEntityDTOObject {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginableEntityDTOObject;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface InternalShareToMePageRequestDTO {
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageSize?: number;
-    sortByDesc?: string;
-    sortByAsc?: string;
-}
-
-export interface InternalShareByGroupsRequestDTO {
-    groupIds?: string[];
-    permission?: string;
-    isSendEmail?: boolean;
-    documentIds?: string[];
-    /** @format date-time */
-    startDate?: string;
-    /** @format date-time */
-    expiredDate?: string;
-}
-
-export interface InternalShare {
-    /** @format int64 */
-    id?: number;
-    internalShareId?: string;
-    documentIds?: string;
-    documentNames?: string;
-    shareToUserIds?: string;
-    shareByUserId?: string;
-    permission?: string;
-    /** @format date-time */
-    startDate?: string;
-    /** @format date-time */
-    expiredDate?: string;
-    isSendEmail?: boolean;
-    /** @format date-time */
-    createdDate?: string;
-    createdUserId?: string;
-    modifiedUserId?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    shareGroupIds?: string;
-    shareUserIds?: string;
-    /** @format int32 */
-    status?: number;
-    isFolder?: boolean;
-}
-
-export interface ResultInternalShare {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: InternalShare;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface InternalShareRequestDTO {
-    /** @format int64 */
-    id?: number;
-    internalShareId?: string;
-    /** @uniqueItems true */
-    documentIds?: string[];
-    /** @uniqueItems true */
-    shareToUserIds?: string[];
-    shareByUserId?: string;
-    permission?: string;
-    /** @format date-time */
-    startDate?: string;
-    /** @format date-time */
-    expiredDate?: string;
-    /** @format date-time */
-    endDate?: string;
-    isSendEmail?: boolean;
-    /** @format date-time */
-    createdDate?: string;
-    createdUserId?: string;
-    modifiedUserId?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    shareToGroupIds?: string[];
-    shareToRoleIds?: string[];
-}
-
-export interface InternalShareAudit {
-    /** @format int64 */
-    id?: number;
-    internalShareId?: string;
-    documentIds?: string;
-    documentNames?: string;
-    shareToUserIds?: string;
-    shareByUserId?: string;
-    permission?: string;
-    /** @format date-time */
-    startDate?: string;
-    /** @format date-time */
-    expiredDate?: string;
-    isSendEmail?: boolean;
-    /** @format date-time */
-    createdDate?: string;
-    createdUserId?: string;
-    modifiedUserId?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    shareGroupIds?: string;
-    shareUserIds?: string;
-    /** @format int32 */
-    status?: number;
-    isFolder?: boolean;
-    documentId?: string;
-    path?: string;
-    type?: string;
-}
-
-export interface ResultInternalShareAudit {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: InternalShareAudit;
     messageKey?: string;
     locale?: string;
 }
@@ -7002,6 +6673,114 @@ export interface SmartFolderResponseDTO {
     userGroups?: string[];
 }
 
+/** EasyShare (Request) */
+export interface SharePageRequestDTO {
+    /**
+     * page
+     * @format int32
+     */
+    page?: number;
+    /**
+     * size
+     * @format int32
+     */
+    size?: number;
+    /** orderByAsc */
+    orderByAsc?: string;
+    /** orderByDesc */
+    orderByDesc?: string;
+    /** searchKey */
+    searchKey?: string;
+}
+
+export interface ResultMapObjectObject {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: Record<string, object>;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** The Bind Document List */
+export interface EasyShareDocumentDetails {
+    /** @format int64 */
+    id?: number;
+    path?: string;
+    docId?: string;
+    readOnly?: boolean;
+    watermarkData?: WatermarkData;
+    createdBy?: string;
+    watermarkTemplateId?: string;
+    watermarkStatus?: string;
+    originFilePath?: string;
+    watermarkFile?: string;
+    previewFile?: string;
+    conversionId?: string;
+    watermarkedLocalPath?: string;
+}
+
+/** EasyShare (Request) */
+export interface ShareRequestDTO {
+    /** PATH Size */
+    pathList?: string[];
+    /** Share PWD */
+    sharePWD?: string;
+    /**
+     * Token Expiration Time
+     * @format int32
+     */
+    tokenTime?: number;
+    /** Email List */
+    emailList?: string[];
+    /** Password for shared document(s) */
+    password?: string;
+    /**
+     * How long the token can last for? (in # of minutes)
+     * @format int32
+     */
+    tokenLiveInMinutes?: number;
+    /** The Bind Document List */
+    documentList?: EasyShareDocumentDetails[];
+}
+
+export interface WatermarkData {
+    templateId?: string;
+    originFilePath?: string;
+    previewFile?: string;
+    status?: string;
+    watermarkFile?: string;
+    conversionId?: string;
+}
+
+/** EasyShare */
+export interface EasyShareDTO {
+    /** Token for access shared document */
+    access_token?: string;
+    /** UUID of saved Nuxeo PATH */
+    shareId?: string;
+    /** document in Nuxeo with PATH */
+    documentURL?: string;
+    /** Document ID List */
+    documentIdList?: string;
+    /** How long the token can last for? (in # of minutes) */
+    dueTime?: string;
+    /** Document shared to a list of email */
+    emailList?: string;
+}
+
+export interface ResultEasyShareDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** EasyShare */
+    data?: EasyShareDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface ResultListVirtualFolderSettingResponseDTO {
     result?: boolean;
     /** @format int32 */
@@ -7487,6 +7266,210 @@ export interface MTPermissionDTO {
     enable?: boolean;
 }
 
+export interface InternalShareQueryDTO {
+    id?: string;
+    internalShareId?: string;
+    shareByUserId?: string;
+    shareByUserIds?: string[];
+    permission?: string;
+    /** @format date-time */
+    startDate?: string;
+    /** @format date-time */
+    expiredDate?: string;
+    /** @format date-time */
+    beforeExpiredDate?: string;
+    /** @format date-time */
+    afterExpiredDate?: string;
+    isSendEmail?: boolean;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    beforeCreatedDate?: string;
+    /** @format date-time */
+    afterCreatedate?: string;
+    createdUserId?: string;
+    modifiedUserId?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    /** @format int64 */
+    detailId?: number;
+    /** @format int64 */
+    biggerThenDetailId?: number;
+    shareToUserId?: string;
+    shareToUserIds?: string[];
+    documentId?: string;
+    documentIds?: string;
+    documentName?: string;
+    documentType?: string;
+    /** @format date-time */
+    documentLastModifiedDate?: string;
+    permissionId?: string;
+    isAddAcl?: boolean;
+    isFolder?: boolean;
+    /** @format date-time */
+    detailCreatedDate?: string;
+    /** @format date-time */
+    detailModifiedDate?: string;
+    ids?: number[];
+    detailIds?: number[];
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageSize?: number;
+    /** @format int32 */
+    status?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** @format int64 */
+    biggerThenId?: number;
+}
+
+export interface PaginableEntityDTOObject {
+    entryList?: object[];
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    currentPageIndex?: number;
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginableEntityDTOObject {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginableEntityDTOObject;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface InternalShareToMePageRequestDTO {
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageSize?: number;
+    sortByDesc?: string;
+    sortByAsc?: string;
+}
+
+export interface InternalShareByGroupsRequestDTO {
+    groupIds?: string[];
+    permission?: string;
+    isSendEmail?: boolean;
+    documentIds?: string[];
+    /** @format date-time */
+    startDate?: string;
+    /** @format date-time */
+    expiredDate?: string;
+}
+
+export interface InternalShare {
+    id?: string;
+    internalShareId?: string;
+    documentIds?: string;
+    documentNames?: string;
+    shareToUserIds?: string;
+    shareByUserId?: string;
+    permission?: string;
+    /** @format date-time */
+    startDate?: string;
+    /** @format date-time */
+    expiredDate?: string;
+    isSendEmail?: boolean;
+    shareGroupIds?: string;
+    shareUserIds?: string;
+    /** @format int32 */
+    status?: number;
+    isFolder?: boolean;
+    /** @format date-time */
+    createdDate?: string;
+    createdUserId?: string;
+    modifiedUserId?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface ResultInternalShare {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: InternalShare;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface InternalShareRequestDTO {
+    id?: string;
+    internalShareId?: string;
+    /** @uniqueItems true */
+    documentIds?: string[];
+    /** @uniqueItems true */
+    shareToUserIds?: string[];
+    shareByUserId?: string;
+    permission?: string;
+    /** @format date-time */
+    startDate?: string;
+    /** @format date-time */
+    expiredDate?: string;
+    /** @format date-time */
+    endDate?: string;
+    isSendEmail?: boolean;
+    /** @format date-time */
+    createdDate?: string;
+    createdUserId?: string;
+    modifiedUserId?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    shareToGroupIds?: string[];
+    shareToRoleIds?: string[];
+}
+
+export interface InternalShareAudit {
+    id?: string;
+    internalShareId?: string;
+    documentIds?: string;
+    documentNames?: string;
+    shareToUserIds?: string;
+    shareByUserId?: string;
+    permission?: string;
+    /** @format date-time */
+    startDate?: string;
+    /** @format date-time */
+    expiredDate?: string;
+    isSendEmail?: boolean;
+    /** @format date-time */
+    createdDate?: string;
+    createdUserId?: string;
+    modifiedUserId?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    shareGroupIds?: string;
+    shareUserIds?: string;
+    /** @format int32 */
+    status?: number;
+    isFolder?: boolean;
+    documentId?: string;
+    path?: string;
+    type?: string;
+}
+
+export interface ResultInternalShareAudit {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: InternalShareAudit;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface FormPropertiesRelation {
     /** @format int64 */
     id?: number;
@@ -7520,42 +7503,6 @@ export interface WorkflowInstanceDTO {
 export interface WorkflowInstanceRequest {
     currWorkflowInstance?: WorkflowInstanceDTO;
     nextWorkflowInstance?: WorkflowInstanceDTO;
-}
-
-export interface ParamDTO {
-    name?: string;
-    value?: string;
-}
-
-export interface WhatsAppMessageRequestDTO {
-    to?: string;
-    templateName?: string;
-    languageCode?: string;
-    components?: {
-        empty?: boolean;
-        /** @deprecated */
-        componentType?: {
-            typeName?: string;
-        };
-        /** @deprecated */
-        relatedArray?: object;
-    };
-    textParamDTOList?: ParamDTO[];
-}
-
-export interface ResultSendMessageResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: SendMessageResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface SendMessageResponseDTO {
-    successCallWhatsAppApi?: boolean;
-    messageId?: string;
 }
 
 export interface WhatsAppUsageDTO {
@@ -9953,44 +9900,6 @@ export interface ResultPaginationDTOCmmnDashboardResponseDTO {
     locale?: string;
 }
 
-/** Define block inherited permission of document */
-export interface BlockInheritedPermission {
-    /** @format int64 */
-    id?: number;
-    /** the document id */
-    docId?: string;
-    /** the document path */
-    docPath?: string;
-    /** the block id of document */
-    blockId?: string;
-}
-
-export interface ResultBlockInheritedPermission {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Define block inherited permission of document */
-    data?: BlockInheritedPermission;
-}
-
-export interface DocDTO {
-    /** the document id */
-    docId?: string;
-    /** the document path */
-    docPath?: string;
-    /** the parent document id */
-    parentDocId?: string;
-}
-
-export interface ResultListDocDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocDTO[];
-}
-
 export interface DocumentClassificationRequestDTO {
     context?: string;
     /** @uniqueItems true */
@@ -10188,6 +10097,55 @@ export interface ResultPageBusinessResultRecord {
     code?: number;
     message?: string;
     data?: PageBusinessResultRecord;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PaginationDTOWhatsAppLogDTO {
+    entryList?: WhatsAppLogDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultWhatsAppOverviewResponse {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WhatsAppOverviewResponse;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface WhatsAppLogDTO {
+    id?: string;
+    status?: string;
+    responseMessage?: string;
+    /** @format date-time */
+    createdDate?: string;
+}
+
+export interface WhatsAppOverviewResponse {
+    whatsAppSetting?: WhatsAppSettingDTO;
+    responseTime?: string;
+    successPercent?: string;
+    status?: string;
+    whatsAppLogDTOPage?: PaginationDTOWhatsAppLogDTO;
+}
+
+export interface ResultPaginationDTOWhatsAppLogDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOWhatsAppLogDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -10404,29 +10362,6 @@ export interface ResultCreateMessageResponseDTO {
     code?: number;
     message?: string;
     data?: CreateMessageResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface PaginationDTOInternalShareQueryDTO {
-    entryList?: InternalShareQueryDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOInternalShareQueryDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOInternalShareQueryDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -10755,6 +10690,98 @@ export interface MetadataRequestDTO {
     pageIndex?: number;
 }
 
+export interface PaginationDTOInternalShareQueryDTO {
+    entryList?: InternalShareQueryDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOInternalShareQueryDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOInternalShareQueryDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface DocpalTypeRequestV2DTO {
+    id?: string;
+    name?: string;
+    category?: string;
+    isFolder?: boolean;
+    status?: string;
+    langs?: {
+        empty?: boolean;
+        [key: string]: any;
+    };
+    metadataFields?: Record<string, object>[];
+    permission?: Permission;
+}
+
+export interface DocPalTypeMetadata {
+    id?: string;
+    docpalTypeId?: string;
+    schemaName?: string;
+    metadata?: string;
+    metaDataType?: string;
+    dataType?: string;
+    display?: boolean;
+    options?: string;
+    isRequire?: boolean;
+    status?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    docPalType?: string;
+}
+
+export interface DocPalTypeResponseDTO {
+    id?: string;
+    name?: string;
+    category?: string;
+    dataType?: string;
+    enable?: boolean;
+    createdBy?: string;
+    modifiedBy?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    metadata?: DocPalTypeMetadata[];
+    relatedMetadata?: RelatedMetadataDTO[];
+}
+
+export interface RelatedMetadataDTO {
+    id?: string;
+    name?: string;
+    dataType?: string;
+    display?: boolean;
+    lastModifiedDate?: string;
+    metadataPermission?: MetadataPermissionDTO;
+}
+
+export interface ResultDocPalTypeResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocPalTypeResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 /** DocPalType (RequestDTO) */
 export interface DocPalTypeRequestDTO {
     /** Fuzzy Search Parameter */
@@ -10827,30 +10854,21 @@ export interface ResultPaginationDTODocumentTypeResponseVO {
     locale?: string;
 }
 
-export interface DocpalTypeDetailResponseVO {
+export interface DocpalTypeResponseVO {
     docpalTypeName?: string;
     category?: string;
     isFolder?: string;
     langs?: Record<string, object>;
     permission?: Permission;
-    metadataList?: DocpalTypeMetadataResponseVO[];
+    metadataList?: RelatedMetadataDTO[];
 }
 
-export interface DocpalTypeMetadataResponseVO {
-    id?: string;
-    name?: string;
-    dataType?: string;
-    display?: boolean;
-    lastModifiedDate?: string;
-    metadataPermission?: MetadataPermissionDTO;
-}
-
-export interface ResultDocpalTypeDetailResponseVO {
+export interface ResultDocpalTypeResponseVO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: DocpalTypeDetailResponseVO;
+    data?: DocpalTypeResponseVO;
     messageKey?: string;
     locale?: string;
 }
@@ -10860,24 +10878,6 @@ export interface MoveMetadataRequestDTO {
     metadataId?: string;
     /** @format int32 */
     moveIndex?: number;
-}
-
-export interface DocPalTypeRelated {
-    id?: string;
-    docPalTypeId?: string;
-    rootDocPalType?: string;
-    metaData?: string;
-    docPalType?: string;
-}
-
-export interface ResultDocPalTypeRelated {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocPalTypeRelated;
-    messageKey?: string;
-    locale?: string;
 }
 
 /** Case Instance Process Instance Information */
@@ -10946,73 +10946,9 @@ export interface ResultPaginationDTOCmmnProcessInstanceDTO {
     locale?: string;
 }
 
-export interface PaginationDTOWhatsAppLogDTO {
-    entryList?: WhatsAppLogDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultWhatsAppOverviewResponse {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: WhatsAppOverviewResponse;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface WhatsAppLogDTO {
-    id?: string;
-    status?: string;
-    responseMessage?: string;
-    /** @format date-time */
-    createdDate?: string;
-}
-
-export interface WhatsAppOverviewResponse {
-    whatsAppSetting?: WhatsAppSettingDTO;
-    responseTime?: string;
-    successPercent?: string;
-    status?: string;
-    whatsAppLogDTOPage?: PaginationDTOWhatsAppLogDTO;
-}
-
-export interface ResultPaginationDTOWhatsAppLogDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOWhatsAppLogDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface UpdatePasswordDTO {
     oldPassword?: string;
     newPassword?: string;
-}
-
-/** ResetEasyShare (Request) */
-export interface ShareSaveRequestDTO {
-    /** Share Id */
-    shareId?: string;
-    /** Document shared to a list of email */
-    emailList?: string[];
-    /** Password for shared document(s) */
-    password?: string;
-    /**
-     * How long the token can last for? (in # of minutes)
-     * @format int32
-     */
-    tokenLiveInMinutes?: number;
 }
 
 export interface UpdateAiDocumentRequestDTO {
@@ -11052,6 +10988,21 @@ export interface ResultSmartFolderResponseDTO {
     data?: SmartFolderResponseDTO;
     messageKey?: string;
     locale?: string;
+}
+
+/** ResetEasyShare (Request) */
+export interface ShareSaveRequestDTO {
+    /** Share Id */
+    shareId?: string;
+    /** Document shared to a list of email */
+    emailList?: string[];
+    /** Password for shared document(s) */
+    password?: string;
+    /**
+     * How long the token can last for? (in # of minutes)
+     * @format int32
+     */
+    tokenLiveInMinutes?: number;
 }
 
 export interface ViewSettingRequestDTO {
@@ -11110,6 +11061,85 @@ export interface StatusRequest {
     status?: string;
     /** Reason for status change (optional) */
     reason?: string;
+}
+
+export interface ResultListUserTaskDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: UserTaskDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListProcessDefinitionDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ProcessDefinitionDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+/** BPMN Dynamic Form Information DTO */
+export interface BpmnDynamicFormDTO {
+    id?: string;
+    name?: string;
+    type?: string;
+    properties?: FormPropertyDTO[];
+}
+
+export interface ResultListBpmnDynamicFormDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: BpmnDynamicFormDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface AdhocApprovalResp {
+    histories?: AdhocApproval[];
+    pendingApproval?: AdhocApproval;
+    id?: string;
+    approvedDate?: string;
+    approvalTaskId?: string;
+    documentApprovalVersion?: string;
+    approvedBy?: string;
+}
+
+export interface ResultAdhocApprovalResp {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: AdhocApprovalResp;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultBpmnDynamicFormDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** BPMN Dynamic Form Information DTO */
+    data?: BpmnDynamicFormDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListProcessDefinitionDraft {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ProcessDefinitionDraft[];
+    messageKey?: string;
+    locale?: string;
 }
 
 export interface PageSearchHistory {
@@ -11200,31 +11230,6 @@ export interface ResultPasswordConfigDTO {
     locale?: string;
 }
 
-export interface EasyShareDocumentResponseDTO {
-    id?: string;
-    uid?: string;
-    title?: string;
-    path?: string;
-    type?: string;
-    fileExtension?: string;
-    fileSize?: string;
-    lastModified?: string;
-    readOnly?: boolean;
-    watermarkTemplateId?: string;
-    watermarkStatus?: string;
-    status?: string;
-}
-
-export interface ResultListEasyShareDocumentResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: EasyShareDocumentResponseDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface NestedSearchLogRecord {
     /** @format int64 */
     id?: number;
@@ -11264,32 +11269,50 @@ export interface VerifyPermission {
     rolePermissions?: string[];
 }
 
-export interface ResultListExternalStorageImportJobDTO {
+export interface NotificationUnreadCountDTO {
+    /** @format int32 */
+    unreadCount?: number;
+    type?: string;
+}
+
+export interface ResultListNotificationUnreadCountDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: ExternalStorageImportJobDTO[];
+    data?: NotificationUnreadCountDTO[];
     messageKey?: string;
     locale?: string;
 }
 
-/** All Condition ResponseDTO */
-export interface ConditionResponseDTO {
-    key?: string;
-    label?: string;
-    type?: string;
-    options?: Record<string, object>[];
-    belong?: string;
-    isMultiple?: boolean;
-}
-
-export interface ResultListConditionResponseDTO {
+export interface ResultListDocumentThumbnailDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: ConditionResponseDTO[];
+    data?: DocumentThumbnailDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface CheckBoxDTO {
+    isMultiple?: boolean;
+    key?: string;
+    label?: string;
+    options?: CheckBoxOptionDTO[];
+}
+
+export interface CheckBoxOptionDTO {
+    label?: string;
+    value?: object;
+}
+
+export interface ResultListCheckBoxDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CheckBoxDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -11307,26 +11330,6 @@ export interface ResultAiAnalysisDocumentVO {
     code?: number;
     message?: string;
     data?: AiAnalysisDocumentVO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListExternalStorageDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ExternalStorageDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListExternalProfileDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ExternalProfileDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -11361,6 +11364,86 @@ export interface ResultListOAuthAppDTO {
     locale?: string;
 }
 
+export interface ResultListExternalStorageDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ExternalStorageDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListExternalProfileDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ExternalProfileDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListExternalStorageImportJobDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ExternalStorageImportJobDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+/** All Condition ResponseDTO */
+export interface ConditionResponseDTO {
+    key?: string;
+    label?: string;
+    type?: string;
+    options?: Record<string, object>[];
+    belong?: string;
+    isMultiple?: boolean;
+}
+
+export interface ResultListConditionResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ConditionResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface Content {
+    type?: string;
+    format?: string;
+    text?: string;
+}
+
+export interface MessageTemplateDTO {
+    id?: string;
+    status?: string;
+    name?: string;
+    category?: string;
+    language?: string;
+    parameter_format?: string;
+    needSendTextMessage?: boolean;
+    headerVariables?: string[];
+    bodyVariables?: string[];
+    textVariables?: string[];
+    components?: Content[];
+}
+
+export interface ResultListMessageTemplateDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: MessageTemplateDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface ResultListPlugin {
     result?: boolean;
     /** @format int32 */
@@ -11377,85 +11460,6 @@ export interface ResultAzureOcrSettingDTO {
     code?: number;
     message?: string;
     data?: AzureOcrSettingDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListUserTaskDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: UserTaskDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListProcessDefinitionDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ProcessDefinitionDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-/** BPMN Dynamic Form Information DTO */
-export interface BpmnDynamicFormDTO {
-    id?: string;
-    name?: string;
-    type?: string;
-    properties?: FormPropertyDTO[];
-}
-
-export interface ResultListBpmnDynamicFormDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: BpmnDynamicFormDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultBpmnDynamicFormDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** BPMN Dynamic Form Information DTO */
-    data?: BpmnDynamicFormDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListProcessDefinitionDraft {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ProcessDefinitionDraft[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface AdhocApprovalResp {
-    histories?: AdhocApproval[];
-    pendingApproval?: AdhocApproval;
-    id?: string;
-    approvedDate?: string;
-    approvalTaskId?: string;
-    documentApprovalVersion?: string;
-    approvedBy?: string;
-}
-
-export interface ResultAdhocApprovalResp {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: AdhocApprovalResp;
     messageKey?: string;
     locale?: string;
 }
@@ -11503,54 +11507,6 @@ export interface ResultListPersonalDashboard {
     code?: number;
     message?: string;
     data?: PersonalDashboard[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListDocumentThumbnailDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocumentThumbnailDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface NotificationUnreadCountDTO {
-    /** @format int32 */
-    unreadCount?: number;
-    type?: string;
-}
-
-export interface ResultListNotificationUnreadCountDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: NotificationUnreadCountDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface CheckBoxDTO {
-    isMultiple?: boolean;
-    key?: string;
-    label?: string;
-    options?: CheckBoxOptionDTO[];
-}
-
-export interface CheckBoxOptionDTO {
-    label?: string;
-    value?: object;
-}
-
-export interface ResultListCheckBoxDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CheckBoxDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -11846,6 +11802,31 @@ export interface ResultListSmartFolderResponseDTO {
     code?: number;
     message?: string;
     data?: SmartFolderResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface EasyShareDocumentResponseDTO {
+    id?: string;
+    uid?: string;
+    title?: string;
+    path?: string;
+    type?: string;
+    fileExtension?: string;
+    fileSize?: string;
+    lastModified?: string;
+    readOnly?: boolean;
+    watermarkTemplateId?: string;
+    watermarkStatus?: string;
+    status?: string;
+}
+
+export interface ResultListEasyShareDocumentResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: EasyShareDocumentResponseDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -12175,20 +12156,6 @@ export interface ResultListMetadataResponseVO {
     data?: MetadataResponseVO[];
     messageKey?: string;
     locale?: string;
-}
-
-export interface DAMConversionSetting {
-    id?: string;
-    name?: string;
-    label?: string;
-    description?: string;
-    sourceType?: string;
-    targetType?: string;
-    operation?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
 }
 
 export interface ResultMapStringListDAMConversionSetting {
@@ -12559,36 +12526,6 @@ export interface ResultAiChatInitInfoVO {
     locale?: string;
 }
 
-export interface Content {
-    type?: string;
-    format?: string;
-    text?: string;
-}
-
-export interface MessageTemplateDTO {
-    id?: string;
-    status?: string;
-    name?: string;
-    category?: string;
-    language?: string;
-    parameter_format?: string;
-    needSendTextMessage?: boolean;
-    headerVariables?: string[];
-    bodyVariables?: string[];
-    textVariables?: string[];
-    components?: Content[];
-}
-
-export interface ResultListMessageTemplateDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: MessageTemplateDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
 /** Process Instance Information */
 export interface ProcessInstanceDTO {
     /** process Instance ID */
@@ -12696,6 +12633,21 @@ export interface ResultListMQConfigurationInfo {
     code?: number;
     message?: string;
     data?: MQConfigurationInfo[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface LanguageDTO {
+    name?: string;
+    code?: string;
+}
+
+export interface ResultListLanguageDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: LanguageDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -12900,103 +12852,15 @@ export interface ResultListAuditTemplate {
     locale?: string;
 }
 
-export interface ResultDocumentTypeDTO {
+export interface ResultDocPalTypeDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
     /** Document Type */
-    data?: DocumentTypeDTO;
+    data?: DocPalTypeDTO;
     messageKey?: string;
     locale?: string;
-}
-
-export interface ResultListDocPalTypeRelated {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocPalTypeRelated[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface DocPalType {
-    id?: string;
-    name?: string;
-    category?: string;
-    dataType?: string;
-    enable?: boolean;
-    createdBy?: string;
-    modifiedBy?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-}
-
-export interface ResultListDocPalType {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocPalType[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface LanguageDTO {
-    name?: string;
-    code?: string;
-}
-
-export interface ResultListLanguageDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: LanguageDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface AclEntryDTO {
-    id?: string;
-    /**
-     * 名称
-     * @example "Write"
-     */
-    name: string;
-    /**
-     * 标签
-     * @example "Write"
-     */
-    label?: string;
-    /** 类型 */
-    type?: "System" | "Document";
-    /** 是否删除的标记 */
-    deleteFlag?: "YES" | "NO";
-    /**
-     * 创建者
-     * @example "Administrator"
-     */
-    createdBy?: string;
-    /**
-     * 更新者
-     * @example "Administrator"
-     */
-    modifiedBy?: string;
-    /**
-     * Created Date
-     * @format date-time
-     */
-    createdDate?: string;
-    /**
-     * Modified Date
-     * @format date-time
-     */
-    modifiedDate?: string;
-    ids?: string[];
 }
 
 /** Delete Workflow (Request) */
@@ -13189,6 +13053,262 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags Workflow Task
+         * @name GetWorkflowTaskCandidates
+         * @summary Retrieve task candidates
+         * @request GET:/api/workflow/task/candidates
+         */
+        getWorkflowTaskCandidates: (
+            query: {
+                taskId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/candidates`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskCandidates
+         * @summary Retrieve task candidates
+         * @request POST:/api/workflow/task/candidates
+         */
+        postWorkflowTaskCandidates: (
+            query: {
+                taskId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/candidates`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name GetWorkflowTaskCandidatesbytaskdefinitionkey
+         * @summary Retrieve task candidates by process task definition
+         * @request GET:/api/workflow/task/candidatesByTaskDefinitionKey
+         */
+        getWorkflowTaskCandidatesbytaskdefinitionkey: (
+            query: {
+                taskDefinitionKey: string;
+                processKey: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/candidatesByTaskDefinitionKey`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskCandidatesbytaskdefinitionkey
+         * @summary Retrieve task candidates by process task definition
+         * @request POST:/api/workflow/task/candidatesByTaskDefinitionKey
+         */
+        postWorkflowTaskCandidatesbytaskdefinitionkey: (
+            query: {
+                taskDefinitionKey: string;
+                processKey: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/candidatesByTaskDefinitionKey`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name GetWorkflowTaskAttachment
+         * @summary Download task attachment
+         * @request GET:/api/workflow/task/attachment
+         */
+        getWorkflowTaskAttachment: (
+            query: {
+                attachmentId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/attachment`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PutWorkflowTaskAttachment
+         * @request PUT:/api/workflow/task/attachment
+         */
+        putWorkflowTaskAttachment: (
+            data: {
+                attachmentId: string;
+                /** @format binary */
+                file: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultFileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/attachment`,
+                method: "PUT",
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskAttachment
+         * @summary Download task attachment
+         * @request POST:/api/workflow/task/attachment
+         */
+        postWorkflowTaskAttachment: (
+            query: {
+                attachmentId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/attachment`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name DeleteWorkflowTaskAttachment
+         * @summary Delete an attachment
+         * @request DELETE:/api/workflow/task/attachment
+         */
+        deleteWorkflowTaskAttachment: (
+            query: {
+                attachmentId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/attachment`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name GetWorkflowTaskAttachmentPreview
+         * @summary Download task attachment preview
+         * @request GET:/api/workflow/task/attachment/preview
+         */
+        getWorkflowTaskAttachmentPreview: (
+            query: {
+                attachmentId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/attachment/preview`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskAttachmentPreview
+         * @summary Download task attachment preview
+         * @request POST:/api/workflow/task/attachment/preview
+         */
+        postWorkflowTaskAttachmentPreview: (
+            query: {
+                attachmentId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/attachment/preview`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name GetWorkflowTaskAttachmentInfo
+         * @summary Get the information about the uploaded file
+         * @request GET:/api/workflow/task/attachment/info
+         */
+        getWorkflowTaskAttachmentInfo: (
+            query: {
+                attachmentId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultFileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/attachment/info`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskAttachmentInfo
+         * @summary Get the information about the uploaded file
+         * @request POST:/api/workflow/task/attachment/info
+         */
+        postWorkflowTaskAttachmentInfo: (
+            query: {
+                attachmentId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultFileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/attachment/info`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags Configuration
          * @name GetDsbConfigTypes
          * @summary Get all document types
@@ -13201,7 +13321,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultListDocPalTypeDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dsb/config/types`,
                 method: "GET",
                 query: query,
@@ -13223,7 +13343,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultListDocPalTypeDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dsb/config/types`,
                 method: "POST",
                 query: query,
@@ -13245,7 +13365,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultListDocPalTypeDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dsb/config/types/`,
                 method: "GET",
                 query: query,
@@ -13267,7 +13387,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultListDocPalTypeDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dsb/config/types/`,
                 method: "POST",
                 query: query,
@@ -13331,7 +13451,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/docpal/workflow/task/candidatesByTaskDefinitionKey`,
                 method: "GET",
                 query: query,
@@ -13353,7 +13473,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultSetUserDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/docpal/workflow/task/candidatesByTaskDefinitionKey`,
                 method: "POST",
                 query: query,
@@ -13548,31 +13668,31 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * @description Get detailed information of an import job by ID
+         * No description
          *
-         * @tags ExternalStorageImportJobController
-         * @name GetImportjobsId
-         * @summary Get import job details
-         * @request GET:/api/importJobs/{id}
+         * @tags NotificationRecordController
+         * @name PutNotificationIdUpdateStatusStatus
+         * @summary Update status of notification record
+         * @request PUT:/api/notification/{id}/update-status/{status}
          */
-        getImportjobsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs/${id}`,
-                method: "GET",
+        putNotificationIdUpdateStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/${id}/update-status/${status}`,
+                method: "PUT",
                 ...params,
             }),
 
         /**
          * No description
          *
-         * @tags ExternalStorageImportJobController
-         * @name PutImportjobsId
-         * @summary Update import job
-         * @request PUT:/api/importJobs/{id}
+         * @tags NotificationRecordController
+         * @name PutNotificationUpdateStatusBatch
+         * @summary Batch update status of notification record
+         * @request PUT:/api/notification/update-status/batch
          */
-        putImportjobsId: (id: string, data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs/${id}`,
+        putNotificationUpdateStatusBatch: (data: NotificationRecordDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/update-status/batch`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13582,44 +13702,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags ExternalStorageImportJobController
-         * @name DeleteImportjobsId
-         * @summary Delete import job
-         * @request DELETE:/api/importJobs/{id}
+         * @tags NotificationRecordController
+         * @name PutNotificationSettingUpdateBatch
+         * @summary Batch update status of notification setting
+         * @request PUT:/api/notification/setting/update/batch
          */
-        deleteImportjobsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * @description Retrieve detailed information of a specific external storage
-         *
-         * @tags ExternalStorageController
-         * @name GetExternalstorageId
-         * @summary Get External Storage Detail
-         * @request GET:/api/externalStorage/{id}
-         */
-        getExternalstorageId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PutExternalstorageId
-         * @summary Update an existing external storage configuration
-         * @request PUT:/api/externalStorage/{id}
-         */
-        putExternalstorageId: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}`,
+        putNotificationSettingUpdateBatch: (data: NotificationSetting[], params: RequestParams = {}) =>
+            this.request<ResultListNotificationSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/setting/update/batch`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13629,49 +13719,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags ExternalStorageController
-         * @name DeleteExternalstorageId
-         * @summary Delete External Storage
-         * @request DELETE:/api/externalStorage/{id}
+         * @tags NotificationRecordController
+         * @name PutNotificationDissmissByType
+         * @request PUT:/api/notification/dissmiss-by-type
          */
-        deleteExternalstorageId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name GetExternalstorageIdProfilesProfileid
-         * @summary Get a external profile in external storage id
-         * @request GET:/api/externalStorage/{id}/profiles/{profileId}
-         */
-        getExternalstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
-            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/${profileId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * @description Update an existing external profile for a specific external storage
-         *
-         * @tags ExternalStorageController
-         * @name PutExternalstorageIdProfilesProfileid
-         * @summary Update a external profile in external storage id
-         * @request PUT:/api/externalStorage/{id}/profiles/{profileId}
-         */
-        putExternalstorageIdProfilesProfileid: (
-            id: string,
-            profileId: string,
-            data: ExternalProfileDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/${profileId}`,
+        putNotificationDissmissByType: (data: NotificationManageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/dissmiss-by-type`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13681,15 +13735,16 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags ExternalStorageController
-         * @name DeleteExternalstorageIdProfilesProfileid
-         * @summary Delete a external profile in external storage id
-         * @request DELETE:/api/externalStorage/{id}/profiles/{profileId}
+         * @tags NotificationRecordController
+         * @name PutNotificationDissmissByIds
+         * @request PUT:/api/notification/dissmiss-by-ids
          */
-        deleteExternalstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/${profileId}`,
-                method: "DELETE",
+        putNotificationDissmissByIds: (data: NotificationManageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/dissmiss-by-ids`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
@@ -13783,6 +13838,92 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         deleteExternalDriveOauthAppsAppId: (appId: string, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/external-drive/oauth/apps/${appId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PutExt3RdstorageIdUpdate
+         * @summary Update an existing external storage configuration
+         * @request PUT:/api/ext3rdStorage/{id}/update
+         */
+        putExt3rdstorageIdUpdate: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/update`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Update an existing external profile for a specific external storage
+         *
+         * @tags ExternalStorageController
+         * @name PutExt3RdstorageIdUpdateProfilesProfileid
+         * @summary Update a external profile in external storage id
+         * @request PUT:/api/ext3rdStorage/{id}/update-profiles/{profileId}
+         */
+        putExt3rdstorageIdUpdateProfilesProfileid: (
+            id: string,
+            profileId: string,
+            data: ExternalProfileDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/update-profiles/${profileId}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Get detailed information of an import job by ID
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetExt3RdstorageImportjobsId
+         * @summary Get import job details
+         * @request GET:/api/ext3rdStorage/ImportJobs/{id}
+         */
+        getExt3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/ImportJobs/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PutExt3RdstorageImportjobsId
+         * @summary Update import job
+         * @request PUT:/api/ext3rdStorage/ImportJobs/{id}
+         */
+        putExt3rdstorageImportjobsId: (id: string, data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/ImportJobs/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name DeleteExt3RdstorageImportjobsId
+         * @summary Delete import job
+         * @request DELETE:/api/ext3rdStorage/ImportJobs/{id}
+         */
+        deleteExt3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/ImportJobs/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -13896,87 +14037,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         putDocpalPersonalDashboardUpdate: (data: PersonalDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/docpal/personal/dashboard/update`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name PutDocpalNotificationIdStatusStatus
-         * @summary Update status of notification record
-         * @request PUT:/api/docpal/notification/{id}/status/{status}
-         */
-        putDocpalNotificationIdStatusStatus: (id: number, status: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/${id}/status/${status}`,
-                method: "PUT",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name PutDocpalNotificationStatus
-         * @summary Batch update status of notification record
-         * @request PUT:/api/docpal/notification/status
-         */
-        putDocpalNotificationStatus: (data: NotificationRecordDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/status`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name PutDocpalNotificationSettingStatus
-         * @summary Batch update status of notification setting
-         * @request PUT:/api/docpal/notification/setting/status
-         */
-        putDocpalNotificationSettingStatus: (data: NotificationSetting[], params: RequestParams = {}) =>
-            this.request<ResultListNotificationSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/setting/status`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name PutDocpalNotificationDissmissByType
-         * @request PUT:/api/docpal/notification/dissmiss_by_type
-         */
-        putDocpalNotificationDissmissByType: (data: NotificationManageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/dissmiss_by_type`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name PutDocpalNotificationDissmissByIds
-         * @request PUT:/api/docpal/notification/dissmiss_by_ids
-         */
-        putDocpalNotificationDissmissByIds: (data: NotificationManageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/dissmiss_by_ids`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -15311,7 +15371,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request PUT:/api/dms/dam/settings
          */
         putDmsDamSettings: (data: DAMConversionSettingRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultDAMConversionSetting, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dms/dam/settings`,
                 method: "PUT",
                 body: data,
@@ -15327,7 +15387,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request POST:/api/dms/dam/settings
          */
         postDmsDamSettings: (data: DAMConversionSettingRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultDAMConversionSetting, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dms/dam/settings`,
                 method: "POST",
                 body: data,
@@ -15815,6 +15875,1300 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskUser
+         * @summary Retrieve tasks for the candidate users
+         * @request POST:/api/workflow/task/user
+         */
+        postWorkflowTaskUser: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/user`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskUnclaim
+         * @summary Unclaim a task
+         * @request POST:/api/workflow/task/unclaim
+         */
+        postWorkflowTaskUnclaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/unclaim`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskUnassigned
+         * @summary Retrieve unassigned task list
+         * @request POST:/api/workflow/task/unassigned
+         */
+        postWorkflowTaskUnassigned: (params: RequestParams = {}) =>
+            this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/unassigned`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskPropertiesSave
+         * @summary Save task form properties
+         * @request POST:/api/workflow/task/properties/save
+         */
+        postWorkflowTaskPropertiesSave: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/properties/save`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskPersonal
+         * @summary Retrieve tasks for a user
+         * @request POST:/api/workflow/task/personal
+         */
+        postWorkflowTaskPersonal: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/personal`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskMove
+         * @request POST:/api/workflow/task/move
+         */
+        postWorkflowTaskMove: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/move`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name GetWorkflowTaskList
+         * @request GET:/api/workflow/task/list
+         */
+        getWorkflowTaskList: (
+            query?: {
+                processInstanceId?: string;
+                userId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskList
+         * @summary Retrieve tasks for a process instance
+         * @request POST:/api/workflow/task/list
+         */
+        postWorkflowTaskList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name GetWorkflowTaskInfo
+         * @request GET:/api/workflow/task/info
+         */
+        getWorkflowTaskInfo: (
+            query?: {
+                processInstanceId?: string;
+                taskId?: string;
+                userId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/info`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskInfo
+         * @summary Retrieve a task
+         * @request POST:/api/workflow/task/info
+         */
+        postWorkflowTaskInfo: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/info`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskGroup
+         * @summary Retrieve tasks for the candidate group
+         * @request POST:/api/workflow/task/group
+         */
+        postWorkflowTaskGroup: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/group`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskFormSubmit
+         * @summary Submit a task form
+         * @request POST:/api/workflow/task/form/submit
+         */
+        postWorkflowTaskFormSubmit: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/form/submit`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskExport
+         * @request POST:/api/workflow/task/export
+         */
+        postWorkflowTaskExport: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/export`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskExportHeaders
+         * @request POST:/api/workflow/task/export-headers
+         */
+        postWorkflowTaskExportHeaders: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/export-headers`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskDuedate
+         * @summary Set task due date
+         * @request POST:/api/workflow/task/dueDate
+         */
+        postWorkflowTaskDuedate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/dueDate`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Delegate task to another user
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskDelegate
+         * @request POST:/api/workflow/task/delegate
+         */
+        postWorkflowTaskDelegate: (
+            query: {
+                taskId: string;
+                userId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/delegate`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskDataSubmit
+         * @request POST:/api/workflow/task/data/submit
+         */
+        postWorkflowTaskDataSubmit: (
+            data: {
+                workflow: string;
+                files: File[];
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/data/submit`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskDataSave
+         * @request POST:/api/workflow/task/data/save
+         */
+        postWorkflowTaskDataSave: (
+            data: {
+                workflow: string;
+                files: File[];
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/data/save`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskComplete
+         * @summary Complete a task
+         * @request POST:/api/workflow/task/complete
+         */
+        postWorkflowTaskComplete: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/complete`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskClaim
+         * @summary Claim a task
+         * @request POST:/api/workflow/task/claim
+         */
+        postWorkflowTaskClaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/claim`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Task
+         * @name PostWorkflowTaskAssign
+         * @summary Assign task to a user
+         * @request POST:/api/workflow/task/assign
+         */
+        postWorkflowTaskAssign: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/assign`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceUploadFiles
+         * @summary Upload multiple files in the document repository
+         * @request POST:/api/workflow/instance/upload/files
+         */
+        postWorkflowInstanceUploadFiles: (
+            data: {
+                document: string;
+                files?: File[];
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/upload/files`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceUploadFile
+         * @summary Upload single file in the document repository
+         * @request POST:/api/workflow/instance/upload/file
+         */
+        postWorkflowInstanceUploadFile: (
+            data: {
+                document: string;
+                /** @format binary */
+                file?: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/upload/file`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceSubmitadhocapproval
+         * @request POST:/api/workflow/instance/submitAdhocApproval
+         */
+        postWorkflowInstanceSubmitadhocapproval: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/submitAdhocApproval`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceAdhocApproval
+         * @request POST:/api/workflow/instance/adhoc/approval
+         */
+        postWorkflowInstanceAdhocApproval: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/adhoc/approval`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceQueryadhocapprovalpage
+         * @request POST:/api/workflow/instance/queryAdhocApprovalPage
+         */
+        postWorkflowInstanceQueryadhocapprovalpage: (data: AdhocApprovalDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOAdhocApproval, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/queryAdhocApprovalPage`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceProperties
+         * @summary Retrieve task form properties
+         * @request POST:/api/workflow/instance/properties
+         */
+        postWorkflowInstanceProperties: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/properties`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceProcess
+         * @summary Retrieve process definition
+         * @request POST:/api/workflow/instance/process
+         */
+        postWorkflowInstanceProcess: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/process`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name DeleteWorkflowInstanceProcess
+         * @request DELETE:/api/workflow/instance/process
+         */
+        deleteWorkflowInstanceProcess: (
+            query?: {
+                processInstanceId?: string;
+                /** @format date-time */
+                createdDate?: string;
+                /** @format date-time */
+                endedDate?: string;
+                completed?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/process`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceProcessStart
+         * @summary Start a new process instance
+         * @request POST:/api/workflow/instance/process/start
+         */
+        postWorkflowInstanceProcessStart: (
+            data: WorkflowRequestDTO,
+            query?: {
+                async?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/process/start`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceProcessModel
+         * @summary Retrieve process model (BPMN) XML
+         * @request POST:/api/workflow/instance/process/model
+         */
+        postWorkflowInstanceProcessModel: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/process/model`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceProcessMessage
+         * @request POST:/api/workflow/instance/process/message
+         */
+        postWorkflowInstanceProcessMessage: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/process/message`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceProcessList
+         * @summary Retrieve process definition
+         * @request POST:/api/workflow/instance/process/list
+         */
+        postWorkflowInstanceProcessList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListProcessDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/process/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceProcessInstance
+         * @request POST:/api/workflow/instance/process/instance
+         */
+        postWorkflowInstanceProcessInstance: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/process/instance`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name DeleteWorkflowInstanceProcessInstance
+         * @request DELETE:/api/workflow/instance/process/instance
+         */
+        deleteWorkflowInstanceProcessInstance: (
+            query: {
+                processInstanceId: string;
+                userId: string;
+                deleteReason?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListHistoricProcessInstanceEntityImpl, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/process/instance`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceProcessConditionValidate
+         * @request POST:/api/workflow/instance/process/condition/validate
+         */
+        postWorkflowInstanceProcessConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/process/condition/validate`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceProcessCombineList
+         * @request POST:/api/workflow/instance/process/combine/list
+         */
+        postWorkflowInstanceProcessCombineList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListProcessDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/process/combine/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceProcessBulkUploadFiles
+         * @request POST:/api/workflow/instance/process/bulk-upload/files
+         */
+        postWorkflowInstanceProcessBulkUploadFiles: (
+            query: {
+                processInstanceId: string;
+            },
+            data: {
+                /** @format binary */
+                file: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/process/bulk-upload/files`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceProcessActive
+         * @request POST:/api/workflow/instance/process/active
+         */
+        postWorkflowInstanceProcessActive: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOInstanceDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/process/active`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceJobsIdFail
+         * @request POST:/api/workflow/instance/jobs/{id}/fail
+         */
+        postWorkflowInstanceJobsIdFail: (id: number, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/jobs/${id}/fail`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceJobsPage
+         * @request POST:/api/workflow/instance/jobs/page
+         */
+        postWorkflowInstanceJobsPage: (data: QueryWorkflowJobRequest, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOWorkflowRetryManagerDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/jobs/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance History
+         * @name PostWorkflowInstanceHistoryVariable
+         * @summary Retrieve task variable history
+         * @request POST:/api/workflow/instance/history/variable
+         */
+        postWorkflowInstanceHistoryVariable: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/history/variable`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance History
+         * @name PostWorkflowInstanceHistoryTask
+         * @summary Retrieve task history
+         * @request POST:/api/workflow/instance/history/task
+         */
+        postWorkflowInstanceHistoryTask: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/history/task`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance History
+         * @name PostWorkflowInstanceHistoryTaskLogs
+         * @summary Retrieve task log history
+         * @request POST:/api/workflow/instance/history/task/logs
+         */
+        postWorkflowInstanceHistoryTaskLogs: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/history/task/logs`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance History
+         * @name PostWorkflowInstanceHistoryTaskPage
+         * @request POST:/api/workflow/instance/history/task/page
+         */
+        postWorkflowInstanceHistoryTaskPage: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
+            this.request<
+                ResultPaginationDTOHistoricProcessInstanceEntityImpl,
+                Result | (ResultObject | Result | ResultString)
+            >({
+                path: `/api/workflow/instance/history/task/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance History
+         * @name PostWorkflowInstanceHistoryProcessWithoutVariables
+         * @request POST:/api/workflow/instance/history/process_without_variables
+         */
+        postWorkflowInstanceHistoryProcessWithoutVariables: (
+            data: WorkflowHistoryRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<
+                ResultPaginationDTOHistoricProcessInstanceEntityImpl,
+                Result | (ResultObject | Result | ResultString)
+            >({
+                path: `/api/workflow/instance/history/process_without_variables`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance History
+         * @name PostWorkflowInstanceHistoryProcess
+         * @summary Get workflow process history
+         * @request POST:/api/workflow/instance/history/process
+         */
+        postWorkflowInstanceHistoryProcess: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
+            this.request<
+                ResultPaginationDTOHistoricProcessInstanceEntityImpl,
+                Result | (ResultObject | Result | ResultString)
+            >({
+                path: `/api/workflow/instance/history/process`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance History
+         * @name PostWorkflowInstanceHistoryExportProcess
+         * @request POST:/api/workflow/instance/history/export-process
+         */
+        postWorkflowInstanceHistoryExportProcess: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/history/export-process`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance History
+         * @name PostWorkflowInstanceHistoryActivity
+         * @summary Retrieve workflow activity history
+         * @request POST:/api/workflow/instance/history/activity
+         */
+        postWorkflowInstanceHistoryActivity: (data: WorkflowHistoryRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/history/activity`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name PostWorkflowInstanceFilesUpload
+         * @summary Upload multiple file to flowable table
+         * @request POST:/api/workflow/instance/files/upload
+         */
+        postWorkflowInstanceFilesUpload: (
+            data: {
+                /** @format binary */
+                files?: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/files/upload`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostWorkflowDefinitionVersionVersionidDeploy
+         * @summary Promote to Production - Deploy the current version to production for used it
+         * @request POST:/api/workflow/definition/version/{versionId}/deploy
+         */
+        postWorkflowDefinitionVersionVersionidDeploy: (
+            versionId: string,
+            query: {
+                requestDTO: ProcessDefinitionDraftRequestDTO;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                jsonValue?: stringJson;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/version/${versionId}/deploy`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostWorkflowDefinitionVersionReplaceDraft
+         * @summary Save to Draft
+         * @request POST:/api/workflow/definition/version/replace/draft
+         */
+        postWorkflowDefinitionVersionReplaceDraft: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/version/replace/draft`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostWorkflowDefinitionVersionPage
+         * @summary Pagination search of process definition version
+         * @request POST:/api/workflow/definition/version/page
+         */
+        postWorkflowDefinitionVersionPage: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/version/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostWorkflowDefinitionVersionNew
+         * @summary Save New Version of process definition
+         * @request POST:/api/workflow/definition/version/new
+         */
+        postWorkflowDefinitionVersionNew: (
+            query: {
+                /** Process Definition Version RequestDTO */
+                requestDTO: ProcessVersionRequestDTO;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                draftId?: string;
+                /** @format string */
+                jsonValue?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/version/new`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostWorkflowDefinitionValidate
+         * @summary Validate BPMN 2.0 XML file whether process definition grammatical
+         * @request POST:/api/workflow/definition/validate
+         */
+        postWorkflowDefinitionValidate: (
+            query: {
+                /** @format binary */
+                file: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/validate`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostWorkflowDefinitionUpload
+         * @summary Create new workflow (process definition)
+         * @request POST:/api/workflow/definition/upload
+         */
+        postWorkflowDefinitionUpload: (
+            query: {
+                requestDTO: ProcessDefinitionDraftRequestDTO;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                draftId?: string;
+                /** @format string */
+                name?: string;
+                /** @format string */
+                key?: string;
+                /** @format boolean */
+                isDraft?: boolean;
+                /**
+                 * @format string
+                 * @default "V1"
+                 */
+                versionId?: string;
+                /** @format string */
+                jsonValue?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/upload`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostWorkflowDefinitionSave
+         * @summary Save workflow of someone version
+         * @request POST:/api/workflow/definition/save
+         */
+        postWorkflowDefinitionSave: (
+            query: {
+                requestDTO: ProcessDefinitionDraftRequestDTO;
+            },
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                draftId?: string;
+                /** @format string */
+                name?: string;
+                /** @format string */
+                key?: string;
+                /** @format boolean */
+                isDraft?: boolean;
+                /** @format string */
+                versionId?: string;
+                /** @format string */
+                jsonValue?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/save`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostWorkflowDefinitionParse
+         * @summary Validate BPMN 2.0 XML file whether process definition grammatical
+         * @request POST:/api/workflow/definition/parse
+         */
+        postWorkflowDefinitionParse: (
+            query: {
+                /** @format binary */
+                file: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/parse`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetWorkflowDefinitionDraftDraftidJson
+         * @summary Get json of process definition
+         * @request GET:/api/workflow/definition/draft/{draftId}/json
+         */
+        getWorkflowDefinitionDraftDraftidJson: (draftId: string, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/draft/${draftId}/json`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostWorkflowDefinitionDraftDraftidJson
+         * @summary Update json of process definition, please use string json
+         * @request POST:/api/workflow/definition/draft/{draftId}/json
+         */
+        postWorkflowDefinitionDraftDraftidJson: (
+            draftId: string,
+            data: ProcessDefinitionDraft,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/draft/${draftId}/json`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostWorkflowDefinitionDraftDraftidImport
+         * @summary Import zip file for create new process definition
+         * @request POST:/api/workflow/definition/draft/{draftId}/import
+         */
+        postWorkflowDefinitionDraftDraftidImport: (
+            draftId: string,
+            query: {
+                /** @format binary */
+                file: File;
+                versionNumber?: string;
+            },
+            data: {
+                /** @format string */
+                draftId?: string;
+                /** @format binary */
+                file?: File;
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/draft/${draftId}/import`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostWorkflowDefinitionDraftDraftidExport
+         * @summary Export process definition
+         * @request POST:/api/workflow/definition/draft/{draftId}/export
+         */
+        postWorkflowDefinitionDraftDraftidExport: (
+            draftId: string,
+            query?: {
+                versionNumber?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/draft/${draftId}/export`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostWorkflowDefinitionDraftPage
+         * @summary Pagination search of process definition model
+         * @request POST:/api/workflow/definition/draft/page
+         */
+        postWorkflowDefinitionDraftPage: (data: ProcessDefinitionRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOProcessDefinitionDraft, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/draft/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostWorkflowDefinitionCopyCopiedkey
+         * @summary Copy workflow (process definition)
+         * @request POST:/api/workflow/definition/copy/{copiedKey}
+         */
+        postWorkflowDefinitionCopyCopiedkey: (
+            copiedKey: string,
+            data: WorkflowDraftRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/copy/${copiedKey}`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostWorkflowDefinitionCopyFromFlowable
+         * @summary Data Patch API
+         * @request POST:/api/workflow/definition/copy/from/flowable
+         */
+        postWorkflowDefinitionCopyFromFlowable: (data: string[], params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/copy/from/flowable`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name PostWorkflowDefinitionActiveDraftid
+         * @request POST:/api/workflow/definition/active/{draftId}
+         */
+        postWorkflowDefinitionActiveDraftid: (draftId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/active/${draftId}`,
+                method: "POST",
                 ...params,
             }),
 
@@ -16331,40 +17685,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags AclEntryController
-         * @name PostPermissionEntry
-         * @summary Create Access control entry
-         * @request POST:/api/permission/entry
-         */
-        postPermissionEntry: (data: AccessControlEntry, params: RequestParams = {}) =>
-            this.request<ResultAccessControlEntry, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/permission/entry`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AclEntryController
-         * @name DeletePermissionEntry
-         * @summary Batch delete entry by id list
-         * @request DELETE:/api/permission/entry
-         */
-        deletePermissionEntry: (data: AclEntryDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/permission/entry`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Password Controller
          * @name PostPasswordInitPassword
          * @request POST:/api/password/init-password
@@ -16372,72 +17692,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postPasswordInitPassword: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/password/init-password`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name PostNuxeoSharePrepareDownload
-         * @summary check download file is complete
-         * @request POST:/api/nuxeo/share/prepare/download
-         */
-        postNuxeoSharePrepareDownload: (data: string[], params: RequestParams = {}) =>
-            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/prepare/download`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name PostNuxeoSharePage
-         * @request POST:/api/nuxeo/share/page
-         */
-        postNuxeoSharePage: (data: SharePageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name PostNuxeoShareNew
-         * @summary generate share link
-         * @request POST:/api/nuxeo/share/new
-         */
-        postNuxeoShareNew: (data: ShareRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/new`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name PostNuxeoShareGet
-         * @request POST:/api/nuxeo/share/get
-         */
-        postNuxeoShareGet: (data: SharePageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/get`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16791,17 +18045,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags ExternalStorageImportJobController
-         * @name PostImportjobsPage
-         * @summary Paginated query for import jobs
-         * @request POST:/api/importJobs/page
+         * @tags NotificationRecordController
+         * @name PostNotification
+         * @summary Create notification record
+         * @request POST:/api/notification
          */
-        postImportjobsPage: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
-            this.request<
-                ResultPaginationDTOExternalStorageImportJobDTO,
-                Result | (ResultObject | Result | ResultString)
-            >({
-                path: `/api/importJobs/page`,
+        postNotification: (data: NotificationRecord, params: RequestParams = {}) =>
+            this.request<ResultNotificationRecord, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16811,31 +18062,31 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags ExternalStorageImportJobController
-         * @name PostImportjobsJobqueueFirst
-         * @summary Place a task in the first queue
-         * @request POST:/api/importJobs/jobQueue/first
+         * @tags NotificationRecordController
+         * @name DeleteNotification
+         * @summary Batch delete notification record
+         * @request DELETE:/api/notification
          */
-        postImportjobsJobqueueFirst: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
+        deleteNotification: (data: NotificationRecordDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs/jobQueue/first`,
-                method: "POST",
+                path: `/api/notification`,
+                method: "DELETE",
                 body: data,
                 type: ContentType.Json,
                 ...params,
             }),
 
         /**
-         * @description Save a external storage import job
+         * No description
          *
-         * @tags ExternalStorageImportJobController
-         * @name PostImportjobsAdd
-         * @summary Save import job record
-         * @request POST:/api/importJobs/add
+         * @tags NotificationRecordController
+         * @name PostNotificationSubscriber
+         * @summary Create notification subscriber
+         * @request POST:/api/notification/subscriber
          */
-        postImportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs/add`,
+        postNotificationSubscriber: (data: NotificationSubscriberRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultNotificationSubscriber, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/subscriber`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -16845,36 +18096,146 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags ExternalStorageImportJobController
-         * @name GetImportjobs
-         * @summary Get all import jobs list
-         * @request GET:/api/importJobs
+         * @tags NotificationRecordController
+         * @name PostNotificationSubscriberDocument
+         * @summary Create notification subscriber
+         * @request POST:/api/notification/subscriber/document
          */
-        getImportjobs: (
-            query: {
-                /** External Storage Import Job Request */
-                requestDTO: ExternalStorageImportJobRequestDTO;
-            },
+        postNotificationSubscriberDocument: (data: NotificationSubscriber, params: RequestParams = {}) =>
+            this.request<ResultNotificationSubscriber, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/subscriber/document`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NotificationRecordController
+         * @name PostNotificationSetting
+         * @summary Create notification setting
+         * @request POST:/api/notification/setting
+         */
+        postNotificationSetting: (data: NotificationSetting, params: RequestParams = {}) =>
+            this.request<ResultNotificationSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/setting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NotificationRecordController
+         * @name PostNotificationSettingUserUseridSavePreferences
+         * @summary Save current user notification preference setting
+         * @request POST:/api/notification/setting/user/{userId}/save/preferences
+         */
+        postNotificationSettingUserUseridSavePreferences: (
+            userId: string,
+            data: UserNotifyPreference[],
             params: RequestParams = {},
         ) =>
-            this.request<ResultListExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs`,
-                method: "GET",
-                query: query,
+            this.request<ResultListUserNotifyPreference, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/setting/user/${userId}/save/preferences`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
         /**
-         * @description Save a external storage import job
+         * No description
          *
-         * @tags ExternalStorageImportJobController
-         * @name PostImportjobs
-         * @summary Save import job record
-         * @request POST:/api/importJobs
+         * @tags NotificationRecordController
+         * @name PostNotificationSettingTypeTypeModuleModulename
+         * @summary Query list of some one module
+         * @request POST:/api/notification/setting/type/{type}/module/{moduleName}
          */
-        postImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs`,
+        postNotificationSettingTypeTypeModuleModulename: (
+            type: "SUB_DOCUMENT" | "SUBSCRIPTION",
+            moduleName: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListNotificationSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/setting/type/${type}/module/${moduleName}`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NotificationRecordController
+         * @name PostNotificationSend
+         * @summary Send subscribe notification using customize message body
+         * @request POST:/api/notification/send
+         */
+        postNotificationSend: (data: SubNotificationRequest, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/send`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NotificationRecordController
+         * @name PostNotificationReadAll
+         * @summary Read all notification record of current login user
+         * @request POST:/api/notification/read/all
+         */
+        postNotificationReadAll: (params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/read/all`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NotificationRecordController
+         * @name PostNotificationPage
+         * @summary Page of notification record
+         * @request POST:/api/notification/page
+         */
+        postNotificationPage: (
+            query: {
+                /** @format int32 */
+                pageNum: number;
+                /** @format int32 */
+                pageSize: number;
+            },
+            data: NotificationRecord,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPageNotificationRecord, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/page`,
+                method: "POST",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NotificationRecordController
+         * @name PostNotificationList
+         * @request POST:/api/notification/list
+         */
+        postNotificationList: (data: QueryNotificationRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTONotificationInfoDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/list`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -17105,211 +18466,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags ExternalStorageController
-         * @name GetExternalstorage
-         * @summary Get External Storage Detail List
-         * @request GET:/api/externalStorage
-         */
-        getExternalstorage: (
-            query: {
-                /** External Storage Request DTO */
-                externalStorageVO: ExternalStorageRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * @description Create a new external storage configuration
-         *
-         * @tags ExternalStorageController
-         * @name PostExternalstorage
-         * @summary Create a new external storage
-         * @request POST:/api/externalStorage
-         */
-        postExternalstorage: (data: ExternalStorageDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * @description Create a new external profile for a specific external storage
-         *
-         * @tags ExternalStorageController
-         * @name PostExternalstorageIdProfiles
-         * @summary Create a new external profile in external storage id
-         * @request POST:/api/externalStorage/{id}/profiles
-         */
-        postExternalstorageIdProfiles: (id: string, data: ExternalProfileDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PostExternalstorageIdProfilesPage
-         * @summary Paging query external storage profiles by external storage id
-         * @request POST:/api/externalStorage/{id}/profiles/page
-         */
-        postExternalstorageIdProfilesPage: (id: string, data: ExternalProfileRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PostExternalstorageIdConnectionTest
-         * @summary Testing SMB connection is correct
-         * @request POST:/api/externalStorage/{id}/connection/test
-         */
-        postExternalstorageIdConnectionTest: (id: string, data: Record<string, string>, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/connection/test`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * @description Create a new external profile output record
-         *
-         * @tags ExternalStorageController
-         * @name PostExternalstorageProfilesProfileidOutputrecord
-         * @summary Create External Profile Output
-         * @request POST:/api/externalStorage/profiles/{profileId}/outputRecord
-         */
-        postExternalstorageProfilesProfileidOutputrecord: (
-            profileId: string,
-            data: Record<string, object>,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/profiles/${profileId}/outputRecord`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name GetExternalstorageProfilesProfileidOutputrecordOutputrecordid
-         * @request GET:/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         */
-        getExternalstorageProfilesProfileidOutputrecordOutputrecordid: (
-            profileId: string,
-            outputRecordId: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PostExternalstorageProfilesProfileidOutputrecordOutputrecordid
-         * @summary Duplicate (Copy) a exist External Profile Output
-         * @request POST:/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         */
-        postExternalstorageProfilesProfileidOutputrecordOutputrecordid: (
-            profileId: string,
-            outputRecordId: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name DeleteExternalstorageProfilesProfileidOutputrecordOutputrecordid
-         * @request DELETE:/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         */
-        deleteExternalstorageProfilesProfileidOutputrecordOutputrecordid: (
-            profileId: string,
-            outputRecordId: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PatchExternalstorageProfilesProfileidOutputrecordOutputrecordid
-         * @summary Update a external profile output record
-         * @request PATCH:/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         */
-        patchExternalstorageProfilesProfileidOutputrecordOutputrecordid: (
-            profileId: string,
-            outputRecordId: string,
-            data: Record<string, object>,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PostExternalstoragePage
-         * @summary Paging query External Storage
-         * @request POST:/api/externalStorage/page
-         */
-        postExternalstoragePage: (data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Sync Task Management
          * @name GetExternalDriveSyncTasks
          * @summary Get all sync tasks
@@ -17395,6 +18551,301 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postExternalDriveOauthApps: (data: CreateOAuthAppRequest, params: RequestParams = {}) =>
             this.request<ResultOAuthAppDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/external-drive/oauth/apps`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetExt3Rdstorage
+         * @summary Get External Storage Detail List
+         * @request GET:/api/ext3rdStorage
+         */
+        getExt3rdstorage: (
+            query: {
+                /** External Storage Request DTO */
+                externalStorageVO: ExternalStorageRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * @description Create a new external storage configuration
+         *
+         * @tags ExternalStorageController
+         * @name PostExt3Rdstorage
+         * @summary Create a new external storage
+         * @request POST:/api/ext3rdStorage
+         */
+        postExt3rdstorage: (data: ExternalStorageDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Create a new external profile for a specific external storage
+         *
+         * @tags ExternalStorageController
+         * @name PostExt3RdstorageIdProfiles
+         * @summary Create a new external profile in external storage id
+         * @request POST:/api/ext3rdStorage/{id}/profiles
+         */
+        postExt3rdstorageIdProfiles: (id: string, data: ExternalProfileDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/profiles`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PostExt3RdstorageIdProfilesPage
+         * @summary Paging query external storage profiles by external storage id
+         * @request POST:/api/ext3rdStorage/{id}/profiles/page
+         */
+        postExt3rdstorageIdProfilesPage: (id: string, data: ExternalProfileRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/profiles/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PostExt3RdstorageIdConnectionTest
+         * @summary Testing SMB connection is correct
+         * @request POST:/api/ext3rdStorage/{id}/connection/test
+         */
+        postExt3rdstorageIdConnectionTest: (id: string, data: Record<string, string>, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/connection/test`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Create a new external profile output record
+         *
+         * @tags ExternalStorageController
+         * @name PostExt3RdstorageProfilesProfileidOutputrecord
+         * @summary Create External Profile Output
+         * @request POST:/api/ext3rdStorage/profiles/{profileId}/outputRecord
+         */
+        postExt3rdstorageProfilesProfileidOutputrecord: (
+            profileId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/profiles/${profileId}/outputRecord`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PostExt3RdstorageProfilesProfileidDuplicateOutputrecordOutputrecordid
+         * @summary Duplicate (Copy) a exist External Profile Output
+         * @request POST:/api/ext3rdStorage/profiles/{profileId}/duplicate-outputRecord/{outputRecordId}
+         */
+        postExt3rdstorageProfilesProfileidDuplicateOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/profiles/${profileId}/duplicate-outputRecord/${outputRecordId}`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PostExt3RdstoragePage
+         * @summary Paging query External Storage
+         * @request POST:/api/ext3rdStorage/page
+         */
+        postExt3rdstoragePage: (data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostExt3RdstorageImportjobsPage
+         * @summary Paginated query for import jobs
+         * @request POST:/api/ext3rdStorage/ImportJobs/page
+         */
+        postExt3rdstorageImportjobsPage: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
+            this.request<
+                ResultPaginationDTOExternalStorageImportJobDTO,
+                Result | (ResultObject | Result | ResultString)
+            >({
+                path: `/api/ext3rdStorage/ImportJobs/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostExt3RdstorageImportjobsJobqueueFirst
+         * @summary Place a task in the first queue
+         * @request POST:/api/ext3rdStorage/ImportJobs/jobQueue/first
+         */
+        postExt3rdstorageImportjobsJobqueueFirst: (
+            data: ExternalStorageImportJobRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/ImportJobs/jobQueue/first`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetExt3RdstorageImportjobs
+         * @summary Get all import jobs list
+         * @request GET:/api/ext3rdStorage/ImportJobs
+         */
+        getExt3rdstorageImportjobs: (
+            query: {
+                /** External Storage Import Job Request */
+                requestDTO: ExternalStorageImportJobRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/ImportJobs`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * @description Save a external storage import job
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostExt3RdstorageImportjobs
+         * @summary Save import job record
+         * @request POST:/api/ext3rdStorage/ImportJobs
+         */
+        postExt3rdstorageImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/ImportJobs`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Save a external storage import job
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostExt3RdstorageImportjobsAdd
+         * @summary Save import job record
+         * @request POST:/api/ext3rdStorage/ImportJobs/add
+         */
+        postExt3rdstorageImportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/ImportJobs/add`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WhatsAppController
+         * @name PostExt3RdmessageWhatsappWhatsappMessage
+         * @request POST:/api/ext3rdMessage/whatsapp/whatsapp/message
+         */
+        postExt3rdmessageWhatsappWhatsappMessage: (data: WhatsAppMessageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultSendMessageResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdMessage/whatsapp/whatsapp/message`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WhatsAppController
+         * @name GetExt3RdmessageWhatsappWebhook
+         * @request GET:/api/ext3rdMessage/whatsapp/webhook
+         */
+        getExt3rdmessageWhatsappWebhook: (
+            query: {
+                queryParams: Record<string, string>;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdMessage/whatsapp/webhook`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WhatsAppController
+         * @name PostExt3RdmessageWhatsappWebhook
+         * @request POST:/api/ext3rdMessage/whatsapp/webhook
+         */
+        postExt3rdmessageWhatsappWebhook: (data: JSONObject, params: RequestParams = {}) =>
+            this.request<void, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdMessage/whatsapp/webhook`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18346,7 +19797,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/docpal/workflow/task/delegate`,
                 method: "POST",
                 query: query,
@@ -19632,468 +21083,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDocpalPersonalDashboardSave: (data: PersonalDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPersonalDashboard, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/docpal/personal/dashboard/save`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name PostDocpalNotification
-         * @summary Create notification record
-         * @request POST:/api/docpal/notification
-         */
-        postDocpalNotification: (data: NotificationRecord, params: RequestParams = {}) =>
-            this.request<ResultNotificationRecord, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name DeleteDocpalNotification
-         * @summary Batch delete notification record
-         * @request DELETE:/api/docpal/notification
-         */
-        deleteDocpalNotification: (data: NotificationRecordDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name PostDocpalNotificationSubscriber
-         * @summary Create notification subscriber
-         * @request POST:/api/docpal/notification/subscriber
-         */
-        postDocpalNotificationSubscriber: (data: NotificationSubscriberRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultNotificationSubscriber, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/subscriber`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name PostDocpalNotificationSubscriberDocument
-         * @summary Create notification subscriber
-         * @request POST:/api/docpal/notification/subscriber/document
-         */
-        postDocpalNotificationSubscriberDocument: (data: NotificationSubscriber, params: RequestParams = {}) =>
-            this.request<ResultNotificationSubscriber, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/subscriber/document`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name PostDocpalNotificationSetting
-         * @summary Create notification setting
-         * @request POST:/api/docpal/notification/setting
-         */
-        postDocpalNotificationSetting: (data: NotificationSetting, params: RequestParams = {}) =>
-            this.request<ResultNotificationSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/setting`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name GetDocpalNotificationSettingUserUseridPreferences
-         * @summary Get notification preference of the user
-         * @request GET:/api/docpal/notification/setting/user/{userId}/preferences
-         */
-        getDocpalNotificationSettingUserUseridPreferences: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultListUserNotifyPreference, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/setting/user/${userId}/preferences`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name PostDocpalNotificationSettingUserUseridPreferences
-         * @summary Save current user notification preference setting
-         * @request POST:/api/docpal/notification/setting/user/{userId}/preferences
-         */
-        postDocpalNotificationSettingUserUseridPreferences: (
-            userId: string,
-            data: UserNotifyPreference[],
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListUserNotifyPreference, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/setting/user/${userId}/preferences`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name PostDocpalNotificationSettingTypeTypeModuleModulename
-         * @summary Query list of some one module
-         * @request POST:/api/docpal/notification/setting/type/{type}/module/{moduleName}
-         */
-        postDocpalNotificationSettingTypeTypeModuleModulename: (
-            type: "SUB_DOCUMENT" | "SUBSCRIPTION",
-            moduleName: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListNotificationSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/setting/type/${type}/module/${moduleName}`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name PostDocpalNotificationSend
-         * @summary Send subscribe notification using customize message body
-         * @request POST:/api/docpal/notification/send
-         */
-        postDocpalNotificationSend: (data: SubNotificationRequest, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/send`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name PostDocpalNotificationReadAll
-         * @summary Read all notification record of current login user
-         * @request POST:/api/docpal/notification/read/all
-         */
-        postDocpalNotificationReadAll: (params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/read/all`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name PostDocpalNotificationQueryNotificationList
-         * @request POST:/api/docpal/notification/query_notification_list
-         */
-        postDocpalNotificationQueryNotificationList: (data: QueryNotificationRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTONotificationInfoDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/query_notification_list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name PostDocpalNotificationPage
-         * @summary Page of notification record
-         * @request POST:/api/docpal/notification/page
-         */
-        postDocpalNotificationPage: (
-            query: {
-                /** @format int32 */
-                pageNum: number;
-                /** @format int32 */
-                pageSize: number;
-            },
-            data: NotificationRecord,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPageNotificationRecord, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/page`,
-                method: "POST",
-                query: query,
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalsharePageDeprecate
-         * @request POST:/api/docpal/internalShare/page/
-         */
-        postDocpalInternalsharePageDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/page/`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalsharePage
-         * @request POST:/api/docpal/internalShare/page
-         */
-        postDocpalInternalsharePage: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshareOthersDeprecate
-         * @request POST:/api/docpal/internalShare/others/
-         */
-        postDocpalInternalshareOthersDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/others/`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshareOthers
-         * @request POST:/api/docpal/internalShare/others
-         */
-        postDocpalInternalshareOthers: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/others`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshareMeDeprecate
-         * @request POST:/api/docpal/internalShare/me/
-         */
-        postDocpalInternalshareMeDeprecate: (data: InternalShareToMePageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/me/`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name DeleteDocpalInternalshareMeDeprecate
-         * @request DELETE:/api/docpal/internalShare/me/
-         */
-        deleteDocpalInternalshareMeDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/me/`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshareMe
-         * @request POST:/api/docpal/internalShare/me
-         */
-        postDocpalInternalshareMe: (data: InternalShareToMePageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/me`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name DeleteDocpalInternalshareMe
-         * @request DELETE:/api/docpal/internalShare/me
-         */
-        deleteDocpalInternalshareMe: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/me`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshareGroups
-         * @request POST:/api/docpal/internalShare/groups
-         */
-        postDocpalInternalshareGroups: (data: InternalShareByGroupsRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultInternalShare, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/groups`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshareCheckdocumentisinshareDeprecate
-         * @request POST:/api/docpal/internalShare/checkDocumentIsInShare/
-         */
-        postDocpalInternalshareCheckdocumentisinshareDeprecate: (
-            data: InternalShareQueryDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/checkDocumentIsInShare/`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshareCheckdocumentisinshare
-         * @request POST:/api/docpal/internalShare/checkDocumentIsInShare
-         */
-        postDocpalInternalshareCheckdocumentisinshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/checkDocumentIsInShare`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name GetDocpalInternalshare
-         * @request GET:/api/docpal/internalShare
-         */
-        getDocpalInternalshare: (
-            query: {
-                queryDTO: InternalShareQueryDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshare
-         * @request POST:/api/docpal/internalShare
-         */
-        postDocpalInternalshare: (data: InternalShareRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultInternalShareAudit, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name DeleteDocpalInternalshare
-         * @request DELETE:/api/docpal/internalShare
-         */
-        deleteDocpalInternalshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshareDeprecate
-         * @request POST:/api/docpal/internalShare/
-         */
-        postDocpalInternalshareDeprecate: (data: InternalShareRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultInternalShareAudit, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21405,6 +22394,72 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags Share (Nuxeo)
+         * @name PostDmsSharePrepareDownloadCheckFileComplete
+         * @summary check download file is complete
+         * @request POST:/api/dms/share/prepare/download/check-file-complete
+         */
+        postDmsSharePrepareDownloadCheckFileComplete: (data: string[], params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/prepare/download/check-file-complete`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name PostDmsSharePage
+         * @request POST:/api/dms/share/page
+         */
+        postDmsSharePage: (data: SharePageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name PostDmsShareNew
+         * @summary generate share link
+         * @request POST:/api/dms/share/new
+         */
+        postDmsShareNew: (data: ShareRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/new`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name PostDmsShareGet
+         * @request POST:/api/dms/share/get
+         */
+        postDmsShareGet: (data: SharePageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/get`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags SettingController
          * @name PostDmsSettingInitializationConfigurationData
          * @summary Initialization configuration data when deployed new project environment.
@@ -22041,6 +23096,253 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDmsMasterTableAclsAdd: (data: MTPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dms/master-table/acls/add`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalsharePage
+         * @request POST:/api/dms/internalShare/page
+         */
+        postDmsInternalsharePage: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalsharePageDeprecate
+         * @request POST:/api/dms/internalShare/page/
+         */
+        postDmsInternalsharePageDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/page/`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshareOthersDeprecate
+         * @request POST:/api/dms/internalShare/others/
+         */
+        postDmsInternalshareOthersDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/others/`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshareOthers
+         * @request POST:/api/dms/internalShare/others
+         */
+        postDmsInternalshareOthers: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/others`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshareMe
+         * @request POST:/api/dms/internalShare/me
+         */
+        postDmsInternalshareMe: (data: InternalShareToMePageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/me`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name DeleteDmsInternalshareMe
+         * @request DELETE:/api/dms/internalShare/me
+         */
+        deleteDmsInternalshareMe: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/me`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshareMeDeprecate
+         * @request POST:/api/dms/internalShare/me/
+         */
+        postDmsInternalshareMeDeprecate: (data: InternalShareToMePageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/me/`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name DeleteDmsInternalshareMeDeprecate
+         * @request DELETE:/api/dms/internalShare/me/
+         */
+        deleteDmsInternalshareMeDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/me/`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshareGroups
+         * @request POST:/api/dms/internalShare/groups
+         */
+        postDmsInternalshareGroups: (data: InternalShareByGroupsRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultInternalShare, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/groups`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshareCheckDocumentIsInShareDeprecate
+         * @request POST:/api/dms/internalShare/check-document-is-in-share/
+         */
+        postDmsInternalshareCheckDocumentIsInShareDeprecate: (
+            data: InternalShareQueryDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/check-document-is-in-share/`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshareCheckDocumentIsInShare
+         * @request POST:/api/dms/internalShare/check-document-is-in-share
+         */
+        postDmsInternalshareCheckDocumentIsInShare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/check-document-is-in-share`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name GetDmsInternalshare
+         * @request GET:/api/dms/internalShare
+         */
+        getDmsInternalshare: (
+            query: {
+                queryDTO: InternalShareQueryDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshare
+         * @request POST:/api/dms/internalShare
+         */
+        postDmsInternalshare: (data: InternalShareRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultInternalShareAudit, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name DeleteDmsInternalshare
+         * @request DELETE:/api/dms/internalShare
+         */
+        deleteDmsInternalshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshareDeprecate
+         * @request POST:/api/dms/internalShare/
+         */
+        postDmsInternalshareDeprecate: (data: InternalShareRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultInternalShareAudit, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23767,12 +25069,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocPalTypeController
-         * @name PostDmsDocTypeSchemaValidation
-         * @request POST:/api/dms/doc-type/schema/validation
+         * @name PostDmsDocpalTypeSchemaValidation
+         * @request POST:/api/dms/docpal-type/schema/validation
          */
-        postDmsDocTypeSchemaValidation: (data: ValidateJsonSchemaRequestDTO, params: RequestParams = {}) =>
+        postDmsDocpalTypeSchemaValidation: (data: ValidateJsonSchemaRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/dms/doc-type/schema/validation`,
+                path: `/api/dms/docpal-type/schema/validation`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -25601,40 +26903,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags DocBlockPermissionController
-         * @name PostBlockPermission
-         * @summary Create DocBlockPermission
-         * @request POST:/api/block/permission
-         */
-        postBlockPermission: (data: BlockInheritedPermission, params: RequestParams = {}) =>
-            this.request<ResultBlockInheritedPermission, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/block/permission`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DocBlockPermissionController
-         * @name PostBlockPermissionFilter
-         * @summary filter block document permission
-         * @request POST:/api/block/permission/filter
-         */
-        postBlockPermissionFilter: (data: DocDTO, params: RequestParams = {}) =>
-            this.request<ResultListDocDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/block/permission/filter`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags AI
          * @name PostAiDocumentClassification
          * @request POST:/api/ai/document-classification
@@ -25683,58 +26951,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags WhatsAppController
-         * @name PostExt3RdmessageWhatsappWhatsappMessage
-         * @request POST:/api/Ext3rdMessage/whatsapp/whatsapp/message
-         */
-        postExt3rdmessageWhatsappWhatsappMessage: (data: WhatsAppMessageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultSendMessageResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/Ext3rdMessage/whatsapp/whatsapp/message`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WhatsAppController
-         * @name GetExt3RdmessageWhatsappWebhook
-         * @request GET:/api/Ext3rdMessage/whatsapp/webhook
-         */
-        getExt3rdmessageWhatsappWebhook: (
-            query: {
-                queryParams: Record<string, string>;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/Ext3rdMessage/whatsapp/webhook`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WhatsAppController
-         * @name PostExt3RdmessageWhatsappWebhook
-         * @request POST:/api/Ext3rdMessage/whatsapp/webhook
-         */
-        postExt3rdmessageWhatsappWebhook: (data: JSONObject, params: RequestParams = {}) =>
-            this.request<void, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/Ext3rdMessage/whatsapp/webhook`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags AclPermissionController
          * @name PatchPermissionsUpdateEntry
          * @summary batch modify list of entries of permissions
@@ -25768,55 +26984,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Share (Nuxeo)
-         * @name DeleteNuxeoShare
-         * @request DELETE:/api/nuxeo/share
-         */
-        deleteNuxeoShare: (data: string[], params: RequestParams = {}) =>
-            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name PatchNuxeoShare
-         * @request PATCH:/api/nuxeo/share
-         */
-        patchNuxeoShare: (data: ShareSaveRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * @description Update the status of an import job
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PatchImportjobsIdStatus
-         * @summary Update import job status
-         * @request PATCH:/api/importJobs/{id}/status
-         */
-        patchImportjobsIdStatus: (id: string, data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs/${id}/status`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags micro-file-controller
          * @name PatchFileUpdateaidocument
          * @request PATCH:/api/file/updateAiDocument
@@ -25832,16 +26999,87 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * @description Change the status of an external storage (A/D)
+         * No description
          *
          * @tags ExternalStorageController
-         * @name PatchExternalstorageIdStatus
-         * @summary Active/Inactive a external storage
-         * @request PATCH:/api/externalStorage/{id}/status
+         * @name PatchExt3RdstorageIdProfilesProfileidUpdateProcess
+         * @summary Update an setting of existing external profile for a specific external storage
+         * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/update-process
          */
-        patchExternalstorageIdStatus: (id: string, data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/status`,
+        patchExt3rdstorageIdProfilesProfileidUpdateProcess: (
+            id: string,
+            profileId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/profiles/${profileId}/update-process`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PatchExt3RdstorageIdProfilesProfileidUpdateImport
+         * @summary Update an import setting of existing external profile for a specific external storage
+         * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/update-import
+         */
+        patchExt3rdstorageIdProfilesProfileidUpdateImport: (
+            id: string,
+            profileId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/profiles/${profileId}/update-import`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PatchExt3RdstorageIdProfilesProfileidUpdateGeneral
+         * @summary Update an general setting of existing external profile for a specific external storage
+         * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/update-general
+         */
+        patchExt3rdstorageIdProfilesProfileidUpdateGeneral: (
+            id: string,
+            profileId: string,
+            data: ExternalProfileDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/profiles/${profileId}/update-general`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PatchExt3RdstorageIdProfilesProfileidUpdateCapture
+         * @summary Update an capture setting of existing external profile for a specific external storage
+         * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/update-capture
+         */
+        patchExt3rdstorageIdProfilesProfileidUpdateCapture: (
+            id: string,
+            profileId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/profiles/${profileId}/update-capture`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25852,18 +27090,35 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update profile status of a specific external storage, status value=[A/D]
          *
          * @tags ExternalStorageController
-         * @name PatchExternalstorageIdProfilesProfileidStatus
+         * @name PatchExt3RdstorageIdProfilesProfileidChangeStatus
          * @summary Active/Inactive a external profile
-         * @request PATCH:/api/externalStorage/{id}/profiles/{profileId}/status
+         * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/change-status
          */
-        patchExternalstorageIdProfilesProfileidStatus: (
+        patchExt3rdstorageIdProfilesProfileidChangeStatus: (
             id: string,
             profileId: string,
             data: ExternalProfileDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/${profileId}/status`,
+                path: `/api/ext3rdStorage/${id}/profiles/${profileId}/change-status`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Change the status of an external storage (A/D)
+         *
+         * @tags ExternalStorageController
+         * @name PatchExt3RdstorageIdChangeStatus
+         * @summary Active/Inactive a external storage
+         * @request PATCH:/api/ext3rdStorage/{id}/change-status
+         */
+        patchExt3rdstorageIdChangeStatus: (id: string, data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/change-status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25874,18 +27129,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchExternalstorageIdProfilesProfileidProcess
-         * @summary Update an setting of existing external profile for a specific external storage
-         * @request PATCH:/api/externalStorage/{id}/profiles/{profileId}/process
+         * @name PatchExt3RdstorageProfilesProfileidUpdateOutputrecordOutputrecordid
+         * @summary Update a external profile output record
+         * @request PATCH:/api/ext3rdStorage/profiles/{profileId}/update-outputRecord/{outputRecordId}
          */
-        patchExternalstorageIdProfilesProfileidProcess: (
-            id: string,
+        patchExt3rdstorageProfilesProfileidUpdateOutputrecordOutputrecordid: (
             profileId: string,
+            outputRecordId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
-            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/${profileId}/process`,
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/profiles/${profileId}/update-outputRecord/${outputRecordId}`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -25896,84 +27151,39 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchExternalstorageIdProfilesProfileidImport
-         * @summary Update an import setting of existing external profile for a specific external storage
-         * @request PATCH:/api/externalStorage/{id}/profiles/{profileId}/import
-         */
-        patchExternalstorageIdProfilesProfileidImport: (
-            id: string,
-            profileId: string,
-            data: Record<string, object>,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/${profileId}/import`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PatchExternalstorageIdProfilesProfileidGeneral
-         * @summary Update an general setting of existing external profile for a specific external storage
-         * @request PATCH:/api/externalStorage/{id}/profiles/{profileId}/general
-         */
-        patchExternalstorageIdProfilesProfileidGeneral: (
-            id: string,
-            profileId: string,
-            data: ExternalProfileDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/${profileId}/general`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PatchExternalstorageIdProfilesProfileidCapture
-         * @summary Update an capture setting of existing external profile for a specific external storage
-         * @request PATCH:/api/externalStorage/{id}/profiles/{profileId}/capture
-         */
-        patchExternalstorageIdProfilesProfileidCapture: (
-            id: string,
-            profileId: string,
-            data: Record<string, object>,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/${profileId}/capture`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PatchExternalstorageProfilesProfileidOutputrecordOutputrecordidStatus
+         * @name PatchExt3RdstorageProfilesProfileidOutputrecordOutputrecordidChangeStatus
          * @summary Active/Inactive a external profile output record
-         * @request PATCH:/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}/status
+         * @request PATCH:/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}/change-status
          */
-        patchExternalstorageProfilesProfileidOutputrecordOutputrecordidStatus: (
+        patchExt3rdstorageProfilesProfileidOutputrecordOutputrecordidChangeStatus: (
             profileId: string,
             outputRecordId: string,
             data: ExternalProfileOutputDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}/status`,
+                path: `/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}/change-status`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Update the status of an import job
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PatchExt3RdstorageImportjobsIdStatus
+         * @summary Update import job status
+         * @request PATCH:/api/ext3rdStorage/ImportJobs/{id}/status
+         */
+        patchExt3rdstorageImportjobsIdStatus: (
+            id: string,
+            data: ExternalStorageImportJobRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/ImportJobs/${id}/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26163,6 +27373,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         patchDmsSmartFolder: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
             this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dms/smart-folder`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name PatchDmsShareSave
+         * @request PATCH:/api/dms/share/save
+         */
+        patchDmsShareSave: (data: ShareSaveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/save`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26569,6 +27795,537 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags Workflow Task
+         * @name GetWorkflowTaskProcessGetprocessbyprocdefid
+         * @request GET:/api/workflow/task/process/getProcessByProcDefId
+         */
+        getWorkflowTaskProcessGetprocessbyprocdefid: (
+            query: {
+                processByProcDefId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListUserTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task/process/getProcessByProcDefId`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name GetWorkflowInstanceVariablesInstanceid
+         * @request GET:/api/workflow/instance/variables/{instanceId}
+         */
+        getWorkflowInstanceVariablesInstanceid: (instanceId: string, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/variables/${instanceId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name GetWorkflowInstanceStartProperties
+         * @summary Retrieve form properties of start-task
+         * @request GET:/api/workflow/instance/start/properties
+         */
+        getWorkflowInstanceStartProperties: (
+            query?: {
+                processKey?: string;
+                processDefinitionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/start/properties`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name GetWorkflowInstanceStartFormProperties
+         * @request GET:/api/workflow/instance/start-form/properties
+         */
+        getWorkflowInstanceStartFormProperties: (
+            query: {
+                processKey: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/start-form/properties`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name GetWorkflowInstanceProcessDefinitions
+         * @request GET:/api/workflow/instance/process/definitions
+         */
+        getWorkflowInstanceProcessDefinitions: (
+            query?: {
+                processKey?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/process/definitions`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance History
+         * @name GetWorkflowInstanceHistoryExportHeaders
+         * @request GET:/api/workflow/instance/history/export-headers
+         */
+        getWorkflowInstanceHistoryExportHeaders: (params: RequestParams = {}) =>
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/history/export-headers`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name GetWorkflowInstanceForms
+         * @summary Get the list of form properties associated with the process definition
+         * @request GET:/api/workflow/instance/forms
+         */
+        getWorkflowInstanceForms: (
+            query?: {
+                processDefinitionKey?: string;
+                processDefinitionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListBpmnDynamicFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/forms`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name GetWorkflowInstanceFormsElementkey
+         * @summary Get form properties of single element associated with the process definition
+         * @request GET:/api/workflow/instance/forms/{elementKey}
+         */
+        getWorkflowInstanceFormsElementkey: (
+            elementKey: string,
+            query?: {
+                processDefinitionKey?: string;
+                processDefinitionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/forms/${elementKey}`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name GetWorkflowInstanceFormProperties
+         * @summary Retrieve form properties of task instance
+         * @request GET:/api/workflow/instance/form/properties
+         */
+        getWorkflowInstanceFormProperties: (
+            query: {
+                taskId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/form/properties`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name GetWorkflowInstanceAdhocList
+         * @summary Check whether the current version of the document has Adhoc audit records
+         * @request GET:/api/workflow/instance/adhoc/list
+         */
+        getWorkflowInstanceAdhocList: (
+            query: {
+                documentId: string;
+                userId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultAdhocApprovalResp, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/adhoc/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name GetWorkflowInstanceAdhocCanstart
+         * @request GET:/api/workflow/instance/adhoc/canStart
+         */
+        getWorkflowInstanceAdhocCanstart: (
+            query: {
+                documentId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/adhoc/canStart`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetWorkflowDefinitionProcessdefinitionkey
+         * @summary Get deployed process definition through process definition key
+         * @request GET:/api/workflow/definition/{processDefinitionKey}
+         */
+        getWorkflowDefinitionProcessdefinitionkey: (processDefinitionKey: string, params: RequestParams = {}) =>
+            this.request<ResultProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/${processDefinitionKey}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetWorkflowDefinitionProcessdefinitionkeyHistory
+         * @summary Find historical process definitions through process definition key
+         * @request GET:/api/workflow/definition/{processDefinitionKey}/history
+         */
+        getWorkflowDefinitionProcessdefinitionkeyHistory: (processDefinitionKey: string, params: RequestParams = {}) =>
+            this.request<ResultListProcessDefinitionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/${processDefinitionKey}/history`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetWorkflowDefinitionVersion
+         * @summary Get Version Data
+         * @request GET:/api/workflow/definition/version
+         */
+        getWorkflowDefinitionVersion: (
+            query: {
+                draftId: string;
+                versionNumber: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/version`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetWorkflowDefinitionVersionVersionid
+         * @summary Get Version Data
+         * @request GET:/api/workflow/definition/version/{versionId}
+         */
+        getWorkflowDefinitionVersionVersionid: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/version/${versionId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name DeleteWorkflowDefinitionVersionVersionid
+         * @request DELETE:/api/workflow/definition/version/{versionId}
+         */
+        deleteWorkflowDefinitionVersionVersionid: (versionId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/version/${versionId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetWorkflowDefinitionVersionVersionidBpmnxml
+         * @summary Download BPMN20.xml through version id of a workflow
+         * @request GET:/api/workflow/definition/version/{versionId}/bpmnXml
+         */
+        getWorkflowDefinitionVersionVersionidBpmnxml: (versionId: string, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/version/${versionId}/bpmnXml`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetWorkflowDefinitionVersionKeyProcessdefinitionkey
+         * @summary Get Latest Version Data by process definition key
+         * @request GET:/api/workflow/definition/version/key/{processDefinitionKey}
+         */
+        getWorkflowDefinitionVersionKeyProcessdefinitionkey: (
+            processDefinitionKey: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultProcessDefinitionVersion, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/version/key/${processDefinitionKey}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetWorkflowDefinitionVersionJson
+         * @summary Download Json through version number and draft id
+         * @request GET:/api/workflow/definition/version/json
+         */
+        getWorkflowDefinitionVersionJson: (
+            query: {
+                draftId: string;
+                versionNumber: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/version/json`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetWorkflowDefinitionVersionBpmnxml
+         * @summary Download BPMN20.xml through version number and draft id
+         * @request GET:/api/workflow/definition/version/bpmnXml
+         */
+        getWorkflowDefinitionVersionBpmnxml: (
+            query: {
+                draftId: string;
+                versionNumber?: string;
+                versionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/version/bpmnXml`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetWorkflowDefinitionForms
+         * @summary Get the list of form properties associated with the process definition
+         * @request GET:/api/workflow/definition/forms
+         */
+        getWorkflowDefinitionForms: (
+            query?: {
+                processDefinitionKey?: string;
+                processDefinitionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListBpmnDynamicFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/forms`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetWorkflowDefinitionFormsElementkey
+         * @summary Get form properties of single element associated with the process definition
+         * @request GET:/api/workflow/definition/forms/{elementKey}
+         */
+        getWorkflowDefinitionFormsElementkey: (
+            elementKey: string,
+            query?: {
+                processDefinitionKey?: string;
+                processDefinitionId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListFormPropertyDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/forms/${elementKey}`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetWorkflowDefinitionFormsStart
+         * @summary Get start-form properties associated with the process definition
+         * @request GET:/api/workflow/definition/forms/start
+         */
+        getWorkflowDefinitionFormsStart: (
+            query: {
+                /** Workflow Process Definition RequestDTO */
+                requestDTO: ProcessDefinitionRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBpmnDynamicFormDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/forms/start`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetWorkflowDefinitionDraftDraftid
+         * @summary Get draft through process definition key
+         * @request GET:/api/workflow/definition/draft/{draftId}
+         */
+        getWorkflowDefinitionDraftDraftid: (draftId: string, params: RequestParams = {}) =>
+            this.request<ResultProcessDefinitionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/draft/${draftId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name DeleteWorkflowDefinitionDraftDraftid
+         * @summary Delete process definition through process definition draft id
+         * @request DELETE:/api/workflow/definition/draft/{draftId}
+         */
+        deleteWorkflowDefinitionDraftDraftid: (
+            draftId: string,
+            query?: {
+                enforce?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/draft/${draftId}`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetWorkflowDefinitionDraftDraftidDownloadXml
+         * @summary Get draft BPMN2.0 XML file through draft id
+         * @request GET:/api/workflow/definition/draft/{draftId}/download/xml
+         */
+        getWorkflowDefinitionDraftDraftidDownloadXml: (draftId: string, params: RequestParams = {}) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/draft/${draftId}/download/xml`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetWorkflowDefinitionDraftAll
+         * @request GET:/api/workflow/definition/draft/all
+         */
+        getWorkflowDefinitionDraftAll: (params: RequestParams = {}) =>
+            this.request<ResultListProcessDefinitionDraft, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/draft/all`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name GetWorkflowDefinitionDownloadXml
+         * @summary Download BPMN2.0 XML file through process definition ID
+         * @request GET:/api/workflow/definition/download/xml
+         */
+        getWorkflowDefinitionDownloadXml: (
+            query: {
+                processDefinitionId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/download/xml`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags VerificationPermissionController
          * @name GetVerificationPermissionBusinessBusinessid
          * @request GET:/api/verification/permission/business/{businessId}
@@ -26868,36 +28625,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags AclEntryController
-         * @name GetPermissionEntryId
-         * @summary Query entry by id
-         * @request GET:/api/permission/entry/{id}
-         */
-        getPermissionEntryId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultAccessControlEntry, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/permission/entry/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AclEntryController
-         * @name DeletePermissionEntryId
-         * @summary Delete entry by id
-         * @request DELETE:/api/permission/entry/{id}
-         */
-        deletePermissionEntryId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/permission/entry/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Password Controller
          * @name GetPasswordUserStatus
          * @request GET:/api/password/user-status
@@ -26983,129 +28710,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/password/check-expire`,
                 method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name GetNuxeoSharePreview
-         * @request GET:/api/nuxeo/share/preview
-         */
-        getNuxeoSharePreview: (
-            query: {
-                /** @format int64 */
-                shareId: number;
-                documentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/preview`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name GetNuxeoSharePreviewRetry
-         * @request GET:/api/nuxeo/share/preview/retry
-         */
-        getNuxeoSharePreviewRetry: (
-            query: {
-                /** @format int64 */
-                easyShareDetailsId: number;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/preview/retry`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name GetNuxeoSharePrepareDownloadDocid
-         * @summary Get Status of download file is complete
-         * @request GET:/api/nuxeo/share/prepare/download/{docId}
-         */
-        getNuxeoSharePrepareDownloadDocid: (docId: string, params: RequestParams = {}) =>
-            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/prepare/download/${docId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name GetNuxeoShareDownload
-         * @request GET:/api/nuxeo/share/download
-         */
-        getNuxeoShareDownload: (
-            query: {
-                /** @format int64 */
-                shareId: number;
-                documentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/download`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name GetNuxeoShareDownloadRetry
-         * @request GET:/api/nuxeo/share/download/retry
-         */
-        getNuxeoShareDownloadRetry: (
-            query: {
-                /** @format int64 */
-                easyShareDetailsId: number;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/download/retry`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name GetNuxeoShareDocuments
-         * @summary Get sharing documents through ID
-         * @request GET:/api/nuxeo/share/documents
-         */
-        getNuxeoShareDocuments: (
-            query: {
-                /** @format int64 */
-                id: number;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListEasyShareDocumentResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/documents`,
-                method: "GET",
-                query: query,
                 ...params,
             }),
 
@@ -27257,13 +28861,170 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags ExternalStorageImportJobController
-         * @name GetImportjobsPageConditions
-         * @request GET:/api/importJobs/page/conditions
+         * @tags NotificationRecordController
+         * @name GetNotificationUnreadCountList
+         * @request GET:/api/notification/unread-count-list
          */
-        getImportjobsPageConditions: (params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs/page/conditions`,
+        getNotificationUnreadCountList: (params: RequestParams = {}) =>
+            this.request<ResultListNotificationUnreadCountDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/unread-count-list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NotificationRecordController
+         * @name GetNotificationUnreadNumber
+         * @summary Query count number of unread for current login user
+         * @request GET:/api/notification/unRead/number
+         */
+        getNotificationUnreadNumber: (params: RequestParams = {}) =>
+            this.request<ResultObject | ResultString, Result | (ResultObject | Result | ResultString) | void>({
+                path: `/api/notification/unRead/number`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NotificationRecordController
+         * @name GetNotificationSubscriberSubscriberIdorpathIdorpath
+         * @summary Query whether the user is subscribed to the directory
+         * @request GET:/api/notification/subscriber/{subscriber}/idOrPath/{idOrPath}
+         */
+        getNotificationSubscriberSubscriberIdorpathIdorpath: (
+            subscriber: string,
+            idOrPath: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultNotificationSubscriber, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/subscriber/${subscriber}/idOrPath/${idOrPath}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NotificationRecordController
+         * @name DeleteNotificationSubscriberSubscriberIdorpathIdorpath
+         * @summary Delete notification subscriber
+         * @request DELETE:/api/notification/subscriber/{subscriber}/idOrPath/{idOrPath}
+         */
+        deleteNotificationSubscriberSubscriberIdorpathIdorpath: (
+            subscriber: string,
+            idOrPath: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/subscriber/${subscriber}/idOrPath/${idOrPath}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NotificationRecordController
+         * @name GetNotificationSubscriberSubscriberFoldersList
+         * @summary Find folder list of subscriber
+         * @request GET:/api/notification/subscriber/{subscriber}/folders/list
+         */
+        getNotificationSubscriberSubscriberFoldersList: (subscriber: string, params: RequestParams = {}) =>
+            this.request<ResultListDocumentThumbnailDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/subscriber/${subscriber}/folders/list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NotificationRecordController
+         * @name GetNotificationSettingUserUseridPreferences
+         * @summary Get notification preference of the user
+         * @request GET:/api/notification/setting/user/{userId}/preferences
+         */
+        getNotificationSettingUserUseridPreferences: (userId: string, params: RequestParams = {}) =>
+            this.request<ResultListUserNotifyPreference, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/setting/user/${userId}/preferences`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NotificationRecordController
+         * @name GetNotificationSettingTypeTypeAll
+         * @summary All list of notification setting
+         * @request GET:/api/notification/setting/type/{type}/all
+         */
+        getNotificationSettingTypeTypeAll: (type: "SUB_DOCUMENT" | "SUBSCRIPTION", params: RequestParams = {}) =>
+            this.request<ResultListNotificationSetting, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/setting/type/${type}/all`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NotificationRecordController
+         * @name GetNotificationSettingPreferencesAll
+         * @summary Get all notification settings grouped by module_name
+         * @request GET:/api/notification/setting/preferences/all
+         */
+        getNotificationSettingPreferencesAll: (params: RequestParams = {}) =>
+            this.request<ResultMapStringListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/setting/preferences/all`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NotificationRecordController
+         * @name GetNotificationSettingModuleNameList
+         * @request GET:/api/notification/setting/module-name/list
+         * @deprecated
+         */
+        getNotificationSettingModuleNameList: (params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/setting/module-name/list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NotificationRecordController
+         * @name GetNotificationQueryOperatorList
+         * @request GET:/api/notification/query-operator-list
+         * @deprecated
+         */
+        getNotificationQueryOperatorList: (params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/query-operator-list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags NotificationRecordController
+         * @name GetNotificationQueryNotificationFilter
+         * @request GET:/api/notification/query-notification-filter
+         */
+        getNotificationQueryNotificationFilter: (params: RequestParams = {}) =>
+            this.request<ResultListCheckBoxDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/notification/query-notification-filter`,
                 method: "GET",
                 ...params,
             }),
@@ -27309,36 +29070,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         getFileDownloadFileId: (id: string, params: RequestParams = {}) =>
             this.request<string, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/file/download/file/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * @description Retrieve all profiles for a specific external storage
-         *
-         * @tags ExternalStorageController
-         * @name GetExternalstorageIdProfilesList
-         * @summary Get all profile by external storage id
-         * @request GET:/api/externalStorage/{id}/profiles/list
-         */
-        getExternalstorageIdProfilesList: (id: string, params: RequestParams = {}) =>
-            this.request<ResultListExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/list`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name GetExternalstorageProfilesProfileidOutputrecordList
-         * @summary Retrieve all output settings of specific profile
-         * @request GET:/api/externalStorage/profiles/{profileId}/outputRecord/list
-         */
-        getExternalstorageProfilesProfileidOutputrecordList: (profileId: string, params: RequestParams = {}) =>
-            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/profiles/${profileId}/outputRecord/list`,
                 method: "GET",
                 ...params,
             }),
@@ -27451,6 +29182,161 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         getExternalDriveOauthAppsDeprecate: (params: RequestParams = {}) =>
             this.request<ResultListOAuthAppDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/external-drive/oauth/apps/`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * @description Retrieve detailed information of a specific external storage
+         *
+         * @tags ExternalStorageController
+         * @name GetExt3RdstorageId
+         * @summary Get External Storage Detail
+         * @request GET:/api/ext3rdStorage/{id}
+         */
+        getExt3rdstorageId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name DeleteExt3RdstorageId
+         * @summary Delete External Storage
+         * @request DELETE:/api/ext3rdStorage/{id}
+         */
+        deleteExt3rdstorageId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetExt3RdstorageIdProfilesProfileid
+         * @summary Get a external profile in external storage id
+         * @request GET:/api/ext3rdStorage/{id}/profiles/{profileId}
+         */
+        getExt3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/profiles/${profileId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name DeleteExt3RdstorageIdProfilesProfileid
+         * @summary Delete a external profile in external storage id
+         * @request DELETE:/api/ext3rdStorage/{id}/profiles/{profileId}
+         */
+        deleteExt3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/profiles/${profileId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * @description Retrieve all profiles for a specific external storage
+         *
+         * @tags ExternalStorageController
+         * @name GetExt3RdstorageIdProfilesList
+         * @summary Get all profile by external storage id
+         * @request GET:/api/ext3rdStorage/{id}/profiles/list
+         */
+        getExt3rdstorageIdProfilesList: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/profiles/list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetExt3RdstorageProfilesProfileidOutputrecordOutputrecordid
+         * @request GET:/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         */
+        getExt3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name DeleteExt3RdstorageProfilesProfileidOutputrecordOutputrecordid
+         * @request DELETE:/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         */
+        deleteExt3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetExt3RdstorageProfilesProfileidOutputrecordList
+         * @summary Retrieve all output settings of specific profile
+         * @request GET:/api/ext3rdStorage/profiles/{profileId}/outputRecord/list
+         */
+        getExt3rdstorageProfilesProfileidOutputrecordList: (profileId: string, params: RequestParams = {}) =>
+            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/profiles/${profileId}/outputRecord/list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetExt3RdstorageImportjobsPageConditions
+         * @request GET:/api/ext3rdStorage/ImportJobs/page/conditions
+         */
+        getExt3rdstorageImportjobsPageConditions: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/ImportJobs/page/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WhatsAppController
+         * @name GetExt3RdmessageWhatsappGetMessageTemplates
+         * @request GET:/api/ext3rdMessage/whatsapp/get_message_templates
+         * @deprecated
+         */
+        getExt3rdmessageWhatsappGetMessageTemplates: (params: RequestParams = {}) =>
+            this.request<ResultListMessageTemplateDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdMessage/whatsapp/get_message_templates`,
                 method: "GET",
                 ...params,
             }),
@@ -28386,204 +30272,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags NotificationRecordController
-         * @name GetDocpalNotificationUnreadNumber
-         * @summary Query count number of unread for current login user
-         * @request GET:/api/docpal/notification/unRead/number
-         */
-        getDocpalNotificationUnreadNumber: (params: RequestParams = {}) =>
-            this.request<ResultObject | ResultString, Result | (ResultObject | Result | ResultString) | void>({
-                path: `/api/docpal/notification/unRead/number`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name GetDocpalNotificationSubscriberSubscriberFolders
-         * @summary Find folder list of subscriber
-         * @request GET:/api/docpal/notification/subscriber/{subscriber}/folders
-         */
-        getDocpalNotificationSubscriberSubscriberFolders: (subscriber: string, params: RequestParams = {}) =>
-            this.request<ResultListDocumentThumbnailDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/subscriber/${subscriber}/folders`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name GetDocpalNotificationSubscriberSubscriberSubscriberIdorpathIdorpath
-         * @summary Query whether the user is subscribed to the directory
-         * @request GET:/api/docpal/notification/subscriber/subscriber/{subscriber}/idOrPath/{idOrPath}
-         */
-        getDocpalNotificationSubscriberSubscriberSubscriberIdorpathIdorpath: (
-            subscriber: string,
-            idOrPath: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultNotificationSubscriber, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/subscriber/subscriber/${subscriber}/idOrPath/${idOrPath}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name DeleteDocpalNotificationSubscriberSubscriberSubscriberIdorpathIdorpath
-         * @summary Remove notification subscriber
-         * @request DELETE:/api/docpal/notification/subscriber/subscriber/{subscriber}/idOrPath/{idOrPath}
-         */
-        deleteDocpalNotificationSubscriberSubscriberSubscriberIdorpathIdorpath: (
-            subscriber: string,
-            idOrPath: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/subscriber/subscriber/${subscriber}/idOrPath/${idOrPath}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name GetDocpalNotificationSettingTypeTypeAll
-         * @summary All list of notification setting
-         * @request GET:/api/docpal/notification/setting/type/{type}/all
-         */
-        getDocpalNotificationSettingTypeTypeAll: (type: "SUB_DOCUMENT" | "SUBSCRIPTION", params: RequestParams = {}) =>
-            this.request<ResultListNotificationSetting, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/setting/type/${type}/all`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name GetDocpalNotificationSettingPreferences
-         * @summary Get all notification settings grouped by module_name
-         * @request GET:/api/docpal/notification/setting/preferences
-         */
-        getDocpalNotificationSettingPreferences: (params: RequestParams = {}) =>
-            this.request<ResultMapStringListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/setting/preferences`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name GetDocpalNotificationSettingModuleName
-         * @request GET:/api/docpal/notification/setting/module_name
-         * @deprecated
-         */
-        getDocpalNotificationSettingModuleName: (params: RequestParams = {}) =>
-            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/setting/module_name`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name GetDocpalNotificationQueryOperatorList
-         * @request GET:/api/docpal/notification/query_operator_list
-         * @deprecated
-         */
-        getDocpalNotificationQueryOperatorList: (params: RequestParams = {}) =>
-            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/query_operator_list`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name GetDocpalNotificationQueryNotificationUnreadCountList
-         * @request GET:/api/docpal/notification/query_notification_unread_count_list
-         */
-        getDocpalNotificationQueryNotificationUnreadCountList: (params: RequestParams = {}) =>
-            this.request<ResultListNotificationUnreadCountDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/query_notification_unread_count_list`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags NotificationRecordController
-         * @name GetDocpalNotificationQueryNotificationFilter
-         * @request GET:/api/docpal/notification/query_notification_filter
-         */
-        getDocpalNotificationQueryNotificationFilter: (params: RequestParams = {}) =>
-            this.request<ResultListCheckBoxDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/notification/query_notification_filter`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name GetDocpalInternalshareInitscheduler
-         * @request GET:/api/docpal/internalShare/initScheduler
-         */
-        getDocpalInternalshareInitscheduler: (
-            query: {
-                /** @format date-time */
-                date: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/initScheduler`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name GetDocpalInternalshareInitschedulerDeprecate
-         * @request GET:/api/docpal/internalShare/initScheduler/
-         */
-        getDocpalInternalshareInitschedulerDeprecate: (
-            query: {
-                /** @format date-time */
-                date: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/initScheduler/`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags IdTemplateController
          * @name GetDocpalIdTemplatesNameName
          * @summary Find ID template by name
@@ -29394,6 +31082,129 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags Share (Nuxeo)
+         * @name GetDmsSharePreview
+         * @request GET:/api/dms/share/preview
+         */
+        getDmsSharePreview: (
+            query: {
+                /** @format int64 */
+                shareId: number;
+                documentId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/preview`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name GetDmsSharePreviewRetry
+         * @request GET:/api/dms/share/preview/retry
+         */
+        getDmsSharePreviewRetry: (
+            query: {
+                /** @format int64 */
+                easyShareDetailsId: number;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/preview/retry`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name GetDmsSharePrepareDownloadDocidGetDownloadStatus
+         * @summary Get Status of download file is complete
+         * @request GET:/api/dms/share/prepare/download/{docId}/get-download-status
+         */
+        getDmsSharePrepareDownloadDocidGetDownloadStatus: (docId: string, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/prepare/download/${docId}/get-download-status`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name GetDmsShareDownload
+         * @request GET:/api/dms/share/download
+         */
+        getDmsShareDownload: (
+            query: {
+                /** @format int64 */
+                shareId: number;
+                documentId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/download`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name GetDmsShareDownloadRetry
+         * @request GET:/api/dms/share/download/retry
+         */
+        getDmsShareDownloadRetry: (
+            query: {
+                /** @format int64 */
+                easyShareDetailsId: number;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/download/retry`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name GetDmsShareDocuments
+         * @summary Get sharing documents through ID
+         * @request GET:/api/dms/share/documents
+         */
+        getDmsShareDocuments: (
+            query: {
+                /** @format int64 */
+                id: number;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListEasyShareDocumentResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/documents`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags SettingController
          * @name GetDmsSettingWorkflowCondition
          * @request GET:/api/dms/setting/workflow/condition
@@ -30011,6 +31822,48 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags InternalShareController
+         * @name GetDmsInternalshareInitSchedulerDeprecate
+         * @request GET:/api/dms/internalShare/init-scheduler/
+         */
+        getDmsInternalshareInitSchedulerDeprecate: (
+            query: {
+                /** @format date-time */
+                date: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/init-scheduler/`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name GetDmsInternalshareInitScheduler
+         * @request GET:/api/dms/internalShare/init-scheduler
+         */
+        getDmsInternalshareInitScheduler: (
+            query: {
+                /** @format date-time */
+                date: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/init-scheduler`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags form-properties-relation-controller
          * @name GetDmsFormPropertiesQuery
          * @request GET:/api/dms/form-properties/query
@@ -30450,12 +32303,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocPalTypeController
-         * @name GetDmsDocTypeDocpaltypenameSchema
-         * @request GET:/api/dms/doc-type/{docpalTypeName}/schema
+         * @name GetDmsDocpalTypeDocpaltypenameSchema
+         * @request GET:/api/dms/docpal-type/{docpalTypeName}/schema
          */
-        getDmsDocTypeDocpaltypenameSchema: (docpalTypeName: string, params: RequestParams = {}) =>
+        getDmsDocpalTypeDocpaltypenameSchema: (docpalTypeName: string, params: RequestParams = {}) =>
             this.request<ResultObjectNode, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/dms/doc-type/${docpalTypeName}/schema`,
+                path: `/api/dms/docpal-type/${docpalTypeName}/schema`,
                 method: "GET",
                 ...params,
             }),
@@ -30464,13 +32317,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocPalTypeController
-         * @name GetDmsDocTypeDocpaltypenameMetadata
+         * @name GetDmsDocpalTypeDocpaltypenameMetadata
          * @summary Query all metadata list of the docpal type through name v2
-         * @request GET:/api/dms/doc-type/{docpalTypeName}/metadata
+         * @request GET:/api/dms/docpal-type/{docpalTypeName}/metadata
          */
-        getDmsDocTypeDocpaltypenameMetadata: (docpalTypeName: string, params: RequestParams = {}) =>
+        getDmsDocpalTypeDocpaltypenameMetadata: (docpalTypeName: string, params: RequestParams = {}) =>
             this.request<ResultListMetadataValidDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/dms/doc-type/${docpalTypeName}/metadata`,
+                path: `/api/dms/docpal-type/${docpalTypeName}/metadata`,
                 method: "GET",
                 ...params,
             }),
@@ -30479,12 +32332,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocPalTypeController
-         * @name GetDmsDocTypeMetadataList
-         * @request GET:/api/dms/doc-type/metadata/list
+         * @name GetDmsDocpalTypeMetadataList
+         * @request GET:/api/dms/docpal-type/metadata/list
          */
-        getDmsDocTypeMetadataList: (params: RequestParams = {}) =>
+        getDmsDocpalTypeMetadataList: (params: RequestParams = {}) =>
             this.request<ResultListMetadataResponseVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/dms/doc-type/metadata/list`,
+                path: `/api/dms/docpal-type/metadata/list`,
                 method: "GET",
                 ...params,
             }),
@@ -30493,13 +32346,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocPalTypeController
-         * @name GetDmsDocTypeActive
+         * @name GetDmsDocpalTypeActive
          * @summary Find all active types
-         * @request GET:/api/dms/doc-type/active
+         * @request GET:/api/dms/docpal-type/active
          */
-        getDmsDocTypeActive: (params: RequestParams = {}) =>
-            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/dms/doc-type/active`,
+        getDmsDocpalTypeActive: (params: RequestParams = {}) =>
+            this.request<ResultListDocPalTypeDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/docpal-type/active`,
                 method: "GET",
                 ...params,
             }),
@@ -30512,7 +32365,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request GET:/api/dms/dam/settings/list
          */
         getDmsDamSettingsList: (params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dms/dam/settings/list`,
                 method: "GET",
                 ...params,
@@ -30522,15 +32375,15 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DAMSettingController
-         * @name GetDmsDamFormats
-         * @request GET:/api/dms/dam/formats
+         * @name GetDmsDamSettingsFormats
+         * @request GET:/api/dms/dam/settings/formats
          */
-        getDmsDamFormats: (params: RequestParams = {}) =>
+        getDmsDamSettingsFormats: (params: RequestParams = {}) =>
             this.request<
                 ResultHashMapStringListConversionSupportDestType,
                 Result | (ResultObject | Result | ResultString)
             >({
-                path: `/api/dms/dam/formats`,
+                path: `/api/dms/dam/settings/formats`,
                 method: "GET",
                 ...params,
             }),
@@ -32521,15 +34374,91 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags WhatsAppController
-         * @name GetExt3RdmessageWhatsappGetMessageTemplates
-         * @request GET:/api/Ext3rdMessage/whatsapp/get_message_templates
-         * @deprecated
+         * @tags Workflow Task
+         * @name DeleteWorkflowTask
+         * @summary Delete a task
+         * @request DELETE:/api/workflow/task
          */
-        getExt3rdmessageWhatsappGetMessageTemplates: (params: RequestParams = {}) =>
-            this.request<ResultListMessageTemplateDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/Ext3rdMessage/whatsapp/get_message_templates`,
-                method: "GET",
+        deleteWorkflowTask: (
+            query: {
+                taskId: string;
+                deleteReason?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/task`,
+                method: "DELETE",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Instance
+         * @name DeleteWorkflowInstanceProcessUser
+         * @summary Delete process instance by user id
+         * @request DELETE:/api/workflow/instance/process/user
+         */
+        deleteWorkflowInstanceProcessUser: (
+            query: {
+                /** Delete Workflow (Request) */
+                deleteWorkflowReq: DeleteWorkflowReq;
+            },
+            data: any,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/instance/process/user`,
+                method: "DELETE",
+                query: query,
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name DeleteWorkflowDefinitionVersionDraftidDraftid
+         * @request DELETE:/api/workflow/definition/version/draftId/{draftId}
+         */
+        deleteWorkflowDefinitionVersionDraftidDraftid: (draftId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/version/draftId/${draftId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name DeleteWorkflowDefinitionSuspendDraftid
+         * @summary Suspend a process definition
+         * @request DELETE:/api/workflow/definition/suspend/{draftId}
+         */
+        deleteWorkflowDefinitionSuspendDraftid: (draftId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/suspend/${draftId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Workflow Process Definition Controller
+         * @name DeleteWorkflowDefinitionRemoveDraftid
+         * @summary Remove process definition from workflow list
+         * @request DELETE:/api/workflow/definition/remove/{draftId}
+         */
+        deleteWorkflowDefinitionRemoveDraftid: (draftId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/workflow/definition/remove/${draftId}`,
+                method: "DELETE",
                 ...params,
             }),
 
@@ -32760,6 +34689,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags Share (Nuxeo)
+         * @name DeleteDmsShare
+         * @request DELETE:/api/dms/share
+         */
+        deleteDmsShare: (data: string[], params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags SettingController
          * @name DeleteDmsSettingVirtualFolderSettingId
          * @request DELETE:/api/dms/setting/virtual-folder/setting/{id}
@@ -32980,7 +34925,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request DELETE:/api/dms/dam/settings/batch
          */
         deleteDmsDamSettingsBatch: (data: string[], params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dms/dam/settings/batch`,
                 method: "DELETE",
                 body: data,
@@ -33119,21 +35064,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         deleteCaseInstanceInstanceCaseid: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/case/instance/instance/${caseId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DocBlockPermissionController
-         * @name DeleteBlockPermissionDocumentDocidPathDocpath
-         * @summary Delete block permission
-         * @request DELETE:/api/block/permission/document/{docId}/path/{docPath}
-         */
-        deleteBlockPermissionDocumentDocidPathDocpath: (docId: string, docPath: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/block/permission/document/${docId}/path/${docPath}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -33495,67 +35425,17 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * @description Get detailed information of an import job by ID
-         *
-         * @tags ExternalStorageImportJobController
-         * @name GetAdminimportjobsId
-         * @summary Get import job details
-         * @request GET:/admin/api/importJobs/{id}
-         * @deprecated
-         */
-        getAdminimportjobsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PutAdminimportjobsId
-         * @summary Update import job
-         * @request PUT:/admin/api/importJobs/{id}
-         * @deprecated
-         */
-        putAdminimportjobsId: (id: string, data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs/${id}`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name DeleteAdminimportjobsId
-         * @summary Delete import job
-         * @request DELETE:/admin/api/importJobs/{id}
-         * @deprecated
-         */
-        deleteAdminimportjobsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
          * @description Retrieve detailed information of a specific external storage
          *
          * @tags ExternalStorageController
-         * @name GetAdminexternalstorageId
+         * @name GetAdminext3RdstorageId
          * @summary Get External Storage Detail
-         * @request GET:/admin/api/externalStorage/{id}
+         * @request GET:/admin/api/ext3rdStorage/{id}
          * @deprecated
          */
-        getAdminexternalstorageId: (id: string, params: RequestParams = {}) =>
+        getAdminext3rdstorageId: (id: string, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}`,
+                path: `/admin/api/ext3rdStorage/${id}`,
                 method: "GET",
                 ...params,
             }),
@@ -33564,14 +35444,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PutAdminexternalstorageId
+         * @name PutAdminext3RdstorageId
          * @summary Update an existing external storage configuration
-         * @request PUT:/admin/api/externalStorage/{id}
+         * @request PUT:/admin/api/ext3rdStorage/{id}
          * @deprecated
          */
-        putAdminexternalstorageId: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
+        putAdminext3rdstorageId: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}`,
+                path: `/admin/api/ext3rdStorage/${id}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -33582,14 +35462,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name DeleteAdminexternalstorageId
+         * @name DeleteAdminext3RdstorageId
          * @summary Delete External Storage
-         * @request DELETE:/admin/api/externalStorage/{id}
+         * @request DELETE:/admin/api/ext3rdStorage/{id}
          * @deprecated
          */
-        deleteAdminexternalstorageId: (id: string, params: RequestParams = {}) =>
+        deleteAdminext3rdstorageId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}`,
+                path: `/admin/api/ext3rdStorage/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -33598,14 +35478,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name GetAdminexternalstorageIdProfilesProfileid
+         * @name GetAdminext3RdstorageIdProfilesProfileid
          * @summary Get a external profile in external storage id
-         * @request GET:/admin/api/externalStorage/{id}/profiles/{profileId}
+         * @request GET:/admin/api/ext3rdStorage/{id}/profiles/{profileId}
          * @deprecated
          */
-        getAdminexternalstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
+        getAdminext3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/${profileId}`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}`,
                 method: "GET",
                 ...params,
             }),
@@ -33614,19 +35494,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update an existing external profile for a specific external storage
          *
          * @tags ExternalStorageController
-         * @name PutAdminexternalstorageIdProfilesProfileid
+         * @name PutAdminext3RdstorageIdProfilesProfileid
          * @summary Update a external profile in external storage id
-         * @request PUT:/admin/api/externalStorage/{id}/profiles/{profileId}
+         * @request PUT:/admin/api/ext3rdStorage/{id}/profiles/{profileId}
          * @deprecated
          */
-        putAdminexternalstorageIdProfilesProfileid: (
+        putAdminext3rdstorageIdProfilesProfileid: (
             id: string,
             profileId: string,
             data: ExternalProfileDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/${profileId}`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -33637,15 +35517,85 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name DeleteAdminexternalstorageIdProfilesProfileid
+         * @name DeleteAdminext3RdstorageIdProfilesProfileid
          * @summary Delete a external profile in external storage id
-         * @request DELETE:/admin/api/externalStorage/{id}/profiles/{profileId}
+         * @request DELETE:/admin/api/ext3rdStorage/{id}/profiles/{profileId}
          * @deprecated
          */
-        deleteAdminexternalstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
+        deleteAdminext3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/${profileId}`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}`,
                 method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * @description Get detailed information of an import job by ID
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetAdminext3RdstorageImportjobsId
+         * @summary Get import job details
+         * @request GET:/admin/api/ext3rdStorage/ImportJobs/{id}
+         * @deprecated
+         */
+        getAdminext3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/ImportJobs/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PutAdminext3RdstorageImportjobsId
+         * @summary Update import job
+         * @request PUT:/admin/api/ext3rdStorage/ImportJobs/{id}
+         * @deprecated
+         */
+        putAdminext3rdstorageImportjobsId: (
+            id: string,
+            data: ExternalStorageImportJobDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/ImportJobs/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name DeleteAdminext3RdstorageImportjobsId
+         * @summary Delete import job
+         * @request DELETE:/admin/api/ext3rdStorage/ImportJobs/{id}
+         * @deprecated
+         */
+        deleteAdminext3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/ImportJobs/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-whats-app-controller
+         * @name PutAdminext3RdmessageWhatsappSettings
+         * @request PUT:/admin/api/ext3rdMessage/whatsapp/settings
+         */
+        putAdminext3rdmessageWhatsappSettings: (data: WhatsAppSettingDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdMessage/whatsapp/settings`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
@@ -33745,23 +35695,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/docpal/id-templates/${id}`,
                 method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DAMSettingController
-         * @name PutAdmindocpalDamSetting
-         * @request PUT:/admin/api/docpal/dam/setting
-         * @deprecated
-         */
-        putAdmindocpalDamSetting: (data: DAMConversionSettingRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/dam/setting`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
                 ...params,
             }),
 
@@ -34813,7 +36746,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          *
          * @tags AdminDocPalTypeManagementController
          * @name PostAdmindmsDocpalTypeDocpaltypeidMetadata
-         * @summary Adding a metadata into docpal type
+         * @summary Adding a new metadata into the docpal type
          * @request POST:/admin/api/dms/docpal-type/{docpalTypeId}/metadata
          */
         postAdmindmsDocpalTypeDocpaltypeidMetadata: (
@@ -34845,40 +36778,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/dms/docpal-type/${docpalTypeId}/metadata`,
                 method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name PutAdmindmsDocType
-         * @request PUT:/admin/api/dms/doc-type
-         * @deprecated
-         */
-        putAdmindmsDocType: (data: DocpalTypeRequestV2DTO, params: RequestParams = {}) =>
-            this.request<ResultDocPalTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name PostAdmindmsDocType
-         * @request POST:/admin/api/dms/doc-type
-         * @deprecated
-         */
-        postAdmindmsDocType: (data: DocpalTypeRequestV2DTO, params: RequestParams = {}) =>
-            this.request<ResultDocPalTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type`,
-                method: "POST",
                 body: data,
                 type: ContentType.Json,
                 ...params,
@@ -35394,22 +37293,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags admin-whats-app-controller
-         * @name PutAdminext3RdmessageWhatsappSettings
-         * @request PUT:/admin/api/Ext3rdMessage/whatsapp/settings
-         */
-        putAdminext3rdmessageWhatsappSettings: (data: WhatsAppSettingDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/Ext3rdMessage/whatsapp/settings`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags AdminProcessInstanceController
          * @name PostAdminworkflowInstance
          * @request POST:/admin/api/workflow/instance
@@ -35522,6 +37405,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postAdminworkflowInstanceTaskClaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultTaskDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/workflow/instance/task/claim`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminProcessInstanceController
+         * @name PostAdminworkflowInstanceConditionValidate
+         * @request POST:/admin/api/workflow/instance/condition/validate
+         */
+        postAdminworkflowInstanceConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/workflow/instance/condition/validate`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -35991,38 +37890,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags External Share
-         * @name PostAdminnuxeoSharePage
-         * @request POST:/admin/api/nuxeo/share/page
-         */
-        postAdminnuxeoSharePage: (data: SharePageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/share/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags External Share
-         * @name PostAdminnuxeoShareGet
-         * @request POST:/admin/api/nuxeo/share/get
-         */
-        postAdminnuxeoShareGet: (data: SharePageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/share/get`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Identity
          * @name PostAdminnuxeoIdentityUsers
          * @summary List users
@@ -36459,111 +38326,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags ExternalStorageImportJobController
-         * @name PostAdminimportjobsPage
-         * @summary Paginated query for import jobs
-         * @request POST:/admin/api/importJobs/page
-         * @deprecated
-         */
-        postAdminimportjobsPage: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
-            this.request<
-                ResultPaginationDTOExternalStorageImportJobDTO,
-                Result | (ResultObject | Result | ResultString)
-            >({
-                path: `/admin/api/importJobs/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PostAdminimportjobsJobqueueFirst
-         * @summary Place a task in the first queue
-         * @request POST:/admin/api/importJobs/jobQueue/first
-         * @deprecated
-         */
-        postAdminimportjobsJobqueueFirst: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs/jobQueue/first`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * @description Save a external storage import job
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PostAdminimportjobsAdd
-         * @summary Save import job record
-         * @request POST:/admin/api/importJobs/add
-         * @deprecated
-         */
-        postAdminimportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs/add`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name GetAdminimportjobs
-         * @summary Get all import jobs list
-         * @request GET:/admin/api/importJobs
-         * @deprecated
-         */
-        getAdminimportjobs: (
-            query: {
-                /** External Storage Import Job Request */
-                requestDTO: ExternalStorageImportJobRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * @description Save a external storage import job
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PostAdminimportjobs
-         * @summary Save import job record
-         * @request POST:/admin/api/importJobs
-         * @deprecated
-         */
-        postAdminimportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags ExternalStorageController
-         * @name GetAdminexternalstorage
+         * @name GetAdminext3Rdstorage
          * @summary Get External Storage Detail List
-         * @request GET:/admin/api/externalStorage
+         * @request GET:/admin/api/ext3rdStorage
          * @deprecated
          */
-        getAdminexternalstorage: (
+        getAdminext3rdstorage: (
             query: {
                 /** External Storage Request DTO */
                 externalStorageVO: ExternalStorageRequestDTO;
@@ -36571,7 +38340,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             params: RequestParams = {},
         ) =>
             this.request<ResultListExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage`,
+                path: `/admin/api/ext3rdStorage`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -36581,14 +38350,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Create a new external storage configuration
          *
          * @tags ExternalStorageController
-         * @name PostAdminexternalstorage
+         * @name PostAdminext3Rdstorage
          * @summary Create a new external storage
-         * @request POST:/admin/api/externalStorage
+         * @request POST:/admin/api/ext3rdStorage
          * @deprecated
          */
-        postAdminexternalstorage: (data: ExternalStorageDTO, params: RequestParams = {}) =>
+        postAdminext3rdstorage: (data: ExternalStorageDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage`,
+                path: `/admin/api/ext3rdStorage`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -36599,14 +38368,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Create a new external profile for a specific external storage
          *
          * @tags ExternalStorageController
-         * @name PostAdminexternalstorageIdProfiles
+         * @name PostAdminext3RdstorageIdProfiles
          * @summary Create a new external profile in external storage id
-         * @request POST:/admin/api/externalStorage/{id}/profiles
+         * @request POST:/admin/api/ext3rdStorage/{id}/profiles
          * @deprecated
          */
-        postAdminexternalstorageIdProfiles: (id: string, data: ExternalProfileDTO, params: RequestParams = {}) =>
+        postAdminext3rdstorageIdProfiles: (id: string, data: ExternalProfileDTO, params: RequestParams = {}) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -36617,18 +38386,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PostAdminexternalstorageIdProfilesPage
+         * @name PostAdminext3RdstorageIdProfilesPage
          * @summary Paging query external storage profiles by external storage id
-         * @request POST:/admin/api/externalStorage/{id}/profiles/page
+         * @request POST:/admin/api/ext3rdStorage/{id}/profiles/page
          * @deprecated
          */
-        postAdminexternalstorageIdProfilesPage: (
+        postAdminext3rdstorageIdProfilesPage: (
             id: string,
             data: ExternalProfileRequestDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultPaginationDTOExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/page`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -36639,18 +38408,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PostAdminexternalstorageIdConnectionTest
+         * @name PostAdminext3RdstorageIdConnectionTest
          * @summary Testing SMB connection is correct
-         * @request POST:/admin/api/externalStorage/{id}/connection/test
+         * @request POST:/admin/api/ext3rdStorage/{id}/connection/test
          * @deprecated
          */
-        postAdminexternalstorageIdConnectionTest: (
+        postAdminext3rdstorageIdConnectionTest: (
             id: string,
             data: Record<string, string>,
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/connection/test`,
+                path: `/admin/api/ext3rdStorage/${id}/connection/test`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -36661,18 +38430,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Create a new external profile output record
          *
          * @tags ExternalStorageController
-         * @name PostAdminexternalstorageProfilesProfileidOutputrecord
+         * @name PostAdminext3RdstorageProfilesProfileidOutputrecord
          * @summary Create External Profile Output
-         * @request POST:/admin/api/externalStorage/profiles/{profileId}/outputRecord
+         * @request POST:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord
          * @deprecated
          */
-        postAdminexternalstorageProfilesProfileidOutputrecord: (
+        postAdminext3rdstorageProfilesProfileidOutputrecord: (
             profileId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/profiles/${profileId}/outputRecord`,
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -36683,17 +38452,17 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name GetAdminexternalstorageProfilesProfileidOutputrecordOutputrecordid
-         * @request GET:/admin/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @name GetAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordid
+         * @request GET:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
          * @deprecated
          */
-        getAdminexternalstorageProfilesProfileidOutputrecordOutputrecordid: (
+        getAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
             profileId: string,
             outputRecordId: string,
             params: RequestParams = {},
         ) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
                 method: "GET",
                 ...params,
             }),
@@ -36702,18 +38471,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PostAdminexternalstorageProfilesProfileidOutputrecordOutputrecordid
+         * @name PostAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordid
          * @summary Duplicate (Copy) a exist External Profile Output
-         * @request POST:/admin/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @request POST:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
          * @deprecated
          */
-        postAdminexternalstorageProfilesProfileidOutputrecordOutputrecordid: (
+        postAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
             profileId: string,
             outputRecordId: string,
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
                 method: "POST",
                 ...params,
             }),
@@ -36722,17 +38491,17 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name DeleteAdminexternalstorageProfilesProfileidOutputrecordOutputrecordid
-         * @request DELETE:/admin/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @name DeleteAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordid
+         * @request DELETE:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
          * @deprecated
          */
-        deleteAdminexternalstorageProfilesProfileidOutputrecordOutputrecordid: (
+        deleteAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
             profileId: string,
             outputRecordId: string,
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -36741,19 +38510,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminexternalstorageProfilesProfileidOutputrecordOutputrecordid
+         * @name PatchAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordid
          * @summary Update a external profile output record
-         * @request PATCH:/admin/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @request PATCH:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
          * @deprecated
          */
-        patchAdminexternalstorageProfilesProfileidOutputrecordOutputrecordid: (
+        patchAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
             profileId: string,
             outputRecordId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -36764,14 +38533,147 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PostAdminexternalstoragePage
+         * @name PostAdminext3RdstoragePage
          * @summary Paging query External Storage
-         * @request POST:/admin/api/externalStorage/page
+         * @request POST:/admin/api/ext3rdStorage/page
          * @deprecated
          */
-        postAdminexternalstoragePage: (data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
+        postAdminext3rdstoragePage: (data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/page`,
+                path: `/admin/api/ext3rdStorage/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostAdminext3RdstorageImportjobsPage
+         * @summary Paginated query for import jobs
+         * @request POST:/admin/api/ext3rdStorage/ImportJobs/page
+         * @deprecated
+         */
+        postAdminext3rdstorageImportjobsPage: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
+            this.request<
+                ResultPaginationDTOExternalStorageImportJobDTO,
+                Result | (ResultObject | Result | ResultString)
+            >({
+                path: `/admin/api/ext3rdStorage/ImportJobs/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostAdminext3RdstorageImportjobsJobqueueFirst
+         * @summary Place a task in the first queue
+         * @request POST:/admin/api/ext3rdStorage/ImportJobs/jobQueue/first
+         * @deprecated
+         */
+        postAdminext3rdstorageImportjobsJobqueueFirst: (
+            data: ExternalStorageImportJobRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/ImportJobs/jobQueue/first`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Save a external storage import job
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostAdminext3RdstorageImportjobsAdd
+         * @summary Save import job record
+         * @request POST:/admin/api/ext3rdStorage/ImportJobs/add
+         * @deprecated
+         */
+        postAdminext3rdstorageImportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/ImportJobs/add`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetAdminext3RdstorageImportjobs
+         * @summary Get all import jobs list
+         * @request GET:/admin/api/ext3rdStorage/ImportJobs
+         * @deprecated
+         */
+        getAdminext3rdstorageImportjobs: (
+            query: {
+                /** External Storage Import Job Request */
+                requestDTO: ExternalStorageImportJobRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/ImportJobs`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * @description Save a external storage import job
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostAdminext3RdstorageImportjobs
+         * @summary Save import job record
+         * @request POST:/admin/api/ext3rdStorage/ImportJobs
+         * @deprecated
+         */
+        postAdminext3rdstorageImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/ImportJobs`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-whats-app-controller
+         * @name PostAdminext3RdmessageWhatsappOverview
+         * @request POST:/admin/api/ext3rdMessage/whatsapp/overview
+         */
+        postAdminext3rdmessageWhatsappOverview: (data: BasePageRequest, params: RequestParams = {}) =>
+            this.request<ResultWhatsAppOverviewResponse, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdMessage/whatsapp/overview`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-whats-app-controller
+         * @name PostAdminext3RdmessageWhatsappLogsQuery
+         * @request POST:/admin/api/ext3rdMessage/whatsapp/logs/query
+         */
+        postAdminext3rdmessageWhatsappLogsQuery: (data: BasePageRequest, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOWhatsAppLogDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdMessage/whatsapp/logs/query`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -37442,7 +39344,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Watermark Template(Admin Page)
+         * @tags Watermark Settings APIs(Admin Page)
          * @name PostAdmindocpalWatermarkTemplates
          * @summary Create watermark template and watermark setting list
          * @request POST:/admin/api/docpal/watermark/templates
@@ -37459,7 +39361,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Watermark Template(Admin Page)
+         * @tags Watermark Settings APIs(Admin Page)
          * @name PatchAdmindocpalWatermarkTemplates
          * @summary Modify watermark template and watermark setting list
          * @request PATCH:/admin/api/docpal/watermark/templates
@@ -37476,7 +39378,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Watermark Template(Admin Page)
+         * @tags Watermark Settings APIs(Admin Page)
          * @name PostAdmindocpalWatermarkTemplatesPage
          * @summary Watermark template page query
          * @request POST:/admin/api/docpal/watermark/templates/page
@@ -37503,7 +39405,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Watermark Template(Admin Page)
+         * @tags Watermark Settings APIs(Admin Page)
          * @name PostAdmindocpalWatermarkTemplatesAppend
          * @request POST:/admin/api/docpal/watermark/templates/append
          */
@@ -37519,7 +39421,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Watermark Settings(Admin Page)
+         * @tags Watermark Settings APIs(Admin Page)
          * @name PostAdmindocpalWatermarkSettings
          * @summary create single watermark settings
          * @request POST:/admin/api/docpal/watermark/settings
@@ -37536,7 +39438,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Watermark Settings(Admin Page)
+         * @tags Watermark Settings APIs(Admin Page)
          * @name PatchAdmindocpalWatermarkSettings
          * @summary update single watermark settings
          * @request PATCH:/admin/api/docpal/watermark/settings
@@ -37784,38 +39686,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags InternalShareController
-         * @name PostAdmindocpalInternalsharePage
-         * @request POST:/admin/api/docpal/internalShare/page
-         */
-        postAdmindocpalInternalsharePage: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOInternalShareQueryDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/internalShare/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostAdmindocpalInternalshareCheckdocumentisinshare
-         * @request POST:/admin/api/docpal/internalShare/checkDocumentIsInShare
-         */
-        postAdmindocpalInternalshareCheckdocumentisinshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/internalShare/checkDocumentIsInShare`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags IdTemplateController(Admin Page)
          * @name GetAdmindocpalIdTemplates
          * @summary Get all ID templates
@@ -37906,55 +39776,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postAdmindocpalDataStatisticsExecuteDailyStatistics: (data: ExecuteSqlDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/docpal/data_statistics/execute_daily_statistics`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DAMSettingController
-         * @name PostAdmindocpalDamGetallsetting
-         * @request POST:/admin/api/docpal/dam/getAllSetting
-         * @deprecated
-         */
-        postAdmindocpalDamGetallsetting: (params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/dam/getAllSetting`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DAMSettingController
-         * @name PostAdmindocpalDamEditsetting
-         * @request POST:/admin/api/docpal/dam/editSetting
-         * @deprecated
-         */
-        postAdmindocpalDamEditsetting: (data: DAMConversionSettingRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/dam/editSetting`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DAMSettingController
-         * @name PostAdmindocpalDamDeletesettings
-         * @request POST:/admin/api/docpal/dam/deleteSettings
-         * @deprecated
-         */
-        postAdmindocpalDamDeletesettings: (data: string[], params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/dam/deleteSettings`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38384,6 +40205,38 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postAdmindmsSmartFolderPage: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/dms/smart-folder/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags External Share
+         * @name PostAdmindmsSharePage
+         * @request POST:/admin/api/dms/share/page
+         */
+        postAdmindmsSharePage: (data: SharePageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/share/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags External Share
+         * @name PostAdmindmsShareGet
+         * @request POST:/admin/api/dms/share/get
+         */
+        postAdmindmsShareGet: (data: SharePageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/share/get`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -39109,6 +40962,38 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags InternalShareController
+         * @name PostAdmindmsInternalsharePage
+         * @request POST:/admin/api/dms/internalShare/page
+         */
+        postAdmindmsInternalsharePage: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOInternalShareQueryDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/internalShare/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostAdmindmsInternalshareCheckDocumentIsInShare
+         * @request POST:/admin/api/dms/internalShare/check-document-is-in-share
+         */
+        postAdmindmsInternalshareCheckDocumentIsInShare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/internalShare/check-document-is-in-share`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags admin-form-properties-relation-controller
          * @name PostAdmindmsFormPropertiesSave
          * @request POST:/admin/api/dms/form-properties/save
@@ -39737,6 +41622,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
+         * @name PostAdmindmsDocpalTypeUpdate
+         * @request POST:/admin/api/dms/docpal-type/update
+         */
+        postAdmindmsDocpalTypeUpdate: (data: DocpalTypeRequestV2DTO, params: RequestParams = {}) =>
+            this.request<ResultDocPalTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/docpal-type/update`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDocPalTypeManagementController
          * @name PostAdmindmsDocpalTypePage
          * @summary Pagination search of process definition version
          * @request POST:/admin/api/dms/docpal-type/page
@@ -39759,7 +41660,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request POST:/admin/api/dms/docpal-type/metadata
          */
         postAdmindmsDocpalTypeMetadata: (data: QueryMetadataRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocpalTypeDetailResponseVO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultDocpalTypeResponseVO, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/dms/docpal-type/metadata`,
                 method: "POST",
                 body: data,
@@ -39826,8 +41727,8 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @summary Create a new DocPalType
          * @request POST:/admin/api/dms/docpal-type/create
          */
-        postAdmindmsDocpalTypeCreate: (data: MetaDataDefinitionRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+        postAdmindmsDocpalTypeCreate: (data: DocpalTypeRequestV2DTO, params: RequestParams = {}) =>
+            this.request<ResultDocPalTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/dms/docpal-type/create`,
                 method: "POST",
                 body: data,
@@ -39846,277 +41747,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postAdmindmsDocpalTypeCheckDuplicate: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/dms/docpal-type/check/duplicate`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name PostAdmindmsDocTypeDocpaltypeidMetadata
-         * @request POST:/admin/api/dms/doc-type/{docpalTypeId}/metadata
-         * @deprecated
-         */
-        postAdmindmsDocTypeDocpaltypeidMetadata: (
-            docpalTypeId: string,
-            data: AddMetadataRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/${docpalTypeId}/metadata`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name DeleteAdmindmsDocTypeDocpaltypeidMetadata
-         * @request DELETE:/admin/api/dms/doc-type/{docpalTypeId}/metadata
-         * @deprecated
-         */
-        deleteAdmindmsDocTypeDocpaltypeidMetadata: (
-            docpalTypeId: string,
-            data: AddMetadataRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/${docpalTypeId}/metadata`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name PatchAdmindmsDocTypeDocpaltypeidMetadata
-         * @request PATCH:/admin/api/dms/doc-type/{docpalTypeId}/metadata
-         * @deprecated
-         */
-        patchAdmindmsDocTypeDocpaltypeidMetadata: (
-            docpalTypeId: string,
-            data: AddMetadataRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/${docpalTypeId}/metadata`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name PostAdmindmsDocTypeValidationName
-         * @summary Check duplicate name of docpal type
-         * @request POST:/admin/api/dms/doc-type/validation/name
-         * @deprecated
-         */
-        postAdmindmsDocTypeValidationName: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/validation/name`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name PostAdmindmsDocTypeQuery
-         * @request POST:/admin/api/dms/doc-type/query
-         * @deprecated
-         */
-        postAdmindmsDocTypeQuery: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTODocumentTypeResponseVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/query`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name GetAdmindmsDocTypeNameNameRelated
-         * @summary Query all related docpal type of current docpal type
-         * @request GET:/admin/api/dms/doc-type/name/{name}/related
-         * @deprecated
-         */
-        getAdmindmsDocTypeNameNameRelated: (name: string, params: RequestParams = {}) =>
-            this.request<ResultListDocPalTypeRelated, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/name/${name}/related`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name PostAdmindmsDocTypeNameNameRelated
-         * @summary Create/Bound related docpal type into current docpal type
-         * @request POST:/admin/api/dms/doc-type/name/{name}/related
-         * @deprecated
-         */
-        postAdmindmsDocTypeNameNameRelated: (name: string, data: DocPalTypeRelated, params: RequestParams = {}) =>
-            this.request<ResultDocPalTypeRelated, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/name/${name}/related`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name PatchAdmindmsDocTypeNameNameRelated
-         * @summary Update related docpal type
-         * @request PATCH:/admin/api/dms/doc-type/name/{name}/related
-         * @deprecated
-         */
-        patchAdmindmsDocTypeNameNameRelated: (name: string, data: DocPalTypeRelated, params: RequestParams = {}) =>
-            this.request<ResultDocPalTypeRelated, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/name/${name}/related`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name PostAdmindmsDocTypeMetadataQuery
-         * @request POST:/admin/api/dms/doc-type/metadata/query
-         * @deprecated
-         */
-        postAdmindmsDocTypeMetadataQuery: (data: QueryMetadataRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocpalTypeDetailResponseVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/metadata/query`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name PostAdmindmsDocTypeMetadataMove
-         * @request POST:/admin/api/dms/doc-type/metadata/move
-         * @deprecated
-         */
-        postAdmindmsDocTypeMetadataMove: (data: MoveMetadataRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/metadata/move`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name PostAdmindmsDocTypeExport
-         * @request POST:/admin/api/dms/doc-type/export
-         * @deprecated
-         */
-        postAdmindmsDocTypeExport: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
-            this.request<void, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/export`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name PostAdmindmsDocTypeExportMetadata
-         * @request POST:/admin/api/dms/doc-type/export/metadata
-         * @deprecated
-         */
-        postAdmindmsDocTypeExportMetadata: (data: QueryMetadataRequestDTO, params: RequestParams = {}) =>
-            this.request<void, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/export/metadata`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name PostAdmindmsDocTypeDuplicate
-         * @request POST:/admin/api/dms/doc-type/duplicate
-         * @deprecated
-         */
-        postAdmindmsDocTypeDuplicate: (data: DocpalTypeRequestV2DTO, params: RequestParams = {}) =>
-            this.request<ResultDocPalTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/duplicate`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name PostAdmindmsDocTypeCopyName
-         * @summary Copy DocPal Type
-         * @request POST:/admin/api/dms/doc-type/copy/{name}
-         * @deprecated
-         */
-        postAdmindmsDocTypeCopyName: (name: string, data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/copy/${name}`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name PostAdmindmsDocTypeBatchMetadata
-         * @summary Batch add multiple metadata into docpal type
-         * @request POST:/admin/api/dms/doc-type/batch/metadata
-         * @deprecated
-         */
-        postAdmindmsDocTypeBatchMetadata: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/batch/metadata`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -41463,38 +43093,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags admin-whats-app-controller
-         * @name PostAdminext3RdmessageWhatsappOverview
-         * @request POST:/admin/api/Ext3rdMessage/whatsapp/overview
-         */
-        postAdminext3rdmessageWhatsappOverview: (data: BasePageRequest, params: RequestParams = {}) =>
-            this.request<ResultWhatsAppOverviewResponse, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/Ext3rdMessage/whatsapp/overview`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-whats-app-controller
-         * @name PostAdminext3RdmessageWhatsappLogsQuery
-         * @request POST:/admin/api/Ext3rdMessage/whatsapp/logs/query
-         */
-        postAdminext3rdmessageWhatsappLogsQuery: (data: BasePageRequest, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOWhatsAppLogDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/Ext3rdMessage/whatsapp/logs/query`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Password Controller
          * @name PatchAdminpasswordUpdatePassword
          * @request PATCH:/admin/api/password/update-password
@@ -41525,38 +43123,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags External Share
-         * @name DeleteAdminnuxeoShare
-         * @request DELETE:/admin/api/nuxeo/share
-         */
-        deleteAdminnuxeoShare: (data: string[], params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/share`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags External Share
-         * @name PatchAdminnuxeoShare
-         * @request PATCH:/admin/api/nuxeo/share
-         */
-        patchAdminnuxeoShare: (data: ShareSaveRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/share`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Identity
          * @name PatchAdminnuxeoIdentityUserPassword
          * @summary Update user password
@@ -41577,39 +43143,17 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * @description Update the status of an import job
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PatchAdminimportjobsIdStatus
-         * @summary Update import job status
-         * @request PATCH:/admin/api/importJobs/{id}/status
-         * @deprecated
-         */
-        patchAdminimportjobsIdStatus: (
-            id: string,
-            data: ExternalStorageImportJobRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs/${id}/status`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
          * @description Change the status of an external storage (A/D)
          *
          * @tags ExternalStorageController
-         * @name PatchAdminexternalstorageIdStatus
+         * @name PatchAdminext3RdstorageIdStatus
          * @summary Active/Inactive a external storage
-         * @request PATCH:/admin/api/externalStorage/{id}/status
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/status
          * @deprecated
          */
-        patchAdminexternalstorageIdStatus: (id: string, data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
+        patchAdminext3rdstorageIdStatus: (id: string, data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/status`,
+                path: `/admin/api/ext3rdStorage/${id}/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -41620,19 +43164,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update profile status of a specific external storage, status value=[A/D]
          *
          * @tags ExternalStorageController
-         * @name PatchAdminexternalstorageIdProfilesProfileidStatus
+         * @name PatchAdminext3RdstorageIdProfilesProfileidStatus
          * @summary Active/Inactive a external profile
-         * @request PATCH:/admin/api/externalStorage/{id}/profiles/{profileId}/status
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/status
          * @deprecated
          */
-        patchAdminexternalstorageIdProfilesProfileidStatus: (
+        patchAdminext3rdstorageIdProfilesProfileidStatus: (
             id: string,
             profileId: string,
             data: ExternalProfileDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/${profileId}/status`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -41643,19 +43187,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminexternalstorageIdProfilesProfileidProcess
+         * @name PatchAdminext3RdstorageIdProfilesProfileidProcess
          * @summary Update an setting of existing external profile for a specific external storage
-         * @request PATCH:/admin/api/externalStorage/{id}/profiles/{profileId}/process
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/process
          * @deprecated
          */
-        patchAdminexternalstorageIdProfilesProfileidProcess: (
+        patchAdminext3rdstorageIdProfilesProfileidProcess: (
             id: string,
             profileId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/${profileId}/process`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/process`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -41666,19 +43210,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminexternalstorageIdProfilesProfileidImport
+         * @name PatchAdminext3RdstorageIdProfilesProfileidImport
          * @summary Update an import setting of existing external profile for a specific external storage
-         * @request PATCH:/admin/api/externalStorage/{id}/profiles/{profileId}/import
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/import
          * @deprecated
          */
-        patchAdminexternalstorageIdProfilesProfileidImport: (
+        patchAdminext3rdstorageIdProfilesProfileidImport: (
             id: string,
             profileId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/${profileId}/import`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/import`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -41689,19 +43233,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminexternalstorageIdProfilesProfileidGeneral
+         * @name PatchAdminext3RdstorageIdProfilesProfileidGeneral
          * @summary Update an general setting of existing external profile for a specific external storage
-         * @request PATCH:/admin/api/externalStorage/{id}/profiles/{profileId}/general
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/general
          * @deprecated
          */
-        patchAdminexternalstorageIdProfilesProfileidGeneral: (
+        patchAdminext3rdstorageIdProfilesProfileidGeneral: (
             id: string,
             profileId: string,
             data: ExternalProfileDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/${profileId}/general`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/general`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -41712,19 +43256,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminexternalstorageIdProfilesProfileidCapture
+         * @name PatchAdminext3RdstorageIdProfilesProfileidCapture
          * @summary Update an capture setting of existing external profile for a specific external storage
-         * @request PATCH:/admin/api/externalStorage/{id}/profiles/{profileId}/capture
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/capture
          * @deprecated
          */
-        patchAdminexternalstorageIdProfilesProfileidCapture: (
+        patchAdminext3rdstorageIdProfilesProfileidCapture: (
             id: string,
             profileId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/${profileId}/capture`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/capture`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -41735,19 +43279,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminexternalstorageProfilesProfileidOutputrecordOutputrecordidStatus
+         * @name PatchAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordidStatus
          * @summary Active/Inactive a external profile output record
-         * @request PATCH:/admin/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}/status
+         * @request PATCH:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}/status
          * @deprecated
          */
-        patchAdminexternalstorageProfilesProfileidOutputrecordOutputrecordidStatus: (
+        patchAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordidStatus: (
             profileId: string,
             outputRecordId: string,
             data: ExternalProfileOutputDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}/status`,
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -41755,33 +43299,21 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * No description
+         * @description Update the status of an import job
          *
-         * @tags Watermark Template(Admin Page)
-         * @name PatchAdmindocpalWatermarkTemplatesDeprecate
-         * @summary Modify watermark template and watermark setting list
-         * @request PATCH:/admin/api/docpal/watermark/templates/
+         * @tags ExternalStorageImportJobController
+         * @name PatchAdminext3RdstorageImportjobsIdStatus
+         * @summary Update import job status
+         * @request PATCH:/admin/api/ext3rdStorage/ImportJobs/{id}/status
+         * @deprecated
          */
-        patchAdmindocpalWatermarkTemplatesDeprecate: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultWMKTemplateRequestDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/watermark/templates/`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Watermark Settings(Admin Page)
-         * @name PatchAdmindocpalWatermarkSettingsDeprecate
-         * @summary update single watermark settings
-         * @request PATCH:/admin/api/docpal/watermark/settings/
-         */
-        patchAdmindocpalWatermarkSettingsDeprecate: (data: WatermarkSettingsDTO, params: RequestParams = {}) =>
-            this.request<ResultWatermarkSettingsDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/watermark/settings/`,
+        patchAdminext3rdstorageImportjobsIdStatus: (
+            id: string,
+            data: ExternalStorageImportJobRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/ImportJobs/${id}/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -41845,6 +43377,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         patchAdmindmsSmartFolder: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
             this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/dms/smart-folder`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags External Share
+         * @name PatchAdmindmsShareSave
+         * @request PATCH:/admin/api/dms/share/save
+         */
+        patchAdmindmsShareSave: (data: ShareSaveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/share/save`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -42012,24 +43560,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         patchAdmindmsDocpalTypeActive: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/dms/docpal-type/active`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name PatchAdmindmsDocTypeStatus
-         * @summary Active or UnActive DocPal Type
-         * @request PATCH:/admin/api/dms/doc-type/status
-         * @deprecated
-         */
-        patchAdmindmsDocTypeStatus: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -42814,32 +44344,17 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name GetAdminimportjobsPageConditions
-         * @request GET:/admin/api/importJobs/page/conditions
-         * @deprecated
-         */
-        getAdminimportjobsPageConditions: (params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs/page/conditions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
          * @description Retrieve all profiles for a specific external storage
          *
          * @tags ExternalStorageController
-         * @name GetAdminexternalstorageIdProfilesList
+         * @name GetAdminext3RdstorageIdProfilesList
          * @summary Get all profile by external storage id
-         * @request GET:/admin/api/externalStorage/{id}/profiles/list
+         * @request GET:/admin/api/ext3rdStorage/{id}/profiles/list
          * @deprecated
          */
-        getAdminexternalstorageIdProfilesList: (id: string, params: RequestParams = {}) =>
+        getAdminext3rdstorageIdProfilesList: (id: string, params: RequestParams = {}) =>
             this.request<ResultListExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/list`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/list`,
                 method: "GET",
                 ...params,
             }),
@@ -42848,14 +44363,57 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name GetAdminexternalstorageProfilesProfileidOutputrecordList
+         * @name GetAdminext3RdstorageProfilesProfileidOutputrecordList
          * @summary Retrieve all output settings of specific profile
-         * @request GET:/admin/api/externalStorage/profiles/{profileId}/outputRecord/list
+         * @request GET:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/list
          * @deprecated
          */
-        getAdminexternalstorageProfilesProfileidOutputrecordList: (profileId: string, params: RequestParams = {}) =>
+        getAdminext3rdstorageProfilesProfileidOutputrecordList: (profileId: string, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/profiles/${profileId}/outputRecord/list`,
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetAdminext3RdstorageImportjobsPageConditions
+         * @request GET:/admin/api/ext3rdStorage/ImportJobs/page/conditions
+         * @deprecated
+         */
+        getAdminext3rdstorageImportjobsPageConditions: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/ImportJobs/page/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-whats-app-controller
+         * @name GetAdminext3RdmessageWhatsappLanguages
+         * @request GET:/admin/api/ext3rdMessage/whatsapp/languages
+         */
+        getAdminext3rdmessageWhatsappLanguages: (params: RequestParams = {}) =>
+            this.request<ResultListLanguageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdMessage/whatsapp/languages`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-whats-app-controller
+         * @name GetAdminext3RdmessageWhatsappConnectionStatus
+         * @request GET:/admin/api/ext3rdMessage/whatsapp/connection/status
+         */
+        getAdminext3rdmessageWhatsappConnectionStatus: (params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdMessage/whatsapp/connection/status`,
                 method: "GET",
                 ...params,
             }),
@@ -43415,7 +44973,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Watermark Template(Admin Page)
+         * @tags Watermark Settings APIs(Admin Page)
          * @name GetAdmindocpalWatermarkTemplatesId
          * @summary Query watermark template by ID
          * @request GET:/admin/api/docpal/watermark/templates/{id}
@@ -43430,7 +44988,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Watermark Template(Admin Page)
+         * @tags Watermark Settings APIs(Admin Page)
          * @name DeleteAdmindocpalWatermarkTemplatesId
          * @summary Delete watermark template by id
          * @request DELETE:/admin/api/docpal/watermark/templates/{id}
@@ -43445,7 +45003,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Watermark Template(Admin Page)
+         * @tags Watermark Settings APIs(Admin Page)
          * @name GetAdmindocpalWatermarkTemplatesNameName
          * @summary Query watermark template by name
          * @request GET:/admin/api/docpal/watermark/templates/name/{name}
@@ -43460,7 +45018,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Watermark Template(Admin Page)
+         * @tags Watermark Settings APIs(Admin Page)
          * @name DeleteAdmindocpalWatermarkTemplatesNameName
          * @summary Delete watermark template by name
          * @request DELETE:/admin/api/docpal/watermark/templates/name/{name}
@@ -43475,7 +45033,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Watermark Template(Admin Page)
+         * @tags Watermark Settings APIs(Admin Page)
          * @name GetAdmindocpalWatermarkTemplatesAll
          * @summary Query all watermark template
          * @request GET:/admin/api/docpal/watermark/templates/all
@@ -43490,7 +45048,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Watermark Settings(Admin Page)
+         * @tags Watermark Settings APIs(Admin Page)
          * @name GetAdmindocpalWatermarkSettingsId
          * @summary query watermark settings
          * @request GET:/admin/api/docpal/watermark/settings/{id}
@@ -43505,7 +45063,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Watermark Settings(Admin Page)
+         * @tags Watermark Settings APIs(Admin Page)
          * @name DeleteAdmindocpalWatermarkSettingsId
          * @summary Delete watermark settings by id
          * @request DELETE:/admin/api/docpal/watermark/settings/{id}
@@ -43520,7 +45078,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Watermark Settings(Admin Page)
+         * @tags Watermark Settings APIs(Admin Page)
          * @name GetAdmindocpalWatermarkSettingsTemplateTemplateid
          * @summary Query list of watermark settings by template id
          * @request GET:/admin/api/docpal/watermark/settings/template/{templateId}
@@ -43535,21 +45093,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Watermark Settings(Admin Page)
-         * @name GetAdmindocpalWatermarkSettingsRepairdata
-         * @request GET:/admin/api/docpal/watermark/settings/repairData
-         */
-        getAdmindocpalWatermarkSettingsRepairdata: (params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/watermark/settings/repairData`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Watermark Settings(Admin Page)
+         * @tags Watermark Settings APIs(Admin Page)
          * @name GetAdmindocpalWatermarkSettingsPreviewId
          * @summary preview watermark settings to return byte array
          * @request GET:/admin/api/docpal/watermark/settings/preview/{id}
@@ -43564,7 +45108,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Watermark Settings(Admin Page)
+         * @tags Watermark Settings APIs(Admin Page)
          * @name GetAdmindocpalWatermarkSettingsContenttype
          * @summary Get list of content type of watermark setting
          * @request GET:/admin/api/docpal/watermark/settings/contentType
@@ -43842,24 +45386,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         getAdmindocpalIdTemplatesList: (params: RequestParams = {}) =>
             this.request<ResultListIdTemplate, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/docpal/id-templates/list`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DAMSettingController
-         * @name GetAdmindocpalDamGetsupportedformat
-         * @request GET:/admin/api/docpal/dam/getSupportedFormat
-         * @deprecated
-         */
-        getAdmindocpalDamGetsupportedformat: (params: RequestParams = {}) =>
-            this.request<
-                ResultHashMapStringListConversionSupportDestType,
-                Result | (ResultObject | Result | ResultString)
-            >({
-                path: `/admin/api/docpal/dam/getSupportedFormat`,
                 method: "GET",
                 ...params,
             }),
@@ -44904,7 +46430,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request GET:/admin/api/dms/docpal-type/{documentType}/metadata
          */
         getAdmindmsDocpalTypeDocumenttypeMetadata: (documentType: string, data: any, params: RequestParams = {}) =>
-            this.request<ResultDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultDocPalTypeDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/dms/docpal-type/${documentType}/metadata`,
                 method: "GET",
                 body: data,
@@ -44931,22 +46457,8 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name GetAdmindmsDocpalTypeCategories
-         * @summary Obtain all docpal type categories
-         * @request GET:/admin/api/dms/docpal-type/categories
-         */
-        getAdmindmsDocpalTypeCategories: (params: RequestParams = {}) =>
-            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/docpal-type/categories`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeManagementController
          * @name GetAdmindmsDocpalTypeCache
+         * @summary Query all metadata information list
          * @request GET:/admin/api/dms/docpal-type/cache
          */
         getAdmindmsDocpalTypeCache: (params: RequestParams = {}) =>
@@ -44959,15 +46471,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags AdminDocPalTypeSettingController
-         * @name GetAdmindmsDocTypeName
-         * @summary Obtain docpal type detail through name
-         * @request GET:/admin/api/dms/doc-type/{name}
-         * @deprecated
+         * @tags AdminDocPalTypeManagementController
+         * @name GetAdmindmsDocpalTypeMetadataList
+         * @summary Query all metadata information list
+         * @request GET:/admin/api/dms/docpal-type/metadata/list
          */
-        getAdmindmsDocTypeName: (name: string, params: RequestParams = {}) =>
-            this.request<ResultDocPalTypeResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/${name}`,
+        getAdmindmsDocpalTypeMetadataList: (params: RequestParams = {}) =>
+            this.request<ResultListMetadataResponseVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/docpal-type/metadata/list`,
                 method: "GET",
                 ...params,
             }),
@@ -44975,95 +46486,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags AdminDocPalTypeSettingController
-         * @name DeleteAdmindmsDocTypeName
-         * @summary Delete docpal type
-         * @request DELETE:/admin/api/dms/doc-type/{name}
-         * @deprecated
-         */
-        deleteAdmindmsDocTypeName: (name: string, params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/${name}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name GetAdmindmsDocTypeDocumenttypeMetadata
-         * @summary Obtain metadata list by type
-         * @request GET:/admin/api/dms/doc-type/{documentType}/metadata
-         * @deprecated
-         */
-        getAdmindmsDocTypeDocumenttypeMetadata: (documentType: string, params: RequestParams = {}) =>
-            this.request<ResultDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/${documentType}/metadata`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name GetAdmindmsDocTypeListConditions
-         * @summary Obtain all conditions that has been used
-         * @request GET:/admin/api/dms/doc-type/list/conditions
-         * @deprecated
-         */
-        getAdmindmsDocTypeListConditions: (params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/list/conditions`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name GetAdmindmsDocTypeListAll
-         * @summary Find all docpal type
-         * @request GET:/admin/api/dms/doc-type/list/all
-         * @deprecated
-         */
-        getAdmindmsDocTypeListAll: (params: RequestParams = {}) =>
-            this.request<ResultListDocPalType, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/list/all`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name GetAdmindmsDocTypeListActive
-         * @summary Query the list of activated docpal types
-         * @request GET:/admin/api/dms/doc-type/list/active
-         * @deprecated
-         */
-        getAdmindmsDocTypeListActive: (params: RequestParams = {}) =>
-            this.request<ResultListDocPalType, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/list/active`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name GetAdmindmsDocTypeCategories
+         * @tags AdminDocPalTypeManagementController
+         * @name GetAdmindmsDocpalTypeCategories
          * @summary Obtain all docpal type categories
-         * @request GET:/admin/api/dms/doc-type/categories
-         * @deprecated
+         * @request GET:/admin/api/dms/docpal-type/categories
          */
-        getAdmindmsDocTypeCategories: (params: RequestParams = {}) =>
+        getAdmindmsDocpalTypeCategories: (params: RequestParams = {}) =>
             this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/categories`,
+                path: `/admin/api/dms/docpal-type/categories`,
                 method: "GET",
                 ...params,
             }),
@@ -46436,34 +47866,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags admin-whats-app-controller
-         * @name GetAdminext3RdmessageWhatsappLanguages
-         * @request GET:/admin/api/Ext3rdMessage/whatsapp/languages
-         */
-        getAdminext3rdmessageWhatsappLanguages: (params: RequestParams = {}) =>
-            this.request<ResultListLanguageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/Ext3rdMessage/whatsapp/languages`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-whats-app-controller
-         * @name GetAdminext3RdmessageWhatsappConnectionStatus
-         * @request GET:/admin/api/Ext3rdMessage/whatsapp/connection/status
-         */
-        getAdminext3rdmessageWhatsappConnectionStatus: (params: RequestParams = {}) =>
-            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/Ext3rdMessage/whatsapp/connection/status`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags AdminProcessInstanceController
          * @name DeleteAdminworkflowInstanceWithoutValidation
          * @request DELETE:/admin/api/workflow/instance/without/validation
@@ -46648,13 +48050,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags InternalShareController
-         * @name DeleteAdmindocpalInternalshare
-         * @request DELETE:/admin/api/docpal/internalShare
+         * @tags External Share
+         * @name DeleteAdmindmsShare
+         * @request DELETE:/admin/api/dms/share
          */
-        deleteAdmindocpalInternalshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/internalShare`,
+        deleteAdmindmsShare: (data: string[], params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/share`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -46725,6 +48127,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags InternalShareController
+         * @name DeleteAdmindmsInternalshare
+         * @request DELETE:/admin/api/dms/internalShare
+         */
+        deleteAdmindmsInternalshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/internalShare`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags EasyFormController (Admin Page)
          * @name DeleteAdmindmsEasyFormId
          * @request DELETE:/admin/api/dms/easy-form/{id}
@@ -46750,22 +48168,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/dms/easy-form/${draftId}/formResult/${formResultId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AdminDocPalTypeSettingController
-         * @name DeleteAdmindmsDocTypeRelatedId
-         * @summary Delete related docpal type
-         * @request DELETE:/admin/api/dms/doc-type/related/{id}
-         * @deprecated
-         */
-        deleteAdmindmsDocTypeRelatedId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/doc-type/related/${id}`,
                 method: "DELETE",
                 ...params,
             }),

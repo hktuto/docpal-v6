@@ -106,7 +106,7 @@ export async function getBpmnAdditionalElement(xml: any, taskDefinitionKey: stri
 
     // step 6, get template detail and setting json
     const { data: detail } = await clientApi.api.getNuxeoTemplateTemplateid(templateId)
-    let json = await clientApi.api.postNuxeoDocumentPreview({ idOrPath: detail.documentId }, {
+    let json = await clientApi.api.postDmsDocumentPreview({ idOrPath: detail.documentId }, {
       format: 'blob'
     }).then(async (res) => {
       const t = await res.text()

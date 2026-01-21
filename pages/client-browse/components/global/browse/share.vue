@@ -16,7 +16,8 @@
           <div class="no-file-preview">{{ $t('tip.pleaseSelectFile') }}</div>
         </template>
       </div>
-      <BrowseShareTableSet :tableData="state.minTypeShareList" class="div3" @db-click="handleDblclick" @delete="handleDeleteRow" />
+      <BrowseShareTableSet :tableData="state.minTypeShareList" class="div3" @db-click="handleDblclick"
+                           @delete="handleDeleteRow" />
       <div class="div4 flex-x-end">
         <div>
           <!-- <el-button type="primary" @click="handleAddMore">{{ $t('share.addMore') }}</el-button> -->
@@ -81,11 +82,11 @@ async function handleDblclick(row: any) {
           handlePreviewFail()
         }
 
-        const res = await clientApi.api.getNuxeoSharePrepareDownloadDocid(row.id).then((res) => res.data)
+        const res = await clientApi.api.getDmsSharePrepareDownloadDocidGetDownloadStatus(row.id).then(res => res.data)
         if (res === 'YES') {
           clearInterval(state.interval)
 
-          previewFile.blob = await clientApi.api.getWatermarkDocumentPreview(
+          previewFile.blob = await clientApi.api.getDocpalWatermarkDocumentPreview(
             {
               watermarkTemplateId: row.watermark,
               documentId: row.id
@@ -98,7 +99,7 @@ async function handleDblclick(row: any) {
         }
       }, 1000)
     } else {
-      previewFile.blob = await clientApi.api.postNuxeoDocumentPreview(
+      previewFile.blob = await clientApi.api.postDmsDocumentPreview(
         { idOrPath: row.id },
         {
           format: 'blob'
@@ -117,6 +118,7 @@ async function handleDblclick(row: any) {
     state.loadingFileFail = true
   }
 }
+
 function isValidateEmail(emailList) {
   let isValidate = true
   const emailRef = FormRendererRef.value.vFormRenderRef?.getWidgetRef?.('emailList')
@@ -129,11 +131,13 @@ function isValidateEmail(emailList) {
     }
   })
   return isValidate
+
   function isInContactList(email: string) {
     if (!contactList) contactList = []
     return contactList.some((item: any) => item.value === email)
   }
 }
+
 async function handleSubmit() {
   try {
     state.loading = true
@@ -147,7 +151,7 @@ async function handleSubmit() {
       password: formData.password ? formData.password : '',
       tokenLiveInMinutes: diffMinute(formData.dueDate)
     }
-    const response = await clientApi.api.postNuxeoShareNew(param).then((res) => res.data)
+    await clientApi.api.postDmsShareNew(param).then(res => res.data)
     routerProvider?.message.success(t('share_success'))
     console.log('share_success', '=================share_success=================', updateShareList)
     updateShareList([])
@@ -228,8 +232,10 @@ watch(
         if (item.mimeType && getUseWatermark(item.mimeType)) prev.push(item.id)
         return prev
       }, [])
-      clientApi.api.postNuxeoSharePrepareDownload(mimeTypeList)
-    } catch (error) {}
+      clientApi.api.postDmsSharePrepareDownloadCheckFileComplete(mimeTypeList).then(r => r.data)
+    } catch (error) {
+      console.log(error)
+    }
   },
   {
     immediate: true,
@@ -254,7 +260,7 @@ watch(
 //     if (item.mimeType && getUseWatermark(item.mimeType)) prev.push(item.id)
 //     return prev
 //   }, [])
-//   clientApi.api.postNuxeoSharePrepareDownload(mimeTypeList)
+//   clientApi.api.postDmsSharePrepareDownloadCheckFileComplete(mimeTypeList)
 // })
 onUnmounted(() => {
   if (!!state.interval) clearInterval(state.interval)
