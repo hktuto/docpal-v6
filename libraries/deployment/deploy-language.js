@@ -67,7 +67,7 @@ async function updateLanguage(code, token) {
     ...dataList[0],
     languageContent: JSON.stringify(newJson)
   }
-  console.log('---JSON String', JSON.stringify(dataList[0].id), JSON.stringify(dataList[0].locale))
+  console.log('---newData', newData.id, newData.locale)
 
   try {
     const res = await fetch(`${URL}/api/dms/form-properties/language`, {
@@ -80,7 +80,7 @@ async function updateLanguage(code, token) {
     }).then(async (res) => {
       const data = await res.json()
       if (data.code !== 200) {
-        throw new Error(data.message)
+        throw Error(data.message)
       }
     })
   } catch (e) {
