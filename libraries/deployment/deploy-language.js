@@ -27,61 +27,70 @@ const { SUPERADMIN, PASSWORD, ADMINURL } = argv
 const URL = ADMINURL.replace('/admin/api', '')
 
 async function loginAdmin() {
-  const data = await fetch(`${URL}/api/auth/login`, {
-    method: 'POST',
-    body: JSON.stringify({
-      username: SUPERADMIN,
-      password: PASSWORD
-    }),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  }).then(async (res) => await res.json())
-    .catch(error => {
-      console.log('--login error', error)
-    })
-  return data.access_token
+  try {
+    const data = await fetch(`${URL}/api/auth/login`, {
+      method: 'POST',
+      body: JSON.stringify({
+        username: SUPERADMIN,
+        password: PASSWORD
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(async (res) => await res.json())
+
+    return data.access_token
+  } catch (e) {
+    console.log('--login error', e)
+  }
 }
 
 async function updateLanguage(code, token) {
-  const { data } = await fetch(`${URL}/api/dms/form-properties/language/list?locale=${code}&languageKey=client`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  }).then(async (res) => await res.json())
-    .catch(error => {
-      console.log('--getLanguage error', error)
-    })
+  let dataList
+  try {
+    const { data } = await fetch(`${URL}/api/dms/form-properties/language/list?locale=${code}&languageKey=client`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    }).then(async (res) => await res.json())
+    dataList = data
+  } catch (e) {
+    console.log('--getLanguage error', e)
+  }
+
   // const newJson = await fs.readFileSync(path.join(__dirname, `./lang/${code}.json`), {
   //     encoding: 'utf-8'
   // })
   const newJson = code === 'en-US' ? enJson : code === 'zh-CN' ? zhJson : zhHKJson
   const newData = {
-    ...data[0],
+    ...dataList[0],
     languageContent: JSON.stringify(newJson)
   }
-  console.log('---JSON String', JSON.stringify(data[0].id), JSON.stringify(data[0].locale))
+  console.log('---JSON String', JSON.stringify(dataList[0].id), JSON.stringify(dataList[0].locale))
 
-  console.log('--- languageContent',newData.languageContent)
+  console.log('--- languageContent', newData.languageContent)
 
-  const res = await fetch(`${URL}/api/dms/form-properties/language`, {
-    method: 'POST',
-    body: JSON.stringify(newData),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
-  }).then(async (res) => {
-    console.log('----res', res)
-    const data = await res.json()
-    if (data.code !== 200) {
-      throw new Error(data.message)
-    }
-  }).catch(error => {
-    console.log('--updateLanguage error', error)
-  })
+  try {
+    const res = await fetch(`${URL}/api/dms/form-properties/language`, {
+      method: 'POST',
+      body: JSON.stringify(newData),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    }).then(async (res) => {
+      console.log('----res', res)
+      const data = await res.json()
+      if (data.code !== 200) {
+        throw new Error(data.message)
+      }
+    })
+  } catch (e) {
+    console.log('--updateLanguage error', e)
+  }
+
   console.log('finish update language', ADMINURL, URL, code)
 }
 
