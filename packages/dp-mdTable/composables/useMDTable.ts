@@ -12,7 +12,17 @@ export const MdTableContextKey: InjectionKey<mdTable> = Symbol('MdTableContextKe
 export function useMDTable(props: any) {
   const editable = ref(props.editable)
 
-  const { gridRef, columns, addColumn, updateColumn, deleteColumn, columnGroupRules, saveColumnOrder, addColumnPopoverRef } = useColumnsContext()
+  const { gridRef, 
+    columns, 
+    addColumn,
+     updateColumn,
+      deleteColumn, 
+      columnGroupRules,
+      columnFilterRules,
+      columnSortRules, 
+      saveColumnOrder, 
+      addColumnPopoverRef } = 
+    useColumnsContext()
   const {
     loading,
     queryParams,
@@ -27,6 +37,8 @@ export function useMDTable(props: any) {
     {
       ...props,
       groupBy: columnGroupRules,
+      filterBy: columnFilterRules,
+      sortBy: columnSortRules,
       columns,
       loading,
       childApiMethod: getAggChildData,
@@ -48,6 +60,8 @@ export function useMDTable(props: any) {
     deleteColumn,
     updateColumn,
     columnGroupRules,
+    columnFilterRules,
+    columnSortRules,
     gridOptions,
     gridRef,
     refreshTableData,

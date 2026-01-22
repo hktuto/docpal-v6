@@ -28,6 +28,10 @@ export interface TableConfigOptions {
   editConfig?: boolean | object
   /** 分组字段 */
   groupBy?: any
+  /** 筛选字段 */
+  filterBy?: any
+  /** 排序字段 */
+  sortBy?: any
   /** 列配置 */
   columns: Ref<ColumnConfig[]> | ComputedRef<ColumnConfig[]>
   /** 加载状态 */
@@ -55,7 +59,9 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     loading,
     apiMethod,
     childApiMethod,
-    groupBy
+    groupBy,
+    filterBy,
+    sortBy,
   } = options
 
   /**
@@ -84,7 +90,6 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       type: 'checkbox',
       width: 40
     })
-    console.log('columns', groupBy.value, groupBy.value.length)
     return _columns.map((col) => {
       if (!col.type) col.type = ColumnFieldType.Text
       if (col.field === 'name') col.rowGroupNode = true
@@ -202,7 +207,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     const isGroupingEnabled = groupBy?.value && groupBy.value.length > 0
     if (isGroupingEnabled) {
       options.treeConfig = {
-        transform: false,
+        transform: true,
         rowField: 'id',
         parentField: 'parentId',
         lazy: true,
@@ -240,6 +245,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
   })
   function loadData(pageParams: any) {
     const gb: any = (options?.groupBy as any)?.value
+    
     return apiMethod(pageParams, gb.length > 0 ? gb : null)
   }
   async function treeLoadData(params: any) {
@@ -249,23 +255,19 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         console.warn('childApiMethod is not defined')
         return []
       }
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(childApiMethod(params))
-        }, 100)
-      })
+      return await childApiMethod(params, groupBy.value)
     } catch (error) {
       console.error('treeLoadData error:', error)
       return []
     }
   }
   watch(
-    () => options.groupBy,
-    (newGroupBy) => {
-      console.log('newGroupBy', newGroupBy)
+    () => [options.groupBy, options.filterBy, options.sortBy],
+    ([newGroupBy, newFilterBy, newSortBy]) => {
+      
       gridRef.value?.commitProxy('reload')
     },
-    { immediate: true, deep: true }
+    { deep: true }
   )
   return {
     gridOptions

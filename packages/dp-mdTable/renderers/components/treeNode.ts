@@ -4,7 +4,7 @@ export const TreeNode = ({ options, params }: ViewRenderFunctionParams<string>, 
   if (row.isAggregate) {
     const value = row[column.field] || ''
     if (column.treeNode) {
-      const hList: any[] = [column.field, h('div', {}, row.title)]
+      const hList: any[] = [row.title]
       if (value && value !== 0) {
         hList.push(h('div', {}, value))
       }

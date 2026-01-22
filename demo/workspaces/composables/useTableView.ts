@@ -11,6 +11,7 @@ import type {
 // Import context keys from dp-mdTable so MdTable can inject them
 import { ColumnContextKey, TableDataContextKey, type ColumnContext, type ColumnConfig, type TableDataContext } from '#imports'
 import { ElMessage } from 'element-plus'
+import { buildGroupByQuery, buildSelectQuery, type FilterRule, type SortRule } from './useQueryBuilder'
 
 export interface ViewContext {
   currentView: Ref<CaseViewRecord | null>
@@ -44,107 +45,227 @@ export const useTableView = () => {
   const tableData = ref<any[]>([])
   const queryParams = ref<any>({})
 
+  async function getAggChildData(params: any = {}): Promise<any[]> {
+    console.log('getAggChildData', params, 'currentIndex:', groupListIndex.value, 'columnGroupRules:', columnGroupRules.value)
+
+    // Check if there's a next aggregate at current groupListIndex
+    if (!columnGroupRules.value || columnGroupRules.value.length === 0 || groupListIndex.value >= columnGroupRules.value.length) {
+      // No more aggregates to process - return actual row data filtered by __filter_data
+      const filterData: Record<string, any> = params.row?.__filter_data || {}
+      
+      const data = await queryTableData(filterData)
+      console.log('getAggChildData real data', data)
+      return data
+    }
+
+    // Get the next aggregate rule based on groupListIndex
+    const nextAggregate = columnGroupRules.value[groupListIndex.value]
+    
+    // Call getGroupApi with the single aggregate rule
+    // Note: getGroupApi will increment groupListIndex
+    return await getGroupApi(params, nextAggregate)
+  }
+  // state to keep check of which grouo index is the current group
+  const groupListIndex = ref<number>(0)
+  async function getGroupApi(params: any = {}, aggregate:{id: string, field: string, order: string}): Promise<any[]> {
+    // there maybe a row in params, if so that mean this is not the first aggregate
+    const latestGroupFilter: Record<string, any> = params.row?.__filter_data || {}
+    // Get group data from db
+    // aggregate example: [{
+    //   "id": "rule-1769081510151-0.08880262531953598",
+    //   "field": "company_name",
+    //   "order": "asc"
+    // }]
+    // Response format: [{ title: "Company Name", firstColumnField: "key1", count: 10, isAggregate: true, __filter_data: {...} }, ...]
+
+    if (!physicalTableName.value || !currentView.value) {
+      throw new Error('physicalTableName and currentView are required')
+    }
+
+    if (!aggregate) {
+      groupListIndex.value ++
+      return []
+    }
+
+    // Get the first grouping rule (support single group for now)
+    const groupRule = aggregate
+    const groupField = groupRule.field
+    const sortOrder = groupRule.order?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
+
+    if (!groupField) {
+      groupListIndex.value ++
+      return []
+    }
+
+    // Get the first column's field name (grouped value is always displayed in col 0)
+    const firstColumnField = currentView.value.fields[0]
+    if (!firstColumnField) {
+      groupListIndex.value ++
+      return []
+    }
+
+    // Get the group field's title from fields
+    const groupFieldRecord = getField(groupField)
+    const groupTitle = groupFieldRecord?.fieldNameAlias || groupField
+
+    // Build the GROUP BY query using helper
+    const { sql, queryValues } = buildGroupByQuery(
+      physicalTableName.value,
+      groupField,
+      sortOrder as 'ASC' | 'DESC',
+      latestGroupFilter,
+      columnFilterRules.value as FilterRule[]
+    )
+
+    const rawData = await query<{ [key: string]: any; count: number }>(sql, queryValues)
+    
+    // Map the result with title first, then first column key with value, then isAggregate
+    // Add __filter_data with accumulated filters including current group field and value
+    const data = rawData.map(row => ({
+      title: groupTitle,
+      [firstColumnField]: row[groupField],
+      count: row.count,
+      isAggregate: true,
+      __filter_data: {
+        ...latestGroupFilter,
+        [groupField]: row[groupField]
+      }
+    }))
+    groupListIndex.value ++
+    console.log('getGroupApi data', data)
+    return data
+  }
+
   // Region: Table Data Logic
-  async function getTableData(): Promise<any[]> {
+
+  /**
+   * Reusable function to query table data with optional filter
+   * @param filter - Record of field names and values to filter by (e.g., from __filter_data)
+   * @returns Queried data with relation display fields resolved
+   */
+  async function queryTableData(filter: Record<string, any> = {}): Promise<any[]> {
+    if (!physicalTableName.value || !currentView.value) {
+      throw new Error('physicalTableName and currentView are required')
+    }
+
+    // Build SELECT query using helper (with filter and sort)
+    const { sql, queryValues } = buildSelectQuery(
+      physicalTableName.value,
+      filter,
+      columnFilterRules.value as FilterRule[],
+      columnSortRules.value as SortRule[]
+    )
+
+    const data = await query(sql, queryValues)
+    
+    // Parse view fields to find relation fields with display fields
+    // Format: relationFieldName.displayFieldName
+    const relationDisplayFields = new Map<string, Set<string>>() // relationFieldName -> Set of displayFieldNames
+    
+    for (const viewFieldName of currentView.value.fields) {
+      if (viewFieldName.includes('.')) {
+        const [relationFieldName, displayFieldName] = viewFieldName.split('.')
+        if (!relationDisplayFields.has(relationFieldName)) {
+          relationDisplayFields.set(relationFieldName, new Set())
+        }
+        relationDisplayFields.get(relationFieldName)!.add(displayFieldName)
+      }
+    }
+    // Fetch display values for each relation field
+    if (relationDisplayFields.size > 0 && data.length > 0) {
+      for (const [relationFieldName, displayFieldNames] of relationDisplayFields.entries()) {
+        const field = fields.value.find(f => f.fieldName === relationFieldName)
+        
+        if (!field || field.businessType !== 'relation' || !field.relationTableId) continue
+        
+        // All relations are now arrays (uuid[])
+        const isArray = field.isArray || true
+        
+        // Get the target table info
+        const targetTableData = await query<CaseTableRecord>(
+          `SELECT * FROM case_tables WHERE id = $1`,
+          [field.relationTableId]
+        )
+        
+        if (targetTableData.length === 0) continue
+        
+        const targetTable = targetTableData[0]
+        
+        // Collect all relation IDs from the data
+        const relationIds = new Set<string>()
+        for (const row of data) {
+          const value = row[field.fieldName]
+          if (value) {
+            if (Array.isArray(value)) {
+              value.forEach(id => relationIds.add(id))
+            } else {
+              relationIds.add(value)
+            }
+          }
+        }
+        
+        if (relationIds.size === 0) continue
+        
+        // Fetch all requested display fields in one query
+        const displayFieldsList = Array.from(displayFieldNames)
+        const selectFields = ['id', ...displayFieldsList.map(f => `"${f}"`)].join(', ')
+        
+        const relatedRecords = await query<Record<string, any>>(
+          `SELECT ${selectFields} FROM "${targetTable.tableName}" 
+           WHERE id = ANY($1)`,
+          [Array.from(relationIds)]
+        )
+        
+        // Build lookup maps for each display field: id -> display value
+        const displayMaps = new Map<string, Map<string, any>>()
+        for (const displayFieldName of displayFieldNames) {
+          const displayMap = new Map<string, any>()
+          for (const record of relatedRecords) {
+            displayMap.set(record.id, record[displayFieldName])
+          }
+          displayMaps.set(displayFieldName, displayMap)
+        }
+        
+        // Add display values to each row
+        // Key format: relationFieldName.displayFieldName
+        for (const displayFieldName of displayFieldNames) {
+          const displayKey = `${field.fieldName}.${displayFieldName}`
+          const displayMap = displayMaps.get(displayFieldName)!
+          
+          for (const row of data) {
+            const value = row[field.fieldName]
+            if (value) {
+              if (Array.isArray(value)) {
+                // Map each UUID to its display value
+                row[displayKey] = value.map(id => displayMap.get(id) || id)
+              } else {
+                // Single value (shouldn't happen anymore, but keep for safety)
+                row[displayKey] = displayMap.get(value) || value
+              }
+            } else {
+              row[displayKey] = null
+            }
+          }
+        }
+      }
+    }
+    
+    return data
+  }
+
+  async function getTableData(params: any = {}, aggregate: any = []): Promise<any[]> {
     if (!physicalTableName.value || !currentView.value) {
       throw new Error('physicalTableName and currentView are required')
     }
     loading.value = true
     try {
-      const data = await query(`SELECT * FROM "${physicalTableName.value}"`)
       
-      // Parse view fields to find relation fields with display fields
-      // Format: relationFieldName.displayFieldName
-      const relationDisplayFields = new Map<string, Set<string>>() // relationFieldName -> Set of displayFieldNames
-      
-      for (const viewFieldName of currentView.value.fields) {
-        if (viewFieldName.includes('.')) {
-          const [relationFieldName, displayFieldName] = viewFieldName.split('.')
-          if (!relationDisplayFields.has(relationFieldName)) {
-            relationDisplayFields.set(relationFieldName, new Set())
-          }
-          relationDisplayFields.get(relationFieldName)!.add(displayFieldName)
-        }
-      }
-      // Fetch display values for each relation field
-      if (relationDisplayFields.size > 0 && data.length > 0) {
-        for (const [relationFieldName, displayFieldNames] of relationDisplayFields.entries()) {
-          const field = fields.value.find(f => f.fieldName === relationFieldName)
-          
-          if (!field || field.businessType !== 'relation' || !field.relationTableId) continue
-          
-          // All relations are now arrays (uuid[])
-          const isArray = field.isArray || true
-          
-          // Get the target table info
-          const targetTableData = await query<CaseTableRecord>(
-            `SELECT * FROM case_tables WHERE id = $1`,
-            [field.relationTableId]
-          )
-          
-          if (targetTableData.length === 0) continue
-          
-          const targetTable = targetTableData[0]
-          
-          // Collect all relation IDs from the data
-          const relationIds = new Set<string>()
-          for (const row of data) {
-            const value = row[field.fieldName]
-            if (value) {
-              if (Array.isArray(value)) {
-                value.forEach(id => relationIds.add(id))
-              } else {
-                relationIds.add(value)
-              }
-            }
-          }
-          
-          if (relationIds.size === 0) continue
-          
-          // Fetch all requested display fields in one query
-          const displayFieldsList = Array.from(displayFieldNames)
-          const selectFields = ['id', ...displayFieldsList.map(f => `"${f}"`)].join(', ')
-          
-          const relatedRecords = await query<Record<string, any>>(
-            `SELECT ${selectFields} FROM "${targetTable.tableName}" 
-             WHERE id = ANY($1)`,
-            [Array.from(relationIds)]
-          )
-          
-          // Build lookup maps for each display field: id -> display value
-          const displayMaps = new Map<string, Map<string, any>>()
-          for (const displayFieldName of displayFieldNames) {
-            const displayMap = new Map<string, any>()
-            for (const record of relatedRecords) {
-              displayMap.set(record.id, record[displayFieldName])
-            }
-            displayMaps.set(displayFieldName, displayMap)
-          }
-          
-          // Add display values to each row
-          // Key format: relationFieldName.displayFieldName
-          for (const displayFieldName of displayFieldNames) {
-            const displayKey = `${field.fieldName}.${displayFieldName}`
-            const displayMap = displayMaps.get(displayFieldName)!
-            
-            for (const row of data) {
-              const value = row[field.fieldName]
-              if (value) {
-                if (Array.isArray(value)) {
-                  // Map each UUID to its display value
-                  row[displayKey] = value.map(id => displayMap.get(id) || id)
-                } else {
-                  // Single value (shouldn't happen anymore, but keep for safety)
-                  row[displayKey] = displayMap.get(value) || value
-                }
-              } else {
-                row[displayKey] = null
-              }
-            }
-          }
-        }
+      if(aggregate && aggregate?.length > 0) {
+        groupListIndex.value = 0
+        return await getGroupApi(params, aggregate[0])
       }
       
+      const data = await queryTableData()
       tableData.value = data
       return data
     } finally {
@@ -211,13 +332,10 @@ export const useTableView = () => {
     loading,
     error,
     queryParams,
-    getTableData: async (params?: any) => {
-      return await getTableData()
-    },
+    getTableData,
+    getAggChildData,
     refresh,
-    addRow: (row: any) => {
-      addRow(row) // Fire and forget for sync interface
-    },
+    addRow,
     updateRow: (index: number, row: any) => {
       // dp-mdTable uses index-based update, but we use row.id
       const existingRow = tableData.value[index]
@@ -594,6 +712,8 @@ export const useTableView = () => {
   const columns = ref<ColumnConfig[]>([])
   const addColumnPopoverRef = ref()
   const columnGroupRules = ref<any[]>([])
+  const columnFilterRules = ref<any[]>([])
+  const columnSortRules = ref<any[]>([])
   const gridRef = ref<any>()
   /**
    * Convert CaseFieldRecord to ColumnConfig for dp-mdTable compatibility
@@ -929,6 +1049,8 @@ export const useTableView = () => {
     columns,
     saveColumnOrder,
     columnGroupRules,
+    columnFilterRules,
+    columnSortRules,
     addColumnPopoverRef,
     gridRef,
     // Relation helpers
@@ -961,6 +1083,10 @@ export const useTableView = () => {
       throw new Error(`View with id ${viewId} not found`)
     }
     currentView.value = data[0]
+    // load filter, sort, group from view
+    columnFilterRules.value = data[0].filter || []
+    columnSortRules.value = data[0].sorting || []
+    columnGroupRules.value = data[0].grouping || []
     if (!fields.value || !fields.value.length) {
       await getAllFields()
     }
@@ -1059,6 +1185,17 @@ export const useTableView = () => {
     if (currentView.value?.id === viewId) {
       currentView.value = { ...currentView.value, ...updates, updatedAt: now }
     }
+  }
+
+  async function saveViewFilterSortGroup(): Promise<void> {
+    if (!currentView.value?.id) {
+      throw new Error('View not found')
+    }
+    return updateView(currentView.value?.id, {
+      filter: columnFilterRules.value,
+      sorting: columnSortRules.value,
+      grouping: columnGroupRules.value
+    })
   }
 
   async function deleteView(viewId: string): Promise<void> {

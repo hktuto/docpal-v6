@@ -10,9 +10,6 @@ const props = defineProps<{
 
 const { query } = usePglite()
 
-// Data for detail view
-const caseTable = ref<CaseTableRecord | null>(null)
-
 const realTableError = ref<string | null>(null)
 const isLoading = ref(false)
 
@@ -258,6 +255,11 @@ onMounted(async () => {
   await loadTableData()
 })
 
+function handleSaveView() {
+  console.log('handleSaveView')
+  tableView.saveViewFilterSortGroup()
+}
+
 watch(
   () => props.dataTableId,
   async () => {
@@ -318,7 +320,7 @@ watch(
         </div>
         
         <!-- Use wrapper component that sets up MdTable providers -->
-        <MdTable v-if="tableReady" />
+        <MdTable v-if="tableReady" :editable="true" @saveView="handleSaveView" />
       </div>
     </div>
 

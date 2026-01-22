@@ -26,6 +26,10 @@
           <el-icon><Download /></el-icon>
           导出
         </el-button>
+        <el-button size="small" @click="handleSaveView">
+          <el-icon><Save /></el-icon>
+          Save View
+        </el-button>
       </slot>
     </div>
   </div>
@@ -59,9 +63,10 @@ interface Emits {
   (e: 'export'): void
   (e: 'group-toggle', field: string): void
   (e: 'update:activeGroupFields', fields: string[]): void
-  (e: 'grouping-change', rules: GroupingRule[]): void
+  (e: 'grouping-change', rules: any[]): void
   (e: 'filter-change', group: FilterGroup): void
   (e: 'sort-change', rules: SortRule[]): void
+  (e: 'save-view'): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -90,6 +95,10 @@ const handleRefresh = () => {
 
 const handleSearch = (value: string) => {
   emit('search', value)
+}
+
+const handleSaveView = () => {
+  emit('save-view')
 }
 
 const handleExport = () => {

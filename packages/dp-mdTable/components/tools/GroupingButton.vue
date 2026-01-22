@@ -36,11 +36,11 @@ const emits = defineEmits<{
 }>()
 const buttonRef = ref<HTMLElement>()
 const popoverRef = ref<InstanceType<typeof GroupingConfigPopover>>()
-const groupingRules = ref<GroupingRule[]>([])
+const { columnGroupRules : groupingRules  } = useColumnsContext()
 
 // 获取可用列（自动响应 tableRef 变化）
 const availableColumns = computed<ColumnConfig[]>(() => {
-  console.log('availableColumns', props.groupableColumns)
+  
   if (props.groupableColumns) {
     return props.groupableColumns
   }

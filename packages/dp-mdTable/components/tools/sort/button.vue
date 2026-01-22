@@ -21,7 +21,7 @@
 import { ref, computed } from 'vue'
 import { Sort } from '@element-plus/icons-vue'
 import type { SortRule } from './sort/configPopover.vue'
-import type { ColumnConfig } from '../composables/useColumns'
+import type { ColumnConfig } from '../../composables/useColumns'
 
 interface Props {
   availableColumns: ColumnConfig[]
@@ -33,8 +33,8 @@ const emits = defineEmits<{
 }>()
 
 const buttonRef = ref<HTMLElement>()
-const popoverRef = ref<InstanceType<typeof SortConfigPopover>>()
-const sortRules = ref<SortRule[]>([{ field: 'age', order: 'asc' }])
+const popoverRef = ref()
+const { columnSortRules : sortRules  } = useColumnsContext()
 
 // 获取可用列（自动响应 tableRef 变化）
 const availableColumns = computed<ColumnConfig[]>(() => {
