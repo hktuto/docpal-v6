@@ -152,10 +152,13 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       // 虚拟滚动配置 - 性能优化
       // 注意：虚拟滚动与树形懒加载存在兼容性问题，当启用树形结构时，建议禁用虚拟滚动或使用固定行高
       virtualYConfig: {
-        oSize: 20,
-        rSize: 100,
         enabled: true,
-        gt: 20 // 大于20条数据时启用虚拟滚动
+        mode:'wheel',
+        gt: 0 // 大于20条数据时启用虚拟滚动
+      },
+      virtualXConfig: {
+        enabled: true,
+        gt: 0
       },
       scrollX: {
         enabled: true
