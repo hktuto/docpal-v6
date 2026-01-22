@@ -186,20 +186,28 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
           order: 'asc'
         }
       },
-      treeConfig: {
+      // 行配置 - 固定行高确保虚拟滚动正常工作
+      rowConfig: {
+        keyField: rowId,
+        isHover: true,
+        useKey: true,
+      }
+    }
+    
+    // IMPORTANT: treeConfig with lazy:true DISABLES virtual scrolling!
+    // Only enable treeConfig when grouping/aggregation is actually being used
+    const isGroupingEnabled = groupBy?.value && groupBy.value.length > 0
+    if (isGroupingEnabled) {
+      options.treeConfig = {
         transform: false,
         rowField: 'id',
         parentField: 'parentId',
         lazy: true,
         hasChild: 'isAggregate',
         loadMethod: treeLoadData
-      },
-      // 行配置 - 确保行高计算正确，避免虚拟滚动白屏
-      rowConfig: {
-        keyField: rowId,
-        isHover: true,
-        useKey: true
       }
+      // Must disable virtual scroll when using tree config with lazy loading
+      // options.virtualYConfig = { enabled: false }
     }
     // 编辑配置
     // 检查是否有列配置了 editRender
