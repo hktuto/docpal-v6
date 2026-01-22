@@ -33,9 +33,9 @@ function openEditInfo() {
 }
 function ocrPermission(doc: any) {
   try {
-    if (!allowFeature('OCR') || !doc.properties['file:content'] || !doc.properties['file:content']['mime-type']) return false
+    if (!allowFeature('OCR') || !doc.properties['file_content'] || !doc.properties['file_content']['mime-type']) return false
 
-    const ext = doc.properties['file:content']['mime-type']
+    const ext = doc.properties['file_content']['mime-type']
     const extension = '.' + mime.extension(ext)
     return canOCR(extension)
   } catch (error) {

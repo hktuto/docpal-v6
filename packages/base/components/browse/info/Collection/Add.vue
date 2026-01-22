@@ -34,13 +34,13 @@
 </template>
 
 <script lang="ts" setup>
-import {clientApi} from 'api'
+import { clientApi } from 'api'
 
 const props = defineProps<{
   doc: any,
   exitList: any
 }>()
-const emit = defineEmits(['handleAdd']);
+const emit = defineEmits(['handleAdd'])
 const allCollection = ref([])
 const popoverShow = ref(false)
 
@@ -61,8 +61,8 @@ const handleConfirm = async () => {
     return
   }
   const param = {
-    documents: [{idOrPath: props.doc.id}],
-    collection: {idOrPath: collection.id},
+    documents: [{ idOrPath: props.doc.id }],
+    collection: { idOrPath: collection.id }
   }
   clientApi.api.postNuxeoCollectionAdd(param).then((res) => {
     selected.value = ''
@@ -78,9 +78,11 @@ const handleGetCollection = async () => {
   if (index !== -1) {
     return myCollection.value[index]
   }
-  const newCollection = await clientApi.api.postNuxeoCollectionCreate({name: selected.value}).then(res => res.data)
-  getCollection()
-  allCollection.value.push(newCollection)
+  const newCollection = await clientApi.api.postDmsCollection({ name: selected.value }).then(res => res.data)
+  await getCollection()
+  if (!!newCollection) {
+    allCollection.value.push(newCollection)
+  }
   return newCollection
 }
 
@@ -94,7 +96,7 @@ async function querySearchAsync(queryString, cb) {
   }
   // 加上value
   result = result.reduce((tags, item) => {
-    tags.push({value: item})
+    tags.push({ value: item })
     return tags
   }, [])
 

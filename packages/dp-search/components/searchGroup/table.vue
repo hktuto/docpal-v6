@@ -289,8 +289,8 @@ async function getList(param: any) {
     // const res = await SearchGroupGetApi({ ...state.barParams, ...state.aggParams, ...param })
     const list = res.page.entryList.map((item: any) => {
       const _item = { ...item }
-      if (item.properties && item.properties['file:content']) {
-        const mimeType = item.properties['file:content']['mime-type']
+      if (item.properties && item.properties['file_content']) {
+        const mimeType = item.properties['file_content']['mime-type']
         _item.mimeType2 = mime.extension(mimeType) ? mime.extension(mimeType) : '-'
       }
       return _item

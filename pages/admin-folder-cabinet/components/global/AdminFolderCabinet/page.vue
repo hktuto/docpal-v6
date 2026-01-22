@@ -37,7 +37,7 @@ function handleUpdateOrCreate({ edit, response }: any) {
 
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-folder-cabinet',
-  api: (pageParams: any) => clientApi.api.postDmsCabinetTemplatePage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => clientApi.admin.postAdmindmsCabinetTemplatePage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'label', title: 'folderCabinet.name', fixed: 'left' },
     {

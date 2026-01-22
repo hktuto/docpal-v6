@@ -13,8 +13,7 @@
     </div>
     <el-text :type="hasPreviewName(state.setting.previewName) ? '' : 'danger'" style="margin-bottom: 15px"
     >{{ $t('folderCabinet.previewName') }}：{{ state.setting.previewName }}
-    </el-text
-    >
+    </el-text>
     <FormUpload v-model="state.fileList" :limit="1" @change="handleChange"></FormUpload>
     <MetaRenderForm2 ref="MetaFormRef" mode="folderCabinet" @formChange="handleMetaChange"></MetaRenderForm2>
     <template #footer>
@@ -99,9 +98,9 @@ async function handleSubmit() {
       type: state.setting.documentType
     }
     const duplicateResult: any = await clientApi.api.postDmsDocumentIsduplicatename({
-        path: state.setting.documentPath,
-        titles: [state.setting.previewName]
-      }).then((res: any) => res.data)
+      path: state.setting.documentPath,
+      titles: [state.setting.previewName]
+    }).then((res: any) => res.data)
     if (duplicateResult[state.setting.previewName]) {
       if (state.setting.repeatName) {
         handleReplace(

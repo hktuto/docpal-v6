@@ -6,6 +6,7 @@
 import anime from 'animejs'
 import { useEventListener } from '@vueuse/core'
 import { clientApi } from 'api'
+
 const props = defineProps<{
   doc: any
   disabled: boolean
@@ -25,21 +26,20 @@ const userId = useUserId()
 const route = useRoute()
 
 async function handleAddComment(text, cb) {
-  const res = await clientApi.api
-    .postNuxeoCommentsAdd({
-      text,
-      documentIdOrPath: props.doc.id
-    })
-    .then((res) => res.data)
+  const res = await clientApi.api.postDmsDocumentComments({
+    text,
+    documentIdOrPath: props.doc.id
+  }).then((res) => res.data)
   if (!res) return
   state.commentInfo.text = ''
   await handleCommentsGet()
   cb()
 }
+
 async function handleReply(params: any, cb) {
   params.documentIdOrPath = props.doc.id
-  const res = await await clientApi.api.postNuxeoCommentsAdd(params).then((res) => res.data)
-  console.log({ res })
+  const res = await clientApi.api.postDmsDocumentComments(params).then((res) => res.data)
+  console.log(res)
 
   if (!res) return
   console.log('reply', params.parentId)
@@ -49,6 +49,7 @@ async function handleReply(params: any, cb) {
 
   cb(resData)
 }
+
 async function handleReplyDelete(item, parentItem) {
   const res = await clientApi.api.deleteNuxeoCommentsDelete({ commentId: item.id }).then((res) => res.data)
   if (!res) return
@@ -63,6 +64,7 @@ async function handleReplyDelete(item, parentItem) {
     // parentItem.children = resData
   }
 }
+
 async function handleCommentsGet() {
   try {
     state.loading = true
@@ -83,6 +85,7 @@ async function handleCommentsGet() {
     state.loading = false
   }
 }
+
 async function getUserList() {
   const userList = await clientApi.api.postNuxeoIdentityUsers().then((res) => res.data)
   state.userList = userList
@@ -96,6 +99,7 @@ async function getUserList() {
     })
   state.userListWithoutMe = state.userList.filter((item) => item.value !== userId.value)
 }
+
 function getUserName(_userId: string) {
   const regex = /(?<=@\{)[\w-]+(?=\})/g
   const matches = _userId.match(regex)
@@ -103,6 +107,7 @@ function getUserName(_userId: string) {
   const user = state.userList.find((item) => item.value === name)
   return user ? user.label : _userId
 }
+
 async function getCommentList(params) {
   const data = (await clientApi.api.postNuxeoComments(params).then((res) => res.data)) as any
   const regex = /@\{([^}]+)\}/g
@@ -121,6 +126,7 @@ async function getCommentList(params) {
   }
   return data
 }
+
 function handleScroll(commentId?: string) {
   nextTick(() => {
     try {
@@ -144,7 +150,9 @@ function handleScroll(commentId?: string) {
         scrollTop: scrollHeight,
         easing: 'easeInSine'
       })
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   })
 }
 
@@ -182,15 +190,14 @@ watch(
       :mentionData="state.userListWithoutMe"
       @handleReply="handleReply"
       @handleReplyDelete="handleReplyDelete"
-    ></CommentViewBox>
+    />
     <CommentInputBox
       id="commentRootInput"
       v-if="!disabled"
       :mentionData="state.userListWithoutMe"
       v-model="state.commentInfo.text"
       @handleAdd="handleAddComment"
-    >
-    </CommentInputBox>
+    />
   </div>
 </template>
 
@@ -202,6 +209,7 @@ watch(
   grid-template-rows: 1fr min-content;
   gap: var(--app-space-xs);
 }
+
 .highlight-comments {
   background: var(--color-primary);
 }

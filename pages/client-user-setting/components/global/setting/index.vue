@@ -130,11 +130,11 @@ async function save() {
         newUserInfo[item.key] = state.form[item.key]
       }
     })
-    await clientApi.api.patchNuxeoIdentityUser(newUserInfo)
+    await clientApi.api.patchNuxeoIdentityUser(newUserInfo).then(r => r.data)
 
-    await clientApi.api.putDmsUserSetting(userPreference.value as any)
+    await clientApi.api.putDmsUserSetting(userPreference.value as any).then(r => r.data)
 
-    await clientApi.api.postNotificationSettingUserUseridSavePreferences(userId.value, state.notificationPreferenceList)
+    await clientApi.api.postNotificationSettingUserUseridSavePreferences(userId.value, state.notificationPreferenceList).then(r => r.data)
 
     routerProvider?.message.success(t('tip_updateSuccessMsg', { modelName: t('user_info'), name: null }))
 

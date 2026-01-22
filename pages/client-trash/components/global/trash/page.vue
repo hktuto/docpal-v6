@@ -313,7 +313,7 @@ function handleMsg(messages: string) {
 
 async function deleteOne(idOrPath: string, name: string) {
   try {
-    await clientApi.api.deleteDmsDocumentDocumentidPurge({ idOrPath }, { headers: { noErrorMessage: true } })
+    await clientApi.api.deleteDmsDocumentDocumentidPurge(idOrPath).then(r => r.data)
   } catch (error) {
     console.log(error)
     return `${t('doc_typeSmartFolderSearchName')}: ${name}, ${t('upload_Status_error')}: ` + (error?.response?.data?.message || 'Server Error') + '.</br> '

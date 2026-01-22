@@ -119,9 +119,9 @@ defineExpose({ iconClickHandler })
         <BrowseActionsChangeDocTypeCopyItem :label="$t('info_type')" :value="state.doc.type" :noCopy="true" />
         <BrowseActionsChangeDocTypeCopyItem :label="$t('info_version')" :value="getVersion(state.doc)" />
         <BrowseActionsChangeDocTypeCopyItem
-          v-if="state.doc && state.doc.properties && state.doc.properties['file:content']"
+          v-if="state.doc && state.doc.properties && state.doc.properties['file_content']"
           :label="$t('docInfo.fileExtension')"
-          :value="state.doc?.properties['file:content']['mime-type']"
+          :value="state.doc?.properties['file_content']['mime-type']"
         />
         <BrowseActionsChangeDocTypeCopyItem v-else :label="$t('docInfo.fileExtension')" value="-" />
         <BrowseActionsChangeDocTypeCopyItem :label="$t('info_modified')" :value="formatDate(state.doc.modifiedDate)" />

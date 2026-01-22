@@ -63,7 +63,7 @@ async function handleDownload(row: any) {
     position: 'bottom-right'
   })
   try {
-    const response = await clientApi.api.getNuxeoDocumentAdditionalFormatDownload(
+    const response = await clientApi.api.getDmsDocumentDocumentidAdditionalFormatsFilecontentidDownload(
       { documentId: props.doc.id, fileContentId: row.content },
       {
         type: 'application/json',

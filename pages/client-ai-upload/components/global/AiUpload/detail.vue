@@ -267,17 +267,10 @@ async function handleDiscard() {
       return action
     })
     if (action !== 'confirm') return
-    const formData = new FormData()
-    formData.append('userId', userId.value)
-    formData.append('uploadId', id)
-    await clientApi.instance.post(`/nuxeo/document/batchCancel`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
+    await clientApi.api.postDmsUploadCancel({ userId: userId.value, uploadId: id }).then(r => r.data)
+
     const item = goAiUploadDetail()
     routerProvider?.navigateTo(item)
-    // await clientApi.api.postNuxeoDocumentBatchcancel(formData)
     // router.push(state.backPath)
   } catch (error) {
     console.log(error)
@@ -435,7 +428,7 @@ async function init() {
 }
 
 onMounted(async () => {
-  init()
+  await init()
   leftMin.value = CalMax()
   rightMin.value = CalMax()
 })

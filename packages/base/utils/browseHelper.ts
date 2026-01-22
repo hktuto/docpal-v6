@@ -72,7 +72,7 @@ export function getMimeTypeFromDocument(doc: any): string | undefined {
   console.log('getMimeTypeFromDocument', doc)
   if (!doc.properties) return undefined
   const properties = doc.properties as any
-  const mimeType: string = properties['file:content'] && properties['file:content']['mime-type'] ? properties['file:content']['mime-type'] : ''
+  const mimeType: string = properties['file_content'] && properties['file_content']['mime-type'] ? properties['file_content']['mime-type'] : ''
   if (!mimeType) return undefined
   return mimeType
 }
