@@ -64,25 +64,26 @@ async function updateLanguage(code, token) {
   }
   console.log('---JSON String', JSON.stringify(data[0].id), JSON.stringify(data[0].locale))
 
-  try {
-    const res = await fetch(`${URL}/api/dms/form-properties/language`, {
-      method: 'POST',
-      body: JSON.stringify(newData),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    }).then(async (res) => {
-      const data = await res.json()
-      if (data.code !== 200) {
-        throw new Error(data.message)
-      }
-    }).catch(error => {
-      console.log('--updateLanguage error', error)
-    })
-  } catch (e) {
-    console.log('Set language', e)
-  }
+  const updateLanguageUrl = `${URL}/api/dms/form-properties/language`
+  const res = await fetch(updateLanguageUrl, {
+    method: 'POST',
+    body: JSON.stringify(newData),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  }).then(async (res) => {
+    console.log('---Url', updateLanguageUrl)
+    console.log('----res', res)
+    console.log('----res', JSON.stringify(res))
+    const data = await res.json()
+    if (data.code !== 200) {
+      throw new Error(data.message)
+    }
+  }).catch(error => {
+    console.log('--updateLanguage error', error)
+  })
+  console.log('---res2', res)
   console.log('finish update language', ADMINURL, URL, code)
 }
 
@@ -90,7 +91,7 @@ async function deployLanguage() {
   // const { superAdmin, password, adminUrl } = argv;
   const availableLang = ['en-US', 'zh-CN', 'zh-HK']
   const token = await loginAdmin()
-  console.log('----getToken', JSON.stringify(token))
+  console.log('----getToken', token)
   for (let i = 0; i < availableLang.length; i++) {
     await updateLanguage(availableLang[i], token)
   }
