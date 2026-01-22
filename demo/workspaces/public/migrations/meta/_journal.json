@@ -36,6 +36,20 @@
       "when": 1768900676148,
       "tag": "0004_wealthy_gabe_jones",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1769100675983,
+      "tag": "0005_acoustic_eddie_brock",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1769101049388,
+      "tag": "0006_ambiguous_iceman",
+      "breakpoints": true
     }
   ]
 }

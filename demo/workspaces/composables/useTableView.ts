@@ -5,7 +5,9 @@ import type {
   FieldDisplayStructure,
   ViewFilter,
   ViewSorting,
-  ViewGrouping
+  ViewGrouping,
+  ViewType,
+  ViewSettings
 } from '../utils/db/schema/newTableSchema'
 
 // Import context keys from dp-mdTable so MdTable can inject them
@@ -46,15 +48,13 @@ export const useTableView = () => {
   const queryParams = ref<any>({})
 
   async function getAggChildData(params: any = {}): Promise<any[]> {
-    console.log('getAggChildData', params, 'currentIndex:', groupListIndex.value, 'columnGroupRules:', columnGroupRules.value)
-
+    
     // Check if there's a next aggregate at current groupListIndex
     if (!columnGroupRules.value || columnGroupRules.value.length === 0 || groupListIndex.value >= columnGroupRules.value.length) {
       // No more aggregates to process - return actual row data filtered by __filter_data
       const filterData: Record<string, any> = params.row?.__filter_data || {}
       
       const data = await queryTableData(filterData)
-      console.log('getAggChildData real data', data)
       return data
     }
 
@@ -124,7 +124,7 @@ export const useTableView = () => {
     const data = rawData.map(row => ({
       title: groupTitle,
       [firstColumnField]: row[groupField],
-      count: row.count,
+      __count: row.count,
       isAggregate: true,
       __filter_data: {
         ...latestGroupFilter,
@@ -132,7 +132,6 @@ export const useTableView = () => {
       }
     }))
     groupListIndex.value ++
-    console.log('getGroupApi data', data)
     return data
   }
 
@@ -364,7 +363,6 @@ export const useTableView = () => {
       throw new Error('tableId is required')
     }
     const data = await query<CaseFieldRecord>(`SELECT * FROM case_fields WHERE "tableId" = $1`, [tableId.value])
-    console.log('fields', data)
     fields.value = data
     return data
   }
@@ -441,11 +439,9 @@ export const useTableView = () => {
     const baseFieldName = fieldName.includes('.') ? fieldName.split('.')[0] : fieldName
     
     const field = getField(baseFieldName)
-    console.log(fieldName, baseFieldName, field)
     if (!field) {
       throw new Error('field not found')
     }
-    console.log('updates', updates)
     const updateKeys = Object.keys(updates).filter((key) => key !== 'id')
     if (updateKeys.length === 0) {
       return
@@ -490,7 +486,6 @@ export const useTableView = () => {
 
     for (const key of updateKeys) {
       setClauses.push(`"${key}" = $${paramIndex}`)
-      console.log(key, updates[key as keyof CaseFieldRecord])
       
       let value = updates[key as keyof CaseFieldRecord]
       
@@ -515,13 +510,12 @@ export const useTableView = () => {
     values.push(field.id)
 
     const sql = `UPDATE case_fields SET ${setClauses.join(', ')} WHERE id = $${paramIndex}`
-    console.log('sql', sql, values)
+
     await query(sql, values)
 
     // Update local state (use base field name)
     const index = fields.value.findIndex((f) => f.fieldName === baseFieldName)
     if (index !== -1) {
-      console.log(fields.value[index])
       fields.value[index] = { ...fields.value[index], ...updates }
     }
     
@@ -633,12 +627,7 @@ export const useTableView = () => {
     newDisplayFieldIds: string[]
   ): Promise<void> {
     if (!field.relationTableId || !currentView.value) return
-    
-    console.log('handleRelationDisplayFieldUpdate', {
-      fieldName: field.fieldName,
-      oldDisplayFieldIds: field.displayFieldIds,
-      newDisplayFieldIds
-    })
+ 
     
     const oldDisplayFieldIds = field.displayFieldIds || []
     
@@ -653,16 +642,12 @@ export const useTableView = () => {
       [field.relationTableId, ensurePlainArray(newDisplayFieldIds)]
     )
     
-    console.log('Old fields:', oldFields.map(f => f.fieldName))
-    console.log('New fields:', newFields.map(f => f.fieldName))
-    
+
     // Build list of old and new view field names
     const oldViewFieldNames = oldFields.map(f => `${field.fieldName}.${f.fieldName}`)
     const newViewFieldNames = newFields.map(f => `${field.fieldName}.${f.fieldName}`)
     
-    console.log('Removing old view fields:', oldViewFieldNames)
-    console.log('Adding new view fields:', newViewFieldNames)
-    
+
     // Preserve field order: replace old fields with new ones at the same position
     const updatedFields = currentView.value.fields.reduce<string[]>((result, viewFieldName) => {
       // If this is one of the old relation fields, replace it with the new ones
@@ -677,9 +662,7 @@ export const useTableView = () => {
       // Keep all other fields in their original position
       return [...result, viewFieldName]
     }, [])
-    
-    console.log('Updated view fields:', updatedFields)
-    
+
     // Update the view
     await query(
       `UPDATE case_views SET fields = $1, "updatedAt" = $2 WHERE id = $3`,
@@ -846,7 +829,6 @@ export const useTableView = () => {
     const targetIndex = fieldsArray.findIndex((field) => field === targetColumnName)
     
     if (targetIndex === -1) {
-      console.error('Target column not found in current view')
       return
     }
     
@@ -876,7 +858,7 @@ export const useTableView = () => {
             const tableElement = gridRef.value.$el;
             // TODO : need to check if table have toggle checkbox, the index need to be adjusted
             const headerItem = tableElement.querySelector(`.vxe-header--column:nth-child(${index + 2}) .mdTableHeader-trigger`)
-            console.log('headerItem', headerItem)
+
             if(headerItem) {
               
                 addColumnPopoverRef.value.show(headerItem, columns.value[index])
@@ -899,7 +881,6 @@ export const useTableView = () => {
 
   function saveColumnOrder(newOrder: OrdersParam) {
     if (!currentView.value) {
-      console.error('No current view to save column order')
       return
     }
 
@@ -915,24 +896,19 @@ export const useTableView = () => {
     const draggedColumnIndex = currentColumns.findIndex((col: ColumnConfig) => col.field === oldColumn.field)
     const targetColumnIndex = currentColumns.findIndex((col: ColumnConfig) => col.field === newColumn.field)
 
-    console.log('draggedColumnIndex', draggedColumnIndex)
-    console.log('targetColumnIndex', targetColumnIndex, dragPos)
-
+    
     if (draggedColumnIndex === -1 || targetColumnIndex === -1) {
-      console.error('Could not find columns to reorder', { draggedColumnIndex, targetColumnIndex })
       return
     }
 
     // If dragging to same position, no-op
     if (draggedColumnIndex === targetColumnIndex) {
-      console.log('Column dropped in same position, no change needed')
       return
     }
 
     // Remove the dragged column from its current position
     const [draggedColumn] = currentColumns.splice(draggedColumnIndex, 1)
-    console.log('draggedColumn', draggedColumn, currentColumns)
-
+    
     // Calculate new position based on drag position and relative positions
     let insertIndex = targetColumnIndex
 
@@ -966,8 +942,7 @@ export const useTableView = () => {
 
     // Extract field names in new order
     const newFieldOrder = currentColumns.map((col) => col.field)
-    console.log('newFieldOrder', newFieldOrder)
-
+    
     // Update the current view's fields array immediately for UI consistency
     currentView.value = { ...currentView.value, fields: newFieldOrder }
 
@@ -1107,6 +1082,8 @@ export const useTableView = () => {
       name: viewData.name || 'New View',
       description: viewData.description || null,
       viewName,
+      viewType: viewData.viewType || 'table',
+      viewSettings: viewData.viewSettings || null,
       filter: viewData.filter || null,
       sorting: viewData.sorting || null,
       grouping: viewData.grouping || null,
@@ -1122,14 +1099,16 @@ export const useTableView = () => {
 
     await query(
       `INSERT INTO case_views (
-        id, name, description, "viewName", filter, sorting, grouping,
+        id, name, description, "viewName", "viewType", "viewSettings", filter, sorting, grouping,
         "tableId", "isDefault", "entityId", fields, "createdBy", "createdAt", "updatedAt"
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
       [
         newView.id,
         newView.name,
         newView.description,
         newView.viewName,
+        newView.viewType,
+        JSON.stringify(newView.viewSettings),
         JSON.stringify(newView.filter),
         JSON.stringify(newView.sorting),
         JSON.stringify(newView.grouping),
@@ -1161,7 +1140,7 @@ export const useTableView = () => {
     for (const key of updateKeys) {
       setClauses.push(`"${key}" = $${paramIndex}`)
 
-      const value = ['filter', 'sorting', 'grouping'].includes(key)
+      const value = ['filter', 'sorting', 'grouping', 'viewSettings'].includes(key)
         ? JSON.stringify(updates[key as keyof CaseViewRecord])
         : updates[key as keyof CaseViewRecord]
       values.push(value)
@@ -1239,6 +1218,46 @@ export const useTableView = () => {
     }
     await getAllFields()
     await getViewById(table.viewName)
+  }
+
+  /**
+   * Initialize view by view ID
+   * This is used when navigating directly to a view (not through a table)
+   * @param viewId - The view ID from case_views table
+   */
+  async function initializeByView(viewId: string): Promise<void> {
+    // Get view info
+    const viewData = await query<CaseViewRecord>(`SELECT * FROM case_views WHERE id = $1`, [viewId])
+    if (viewData.length === 0) {
+      throw new Error('View not found')
+    }
+
+    const view = viewData[0]
+    
+    // Set the current view
+    currentView.value = view
+    
+    // Load filter, sort, group from view
+    columnFilterRules.value = view.filter || []
+    columnSortRules.value = view.sorting || []
+    columnGroupRules.value = view.grouping || []
+    
+    // Get the associated table info
+    const tableData = await query<CaseTableRecord>(`SELECT * FROM case_tables WHERE id = $1`, [view.tableId])
+    if (tableData.length === 0) {
+      throw new Error('Associated table not found')
+    }
+
+    const table = tableData[0]
+    tableId.value = table.id
+    physicalTableName.value = table.tableName
+    entityId.value = table.entityId
+
+    // Get all fields from the table
+    await getAllFields()
+    
+    // Get columns for this view
+    await getAllColumns()
   }
 
   /**
@@ -1496,9 +1515,10 @@ export const useTableView = () => {
     createView,
     updateView,
     deleteView,
-
+    saveViewFilterSortGroup,
     // Initialize
     initializeTableView,
+    initializeByView,
     
     // Relations
     createRelationFromColumn

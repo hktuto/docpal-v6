@@ -1,6 +1,17 @@
 <template>
   <div v-if="showToolbar" class="table-toolbar">
     <div class="toolbar-left">
+      <el-input
+          v-if="showSearch"
+          v-model="searchValue"
+          placeholder="Filter..."
+          style="width: 200px"
+          @input="handleSearch"
+        >
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
       <ToolsGroupingButton :groupableColumns="groupableColumns" @grouping-change="emit('grouping-change', $event)"/>
       <ToolsFilterButton :available-columns="groupableColumns" @filter-change="handleFilterChange" />
       <ToolsSortButton :available-columns="groupableColumns" @sort-change="handleSortChange" />
@@ -10,24 +21,12 @@
     </div>
     <div class="toolbar-right">
       <slot name="toolbar-right">
-        <el-input
-          v-if="showSearch"
-          v-model="searchValue"
-          placeholder="搜索..."
-          size="small"
-          style="width: 200px; margin-right: 10px"
-          @input="handleSearch"
-        >
-          <template #prefix>
-            <el-icon><Search /></el-icon>
-          </template>
-        </el-input>
-        <el-button v-if="showExport" size="small" @click="handleExport">
+        
+        <el-button v-if="showExport" type="primary" @click="handleExport">
           <el-icon><Download /></el-icon>
           导出
         </el-button>
-        <el-button size="small" @click="handleSaveView">
-          <el-icon><Save /></el-icon>
+        <el-button type="primary" @click="handleSaveView">
           Save View
         </el-button>
       </slot>
@@ -38,8 +37,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { Refresh, Search, Download, Operation, DataAnalysis } from '@element-plus/icons-vue'
-import type { FilterGroup } from '../tools/FilterConfigPopover.vue'
-import type { SortRule } from '../tools/sort/SortConfigPopover.vue'
+import type{ FilterGroup, SortRule} from '#imports'
 
 interface ColumnConfig {
   field: string
@@ -149,7 +147,7 @@ defineExpose({
   padding: 10px 0;
   margin-bottom: 10px;
   border-bottom: 1px solid #ebeef5;
-
+  padding-inline: var(--app-space-s);
   .toolbar-left,
   .toolbar-right {
     display: flex;

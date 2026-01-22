@@ -256,7 +256,6 @@ onMounted(async () => {
 })
 
 function handleSaveView() {
-  console.log('handleSaveView')
   tableView.saveViewFilterSortGroup()
 }
 
@@ -363,7 +362,7 @@ watch(
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: var(--app-space-m);
+  padding: 0;
   overflow: hidden;
   min-width: 0;
 }
