@@ -1042,7 +1042,7 @@
       "icon": "Icon",
       "importColors": "Import Colors",
       "importColorsHint": "Enter multiple color values (separated by line breaks or commas)",
-      "importColorsPlaceholder": "e.g.:\n#FF5733\n#33FF57\n#3357FF\nor: #FF5733, #33FF57, #3357FF",
+      "importColorsPlaceholder": "e.g.: #FF5733 #33FF57 #3357FF or: #FF5733, #33FF57, #3357FF",
       "importOptions": "Import Options",
       "inactiveColor": "Deactive Color",
       "inactiveText": "Deactive Text",
@@ -3300,7 +3300,7 @@
   "userSetting_uiSize": "Ui Size",
   "userTip": {
     "confirmWhetherToDelete": "Confirm to delete this user?<br>This action cannot be undone.",
-    "confirmWhetherToDeleteItems": "Confirm to delete selected users?\n<br>This action cannot be undone.",
+    "confirmWhetherToDeleteItems": "Confirm to delete selected users?<br>This action cannot be undone.",
     "noValidGroups": "This action cannot be undone.",
     "operationFailed": "[{users}]: Operation Failed",
     "userSelectedDeleteMsg": "Selected users have been deleted."
@@ -3375,8 +3375,7 @@
   "validateFn_url": "Incorrect URL formatting",
   "virtual": {
     "short_text_approval": "ooyy",
-    "short_text_creator": "only",
-    "short_text_creator\r\r": "only"
+    "short_text_creator": "only"
   },
   "vocabulary_create": "Create Vocabulary",
   "vocabulary_obsolete": "Obsolete",

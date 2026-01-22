@@ -1040,7 +1040,7 @@
       "icon": "图标",
       "importColors": "导入颜色",
       "importColorsHint": "输入多个颜色值 (以换行符或逗号分隔)",
-      "importColorsPlaceholder": "例如:\n#FF5733\n#33FF57\n#3357FF\n或: #FF5733, #33FF57, #3357FF",
+      "importColorsPlaceholder": "例如: #FF5733 #33FF57 #3357FF 或: #FF5733, #33FF57, #3357FF",
       "importOptions": "导入选项",
       "inactiveColor": "关闭时背景色",
       "inactiveText": "关闭时文字描述",
@@ -3372,8 +3372,7 @@
   "validateFn_url": "不正確的 URL 格式",
   "virtual": {
     "short_text_approval": "ooyy",
-    "short_text_creator": "only",
-    "short_text_creator\r\r": "only"
+    "short_text_creator": "only"
   },
   "vocabulary_create": "創建詞彙",
   "vocabulary_obsolete": "過時",
