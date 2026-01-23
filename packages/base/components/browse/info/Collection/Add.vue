@@ -42,10 +42,13 @@ const props = defineProps<{
 }>()
 const emit = defineEmits(['handleAdd'])
 const allCollection = ref([])
-const popoverShow = ref(false)
 
 const selected = ref()
 const myCollection = computed(() => {
+  if (allCollection.value.length == 0) {
+    return []
+  }
+
   return allCollection.value.reduce((prev: any, item: any) => {
     if (item.name) prev.push({
       ...item,
@@ -64,7 +67,7 @@ const handleConfirm = async () => {
     documents: [{ idOrPath: props.doc.id }],
     collection: { idOrPath: collection.id }
   }
-  clientApi.api.postNuxeoCollectionAdd(param).then((res) => {
+  clientApi.api.postDmsCollectionDocuments(param).then((res) => {
     selected.value = ''
     if (!res) return
     emit('handleAdd', props.doc.id)
@@ -105,15 +108,14 @@ async function querySearchAsync(queryString, cb) {
 
 async function getCollection() {
   try {
-    const res = await clientApi.api.getNuxeoCollection().then(res => res.data) as any
-    allCollection.value = res.entryList
+    allCollection.value = await clientApi.api.getDmsCollection().then(res => res.data.entryList) || []
   } catch (error) {
     allCollection.value = []
   }
 }
 
 onMounted(async () => {
-  getCollection()
+  await getCollection()
 })
 </script>
 

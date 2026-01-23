@@ -53,7 +53,7 @@ if(!tabProvider) {
 
 async function getCollectionList() {
   loading.value = true
-  const { data }: any = await clientApi.api.getNuxeoCollection()
+  const data : any = await clientApi.api.getDmsCollection().then(r => r.data)
   collectionList.value = data.entryList
   loading.value = false
 }

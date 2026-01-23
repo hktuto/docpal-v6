@@ -125,8 +125,7 @@ async function saveAnnotation(annotation:Map<string, object>) {
         },
         comments
     }
-    await clientApi.api.postNuxeoAnnotation([param])
-
+    await clientApi.api.postDmsDocumentAnnotation([param])
 }
 // TODO : message must contain doc id, and match with props.doc.id
 useEventListener(window, 'message', gotMessageFromIframe)

@@ -45,7 +45,7 @@ async function handleSubmit() {
     }).then(res => res.data)
     ElMessage.success(t('tip_createdMsg', {
       modelName: null,
-      name: params.name
+      name: data.name
     }))
     state.visible = false
     FormRendererRef.value.vFormRenderRef.resetForm()

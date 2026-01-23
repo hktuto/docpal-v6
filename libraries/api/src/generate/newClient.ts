@@ -11384,16 +11384,6 @@ export interface ResultListExternalStorageDTO {
     locale?: string;
 }
 
-export interface ResultListExternalStorageImportJobDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ExternalStorageImportJobDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
 /** All Condition ResponseDTO */
 export interface ConditionResponseDTO {
     key?: string;
@@ -11410,6 +11400,16 @@ export interface ResultListConditionResponseDTO {
     code?: number;
     message?: string;
     data?: ConditionResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListExternalStorageImportJobDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ExternalStorageImportJobDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -13882,49 +13882,23 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * @description Get detailed information of an import job by ID
-         *
-         * @tags ExternalStorageImportJobController
-         * @name GetExt3RdstorageImportjobsId
-         * @summary Get import job details
-         * @request GET:/api/ext3rdStorage/importJobs/{id}
-         */
-        getExt3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/importJobs/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
          * No description
          *
          * @tags ExternalStorageImportJobController
-         * @name PutExt3RdstorageImportjobsId
+         * @name PutExt3RdstorageImportjobsIdUpdate
          * @summary Update import job
-         * @request PUT:/api/ext3rdStorage/importJobs/{id}
+         * @request PUT:/api/ext3rdStorage/importJobs/{id}/update
          */
-        putExt3rdstorageImportjobsId: (id: string, data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
+        putExt3rdstorageImportjobsIdUpdate: (
+            id: string,
+            data: ExternalStorageImportJobDTO,
+            params: RequestParams = {},
+        ) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/importJobs/${id}`,
+                path: `/api/ext3rdStorage/importJobs/${id}/update`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name DeleteExt3RdstorageImportjobsId
-         * @summary Delete import job
-         * @request DELETE:/api/ext3rdStorage/importJobs/{id}
-         */
-        deleteExt3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/importJobs/${id}`,
-                method: "DELETE",
                 ...params,
             }),
 
@@ -18736,28 +18710,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name GetExt3RdstorageImportjobs
-         * @summary Get all import jobs list
-         * @request GET:/api/ext3rdStorage/importJobs
-         */
-        getExt3rdstorageImportjobs: (
-            query: {
-                /** External Storage Import Job Request */
-                requestDTO: ExternalStorageImportJobRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/importJobs`,
-                method: "GET",
-                query: query,
                 ...params,
             }),
 
@@ -27151,17 +27103,17 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update the status of an import job
          *
          * @tags ExternalStorageImportJobController
-         * @name PatchExt3RdstorageImportjobsIdStatus
+         * @name PatchExt3RdstorageImportjobsIdUpdateStatus
          * @summary Update import job status
-         * @request PATCH:/api/ext3rdStorage/importJobs/{id}/status
+         * @request PATCH:/api/ext3rdStorage/importJobs/{id}/update-status
          */
-        patchExt3rdstorageImportjobsIdStatus: (
+        patchExt3rdstorageImportjobsIdUpdateStatus: (
             id: string,
             data: ExternalStorageImportJobRequestDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/ext3rdStorage/importJobs/${id}/status`,
+                path: `/api/ext3rdStorage/importJobs/${id}/update-status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -28818,27 +28770,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags wopi-host-controller
-         * @name GetNuxeoGetofficetokenId
-         * @request GET:/api/nuxeo/getOfficeToken/{id}
-         */
-        getNuxeoGetofficetokenId: (
-            id: string,
-            query?: {
-                fileType?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/getOfficeToken/${id}`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags NotificationRecordController
          * @name GetNotificationUnreadCountList
          * @request GET:/api/notification/unread-count-list
@@ -29004,6 +28935,27 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultListCheckBoxDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/notification/query-notification-filter`,
                 method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags wopi-host-controller
+         * @name GetGetofficetokenId
+         * @request GET:/api/getOfficeToken/{id}
+         */
+        getGetofficetokenId: (
+            id: string,
+            query?: {
+                fileType?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/getOfficeToken/${id}`,
+                method: "GET",
+                query: query,
                 ...params,
             }),
 
@@ -29313,6 +29265,36 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
+         * @description Get detailed information of an import job by ID
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetExt3RdstorageImportjobsId
+         * @summary Get import job details
+         * @request GET:/api/ext3rdStorage/importJobs/{id}
+         */
+        getExt3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/importJobs/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name DeleteExt3RdstorageImportjobsId
+         * @summary Delete import job
+         * @request DELETE:/api/ext3rdStorage/importJobs/{id}
+         */
+        deleteExt3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/importJobs/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
          * No description
          *
          * @tags ExternalStorageImportJobController
@@ -29323,6 +29305,28 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/ext3rdStorage/importJobs/page/conditions`,
                 method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetExt3RdstorageImportjobsList
+         * @summary Get all import jobs list
+         * @request GET:/api/ext3rdStorage/importJobs/list
+         */
+        getExt3rdstorageImportjobsList: (
+            query: {
+                /** External Storage Import Job Request */
+                requestDTO: ExternalStorageImportJobRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/importJobs/list`,
+                method: "GET",
+                query: query,
                 ...params,
             }),
 
@@ -35425,68 +35429,20 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * @description Retrieve detailed information of a specific external storage
-         *
-         * @tags ExternalStorageController
-         * @name GetAdminext3RdstorageId
-         * @summary Get External Storage Detail
-         * @request GET:/admin/api/ext3rdStorage/{id}
-         * @deprecated
-         */
-        getAdminext3rdstorageId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
          * No description
          *
          * @tags ExternalStorageController
-         * @name PutAdminext3RdstorageId
+         * @name PutAdminext3RdstorageIdUpdate
          * @summary Update an existing external storage configuration
-         * @request PUT:/admin/api/ext3rdStorage/{id}
+         * @request PUT:/admin/api/ext3rdStorage/{id}/update
          * @deprecated
          */
-        putAdminext3rdstorageId: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
+        putAdminext3rdstorageIdUpdate: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/${id}`,
+                path: `/admin/api/ext3rdStorage/${id}/update`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name DeleteAdminext3RdstorageId
-         * @summary Delete External Storage
-         * @request DELETE:/admin/api/ext3rdStorage/{id}
-         * @deprecated
-         */
-        deleteAdminext3rdstorageId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name GetAdminext3RdstorageIdProfilesProfileid
-         * @summary Get a external profile in external storage id
-         * @request GET:/admin/api/ext3rdStorage/{id}/profiles/{profileId}
-         * @deprecated
-         */
-        getAdminext3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
-            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}`,
-                method: "GET",
                 ...params,
             }),
 
@@ -35494,38 +35450,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update an existing external profile for a specific external storage
          *
          * @tags ExternalStorageController
-         * @name PutAdminext3RdstorageIdProfilesProfileid
+         * @name PutAdminext3RdstorageIdUpdateProfilesProfileid
          * @summary Update a external profile in external storage id
-         * @request PUT:/admin/api/ext3rdStorage/{id}/profiles/{profileId}
+         * @request PUT:/admin/api/ext3rdStorage/{id}/update-profiles/{profileId}
          * @deprecated
          */
-        putAdminext3rdstorageIdProfilesProfileid: (
+        putAdminext3rdstorageIdUpdateProfilesProfileid: (
             id: string,
             profileId: string,
             data: ExternalProfileDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}`,
+                path: `/admin/api/ext3rdStorage/${id}/update-profiles/${profileId}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name DeleteAdminext3RdstorageIdProfilesProfileid
-         * @summary Delete a external profile in external storage id
-         * @request DELETE:/admin/api/ext3rdStorage/{id}/profiles/{profileId}
-         * @deprecated
-         */
-        deleteAdminext3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}`,
-                method: "DELETE",
                 ...params,
             }),
 
@@ -38397,57 +38337,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name GetAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordid
-         * @request GET:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         * @deprecated
-         */
-        getAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
-            profileId: string,
-            outputRecordId: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PostAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordid
+         * @name PostAdminext3RdstorageProfilesProfileidDuplicateOutputrecordOutputrecordid
          * @summary Duplicate (Copy) a exist External Profile Output
-         * @request POST:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @request POST:/admin/api/ext3rdStorage/profiles/{profileId}/duplicate-outputRecord/{outputRecordId}
          * @deprecated
          */
-        postAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
+        postAdminext3rdstorageProfilesProfileidDuplicateOutputrecordOutputrecordid: (
             profileId: string,
             outputRecordId: string,
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/duplicate-outputRecord/${outputRecordId}`,
                 method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name DeleteAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordid
-         * @request DELETE:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         * @deprecated
-         */
-        deleteAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
-            profileId: string,
-            outputRecordId: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
-                method: "DELETE",
                 ...params,
             }),
 
@@ -44270,6 +44172,70 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
+         * @description Retrieve detailed information of a specific external storage
+         *
+         * @tags ExternalStorageController
+         * @name GetAdminext3RdstorageId
+         * @summary Get External Storage Detail
+         * @request GET:/admin/api/ext3rdStorage/{id}
+         * @deprecated
+         */
+        getAdminext3rdstorageId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name DeleteAdminext3RdstorageId
+         * @summary Delete External Storage
+         * @request DELETE:/admin/api/ext3rdStorage/{id}
+         * @deprecated
+         */
+        deleteAdminext3rdstorageId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetAdminext3RdstorageIdProfilesProfileid
+         * @summary Get a external profile in external storage id
+         * @request GET:/admin/api/ext3rdStorage/{id}/profiles/{profileId}
+         * @deprecated
+         */
+        getAdminext3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name DeleteAdminext3RdstorageIdProfilesProfileid
+         * @summary Delete a external profile in external storage id
+         * @request DELETE:/admin/api/ext3rdStorage/{id}/profiles/{profileId}
+         * @deprecated
+         */
+        deleteAdminext3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
          * @description Retrieve all profiles for a specific external storage
          *
          * @tags ExternalStorageController
@@ -44282,6 +44248,44 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultListExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/ext3rdStorage/${id}/profiles/list`,
                 method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordid
+         * @request GET:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @deprecated
+         */
+        getAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name DeleteAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordid
+         * @request DELETE:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @deprecated
+         */
+        deleteAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                method: "DELETE",
                 ...params,
             }),
 

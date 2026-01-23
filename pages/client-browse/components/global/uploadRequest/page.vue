@@ -29,10 +29,10 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
       pageSize: pageParams.pageSize
     }
     delete pageParams.pageNum
-    const { data } = await clientApi.api.getNuxeoFilerequest({
+    const data = await clientApi.api.getDmsUploadRequest({
       ..._pageParams,
       ...extraParams
-    })
+    }).then(r => r.data)
     return {
       data: {
         entryList: data?.requests,

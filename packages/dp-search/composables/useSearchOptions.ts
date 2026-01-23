@@ -11,8 +11,8 @@ export const useSearchOptions = () => {
     const [docType, users, collections, tags, groupList, metadata] = await Promise.all([
       clientApi.api.getDmsDocpalTypeActive(),
       globalApi.api.postNuxeoIdentityGetkeycloakallusers(),
-      globalApi.api.getNuxeoCollection(),
-      globalApi.api.postNuxeoTagsGetalltags(),
+      clientApi.api.getDmsCollection(),
+      clientApi.api.getDmsDocumentTagsList(),
       getGroupList(),
       getMetadataOptions()
     ])

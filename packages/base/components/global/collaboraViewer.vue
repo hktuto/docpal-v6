@@ -40,10 +40,9 @@ const emit = defineEmits(['saved'])
 
 async function displayIframe() {
   iframeReady.value = false;
-  const {data} = await clientApi.api.getNuxeoGetofficetokenId(props.docId, {
+  token.value = await clientApi.api.getGetofficetokenId(props.docId, {
     fileType: props.fileType
-  })
-  token.value = data
+  }).then(r => r.data)
   collaboraUrl.value = officeUrl(props.docId)
 
   nextTick(() => {
