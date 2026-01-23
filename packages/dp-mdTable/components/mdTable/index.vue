@@ -1,13 +1,15 @@
 <template>
   <div class="multi-dimension-table" :style="{ height: height || '100%' }">
     <!-- 工具栏 -->
-    <Toolbar :groupable-columns="columns"
-     @refresh="handleRefresh" 
-     @search="handleSearch" 
-     @filter-change="handleFilterChange" 
-     @grouping-change="handleGroupToggle"
-     @sort-change="handleSortChange"
-     @save-view="handleSaveView">
+    <Toolbar
+      :groupable-columns="columns"
+      @refresh="handleRefresh"
+      @search="handleSearch"
+      @filter-change="handleFilterChange"
+      @grouping-change="handleGroupToggle"
+      @sort-change="handleSortChange"
+      @save-view="handleSaveView"
+    >
       <template #toolbar-left>
         <slot name="toolbar-left" />
       </template>
@@ -85,11 +87,57 @@ const emit = defineEmits<{
 // 引用
 const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
-const { addColumnPopoverRef, columns, addColumn, columnGroupRules, columnFilterRules, columnSortRules, gridOptions, gridRef, refreshTableData, deleteColumn, saveColumnOrder } = useMDTable(props)
+const {
+  tableData,
+  addColumnPopoverRef,
+  columns,
+  addColumn,
+  columnGroupRules,
+  columnFilterRules,
+  columnSortRules,
+  gridOptions,
+  gridRef,
+  refreshTableData,
+  deleteColumn,
+  saveColumnOrder,
+  updateTableRow
+} = useMDTable(props)
+
+// Import update status composable
+const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
 
 // 表格事件
 const gridEvents = computed<VxeGridListeners>(() => ({
-  'edit-closed': (params: any) => {
+  'edit-closed': async (params: any) => {
+    console.log('edit-closed', params)
+    const { column, row } = params
+    // need to check if the row data is changed
+    const newData = row[column.field]
+    const oldData = tableData.value.find((item) => item.id === row.id)
+    if(oldData && oldData[column.field] === newData){
+      // no change 
+      return
+    }
+    // Only send the row ID and the updated field value
+    // This avoids sending all the additional data the table may have added
+    const updateData = {
+      id: row.id,
+      [column.field]: row[column.field]
+    }
+    
+    // Set loading state
+    setLoading(row.id, column.field)
+    
+    try {
+      await updateTableRow([updateData])
+      // Set success state - will auto-clear after delay
+      setSuccess(row.id, column.field)
+    } catch (error) {
+      console.error('Failed to update row:', error)
+      setError(row.id, column.field, error instanceof Error ? error.message : 'Update failed')
+      ElMessage.error('Failed to update cell')
+    }
+    
     emit('edit-closed', params)
   },
   'cell-click': (params: any) => {
@@ -165,7 +213,7 @@ const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) =>
       } as unknown as ColumnConfig
       //
       addColumn(defaultNewColumn, column.field, 'left')
-      break;
+      break
     case 'insertRight':
       const defaultNewColumnRight = {
         field: createFieldId(),
@@ -191,7 +239,7 @@ const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) =>
       break
     case 'delete':
       deleteColumn(column.field)
-      break;
+      break
   }
 }
 const mdTableHeaderPopoverRef = ref()
@@ -258,7 +306,7 @@ defineExpose({
 
         .el-icon {
           font-size: 18px;
-          color: #409eff;
+          color: var(--app-accent-color);
         }
       }
     }
@@ -314,14 +362,14 @@ defineExpose({
 
   .el-input__inner {
     padding: 0 !important;
-    color: #409eff;
+    color: var(--app-accent-color);
     text-decoration: underline;
   }
 
   &:focus-within {
     .el-input__wrapper {
       background-color: #fff !important;
-      box-shadow: 0 0 0 1px #409eff inset !important;
+      box-shadow: 0 0 0 1px var(--app-accent-color) inset !important;
     }
 
     .el-input__inner {
@@ -367,6 +415,101 @@ defineExpose({
   .el-select__wrapper,
   .el-select__selection {
     height: 100%;
+  }
+}
+
+// Cell update status animations
+:deep(.cell-update-loading) {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(64, 158, 255, 0.1);
+    animation: pulse 1.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+}
+
+:deep(.cell-update-success) {
+  animation: successFlash 0.6s ease-out;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 6px;
+    height: 6px;
+    background: var(--app-success-color);
+    border-radius: 50%;
+    animation: successDot 0.6s ease-out;
+  }
+}
+
+:deep(.cell-update-error) {
+  animation: errorShake 0.5s ease-out;
+  background-color: rgba(245, 108, 108, 0.1) !important;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 6px;
+    height: 6px;
+    background: var(--app-danger-color);
+    border-radius: 50%;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes successFlash {
+  0% {
+    background-color: rgba(103, 194, 58, 0.3);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes successDot {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes errorShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
   }
 }
 </style>

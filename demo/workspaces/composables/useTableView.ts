@@ -29,13 +29,13 @@ export const ViewContextKey: InjectionKey<ViewContext> = Symbol('ViewContext')
 
 export const useTableView = () => {
   const { query, exec } = usePglite()
-  
+
   /**
    * Ensure arrays are plain JavaScript arrays for PGlite compatibility
    * PGlite uses Web Workers which can't clone Proxy objects or other non-cloneable types
    */
   const ensurePlainArray = <T>(arr: T[] | readonly T[]): T[] => {
-    return Array.isArray(arr) ? [...arr] : arr as T[]
+    return Array.isArray(arr) ? [...arr] : (arr as T[])
   }
 
   // Region: IDs and State
@@ -48,26 +48,25 @@ export const useTableView = () => {
   const queryParams = ref<any>({})
 
   async function getAggChildData(params: any = {}): Promise<any[]> {
-    
     // Check if there's a next aggregate at current groupListIndex
     if (!columnGroupRules.value || columnGroupRules.value.length === 0 || groupListIndex.value >= columnGroupRules.value.length) {
       // No more aggregates to process - return actual row data filtered by __filter_data
       const filterData: Record<string, any> = params.row?.__filter_data || {}
-      
+
       const data = await queryTableData(filterData)
       return data
     }
 
     // Get the next aggregate rule based on groupListIndex
     const nextAggregate = columnGroupRules.value[groupListIndex.value]
-    
+
     // Call getGroupApi with the single aggregate rule
     // Note: getGroupApi will increment groupListIndex
     return await getGroupApi(params, nextAggregate)
   }
   // state to keep check of which grouo index is the current group
   const groupListIndex = ref<number>(0)
-  async function getGroupApi(params: any = {}, aggregate:{id: string, field: string, order: string}): Promise<any[]> {
+  async function getGroupApi(params: any = {}, aggregate: { id: string; field: string; order: string }): Promise<any[]> {
     // there maybe a row in params, if so that mean this is not the first aggregate
     const latestGroupFilter: Record<string, any> = params.row?.__filter_data || {}
     // Get group data from db
@@ -83,7 +82,7 @@ export const useTableView = () => {
     }
 
     if (!aggregate) {
-      groupListIndex.value ++
+      groupListIndex.value++
       return []
     }
 
@@ -93,14 +92,14 @@ export const useTableView = () => {
     const sortOrder = groupRule.order?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
 
     if (!groupField) {
-      groupListIndex.value ++
+      groupListIndex.value++
       return []
     }
 
     // Get the first column's field name (grouped value is always displayed in col 0)
     const firstColumnField = currentView.value.fields[0]
     if (!firstColumnField) {
-      groupListIndex.value ++
+      groupListIndex.value++
       return []
     }
 
@@ -118,10 +117,10 @@ export const useTableView = () => {
     )
 
     const rawData = await query<{ [key: string]: any; count: number }>(sql, queryValues)
-    
+
     // Map the result with title first, then first column key with value, then isAggregate
     // Add __filter_data with accumulated filters including current group field and value
-    const data = rawData.map(row => ({
+    const data = rawData.map((row) => ({
       title: groupTitle,
       [firstColumnField]: row[groupField],
       __count: row.count,
@@ -131,7 +130,7 @@ export const useTableView = () => {
         [groupField]: row[groupField]
       }
     }))
-    groupListIndex.value ++
+    groupListIndex.value++
     return data
   }
 
@@ -148,19 +147,14 @@ export const useTableView = () => {
     }
 
     // Build SELECT query using helper (with filter and sort)
-    const { sql, queryValues } = buildSelectQuery(
-      physicalTableName.value,
-      filter,
-      columnFilterRules.value as FilterRule[],
-      columnSortRules.value as SortRule[]
-    )
+    const { sql, queryValues } = buildSelectQuery(physicalTableName.value, filter, columnFilterRules.value as FilterRule[], columnSortRules.value as SortRule[])
 
     const data = await query(sql, queryValues)
-    
+
     // Parse view fields to find relation fields with display fields
     // Format: relationFieldName.displayFieldName
     const relationDisplayFields = new Map<string, Set<string>>() // relationFieldName -> Set of displayFieldNames
-    
+
     for (const viewFieldName of currentView.value.fields) {
       if (viewFieldName.includes('.')) {
         const [relationFieldName, displayFieldName] = viewFieldName.split('.')
@@ -173,48 +167,45 @@ export const useTableView = () => {
     // Fetch display values for each relation field
     if (relationDisplayFields.size > 0 && data.length > 0) {
       for (const [relationFieldName, displayFieldNames] of relationDisplayFields.entries()) {
-        const field = fields.value.find(f => f.fieldName === relationFieldName)
-        
+        const field = fields.value.find((f) => f.fieldName === relationFieldName)
+
         if (!field || field.businessType !== 'relation' || !field.relationTableId) continue
-        
+
         // All relations are now arrays (uuid[])
         const isArray = field.isArray || true
-        
+
         // Get the target table info
-        const targetTableData = await query<CaseTableRecord>(
-          `SELECT * FROM case_tables WHERE id = $1`,
-          [field.relationTableId]
-        )
-        
+        const targetTableData = await query<CaseTableRecord>(`SELECT * FROM case_tables WHERE id = $1`, [field.relationTableId])
+
         if (targetTableData.length === 0) continue
-        
+
         const targetTable = targetTableData[0]
-        
+
         // Collect all relation IDs from the data
         const relationIds = new Set<string>()
         for (const row of data) {
           const value = row[field.fieldName]
           if (value) {
             if (Array.isArray(value)) {
-              value.forEach(id => relationIds.add(id))
+              value.forEach((id) => relationIds.add(id))
             } else {
               relationIds.add(value)
             }
           }
         }
-        
+
         if (relationIds.size === 0) continue
-        
+
         // Fetch all requested display fields in one query
         const displayFieldsList = Array.from(displayFieldNames)
-        const selectFields = ['id', ...displayFieldsList.map(f => `"${f}"`)].join(', ')
-        
+        const selectFields = ['id', ...displayFieldsList.map((f) => `"${f}"`)].join(', ')
+
         const relatedRecords = await query<Record<string, any>>(
-          `SELECT ${selectFields} FROM "${targetTable.tableName}" 
+          `SELECT ${selectFields} FROM "${targetTable.tableName}"
            WHERE id = ANY($1)`,
           [Array.from(relationIds)]
         )
-        
+
         // Build lookup maps for each display field: id -> display value
         const displayMaps = new Map<string, Map<string, any>>()
         for (const displayFieldName of displayFieldNames) {
@@ -224,19 +215,19 @@ export const useTableView = () => {
           }
           displayMaps.set(displayFieldName, displayMap)
         }
-        
+
         // Add display values to each row
         // Key format: relationFieldName.displayFieldName
         for (const displayFieldName of displayFieldNames) {
           const displayKey = `${field.fieldName}.${displayFieldName}`
           const displayMap = displayMaps.get(displayFieldName)!
-          
+
           for (const row of data) {
             const value = row[field.fieldName]
             if (value) {
               if (Array.isArray(value)) {
                 // Map each UUID to its display value
-                row[displayKey] = value.map(id => displayMap.get(id) || id)
+                row[displayKey] = value.map((id) => displayMap.get(id) || id)
               } else {
                 // Single value (shouldn't happen anymore, but keep for safety)
                 row[displayKey] = displayMap.get(value) || value
@@ -248,7 +239,7 @@ export const useTableView = () => {
         }
       }
     }
-    
+
     return data
   }
 
@@ -258,15 +249,14 @@ export const useTableView = () => {
     }
     loading.value = true
     try {
-      
-      if(aggregate && aggregate?.length > 0) {
+      if (aggregate && aggregate?.length > 0) {
         groupListIndex.value = 0
         return await getGroupApi(params, aggregate[0])
       }
-      
+
       const data = await queryTableData()
       tableData.value = data
-      return data
+      return JSON.parse(JSON.stringify(data))
     } finally {
       loading.value = false
     }
@@ -291,25 +281,53 @@ export const useTableView = () => {
     tableData.value.push(data[0])
   }
 
-  async function updateRow(row: any): Promise<void> {
+  async function updateRow(rows: any[]): Promise<void> {
     if (!physicalTableName.value) {
       throw new Error('physicalTableName is required')
     }
-    if (!row.id) {
-      throw new Error('row id is required')
-    }
 
-    const updateKeys = Object.keys(row).filter((k) => k !== 'id')
-    const setClauses = updateKeys.map((k, i) => `"${k}" = $${i + 1}`)
-    const values = [...updateKeys.map((k) => row[k]), row.id]
+    // Internal fields added by table that should not be persisted
+    const internalFields = new Set([
+      'id',
+      '__filter_data',
+      'isAggregate',
+      '__count',
+      'title'
+    ])
 
-    const sql = `UPDATE "${physicalTableName.value}" SET ${setClauses.join(', ')}, "updatedAt" = NOW()
-                 WHERE id = $${values.length} RETURNING *`
-    const data = await query(sql, values)
+    // Process each row in the array
+    for (const row of rows) {
+      if (!row.id) {
+        throw new Error('row id is required')
+      }
 
-    const index = tableData.value.findIndex((item) => item.id === row.id)
-    if (index !== -1) {
-      tableData.value[index] = data[0]
+      // Filter out internal fields and relation display fields (containing '.')
+      const updateKeys = Object.keys(row).filter((k) => !internalFields.has(k) && !k.includes('.'))
+
+      if (updateKeys.length === 0) {
+        console.warn('No fields to update for row with id: ' + row.id)
+        continue
+      }
+
+      const setClauses = updateKeys.map((k, i) => `"${k}" = $${i + 1}`)
+      const values = [...updateKeys.map((k) => row[k]), row.id]
+
+      const sql = `UPDATE "${physicalTableName.value}" SET ${setClauses.join(', ')}, "updatedAt" = NOW()
+                   WHERE id = $${values.length} RETURNING *`
+      
+      try {
+        const data = await query(sql, values)
+
+        // Update local tableData with the returned row
+        const index = tableData.value.findIndex((item) => item.id === row.id)
+        if (index !== -1) {
+          // Merge the updated data with existing row data to preserve internal fields
+          tableData.value[index] = { ...tableData.value[index], ...data[0] }
+        }
+      } catch (error) {
+        console.error(`Failed to update row ${row.id}:`, error)
+        throw error
+      }
     }
   }
 
@@ -335,13 +353,7 @@ export const useTableView = () => {
     getAggChildData,
     refresh,
     addRow,
-    updateRow: (index: number, row: any) => {
-      // dp-mdTable uses index-based update, but we use row.id
-      const existingRow = tableData.value[index]
-      if (existingRow) {
-        updateRow({ ...row, id: existingRow.id })
-      }
-    },
+    updateRow,
     deleteRow: (index: number) => {
       // dp-mdTable uses index-based delete, but we use id
       const existingRow = tableData.value[index]
@@ -417,7 +429,7 @@ export const useTableView = () => {
     fields.value.push(newField as CaseFieldRecord)
     const defaultView = await getDefaultView()
     // get default view and add column to view
-    if(defaultView) {
+    if (defaultView) {
       const fields = new Set(JSON.parse(JSON.stringify(defaultView.fields)))
       fields.add(newFieldData[0].fieldName)
 
@@ -437,7 +449,7 @@ export const useTableView = () => {
 
     // Extract base field name if it's in dot notation (e.g., "rel_company.name" -> "rel_company")
     const baseFieldName = fieldName.includes('.') ? fieldName.split('.')[0] : fieldName
-    
+
     const field = getField(baseFieldName)
     if (!field) {
       throw new Error('field not found')
@@ -451,28 +463,22 @@ export const useTableView = () => {
     const isBusinessTypeChange = updates.businessType && updates.businessType !== field.businessType
     const isFieldTypeChange = updates.fieldType && updates.fieldType !== field.fieldType
     const isTypeChange = isBusinessTypeChange || isFieldTypeChange
-    
+
     // Handle data type changes
     if (isTypeChange && physicalTableName.value) {
       const oldType = field.fieldType
       const newType = updates.fieldType || field.fieldType
       const oldBusinessType = field.businessType
       const newBusinessType = updates.businessType || field.businessType
-      
+
       // Check if we can convert the data (use base field name for physical column)
-      const canConvert = await handleDataTypeConversion(
-        baseFieldName,
-        oldType,
-        newType,
-        oldBusinessType,
-        newBusinessType
-      )
-      
+      const canConvert = await handleDataTypeConversion(baseFieldName, oldType, newType, oldBusinessType, newBusinessType)
+
       if (!canConvert) {
         throw new Error('Cannot convert data type. Please clear the column data first.')
       }
     }
-    
+
     // Handle relation field display field changes
     const isRelationDisplayFieldUpdate = field.businessType === 'relation' && updates.displayFieldIds
     if (isRelationDisplayFieldUpdate) {
@@ -486,9 +492,9 @@ export const useTableView = () => {
 
     for (const key of updateKeys) {
       setClauses.push(`"${key}" = $${paramIndex}`)
-      
+
       let value = updates[key as keyof CaseFieldRecord]
-      
+
       // Handle special types for PGlite compatibility
       if (key === 'displayStructure') {
         value = JSON.stringify(value)
@@ -496,7 +502,7 @@ export const useTableView = () => {
         // Ensure arrays are plain JavaScript arrays (not Proxy or other non-cloneable objects)
         value = ensurePlainArray(value) as any
       }
-      
+
       values.push(value)
       paramIndex++
     }
@@ -518,7 +524,7 @@ export const useTableView = () => {
     if (index !== -1) {
       fields.value[index] = { ...fields.value[index], ...updates }
     }
-    
+
     // If this is a relation field update, reload all columns to pick up new view fields
     if (isRelationDisplayFieldUpdate) {
       // Small delay to ensure all database updates are complete before reloading columns
@@ -534,7 +540,7 @@ export const useTableView = () => {
       })
     }
   }
-  
+
   /**
    * Handle data type conversion when updating a field
    * Returns true if conversion is successful or not needed, false if conversion failed
@@ -547,19 +553,17 @@ export const useTableView = () => {
     newBusinessType: string
   ): Promise<boolean> {
     if (!physicalTableName.value) return false
-    
+
     // If changing from/to relation, handle specially
     if (oldBusinessType === 'relation' || newBusinessType === 'relation') {
       // Changing to/from relation requires clearing data
-      await query(
-        `UPDATE "${physicalTableName.value}" SET "${fieldName}" = NULL`
-      )
-      
+      await query(`UPDATE "${physicalTableName.value}" SET "${fieldName}" = NULL`)
+
       // If changing column type in database, use ALTER TABLE
       if (oldType !== newType) {
         try {
           await exec(
-            `ALTER TABLE "${physicalTableName.value}" 
+            `ALTER TABLE "${physicalTableName.value}"
              ALTER COLUMN "${fieldName}" TYPE ${newType} USING NULL`
           )
         } catch (error) {
@@ -569,45 +573,41 @@ export const useTableView = () => {
       }
       return true
     }
-    
+
     // Try to convert to text/string if possible
     if (newType === 'text' || newType === 'varchar') {
       try {
         await exec(
-          `ALTER TABLE "${physicalTableName.value}" 
+          `ALTER TABLE "${physicalTableName.value}"
            ALTER COLUMN "${fieldName}" TYPE text USING "${fieldName}"::text`
         )
         return true
       } catch (error) {
         console.error('Error converting to text:', error)
         // If conversion fails, clear the data
-        await query(
-          `UPDATE "${physicalTableName.value}" SET "${fieldName}" = NULL`
-        )
+        await query(`UPDATE "${physicalTableName.value}" SET "${fieldName}" = NULL`)
         await exec(
-          `ALTER TABLE "${physicalTableName.value}" 
+          `ALTER TABLE "${physicalTableName.value}"
            ALTER COLUMN "${fieldName}" TYPE text`
         )
         return true
       }
     }
-    
+
     // For other type changes, try direct conversion
     try {
       await exec(
-        `ALTER TABLE "${physicalTableName.value}" 
+        `ALTER TABLE "${physicalTableName.value}"
          ALTER COLUMN "${fieldName}" TYPE ${newType} USING "${fieldName}"::${newType}`
       )
       return true
     } catch (error) {
       console.error('Error converting column type:', error)
       // If conversion fails, clear the data
-      await query(
-        `UPDATE "${physicalTableName.value}" SET "${fieldName}" = NULL`
-      )
+      await query(`UPDATE "${physicalTableName.value}" SET "${fieldName}" = NULL`)
       try {
         await exec(
-          `ALTER TABLE "${physicalTableName.value}" 
+          `ALTER TABLE "${physicalTableName.value}"
            ALTER COLUMN "${fieldName}" TYPE ${newType}`
         )
         return true
@@ -617,36 +617,33 @@ export const useTableView = () => {
       }
     }
   }
-  
+
   /**
    * Handle updates to relation field display fields
    * Replaces old display fields with new ones in the view
    */
-  async function handleRelationDisplayFieldUpdate(
-    field: CaseFieldRecord,
-    newDisplayFieldIds: string[]
-  ): Promise<void> {
+  async function handleRelationDisplayFieldUpdate(field: CaseFieldRecord, newDisplayFieldIds: string[]): Promise<void> {
     if (!field.relationTableId || !currentView.value) return
- 
-    
+
     const oldDisplayFieldIds = field.displayFieldIds || []
-    
+
     // Get old and new field names
-    const oldFields = oldDisplayFieldIds.length > 0 ? await query<CaseFieldRecord>(
-      `SELECT * FROM case_fields WHERE "tableId" = $1 AND id = ANY($2)`,
-      [field.relationTableId, ensurePlainArray(oldDisplayFieldIds)]
-    ) : []
-    
-    const newFields = await query<CaseFieldRecord>(
-      `SELECT * FROM case_fields WHERE "tableId" = $1 AND id = ANY($2)`,
-      [field.relationTableId, ensurePlainArray(newDisplayFieldIds)]
-    )
-    
+    const oldFields =
+      oldDisplayFieldIds.length > 0
+        ? await query<CaseFieldRecord>(`SELECT * FROM case_fields WHERE "tableId" = $1 AND id = ANY($2)`, [
+            field.relationTableId,
+            ensurePlainArray(oldDisplayFieldIds)
+          ])
+        : []
+
+    const newFields = await query<CaseFieldRecord>(`SELECT * FROM case_fields WHERE "tableId" = $1 AND id = ANY($2)`, [
+      field.relationTableId,
+      ensurePlainArray(newDisplayFieldIds)
+    ])
 
     // Build list of old and new view field names
-    const oldViewFieldNames = oldFields.map(f => `${field.fieldName}.${f.fieldName}`)
-    const newViewFieldNames = newFields.map(f => `${field.fieldName}.${f.fieldName}`)
-    
+    const oldViewFieldNames = oldFields.map((f) => `${field.fieldName}.${f.fieldName}`)
+    const newViewFieldNames = newFields.map((f) => `${field.fieldName}.${f.fieldName}`)
 
     // Preserve field order: replace old fields with new ones at the same position
     const updatedFields = currentView.value.fields.reduce<string[]>((result, viewFieldName) => {
@@ -664,11 +661,8 @@ export const useTableView = () => {
     }, [])
 
     // Update the view
-    await query(
-      `UPDATE case_views SET fields = $1, "updatedAt" = $2 WHERE id = $3`,
-      [ensurePlainArray(updatedFields), new Date(), currentView.value.id]
-    )
-    
+    await query(`UPDATE case_views SET fields = $1, "updatedAt" = $2 WHERE id = $3`, [ensurePlainArray(updatedFields), new Date(), currentView.value.id])
+
     // Update local state
     currentView.value.fields = updatedFields
   }
@@ -684,7 +678,7 @@ export const useTableView = () => {
     fields.value = fields.value.filter((item) => item.fieldName !== fieldName)
     // remove field from default view
     const defaultView = await getDefaultView()
-    if(defaultView) {
+    if (defaultView) {
       const fields = new Set(JSON.parse(JSON.stringify(defaultView.fields)))
       fields.delete(fieldName)
       await updateView(defaultView.id, { fields: Array.from(fields) as string[] })
@@ -723,14 +717,14 @@ export const useTableView = () => {
    * Convert ColumnConfig back to CaseFieldRecord for storage
    */
   async function columnConfigToField(column: ColumnConfig): Promise<Partial<CaseFieldRecord>> {
-    if(!currentView.value) {
+    if (!currentView.value) {
       throw new Error('No current view')
     }
-    
+
     // Extract base field name if it's in dot notation (e.g., "rel_company.name" -> "rel_company")
     const baseFieldName = column.field.includes('.') ? column.field.split('.')[0] : column.field
     const field = getField(baseFieldName)
-    
+
     const baseUpdate: Partial<CaseFieldRecord> = {
       tableId: field?.tableId ?? currentView.value.tableId ?? null,
       fieldName: baseFieldName, // Use base field name, not the full dot notation
@@ -740,20 +734,20 @@ export const useTableView = () => {
         properties: column.properties || {}
       } as unknown as FieldDisplayStructure
     }
-    
+
     if (field) {
       baseUpdate.id = field.id
     }
-    
+
     // Handle relation field updates - convert displayField to displayFieldIds
     if (field?.businessType === 'relation' && column.properties?.displayField && field.relationTableId) {
       try {
         // Get the target field by name to find its ID
-        const targetFields = await query<CaseFieldRecord>(
-          `SELECT id FROM case_fields WHERE "tableId" = $1 AND "fieldName" = $2`,
-          [field.relationTableId, column.properties.displayField]
-        )
-        
+        const targetFields = await query<CaseFieldRecord>(`SELECT id FROM case_fields WHERE "tableId" = $1 AND "fieldName" = $2`, [
+          field.relationTableId,
+          column.properties.displayField
+        ])
+
         if (targetFields.length > 0) {
           // Add displayFieldIds to the update
           baseUpdate.displayFieldIds = [targetFields[0].id]
@@ -762,7 +756,7 @@ export const useTableView = () => {
         console.error('Error converting displayField to displayFieldIds:', error)
       }
     }
-    
+
     return baseUpdate
   }
 
@@ -775,13 +769,13 @@ export const useTableView = () => {
     if (!currentView.value) {
       throw new Error('No current view')
     }
-    
+
     let columnsData = currentView.value.fields.reduce<ColumnConfig[]>((result: ColumnConfig[], viewFieldName: string) => {
       // Check if this is a relation field with display field (format: relationField.displayField)
       if (viewFieldName.includes('.')) {
         const [relationFieldName, displayFieldName] = viewFieldName.split('.')
         const field = getField(relationFieldName)
-        
+
         if (field && field.businessType === 'relation') {
           // Create a virtual column config for this relation display field
           const columnConfig = fieldToColumnConfig(field)
@@ -794,7 +788,7 @@ export const useTableView = () => {
             columnConfig.properties = {}
           }
           columnConfig.properties.displayField = displayFieldName
-          
+
           return [...result, columnConfig]
         }
       } else {
@@ -802,20 +796,19 @@ export const useTableView = () => {
         const field = getField(viewFieldName)
         return field ? [...result, fieldToColumnConfig(field)] : result
       }
-      
+
       return result
     }, [] as ColumnConfig[])
-    
+
     columns.value = columnsData
 
     return columnsData
   }
 
-
-  async function addColumn(column: ColumnConfig, targetColumnName:string, position: 'left' | 'right'): Promise<void> {
-    // new field is added to the default view, 
+  async function addColumn(column: ColumnConfig, targetColumnName: string, position: 'left' | 'right'): Promise<void> {
+    // new field is added to the default view,
     const newField = await addField(await columnConfigToField(column))
-    if(!targetColumnName){
+    if (!targetColumnName) {
       return
     }
     // add new field to target column
@@ -824,26 +817,26 @@ export const useTableView = () => {
     fieldSet.add(newField.fieldName as string)
     // change new field position base on targetColumnName and position
     const fieldsArray = Array.from(fieldSet) as string[]
-    
+
     // Find the index of the target column
     const targetIndex = fieldsArray.findIndex((field) => field === targetColumnName)
-    
+
     if (targetIndex === -1) {
       return
     }
-    
+
     // Remove the new field from its current position (end of array)
     const newFieldIndex = fieldsArray.findIndex((field) => field === newField.fieldName)
     if (newFieldIndex !== -1) {
       fieldsArray.splice(newFieldIndex, 1)
     }
-    
+
     // Calculate insert position based on position parameter
     let insertIndex = position === 'left' ? targetIndex : targetIndex + 1
-    
+
     // Insert the new field at the correct position
     fieldsArray.splice(insertIndex, 0, newField.fieldName as string)
-    
+
     // Update the current view with the new field order
     if (currentView.value?.id) {
       await updateView(currentView.value.id, { fields: fieldsArray })
@@ -853,16 +846,15 @@ export const useTableView = () => {
         // step 1 get table header element
         // get index of new field
         const index = columns.value.findIndex((col) => col.field === newField.fieldName)
-        if(index !== -1) {
+        if (index !== -1) {
           setTimeout(() => {
-            const tableElement = gridRef.value.$el;
+            const tableElement = gridRef.value.$el
             // TODO : need to check if table have toggle checkbox, the index need to be adjusted
             const headerItem = tableElement.querySelector(`.vxe-header--column:nth-child(${index + 2}) .mdTableHeader-trigger`)
 
-            if(headerItem) {
-              
-                addColumnPopoverRef.value.show(headerItem, columns.value[index])
-              }
+            if (headerItem) {
+              addColumnPopoverRef.value.show(headerItem, columns.value[index])
+            }
           }, 100)
         }
       })
@@ -896,7 +888,6 @@ export const useTableView = () => {
     const draggedColumnIndex = currentColumns.findIndex((col: ColumnConfig) => col.field === oldColumn.field)
     const targetColumnIndex = currentColumns.findIndex((col: ColumnConfig) => col.field === newColumn.field)
 
-    
     if (draggedColumnIndex === -1 || targetColumnIndex === -1) {
       return
     }
@@ -908,7 +899,7 @@ export const useTableView = () => {
 
     // Remove the dragged column from its current position
     const [draggedColumn] = currentColumns.splice(draggedColumnIndex, 1)
-    
+
     // Calculate new position based on drag position and relative positions
     let insertIndex = targetColumnIndex
 
@@ -942,7 +933,7 @@ export const useTableView = () => {
 
     // Extract field names in new order
     const newFieldOrder = currentColumns.map((col) => col.field)
-    
+
     // Update the current view's fields array immediately for UI consistency
     currentView.value = { ...currentView.value, fields: newFieldOrder }
 
@@ -973,20 +964,17 @@ export const useTableView = () => {
     if (!entityId.value) {
       throw new Error('Entity ID not available')
     }
-    
+
     try {
       // Get all tables from the same entity, use DISTINCT ON to avoid duplicates
-      const whereClause = excludeCurrentTable && tableId.value
-        ? `WHERE status = 'A' AND "entityId" = $1 AND id != $2`
-        : `WHERE status = 'A' AND "entityId" = $1`
-      
-      const params = excludeCurrentTable && tableId.value
-        ? [entityId.value, tableId.value]
-        : [entityId.value]
+      const whereClause =
+        excludeCurrentTable && tableId.value ? `WHERE status = 'A' AND "entityId" = $1 AND id != $2` : `WHERE status = 'A' AND "entityId" = $1`
+
+      const params = excludeCurrentTable && tableId.value ? [entityId.value, tableId.value] : [entityId.value]
 
       const tables = await query<CaseTableRecord>(
-        `SELECT DISTINCT ON (name, "tableName") * 
-         FROM case_tables 
+        `SELECT DISTINCT ON (name, "tableName") *
+         FROM case_tables
          ${whereClause}
          ORDER BY name, "tableName", "createdAt" DESC`,
         params
@@ -997,16 +985,13 @@ export const useTableView = () => {
       throw error
     }
   }
-  
+
   /**
    * Get fields for a specific table
    */
   async function getFieldsForTable(targetTableId: string): Promise<CaseFieldRecord[]> {
     try {
-      const fields = await query<CaseFieldRecord>(
-        `SELECT * FROM case_fields WHERE "tableId" = $1 ORDER BY "fieldNameAlias"`,
-        [targetTableId]
-      )
+      const fields = await query<CaseFieldRecord>(`SELECT * FROM case_fields WHERE "tableId" = $1 ORDER BY "fieldNameAlias"`, [targetTableId])
       return fields
     } catch (error) {
       console.error('Error loading fields for table:', error)
@@ -1233,15 +1218,15 @@ export const useTableView = () => {
     }
 
     const view = viewData[0]
-    
+
     // Set the current view
     currentView.value = view
-    
+
     // Load filter, sort, group from view
     columnFilterRules.value = view.filter || []
     columnSortRules.value = view.sorting || []
     columnGroupRules.value = view.grouping || []
-    
+
     // Get the associated table info
     const tableData = await query<CaseTableRecord>(`SELECT * FROM case_tables WHERE id = $1`, [view.tableId])
     if (tableData.length === 0) {
@@ -1255,7 +1240,7 @@ export const useTableView = () => {
 
     // Get all fields from the table
     await getAllFields()
-    
+
     // Get columns for this view
     await getAllColumns()
   }
@@ -1282,30 +1267,21 @@ export const useTableView = () => {
     }
 
     // Get target table info
-    const targetTableData = await query<CaseTableRecord>(
-      `SELECT * FROM case_tables WHERE id = $1`,
-      [targetTableId]
-    )
+    const targetTableData = await query<CaseTableRecord>(`SELECT * FROM case_tables WHERE id = $1`, [targetTableId])
     if (targetTableData.length === 0) {
       throw new Error('Target table not found')
     }
     const targetTable = targetTableData[0]
 
     // Get target field (for matching)
-    const targetFieldData = await query<CaseFieldRecord>(
-      `SELECT * FROM case_fields WHERE id = $1`,
-      [targetFieldId]
-    )
+    const targetFieldData = await query<CaseFieldRecord>(`SELECT * FROM case_fields WHERE id = $1`, [targetFieldId])
     if (targetFieldData.length === 0) {
       throw new Error('Target field not found')
     }
     const targetField = targetFieldData[0]
 
     // Get display field (for showing in relation)
-    const displayFieldData = await query<CaseFieldRecord>(
-      `SELECT * FROM case_fields WHERE id = $1`,
-      [displayFieldId]
-    )
+    const displayFieldData = await query<CaseFieldRecord>(`SELECT * FROM case_fields WHERE id = $1`, [displayFieldId])
     if (displayFieldData.length === 0) {
       throw new Error('Display field not found')
     }
@@ -1313,9 +1289,9 @@ export const useTableView = () => {
 
     // Check if a relation to this target table already exists
     const existingRelations = await query<CaseFieldRecord>(
-      `SELECT * FROM case_fields 
-       WHERE "tableId" = $1 
-       AND "businessType" = 'relation' 
+      `SELECT * FROM case_fields
+       WHERE "tableId" = $1
+       AND "businessType" = 'relation'
        AND "relationTableId" = $2`,
       [tableId.value, targetTableId]
     )
@@ -1323,28 +1299,28 @@ export const useTableView = () => {
     let relationFieldName: string
     let relationField: CaseFieldRecord
     let isAddingToExistingRelation = false
-    
+
     if (existingRelations.length > 0) {
       // Relation exists - check if display field is already in displayFieldIds
       relationField = existingRelations[0]
       relationFieldName = relationField.fieldName
-      
+
       const currentDisplayFieldIds = relationField.displayFieldIds || []
-      
+
       if (currentDisplayFieldIds.includes(displayFieldId)) {
         throw new Error(`Display field "${displayField.fieldNameAlias}" is already in the relation to table "${targetTable.name}".`)
       }
-      
+
       // Add the new display field to the existing relation
       const updatedDisplayFieldIds = [...currentDisplayFieldIds, displayFieldId]
-      
+
       await query(
-        `UPDATE case_fields 
-         SET "displayFieldIds" = $1, "updatedAt" = $2 
+        `UPDATE case_fields
+         SET "displayFieldIds" = $1, "updatedAt" = $2
          WHERE id = $3`,
         [ensurePlainArray(updatedDisplayFieldIds), new Date(), relationField.id]
       )
-      
+
       isAddingToExistingRelation = true
     } else {
       // Create new relation field
@@ -1399,13 +1375,13 @@ export const useTableView = () => {
       // Now populate the relation column by matching values
       // Get all rows from source table with the source field values
       const sourceRows = await query<Record<string, any>>(
-        `SELECT id, "${sourceFieldName}" FROM "${physicalTableName.value}" 
+        `SELECT id, "${sourceFieldName}" FROM "${physicalTableName.value}"
          WHERE "${sourceFieldName}" IS NOT NULL`
       )
 
       // Get all rows from target table with the target field values
       const targetRows = await query<Record<string, any>>(
-        `SELECT id, "${targetField.fieldName}" FROM "${targetTable.tableName}" 
+        `SELECT id, "${targetField.fieldName}" FROM "${targetTable.tableName}"
          WHERE "${targetField.fieldName}" IS NOT NULL`
       )
 
@@ -1423,11 +1399,11 @@ export const useTableView = () => {
       for (const sourceRow of sourceRows) {
         const sourceValue = String(sourceRow[sourceFieldName])
         const targetIds = valueLookup.get(sourceValue)
-        
+
         if (targetIds && targetIds.length > 0) {
           await query(
-            `UPDATE "${physicalTableName.value}" 
-             SET "${relationFieldName}" = $1 
+            `UPDATE "${physicalTableName.value}"
+             SET "${relationFieldName}" = $1
              WHERE id = $2`,
             [targetIds, sourceRow.id]
           )
@@ -1437,15 +1413,15 @@ export const useTableView = () => {
 
     // Refresh fields
     await getAllFields()
-    
+
     // Always add the new display field to the view (first time or adding to existing)
     if (currentView.value) {
       const viewFieldName = `${relationFieldName}.${displayField.fieldName}`
       const currentFields = [...currentView.value.fields]
-      
+
       // Find the position of any existing display field from this relation
-      const existingRelationFieldIndex = currentFields.findIndex(f => f.startsWith(`${relationFieldName}.`))
-      
+      const existingRelationFieldIndex = currentFields.findIndex((f) => f.startsWith(`${relationFieldName}.`))
+
       if (existingRelationFieldIndex !== -1) {
         // Insert the new display field right after the existing one
         currentFields.splice(existingRelationFieldIndex + 1, 0, viewFieldName)
@@ -1459,9 +1435,9 @@ export const useTableView = () => {
           currentFields.push(viewFieldName)
         }
       }
-      
+
       await updateView(currentView.value.id, { fields: currentFields })
-      
+
       // Show appropriate success message
       if (isAddingToExistingRelation) {
         ElMessage.success(`Added "${displayField.fieldNameAlias}" display field`)
@@ -1519,7 +1495,7 @@ export const useTableView = () => {
     // Initialize
     initializeTableView,
     initializeByView,
-    
+
     // Relations
     createRelationFromColumn
   }

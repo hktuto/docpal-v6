@@ -34,7 +34,7 @@ const emits = defineEmits<{
 
 const buttonRef = ref<HTMLElement>()
 const popoverRef = ref()
-const { columnSortRules : sortRules  } = useColumnsContext()
+const { columnSortRules: sortRules } = useColumnsContext()
 
 // 获取可用列（自动响应 tableRef 变化）
 const availableColumns = computed<ColumnConfig[]>(() => {
@@ -46,8 +46,6 @@ const availableColumns = computed<ColumnConfig[]>(() => {
 
 // 处理按钮点击
 const handleButtonClick = () => {
-  console.log('gridRef', gridRef)
-  console.log('buttonRef', gridRef.gridRef.value.getData())
   if (popoverRef.value) {
     popoverRef.value.show(buttonRef.value)
   }

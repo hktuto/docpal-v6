@@ -39,6 +39,8 @@ export interface TableConfigOptions {
   apiMethod: Function
   /** 子节点加载方法 */
   childApiMethod?: Function
+  /** 单元格类名函数 */
+  cellClassName?: (params: { row: any; column: any; rowIndex: number; columnIndex: number }) => string
 }
 
 /**
@@ -62,6 +64,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     groupBy,
     filterBy,
     sortBy,
+    cellClassName
   } = options
 
   /**
@@ -199,7 +202,9 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         keyField: rowId,
         isHover: true,
         useKey: true,
-      }
+      },
+      // 单元格类名配置 - 用于更新状态视觉反馈
+      cellClassName: cellClassName || undefined
     }
     
     // IMPORTANT: treeConfig with lazy:true DISABLES virtual scrolling!

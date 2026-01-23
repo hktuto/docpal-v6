@@ -1,6 +1,8 @@
 // useApi.ts
 import { provide, inject, ref, type Ref } from 'vue'
 import type { VxeGridInstance } from 'vxe-table'
+import { useUpdateStatus } from './useUpdateStatus'
+
 export interface mdTable {
   columns: any
   addColumn: any
@@ -12,20 +14,22 @@ export const MdTableContextKey: InjectionKey<mdTable> = Symbol('MdTableContextKe
 export function useMDTable(props: any) {
   const editable = ref(props.editable)
 
-  const { gridRef, 
-    columns, 
+  const {
+    gridRef,
+    columns,
     addColumn,
-     updateColumn,
-      deleteColumn, 
-      columnGroupRules,
-      columnFilterRules,
-      columnSortRules, 
-      saveColumnOrder, 
-      addColumnPopoverRef } = 
-    useColumnsContext()
+    updateColumn,
+    deleteColumn,
+    columnGroupRules,
+    columnFilterRules,
+    columnSortRules,
+    saveColumnOrder,
+    addColumnPopoverRef
+  } = useColumnsContext()
   const {
     loading,
     queryParams,
+    tableData,
     refresh: refreshTableData,
     addRow: addTableRow,
     updateRow: updateTableRow,
@@ -33,6 +37,10 @@ export function useMDTable(props: any) {
     getTableData,
     getAggChildData
   } = useTableDataContext()
+  
+  // Get update status helper for cell styling
+  const { getCellClass } = useUpdateStatus()
+  
   const { gridOptions } = useTableConfig(
     {
       ...props,
@@ -42,7 +50,12 @@ export function useMDTable(props: any) {
       columns,
       loading,
       childApiMethod: getAggChildData,
-      apiMethod: getTableData
+      apiMethod: getTableData,
+      // Add cell class name function for update status visual feedback
+      cellClassName: ({ row, column }: any) => {
+        if (!row?.id || !column?.field) return ''
+        return getCellClass(row.id, column.field)
+      }
     },
     gridRef
   )
@@ -64,7 +77,9 @@ export function useMDTable(props: any) {
     columnSortRules,
     gridOptions,
     gridRef,
+    updateTableRow,
     refreshTableData,
+    tableData,
     editable,
     saveColumnOrder,
     addColumnPopoverRef

@@ -25,7 +25,7 @@ function createMockData({ page }: any, tableName: string) {
       state: `state${i}`,
       startDate: 1735708800000, //时间戳 1735708800000
       singleSelect: [1],
-      multiSelect: [1,2,3],
+      multiSelect: [1, 2, 3],
       country: `country${i}`,
       rate: Math.floor(Math.random() * 5) + 1,
       url: [
@@ -46,7 +46,7 @@ function createMockAggregateData({ page }: any, tableName: string) {
     mockAggregateData.push({
       id: i,
       isAggregate: true,
-      title: `Aggregate ${i}`,
+      title: `Aggregate ${i}`
     })
   }
   return mockAggregateData
@@ -55,20 +55,20 @@ function createMockAggChildData(page: any, tableName: string) {
   return createMockData(page, tableName)
 }
 export interface TableDataContext {
-  tableData: Ref<any[]>,
-  loading : Ref<boolean>,
-  error: Ref<Error | null>,
-  queryParams: Ref<any>,
-    // 方法
-    getTableData: (params?: any) => Promise<any[] | undefined>,
-    refresh: () => Promise<void>,
-    addRow: (row: any) => void,
-    updateRow: (index: number, row: any) => void,
-    deleteRow: (index: number) => void,
-    getAggChildData?: (params?: any, aggregate?: {id: string, field: string, order: string}) => Promise<any[] | undefined>,
+  tableData: Ref<any[]>
+  loading: Ref<boolean>
+  error: Ref<Error | null>
+  queryParams: Ref<any>
+  // 方法
+  getTableData: (params?: any) => Promise<any[] | undefined>
+  refresh: () => Promise<void>
+  addRow: (row: any) => void
+  updateRow: (rows: any[]) => void
+  deleteRow: (index: number) => void
+  getAggChildData?: (params?: any, aggregate?: { id: string; field: string; order: string }) => Promise<any[] | undefined>
 }
 
-export const TableDataContextKey:InjectionKey<TableDataContext> = Symbol('TableDataContextKey')
+export const TableDataContextKey: InjectionKey<TableDataContext> = Symbol('TableDataContextKey')
 
 /**
  * 表格数据管理 Composable
@@ -87,16 +87,13 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
     { key: 'age', asc: true }
   ])
 
-
-
-
   /**
    * 获取表格数据
    */
-  const getTableData = async (params: any = {}, aggregate: any = {})=> {
+  const getTableData = async (params: any = {}, aggregate: any = {}) => {
     console.log('params', params)
     console.log('aggregate', aggregate)
-    if(aggregate?.length > 0) {
+    if (aggregate?.length > 0) {
       tableData.value = getAggregateData(params)
       return tableData.value
     }
@@ -139,24 +136,23 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
   /**
    * 更新行数据
    */
-  const updateRow = (index: number, row: any) => {
-    if (index >= 0 && index < tableData.value.length) {
-      tableData.value[index] = { ...tableData.value[index], ...row }
-      rawData.value[index] = { ...rawData.value[index], ...row }
-    }
+  const updateRow = (rows: any[]) => {
+    // if (index >= 0 && index < tableData.value.length) {
+    //   tableData.value[index] = { ...tableData.value[index], ...row }
+    //   rawData.value[index] = { ...rawData.value[index], ...row }
+    // }
   }
 
   /**
    * 删除行数据
    */
   const deleteRow = (id: number) => {
-    const index = tableData.value.findIndex(item => item.id === id)
+    const index = tableData.value.findIndex((item) => item.id === id)
     if (index !== -1) {
       tableData.value.splice(index, 1)
       rawData.value.splice(index, 1)
     }
   }
-
 
   // 监听 tableName 变化，自动重新加载数据
   watch(
@@ -186,7 +182,7 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
     refresh,
     addRow,
     updateRow,
-    deleteRow,
+    deleteRow
   })
 
   return {
@@ -201,14 +197,13 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
     refresh,
     addRow,
     updateRow,
-    deleteRow,
+    deleteRow
   }
 }
 
-
 export const useTableDataContext = () => {
   const tableDataContext = inject(TableDataContextKey)
-  if(!tableDataContext) {
+  if (!tableDataContext) {
     throw new Error('TableDataContext not found')
   }
   return tableDataContext
