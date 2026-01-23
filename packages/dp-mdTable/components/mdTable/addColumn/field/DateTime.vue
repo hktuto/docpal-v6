@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-form-item label="日期格式">
-      <el-select v-model="formData.dateFormat" allow-create filterable placeholder="请选择日期格式" @visible-change="onSelectVisibleChange">
+      <el-select v-model="formData.dateFormat" filterable placeholder="请选择日期格式" @visible-change="onSelectVisibleChange">
         <el-option v-for="option in dateFormatOptions" :key="option.value" :label="option.label" :value="option.value" />
       </el-select>
     </el-form-item>
@@ -28,11 +28,10 @@ const props = defineProps<{
   formData: any
 }>()
 const dateFormatOptions = [
-  { label: 'YYYY-MM-DD', value: 'YYYY-MM-DD' },
-  { label: 'YYYY/MM/DD', value: 'YYYY/MM/DD' },
-  { label: 'YYYY-MMM-DD', value: 'YYYY-MMM-DD' }
+  { label: formatDate(new Date(), 'YYYY-MM-DD'), value: 'YYYY-MM-DD' },
+  { label: formatDate(new Date(), 'YYYY/MM/DD'), value: 'YYYY/MM/DD' },
+  { label: formatDate(new Date(), 'YYYY-MMM-DD'), value: 'YYYY-MMM-DD' }
 ]
-
 // 从父组件获取select visible change处理函数
 const handleSelectVisibleChange = inject<(visible: boolean) => void>('handleSelectVisibleChange')
 

@@ -14,6 +14,7 @@ import { MultiTextView, MultiTextEdit } from './components/MultiText/view'
 import { TextView, TextEdit } from './components/text/view'
 import { UserView } from './components/user/view'
 import { RelationView, RelationEdit } from './components/relation/view'
+import { FormulaView } from './components/formula'
 import { TreeNode } from './components/treeNode'
 // 分离模式组件配置
 export const MDTableComponents: Record<string, RenderComponentConfig> = {
@@ -184,6 +185,11 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   Member: {
     both: {
       render: (params: any) => TreeNode(params, UserView)
+    }
+  },
+  Formula: {
+    both: {
+      render: (params: any) => TreeNode(params, FormulaView)
     }
   }
 } as const
