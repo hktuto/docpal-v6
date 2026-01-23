@@ -19,7 +19,7 @@ const errorOpen = ref(false)
 const templateList = ref<any[]>([])
 
 async function getTemplateList() {
-  const { data } = (await clientApi.api.getWatermarkTemplatesAll()) as any
+  const data = await clientApi.api.getDocpalWatermarkTemplatesAll().then(r => r.data)
   templateList.value = data.sort((a, b) => a.name.localeCompare(b.name))
 }
 
@@ -58,7 +58,7 @@ async function templateChange(command: string) {
 async function confirmChangeTemplate() {
   const temp = await getWatermarkTemplateDetail(selectedTemplateId.value)
   let idTime = new Date().getTime()
-  const newData = {
+  watermarkDetail.value = {
     ...watermarkDetail.value,
     watermarkSettings: temp.watermarkSettings.map((item: any) => {
       delete item.templateId
@@ -67,7 +67,6 @@ async function confirmChangeTemplate() {
       return item
     })
   }
-  watermarkDetail.value = newData
 
   if (temp.type === 'dynamic') watermarkDetail.value.contentType = temp.content
   changeTemplateDialog.value = false
@@ -103,7 +102,7 @@ async function preview() {
   temTemplate.value = await createWatermarkTemplate(update)
   console.log(temTemplate.value)
 
-  previewFile.blob = await clientApi.api.getWatermarkDocumentPreview(
+  previewFile.blob = await clientApi.api.getDocpalWatermarkDocumentPreview(
     {
       watermarkTemplateId: temTemplate.value.id,
       documentId: doc.value.id

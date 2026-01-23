@@ -274,7 +274,6 @@ function handleSearchBlur() {
               </div>
             </slot>
             <slot name="toolbarTools">
-              <BrowseActionsShare class="shareActions" :doc="docDetail" :selectedList="selectedList" />
               <div :class="{ searchContainer: true, expanded: isSearchExpanded }">
                 <div v-if="!isSearchExpanded" class="searchButton" @click="expandSearch">
                   <Icon name="mdi:magnify" />

@@ -32,8 +32,8 @@
 </template>
 <script lang="ts" setup>
 import { CloseBold, Select } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
+import { ElMessageBox } from 'element-plus'
+import { adminApi, clientApi } from 'api'
 import { routeRetentionDetail } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -162,7 +162,8 @@ function handleDblclick(row: any) {
 
 async function handleActive(row: any, isActive: 'A' | 'D') {
   try {
-    const result = await adminApi.api.patchPolicyRetentionsIdStatusStatus(row.id, isActive).then((res) => res.data)
+    // TODO：Admin與client的接口是否可以共用
+    const result = await clientApi.api.patchDmsPolicyRetentionDocumentRetentiondocumentidStatusStatus(row.id, isActive).then((res) => res.data)
     if (!!result) {
       row.status = isActive
       routerProvider?.message.success(t('dpMsg_success'))

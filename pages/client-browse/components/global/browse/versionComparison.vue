@@ -67,12 +67,10 @@ onMounted(async () => {
   // init(id as string);
   newVersion.value = await clientApi.api.postDmsDocumentFetch({ idOrPath: props.id }).then((res) => res.data)
   state.title = newVersion.value.name
-  oldVersion.value = await clientApi.api
-    .postNuxeoGetspecificversion({
-      idOrPath: props.id,
-      versionNum: props.oldVersionNum
-    })
-    .then((res) => res.data)
+  oldVersion.value = await clientApi.api.postDmsDocumentVersionRetrieve({
+    idOrPath: props.id,
+    versionNum: props.oldVersionNum
+  }).then((res) => res.data)
   getPreviewFile(state.previewNewFile, newVersion.value.id, newVersion.value.version)
   getPreviewFile(state.previewOldFile, oldVersion.value.id, props.oldVersionNum)
   nextTick(() => {

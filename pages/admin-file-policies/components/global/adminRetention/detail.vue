@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 import formJson from '../../retention/addDialog.vform.json'
+
 const routerProvider = inject(MenuRouterKey)
 const emits = defineEmits(['update'])
 const { id } = defineProps<{
@@ -42,7 +42,8 @@ async function handleSetStatus(isActive: 'A' | 'D') {
   if (!state.setting.id) return
   try {
     state.activeLoading = true
-    const result = await adminApi.api.patchPolicyRetentionsIdStatusStatus(id, isActive).then((res) => res.data)
+    // TODO：Admin與client的接口是否可以共用
+    const result = await clientApi.api.patchDmsPolicyRetentionDocumentRetentiondocumentidStatusStatus(id, isActive).then((res) => res.data)
     if (!!result) {
       state.setting.status = isActive
       routerProvider?.message.success(t('dpMsg_success'))
@@ -57,7 +58,7 @@ async function handleSetStatus(isActive: 'A' | 'D') {
 async function init() {
   try {
     state.loading = true
-    let setting = await adminApi.api.getPolicyRetentionsId(id).then((res) => res.data)
+    let setting = await clientApi.admin.getAdmindmsPolicyRetentionRetentionpolicyid(id).then((res) => res.data)
     if (!setting) setting = {}
     setTimeout(async () => {
       state.setting = setting

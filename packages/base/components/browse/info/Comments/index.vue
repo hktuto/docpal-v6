@@ -51,7 +51,7 @@ async function handleReply(params: any, cb) {
 }
 
 async function handleReplyDelete(item, parentItem) {
-  const res = await clientApi.api.deleteNuxeoCommentsDelete({ commentId: item.id }).then((res) => res.data)
+  const res = await clientApi.api.deleteDmsDocumentComments({ commentId: item.id }).then((res) => res.data)
   if (!res) return
   if (!parentItem) {
     // handleCommentsGet()
@@ -109,7 +109,7 @@ function getUserName(_userId: string) {
 }
 
 async function getCommentList(params) {
-  const data = (await clientApi.api.postNuxeoComments(params).then((res) => res.data)) as any
+  const data: any = await clientApi.api.postDmsDocumentCommentsList(params).then((res) => res.data)
   const regex = /@\{([^}]+)\}/g
   try {
     data.forEach((item) => {

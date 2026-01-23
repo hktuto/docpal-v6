@@ -65,7 +65,7 @@ const userId: string = useUserId().value
 const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
   id: 'clientRetentionPendingList',
   api: async (pageParams: any) => {
-    return clientApi.api.postPolicyRetentionsDocumentPage({
+    return clientApi.api.postDmsPolicyRetentionDocumentListQuery({
       ...initParams,
       ...pageParams,
       ...extraParams
@@ -171,7 +171,7 @@ async function handleApprove(state: any, row: any) {
     const command = state ? t('workflow_startAdhocWorkflow_approve') : t('workflow_startAdhocWorkflow_reject')
     const action = await ElMessageBox.confirm(`${msg}: ${command}`)
     if (action !== 'confirm') return
-    await clientApi.api.patchPolicyRetentionsIdStatusStatus(row.id, state)
+    await clientApi.api.patchDmsPolicyRetentionDocumentRetentiondocumentidStatusStatus(row.id, state)
     reload()
   } catch (error) {
     console.log(error)
@@ -190,14 +190,14 @@ function handleDblclick(row: any) {
 }
 
 async function getEvents() {
-  events.value = await clientApi.api.getPolicyRetentionsEvents().then((res) => res.data)
+  events.value = await clientApi.api.getDmsPolicyRetentionEventList().then((res) => res.data)
 }
 async function handleEvent(event: any, row: any) {
   try {
     let msg = t('msg_confirmWhetherToExecuteCommand')
     const action = await ElMessageBox.confirm(`${msg}: ${event.eventLabel}`)
     if (action !== 'confirm') return
-    await clientApi.api.postPolicyRetentionsSubmitevent({ eventId: event.id, documentId: row.documentId })
+    await clientApi.api.postDmsPolicyRetentionDocumentEvent({ eventId: event.id, documentId: row.documentId })
     reload()
   } catch (error) {
     console.log(error)
