@@ -1,0 +1,1 @@
+ALTER TABLE "case_views" ADD COLUMN "viewType" text DEFAULT 'table' NOT NULL;

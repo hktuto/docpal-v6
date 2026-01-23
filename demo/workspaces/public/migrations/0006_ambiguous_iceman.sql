@@ -1,0 +1,1 @@
+ALTER TABLE "case_views" ADD COLUMN "viewSettings" jsonb;

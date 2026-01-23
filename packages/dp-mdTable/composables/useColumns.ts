@@ -16,6 +16,8 @@ export interface ColumnContext {
   saveColumnOrder: (ordersParam: OrdersParam) => void
   columns: Ref<ColumnConfig[]>
   columnGroupRules: Ref<any[]>
+  columnFilterRules: Ref<any[]>
+  columnSortRules: Ref<any[]>
   addColumnPopoverRef: Ref<any>
   gridRef: Ref<any>
   // Relation helpers
@@ -59,38 +61,7 @@ export interface UseColumnsOptions {
   onColumnUpdate?: (field: string, column: ColumnConfig) => void
 }
 
-/**
- * 从数据自动推断列配置
- */
-const inferColumnsFromData = (data: any[]): ColumnConfig[] => {
-  if (!data || data.length === 0) return []
 
-  // 使用第一条数据推断列
-  const firstRow = data[0]
-  const fields = Object.keys(firstRow)
-
-  return fields.map((field) => {
-    const value = firstRow[field]
-    let type: 'number' | 'integer' | 'string' = 'string'
-
-    if (value !== null && value !== undefined) {
-      if (typeof value === 'number') {
-        type = Number.isInteger(value) ? 'integer' : 'number'
-      }
-    }
-
-    return {
-      field,
-      title: field, // 默认使用字段名作为标题
-      type,
-      visible: true,
-      width: type === 'number' || type === 'integer' ? 120 : 150,
-      minWidth: 100,
-      sortable: true,
-      filterable: true
-    } as ColumnConfig
-  })
-}
 function createMockColumns(tableName: string) {
   const mockColumns = []
   mockColumns.push({
@@ -210,6 +181,8 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
   const gridRef = ref<any>()
   const columns = ref<ColumnConfig[]>([])
   const columnGroupRules = ref<any[]>([])
+  const columnFilterRules = ref<any[]>([])
+  const columnSortRules = ref<any[]>([])
   const addColumnPopoverRef = ref()
   /**
    * 获取列
@@ -247,7 +220,7 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
     // 设置默认值
     const newColumn: ColumnConfig = {
       visible: true,
-      type: 'string',
+      type: ColumnFieldType.Text,
       width: 150,
       ...column
     }
@@ -327,6 +300,8 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
     addColumnPopoverRef,
     columns,
     columnGroupRules,
+    columnFilterRules,
+    columnSortRules,
     gridRef
   })
   return {
@@ -342,7 +317,9 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
 
     // 原始引用（只读）
     columns: columns as Readonly<Ref<ColumnConfig[]>>,
-    columnGroupRules
+    columnGroupRules,
+    columnFilterRules,
+    columnSortRules,
   }
 }
 

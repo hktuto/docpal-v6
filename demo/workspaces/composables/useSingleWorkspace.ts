@@ -1,8 +1,16 @@
-import type { CaseTypeRecord, CaseTreeRecord } from '../utils/db/schema/newTableSchema'
+import type { CaseTypeRecord, CaseTreeRecord, ViewType, ViewSettings } from '../utils/db/schema/newTableSchema'
 import type { CaseTreeItemType } from '../utils/db/schema/newTableSchema'
 
 export type { CaseTreeItemType }
 import { v7 as uuidv7 } from 'uuid'
+
+// View creation data passed from CreateViewDialog
+export interface ViewCreationData {
+  name: string
+  tableId: string
+  viewType: ViewType
+  viewSettings: ViewSettings
+}
 
 export const SingleWorkspaceContextKey: InjectionKey<WorkspaceContext> = Symbol('SingleWorkspaceContext')
 
@@ -33,7 +41,7 @@ export interface WorkspaceContext {
   saveEdit: (id: string, newLabel: string) => Promise<void>
   cancelEdit: () => void
   deleteItem: (id: string) => Promise<void>
-  addItem: (parentId: string | null, type: CaseTreeItemType) => Promise<TreeItem>
+  addItem: (parentId: string | null, type: CaseTreeItemType, viewData?: ViewCreationData) => Promise<TreeItem>
   navigateToItem: (item?: TreeItem) => void
   openSetting: (slug: string, type: CaseTreeItemType) => void
   getMenuFromDb: () => Promise<void>
@@ -324,10 +332,10 @@ export function useSingleWorkspace() {
     }
   }
 
-  async function addItem(parentId: string | null, type: CaseTreeItemType): Promise<TreeItem> {
+  async function addItem(parentId: string | null, type: CaseTreeItemType, viewData?: ViewCreationData): Promise<TreeItem> {
     const now = new Date()
     const treeItemId = uuidv7()
-    const label = `New ${type}`
+    let label = `New ${type}`
     const slug = `new-${type}-${Date.now()}`
 
     let itemId: string | null = null
@@ -352,6 +360,52 @@ export function useSingleWorkspace() {
         itemId = tableId
       } catch (error) {
         console.error('Error creating table:', error)
+        throw error
+      }
+    }
+
+    // For views, create the view in the database
+    if (type === 'view' && workspace.value?.id && viewData) {
+      const viewId = uuidv7()
+      const viewName = `view_${viewId.replace(/-/g, '_')}`
+      label = viewData.name
+
+      try {
+        // Get all fields from the base table to include in the view
+        const tableFields = await query<{ fieldName: string }>(
+          `SELECT "fieldName" FROM case_fields WHERE "tableId" = $1`,
+          [viewData.tableId]
+        )
+        const fieldNames = tableFields.map(f => f.fieldName)
+
+        // Create the view record
+        await query(
+          `INSERT INTO case_views (
+            id, name, description, "viewName", "viewType", "viewSettings",
+            filter, sorting, grouping, "tableId", "isDefault", "entityId", 
+            fields, "createdAt", "updatedAt"
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
+          [
+            viewId,
+            viewData.name,
+            null,
+            viewName,
+            viewData.viewType,
+            JSON.stringify(viewData.viewSettings),
+            null,
+            null,
+            null,
+            viewData.tableId,
+            false, // isDefault
+            workspace.value.id,
+            fieldNames,
+            now,
+            now
+          ]
+        )
+        itemId = viewId
+      } catch (error) {
+        console.error('Error creating view:', error)
         throw error
       }
     }
@@ -390,7 +444,10 @@ export function useSingleWorkspace() {
     if (type === 'folder') {
       menuState.value.expandedFolders.add(newItem.id)
     }
-    startEdit(newItem.id)
+    // For views, we already have the name from viewData, no need to edit
+    if (type !== 'view') {
+      startEdit(newItem.id)
+    }
     return newItem
   }
 

@@ -1,7 +1,13 @@
 <template>
   <div class="multi-dimension-table" :style="{ height: height || '100%' }">
     <!-- 工具栏 -->
-    <Toolbar :groupable-columns="columns" @refresh="handleRefresh" @search="handleSearch" @grouping-change="handleGroupToggle">
+    <Toolbar :groupable-columns="columns"
+     @refresh="handleRefresh" 
+     @search="handleSearch" 
+     @filter-change="handleFilterChange" 
+     @grouping-change="handleGroupToggle"
+     @sort-change="handleSortChange"
+     @save-view="handleSaveView">
       <template #toolbar-left>
         <slot name="toolbar-left" />
       </template>
@@ -57,8 +63,8 @@ import Toolbar from './Toolbar.vue'
 const slots = useSlots()
 
 interface Props {
-  tableName: string
-  editable: boolean
+  tableName?: string
+  editable?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -73,12 +79,13 @@ const emit = defineEmits<{
   'cell-click': [params: any]
   'row-add': []
   'column-add': [column: ColumnConfig]
+  'save-view': []
 }>()
 
 // 引用
 const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
-const { addColumnPopoverRef, columns, addColumn, columnGroupRules, gridOptions, gridRef, refreshTableData, deleteColumn, saveColumnOrder } = useMDTable(props)
+const { addColumnPopoverRef, columns, addColumn, columnGroupRules, columnFilterRules, columnSortRules, gridOptions, gridRef, refreshTableData, deleteColumn, saveColumnOrder } = useMDTable(props)
 
 // 表格事件
 const gridEvents = computed<VxeGridListeners>(() => ({
@@ -116,8 +123,18 @@ const handleSearch = (value: string) => {
   emit('search', value)
 }
 
-const handleGroupToggle = (rules: GroupingRule[]) => {
+const handleGroupToggle = (rules: any[]) => {
   columnGroupRules.value = rules
+}
+const handleFilterChange = (rules: any[]) => {
+  columnFilterRules.value = rules
+}
+const handleSortChange = (rules: SortRule[]) => {
+  columnSortRules.value = rules
+}
+
+const handleSaveView = () => {
+  emit('save-view')
 }
 
 // 处理添加列

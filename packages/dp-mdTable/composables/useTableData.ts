@@ -65,8 +65,7 @@ export interface TableDataContext {
     addRow: (row: any) => void,
     updateRow: (index: number, row: any) => void,
     deleteRow: (index: number) => void,
-    getAggregateData?: (params?: any) => Promise<any[] | undefined>,
-    getAggChildData?: (params?: any) => Promise<any[] | undefined>,
+    getAggChildData?: (params?: any, aggregate?: {id: string, field: string, order: string}) => Promise<any[] | undefined>,
 }
 
 export const TableDataContextKey:InjectionKey<TableDataContext> = Symbol('TableDataContextKey')

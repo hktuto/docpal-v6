@@ -97,6 +97,32 @@ export interface ViewGrouping {
   collapsed?: boolean
 }
 
+/**
+ * View type enum
+ */
+export type ViewType = 'table' | 'kanban' | 'gantt' | 'calendar'
+
+/**
+ * View-specific settings based on view type
+ */
+export interface ViewSettings {
+  /** Kanban settings */
+  kanban?: {
+    groupByField: string // Required: field to group by
+  }
+  /** Gantt settings */
+  gantt?: {
+    startField: string // Required: start date field
+    endField: string // Required: end date field
+    percentField?: string // Optional: percent complete field
+  }
+  /** Calendar settings */
+  calendar?: {
+    startField: string // Required: start date field
+    endField: string // Required: end date field
+  }
+}
+
 // =============================================================================
 // Table Schemas (using camelCase column names for PGlite demo)
 // =============================================================================
@@ -180,6 +206,8 @@ export const caseView = pgTable('case_views', {
   name: text('name').notNull(),
   description: text('description'),
   viewName: text('viewName').notNull().unique(),
+  viewType: text('viewType').$type<ViewType>().notNull().default('table'),
+  viewSettings: jsonb('viewSettings').$type<ViewSettings>(),
   filter: jsonb('filter').$type<ViewFilter[]>(),
   sorting: jsonb('sorting').$type<ViewSorting[]>(),
   grouping: jsonb('grouping').$type<ViewGrouping[]>(),

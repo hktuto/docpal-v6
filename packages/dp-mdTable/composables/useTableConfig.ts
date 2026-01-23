@@ -28,6 +28,10 @@ export interface TableConfigOptions {
   editConfig?: boolean | object
   /** 分组字段 */
   groupBy?: any
+  /** 筛选字段 */
+  filterBy?: any
+  /** 排序字段 */
+  sortBy?: any
   /** 列配置 */
   columns: Ref<ColumnConfig[]> | ComputedRef<ColumnConfig[]>
   /** 加载状态 */
@@ -55,7 +59,9 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     loading,
     apiMethod,
     childApiMethod,
-    groupBy
+    groupBy,
+    filterBy,
+    sortBy,
   } = options
 
   /**
@@ -84,7 +90,6 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       type: 'checkbox',
       width: 40
     })
-    console.log('columns', groupBy.value, groupBy.value.length)
     return _columns.map((col) => {
       if (!col.type) col.type = ColumnFieldType.Text
       if (col.field === 'name') col.rowGroupNode = true
@@ -152,10 +157,13 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       // 虚拟滚动配置 - 性能优化
       // 注意：虚拟滚动与树形懒加载存在兼容性问题，当启用树形结构时，建议禁用虚拟滚动或使用固定行高
       virtualYConfig: {
-        oSize: 20,
-        rSize: 100,
         enabled: true,
-        gt: 20 // 大于20条数据时启用虚拟滚动
+        mode:'wheel',
+        gt: 0 // 大于20条数据时启用虚拟滚动
+      },
+      virtualXConfig: {
+        enabled: true,
+        gt: 0
       },
       scrollX: {
         enabled: true
@@ -186,20 +194,28 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
           order: 'asc'
         }
       },
-      treeConfig: {
-        transform: false,
+      // 行配置 - 固定行高确保虚拟滚动正常工作
+      rowConfig: {
+        keyField: rowId,
+        isHover: true,
+        useKey: true,
+      }
+    }
+    
+    // IMPORTANT: treeConfig with lazy:true DISABLES virtual scrolling!
+    // Only enable treeConfig when grouping/aggregation is actually being used
+    const isGroupingEnabled = groupBy?.value && groupBy.value.length > 0
+    if (isGroupingEnabled) {
+      options.treeConfig = {
+        transform: true,
         rowField: 'id',
         parentField: 'parentId',
         lazy: true,
         hasChild: 'isAggregate',
         loadMethod: treeLoadData
-      },
-      // 行配置 - 确保行高计算正确，避免虚拟滚动白屏
-      rowConfig: {
-        keyField: rowId,
-        isHover: true,
-        useKey: true
       }
+      // Must disable virtual scroll when using tree config with lazy loading
+      // options.virtualYConfig = { enabled: false }
     }
     // 编辑配置
     // 检查是否有列配置了 editRender
@@ -229,6 +245,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
   })
   function loadData(pageParams: any) {
     const gb: any = (options?.groupBy as any)?.value
+    
     return apiMethod(pageParams, gb.length > 0 ? gb : null)
   }
   async function treeLoadData(params: any) {
@@ -238,23 +255,19 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         console.warn('childApiMethod is not defined')
         return []
       }
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(childApiMethod(params))
-        }, 100)
-      })
+      return await childApiMethod(params, groupBy.value)
     } catch (error) {
       console.error('treeLoadData error:', error)
       return []
     }
   }
   watch(
-    () => options.groupBy,
-    (newGroupBy) => {
-      console.log('newGroupBy', newGroupBy)
+    () => [options.groupBy, options.filterBy, options.sortBy],
+    ([newGroupBy, newFilterBy, newSortBy]) => {
+      
       gridRef.value?.commitProxy('reload')
     },
-    { immediate: true, deep: true }
+    { deep: true }
   )
   return {
     gridOptions

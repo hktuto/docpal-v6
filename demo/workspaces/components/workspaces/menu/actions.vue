@@ -2,6 +2,7 @@
 import type { TreeItem, CaseTreeItemType } from '../../../composables/useSingleWorkspace'
 import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspace'
 import { ElMessageBox } from 'element-plus'
+import type { ViewType, ViewSettings } from '../../../utils/db/schema/newTableSchema'
 
 const item = ref<TreeItem | null>(null)
 const isAdmin = ref(false)
@@ -15,6 +16,7 @@ const open = (data: {item: TreeItem, isAdmin: boolean}, target?: HTMLElement, hi
 const menuContext = useSingleWorkspaceContext()
 const popoverRef = ref()
 const importExcelDialogRef = ref()
+const createViewDialogRef = ref()
 
 
 function close() {
@@ -80,6 +82,31 @@ function handleImportSuccess(tables: { id: string; name: string }[]) {
   console.log('Imported tables:', tables)
 }
 
+function handleAddView() {
+  close()
+  createViewDialogRef.value?.open()
+}
+
+async function handleViewCreated(data: {
+  name: string
+  tableId: string
+  viewType: ViewType
+  viewSettings: ViewSettings
+}) {
+  // Call addItem with 'view' type but pass additional data
+  const newItem = await menuContext.addItem(item.value?.id || null, 'view', {
+    name: data.name,
+    tableId: data.tableId,
+    viewType: data.viewType,
+    viewSettings: data.viewSettings
+  })
+  
+  // Navigate to the new view
+  if (newItem) {
+    menuContext.navigateToItem(newItem)
+  }
+}
+
 defineExpose({ open, close })
 </script>
 
@@ -99,7 +126,7 @@ defineExpose({ open, close })
           <Icon name="material-symbols:table-outline" />
           <span>Add Table</span>
         </div>
-        <div class="action-item" @click="handleAddItem('view')">
+        <div class="action-item" @click="handleAddView">
           <Icon name="material-symbols:view-list-outline" />
           <span>Add View</span>
         </div>
@@ -128,7 +155,7 @@ defineExpose({ open, close })
             <Icon name="material-symbols:table-outline" />
             <span>Add Table</span>
           </div>
-          <div class="action-item" @click="handleAddItem('view')">
+          <div class="action-item" @click="handleAddView">
             <Icon name="material-symbols:view-list-outline" />
             <span>Add View</span>
           </div>
@@ -170,6 +197,12 @@ defineExpose({ open, close })
     :entity-id="menuContext.workspace.value?.id || ''"
     :parent-folder-id="item?.itemType === 'folder' ? item.id : null"
     @success="handleImportSuccess"
+  />
+
+  <!-- Create View Dialog -->
+  <WorkspacesDialogsCreateViewDialog
+    ref="createViewDialogRef"
+    @created="handleViewCreated"
   />
 </template>
 
