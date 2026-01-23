@@ -1,7 +1,7 @@
 <template>
   <UiPopoverDialog ref="popoverRef" width="60px">
     <div class="cell-popover">
-      <div v-for="item in optionList" :key="item.label" @click="item.onClick">
+      <div class="cell-popover-item" v-for="item in optionList" :key="item.label" @click="item.onClick">
         <Icon :name="item.icon" />
         <span>{{ item.label }}</span>
       </div>
@@ -10,7 +10,7 @@
 </template>
 <script setup lang="ts">
 const { t } = useI18n()
-const { gridRef } = useMDTableInject()
+const { gridRef, clearCheckboxRow } = useMDTableInject()
 const popoverRef = ref()
 const selectedRows = ref([])
 const optionList = ref([])
@@ -21,22 +21,20 @@ function open(target: HTMLElement, { row, column }: any) {
     // TODO 需要优化，如果右击非table row，需要clearCheckboxRow
     const isInSelected = selectedRows.value.some((item) => item.id === row.id)
     if (!isInSelected) {
-      selectedRows.value.forEach((row) => {
-        row.checked = false
-      })
-      gridRef.value?.clearCheckboxRow()
+      clearCheckboxRow()
       return
     }
   }
   console.log(selectedRows.value, 'selectedRows')
   popoverRef.value.open(target)
-  if (selectedRows.value.length > 0) {
+  if (selectedRows.value.length > 1) {
     optionList.value = [
       {
         label: t('mdTable.deleteSelectedRow', { count: selectedRows.value.length }),
         icon: 'Delete',
         onClick: () => {
           gridRef.value?.remove(selectedRows.value)
+          close()
         }
       }
     ]
@@ -47,6 +45,7 @@ function open(target: HTMLElement, { row, column }: any) {
         icon: 'Delete',
         onClick: () => {
           gridRef.value?.remove(row)
+          close()
         }
       }
     ]
@@ -61,6 +60,11 @@ defineExpose({
 })
 </script>
 <style scoped lang="scss">
-.cell-popover {
+.cell-popover-item {
+  cursor: pointer;
+  &:hover {
+    background: var(--app-primary-alpha-10);
+    color: var(--app-primary);
+  }
 }
 </style>

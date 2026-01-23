@@ -51,6 +51,7 @@ function getFullColumnConfig() {
 }
 const handleContextMenu = (event: MouseEvent) => {
   handleClick(event.target as HTMLElement)
+  mdTable.clearCheckboxRow()
 }
 function handleClick(htmlElement: HTMLElement) {
   const fullColumn = getFullColumnConfig()

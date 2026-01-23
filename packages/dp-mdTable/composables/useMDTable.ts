@@ -9,6 +9,7 @@ export interface mdTable {
   updateColumn: any
   columnGroupRules: any
   gridRef: Ref<VxeGridInstance | undefined>
+  clearCheckboxRow: () => void
 }
 export const MdTableContextKey: InjectionKey<mdTable> = Symbol('MdTableContextKey')
 export function useMDTable(props: any) {
@@ -59,12 +60,22 @@ export function useMDTable(props: any) {
     },
     gridRef
   )
+  function clearCheckboxRow() {
+    const selectedRows = gridRef.value?.getCheckboxRecords() || []
+    if (selectedRows.length > 0) {
+      selectedRows.forEach((row: any) => {
+        row.checked = false
+      })
+      gridRef.value?.clearCheckboxRow()
+    }
+  }
   provide(MdTableContextKey, {
     columns,
     addColumn,
     updateColumn,
     columnGroupRules,
-    gridRef
+    gridRef,
+    clearCheckboxRow
   })
 
   return {
@@ -82,7 +93,8 @@ export function useMDTable(props: any) {
     tableData,
     editable,
     saveColumnOrder,
-    addColumnPopoverRef
+    addColumnPopoverRef,
+    clearCheckboxRow
   }
 }
 
