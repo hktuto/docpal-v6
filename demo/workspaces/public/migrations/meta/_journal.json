@@ -50,6 +50,13 @@
       "when": 1769101049388,
       "tag": "0006_ambiguous_iceman",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1769178263402,
+      "tag": "0007_fuzzy_madame_masque",
+      "breakpoints": true
     }
   ]
 }

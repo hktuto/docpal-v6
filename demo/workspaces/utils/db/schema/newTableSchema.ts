@@ -198,7 +198,10 @@ export const caseField = pgTable('case_fields', {
   // Relation field configuration
   displayFieldIds: uuid('displayFieldIds').array().notNull().default([]),
   relationFieldId: uuid('relationFieldId'),
-  relationTableId: uuid('relationTableId').references(() => caseTable.id)
+  relationTableId: uuid('relationTableId').references(() => caseTable.id),
+  // Lookup configuration for auto-resolving relations on new rows
+  lookupColumnName: text('lookupColumnName'), // Source column in current table to match (e.g., "company_name")
+  lookupFieldId: uuid('lookupFieldId') // Target field ID in relation table to match against
 })
 
 export const caseView = pgTable('case_views', {

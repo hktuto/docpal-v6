@@ -35,10 +35,13 @@
 <script setup lang="ts">
 import { ref, reactive, nextTick, provide } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { v7 as uuidv7 } from 'uuid'
 import { defineAsyncComponent } from 'vue'
 import { getColumnFieldOptions } from './columnBasic'
+
+// MagicLink (Relation) type constant
+const RELATION_TYPE = 14
 interface ColumnConfig {
   field: string
   title: string
@@ -62,7 +65,7 @@ const props = withDefaults(defineProps<Props>(), {
   placement: 'left-start',
   popperClass: ''
 })
-const { updateColumn } = useColumnsContext()
+const { updateColumn, deleteColumn } = useColumnsContext()
 
 const emit = defineEmits<{
   submit: [column: ColumnConfig]
@@ -159,7 +162,7 @@ const handleSubmit = async () => {
     const columnConfig: ColumnConfig = {
       field: formData.value.field || createFieldId(),
       title: formData.value.title,
-      type: formData.value.type
+      type: formData.value.type as ColumnFieldType
     }
 
     // 将其他字段保存到 properties 中
@@ -177,6 +180,36 @@ const handleSubmit = async () => {
 
     console.log('columnConfig', columnConfig)
     if (state.isEdit) {
+      const oldType = (state.column as any)?.type
+      const newType = formData.value.type
+
+      // Type changed - warn user about potential data loss
+      if (oldType !== newType) {
+        try {
+          await ElMessageBox.confirm(
+            'Changing column type may cause data loss. Do you want to continue?',
+            'Warning',
+            {
+              type: 'warning',
+              confirmButtonText: 'Continue',
+              cancelButtonText: 'Cancel'
+            }
+          )
+        } catch {
+          // User cancelled
+          return
+        }
+
+        // Type changed to/from Relation - need delete + create
+        if (oldType === RELATION_TYPE || newType === RELATION_TYPE) {
+          await deleteColumn((state.column as any).field)
+          emit('submit', columnConfig) // This triggers addColumn
+          resetForm()
+          handleClose()
+          return
+        }
+      }
+
       updateColumn(columnConfig.field, columnConfig as any)
     } else {
       emit('submit', columnConfig)
