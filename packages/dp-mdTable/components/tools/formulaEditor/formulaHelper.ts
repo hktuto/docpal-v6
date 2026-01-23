@@ -15,6 +15,52 @@ export interface FunctionItem {
 }
 
 /**
+ * 检查表达式括号与字符串是否闭合（避免 new Function 触发语法错误）
+ * @param expression - 表达式字符串
+ * @returns 是否闭合
+ */
+function isExpressionBalanced(expression: string): boolean {
+  let depth = 0;
+  let inString = false;
+  let stringChar = '';
+
+  for (let i = 0; i < expression.length; i++) {
+    const char = expression[i];
+
+    if (!inString && (char === "'" || char === '"')) {
+      inString = true;
+      stringChar = char;
+      continue;
+    }
+
+    if (inString) {
+      if (char === '\\') {
+        i++;
+        continue;
+      }
+      if (char === stringChar) {
+        inString = false;
+        stringChar = '';
+      }
+      continue;
+    }
+
+    if (char === '(') {
+      depth++;
+      continue;
+    }
+    if (char === ')') {
+      depth--;
+      if (depth < 0) {
+        return false;
+      }
+    }
+  }
+
+  return depth === 0 && !inString;
+}
+
+/**
  * 文本函数列表
  */
 export const textFunctions: FunctionItem[] = [
@@ -246,7 +292,27 @@ export const dateFunctions: FunctionItem[] = [
     ],
     example: "DATEDIF('2024-01-01', '2024-12-31', 'D') 返回 365",
     func: (...args: any[]) => {
-      return dayjs(args[0]).diff(dayjs(args[1]), args[2])
+      const unitRaw = String(args[2] ?? '').trim().toUpperCase();
+      const unitMap: Record<string, dayjs.OpUnitType> = {
+        D: 'day',
+        DAY: 'day',
+        DAYS: 'day',
+        M: 'month',
+        MON: 'month',
+        MONTH: 'month',
+        MONTHS: 'month',
+        Y: 'year',
+        YEAR: 'year',
+        YEARS: 'year'
+      };
+      const unit = unitMap[unitRaw] ?? 'day';
+      const start = dayjs(args[0]);
+      const end = dayjs(args[1]);
+      if (!start.isValid() || !end.isValid()) {
+        return '';
+      }
+      // 依照 Excel 语义，计算 end - start
+      return end.diff(start, unit);
     }
   }
 ];
@@ -485,60 +551,73 @@ function replaceVariables(formula: string, rowdata: any): string {
 function replaceFunctions(formula: string, rowdata: any, functionMap: Map<string, FunctionItem>): string {
   const functionNamePattern = /([A-Za-z_][A-Za-z0-9_]*)\s*\(/g;
   let result = formula;
+  let changed = true;
 
-  // 从后往前替换，避免位置偏移问题
-  const matches: Array<{ name: string; start: number; end: number; argsStr: string }> = [];
-  
-  // 重置正则表达式，使用 matchAll 来避免 exec 的状态问题
-  const allMatches = Array.from(formula.matchAll(functionNamePattern));
+  // 循环处理，直到没有更多函数调用需要替换
+  while (changed) {
+    changed = false;
+    const matches: Array<{ name: string; start: number; end: number; argsStr: string }> = [];
+    
+    // 重置正则表达式，使用 matchAll 来避免 exec 的状态问题
+    const allMatches = Array.from(result.matchAll(functionNamePattern));
 
-  for (const match of allMatches) {
-    const funcName = match[1].toUpperCase();
-    const funcStart = match.index!;
-    const leftParenPos = funcStart + match[0].length - 1;
+    for (const match of allMatches) {
+      const funcName = match[1].toUpperCase();
+      const funcStart = match.index!;
+      const leftParenPos = funcStart + match[0].length - 1;
 
-    if (functionMap.has(funcName)) {
-      const funcEnd = findFunctionEnd(formula, leftParenPos);
-      if (funcEnd > 0) {
-        const argsStr = formula.substring(leftParenPos + 1, funcEnd);
-        matches.push({
-          name: funcName,
-          start: funcStart,
-          end: funcEnd + 1,
-          argsStr: argsStr
-        });
+      if (functionMap.has(funcName)) {
+        const funcEnd = findFunctionEnd(result, leftParenPos);
+        if (funcEnd > 0) {
+          const argsStr = result.substring(leftParenPos + 1, funcEnd);
+          matches.push({
+            name: funcName,
+            start: funcStart,
+            end: funcEnd + 1,
+            argsStr: argsStr
+          });
+        }
       }
     }
-  }
 
-  // 从后往前替换
-  for (let i = matches.length - 1; i >= 0; i--) {
-    const match = matches[i];
-    const func = functionMap.get(match.name)!;
-    const args = parseFunctionArgs(match.argsStr, rowdata, functionMap);
-    let funcResult;
+    // 从后往前替换，避免位置偏移问题
+    for (let i = matches.length - 1; i >= 0; i--) {
+      const match = matches[i];
+      const func = functionMap.get(match.name)!;
+      const args = parseFunctionArgs(match.argsStr, rowdata, functionMap);
+      let funcResult;
 
-    try {
-      if (func.func) {
-        funcResult = func.func(...args);
-      } else {
-        funcResult = '';
+      try {
+        if (func.func) {
+          funcResult = func.func(...args);
+        } else {
+          funcResult = '';
+        }
+
+        // 将结果转换为字符串，如果是字符串需要加引号
+        let resultStr: string;
+        if (typeof funcResult === 'string') {
+          resultStr = `"${funcResult.replace(/"/g, '\\"')}"`;
+        } else if (funcResult === null || funcResult === undefined) {
+          resultStr = '""';
+        } else {
+          resultStr = String(funcResult);
+        }
+
+        const beforeReplace = result;
+        result = result.substring(0, match.start) + resultStr + result.substring(match.end);
+        
+        if (beforeReplace !== result) {
+          changed = true;
+          // 只替换一个函数就退出循环，重新查找所有函数调用
+          break;
+        }
+      } catch (error) {
+        console.error(`Error executing function ${match.name}:`, error);
+        result = result.substring(0, match.start) + '""' + result.substring(match.end);
+        changed = true;
+        break;
       }
-
-      // 将结果转换为字符串，如果是字符串需要加引号
-      let resultStr: string;
-      if (typeof funcResult === 'string') {
-        resultStr = `"${funcResult.replace(/"/g, '\\"')}"`;
-      } else if (funcResult === null || funcResult === undefined) {
-        resultStr = '""';
-      } else {
-        resultStr = String(funcResult);
-      }
-
-      result = result.substring(0, match.start) + resultStr + result.substring(match.end);
-    } catch (error) {
-      console.error(`Error executing function ${match.name}:`, error);
-      result = result.substring(0, match.start) + '""' + result.substring(match.end);
     }
   }
 
@@ -556,12 +635,11 @@ export function evalFormula(formula: string, rowdata: any = {}): any {
     return '';
   }
 
+  let processedFormula = formula;
   try {
     const functionMap = getAllFunctions();
-
     // 第一步：替换变量引用
-    let processedFormula = replaceVariables(formula, rowdata);
-
+    processedFormula = replaceVariables(formula, rowdata);
     // 第二步：替换函数调用（需要递归处理嵌套函数）
     let lastFormula = '';
     let iterations = 0;
@@ -576,13 +654,19 @@ export function evalFormula(formula: string, rowdata: any = {}): any {
 
     // 第四步：安全地执行计算
     // 使用 Function 构造函数而不是 eval，相对更安全
+    if (!isExpressionBalanced(processedFormula)) {
+      return '';
+    }
+    if (!processedFormula || processedFormula.trim() === '') {
+      return '';
+    }
     const result = new Function('return (' + processedFormula + ')')();
-
-    // 返回结果
-    return result;
+    // 返回结果，确保不是 undefined
+    return result !== undefined ? result : '';
   } catch (error) {
     console.error('Formula evaluation error:', error);
     console.error('Formula:', formula);
+    console.error('Processed formula:', processedFormula);
     return '';
   }
 }

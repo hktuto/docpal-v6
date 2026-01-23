@@ -12,7 +12,7 @@ export interface UseTableDataOptions {
 }
 function createMockData({ page }: any, tableName: string) {
   const mockData = []
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 10; i++) {
     mockData.push({
       id: i,
       name: `name${i}`,

@@ -29,6 +29,11 @@ const OPERATOR_PATTERN = /(>=|<=|==|!=|&&|\|\||[+\-*/><=,])/
 const VARIABLE_PATTERN = /\{[^}]+\}/g
 
 /**
+ * 不完整变量正则表达式：匹配 {字段名 但没有 } 的情况
+ */
+const INCOMPLETE_VARIABLE_PATTERN = /\{[^}]*$/
+
+/**
  * 函数名正则表达式：匹配函数名（字母/下划线开头，后跟字母/数字/下划线）
  */
 const FUNCTION_NAME_PATTERN = /[A-Za-z_][A-Za-z0-9_]*\(/g
@@ -216,6 +221,80 @@ export function validateFormula(formula: string, variables?: Variable[]): Valida
     return { valid: true }
   }
 
+  // 检查是否有不完整的变量（有 { 但没有 }）
+  // 需要跳过字符串字面量中的内容
+  let inString = false
+  let stringChar = ''
+  
+  for (let i = 0; i < formulaNoSpace.length; i++) {
+    const char = formulaNoSpace[i]
+    
+    if (!inString && (char === "'" || char === '"')) {
+      inString = true
+      stringChar = char
+      continue
+    }
+    
+    if (inString) {
+      if (char === '\\') {
+        i++ // 跳过转义字符
+        continue
+      }
+      if (char === stringChar) {
+        inString = false
+        stringChar = ''
+      }
+      continue
+    }
+    
+    // 不在字符串中，检查是否有不完整的变量
+    if (char === '{') {
+      // 查找对应的 }，需要跳过字符串字面量
+      let found = false
+      let inStr = false
+      let strChar = ''
+      
+      for (let j = i + 1; j < formulaNoSpace.length; j++) {
+        const nextChar = formulaNoSpace[j]
+        
+        if (!inStr && (nextChar === "'" || nextChar === '"')) {
+          inStr = true
+          strChar = nextChar
+          continue
+        }
+        
+        if (inStr) {
+          if (nextChar === '\\') {
+            j++ // 跳过转义字符
+            continue
+          }
+          if (nextChar === strChar) {
+            inStr = false
+            strChar = ''
+          }
+          continue
+        }
+        
+        // 不在字符串中
+        if (nextChar === '}') {
+          found = true
+          i = j // 跳过这个完整的变量
+          break
+        }
+      }
+      
+      // 如果没有找到对应的 }，说明变量不完整
+      if (!found) {
+        try {
+          const i18n = useNuxtApp().$i18n as any
+          return { valid: false, message: i18n.t('mdTable.formulaEditor.incompleteVariable', '变量格式不完整，缺少 }') }
+        } catch (e) {
+          return { valid: false, message: '变量格式不完整，缺少 }' }
+        }
+      }
+    }
+  }
+
   // 构建合法变量值的集合
   const validVariableValues = new Set<string>()
   if (variables) {
@@ -256,6 +335,58 @@ export function validateFormula(formula: string, variables?: Variable[]): Valida
 
     if (error) {
       return { valid: false, message: error }
+    }
+  }
+
+  // 额外检查：对于每个函数，检查是否有其他函数或变量紧跟在它后面（在同一层级）
+  // 这用于处理嵌套函数的情况，例如 IF(...)CONCAT() 中，IF 和 CONCAT 之间需要运算符
+  // 注意：这个检查只处理在第一次循环中因为元素在函数内部而被跳过的情况
+  for (let i = 0; i < elements.length; i++) {
+    const current = elements[i]
+    if (current.type !== 'function') {
+      continue
+    }
+
+    // 查找在当前函数外部且紧跟在它后面的第一个元素
+    let nextExternalElement: Element | null = null
+    for (let j = 0; j < elements.length; j++) {
+      if (i === j) {
+        continue
+      }
+      const other = elements[j]
+      // 如果 other 在 current 外部
+      if (other.startNoSpace > current.endNoSpace) {
+        // 找到第一个这样的元素（startNoSpace 最小）
+        if (!nextExternalElement || other.startNoSpace < nextExternalElement.startNoSpace) {
+          nextExternalElement = other
+        }
+      }
+    }
+
+    // 如果找到了紧跟在后面的外部元素，检查它们之间是否有运算符
+    // 但要避免重复检查：如果 nextExternalElement 在排序后紧跟在 current 后面（nextIndex === currentIndex + 1），
+    // 且它们之间没有元素在 current 内部，那么已经在第一次循环中检查过了
+    if (nextExternalElement) {
+      const currentIndex = i
+      const nextIndex = elements.indexOf(nextExternalElement)
+      
+      // 检查是否在第一次循环中已经检查过
+      // 如果 nextExternalElement 在排序后紧跟在 current 后面（nextIndex === currentIndex + 1），
+      // 那么已经在第一次循环中检查过了
+      const alreadyChecked = nextIndex === currentIndex + 1
+
+      // 如果没有检查过，则检查它们之间是否有运算符
+      if (!alreadyChecked) {
+        const betweenNoSpace = formulaNoSpace.substring(current.endNoSpace + 1, nextExternalElement.startNoSpace)
+        if (betweenNoSpace.length === 0 || !hasOperator(betweenNoSpace)) {
+          try {
+            const i18n = useNuxtApp().$i18n as any
+            return { valid: false, message: i18n.t('mdTable.formulaEditor.missingOperator') }
+          } catch (e) {
+            return { valid: false, message: '变量或函数之间缺少运算符' }
+          }
+        }
+      }
     }
   }
 

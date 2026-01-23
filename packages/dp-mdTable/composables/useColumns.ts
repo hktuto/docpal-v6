@@ -102,6 +102,9 @@ function createMockColumns(tableName: string) {
     }
     if (names[i] === 'phone') {
       type = ColumnFieldType.Formula
+      properties = {
+        formula: "ABS(DATEDIF(TODAY(), {startDate}, 'D'))"
+      }
     }
     if (names[i] === 'url') {
       type = ColumnFieldType.URL
