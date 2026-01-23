@@ -2244,44 +2244,6 @@
     "showSchema": "显示架构",
     "table": "表格"
   },
-  "mdTable": {
-    "formulaEditor": {
-      "inputLabel": "请输入公式",
-      "inputPlaceholder": "请输入公式, 例如: IF({field1} > 100, 'High', 'Low')",
-      "sidebarTitle": "选择字段或函数",
-      "emptyText": "请选择函数或变量以查看详情",
-      "description": "描述",
-      "usage": "用法",
-      "params": "参数",
-      "example": "例子",
-      "category": {
-        "variable": "变量",
-        "text": "文本函数",
-        "number": "数字函数",
-        "date": "日期函数",
-        "logical": "逻辑函数"
-      },
-      "learnMore": "了解更多",
-      "variableDescription": "变量: {label}",
-      "unrecognizedVariable": "未识别{0}",
-      "missingOperator": "变量或函数之间缺少运算符"
-    },
-    "countMethod": {
-      "statistics": "统计",
-      "none": "不展示",
-      "sum": "求和",
-      "max": "最大值",
-      "min": "最小值",
-      "avg": "平均值",
-      "count": "记录总数",
-      "empty": "未填写",
-      "filled": "已填写",
-      "unique": "唯一值",
-      "emptyPercent": "未填写占比",
-      "filledPercent": "已填写占比",
-      "getDataError": "获取表格数据失败"
-    }
-  },
   "masterTable_active": "激活主表格",
   "masterTable_create": "创建新主表格",
   "masterTable_createAddColumn": "添加新列",
@@ -2304,6 +2266,46 @@
   "masterTable_settingAddPermission": "添加权限",
   "masterTable_settingRemoveMsg": "Are you sure you want to remove the selected permission from the master table {name}?",
   "masterTable_settingRemoveSuccessMsg": "所选权限已从主表格 {name} 中删除。",
+  "mdTable": {
+    "countMethod": {
+      "avg": "平均值",
+      "count": "记录总数",
+      "empty": "未填写",
+      "emptyPercent": "未填写占比",
+      "filled": "已填写",
+      "filledPercent": "已填写占比",
+      "getDataError": "获取表格数据失败",
+      "max": "最大值",
+      "min": "最小值",
+      "none": "不展示",
+      "statistics": "统计",
+      "sum": "求和",
+      "unique": "唯一值"
+    },
+    "deleteRow": "删除这行",
+    "deleteSelectedRow": "删除这{count}行",
+    "formulaEditor": {
+      "category": {
+        "date": "日期函数",
+        "logical": "逻辑函数",
+        "number": "数字函数",
+        "text": "文本函数",
+        "variable": "变量"
+      },
+      "description": "描述",
+      "emptyText": "请选择函数或变量以查看详情",
+      "example": "例子",
+      "inputLabel": "请输入公式",
+      "inputPlaceholder": "请输入公式, 例如: IF({field1} > 100, 'High', 'Low')",
+      "learnMore": "了解更多",
+      "missingOperator": "变量或函数之间缺少运算符",
+      "params": "参数",
+      "sidebarTitle": "选择字段或函数",
+      "unrecognizedVariable": "未识别{0}",
+      "usage": "用法",
+      "variableDescription": "变量: {label}"
+    }
+  },
   "menu_master-table": "主表格",
   "menus_Virtual Folder": "虚拟文件夹",
   "menus_VirtualFolder": "虚拟文件夹",

@@ -57,6 +57,15 @@
       background: linear-gradient(to right, var(--vxe-ui-table-border-color) 50%, transparent);
     }
   }
+  
+}
+.col--checkbox {
+  .vxe-header-cell--wrapper:hover {
+    .vxe-cell--drag-handle {
+      display: none;
+    }
+  }
+
 }
 // handle drag over handler styles
 .vxe-cell--drag-handle {

@@ -91,9 +91,15 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     _columns[0].treeNode = !!groupBy.value && groupBy.value.length > 0
     _columns.unshift({
       type: 'checkbox',
-      width: 40
+      width: 40,
+      slots: {
+        checkbox: 'checkboxIndex'
+      },
+      headerAlign: 'center',
+      align: 'center'
     })
     return _columns.map((col) => {
+      if (col.type === 'checkbox') return col
       if (!col.type) col.type = ColumnFieldType.Text
       if (col.field === 'name') col.rowGroupNode = true
       const colConfig = { ...col, aggFunc: true, ...rendererManager.getColumnConfig(col.type as ColumnFieldType, col.properties, col.properties) }
@@ -157,6 +163,14 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       columnConfig: {
         drag: true
       },
+      columnDragConfig: {
+        disabledMethod ({ column }: any) {
+          if (column.type === 'checkbox') {
+            return true
+          }
+          return false
+        }
+      },
       // 虚拟滚动配置 - 性能优化
       // 注意：虚拟滚动与树形懒加载存在兼容性问题，当启用树形结构时，建议禁用虚拟滚动或使用固定行高
       virtualYConfig: {
@@ -197,6 +211,9 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
           order: 'asc'
         }
       },
+      menuConfig: {
+        enabled: true,
+      },
       // 行配置 - 固定行高确保虚拟滚动正常工作
       rowConfig: {
         keyField: rowId,
@@ -234,8 +251,8 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         showIcon: false,
         showStatus: false,
         ...((editConfig as any) || {}),
-        beforeEditMethod: ({ row }: any) => {
-          return row.isAggregate !== true
+        beforeEditMethod: ({ row, column }: any) => {
+          return row.isAggregate !== true && column.type !== 'checkbox'
         }
       }
     }

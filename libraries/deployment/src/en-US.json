@@ -2245,44 +2245,6 @@
     "showSchema": "Show schema",
     "table": "Table"
   },
-  "mdTable": {
-    "formulaEditor": {
-      "inputLabel": "Please enter the formula",
-      "inputPlaceholder": "Please enter the formula, for example: IF({field1} > 100, 'High', 'Low')",
-      "sidebarTitle": "Select a field or function",
-      "emptyText": "Please select a function or variable to view details",
-      "description": "Description",
-      "usage": "Usage",
-      "params": "Parameters",
-      "example": "Example",
-      "category": {
-        "variable": "Variables",
-        "text": "Text Functions",
-        "number": "Number Functions",
-        "date": "Date Functions",
-        "logical": "Logical Functions"
-      },
-      "learnMore": "Learn More",
-      "variableDescription": "Variable: {label}",
-      "unrecognizedVariable": "Unrecognized variable {0}",
-      "missingOperator": "Missing operator between variables or functions"
-    },
-    "countMethod": {
-      "statistics": "Statistics",
-      "none": "Don't Show",
-      "sum": "Sum",
-      "max": "Max",
-      "min": "Min",
-      "avg": "Average",
-      "count": "Total Records",
-      "empty": "Empty",
-      "filled": "Filled",
-      "unique": "Unique Values",
-      "emptyPercent": "Empty Percentage",
-      "filledPercent": "Filled Percentage",
-      "getDataError": "Failed to get table data"
-    }
-  },
   "masterTable_active": "Active Master Table",
   "masterTable_create": "Create New Master Table",
   "masterTable_createAddColumn": "Add New Column",
@@ -2305,6 +2267,46 @@
   "masterTable_settingAddPermission": "Add Permission",
   "masterTable_settingRemoveMsg": "Are you sure you want to remove the selected permission from the master table {name}?",
   "masterTable_settingRemoveSuccessMsg": "Selected permission has ben removed from the master table  {name}.",
+  "mdTable": {
+    "countMethod": {
+      "avg": "Average",
+      "count": "Total Records",
+      "empty": "Empty",
+      "emptyPercent": "Empty Percentage",
+      "filled": "Filled",
+      "filledPercent": "Filled Percentage",
+      "getDataError": "Failed to get table data",
+      "max": "Max",
+      "min": "Min",
+      "none": "Don't Show",
+      "statistics": "Statistics",
+      "sum": "Sum",
+      "unique": "Unique Values"
+    },
+    "deleteRow": "Delete this line",
+    "deleteSelectedRow": "Delete these {count} lines",
+    "formulaEditor": {
+      "category": {
+        "date": "Date Functions",
+        "logical": "Logical Functions",
+        "number": "Number Functions",
+        "text": "Text Functions",
+        "variable": "Variables"
+      },
+      "description": "Description",
+      "emptyText": "Please select a function or variable to view details",
+      "example": "Example",
+      "inputLabel": "Please enter the formula",
+      "inputPlaceholder": "Please enter the formula, for example: IF({field1} > 100, 'High', 'Low')",
+      "learnMore": "Learn More",
+      "missingOperator": "Missing operator between variables or functions",
+      "params": "Parameters",
+      "sidebarTitle": "Select a field or function",
+      "unrecognizedVariable": "Unrecognized variable {0}",
+      "usage": "Usage",
+      "variableDescription": "Variable: {label}"
+    }
+  },
   "menu_master-table": "Master Table",
   "menus_Virtual Folder": "Virtual Folder",
   "menus_VirtualFolder": "Virtual Folder",

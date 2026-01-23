@@ -23,6 +23,9 @@
       <div class="table-left-panel" style="max-height: 90vh; overflow-y: hidden">
         <vxe-grid ref="gridRef" v-bind="gridOptions" v-on="gridEvents" class="multi-dimension-grid">
           <!-- 插槽透传 -->
+          <template #checkboxIndex="checkboxProps">
+            <ToolsCheckboxIndex ref="checkboxIndexRef" :row="checkboxProps.row" :seq="checkboxProps.seq" :props="checkboxProps" />
+          </template>
           <template v-for="(_, slotName) in filteredSlots" #[slotName]="slotProps">
             <slot :name="slotName" v-bind="slotProps" />
           </template>
@@ -51,6 +54,7 @@
       </div>
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" @headerClick="handleHeaderClick" />
     </div>
+    <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" />
   </div>
 </template>
 
@@ -61,6 +65,7 @@ import { Plus } from '@element-plus/icons-vue'
 import { useTableData } from '../../composables/useTableData'
 import { useTableConfig } from '../../composables/useTableConfig'
 import Toolbar from './Toolbar.vue'
+import { onClickOutside } from '@vueuse/core'
 // 导入并注册自定义渲染器（必须在组件加载时执行）
 const slots = useSlots()
 
@@ -105,7 +110,7 @@ const {
 
 // Import update status composable
 const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
-
+const rightClickCellPopoverRef = ref()
 // 表格事件
 const gridEvents = computed<VxeGridListeners>(() => ({
   'edit-closed': async (params: any) => {
@@ -114,8 +119,8 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     // need to check if the row data is changed
     const newData = row[column.field]
     const oldData = tableData.value.find((item) => item.id === row.id)
-    if(oldData && oldData[column.field] === newData){
-      // no change 
+    if (oldData && oldData[column.field] === newData) {
+      // no change
       return
     }
     // Only send the row ID and the updated field value
@@ -124,10 +129,10 @@ const gridEvents = computed<VxeGridListeners>(() => ({
       id: row.id,
       [column.field]: row[column.field]
     }
-    
+
     // Set loading state
     setLoading(row.id, column.field)
-    
+
     try {
       await updateTableRow([updateData])
       // Set success state - will auto-clear after delay
@@ -137,7 +142,7 @@ const gridEvents = computed<VxeGridListeners>(() => ({
       setError(row.id, column.field, error instanceof Error ? error.message : 'Update failed')
       ElMessage.error('Failed to update cell')
     }
-    
+
     emit('edit-closed', params)
   },
   'cell-click': (params: any) => {
@@ -146,6 +151,11 @@ const gridEvents = computed<VxeGridListeners>(() => ({
   columnDragend({ newColumn, oldColumn, dragPos }) {
     console.log(`拖拽完成，被拖拽列：${oldColumn.field} 目标列：${newColumn.field} 目标位置：${dragPos}`)
     saveColumnOrder({ newColumn, oldColumn, dragPos })
+  },
+  'cell-menu': ({ row, column, $event }: any) => {
+    // 阻止默认行为
+    event.preventDefault()
+    rightClickCellPopoverRef.value.open($event.target, { row, column })
   }
 }))
 
@@ -243,13 +253,26 @@ const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) =>
   }
 }
 const mdTableHeaderPopoverRef = ref()
+const checkboxIndexRef = ref()
 provide('mdTableHeaderPopover', mdTableHeaderPopoverRef)
 // 暴露方法
 defineExpose({
   gridRef,
   columns
 })
-
+onClickOutside(
+  checkboxIndexRef,
+  (event) => {
+    const selectedRows = gridRef.value?.getCheckboxRecords() || []
+    if (selectedRows.length > 0) {
+      selectedRows.forEach((row) => {
+        row.checked = false
+      })
+    }
+    gridRef.value?.clearCheckboxRow()
+  },
+  { ignore: ['.col--checkbox'] }
+)
 // 监听 tableName 变化，重新加载数据
 </script>
 
@@ -421,7 +444,7 @@ defineExpose({
 // Cell update status animations
 :deep(.cell-update-loading) {
   position: relative;
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -438,7 +461,7 @@ defineExpose({
 :deep(.cell-update-success) {
   animation: successFlash 0.6s ease-out;
   position: relative;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -455,7 +478,7 @@ defineExpose({
 :deep(.cell-update-error) {
   animation: errorShake 0.5s ease-out;
   background-color: rgba(245, 108, 108, 0.1) !important;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -469,7 +492,8 @@ defineExpose({
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -502,7 +526,8 @@ defineExpose({
 }
 
 @keyframes errorShake {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(0);
   }
   25% {
