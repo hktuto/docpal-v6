@@ -854,10 +854,32 @@ export const useTableView = () => {
     }
 
     // 1. Check if field exists
-    const baseFieldName = column.field.includes('.') ? column.field.split('.')[0] : column.field
+    let baseFieldName = column.field.includes('.') ? column.field.split('.')[0] : column.field
     const existingField = getField(baseFieldName)
     const isUpdate = existingField !== undefined
     const isRelationType = column.type === RELATION_TYPE
+
+    // For new relation columns, generate proper field name: rel_[title]_to_[targetTable]
+    if (!isUpdate && isRelationType && column.properties?.relationTableId) {
+      // Get target table name to generate proper relation field name
+      const targetTableData = await query<CaseTableRecord>(
+        `SELECT name FROM case_tables WHERE id = $1`,
+        [column.properties.relationTableId]
+      )
+      if (targetTableData.length > 0) {
+        const targetTableName = targetTableData[0].name
+        // Sanitize names for use in field name
+        const sanitizedTitle = column.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '_')
+          .replace(/^_|_$/g, '')
+        const sanitizedTargetName = targetTableName
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '_')
+          .replace(/^_|_$/g, '')
+        baseFieldName = `rel_${sanitizedTitle}_to_${sanitizedTargetName}`
+      }
+    }
 
     // 2. Determine viewFieldName format
     let viewFieldName = baseFieldName
@@ -927,6 +949,18 @@ export const useTableView = () => {
     // Create the field record
     const newField = await addField(fieldData)
 
+    // For relation fields, addField adds baseFieldName to the view, but we need viewFieldName
+    // Fix the view to use the correct viewFieldName with display field
+    if (isRelationType && viewFieldName !== baseFieldName && currentView.value) {
+      const currentFields = [...currentView.value.fields]
+      const baseIndex = currentFields.indexOf(baseFieldName)
+      if (baseIndex !== -1) {
+        // Replace baseFieldName with viewFieldName
+        currentFields[baseIndex] = viewFieldName
+        await updateView(currentView.value.id, { fields: currentFields })
+      }
+    }
+
     return { field: newField, viewFieldName, oldViewFieldName }
   }
 
@@ -971,7 +1005,7 @@ export const useTableView = () => {
         fieldName: baseFieldName,
         fieldNameAlias: column.title,
         businessType: 'relation',
-        fieldType: 'uuid', // Stored as uuid, isArray=true handles the array nature
+        fieldType: 'uuid[]', // Must match the actual physical column type to avoid triggering type change
         isArray: true,
         isReference: true,
         relationTableId: column.properties.relationTableId,
@@ -1539,7 +1573,25 @@ export const useTableView = () => {
     } else {
       // Create new relation field
       const now = new Date()
-      relationFieldName = `rel_${sourceFieldName}`
+      
+      // Sanitize target table name for use in field name (lowercase, replace spaces/special chars with underscore)
+      const sanitizedTargetName = targetTable.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_|_$/g, '') // Remove leading/trailing underscores
+      
+      relationFieldName = `rel_${sourceFieldName}_to_${sanitizedTargetName}`
+      
+      // Check if a field with this name already exists
+      const existingFieldWithName = await query<CaseFieldRecord>(
+        `SELECT * FROM case_fields WHERE "tableId" = $1 AND "fieldName" = $2`,
+        [tableId.value, relationFieldName]
+      )
+      
+      if (existingFieldWithName.length > 0) {
+        throw new Error(`A relation field "${relationFieldName}" already exists. Cannot create duplicate relation from "${sourceField.fieldNameAlias}" to "${targetTable.name}".`)
+      }
+      
       const newFieldId = crypto.randomUUID()
 
       const displayStructure: FieldDisplayStructure = {

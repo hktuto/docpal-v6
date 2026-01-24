@@ -87,7 +87,7 @@ async function loadSuggestions() {
         
         return {
           ...suggestion,
-          selectedDisplayFieldId: fields[0]?.id || '', // Default to first field
+          selectedDisplayFieldId: suggestion.targetFieldId, // Default to matched field
           displayFieldOptions: fields,
           loading: false
         }
@@ -129,21 +129,59 @@ async function handleAccept(suggestion: SuggestionWithState) {
   
   suggestion.loading = true
   
-  try {
-    emit('accepted', {
-      suggestion,
-      displayFieldId: suggestion.selectedDisplayFieldId
-    })
+  // Emit the event - parent will call markSuggestionComplete or resetSuggestionLoading
+  emit('accepted', {
+    suggestion,
+    displayFieldId: suggestion.selectedDisplayFieldId
+  })
+}
+
+/**
+ * Called by parent after successful relation creation
+ * Removes the suggestion from the list and updates grouped suggestions
+ */
+function markSuggestionComplete(suggestionId: string, targetTableId?: string) {
+  // If targetTableId is provided, remove all suggestions for that table
+  if (targetTableId) {
+    suggestions.value = suggestions.value.filter(s => s.targetTableId !== targetTableId)
+    groupedSuggestions.value = groupedSuggestions.value.filter(g => g.targetTableId !== targetTableId)
+  } else {
+    // Remove only the specific suggestion
+    suggestions.value = suggestions.value.filter(s => s.id !== suggestionId)
     
-    // Remove from list after successful creation
-    await nextTick()
-    suggestions.value = suggestions.value.filter(s => s.id !== suggestion.id)
-    
-    if (suggestions.value.length === 0) {
-      popoverRef.value.close()
+    // Update grouped suggestions
+    for (const group of groupedSuggestions.value) {
+      group.suggestions = group.suggestions.filter(s => s.id !== suggestionId)
     }
-  } catch (error) {
+    groupedSuggestions.value = groupedSuggestions.value.filter(g => g.suggestions.length > 0)
+  }
+  
+  if (suggestions.value.length === 0) {
+    popoverRef.value.close()
+  }
+}
+
+/**
+ * Called by parent when relation creation fails
+ * Resets the loading state without removing the suggestion
+ */
+function resetSuggestionLoading(suggestionId: string) {
+  const suggestion = suggestions.value.find(s => s.id === suggestionId)
+  if (suggestion) {
     suggestion.loading = false
+  }
+}
+
+/**
+ * Remove all suggestions for a specific target table
+ * Called when a relation to that table is created (manually or via suggestion)
+ */
+function removeSuggestionsForTargetTable(targetTableId: string) {
+  suggestions.value = suggestions.value.filter(s => s.targetTableId !== targetTableId)
+  groupedSuggestions.value = groupedSuggestions.value.filter(g => g.targetTableId !== targetTableId)
+  
+  if (suggestions.value.length === 0) {
+    popoverRef.value.close()
   }
 }
 
@@ -181,7 +219,12 @@ function getMatchPercentage(suggestion: SuggestionItem): number {
   return Math.round((suggestion.matchCount / suggestion.totalCount) * 100)
 }
 
-defineExpose({ open })
+defineExpose({ 
+  open, 
+  markSuggestionComplete, 
+  resetSuggestionLoading,
+  removeSuggestionsForTargetTable 
+})
 </script>
 
 <template>

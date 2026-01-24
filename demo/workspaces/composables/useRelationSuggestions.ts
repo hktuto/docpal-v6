@@ -359,6 +359,19 @@ export function useRelationSuggestions() {
     )
   }
 
+  /**
+   * Dismiss all suggestions for a specific target table
+   * Used when a relation to that table is created (either from suggestion or manually)
+   */
+  async function dismissSuggestionsByTargetTable(sourceTableId: string, targetTableId: string): Promise<void> {
+    await query(
+      `UPDATE relation_suggestions 
+       SET status = 'dismissed', "updatedAt" = $1 
+       WHERE "sourceTableId" = $2 AND "targetTableId" = $3 AND status = 'pending'`,
+      [new Date(), sourceTableId, targetTableId]
+    )
+  }
+
   return {
     analyzeTableForRelations,
     getPendingSuggestions,
@@ -366,6 +379,7 @@ export function useRelationSuggestions() {
     acceptSuggestion,
     dismissSuggestion,
     dismissAllSuggestions,
+    dismissSuggestionsByTargetTable,
     ANALYSIS_ROW_LIMIT // Export for display purposes
   }
 }

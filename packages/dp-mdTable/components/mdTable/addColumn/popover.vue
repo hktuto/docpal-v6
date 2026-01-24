@@ -199,17 +199,10 @@ const handleSubmit = async () => {
           // User cancelled
           return
         }
-
-        // Type changed to/from Relation - need delete + create
-        if (oldType === RELATION_TYPE || newType === RELATION_TYPE) {
-          await deleteColumn((state.column as any).field)
-          emit('submit', columnConfig) // This triggers addColumn
-          resetForm()
-          handleClose()
-          return
-        }
       }
 
+      // Let useTableView handle type changes properly (including relation columns)
+      // This preserves relation data when only changing display field
       updateColumn(columnConfig.field, columnConfig as any)
     } else {
       emit('submit', columnConfig)

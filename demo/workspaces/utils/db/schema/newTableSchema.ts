@@ -30,7 +30,7 @@ export type FieldBusinessType = 'text' | 'number' | 'boolean' | 'date' | 'relati
 /**
  * Database field types (actual PostgreSQL types)
  */
-export type FieldDatabaseType = 'text' | 'integer' | 'numeric' | 'boolean' | 'timestamp' | 'uuid' | 'jsonb'
+export type FieldDatabaseType = 'text' | 'integer' | 'numeric' | 'boolean' | 'timestamp' | 'uuid' | 'uuid[]' | 'jsonb'
 
 /**
  * Display structure for frontend column configuration

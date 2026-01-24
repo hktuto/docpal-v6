@@ -24,7 +24,7 @@ const relationSuggestionsDialogRef = ref()
 const pendingRelationColumn = ref<any>(null)
 
 // Relation Suggestions
-const { getPendingSuggestions, acceptSuggestion, analyzeTableForRelations } = useRelationSuggestions()
+const { getPendingSuggestions, acceptSuggestion, analyzeTableForRelations, dismissSuggestionsByTargetTable } = useRelationSuggestions()
 const suggestionStatus = ref<string>('none')
 const suggestionCount = ref(0)
 const isAnalyzing = ref(false)
@@ -173,6 +173,15 @@ async function handleRelationCreated(data: {
       data.relationColumnName
     )
     
+    // Dismiss any pending suggestions for this target table
+    await dismissSuggestionsByTargetTable(props.dataTableId, data.targetTableId)
+    
+    // Remove suggestions from the dialog UI if it's open
+    relationSuggestionsDialogRef.value?.removeSuggestionsForTargetTable(data.targetTableId)
+    
+    // Reload suggestion status
+    await updateSuggestionStatusAfterChange()
+    
     // Success message is now handled by createRelationFromColumn
     pendingRelationColumn.value = null
   } catch (error) {
@@ -193,6 +202,7 @@ async function handleSuggestionAccepted(data: { suggestion: any; displayFieldId:
     
     if (sourceFieldData.length === 0) {
       ElMessage.error('Source field not found')
+      relationSuggestionsDialogRef.value?.resetSuggestionLoading(suggestion.id)
       return
     }
     
@@ -210,6 +220,12 @@ async function handleSuggestionAccepted(data: { suggestion: any; displayFieldId:
     // Mark suggestion as accepted
     await acceptSuggestion(suggestion.id)
     
+    // Dismiss all other suggestions for the same target table
+    await dismissSuggestionsByTargetTable(props.dataTableId, suggestion.targetTableId)
+    
+    // Mark suggestion complete and remove all suggestions for this target table from the dialog
+    relationSuggestionsDialogRef.value?.markSuggestionComplete(suggestion.id, suggestion.targetTableId)
+    
     // Reload suggestion status and check if we need to update table status
     await updateSuggestionStatusAfterChange()
     
@@ -217,6 +233,8 @@ async function handleSuggestionAccepted(data: { suggestion: any; displayFieldId:
   } catch (error) {
     console.error('Error creating relation from suggestion:', error)
     ElMessage.error('Failed to create relation')
+    // Reset the loading state on error
+    relationSuggestionsDialogRef.value?.resetSuggestionLoading(suggestion.id)
   }
 }
 
