@@ -9,11 +9,13 @@
   </UiPopoverDialog>
 </template>
 <script setup lang="ts">
+import { ElMessageBox } from 'element-plus'
 const { t } = useI18n()
-const { gridRef, clearCheckboxRow } = useMDTableInject()
+const { gridRef, clearCheckboxRow, deleteRow } = useMDTableInject()
+
 const popoverRef = ref()
-const selectedRows = ref([])
-const optionList = ref([])
+const selectedRows = ref<any>([])
+const optionList = ref<any>([])
 function open(target: HTMLElement, { row, column }: any) {
   // TODO 可能需要取消target高亮，并设置行高亮
   selectedRows.value = gridRef.value?.getCheckboxRecords() || []
@@ -32,9 +34,20 @@ function open(target: HTMLElement, { row, column }: any) {
       {
         label: t('mdTable.deleteSelectedRow', { count: selectedRows.value.length }),
         icon: 'Delete',
-        onClick: () => {
-          gridRef.value?.remove(selectedRows.value)
-          close()
+        onClick: async() => {
+          try{
+            await ElMessageBox.confirm(t('mdTable.deleteSelectedRow', { count: selectedRows.value.length }), {
+              confirmButtonClass: 'el-button el-button--warning',
+              confirmButtonText: t('common_confirmDelete'),
+              dangerouslyUseHTMLString: true
+            })
+            await deleteRow(selectedRows.value.map((item:any) => item.id))
+            gridRef.value?.remove(selectedRows.value)
+          } catch (error) {
+            console.error(error)
+          } finally {
+            close()
+          }
         }
       }
     ]
@@ -43,9 +56,20 @@ function open(target: HTMLElement, { row, column }: any) {
       {
         label: t('mdTable.deleteRow'),
         icon: 'Delete',
-        onClick: () => {
-          gridRef.value?.remove(row)
-          close()
+        onClick: async() => {
+          try{
+            await ElMessageBox.confirm(t('mdTable.deleteRow', { count: 1 }), {
+              confirmButtonClass: 'el-button el-button--warning',
+              confirmButtonText: t('common_confirmDelete'),
+              dangerouslyUseHTMLString: true
+            })
+            await deleteRow(row.id)
+            gridRef.value?.remove(row)
+          } catch (error) {
+            console.error(error)
+          } finally {
+            close()
+          }
         }
       }
     ]

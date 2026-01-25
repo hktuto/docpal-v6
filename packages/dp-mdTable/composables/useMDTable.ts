@@ -7,6 +7,7 @@ export interface mdTable {
   columns: any
   addColumn: any
   updateColumn: any
+  deleteRow: any,
   columnGroupRules: any
   gridRef: Ref<VxeGridInstance | undefined>
   clearCheckboxRow: () => void
@@ -34,7 +35,7 @@ export function useMDTable(props: any) {
     refresh: refreshTableData,
     addRow: addTableRow,
     updateRow: updateTableRow,
-    deleteRow: deleteTableRow,
+    deleteRow,
     getTableData,
     getAggChildData
   } = useTableDataContext()
@@ -73,6 +74,7 @@ export function useMDTable(props: any) {
     columns,
     addColumn,
     updateColumn,
+    deleteRow,
     columnGroupRules,
     gridRef,
     clearCheckboxRow

@@ -64,7 +64,7 @@ export interface TableDataContext {
   refresh: () => Promise<void>
   addRow: (row: any) => void
   updateRow: (rows: any[]) => void
-  deleteRow: (index: number) => void
+  deleteRow: (ids: string | string[]) => void
   getAggChildData?: (params?: any, aggregate?: { id: string; field: string; order: string }) => Promise<any[] | undefined>
 }
 

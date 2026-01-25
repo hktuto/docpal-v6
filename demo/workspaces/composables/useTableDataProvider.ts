@@ -348,15 +348,23 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
   /**
    * Delete a row by ID
    */
-  async function deleteRowById(id: string): Promise<void> {
+  async function deleteRow(ids: string | string[]): Promise<void> {
     if (!physicalTableName.value) {
       throw new Error('physicalTableName is required')
     }
-    if (!id) {
+    if (!ids) {
       throw new Error('row id is required')
     }
-    await query(`DELETE FROM "${physicalTableName.value}" WHERE id = $1`, [id])
-    tableData.value = tableData.value.filter((item) => item.id !== id)
+    if (Array.isArray(ids)) {
+      const sql = `DELETE FROM "${physicalTableName.value}" WHERE id = ANY($1)`
+      const queryValues = [ids]
+      await query(sql, queryValues)
+    } else {
+      const sql = `DELETE FROM "${physicalTableName.value}" WHERE id = $1`
+      const queryValues = [ids]
+      await query(sql, queryValues)
+    }
+    // tableData.value = tableData.value.filter((item) => item.id !== id)
   }
 
   // Provide TableDataContext using dp-mdTable's key
@@ -370,13 +378,7 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
     refresh,
     addRow,
     updateRow,
-    deleteRow: (index: number) => {
-      // dp-mdTable uses index-based delete, but we use id
-      const existingRow = tableData.value[index]
-      if (existingRow?.id) {
-        deleteRowById(existingRow.id)
-      }
-    }
+    deleteRow
   } as TableDataContext)
 
   return {
@@ -389,6 +391,6 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
     refresh,
     addRow,
     updateRow,
-    deleteRow: deleteRowById
+    deleteRow
   }
 }
