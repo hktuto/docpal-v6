@@ -23,7 +23,7 @@ async function handleGetPublicDocument(formData: any) {
   try {
     state.loading = true
     formData.token = route.query.token
-    state.fileRequestDetail = await clientApi.api.getNuxeoPublicFilerequest(formData).then((res) => res.data)
+    state.fileRequestDetail = await clientApi.api.getDmsPublicUploadRequest(formData).then((res) => res.data)
     state.fileRequestDetail.config = getFormData(state.fileRequestDetail.properties)
     state.uploadState = true
   } catch (error) {
@@ -54,7 +54,7 @@ async function handleWorkflow(fileList: any) {
     fileList.forEach((file: any) => {
       formData.append('files', file.raw)
     })
-    const res = await clientApi.api.postNuxeoPublicFilerequest(formData)
+    const res = await clientApi.api.postDmsPublicUploadRequestFiles(formData)
     if (res) router.push('/public/uploadTip?tip=uploadedSuccessfully')
   } catch (error) {}
   await new Promise<void>((resolve, reject) => {

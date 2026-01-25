@@ -25,7 +25,7 @@ async function handleSubmit() {
       status: state.setting.status
     }
     state.loading = true
-    await adminApi.api.putPolicyRetentions(params)
+    await clientApi.admin.putAdmindmsPolicyRetention(params)
     routerProvider?.message.success(t('tip_updateSuccessMsg', {
       modelName: t('filePolicies_RetentionPolicy'),
       name: null
@@ -42,8 +42,7 @@ async function handleSetStatus(isActive: 'A' | 'D') {
   if (!state.setting.id) return
   try {
     state.activeLoading = true
-    // TODO：Admin與client的接口是否可以共用
-    const result = await clientApi.api.patchDmsPolicyRetentionDocumentRetentiondocumentidStatusStatus(id, isActive).then((res) => res.data)
+    const result = await clientApi.admin.patchAdmindmsPolicyHoldHoldpolicyidStatusStatus(id, isActive).then((res) => res.data)
     if (!!result) {
       state.setting.status = isActive
       routerProvider?.message.success(t('dpMsg_success'))

@@ -15,7 +15,7 @@
       <template #documentType="{ row, index }">
         <el-tag class="el-icon--left table-tag" v-for="item in row.triggers">{{ item.documentType }}</el-tag>
       </template>
-      <template #periodNum="{ row, index }"> {{ row.periodNum }} {{ calDate(row.periodUnit) }} </template>
+      <template #periodNum="{ row, index }"> {{ row.periodNum }} {{ calDate(row.periodUnit) }}</template>
       <template #isAuto="{ row }">
         <el-icon v-if="row.isAuto" style="--color: var(--app-primary-color)"><Select /></el-icon>
         <el-icon v-else style="--color: #f56c6c">
@@ -44,7 +44,7 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-retention',
-  api: (pageParams: any) => adminApi.api.postPolicyRetentionsPage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => clientApi.admin.postAdmindmsPolicyRetentionListQuery({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'policyName', title: 'hp.policyName', fixed: 'left' },
     {
@@ -163,12 +163,13 @@ function handleDblclick(row: any) {
 async function handleActive(row: any, isActive: 'A' | 'D') {
   try {
     // TODO：Admin與client的接口是否可以共用
-    const result = await clientApi.api.patchDmsPolicyRetentionDocumentRetentiondocumentidStatusStatus(row.id, isActive).then((res) => res.data)
+    const result = await clientApi.admin.patchAdmindmsPolicyHoldHoldpolicyidStatusStatus(row.id, isActive).then((res) => res.data)
     if (!!result) {
       row.status = isActive
       routerProvider?.message.success(t('dpMsg_success'))
     }
-  } catch (error) {}
+  } catch (error) {
+  }
 }
 
 async function deleteItem(id: number) {
@@ -182,7 +183,7 @@ async function deleteItem(id: number) {
       return
     })
     if (action !== 'confirm') return
-    await adminApi.api.deletePolicyRetentionsId(id)
+    await clientApi.admin.deleteAdmindmsPolicyRetentionRetentionpolicyid(id).then(r => r.data)
     query({})
     routerProvider?.message.success(t('tip_deleteSuccessMessage', {
       modelName: t('filePolicies_RetentionPolicy'),
@@ -205,7 +206,7 @@ function handleAdd() {
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
-  let data: any = await adminApi.api.getPolicyRetentionsPageConditions().then((res) => res.data)
+  let data: any = await clientApi.admin.getAdmindmsPolicyRetentionListConditions().then((res) => res.data)
   data.forEach((item: any) => {
     if (item.label === 'Approval') {
       item.label = t('role.approver')

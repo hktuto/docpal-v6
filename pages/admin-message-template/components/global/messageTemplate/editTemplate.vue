@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElNotification } from 'element-plus'
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 
 const { id } = defineProps<{
   id: number
@@ -24,7 +24,7 @@ async function getData() {
 const languageOptions = ref<any[]>([])
 
 async function getLanguageOptions() {
-  const { data } = await adminApi.api.getWhatsappLanguageList() as any
+  const data = await clientApi.admin.getAdminext3rdmessageWhatsappLanguages().then(r => r.data)
   languageOptions.value = data.data
 }
 
