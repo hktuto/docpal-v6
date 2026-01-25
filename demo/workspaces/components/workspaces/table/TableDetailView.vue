@@ -26,6 +26,10 @@ const pendingRelationColumn = ref<any>(null)
 // Import Dialog
 const importToTableDialogRef = ref()
 
+// Drag-and-drop state for file import
+const isDraggingFile = ref(false)
+let dragCounter = 0 // Track nested drag events
+
 // Relation Suggestions
 const { getPendingSuggestions, acceptSuggestion, analyzeTableForRelations, dismissSuggestionsByTargetTable, dismissSuggestion } = useRelationSuggestions()
 const suggestionStatus = ref<string>('none')
@@ -57,6 +61,37 @@ async function loadTableData() {
   }
 }
 
+/**
+ * Load suggestions grouped by field name for column header badges
+ */
+async function loadSuggestionsByField() {
+  try {
+    const suggestions = await getPendingSuggestions(props.dataTableId)
+    
+    // Build map of fieldName -> suggestion count
+    const fieldMap = new Map<string, { count: number; fieldId: string }>()
+    for (const suggestion of suggestions) {
+      // Get field name for this field ID
+      const fieldData = await query<CaseFieldRecord>(
+        `SELECT "fieldName" FROM case_fields WHERE id = $1`,
+        [suggestion.sourceFieldId]
+      )
+      if (fieldData.length > 0) {
+        const fieldName = fieldData[0].fieldName
+        const existing = fieldMap.get(fieldName)
+        if (existing) {
+          existing.count++
+        } else {
+          fieldMap.set(fieldName, { count: 1, fieldId: suggestion.sourceFieldId })
+        }
+      }
+    }
+    suggestionsByField.value = fieldMap
+  } catch (error) {
+    console.error('Error loading suggestions by field:', error)
+  }
+}
+
 async function loadSuggestionStatus() {
   try {
     // Get table's suggestion status from database
@@ -73,26 +108,7 @@ async function loadSuggestionStatus() {
       if (currentStatus === 'ready') {
         const suggestions = await getPendingSuggestions(props.dataTableId)
         suggestionCount.value = suggestions.length
-        
-        // Build map of fieldName -> suggestion count
-        const fieldMap = new Map<string, { count: number; fieldId: string }>()
-        for (const suggestion of suggestions) {
-          // Get field name for this field ID
-          const fieldData = await query<CaseFieldRecord>(
-            `SELECT "fieldName" FROM case_fields WHERE id = $1`,
-            [suggestion.sourceFieldId]
-          )
-          if (fieldData.length > 0) {
-            const fieldName = fieldData[0].fieldName
-            const existing = fieldMap.get(fieldName)
-            if (existing) {
-              existing.count++
-            } else {
-              fieldMap.set(fieldName, { count: 1, fieldId: suggestion.sourceFieldId })
-            }
-          }
-        }
-        suggestionsByField.value = fieldMap
+        await loadSuggestionsByField()
       } else {
         suggestionsByField.value = new Map()
       }
@@ -144,6 +160,13 @@ async function runAnalysis(entityId: string) {
     // Update local state
     suggestionStatus.value = newStatus
     suggestionCount.value = suggestionsCount
+    
+    // Reload suggestionsByField to update column header badges
+    if (suggestionsCount > 0) {
+      await loadSuggestionsByField()
+    } else {
+      suggestionsByField.value = new Map()
+    }
     
     // Show notification if suggestions found
     if (suggestionsCount > 0) {
@@ -299,9 +322,9 @@ async function updateSuggestionStatusAfterChange() {
 provide('handleCreateRelation', handleCreateRelation)
 
 // Provide suggestion info for column headers
+// Note: We expose the ref directly so headers can establish reactive dependency
 provide('columnSuggestions', {
-  getSuggestionCount: (fieldName: string) => suggestionsByField.value.get(fieldName)?.count || 0,
-  getFieldId: (fieldName: string) => suggestionsByField.value.get(fieldName)?.fieldId || null,
+  suggestionsByField, // Expose the ref for reactivity
   openSuggestionPopover: (fieldName: string, fieldId: string, target: HTMLElement) => {
     columnSuggestionPopoverRef.value?.open(fieldId, fieldName, props.dataTableId, target)
   }
@@ -389,6 +412,68 @@ async function handleImportComplete(result: any) {
   }
 }
 
+// Drag-and-drop file import handlers
+function isValidExcelFile(file: File): boolean {
+  const validTypes = [
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel',
+    'text/csv'
+  ]
+  const validExtensions = ['xlsx', 'xls', 'csv']
+  const extension = file.name.split('.').pop()?.toLowerCase()
+  return validTypes.includes(file.type) || validExtensions.includes(extension || '')
+}
+
+function handleDragEnter(e: DragEvent) {
+  e.preventDefault()
+  dragCounter++
+  
+  // Check if files are being dragged
+  if (e.dataTransfer?.types.includes('Files')) {
+    isDraggingFile.value = true
+  }
+}
+
+function handleDragOver(e: DragEvent) {
+  e.preventDefault()
+  // Needed to allow drop
+}
+
+function handleDragLeave(e: DragEvent) {
+  e.preventDefault()
+  dragCounter--
+  
+  // Only hide overlay when all drag events have left
+  if (dragCounter === 0) {
+    isDraggingFile.value = false
+  }
+}
+
+function handleDrop(e: DragEvent) {
+  e.preventDefault()
+  isDraggingFile.value = false
+  dragCounter = 0
+  
+  const files = e.dataTransfer?.files
+  if (!files || files.length === 0) return
+  
+  const file = files[0]
+  
+  if (!isValidExcelFile(file)) {
+    ElMessage.warning('Please drop an Excel (.xlsx, .xls) or CSV file')
+    return
+  }
+  
+  // Open import dialog with the dropped file
+  importToTableDialogRef.value?.openWithFile(file, {
+    physicalTableName: tableView.physicalTableName,
+    fields: tableView.fields,
+    query,
+    tableDisplayName: props.menuItem?.label || 'Table',
+    tableIdValue: props.dataTableId
+  })
+}
+
 watch(
   () => props.dataTableId,
   async () => {
@@ -398,7 +483,24 @@ watch(
 </script>
 
 <template>
-  <div class="table-detail-view">
+  <div 
+    class="table-detail-view"
+    @dragenter="handleDragEnter"
+    @dragover="handleDragOver"
+    @dragleave="handleDragLeave"
+    @drop="handleDrop"
+  >
+    <!-- Drop overlay for file import -->
+    <Transition name="fade">
+      <div v-if="isDraggingFile" class="drop-overlay">
+        <div class="drop-content">
+          <Icon name="lucide:file-spreadsheet" class="drop-icon" />
+          <div class="drop-text">Drop Excel file to import</div>
+          <div class="drop-hint">Supports .xlsx, .xls, .csv</div>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Main Content Area -->
     <div class="table-main">
       <div v-if="isLoading" class="loading-state">
@@ -498,6 +600,7 @@ watch(
   display: flex;
   height: 100%;
   overflow: hidden;
+  position: relative; // Needed for drop overlay positioning
 }
 
 .table-main {
@@ -594,5 +697,58 @@ watch(
   p {
     margin: 0;
   }
+}
+
+// Drop overlay for file import
+.drop-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(var(--el-color-primary-rgb), 0.1);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px dashed var(--el-color-primary);
+  border-radius: var(--app-border-radius);
+  pointer-events: none;
+}
+
+.drop-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--app-space-m);
+  padding: var(--app-space-xl);
+  background: var(--el-bg-color);
+  border-radius: var(--app-border-radius);
+  box-shadow: var(--el-box-shadow-light);
+}
+
+.drop-icon {
+  font-size: 64px;
+  color: var(--el-color-primary);
+}
+
+.drop-text {
+  font-size: var(--app-font-size-l);
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
+
+.drop-hint {
+  font-size: var(--app-font-size-s);
+  color: var(--el-text-color-secondary);
+}
+
+// Fade transition for drop overlay
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

@@ -40,9 +40,9 @@ const triggerRef = ref()
 const suggestionBadgeRef = ref()
 
 // Inject column suggestions context (provided by TableDetailView)
+// We receive the ref directly to maintain reactivity
 const columnSuggestions = inject<{
-  getSuggestionCount: (fieldName: string) => number
-  getFieldId: (fieldName: string) => string | null
+  suggestionsByField: Ref<Map<string, { count: number; fieldId: string }>>
   openSuggestionPopover: (fieldName: string, fieldId: string, target: HTMLElement) => void
 } | null>('columnSuggestions', null)
 
@@ -52,18 +52,20 @@ const headerAlign = computed(() => {
 
 /**
  * Get suggestion count for this column
+ * Accesses suggestionsByField.value directly to maintain reactivity
  */
 const suggestionCount = computed(() => {
-
   if (!columnSuggestions || !props.column?.field) return 0
+  
   // Don't show suggestions for virtual columns or relation columns
   const field = props.column.field
   if (field.includes('.')) return 0 // Virtual column
   const columnType = props.column?.type || props.column?.cellRender?.name
   if (columnType === 14 || columnType === 'MagicLink') return 0 // Already a relation
-  console.log('suggestionCount', field, columnType, columnSuggestions.getSuggestionCount(field))
   
-  return columnSuggestions.getSuggestionCount(field)
+  // Access the ref's value directly to establish reactive dependency
+  const suggestion = columnSuggestions.suggestionsByField.value.get(field)
+  return suggestion?.count || 0
 })
 
 /**
@@ -72,12 +74,12 @@ const suggestionCount = computed(() => {
 function handleSuggestionClick() {
   if (!columnSuggestions || !props.column?.field) return
   
-  const fieldId = columnSuggestions.getFieldId(props.column.field)
-  if (!fieldId) return
+  const suggestion = columnSuggestions.suggestionsByField.value.get(props.column.field)
+  if (!suggestion?.fieldId) return
   
   columnSuggestions.openSuggestionPopover(
     props.column.field,
-    fieldId,
+    suggestion.fieldId,
     suggestionBadgeRef.value
   )
 }
