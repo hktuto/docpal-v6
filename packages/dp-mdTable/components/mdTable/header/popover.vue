@@ -1,6 +1,6 @@
 <template>
   <UiPopoverDialog ref="popoverRef" :width="200">
-    <div v-for="item in list" :key="item.label" :class="`mdTableHeader-item mdTableHeader-${item.type}`" @click="handleClick(item.type)">
+    <div v-for="item in filteredList" :key="item.label" :class="`mdTableHeader-item mdTableHeader-${item.type}`" @click="handleClick(item.type)">
       <Icon :name="item.icon" />
       <span>{{ item.label }}</span>
     </div>
@@ -9,30 +9,61 @@
 <script setup lang="ts">
 const emits = defineEmits(['headerClick'])
 let triggerEl: HTMLElement | null = null
-let column: any = null
-const list = [
+let currentColumn: any = null
+
+const baseList = [
   { label: 'Column Setting', icon: 'lucide:square-pen', type: 'edit' },
-  // { label: 'Edit Description', icon: '/icons/edit.svg', type: 'editDescription' },
-  // { label: '设置列权限', icon: '/icons/permission.svg', type: 'permission' },
-  // { label: 'Insert Column to Left', icon: 'lucide:panel-left-close', type: 'insertLeft' },
   { label: 'Insert Column ', icon: 'lucide:panel-right-close', type: 'insertRight' },
   { label: 'Create Relation', icon: 'lucide:link', type: 'createRelation' },
-  // { label: 'Create Relation to Other Table', icon: 'lucide:link-2', type: 'createReverseRelation' },
-  // { label: '复制列', icon: '/icons/copy.svg', type: 'copy' },
-  // { label: 'Sort A-Z', icon: '/icons/sort-az.svg', type: 'sortAz' },
-  // { label: 'Sort Z-A', icon: '/icons/sort-za.svg', type: 'sortZa' },
-  // { label: 'Hide Column', icon: 'lucide:eye-off', type: 'hide' },
   { label: 'Delete Column', icon: 'lucide:trash-2', type: 'delete' }
 ]
+
+// Relation-specific menu items
+const relationMenuItems = [
+  { label: 'Add Virtual Column', icon: 'lucide:columns-3', type: 'addVirtualColumn' }
+]
+
+// Filter menu items based on column type
+const filteredList = computed(() => {
+  if (!currentColumn) return baseList
+  
+  const columnType = currentColumn.type
+  
+  // Check if it's a relation column (type 14 = MagicLink)
+  const isRelationColumn = columnType === 14 || 
+    columnType === 'MagicLink' ||
+    currentColumn.properties?.relationTableId
+  
+  // Check if it's a virtual column (type 15 = VirtualColumn or has dot notation)
+  const isVirtualColumn = columnType === 15 || 
+    columnType === 'VirtualColumn' ||
+    currentColumn.field?.includes('.')
+  
+  let items = [...baseList]
+  
+  // Add relation-specific items for relation columns (but not virtual columns)
+  if (isRelationColumn && !isVirtualColumn) {
+    // Insert after 'Column Setting'
+    items.splice(1, 0, ...relationMenuItems)
+  }
+  
+  // Remove 'Create Relation' for virtual columns (they can't have relations)
+  if (isVirtualColumn) {
+    items = items.filter(item => item.type !== 'createRelation')
+  }
+  
+  return items
+})
+
 const popoverRef = ref()
 function open(_triggerEl: HTMLElement | null, _column: any) {
   triggerEl = _triggerEl
-  column = _column
+  currentColumn = _column
   popoverRef.value.open(triggerEl)
 }
 function handleClick(type: string) {
   popoverRef.value.close()
-  emits('headerClick', type, triggerEl, column)
+  emits('headerClick', type, triggerEl, currentColumn)
 }
 defineExpose({
   open

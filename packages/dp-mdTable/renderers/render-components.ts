@@ -14,6 +14,7 @@ import { MultiTextView, MultiTextEdit } from './components/MultiText/view'
 import { TextView, TextEdit } from './components/text/view'
 import { UserView } from './components/user/view'
 import { RelationView, RelationEdit } from './components/relation/view'
+import { VirtualColumnView, VirtualColumnEdit } from './components/VirtualColumn/view'
 import { FormulaView } from './components/formula'
 import { TreeNode } from './components/treeNode'
 // 分离模式组件配置
@@ -180,6 +181,18 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
     },
     view: {
       render: (params: any) => TreeNode(params, RelationView)
+    }
+  },
+  VirtualColumn: {
+    titleConfig: {
+      icon: 'lucide:columns-3',
+      content: 'Virtual Column'
+    },
+    view: {
+      render: (params: any) => TreeNode(params, VirtualColumnView)
+    },
+    edit: {
+      render: VirtualColumnEdit
     }
   },
   Member: {

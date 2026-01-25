@@ -1,0 +1,152 @@
+---
+description: dp-mdTable package - dynamic table rendering with relations and virtual columns
+globs: packages/dp-mdTable/**/*
+alwaysApply: false
+---
+
+# dp-mdTable Package Rules
+
+## Overview
+
+`dp-mdTable` is a dynamic table component built on vxe-table. Read the full architecture documentation at `/packages/dp-mdTable/docs/ARCHITECTURE.md`.
+
+## Key Concepts
+
+### Column Types (ColumnFieldType enum)
+
+Located in `packages/dp-mdTable/types/column-types.ts`:
+
+- **MagicLink (14)**: Relation column linking to another table. Has `displayFieldNames` array.
+- **VirtualColumn (15)**: Derived column from a MagicLink showing a single field.
+- Other types: Text (19), Number (2), SingleSelect (3), MultiSelect (4), DateTime (5), etc.
+
+### Provider/Consumer Architecture
+
+The package uses Vue `provide/inject`:
+
+1. **Consumer provides contexts** (e.g., in `demo/workspaces/composables/`):
+   - `ColumnContextKey` - column operations
+   - `TableDataContextKey` - data CRUD
+   - `ViewContextKey` - view configurations
+   - `FieldContextKey` - field schema
+
+2. **Package consumes contexts** via:
+   - `useColumnsContext()` - get column context
+   - `useTableDataContext()` - get data context
+   - `useMDTableInject()` - get table context
+
+## Common Patterns
+
+### Adding a Column Type
+
+1. Add to `ColumnFieldType` enum in `types/column-types.ts`
+2. Create renderer in `renderers/components/YourType/view.ts`
+3. Register in `renderers/render-components.ts`
+4. Add settings component in `components/mdTable/addColumn/field/YourType.vue`
+5. Add to `columnBasic.ts` with `isBasic` or `hidden` flags
+
+### Relation vs Virtual Column
+
+```typescript
+// MagicLink (type 14) - One column showing all display fields
+{
+  type: ColumnFieldType.MagicLink,
+  properties: {
+    relationTableId: 'uuid',
+    displayFieldNames: ['name', 'email', 'phone']  // All shown combined
+  }
+}
+
+// VirtualColumn (type 15) - Separate column for ONE field
+{
+  type: ColumnFieldType.VirtualColumn,
+  properties: {
+    sourceRelationField: 'rel_company',  // Parent relation
+    displayFieldName: 'email'            // Single field to show
+  }
+}
+```
+
+### Column Settings UI
+
+Each column type has settings in `components/mdTable/addColumn/field/`:
+- Receives `formData` prop with column properties
+- Uses `columnContext` for table operations
+- Emits changes back via v-model
+
+### Renderer Structure
+
+```typescript
+// View renderer (display mode)
+export const MyTypeView = ({ options, params }: ViewRenderFunctionParams) => {
+  const { row, column } = params
+  const value = row[column.field]
+  return h('div', { class: 'cell' }, value)
+}
+
+// Edit renderer (input mode)
+export const MyTypeEdit = ({ options, params }: EditRenderFunctionParams) => {
+  // Return editable component
+}
+```
+
+## Files Reference
+
+| File | Purpose |
+|------|---------|
+| `composables/useMDTable.ts` | Main composable, provides MdTableContextKey |
+| `composables/useColumns.ts` | Column context interface and operations |
+| `types/column-types.ts` | ColumnFieldType enum and interfaces |
+| `renderers/registry-manager.ts` | Registers renderers with vxe-table |
+| `renderers/render-components.ts` | Maps types to renderer configs |
+| `components/mdTable/index.vue` | Main table component |
+| `components/mdTable/addColumn/popover.vue` | Add/edit column dialog |
+| `components/mdTable/addColumn/columnBasic.ts` | Column type definitions for UI |
+
+## Consumer Implementation (demo/workspaces)
+
+The actual data layer is in `demo/workspaces/composables/`:
+
+| File | Purpose |
+|------|---------|
+| `useTableView.ts` | Main orchestrator, combines all composables |
+| `useTableFields.ts` | CaseFieldRecord CRUD (database schema) |
+| `useTableViews.ts` | CaseViewRecord CRUD (display configs) |
+| `useTableColumns.ts` | Field→Column mapping, virtual columns |
+| `useTableDataProvider.ts` | Row CRUD, relation data fetching |
+
+### Database Schema
+
+```typescript
+// CaseFieldRecord - field definition
+{
+  fieldName: string,           // Unique identifier
+  fieldNameAlias: string,      // Display name
+  businessType: 'text' | 'number' | 'relation' | ...,
+  displayFieldNames?: string[], // For relations: fields to fetch
+  relationTableId?: string      // For relations: target table
+}
+
+// CaseViewRecord - view configuration
+{
+  fields: string[],  // Ordered field names (or "rel.field" for virtual)
+  filters?: JSON,
+  sorts?: JSON,
+  groups?: JSON
+}
+```
+
+## Best Practices
+
+1. **Always use field names, not IDs** for `displayFieldNames` array
+2. **Virtual columns use dot notation** in view.fields: `"relationFieldName.displayFieldName"`
+3. **Column properties** should be passed through `column.properties` object
+4. **Use existing contexts** - don't create new provide/inject unless necessary
+5. **Renderer functions** receive `options` (column settings) and `params` (row/column/table)
+
+## Debugging
+
+- Check browser console for `useColumnsContext()` errors
+- Relation data issues: check `fetchRelationDisplayData()` in `useTableDataProvider.ts`
+- Column not rendering: verify renderer registered in `render-components.ts`
+- Virtual column issues: check `sourceRelationField` and `displayFieldName` in properties

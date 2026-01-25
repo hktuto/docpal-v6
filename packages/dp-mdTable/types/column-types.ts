@@ -16,7 +16,7 @@ export enum ColumnFieldType {
   Rating = 12,         // 评分
   Member = 13,         // 成员
   MagicLink = 14,      // 神奇引用/关联
-  // MagicLookUp = 15,    // 神奇引用/查找
+  VirtualColumn = 15,  // 虚拟列 - 从关联字段提取的单独显示列
   Formula = 16,        // 智能公式
   Currency = 17,       // 货币
   Percent = 18,        // 百分比
@@ -130,4 +130,15 @@ export interface CurrencyOptions {
   precision?: number
   step?: number
   placeholder?: string
+}
+
+export interface VirtualColumnOptions {
+  sourceRelationField: string      // Parent relation field name (e.g., "rel_company")
+  displayFieldName: string         // Display field from target table (e.g., "email")
+  relationTableId?: string         // Target table ID for reference
+  showUniqueOnly?: boolean         // Deduplicate values when multiple relations
+  displayMode?: 'text' | 'chips' | 'list' | 'link'  // How to display values
+  aggregation?: 'first' | 'last' | 'all' | 'count'  // How to aggregate multiple values
+  linkToRecord?: boolean           // Click to navigate to related record
+  separator?: string               // Separator for text mode (default: ", ")
 }

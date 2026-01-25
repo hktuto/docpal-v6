@@ -1,6 +1,27 @@
 <template>
   <div :class="{ 'md-table-header': true, ellipsis: true, [headerAlign]: true }" @contextmenu.prevent="handleContextMenu">
-    <div class="title">{{ column.title }}</div>
+    <!-- Column type indicator -->
+    <div v-if="columnIndicator" class="column-indicator" :title="columnIndicator.tooltip">
+      <Icon :name="columnIndicator.icon" :class="columnIndicator.class" />
+    </div>
+    <div class="title">
+      {{ column.title }}
+
+      <div 
+        v-if="suggestionCount > 0" 
+        class="suggestion-badge"
+        :title="`${suggestionCount} relation suggestion${suggestionCount > 1 ? 's' : ''} available`"
+        @click.stop="handleSuggestionClick"
+        ref="suggestionBadgeRef"
+      >
+        <Icon name="lucide:sparkles" class="sparkle-icon" />
+        <span class="badge-count">{{ suggestionCount }}</span>
+      </div>
+    </div>
+    
+    <!-- Suggestion badge -->
+    
+    
     <div class="mdTableHeader-trigger" ref="triggerRef" @click="handleClick(triggerRef)">
       <SvgIcon src="/icons/tools/more.svg" />
     </div>
@@ -16,9 +37,78 @@ const props = defineProps<{
 const mdTableHeaderPopover = inject('mdTableHeaderPopover')
 const mdTable = useMDTableInject()
 const triggerRef = ref()
+const suggestionBadgeRef = ref()
+
+// Inject column suggestions context (provided by TableDetailView)
+const columnSuggestions = inject<{
+  getSuggestionCount: (fieldName: string) => number
+  getFieldId: (fieldName: string) => string | null
+  openSuggestionPopover: (fieldName: string, fieldId: string, target: HTMLElement) => void
+} | null>('columnSuggestions', null)
 
 const headerAlign = computed(() => {
   return props.column.headerAlign || 'left'
+})
+
+/**
+ * Get suggestion count for this column
+ */
+const suggestionCount = computed(() => {
+
+  if (!columnSuggestions || !props.column?.field) return 0
+  // Don't show suggestions for virtual columns or relation columns
+  const field = props.column.field
+  if (field.includes('.')) return 0 // Virtual column
+  const columnType = props.column?.type || props.column?.cellRender?.name
+  if (columnType === 14 || columnType === 'MagicLink') return 0 // Already a relation
+  console.log('suggestionCount', field, columnType, columnSuggestions.getSuggestionCount(field))
+  
+  return columnSuggestions.getSuggestionCount(field)
+})
+
+/**
+ * Handle click on suggestion badge
+ */
+function handleSuggestionClick() {
+  if (!columnSuggestions || !props.column?.field) return
+  
+  const fieldId = columnSuggestions.getFieldId(props.column.field)
+  if (!fieldId) return
+  
+  columnSuggestions.openSuggestionPopover(
+    props.column.field,
+    fieldId,
+    suggestionBadgeRef.value
+  )
+}
+
+/**
+ * Compute column indicator (icon + tooltip) based on column type
+ */
+const columnIndicator = computed(() => {
+  const field = props.column?.field || ''
+  const properties = props.column?.properties || {}
+  const columnType = props.column?.type || props.column?.cellRender?.name
+  
+  // Check if it's a virtual column (type 15 or has dot notation like "rel_company.email")
+  if (columnType === 15 || columnType === 'VirtualColumn' || field.includes('.')) {
+    return {
+      icon: 'lucide:columns-3',
+      tooltip: 'Virtual Column - Display field from relation',
+      class: 'indicator-virtual'
+    }
+  }
+  
+  // Check if it's a relation column (type 14 = MagicLink/Relation)
+  if (columnType === 14 || columnType === 'MagicLink' || properties?.relationTableId) {
+    return {
+      icon: 'lucide:link',
+      tooltip: 'Relation Column',
+      class: 'indicator-relation'
+    }
+  }
+  
+  return null
 })
 
 /**
@@ -76,6 +166,21 @@ function handleClick(htmlElement: HTMLElement) {
       text-overflow: ellipsis;
       white-space: nowrap;
       width: 100%;
+      padding-right: var(--app-space-s);
+    }
+  }
+  .column-indicator {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    font-size: 14px;
+    
+    .indicator-relation {
+      color: var(--el-color-primary);
+    }
+    
+    .indicator-virtual {
+      color: var(--el-color-warning);
     }
   }
   .title {
@@ -84,6 +189,36 @@ function handleClick(htmlElement: HTMLElement) {
     text-align: var(--align);
     line-height: 1.2;
   }
+  .suggestion-badge {
+
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 6px;
+    background: var(--app-accent-color);
+    border-radius: 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    
+    .sparkle-icon {
+      font-size: 12px;
+      color: white;
+    }
+    
+    .badge-count {
+      font-size: 11px;
+      font-weight: 600;
+      color: white;
+      line-height: 1;
+    }
+    
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 2px 8px rgba(var(--el-color-warning-rgb), 0.4);
+    }
+  }
+  
   .mdTableHeader-trigger {
     position: absolute;
     top: 0;

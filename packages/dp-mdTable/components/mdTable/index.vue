@@ -53,6 +53,7 @@
         />
       </div>
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" @headerClick="handleHeaderClick" />
+      <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
     </div>
     <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" />
   </div>
@@ -64,7 +65,9 @@ import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { useTableData } from '../../composables/useTableData'
 import { useTableConfig } from '../../composables/useTableConfig'
+import { ColumnContextKey } from '../../composables/useColumns'
 import Toolbar from './Toolbar.vue'
+import VirtualColumnDialog from './addColumn/VirtualColumnDialog.vue'
 import { onClickOutside } from '@vueuse/core'
 // 导入并注册自定义渲染器（必须在组件加载时执行）
 const slots = useSlots()
@@ -105,7 +108,8 @@ const {
   refreshTableData,
   deleteColumn,
   saveColumnOrder,
-  updateTableRow
+  updateTableRow,
+  addVirtualColumn
 } = useMDTable(props)
 
 // Import update status composable
@@ -241,6 +245,9 @@ const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) =>
         console.warn('handleCreateRelation not provided')
       }
       break
+    case 'addVirtualColumn':
+      virtualColumnDialogRef.value?.open(triggerEl, column)
+      break
     case 'editDescription':
       break
     case 'permission':
@@ -253,8 +260,25 @@ const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) =>
   }
 }
 const mdTableHeaderPopoverRef = ref()
+const virtualColumnDialogRef = ref()
 const checkboxIndexRef = ref()
 provide('mdTableHeaderPopover', mdTableHeaderPopoverRef)
+
+// Handle virtual column selection from dialog
+const handleVirtualColumnSelect = async (relationFieldName: string, displayFieldName: string) => {
+  // Use the injected addVirtualColumn or fall back to context
+  
+  if (addVirtualColumn) {
+    try {
+      await addVirtualColumn(relationFieldName, displayFieldName)
+      ElMessage.success(`Virtual column "${displayFieldName}" added`)
+    } catch (error: any) {
+      ElMessage.error(error.message || 'Failed to add virtual column')
+    }
+  } else {
+    console.warn('addVirtualColumn not available in context')
+  }
+}
 // 暴露方法
 defineExpose({
   gridRef,

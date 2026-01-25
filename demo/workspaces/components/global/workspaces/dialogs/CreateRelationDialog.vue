@@ -93,18 +93,21 @@
           </div>
         </el-form-item>
 
-        <el-form-item label="Display Column" prop="displayFieldId">
+        <el-form-item label="Display Columns" prop="displayFieldNames">
           <el-select
-            v-model="formData.displayFieldId"
-            placeholder="Select Column to display"
+            v-model="formData.displayFieldNames"
+            placeholder="Select columns to display"
             style="width: 100%"
+            multiple
+            collapse-tags
+            collapse-tags-tooltip
             :disabled="!formData.targetTableId"
           >
             <el-option
               v-for="field in targetFields"
-              :key="field.id"
+              :key="field.fieldName"
               :label="field.fieldNameAlias"
-              :value="field.id"
+              :value="field.fieldName"
             >
               <div class="field-option">
                 <span>{{ field.fieldNameAlias }}</span>
@@ -113,7 +116,7 @@
             </el-option>
           </el-select>
           <div class="field-hint">
-            This field from the target table will be shown in the relation column
+            These fields from the target table will be shown in the relation column
           </div>
         </el-form-item>
 
@@ -190,7 +193,7 @@ const emit = defineEmits<{
   created: [data: {
     targetTableId: string
     targetFieldId: string
-    displayFieldId: string
+    displayFieldNames: string[]  // Array of field names for multiple display fields
     relationColumnName: string
   }]
 }>()
@@ -209,19 +212,29 @@ const suggestions = ref<any[]>([])
 const formData = reactive({
   targetTableId: '',
   targetFieldId: '',
-  displayFieldId: '',
+  displayFieldNames: [] as string[],  // Array of field names for multiple display fields
   relationColumnName: '',
 })
 
 const rules: FormRules = {
   targetTableId: [{ required: true, message: 'Please select a target table', trigger: 'change' }],
   targetFieldId: [{ required: true, message: 'Please select a match field', trigger: 'change' }],
-  displayFieldId: [{ required: true, message: 'Please select a display field', trigger: 'change' }],
+  displayFieldNames: [{ 
+    required: true, 
+    validator: (_rule: any, value: string[], callback: any) => {
+      if (!value || value.length === 0) {
+        callback(new Error('Please select at least one display field'))
+      } else {
+        callback()
+      }
+    },
+    trigger: 'change' 
+  }],
   relationColumnName: [{ required: true, message: 'Please enter a column name', trigger: 'blur' }]
 }
 
 const canCreate = computed(() => {
-  return formData.targetTableId && formData.targetFieldId && formData.displayFieldId && formData.relationColumnName && !loading.value
+  return formData.targetTableId && formData.targetFieldId && formData.displayFieldNames.length > 0 && formData.relationColumnName && !loading.value
 })
 
 async function open(column: any, tableId: string, tableName: string) {
@@ -267,10 +280,15 @@ async function applySuggestion(suggestion: any) {
   // Auto-fill form with suggestion values
   formData.targetTableId = suggestion.targetTableId
   formData.targetFieldId = suggestion.targetFieldId
-  formData.displayFieldId = suggestion.targetFieldId // Use match field as display field
   
-  // Load target fields
+  // Load target fields first
   await handleTableChange()
+  
+  // Use matched field name as default display field
+  const matchedField = targetFields.value.find(f => f.id === suggestion.targetFieldId)
+  if (matchedField) {
+    formData.displayFieldNames = [matchedField.fieldName]
+  }
   
   // Remove this suggestion from the list
   suggestions.value = suggestions.value.filter(s => s.id !== suggestion.id)
@@ -306,7 +324,7 @@ async function loadAvailableTables() {
 
 async function handleTableChange() {
   formData.targetFieldId = ''
-  formData.displayFieldId = ''
+  formData.displayFieldNames = []
   targetFields.value = []
   matchPreview.value = null
   
@@ -325,7 +343,7 @@ async function handleTableChange() {
     
     // Set default display field to the first field (usually 'name' or similar)
     if (fields.length > 0) {
-      formData.displayFieldId = fields[0].id
+      formData.displayFieldNames = [fields[0].fieldName]
     }
   } catch (error) {
     console.error('Error loading fields:', error)
@@ -396,10 +414,11 @@ async function handleCreate() {
     
     loading.value = true
     
+    // Convert to plain array to avoid DataCloneError when passing through Worker postMessage
     emit('created', {
       targetTableId: formData.targetTableId,
       targetFieldId: formData.targetFieldId,
-      displayFieldId: formData.displayFieldId,
+      displayFieldNames: [...formData.displayFieldNames],
       relationColumnName: formData.relationColumnName,
     })
     

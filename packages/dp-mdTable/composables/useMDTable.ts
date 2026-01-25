@@ -27,7 +27,8 @@ export function useMDTable(props: any) {
     columnFilterRules,
     columnSortRules,
     saveColumnOrder,
-    addColumnPopoverRef
+    addColumnPopoverRef,
+    addVirtualColumn
   } = useColumnsContext()
   const {
     loading,
@@ -111,7 +112,8 @@ export function useMDTable(props: any) {
     editable,
     saveColumnOrder,
     addColumnPopoverRef,
-    clearCheckboxRow
+    clearCheckboxRow,
+    addVirtualColumn
   }
 }
 

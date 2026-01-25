@@ -141,16 +141,21 @@ export const useTableView = () => {
   /**
    * Create a relation column from an existing column
    * Matches values from the source column with values in the target table's field
+   * @param displayFieldNames - Array of field names to display (from target table)
    */
   async function createRelationFromColumn(
     sourceFieldName: string,
     targetTableId: string,
     targetFieldId: string,
-    displayFieldId: string,
+    displayFieldNames: string[],
     relationColumnName: string
   ): Promise<void> {
     if (!tableId.value || !physicalTableName.value) {
       throw new Error('Table not initialized')
+    }
+
+    if (!displayFieldNames || displayFieldNames.length === 0) {
+      throw new Error('At least one display field is required')
     }
 
     // Get source field
@@ -173,13 +178,6 @@ export const useTableView = () => {
     }
     const targetField = targetFieldData[0]
 
-    // Get display field (for showing in relation)
-    const displayFieldData = await query<CaseFieldRecord>(`SELECT * FROM case_fields WHERE id = $1`, [displayFieldId])
-    if (displayFieldData.length === 0) {
-      throw new Error('Display field not found')
-    }
-    const displayField = displayFieldData[0]
-
     // Check if a relation to this target table already exists
     const existingRelations = await query<CaseFieldRecord>(
       `SELECT * FROM case_fields
@@ -193,18 +191,21 @@ export const useTableView = () => {
     let isAddingToExistingRelation = false
 
     if (existingRelations.length > 0) {
-      // Relation exists - add display field to it
+      // Relation exists - merge display fields
       const relationField = existingRelations[0]
       relationFieldName = relationField.fieldName
 
       const currentDisplayFieldNames = relationField.displayFieldNames || []
-
-      if (currentDisplayFieldNames.includes(displayField.fieldName)) {
-        throw new Error(`Display field "${displayField.fieldNameAlias}" is already in the relation to table "${targetTable.name}".`)
+      
+      // Add only new field names that don't already exist
+      const newFieldNames = displayFieldNames.filter(name => !currentDisplayFieldNames.includes(name))
+      
+      if (newFieldNames.length === 0) {
+        throw new Error(`All selected display fields are already in the relation to table "${targetTable.name}".`)
       }
 
-      // Add the new display field name to the existing relation
-      const updatedDisplayFieldNames = [...currentDisplayFieldNames, displayField.fieldName]
+      // Merge existing and new display field names
+      const updatedDisplayFieldNames = [...currentDisplayFieldNames, ...newFieldNames]
 
       await query(
         `UPDATE case_fields
@@ -267,7 +268,7 @@ export const useTableView = () => {
           false,
           true,
           targetTableId,
-          [displayField.fieldName],
+          ensurePlainArray(displayFieldNames), // Convert to plain array to avoid DataCloneError
           sourceFieldName,
           targetFieldId,
           now,
@@ -348,9 +349,10 @@ export const useTableView = () => {
 
       // Show success message
       if (isAddingToExistingRelation) {
-        ElMessage.success(`Added "${displayField.fieldNameAlias}" to relation display fields`)
+        const fieldCount = displayFieldNames.length
+        ElMessage.success(`Added ${fieldCount} display field${fieldCount > 1 ? 's' : ''} to relation`)
       } else {
-        ElMessage.success(`Relation created: ${relationColumnName}`)
+        ElMessage.success(`Relation created: ${relationColumnName} with ${displayFieldNames.length} display field${displayFieldNames.length > 1 ? 's' : ''}`)
       }
 
       await initializeTableView(tableId.value)

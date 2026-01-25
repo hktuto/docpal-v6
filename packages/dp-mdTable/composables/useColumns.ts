@@ -23,6 +23,9 @@ export interface ColumnContext {
   // Relation helpers
   getAvailableTablesForRelation?: (excludeCurrentTable?: boolean) => Promise<any[]>
   getFieldsForTable?: (tableId: string) => Promise<any[]>
+  getExistingRelationToTable?: (targetTableId: string) => Promise<any | null>
+  getRelationFields?: () => any[]
+  addVirtualColumn?: (relationFieldName: string, displayFieldName: string, position?: { targetColumn: string; side: 'left' | 'right' }) => Promise<void>
   tableId?: Ref<string>
   entityId?: Ref<string>
 }

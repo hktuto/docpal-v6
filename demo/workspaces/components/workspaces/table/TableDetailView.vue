@@ -24,10 +24,14 @@ const relationSuggestionsDialogRef = ref()
 const pendingRelationColumn = ref<any>(null)
 
 // Relation Suggestions
-const { getPendingSuggestions, acceptSuggestion, analyzeTableForRelations, dismissSuggestionsByTargetTable } = useRelationSuggestions()
+const { getPendingSuggestions, acceptSuggestion, analyzeTableForRelations, dismissSuggestionsByTargetTable, dismissSuggestion } = useRelationSuggestions()
 const suggestionStatus = ref<string>('none')
 const suggestionCount = ref(0)
 const isAnalyzing = ref(false)
+
+// Track suggestions by field for column badges
+const suggestionsByField = ref<Map<string, { count: number; fieldId: string }>>(new Map())
+const columnSuggestionPopoverRef = ref()
 
 async function loadTableData() {
   isLoading.value = true
@@ -62,10 +66,32 @@ async function loadSuggestionStatus() {
       const currentStatus = tableData[0].suggestionStatus || 'none'
       suggestionStatus.value = currentStatus
       
-      // If ready, count pending suggestions
+      // If ready, count pending suggestions and group by field
       if (currentStatus === 'ready') {
         const suggestions = await getPendingSuggestions(props.dataTableId)
         suggestionCount.value = suggestions.length
+        
+        // Build map of fieldName -> suggestion count
+        const fieldMap = new Map<string, { count: number; fieldId: string }>()
+        for (const suggestion of suggestions) {
+          // Get field name for this field ID
+          const fieldData = await query<CaseFieldRecord>(
+            `SELECT "fieldName" FROM case_fields WHERE id = $1`,
+            [suggestion.sourceFieldId]
+          )
+          if (fieldData.length > 0) {
+            const fieldName = fieldData[0].fieldName
+            const existing = fieldMap.get(fieldName)
+            if (existing) {
+              existing.count++
+            } else {
+              fieldMap.set(fieldName, { count: 1, fieldId: suggestion.sourceFieldId })
+            }
+          }
+        }
+        suggestionsByField.value = fieldMap
+      } else {
+        suggestionsByField.value = new Map()
       }
       
       // If pending, trigger analysis immediately
@@ -159,7 +185,7 @@ function handleCreateRelation(column: any) {
 async function handleRelationCreated(data: {
   targetTableId: string
   targetFieldId: string
-  displayFieldId: string
+  displayFieldNames: string[]
   relationColumnName: string
 }) {
   if (!pendingRelationColumn.value) return
@@ -169,7 +195,7 @@ async function handleRelationCreated(data: {
       pendingRelationColumn.value.field,
       data.targetTableId,
       data.targetFieldId,
-      data.displayFieldId,
+      data.displayFieldNames,
       data.relationColumnName
     )
     
@@ -190,8 +216,8 @@ async function handleRelationCreated(data: {
   }
 }
 
-async function handleSuggestionAccepted(data: { suggestion: any; displayFieldId: string }) {
-  const { suggestion, displayFieldId } = data
+async function handleSuggestionAccepted(data: { suggestion: any; displayFieldNames: string[] }) {
+  const { suggestion, displayFieldNames } = data
   
   try {
     // Get the source field by ID from database
@@ -208,12 +234,12 @@ async function handleSuggestionAccepted(data: { suggestion: any; displayFieldId:
     
     const sourceField = sourceFieldData[0]
 
-    // Create the relation using the suggestion (always multiple)
+    // Create the relation using the suggestion with multiple display fields
     await tableView.createRelationFromColumn(
       sourceField.fieldName,
       suggestion.targetTableId,
       suggestion.targetFieldId,
-      displayFieldId, // Use user-selected display field
+      displayFieldNames, // Use user-selected display field names (array)
       `${sourceField.fieldNameAlias} → ${suggestion.targetTableName}`
     )
     
@@ -268,6 +294,72 @@ async function updateSuggestionStatusAfterChange() {
 
 // Provide the create relation handler so MdTable can access it
 provide('handleCreateRelation', handleCreateRelation)
+
+// Provide suggestion info for column headers
+provide('columnSuggestions', {
+  getSuggestionCount: (fieldName: string) => suggestionsByField.value.get(fieldName)?.count || 0,
+  getFieldId: (fieldName: string) => suggestionsByField.value.get(fieldName)?.fieldId || null,
+  openSuggestionPopover: (fieldName: string, fieldId: string, target: HTMLElement) => {
+    columnSuggestionPopoverRef.value?.open(fieldId, fieldName, props.dataTableId, target)
+  }
+})
+
+// Handlers for column suggestion popover
+async function handleColumnSuggestionAccepted(data: { suggestion: any; displayFieldNames: string[] }) {
+  const { suggestion, displayFieldNames } = data
+  
+  try {
+    // Get the source field by ID from database
+    const sourceFieldData = await query<CaseFieldRecord>(
+      `SELECT * FROM case_fields WHERE id = $1`,
+      [suggestion.sourceFieldId]
+    )
+    
+    if (sourceFieldData.length === 0) {
+      ElMessage.error('Source field not found')
+      columnSuggestionPopoverRef.value?.resetLoading(suggestion.id)
+      return
+    }
+    
+    const sourceField = sourceFieldData[0]
+
+    // Create the relation using the suggestion with multiple display fields
+    await tableView.createRelationFromColumn(
+      sourceField.fieldName,
+      suggestion.targetTableId,
+      suggestion.targetFieldId,
+      displayFieldNames,
+      `${sourceField.fieldNameAlias} → ${suggestion.targetTableName}`
+    )
+    
+    // Mark suggestion as accepted
+    await acceptSuggestion(suggestion.id)
+    
+    // Dismiss all other suggestions for the same target table
+    await dismissSuggestionsByTargetTable(props.dataTableId, suggestion.targetTableId)
+    
+    // Mark complete in popover
+    columnSuggestionPopoverRef.value?.markComplete(suggestion.id)
+    
+    // Reload suggestion status
+    await updateSuggestionStatusAfterChange()
+    
+    ElMessage.success('Relation created from suggestion')
+  } catch (error) {
+    console.error('Error creating relation from column suggestion:', error)
+    ElMessage.error('Failed to create relation')
+    columnSuggestionPopoverRef.value?.resetLoading(suggestion.id)
+  }
+}
+
+async function handleColumnSuggestionDismissed(suggestionId: string) {
+  try {
+    await dismissSuggestion(suggestionId)
+    await updateSuggestionStatusAfterChange()
+  } catch (error) {
+    console.error('Error dismissing suggestion:', error)
+  }
+}
 
 onMounted(async () => {
   await loadTableData()
@@ -353,6 +445,13 @@ watch(
       @accepted="handleSuggestionAccepted"
       @dismissed="handleSuggestionDismissed"
       @dismissed-all="handleAllSuggestionsDismissed"
+    />
+
+    <!-- Column Suggestion Popover (for individual column badges) -->
+    <WorkspacesColumnSuggestionPopover
+      ref="columnSuggestionPopoverRef"
+      @accepted="handleColumnSuggestionAccepted"
+      @dismissed="handleColumnSuggestionDismissed"
     />
 
     <!-- Debug Sidebar -->

@@ -224,7 +224,7 @@ export class RendererRegistryManager {
       // [ColumnFieldType.OneWayLink]: 150,
       [ColumnFieldType.Member]: 180,
       [ColumnFieldType.MagicLink]: 150,
-      // [ColumnFieldType.MagicLookUp]: 150
+      [ColumnFieldType.VirtualColumn]: 150
     }
 
     return widthMap[type] || 150

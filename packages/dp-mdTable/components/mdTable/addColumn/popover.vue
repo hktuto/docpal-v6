@@ -1,5 +1,5 @@
 <template>
-  <UiPopoverDialog ref="popoverRef" :width="width" :close-on-click-outside="closeOnClickOutside">
+  <UiPopoverDialog ref="popoverRef" :width="width" :close-on-click-outside="closeOnClickOutside" @close="resetForm">
     <div class="add-column-popover">
       <el-form ref="formRef" :model="formData" :rules="rules" label-position="top" @submit.prevent>
         <el-form-item label="列标题" prop="title">
@@ -10,7 +10,7 @@
             v-model="formData.type"
             placeholder="请选择数据类型"
             style="width: 100%"
-            :options="columnFieldOptions"
+            :options="displayColumnFieldOptions"
             @visible-change="handleSelectVisibleChange"
             @change="handleSelectChange"
             @click.stop
@@ -60,6 +60,9 @@ interface Props {
   popperClass?: string
 }
 const columnFieldOptions = getColumnFieldOptions()
+const displayColumnFieldOptions = computed(() => {
+  return state.isEdit ? columnFieldOptions : columnFieldOptions.filter((item: any) => !item.disableCreate)
+})
 const props = withDefaults(defineProps<Props>(), {
   width: 320,
   placement: 'left-start',
@@ -117,6 +120,8 @@ const handleSelectVisibleChange = (visible: boolean) => {
 }
 const handleClose = () => {
   popoverRef.value.close()
+  // reset the form data
+  resetForm()
   closeOnClickOutside.value = true
 }
 // 提供给子组件使用，让子组件的select也能控制popover的关闭行为
@@ -148,6 +153,7 @@ const resetForm = () => {
     type: ColumnFieldType.MultiText
   }
   formRef.value?.clearValidate()
+  loadComponent(formData.value.type)
 }
 
 // 提交

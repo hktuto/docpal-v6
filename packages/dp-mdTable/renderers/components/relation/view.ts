@@ -8,7 +8,7 @@ export const RelationView = ({options, params}: ViewRenderFunctionParams<string>
   // Parse the column field to get relation field and display field
   // Format: relationFieldName.displayFieldName
   let relationFieldName = column.field
-  let displayValue: any = row[column.field + '.' + relationOptions.displayField]
+  let displayValue: any = column.field.includes('.') ? row[column.field] : row[column.field + '.' + relationOptions.displayField]
   // console.log('displayData', displayData)
   
   // The UUID value(s) are stored in the base relation field

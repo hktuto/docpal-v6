@@ -20,7 +20,7 @@ interface SuggestionItem {
 }
 
 interface SuggestionWithState extends SuggestionItem {
-  selectedDisplayFieldId: string
+  selectedDisplayFieldNames: string[]  // Array of field names for multiple display fields
   displayFieldOptions: CaseFieldRecord[]
   loading: boolean
 }
@@ -33,7 +33,7 @@ interface GroupedSuggestion {
 }
 
 const emit = defineEmits<{
-  accepted: [data: { suggestion: SuggestionItem; displayFieldId: string }]
+  accepted: [data: { suggestion: SuggestionItem; displayFieldNames: string[] }]
   dismissed: [suggestionId: string]
   dismissedAll: []
 }>()
@@ -85,9 +85,12 @@ async function loadSuggestions() {
           [suggestion.targetTableId]
         )
         
+        // Find the matched field to get its fieldName
+        const matchedField = fields.find(f => f.id === suggestion.targetFieldId)
+        
         return {
           ...suggestion,
-          selectedDisplayFieldId: suggestion.targetFieldId, // Default to matched field
+          selectedDisplayFieldNames: matchedField ? [matchedField.fieldName] : [], // Default to matched field name
           displayFieldOptions: fields,
           loading: false
         }
@@ -122,17 +125,18 @@ async function loadSuggestions() {
 }
 
 async function handleAccept(suggestion: SuggestionWithState) {
-  if (!suggestion.selectedDisplayFieldId) {
-    ElMessage.warning('Please select a display field')
+  if (!suggestion.selectedDisplayFieldNames || suggestion.selectedDisplayFieldNames.length === 0) {
+    ElMessage.warning('Please select at least one display field')
     return
   }
   
   suggestion.loading = true
   
   // Emit the event - parent will call markSuggestionComplete or resetSuggestionLoading
+  // Convert to plain array to avoid DataCloneError when passing through Worker postMessage
   emit('accepted', {
     suggestion,
-    displayFieldId: suggestion.selectedDisplayFieldId
+    displayFieldNames: [...suggestion.selectedDisplayFieldNames]
   })
 }
 
@@ -297,17 +301,21 @@ defineExpose({
                 </div>
                 
                 <div class="display-field-select">
-                  <span class="select-label">Display field:</span>
+                  <span class="select-label">Display fields:</span>
                   <el-select
-                    v-model="suggestion.selectedDisplayFieldId"
+                    v-model="suggestion.selectedDisplayFieldNames"
                     size="small"
-                    style="width: 200px"
+                    multiple
+                    collapse-tags
+                    collapse-tags-tooltip
+                    style="width: 250px"
+                    placeholder="Select display fields"
                   >
                     <el-option
                       v-for="field in suggestion.displayFieldOptions"
-                      :key="field.id"
+                      :key="field.fieldName"
                       :label="field.fieldNameAlias"
-                      :value="field.id"
+                      :value="field.fieldName"
                     />
                   </el-select>
                 </div>

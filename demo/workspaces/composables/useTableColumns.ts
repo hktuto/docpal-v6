@@ -83,22 +83,31 @@ export function useTableColumns(options: UseTableColumnsOptions) {
   /**
    * Create a virtual column config for a relation display field
    * Virtual columns are view-specific and show one display field from a relation
+   * Uses type 15 (VirtualColumn) instead of type 14 (MagicLink)
    */
   function createVirtualColumnConfig(
     relationField: CaseFieldRecord,
     displayFieldName: string
   ): ColumnConfig {
-    const baseConfig = fieldToColumnConfig(relationField)
+    const width = Math.max(displayFieldName.length * 13, 100) + 20
     
     return {
-      ...baseConfig,
+      id: `${relationField.id}_${displayFieldName}`,
+      dataTableId: relationField.tableId ?? undefined,
       field: `${relationField.fieldName}.${displayFieldName}`,
       title: `${relationField.fieldNameAlias} (${displayFieldName})`,
+      width,
+      type: 15, // ColumnFieldType.VirtualColumn
       properties: {
-        ...baseConfig.properties,
-        displayField: displayFieldName,
-        isVirtualColumn: true
-      }
+        sourceRelationField: relationField.fieldName,
+        displayFieldName: displayFieldName,
+        relationTableId: relationField.relationTableId,
+        displayMode: 'text',
+        aggregation: 'all',
+        showUniqueOnly: false,
+        separator: ', '
+      },
+      headerAlign: 'left'
     }
   }
 
@@ -125,24 +134,27 @@ export function useTableColumns(options: UseTableColumnsOptions) {
 
     const columnsData = currentView.value.fields.reduce<ColumnConfig[]>((result, viewFieldName) => {
       if (viewFieldName.includes('.')) {
+        console.log('viewFieldName', viewFieldName)
         // Virtual column: rel_company.email
         const [relationFieldName, displayFieldName] = viewFieldName.split('.')
         const field = getField(relationFieldName)
-
+        
         if (field && field.businessType === 'relation') {
-          return [...result, createVirtualColumnConfig(field, displayFieldName)]
+          const virtualColumnConfig = createVirtualColumnConfig(field, displayFieldName)
+          console.log('virtualColumnConfig', virtualColumnConfig)
+          result.push(virtualColumnConfig)
         }
       } else {
         // Regular or relation column
         const field = getField(viewFieldName)
         if (field) {
-          return [...result, fieldToColumnConfig(field)]
+          result.push(fieldToColumnConfig(field))
         }
       }
-
+     
       return result
     }, [])
-
+    console.log('result', columnsData)
     columns.value = columnsData
     return columnsData
   }
@@ -354,8 +366,35 @@ export function useTableColumns(options: UseTableColumnsOptions) {
    * Update a column
    */
   async function updateColumn(fieldName: string, updates: Partial<ColumnConfig>): Promise<void> {
-    const baseFieldName = fieldName.includes('.') ? fieldName.split('.')[0] : fieldName
-    const existingField = getField(baseFieldName)
+    // Check if this is a virtual column (has dot notation like "rel_company.email")
+    const isVirtualColumn = fieldName.includes('.')
+    
+    if (isVirtualColumn) {
+      // Virtual columns are view-level only - don't update the parent relation field
+      // Just update the local column config and refresh
+      console.log('Updating virtual column settings:', fieldName, updates)
+      
+      // Update the column in the local columns array with the new settings
+      const columnIndex = columns.value.findIndex(col => col.field === fieldName)
+      if (columnIndex !== -1) {
+        const existingColumn = columns.value[columnIndex]
+        columns.value[columnIndex] = {
+          ...existingColumn,
+          ...updates,
+          properties: {
+            ...existingColumn.properties,
+            ...updates.properties
+          }
+        }
+      }
+      
+      // Note: Virtual column settings are transient (not persisted to database)
+      // They will be rebuilt from the parent relation when the view is reloaded
+      // TODO: Consider storing virtual column settings in view.fieldSettings or similar
+      return
+    }
+    
+    const existingField = getField(fieldName)
 
     if (!existingField) {
       throw new Error('Field not found')
@@ -381,7 +420,7 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     }
 
     if (Object.keys(fieldUpdates).length > 0) {
-      await updateFieldFn(baseFieldName, fieldUpdates)
+      await updateFieldFn(fieldName, fieldUpdates)
     }
     console.log('fieldUpdates', fieldUpdates)
     await getAllColumns()
@@ -507,6 +546,33 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     }
   }
 
+  /**
+   * Get existing relation to a target table (if any)
+   * Returns the relation field if it exists, null otherwise
+   */
+  async function getExistingRelationToTable(targetTableId: string): Promise<CaseFieldRecord | null> {
+    try {
+      const existingRelations = await query<CaseFieldRecord>(
+        `SELECT * FROM case_fields 
+         WHERE "tableId" = $1 
+         AND "businessType" = 'relation' 
+         AND "relationTableId" = $2`,
+        [tableId.value, targetTableId]
+      )
+      return existingRelations.length > 0 ? existingRelations[0] : null
+    } catch (error) {
+      console.error('Error checking existing relation:', error)
+      return null
+    }
+  }
+
+  /**
+   * Get all relation fields for the current table
+   */
+  function getRelationFields(): CaseFieldRecord[] {
+    return fields.value.filter(f => f.businessType === 'relation')
+  }
+
   // Provide ColumnContext
   provide(ColumnContextKey, {
     getColumn,
@@ -523,6 +589,9 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     gridRef,
     getAvailableTablesForRelation,
     getFieldsForTable,
+    getExistingRelationToTable,
+    getRelationFields,
+    addVirtualColumn,
     tableId,
     entityId
   } as ColumnContext)
@@ -541,6 +610,8 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     removeVirtualColumn,
     getAvailableTablesForRelation,
     getFieldsForTable,
+    getExistingRelationToTable,
+    getRelationFields,
     fieldToColumnConfig,
     createVirtualColumnConfig
   }

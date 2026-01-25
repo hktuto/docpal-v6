@@ -16,6 +16,12 @@
       </el-select>
     </el-form-item>
 
+    <!-- Existing relation warning -->
+    <div v-if="existingRelation && !isEditingExisting" class="existing-relation-notice">
+      <Icon name="lucide:info" size="16" />
+      <span>A relation to this table already exists: <strong>{{ existingRelation.fieldNameAlias }}</strong>. Adding display fields will update the existing relation.</span>
+    </div>
+
     <el-form-item label="Display Fields" prop="displayFields">
       <div class="display-fields-container">
         <!-- Draggable list of selected fields -->
@@ -119,6 +125,8 @@ const availableTables = ref<CaseTableRecord[]>([])
 const targetFields = ref<CaseFieldRecord[]>([])
 const selectedDisplayFields = ref<CaseFieldRecord[]>([])
 const fieldToAdd = ref<string>('')
+const existingRelation = ref<CaseFieldRecord | null>(null)
+const isEditingExisting = ref(false)
 
 // Compute available fields (not yet selected)
 const availableFieldsToAdd = computed(() => {
@@ -193,6 +201,7 @@ async function handleTableChange() {
   // Clear selected fields when table changes
   selectedDisplayFields.value = []
   targetFields.value = []
+  existingRelation.value = null
   syncToFormData()
   
   if (!props.formData.relationTableId) return
@@ -205,6 +214,22 @@ async function handleTableChange() {
     
     const fields = await columnContext.getFieldsForTable(props.formData.relationTableId)
     targetFields.value = fields
+    
+    // Check if a relation to this table already exists (only for new columns)
+    if (!isEditingExisting.value && columnContext?.getExistingRelationToTable) {
+      existingRelation.value = await columnContext.getExistingRelationToTable(props.formData.relationTableId)
+      
+      if (existingRelation.value) {
+        // Pre-populate with existing display fields
+        const existingFieldNames = existingRelation.value.displayFieldNames || []
+        const fieldMap = new Map(fields.map(f => [f.fieldName, f]))
+        selectedDisplayFields.value = existingFieldNames
+          .map((name: string) => fieldMap.get(name))
+          .filter(Boolean) as CaseFieldRecord[]
+        syncToFormData()
+        return // Don't auto-select, use existing fields
+      }
+    }
     
     // Auto-select first text field as display field if no fields selected
     if (selectedDisplayFields.value.length === 0) {
@@ -289,6 +314,8 @@ onMounted(async () => {
   
   // If editing existing relation with a table selected, load target fields
   if (props.formData.relationTableId) {
+    // Mark as editing existing if relationTableId is already set
+    isEditingExisting.value = true
     await loadFieldsAndRestoreSelection()
   }
 })
@@ -296,6 +323,24 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 .relation-config {
+  .existing-relation-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+    background: var(--el-color-primary-light-9);
+    border: 1px solid var(--el-color-primary-light-7);
+    border-radius: var(--el-border-radius-base);
+    color: var(--el-color-primary);
+    font-size: 13px;
+    line-height: 1.5;
+
+    strong {
+      font-weight: 600;
+    }
+  }
+
   .display-fields-container {
     width: 100%;
     border: 1px solid var(--el-border-color);
