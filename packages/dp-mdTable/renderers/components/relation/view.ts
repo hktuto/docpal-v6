@@ -8,14 +8,12 @@ export const RelationView = ({options, params}: ViewRenderFunctionParams<string>
   // Parse the column field to get relation field and display field
   // Format: relationFieldName.displayFieldName
   let relationFieldName = column.field
-  let displayValue: any
-  console.log('row', row, relationOptions)
-  const displayData = row[column.field + '.' + relationOptions.displayField]
-  console.log('displayData', displayData)
+  let displayValue: any = row[column.field + '.' + relationOptions.displayField]
+  // console.log('displayData', displayData)
   
   // The UUID value(s) are stored in the base relation field
   // All relations are now arrays (uuid[])
-  const value = displayData
+  const value = displayValue
   
   if (!value || !Array.isArray(value) || value.length === 0) {
     return h('div', { class: 'relation-view empty' }, '-')
@@ -23,25 +21,6 @@ export const RelationView = ({options, params}: ViewRenderFunctionParams<string>
   
   // Display as tags for arrays
   const displayValues = Array.isArray(displayValue) ? displayValue : []
-  
-  // If only one item, show as a link instead of tag
-  if (value.length === 1) {
-    const displayText = displayValues[0] || value[0]
-    return h('a', {
-      class: 'relation-view single',
-      href: '#',
-      style: {
-        color: 'var(--el-color-primary)',
-        textDecoration: 'none',
-        cursor: 'pointer'
-      },
-      onClick: (e: Event) => {
-        e.preventDefault()
-        // TODO: Implement navigation to related record
-        console.log('Navigate to related record:', value[0])
-      }
-    }, displayText)
-  }
   
   // Multiple items: display as tags
   return h('div', { 

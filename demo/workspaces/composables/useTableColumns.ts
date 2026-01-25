@@ -54,6 +54,20 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     const width = Math.max(field.fieldNameAlias.length * 13, 100) + 20
     const headerAlign = field.displayStructure?.type === 2 ? 'right' : 'left'
 
+    // Build properties from displayStructure.properties
+    let properties = field.displayStructure?.properties as Record<string, any> | undefined
+
+    // For relation fields, merge displayFieldNames from field record into properties
+    if (field.businessType === 'relation') {
+      properties = {
+        ...properties,
+        displayFieldNames: field.displayFieldNames || [],
+        relationTableId: field.relationTableId,
+        // Set displayField to first field name for backward compatibility
+        displayField: field.displayFieldNames?.[0] || ''
+      }
+    }
+
     return {
       id: field.id,
       dataTableId: field.tableId ?? undefined,
@@ -61,7 +75,7 @@ export function useTableColumns(options: UseTableColumnsOptions) {
       title: field.fieldNameAlias,
       width,
       type: field.displayStructure?.type as any,
-      properties: field.displayStructure?.properties as Record<string, any> | undefined,
+      properties,
       headerAlign
     }
   }
