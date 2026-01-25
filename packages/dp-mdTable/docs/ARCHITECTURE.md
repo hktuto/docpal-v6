@@ -249,6 +249,58 @@ interface CaseViewRecord {
 }
 ```
 
+## Excel Import System
+
+The table supports importing data from Excel/CSV files into an existing table with:
+- Multi-sheet handling (user picks one sheet)
+- Intelligent column mapping with auto-suggestions
+- Lookup-based upsert (update existing or insert new)
+- Relation auto-resolution using `lookupFieldId` settings
+
+### Import Flow
+
+```mermaid
+flowchart TB
+    Trigger[Toolbar Import Button] --> Dialog[ImportToTableDialog]
+    Dialog --> Step1[1. Select File + Sheet]
+    Step1 --> Step2[2. Map Columns]
+    Step2 --> Step3[3. Configure Settings]
+    Step3 --> Import[Run Import]
+    Import --> Result[Show Report]
+```
+
+### Key Components
+
+1. **ImportToTableDialog.vue**: 3-step wizard dialog
+2. **useImportToTable.ts**: Composable with parsing, mapping, and import logic
+3. **upsertRows()**: Method in useTableDataProvider for update-or-insert
+
+### Column Mapping
+
+- Auto-suggests mappings based on name similarity
+- Excludes non-importable types: relation, virtual column, formula
+- User can manually adjust mappings
+
+### Upsert Logic
+
+```typescript
+// Select lookup columns to identify existing records
+lookupColumns: ['email', 'order_id']
+
+// For each imported row:
+// 1. Query existing record by lookup columns
+// 2. If found: UPDATE the record
+// 3. If not found: INSERT new record
+```
+
+### Relation Resolution
+
+During import, relation fields are auto-resolved using their `lookupFieldId`:
+1. Get value from the `lookupColumnName` field in the imported row
+2. Query target table for matches using `lookupFieldId`
+3. If found, populate relation with matched IDs
+4. If not found, leave relation empty (logged in report)
+
 ## Relation Suggestions System
 
 The table supports automatic relation suggestions that analyze data and suggest potential relations between tables.
@@ -408,8 +460,11 @@ await query('...', [ensurePlainArray(displayFieldNames)])
 |------|---------|
 | `composables/useTableView.ts` | Main orchestrator, combines all composables |
 | `composables/useTableColumns.ts` | Field→Column mapping, virtual columns |
+| `composables/useTableDataProvider.ts` | Data CRUD, relation resolution, upsertRows |
 | `composables/useRelationSuggestions.ts` | Relation analysis and suggestion management |
+| `composables/useImportToTable.ts` | Excel import with column mapping and upsert |
 | `components/workspaces/table/TableDetailView.vue` | Table container, provides columnSuggestions context |
 | `components/global/workspaces/ColumnSuggestionPopover.vue` | Per-column suggestion popover |
 | `components/global/workspaces/dialogs/RelationSuggestionsDialog.vue` | Full suggestions dialog |
 | `components/global/workspaces/dialogs/CreateRelationDialog.vue` | Manual relation creation |
+| `components/global/workspaces/dialogs/ImportToTableDialog.vue` | Excel import wizard dialog |

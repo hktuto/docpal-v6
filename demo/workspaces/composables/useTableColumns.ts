@@ -57,14 +57,17 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     // Build properties from displayStructure.properties
     let properties = field.displayStructure?.properties as Record<string, any> | undefined
 
-    // For relation fields, merge displayFieldNames from field record into properties
+    // For relation fields, merge displayFieldNames and lookup config from field record into properties
     if (field.businessType === 'relation') {
       properties = {
         ...properties,
         displayFieldNames: field.displayFieldNames || [],
         relationTableId: field.relationTableId,
         // Set displayField to first field name for backward compatibility
-        displayField: field.displayFieldNames?.[0] || ''
+        displayField: field.displayFieldNames?.[0] || '',
+        // Lookup configuration for auto-resolving relations during import
+        lookupColumnName: field.lookupColumnName,
+        lookupFieldId: field.lookupFieldId
       }
     }
 

@@ -23,6 +23,9 @@ const createRelationDialogRef = ref()
 const relationSuggestionsDialogRef = ref()
 const pendingRelationColumn = ref<any>(null)
 
+// Import Dialog
+const importToTableDialogRef = ref()
+
 // Relation Suggestions
 const { getPendingSuggestions, acceptSuggestion, analyzeTableForRelations, dismissSuggestionsByTargetTable, dismissSuggestion } = useRelationSuggestions()
 const suggestionStatus = ref<string>('none')
@@ -369,6 +372,23 @@ function handleSaveView() {
   tableView.saveViewFilterSortGroup()
 }
 
+function handleImport() {
+  importToTableDialogRef.value?.open({
+    physicalTableName: tableView.physicalTableName,
+    fields: tableView.fields,
+    query,
+    tableDisplayName: props.menuItem?.label || 'Table',
+    tableIdValue: props.dataTableId
+  })
+}
+
+async function handleImportComplete(result: any) {
+  // Refresh table data after import
+  if (result.inserted > 0 || result.updated > 0) {
+    await tableView.refresh()
+  }
+}
+
 watch(
   () => props.dataTableId,
   async () => {
@@ -429,7 +449,7 @@ watch(
         </div>
         
         <!-- Use wrapper component that sets up MdTable providers -->
-        <MdTable v-if="tableReady" :editable="true" @saveView="handleSaveView" />
+        <MdTable v-if="tableReady" :editable="true" @saveView="handleSaveView" @import="handleImport" />
       </div>
     </div>
 
@@ -452,6 +472,12 @@ watch(
       ref="columnSuggestionPopoverRef"
       @accepted="handleColumnSuggestionAccepted"
       @dismissed="handleColumnSuggestionDismissed"
+    />
+
+    <!-- Import To Table Dialog -->
+    <WorkspacesDialogsImportToTableDialog
+      ref="importToTableDialogRef"
+      @complete="handleImportComplete"
     />
 
     <!-- Debug Sidebar -->

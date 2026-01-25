@@ -21,10 +21,13 @@
     </div>
     <div class="toolbar-right">
       <slot name="toolbar-right">
-        
+        <el-button v-if="showImport" @click="handleImport">
+          <el-icon><Upload /></el-icon>
+          Import
+        </el-button>
         <el-button v-if="showExport" type="primary" @click="handleExport">
           <el-icon><Download /></el-icon>
-          导出
+          Export
         </el-button>
         <el-button type="primary" @click="handleSaveView">
           Save View
@@ -36,7 +39,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { Refresh, Search, Download, Operation, DataAnalysis } from '@element-plus/icons-vue'
+import { Refresh, Search, Download, Upload, Operation, DataAnalysis } from '@element-plus/icons-vue'
 import type{ FilterGroup, SortRule} from '#imports'
 
 interface ColumnConfig {
@@ -51,6 +54,7 @@ interface Props {
   showSearch?: boolean
   showRefresh?: boolean
   showExport?: boolean
+  showImport?: boolean
   groupableColumns?: ColumnConfig[]
   activeGroupFields?: string[]
 }
@@ -59,6 +63,7 @@ interface Emits {
   (e: 'refresh'): void
   (e: 'search', value: string): void
   (e: 'export'): void
+  (e: 'import'): void
   (e: 'group-toggle', field: string): void
   (e: 'update:activeGroupFields', fields: string[]): void
   (e: 'grouping-change', rules: any[]): void
@@ -72,6 +77,7 @@ const props = withDefaults(defineProps<Props>(), {
   showSearch: true,
   showRefresh: true,
   showExport: true,
+  showImport: true,
   groupableColumns: () => [],
   activeGroupFields: () => []
 })
@@ -101,6 +107,10 @@ const handleSaveView = () => {
 
 const handleExport = () => {
   emit('export')
+}
+
+const handleImport = () => {
+  emit('import')
 }
 
 const handleFilterChange = (group: FilterGroup) => {

@@ -66,6 +66,11 @@ export interface TableDataContext {
   updateRow: (rows: any[]) => void
   deleteRow: (ids: string | string[]) => void
   getAggChildData?: (params?: any, aggregate?: { id: string; field: string; order: string }) => Promise<any[] | undefined>
+  upsertRows?: (
+    rows: any[],
+    lookupColumns: string[],
+    updateStrategy?: 'all' | 'non_empty'
+  ) => Promise<{ inserted: number; updated: number; errors: { row: number; message: string }[] }>
 }
 
 export const TableDataContextKey: InjectionKey<TableDataContext> = Symbol('TableDataContextKey')

@@ -365,6 +365,86 @@ function handleSuggestionClick() {
 }
 ```
 
+## Import Operations
+
+### Initialize Import Composable
+
+```typescript
+import { useImportToTable } from './useImportToTable'
+
+const importComposable = useImportToTable({
+  physicalTableName: tableView.physicalTableName,
+  fields: tableView.fields,
+  query
+})
+```
+
+### Parse Excel File
+
+```typescript
+// Get sheet information (name, row count, columns, preview)
+const sheets = await importComposable.parseExcelSheets(file)
+
+// Parse specific sheet data
+const { columns, rows } = await importComposable.parseSheetData(file, sheetIndex)
+```
+
+### Auto-Suggest Column Mappings
+
+```typescript
+// Get fields that can be import targets (excludes relation, virtual, formula)
+const eligibleFields = importComposable.getEligibleFields()
+
+// Get auto-suggested mappings
+const mappings = importComposable.suggestMappings(excelColumns)
+// Returns: [{ excelColumn: 'Email', fieldName: 'email', autoSuggested: true }, ...]
+```
+
+### Run Import with Upsert
+
+```typescript
+const result = await importComposable.importData(rows, {
+  sheetIndex: 0,
+  columnMappings: mappings,
+  lookupColumns: ['email', 'order_id'],  // Match existing records by these fields
+  updateStrategy: 'all'  // 'all' or 'non_empty'
+})
+
+// Result: { inserted: 50, updated: 10, skipped: 2, errors: [], relationErrors: [] }
+```
+
+### Upsert Rows Directly
+
+```typescript
+// Via useTableDataProvider
+const result = await upsertRows(
+  rowsData,
+  ['email'],           // Lookup columns
+  'non_empty'          // Update strategy
+)
+// Result: { inserted: 10, updated: 5, errors: [] }
+```
+
+### Handle Import in TableDetailView
+
+```typescript
+function handleImport() {
+  importDialogRef.value?.open({
+    physicalTableName: tableView.physicalTableName,
+    fields: tableView.fields,
+    query,
+    tableDisplayName: 'My Table',
+    tableIdValue: tableId
+  })
+}
+
+async function handleImportComplete(result) {
+  if (result.inserted > 0 || result.updated > 0) {
+    await tableView.refresh()
+  }
+}
+```
+
 ## Error Handling
 
 ### Common Errors

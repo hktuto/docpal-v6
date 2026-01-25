@@ -157,3 +157,28 @@ Creates a relation from a suggestion, marks it as accepted, and dismisses other 
 
 ### Dismiss Suggestion
 Marks a suggestion as dismissed so it won't be shown again.
+
+## Import Terms
+
+### Import to Table
+Feature to import data from Excel/CSV files into an existing table with column mapping and upsert logic.
+
+### Column Mapping
+Process of matching Excel columns to table fields. Auto-suggested based on name similarity.
+
+### Lookup Columns
+Fields used to identify existing records during import. If a record matches these fields, it is updated instead of creating a new one.
+
+### Upsert
+Update-or-insert operation. Checks if record exists by lookup columns; updates if found, inserts if not.
+
+### Update Strategy
+How to handle field values during upsert:
+- `'all'`: Update all mapped fields, even if Excel cell is empty
+- `'non_empty'`: Only update fields where Excel has a non-empty value
+
+### ImportToTableDialog
+3-step wizard dialog for importing data:
+1. Select file and sheet
+2. Map columns with auto-suggestions
+3. Configure lookup columns and update strategy

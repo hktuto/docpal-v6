@@ -9,6 +9,7 @@
       @grouping-change="handleGroupToggle"
       @sort-change="handleSortChange"
       @save-view="handleSaveView"
+      @import="handleImport"
     >
       <template #toolbar-left>
         <slot name="toolbar-left" />
@@ -90,6 +91,7 @@ const emit = defineEmits<{
   'row-add': []
   'column-add': [column: ColumnConfig]
   'save-view': []
+  'import': []
 }>()
 
 // 引用
@@ -197,6 +199,10 @@ const handleSortChange = (rules: SortRule[]) => {
 
 const handleSaveView = () => {
   emit('save-view')
+}
+
+const handleImport = () => {
+  emit('import')
 }
 
 // 处理添加列

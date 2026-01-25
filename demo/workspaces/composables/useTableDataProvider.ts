@@ -367,6 +367,90 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
     // tableData.value = tableData.value.filter((item) => item.id !== id)
   }
 
+  /**
+   * Upsert rows - update if exists (by lookup columns), insert if not
+   * @param rows - Array of rows to upsert
+   * @param lookupColumns - Column names to use for matching existing records
+   * @param updateStrategy - 'all' to update all fields, 'non_empty' to skip empty values
+   * @returns Object with counts of inserted and updated rows
+   */
+  async function upsertRows(
+    rows: any[],
+    lookupColumns: string[],
+    updateStrategy: 'all' | 'non_empty' = 'all'
+  ): Promise<{ inserted: number; updated: number; errors: { row: number; message: string }[] }> {
+    if (!physicalTableName.value) {
+      throw new Error('physicalTableName is required')
+    }
+
+    const result = { inserted: 0, updated: 0, errors: [] as { row: number; message: string }[] }
+    const internalFields = new Set(['__filter_data', 'isAggregate', '__count'])
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]
+
+      try {
+        // Check if record exists based on lookup columns
+        let existingId: string | null = null
+
+        if (lookupColumns.length > 0) {
+          const whereConditions: string[] = []
+          const whereValues: any[] = []
+
+          for (const col of lookupColumns) {
+            if (row[col] !== undefined && row[col] !== null && row[col] !== '') {
+              whereConditions.push(`"${col}" = $${whereValues.length + 1}`)
+              whereValues.push(row[col])
+            }
+          }
+
+          if (whereConditions.length > 0) {
+            const existing = await query<{ id: string }>(
+              `SELECT id FROM "${physicalTableName.value}" WHERE ${whereConditions.join(' AND ')} LIMIT 1`,
+              whereValues
+            )
+
+            if (existing.length > 0) {
+              existingId = existing[0].id
+            }
+          }
+        }
+
+        if (existingId) {
+          // Update existing record
+          const updateKeys = Object.keys(row).filter((k) => {
+            if (k === 'id' || internalFields.has(k) || k.includes('.')) return false
+            if (updateStrategy === 'non_empty' && (row[k] === null || row[k] === undefined || row[k] === '')) {
+              return false
+            }
+            return true
+          })
+
+          if (updateKeys.length > 0) {
+            const setClauses = updateKeys.map((k, idx) => `"${k}" = $${idx + 1}`)
+            const values = [...updateKeys.map((k) => row[k]), existingId]
+
+            await query(
+              `UPDATE "${physicalTableName.value}" SET ${setClauses.join(', ')}, "updatedAt" = NOW()
+               WHERE id = $${values.length}`,
+              values
+            )
+          }
+
+          result.updated++
+        } else {
+          // Insert new record
+          await addRow(row)
+          result.inserted++
+        }
+      } catch (err: any) {
+        result.errors.push({ row: i + 1, message: err.message || 'Unknown error' })
+      }
+    }
+
+    return result
+  }
+
   // Provide TableDataContext using dp-mdTable's key
   provide(TableDataContextKey, {
     tableData,
@@ -378,7 +462,8 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
     refresh,
     addRow,
     updateRow,
-    deleteRow
+    deleteRow,
+    upsertRows
   } as TableDataContext)
 
   return {
@@ -391,6 +476,7 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
     refresh,
     addRow,
     updateRow,
-    deleteRow
+    deleteRow,
+    upsertRows
   }
 }
