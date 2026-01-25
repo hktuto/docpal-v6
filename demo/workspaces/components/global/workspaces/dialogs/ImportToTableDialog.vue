@@ -2,7 +2,7 @@
   <el-dialog
     v-model="visible"
     title="Import Data"
-    width="800px"
+    class="big"
     :close-on-click-modal="false"
     @close="handleClose"
   >
@@ -365,6 +365,65 @@ const importResult = ref<ImportResult | null>(null)
 // Composable refs (will be initialized in open())
 let importComposable: ReturnType<typeof useImportToTable> | null = null
 
+/**
+ * Normalize a string for comparison (lowercase, remove special chars)
+ */
+function normalizeForComparison(str: string): string {
+  return str
+    .toLowerCase()
+    .replace(/[_\s\-\.]+/g, '')
+    .trim()
+}
+
+/**
+ * Calculate similarity score between two strings (0-1)
+ */
+function calculateSimilarity(a: string, b: string): number {
+  const normA = normalizeForComparison(a)
+  const normB = normalizeForComparison(b)
+
+  // Exact match
+  if (normA === normB) return 1
+
+  // One contains the other
+  if (normA.includes(normB) || normB.includes(normA)) {
+    const shorter = normA.length < normB.length ? normA : normB
+    const longer = normA.length >= normB.length ? normA : normB
+    return shorter.length / longer.length
+  }
+
+  return 0
+}
+
+/**
+ * Guess the best sheet index based on name similarity with table name
+ * Returns the index of the best matching sheet, or the first sheet if no good match
+ */
+function guessBestSheetIndex(sheetList: SheetInfo[], targetTableName: string): number {
+  if (sheetList.length === 0) return 0
+  if (sheetList.length === 1) return sheetList[0].index
+  if (!targetTableName) return sheetList[0].index
+
+  let bestScore = 0
+  let bestIndex = sheetList[0].index
+
+  for (const sheet of sheetList) {
+    const score = calculateSimilarity(sheet.name, targetTableName)
+    if (score > bestScore) {
+      bestScore = score
+      bestIndex = sheet.index
+    }
+  }
+
+  // Only use the match if score is reasonable (>= 0.3)
+  // Otherwise fall back to first sheet
+  if (bestScore >= 0.3) {
+    return bestIndex
+  }
+
+  return sheetList[0].index
+}
+
 // Computed
 const selectedSheet = computed(() => {
   return sheets.value.find((s) => s.index === selectedSheetIndex.value) || null
@@ -468,8 +527,8 @@ async function processFile(file: File) {
       return
     }
 
-    // Auto-select first sheet
-    selectedSheetIndex.value = sheets.value[0].index
+    // Smart sheet selection: guess based on table name, fallback to first
+    selectedSheetIndex.value = guessBestSheetIndex(sheets.value, tableName.value)
   } catch (err: any) {
     ElMessage.error(err.message || 'Failed to parse file')
     clearFile()
@@ -725,17 +784,19 @@ defineExpose({
 }
 
 .sheet-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--app-space-s);
 }
 
 .sheet-item {
-  display: block;
+  flex: 1 0 auto;
+  display: inline-block;
   padding: var(--app-space-s) var(--app-space-m);
   border: 1px solid var(--el-border-color);
   border-radius: var(--app-border-radius);
-
+  height: auto;
+  margin-right: 0;;
   &:has(:checked) {
     border-color: var(--el-color-primary);
     background: var(--el-color-primary-light-9);
