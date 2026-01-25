@@ -8,33 +8,30 @@ dayjs.extend(timezone)
 export const DateTimeView = ({ options, params }: ViewRenderFunctionParams<string>) => {
   const { $table, row, column } = params
   const { dateFormat, includeTime, dateTimeFormat, timezone, includeTimeZone } = options?.props
-  if (typeof row[column.field] === 'number' || row[column.field] instanceof Date) {
-    const format = includeTime ? dateFormat + ' ' + dateTimeFormat : dateFormat
-    let displayValue = dayjs(row[column.field]).format(format || 'YYYY-MM-DD')
-    if (includeTime && timezone) {
-      displayValue = dayjs(row[column.field]).tz(timezone).format(format)
-    }
-    if (includeTimeZone) {
-      displayValue += ' (' + timezone + ')'
-    }
-    return h(
-      'div',
-      {
-        class: 'date-time-view mb-table-cell',
-        'title': displayValue
-      },
-      displayValue
-    )
+  const value = row[column.field]
+  if(!value) return h('div', {
+    class: 'date-time-view mb-table-cell',
+    'title': ''
+  }, '')
+
+  const format = includeTime ? dateFormat + ' ' + dateTimeFormat : dateFormat
+  console.log('row[column.field]', row[column.field], format)
+  let displayValue = dayjs(row[column.field]).format(format || 'YYYY-MM-DD')
+  if (includeTime && timezone) {
+    displayValue = dayjs(row[column.field]).tz(timezone).format(format)
   }
-  // default
+  if (includeTimeZone) {
+    displayValue += ' (' + timezone + ')'
+  }
   return h(
     'div',
     {
       class: 'date-time-view mb-table-cell',
-      'title': row[column.field]
+      'title': displayValue
     },
-    row[column.field]
+    displayValue
   )
+
 }
 export const DateTimeEdit = ({ options, params }: ViewRenderFunctionParams<string>) => {
   const { $table, row, column } = params
