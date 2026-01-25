@@ -17,7 +17,7 @@
           >
           </el-select-v2>
         </el-form-item>
-        <component :is="AsyncComponent" v-if="AsyncComponent" :form-data="formData" />
+        <component :is="AsyncComponent" v-if="AsyncComponent" :column="state.column" :form-data="formData" />
         <el-form-item v-if="[ColumnFieldType.Text, ColumnFieldType.MultiText].includes(formData.type)" label="Default Value" prop="defaultValue">
           <el-input v-model="formData.defaultValue" />
         </el-form-item>
@@ -101,7 +101,6 @@ function show(targetParams: any, column: any) {
       type: column.type,
       ...properties
     }
-    console.log('formData', formData.value)
     loadComponent(column.type)
   }
 }

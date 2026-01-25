@@ -15,7 +15,6 @@ export const DateTimeView = ({ options, params }: ViewRenderFunctionParams<strin
   }, '')
 
   const format = includeTime ? dateFormat + ' ' + dateTimeFormat : dateFormat
-  console.log('row[column.field]', row[column.field], format)
   let displayValue = dayjs(row[column.field]).format(format || 'YYYY-MM-DD')
   if (includeTime && timezone) {
     displayValue = dayjs(row[column.field]).tz(timezone).format(format)
@@ -36,7 +35,7 @@ export const DateTimeView = ({ options, params }: ViewRenderFunctionParams<strin
 export const DateTimeEdit = ({ options, params }: ViewRenderFunctionParams<string>) => {
   const { $table, row, column } = params
   const { dateFormat, includeTime, dateTimeFormat } = options?.props
-  console.log('options', options)
+
   const inputRef = ref<any>(null)
   const format = includeTime ? dateFormat + ' ' + dateTimeFormat : dateFormat
   return h(ElDatePicker, {

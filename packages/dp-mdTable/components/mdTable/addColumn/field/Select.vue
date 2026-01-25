@@ -50,10 +50,13 @@
 import { ref, watch, inject, nextTick, computed, onMounted } from 'vue'
 import { Delete, Plus, Close } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
-
+import { ElMessageBox } from 'element-plus'
 const props = defineProps<{
   formData: any
+  column: any
 }>()
+
+const { getOptionsFromTableData } = useMDTableInject()
 // 预设颜色列表
 const PRESET_COLORS = [
   '#9b59b6', // 紫色
@@ -164,8 +167,29 @@ const getNextColor = (): string => {
   return PRESET_COLORS[options.value.length % PRESET_COLORS.length]
 }
 
+
+
 // 初始化选项
-const initOptions = () => {
+const initOptions = async() => {
+  // check type in column if current column type is not select or multiSelect, need to try get all possible options from table data
+  if (props.column.type !== ColumnFieldType.SingleSelect && props.column.type !== ColumnFieldType.MultiSelect) {
+    // promt user to see if need to convert current table data into options
+    const possibleOptions = await getOptionsFromTableData(props.column)
+
+    if(possibleOptions.length > 0) {
+      possibleOptions.forEach((opt: any) => {
+        options.value.push({
+          id: opt,
+          label: opt || '',
+          color: getNextColor()
+        })
+      })
+      props.formData.options = options.value
+      console.log('options', options.value)
+      return
+    }
+
+  }
   // 如果父组件的 formData 中有选项数据，使用它
   if (props.formData?.options && Array.isArray(props.formData.options) && props.formData.options.length > 0) {
     options.value = props.formData.options.map((opt: any) => ({
