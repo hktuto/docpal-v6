@@ -362,6 +362,9 @@ const updateStrategy = ref<'all' | 'non_empty'>('all')
 const isImporting = ref(false)
 const importResult = ref<ImportResult | null>(null)
 
+// Pre-loaded sheet data (for openWithSheetData)
+const preloadedSheetData = ref<Record<string, any>[] | null>(null)
+
 // Composable refs (will be initialized in open())
 let importComposable: ReturnType<typeof useImportToTable> | null = null
 
@@ -580,14 +583,25 @@ function previousStep() {
 }
 
 async function startImport() {
-  if (!selectedFile.value || !importComposable) return
+  // Either we have a selected file, or pre-loaded sheet data
+  if ((!selectedFile.value && !preloadedSheetData.value) || !importComposable) return
 
   isImporting.value = true
   importResult.value = null
 
   try {
-    // Parse full sheet data
-    const { rows } = await importComposable.parseSheetData(selectedFile.value, selectedSheetIndex.value)
+    let rows: Record<string, any>[]
+
+    if (preloadedSheetData.value) {
+      // Use pre-loaded data (from openWithSheetData)
+      rows = preloadedSheetData.value
+    } else if (selectedFile.value) {
+      // Parse full sheet data from file
+      const parsed = await importComposable.parseSheetData(selectedFile.value, selectedSheetIndex.value)
+      rows = parsed.rows
+    } else {
+      throw new Error('No data to import')
+    }
 
     // Run import
     const result = await importComposable.importData(rows, {
@@ -629,6 +643,7 @@ function resetState() {
   isImporting.value = false
   importResult.value = null
   isDragOver.value = false
+  preloadedSheetData.value = null
 }
 
 interface OpenOptions {
@@ -662,9 +677,71 @@ function openWithFile(file: File, options: OpenOptions) {
   })
 }
 
+/**
+ * Open the dialog with pre-parsed sheet data (for updating existing tables)
+ * This skips the file selection step and goes directly to column mapping
+ */
+function openWithSheetData(
+  rows: Record<string, any>[],
+  headers: string[],
+  options: OpenOptions
+) {
+  console.log('[ImportToTableDialog] openWithSheetData called:', {
+    rowCount: rows.length,
+    headers,
+    tableName: options.tableDisplayName,
+    tableId: options.tableIdValue
+  })
+  
+  resetState()
+  tableName.value = options.tableDisplayName
+  tableId.value = options.tableIdValue
+
+  // Initialize composable with provided options
+  importComposable = useImportToTable({
+    physicalTableName: options.physicalTableName,
+    fields: options.fields,
+    query: options.query
+  })
+
+  // Create a synthetic sheet from the provided data
+  const previewRows = rows.slice(0, 5).map((row) => {
+    const preview: Record<string, any> = {}
+    headers.forEach((h) => {
+      preview[h] = row[h]
+    })
+    return preview
+  })
+
+  sheets.value = [{
+    name: tableName.value,
+    index: 0,
+    rowCount: rows.length,
+    columns: headers,
+    previewRows
+  }]
+  selectedSheetIndex.value = 0
+
+  // Store the rows data for import (we'll need to pass it to startImport)
+  preloadedSheetData.value = rows
+
+  // Skip to step 2 (column mapping) directly
+  currentStep.value = 1
+  if (importComposable) {
+    eligibleFields.value = importComposable.getEligibleFields()
+    columnMappings.value = importComposable.suggestMappings(headers)
+    console.log('[ImportToTableDialog] Eligible fields:', eligibleFields.value.length)
+    console.log('[ImportToTableDialog] Column mappings:', columnMappings.value)
+  }
+
+  visible.value = true
+  console.log('[ImportToTableDialog] Dialog should now be visible')
+}
+
 defineExpose({
   open,
-  openWithFile
+  openWithFile,
+  openWithSheetData
 })
 </script>
 

@@ -18,11 +18,27 @@ interface SheetData {
   rows: Record<string, any>[]
 }
 
+/**
+ * Info about a duplicate sheet that matches an existing table
+ */
+export interface DuplicateSheetInfo {
+  sheetName: string
+  sheetIndex: number
+  existingTableId: string
+  existingTableName: string
+  rows: Record<string, any>[]
+  headers: string[]
+}
+
 interface ImportBatchResult {
   success: boolean
   duplicates?: string[]
+  duplicateSheets?: DuplicateSheetInfo[]
   tablesCreated?: { id: string; name: string }[]
+  tablesUpdated?: { id: string; name: string }[]
   error?: string
+  /** When 'update' action is chosen, caller should handle duplicateSheets */
+  action?: 'skip' | 'update' | 'cancelled'
 }
 
 /**
@@ -679,17 +695,25 @@ export function useImportBatch() {
   /**
    * Get all existing table names/slugs in the workspace
    */
-  function getExistingTableNames(): { names: string[]; slugs: string[] } {
+  function getExistingTableNames(): { names: string[]; slugs: string[]; tableMap: Map<string, { id: string; name: string; dataTableId: string }> } {
     const names: string[] = []
     const slugs: string[] = []
+    const tableMap = new Map<string, { id: string; name: string; dataTableId: string }>()
 
     function collectFromItems(items: any[]) {
       for (const item of items) {
         if (item.itemType === 'table') {
-          names.push(item.label.toLowerCase())
+          const lowerName = item.label.toLowerCase()
+          names.push(lowerName)
           if (item.slug) {
             slugs.push(item.slug.toLowerCase())
           }
+          // Store table info by lowercase name for lookup
+          tableMap.set(lowerName, {
+            id: item.id,
+            name: item.label,
+            dataTableId: item.itemId
+          })
         }
         if (item.children) {
           collectFromItems(item.children)
@@ -698,7 +722,7 @@ export function useImportBatch() {
     }
 
     collectFromItems(menuState.value.items)
-    return { names, slugs }
+    return { names, slugs, tableMap }
   }
 
   /**
@@ -876,35 +900,108 @@ export function useImportBatch() {
       }
 
       // Check for duplicate table names
-      const { names: existingNames } = getExistingTableNames()
-      const duplicates = sheets.map((s) => s.tableName.toLowerCase()).filter((name) => existingNames.includes(name))
+      const { names: existingNames, tableMap } = getExistingTableNames()
+      const duplicateSheetNames = sheets
+        .map((s) => s.tableName.toLowerCase())
+        .filter((name) => existingNames.includes(name))
 
-      if (duplicates.length > 0) {
-        const duplicateList = [...new Set(duplicates)].join(', ')
+      if (duplicateSheetNames.length > 0) {
+        const uniqueDuplicates = [...new Set(duplicateSheetNames)]
+        const duplicateList = uniqueDuplicates.join(', ')
+        const newSheetsCount = sheets.length - uniqueDuplicates.length
+
+        // Build message based on situation
+        let message = `Found ${uniqueDuplicates.length} sheet(s) matching existing tables: ${duplicateList}.`
+        if (newSheetsCount > 0) {
+          message += ` ${newSheetsCount} new table(s) will be created.`
+        }
+        message += '\n\nWhat would you like to do?'
 
         try {
-          await ElMessageBox.confirm(
-            `The following sheet names already exist as tables: ${duplicateList}. These sheets will be skipped. Continue importing the remaining sheets?`,
-            'Duplicate Tables Found',
-            {
-              confirmButtonText: 'Continue',
-              cancelButtonText: 'Cancel',
-              type: 'warning'
+          const action = await ElMessageBox({
+            title: 'Duplicate Tables Found',
+            message,
+            type: 'warning',
+            showCancelButton: true,
+            distinguishCancelAndClose: true,
+            confirmButtonText: 'Update Existing',
+            cancelButtonText: 'Skip Duplicates',
+            closeOnClickModal: false
+          })
+
+          console.log('[useImportBatch] ElMessageBox action:', action, typeof action)
+
+          // User clicked "Update Existing" - ElMessageBox resolves when confirm is clicked
+          console.log('[useImportBatch] User chose to update existing')
+          
+          // Build duplicate sheet info for the caller to handle
+          const duplicateSheets: DuplicateSheetInfo[] = []
+          
+          for (let i = 0; i < sheets.length; i++) {
+            const sheet = sheets[i]
+            const lowerName = sheet.tableName.toLowerCase()
+            const existingTable = tableMap.get(lowerName)
+            
+            if (existingTable) {
+              console.log('[useImportBatch] Adding duplicate sheet:', sheet.name, '-> table:', existingTable)
+              duplicateSheets.push({
+                sheetName: sheet.name,
+                sheetIndex: i,
+                existingTableId: existingTable.dataTableId,
+                existingTableName: existingTable.name,
+                rows: sheet.rows,
+                headers: sheet.headers
+              })
             }
-          )
-        } catch {
-          return { success: false, duplicates: [...new Set(duplicates)], error: 'User cancelled due to duplicates' }
+          }
+
+          console.log('[useImportBatch] Total duplicate sheets:', duplicateSheets.length)
+
+          // Create new tables (non-duplicates)
+          const newSheets = sheets.filter((s) => !existingNames.includes(s.tableName.toLowerCase()))
+          let createResult: ImportBatchResult = { success: true, tablesCreated: [] }
+          
+          if (newSheets.length > 0) {
+            createResult = await createTablesFromSheets(newSheets, entityId, parentFolderId, file.name)
+          }
+
+          const finalResult = {
+            ...createResult,
+            action: 'update' as const,
+            duplicates: uniqueDuplicates,
+            duplicateSheets
+          }
+          console.log('[useImportBatch] Returning update result:', finalResult)
+          console.log('[useImportBatch] About to return from importExcelFile')
+          return finalResult
+        } catch (actionResult) {
+          // User clicked "Skip Duplicates" (cancel button) or closed the dialog
+          if (actionResult === 'cancel') {
+            // Skip duplicates and continue with new tables
+            const filteredSheets = sheets.filter((s) => !existingNames.includes(s.tableName.toLowerCase()))
+
+            if (filteredSheets.length === 0) {
+              ElMessage.info('All sheets match existing tables. No new tables to import.')
+              return { 
+                success: true, 
+                action: 'skip',
+                duplicates: uniqueDuplicates, 
+                tablesCreated: [] 
+              }
+            }
+
+            const result = await createTablesFromSheets(filteredSheets, entityId, parentFolderId, file.name)
+            return { ...result, action: 'skip', duplicates: uniqueDuplicates }
+          }
+          
+          // User closed the dialog (X button or ESC)
+          return { 
+            success: false, 
+            action: 'cancelled',
+            duplicates: uniqueDuplicates, 
+            error: 'Import cancelled' 
+          }
         }
-
-        // Filter out duplicate sheets
-        const filteredSheets = sheets.filter((s) => !existingNames.includes(s.tableName.toLowerCase()))
-
-        if (filteredSheets.length === 0) {
-          ElMessage.warning('All sheets have duplicate names. No tables to import.')
-          return { success: false, duplicates: [...new Set(duplicates)], error: 'All sheets are duplicates' }
-        }
-
-        return await createTablesFromSheets(filteredSheets, entityId, parentFolderId, file.name)
       }
 
       return await createTablesFromSheets(sheets, entityId, parentFolderId, file.name)

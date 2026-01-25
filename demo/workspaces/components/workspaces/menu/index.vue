@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { TreeItem } from '../../../composables/useSingleWorkspace'
 import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspace'
-import { useImportBatch, isExcelFile } from '../../../composables/useImportBatch'
+import { useImportBatch, isExcelFile, type DuplicateSheetInfo } from '../../../composables/useImportBatch'
+import { usePglite } from '../../../composables/usePglite'
+import type { CaseFieldRecord } from '../../../utils/db/schema/newTableSchema'
 import { ElMessage } from 'element-plus'
 import { useDebounceFn } from '@vueuse/core'
 import { onUnmounted } from 'vue'
@@ -20,9 +22,17 @@ const props = withDefaults(defineProps<Props>(), {
 
 const { menuState: state, addItem, openMenuItemActions, getMenuFromDb, workspace } = useSingleWorkspaceContext()
 const { importExcelFile } = useImportBatch()
+const { query } = usePglite()
 
 // File upload input ref
 const fileInputRef = ref<HTMLInputElement>()
+
+// Dialog refs for handling updates
+const importToTableDialogRef = ref()
+
+// Pending duplicates for sequential update processing
+const pendingDuplicates = ref<DuplicateSheetInfo[]>([])
+const tablesUpdated = ref<{ id: string; name: string }[]>([])
 
 // Excel drop import
 const isDraggingOver = ref(false)
@@ -96,8 +106,13 @@ async function handleDrop(event: DragEvent) {
   // Find Excel files
   const excelFile = Array.from(files).find(isExcelFile)
   if (excelFile && workspace.value?.id) {
-    // Directly import without dialog
-    await importExcelFile(excelFile, workspace.value.id, null)
+    // Import the file
+    const result = await importExcelFile(excelFile, workspace.value.id, null)
+    
+    // If update action, open ImportExcelDialog to handle duplicate updates
+    if (result.action === 'update' && result.duplicateSheets && result.duplicateSheets.length > 0) {
+      handleDuplicateUpdates(excelFile, result.duplicateSheets)
+    }
   }
 }
 
@@ -115,7 +130,12 @@ function handleDragEnd() {
 
 async function handleFolderDrop(folderId: string, file: File) {
   if (workspace.value?.id) {
-    await importExcelFile(file, workspace.value.id, folderId)
+    const result = await importExcelFile(file, workspace.value.id, folderId)
+    
+    // If update action, open dialog to handle duplicate updates
+    if (result.action === 'update' && result.duplicateSheets && result.duplicateSheets.length > 0) {
+      handleDuplicateUpdates(file, result.duplicateSheets)
+    }
   }
 }
 
@@ -131,7 +151,12 @@ async function handleFileInputChange(event: Event) {
   const file = files[0]
 
   if (isExcelFile(file)) {
-    await importExcelFile(file, workspace.value.id, null)
+    const result = await importExcelFile(file, workspace.value.id, null)
+    
+    // If update action, open dialog to handle duplicate updates
+    if (result.action === 'update' && result.duplicateSheets && result.duplicateSheets.length > 0) {
+      handleDuplicateUpdates(file, result.duplicateSheets)
+    }
   } else {
     ElMessage.error('Please select an Excel file (.xlsx, .xls) or CSV file (.csv)')
   }
@@ -146,6 +171,104 @@ async function handleFileInputChange(event: Event) {
 function triggerFileInput() {
   if (!props.isAdmin) return
   fileInputRef.value?.click()
+}
+
+/**
+ * Handle duplicate updates by opening ImportToTableDialog for each duplicate
+ */
+function handleDuplicateUpdates(file: File, duplicates: DuplicateSheetInfo[]) {
+  pendingDuplicates.value = [...duplicates]
+  tablesUpdated.value = []
+  
+  ElMessage.info(`Updating ${duplicates.length} existing table(s)...`)
+  processNextDuplicate()
+}
+
+/**
+ * Process the next duplicate by opening ImportToTableDialog
+ */
+async function processNextDuplicate() {
+  if (pendingDuplicates.value.length === 0) {
+    // All duplicates processed
+    if (tablesUpdated.value.length > 0) {
+      ElMessage.success(`${tablesUpdated.value.length} table(s) updated successfully`)
+    }
+    return
+  }
+
+  const duplicate = pendingDuplicates.value[0]
+  console.log('[ImportToTableDialog] Processing duplicate:', duplicate)
+  try {
+    // Get table fields for the existing table
+    const fields = await query<CaseFieldRecord>(
+      `SELECT * FROM case_fields WHERE "tableId" = $1`,
+      [duplicate.existingTableId]
+    )
+    console.log('[ImportToTableDialog] Got fields:', fields.length)
+    // Get physical table name (stored as "tableName" in DB)
+    const tableData = await query<{ tableName: string }>(
+      `SELECT "tableName" FROM case_tables WHERE id = $1`,
+      [duplicate.existingTableId]
+    )
+    console.log('[ImportToTableDialog] Got table data:', tableData.length)
+    if (tableData.length === 0) {
+      console.error('Table not found:', duplicate.existingTableId)
+      pendingDuplicates.value.shift()
+      processNextDuplicate()
+      return
+    }
+
+    // Open the import dialog for this duplicate with pre-loaded data
+    importToTableDialogRef.value?.openWithSheetData(
+      duplicate.rows,
+      duplicate.headers,
+      {
+        physicalTableName: ref(tableData[0].tableName),
+        fields: ref(fields),
+        query,
+        tableDisplayName: duplicate.existingTableName,
+        tableIdValue: duplicate.existingTableId
+      }
+    )
+  } catch (error) {
+    console.error('Error preparing duplicate update:', error)
+    pendingDuplicates.value.shift()
+    processNextDuplicate()
+  }
+}
+
+/**
+ * Handle completion of a table update from ImportToTableDialog
+ */
+function handleUpdateComplete(result: any) {
+  const duplicate = pendingDuplicates.value.shift()
+  
+  if (duplicate && (result.inserted > 0 || result.updated > 0)) {
+    tablesUpdated.value.push({
+      id: duplicate.existingTableId,
+      name: duplicate.existingTableName
+    })
+  }
+  
+  // Process next duplicate
+  if (pendingDuplicates.value.length > 0) {
+    setTimeout(() => processNextDuplicate(), 300)
+  } else if (tablesUpdated.value.length > 0) {
+    ElMessage.success(`${tablesUpdated.value.length} table(s) updated successfully`)
+  }
+}
+
+/**
+ * Handle close of ImportToTableDialog (skip this duplicate)
+ */
+function handleUpdateClose() {
+  pendingDuplicates.value.shift()
+  
+  if (pendingDuplicates.value.length > 0) {
+    setTimeout(() => processNextDuplicate(), 300)
+  } else if (tablesUpdated.value.length > 0) {
+    ElMessage.success(`${tablesUpdated.value.length} table(s) updated successfully`)
+  }
 }
 
 // Expose for child components
@@ -269,6 +392,13 @@ onUnmounted(() => {
     />
 
     <slot />
+
+    <!-- Import To Table Dialog for updating existing tables -->
+    <WorkspacesDialogsImportToTableDialog
+      ref="importToTableDialogRef"
+      @complete="handleUpdateComplete"
+      @close="handleUpdateClose"
+    />
   </div>
 </template>
 

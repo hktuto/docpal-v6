@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { TreeItem } from '#imports'
-import { useSingleWorkspaceContext, useImportBatch, isExcelFile } from '#imports'
+import { useSingleWorkspaceContext, isExcelFile } from '#imports'
 
 interface Props {
   children: TreeItem[]
@@ -8,8 +8,11 @@ interface Props {
 
 defineProps<Props>()
 
-const { navigateToItem, getMenuIcon, workspace } = useSingleWorkspaceContext()
-const { importExcelFile } = useImportBatch()
+const { navigateToItem, getMenuIcon } = useSingleWorkspaceContext()
+
+// Use the parent's handleFolderDrop which handles update flow
+const handleFolderDrop = inject<(folderId: string, file: File) => Promise<void>>('handleFolderDrop')
+const injectedIsExcelFile = inject<(file: File) => boolean>('isExcelFile', () => isExcelFile)
 
 // Track drag state for each child card
 const dragStates = ref<Record<string, boolean>>({})
@@ -55,10 +58,10 @@ async function handleDrop(event: DragEvent, child: TreeItem) {
   if (!files || files.length === 0) return
 
   // Find Excel file
-  const excelFile = Array.from(files).find(isExcelFile)
-  if (excelFile && workspace.value?.id) {
-    // Import Excel file into this folder
-    await importExcelFile(excelFile, workspace.value.id, child.id)
+  const excelFile = Array.from(files).find((f) => injectedIsExcelFile(f))
+  if (excelFile && handleFolderDrop) {
+    // Use parent's handler which manages update flow
+    await handleFolderDrop(child.id, excelFile)
   }
 
   // Prevent click event from firing after drop
