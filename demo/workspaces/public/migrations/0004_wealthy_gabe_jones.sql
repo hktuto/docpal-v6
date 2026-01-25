@@ -1,1 +1,0 @@
-ALTER TABLE "case_tables" ADD COLUMN "suggestionStatus" text DEFAULT 'none' NOT NULL;

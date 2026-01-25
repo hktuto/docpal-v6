@@ -470,7 +470,7 @@ export function useRelationAnalyzer() {
       isReference: true,
       relationTableId: suggestion.targetTable.id,
       relationFieldId: suggestion.sourceField.id,
-      displayFieldIds: [],  // User can configure lookup fields later
+      displayFieldNames: [],  // User can configure display fields later
       createdBy: createdBy || null,
       createdAt: now,
       updatedAt: now
@@ -481,7 +481,7 @@ export function useRelationAnalyzer() {
       `INSERT INTO case_fields (
         id, "tableId", "fieldName", "fieldNameAlias", "businessType", "fieldType",
         "displayStructure", "isRequired", "isHidden", "isArray", "isUnique",
-        "isReference", "relationTableId", "relationFieldId", "displayFieldIds",
+        "isReference", "relationTableId", "relationFieldId", "displayFieldNames",
         "createdBy", "createdAt", "updatedAt"
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
       [
@@ -499,7 +499,7 @@ export function useRelationAnalyzer() {
         newField.isReference,
         newField.relationTableId,
         newField.relationFieldId,
-        newField.displayFieldIds,
+        newField.displayFieldNames,
         newField.createdBy,
         newField.createdAt,
         newField.updatedAt

@@ -1,5 +1,5 @@
 {
-  "id": "62c0112c-a209-4e1a-a47d-56090d1c59e4",
+  "id": "67cec21b-a5bb-4aa9-b77f-d5a96984bb05",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -235,9 +235,9 @@
           "notNull": true,
           "default": "now()"
         },
-        "displayFieldIds": {
-          "name": "displayFieldIds",
-          "type": "uuid[]",
+        "displayFieldNames": {
+          "name": "displayFieldNames",
+          "type": "text[]",
           "primaryKey": false,
           "notNull": true,
           "default": "'{}'"
@@ -250,6 +250,18 @@
         },
         "relationTableId": {
           "name": "relationTableId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lookupColumnName": {
+          "name": "lookupColumnName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lookupFieldId": {
+          "name": "lookupFieldId",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
@@ -369,6 +381,13 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": false
+        },
+        "suggestionStatus": {
+          "name": "suggestionStatus",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'none'"
         },
         "createdBy": {
           "name": "createdBy",
@@ -716,6 +735,19 @@
           "primaryKey": false,
           "notNull": true
         },
+        "viewType": {
+          "name": "viewType",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'table'"
+        },
+        "viewSettings": {
+          "name": "viewSettings",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
         "filter": {
           "name": "filter",
           "type": "jsonb",
@@ -852,6 +884,156 @@
           ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.relation_suggestions": {
+      "name": "relation_suggestions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "sourceTableId": {
+          "name": "sourceTableId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sourceFieldId": {
+          "name": "sourceFieldId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "targetTableId": {
+          "name": "targetTableId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "targetFieldId": {
+          "name": "targetFieldId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "matchReason": {
+          "name": "matchReason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "matchCount": {
+          "name": "matchCount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "totalCount": {
+          "name": "totalCount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sampleValues": {
+          "name": "sampleValues",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "suggestedType": {
+          "name": "suggestedType",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'multiple'"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "relation_suggestions_sourceTableId_case_tables_id_fk": {
+          "name": "relation_suggestions_sourceTableId_case_tables_id_fk",
+          "tableFrom": "relation_suggestions",
+          "tableTo": "case_tables",
+          "columnsFrom": [
+            "sourceTableId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "relation_suggestions_sourceFieldId_case_fields_id_fk": {
+          "name": "relation_suggestions_sourceFieldId_case_fields_id_fk",
+          "tableFrom": "relation_suggestions",
+          "tableTo": "case_fields",
+          "columnsFrom": [
+            "sourceFieldId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "relation_suggestions_targetTableId_case_tables_id_fk": {
+          "name": "relation_suggestions_targetTableId_case_tables_id_fk",
+          "tableFrom": "relation_suggestions",
+          "tableTo": "case_tables",
+          "columnsFrom": [
+            "targetTableId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "relation_suggestions_targetFieldId_case_fields_id_fk": {
+          "name": "relation_suggestions_targetFieldId_case_fields_id_fk",
+          "tableFrom": "relation_suggestions",
+          "tableTo": "case_fields",
+          "columnsFrom": [
+            "targetFieldId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

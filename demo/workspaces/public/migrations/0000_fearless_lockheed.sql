@@ -35,9 +35,11 @@ CREATE TABLE "case_fields" (
 	"createdAt" timestamp DEFAULT now() NOT NULL,
 	"updatedBy" uuid,
 	"updatedAt" timestamp DEFAULT now() NOT NULL,
-	"displayFieldIds" uuid[] DEFAULT '{}' NOT NULL,
+	"displayFieldNames" text[] DEFAULT '{}' NOT NULL,
 	"relationFieldId" uuid,
-	"relationTableId" uuid
+	"relationTableId" uuid,
+	"lookupColumnName" text,
+	"lookupFieldId" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "case_tables" (
@@ -49,6 +51,7 @@ CREATE TABLE "case_tables" (
 	"viewName" uuid,
 	"entityId" uuid NOT NULL,
 	"formStructure" jsonb,
+	"suggestionStatus" text DEFAULT 'none' NOT NULL,
 	"createdBy" uuid,
 	"createdAt" timestamp DEFAULT now() NOT NULL,
 	"updatedBy" uuid,
@@ -89,6 +92,8 @@ CREATE TABLE "case_views" (
 	"name" text NOT NULL,
 	"description" text,
 	"viewName" text NOT NULL,
+	"viewType" text DEFAULT 'table' NOT NULL,
+	"viewSettings" jsonb,
 	"filter" jsonb,
 	"sorting" jsonb,
 	"grouping" jsonb,
@@ -101,6 +106,22 @@ CREATE TABLE "case_views" (
 	"updatedBy" uuid,
 	"updatedAt" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "case_views_viewName_unique" UNIQUE("viewName")
+);
+--> statement-breakpoint
+CREATE TABLE "relation_suggestions" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"sourceTableId" uuid NOT NULL,
+	"sourceFieldId" uuid NOT NULL,
+	"targetTableId" uuid NOT NULL,
+	"targetFieldId" uuid NOT NULL,
+	"matchReason" text NOT NULL,
+	"matchCount" integer NOT NULL,
+	"totalCount" integer NOT NULL,
+	"sampleValues" text[] DEFAULT '{}' NOT NULL,
+	"suggestedType" text DEFAULT 'multiple' NOT NULL,
+	"status" text DEFAULT 'pending' NOT NULL,
+	"createdAt" timestamp DEFAULT now() NOT NULL,
+	"updatedAt" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 ALTER TABLE "case_fields" ADD CONSTRAINT "case_fields_tableId_case_tables_id_fk" FOREIGN KEY ("tableId") REFERENCES "public"."case_tables"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -118,4 +139,8 @@ ALTER TABLE "case_type" ADD CONSTRAINT "case_type_updatedBy_users_id_fk" FOREIGN
 ALTER TABLE "case_views" ADD CONSTRAINT "case_views_tableId_case_tables_id_fk" FOREIGN KEY ("tableId") REFERENCES "public"."case_tables"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "case_views" ADD CONSTRAINT "case_views_entityId_case_type_id_fk" FOREIGN KEY ("entityId") REFERENCES "public"."case_type"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "case_views" ADD CONSTRAINT "case_views_createdBy_users_id_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "case_views" ADD CONSTRAINT "case_views_updatedBy_users_id_fk" FOREIGN KEY ("updatedBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "case_views" ADD CONSTRAINT "case_views_updatedBy_users_id_fk" FOREIGN KEY ("updatedBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_sourceTableId_case_tables_id_fk" FOREIGN KEY ("sourceTableId") REFERENCES "public"."case_tables"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_sourceFieldId_case_fields_id_fk" FOREIGN KEY ("sourceFieldId") REFERENCES "public"."case_fields"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_targetTableId_case_tables_id_fk" FOREIGN KEY ("targetTableId") REFERENCES "public"."case_tables"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_targetFieldId_case_fields_id_fk" FOREIGN KEY ("targetFieldId") REFERENCES "public"."case_fields"("id") ON DELETE cascade ON UPDATE no action;

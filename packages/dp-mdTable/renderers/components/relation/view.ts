@@ -9,22 +9,13 @@ export const RelationView = ({options, params}: ViewRenderFunctionParams<string>
   // Format: relationFieldName.displayFieldName
   let relationFieldName = column.field
   let displayValue: any
-  
-  if (column.field.includes('.')) {
-    // New format: column.field is "relationFieldName.displayFieldName"
-    // The display value is stored with the same key
-    displayValue = row[column.field]
-    // Extract the base relation field name to get the UUID value
-    relationFieldName = column.field.split('.')[0]
-  } else {
-    // Backward compatibility: old format used "_display" suffix
-    const displayKey = `${column.field}_display`
-    displayValue = row[displayKey]
-  }
+  console.log('row', row, relationOptions)
+  const displayData = row[column.field + '.' + relationOptions.displayField]
+  console.log('displayData', displayData)
   
   // The UUID value(s) are stored in the base relation field
   // All relations are now arrays (uuid[])
-  const value = row[relationFieldName]
+  const value = displayData
   
   if (!value || !Array.isArray(value) || value.length === 0) {
     return h('div', { class: 'relation-view empty' }, '-')
@@ -76,7 +67,6 @@ export const RelationEdit = ({options, params}: ViewRenderFunctionParams<string>
   // TODO: Implement relation selector component
   // For now, just show the display value
   let displayValue: any
-  
   if (column.field.includes('.')) {
     // New format: display value is stored with the same key as column.field
     displayValue = row[column.field]

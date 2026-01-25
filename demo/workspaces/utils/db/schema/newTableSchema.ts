@@ -196,7 +196,7 @@ export const caseField = pgTable('case_fields', {
   updatedBy: uuid('updatedBy').references(() => users.id),
   updatedAt: timestamp('updatedAt').notNull().defaultNow(),
   // Relation field configuration
-  displayFieldIds: uuid('displayFieldIds').array().notNull().default([]),
+  displayFieldNames: text('displayFieldNames').array().notNull().default([]), // Field names from target table to display
   relationFieldId: uuid('relationFieldId'),
   relationTableId: uuid('relationTableId').references(() => caseTable.id),
   // Lookup configuration for auto-resolving relations on new rows
