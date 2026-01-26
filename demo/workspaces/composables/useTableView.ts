@@ -332,27 +332,57 @@ export const useTableView = () => {
     // Refresh fields
     await fieldComposable.getAllFields()
 
-    // Add the relation column to the view (not virtual column, just the base relation)
+    // Add the relation column to the view, plus virtual columns for additional display fields
     if (viewComposable.currentView.value) {
       const currentFields = [...viewComposable.currentView.value.fields]
+      let insertIndex = -1
 
-      // Only add if not already present
+      // Only add relation column if not already present
       if (!currentFields.includes(relationFieldName)) {
         const sourceFieldIndex = currentFields.indexOf(sourceFieldName)
         if (sourceFieldIndex !== -1) {
-          currentFields.splice(sourceFieldIndex + 1, 0, relationFieldName)
+          insertIndex = sourceFieldIndex + 1
+          currentFields.splice(insertIndex, 0, relationFieldName)
         } else {
           currentFields.push(relationFieldName)
+          insertIndex = currentFields.length - 1
         }
-        await viewComposable.updateView(viewComposable.currentView.value.id, { fields: currentFields })
+      } else {
+        // Relation exists - find its position for adding virtual columns
+        insertIndex = currentFields.indexOf(relationFieldName)
       }
+
+      // Auto-create virtual columns for display fields beyond the first one
+      // First display field stays in the combined relation column
+      if (displayFieldNames.length > 1) {
+        for (let i = 1; i < displayFieldNames.length; i++) {
+          const virtualFieldName = `${relationFieldName}.${displayFieldNames[i]}`
+          // Only add if not already in view
+          if (!currentFields.includes(virtualFieldName)) {
+            // Find the position after relation and existing virtual columns
+            let vcInsertIndex = insertIndex + 1
+            for (let j = insertIndex + 1; j < currentFields.length; j++) {
+              if (currentFields[j].startsWith(`${relationFieldName}.`)) {
+                vcInsertIndex = j + 1
+              } else {
+                break
+              }
+            }
+            currentFields.splice(vcInsertIndex, 0, virtualFieldName)
+          }
+        }
+      }
+
+      await viewComposable.updateView(viewComposable.currentView.value.id, { fields: currentFields })
 
       // Show success message
       if (isAddingToExistingRelation) {
         const fieldCount = displayFieldNames.length
         ElMessage.success(`Added ${fieldCount} display field${fieldCount > 1 ? 's' : ''} to relation`)
       } else {
-        ElMessage.success(`Relation created: ${relationColumnName} with ${displayFieldNames.length} display field${displayFieldNames.length > 1 ? 's' : ''}`)
+        const vcCount = displayFieldNames.length - 1
+        const vcMessage = vcCount > 0 ? ` + ${vcCount} virtual column${vcCount > 1 ? 's' : ''}` : ''
+        ElMessage.success(`Relation created: ${relationColumnName}${vcMessage}`)
       }
 
       await initializeTableView(tableId.value)
