@@ -19,7 +19,7 @@ export const getFromServer = async function(loadUserList: boolean, loadRoleList:
 
   try {
     if (loadUserList) {
-      const user = await clientApi.api.postNuxeoIdentityUsers().then((res: any) => res.data)
+      const user = await clientApi.api.postUcenterUsers().then((res: any) => res.data)
       userList.value = user || []
       if (userList.value.length > 0) {
         options.value.push(
@@ -55,7 +55,7 @@ export const getFromServer = async function(loadUserList: boolean, loadRoleList:
     }
 
     if (loadGroupList) {
-      const group = await clientApi.api.postNuxeoIdentityGroups().then((res) => res.data)
+      const group = await clientApi.api.postUcenterGroups().then((res) => res.data)
       groupList.value = group || []
       if (groupList.value.length > 0 && !!group) {
         options.value.push(

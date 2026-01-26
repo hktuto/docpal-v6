@@ -3522,6 +3522,54 @@ export interface ResultAclUserPermission {
     data?: AclUserPermission;
 }
 
+/** Password (Request) */
+export interface PasswordRequestDTO {
+    token?: string;
+    oldPassword?: string;
+    newPassword: string;
+}
+
+export interface ResultListUserDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: UserDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListGroupDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: GroupDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultGroupDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Group data transfer object */
+    data?: GroupDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** User batch active params */
+export interface UserBatchActiveDTO {
+    /** acl_user ids */
+    ids?: string[];
+    /** keycloak user ids */
+    userIds?: string[];
+    /** active A/D */
+    active?: string;
+}
+
 /** Define access control permission */
 export interface AccessControlPermission {
     id?: string;
@@ -3822,217 +3870,6 @@ export interface ResultListAclUserGroup {
     code?: number;
     message?: string;
     data?: AclUserGroup[];
-}
-
-export interface NestedSearchLogRequestDTO {
-    /** @format int64 */
-    id?: number;
-    label?: string;
-    queryCondition?: string;
-}
-
-export interface MatchDTO {
-    queryType?: string;
-    type?: string;
-    value?: object;
-    option?: OptionDTO;
-    extract?: MatchExtractDTO;
-}
-
-export interface MatchExtractDTO {
-    synonyms?: string[];
-}
-
-export interface OptionDTO {
-    matchCase?: boolean;
-    fullMatch?: boolean;
-    synonyms?: boolean;
-    includeLanguages?: string[];
-}
-
-export interface QueryConditionDTO {
-    condition?: string;
-    matchs?: MatchDTO[];
-}
-
-export interface SearchFilterDTO {
-    documentTypes?: string[];
-    collections?: string[];
-    tags?: string[];
-    creators?: string[];
-    lastModifyBy?: string[];
-    authors?: string[];
-    createdDate?: string;
-    modified?: string;
-}
-
-export interface SearchRequestDTO {
-    condition?: string;
-    docId?: string;
-    /** @format int32 */
-    pageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    isExport?: boolean;
-    filter?: SearchFilterDTO;
-    query?: QueryConditionDTO[];
-}
-
-export interface DocpalSearchRequest {
-    condition?: string;
-    docId?: string;
-    query?: QueryCondition[];
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageSize?: number;
-}
-
-export interface Match {
-    queryType?: string;
-    value?: object;
-    option?: Record<string, object>;
-}
-
-export interface QueryCondition {
-    condition?: string;
-    matchs?: Match[];
-}
-
-export interface HitsHits {
-    /** @format int64 */
-    _id?: number;
-    /** @format int32 */
-    _score?: number;
-    _source?: object;
-    _knn_dist?: number;
-    highlight?: object;
-    table?: string;
-    "_type:"?: string;
-    fields?: object;
-}
-
-export interface ResultSearchResponse {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: SearchResponse;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface SearchResponse {
-    /** @format int32 */
-    took?: number;
-    timed_out?: boolean;
-    aggregations?: object;
-    hits?: SearchResponseHits;
-    profile?: object;
-    scroll?: string;
-    warning?: object;
-}
-
-export interface SearchResponseHits {
-    /** @format int32 */
-    max_score?: number;
-    /** @format int32 */
-    total?: number;
-    total_relation?: string;
-    hits?: HitsHits[];
-}
-
-export interface ResultListSearchDocumentVO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: SearchDocumentVO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface SearchDocumentVO {
-    acl?: string[];
-    collections?: string[];
-    content?: string;
-    contributors?: string[];
-    metadatas?: Record<string, object>;
-    name?: string;
-    path?: string;
-    /** @format int32 */
-    status?: number;
-    tags?: TagVO[];
-    type?: string;
-    version?: Record<string, object>;
-    id?: string;
-    properties?: Record<string, object>;
-    be_index?: boolean;
-    create_by?: string;
-    /** @format date-time */
-    create_date?: string;
-    docpal_type?: string;
-    document_type?: string;
-    /** @format int32 */
-    event_id?: number;
-    extend_datas?: Record<string, object>;
-    file_content?: Record<string, object>;
-    file_suffix?: string;
-    is_folder?: boolean;
-    is_ocr?: boolean;
-    is_update_child_name?: boolean;
-    last_modify_by?: string;
-    mixin_type?: string[];
-    /** @format date-time */
-    modify_date?: string;
-    parent_id?: string;
-    path_levels?: Record<string, object>;
-}
-
-export interface TagVO {
-    username?: string;
-    label?: string;
-}
-
-export interface ResultListUserDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: UserDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListGroupDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: GroupDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultGroupDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Group data transfer object */
-    data?: GroupDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** User batch active params */
-export interface UserBatchActiveDTO {
-    /** acl_user ids */
-    ids?: string[];
-    /** keycloak user ids */
-    userIds?: string[];
-    /** active A/D */
-    active?: string;
 }
 
 export interface NotificationRecord {
@@ -6310,13 +6147,6 @@ export interface RoleDTO {
     additionUsers?: string[];
 }
 
-/** Password (Request) */
-export interface PasswordRequestDTO {
-    token?: string;
-    oldPassword?: string;
-    newPassword: string;
-}
-
 export interface UploadRequestRequestDTO {
     idOrPath?: string;
     email?: string;
@@ -6820,6 +6650,176 @@ export interface ActiveUserConfigDTO {
     activeUsersConfig?: Record<string, number>;
     /** @format int32 */
     concurrentSession?: number;
+}
+
+export interface NestedSearchLogRequestDTO {
+    /** @format int64 */
+    id?: number;
+    label?: string;
+    queryCondition?: string;
+}
+
+export interface MatchDTO {
+    queryType?: string;
+    type?: string;
+    value?: object;
+    option?: OptionDTO;
+    extract?: MatchExtractDTO;
+}
+
+export interface MatchExtractDTO {
+    synonyms?: string[];
+}
+
+export interface OptionDTO {
+    matchCase?: boolean;
+    fullMatch?: boolean;
+    synonyms?: boolean;
+    includeLanguages?: string[];
+}
+
+export interface QueryConditionDTO {
+    condition?: string;
+    matchs?: MatchDTO[];
+}
+
+export interface SearchFilterDTO {
+    documentTypes?: string[];
+    collections?: string[];
+    tags?: string[];
+    creators?: string[];
+    lastModifyBy?: string[];
+    authors?: string[];
+    createdDate?: string;
+    modified?: string;
+}
+
+export interface SearchRequestDTO {
+    condition?: string;
+    docId?: string;
+    /** @format int32 */
+    pageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    isExport?: boolean;
+    filter?: SearchFilterDTO;
+    query?: QueryConditionDTO[];
+}
+
+export interface DocpalSearchRequest {
+    condition?: string;
+    docId?: string;
+    query?: QueryCondition[];
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageSize?: number;
+}
+
+export interface Match {
+    queryType?: string;
+    value?: object;
+    option?: Record<string, object>;
+}
+
+export interface QueryCondition {
+    condition?: string;
+    matchs?: Match[];
+}
+
+export interface HitsHits {
+    /** @format int64 */
+    _id?: number;
+    /** @format int32 */
+    _score?: number;
+    _source?: object;
+    _knn_dist?: number;
+    highlight?: object;
+    table?: string;
+    "_type:"?: string;
+    fields?: object;
+}
+
+export interface ResultSearchResponse {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: SearchResponse;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface SearchResponse {
+    /** @format int32 */
+    took?: number;
+    timed_out?: boolean;
+    aggregations?: object;
+    hits?: SearchResponseHits;
+    profile?: object;
+    scroll?: string;
+    warning?: object;
+}
+
+export interface SearchResponseHits {
+    /** @format int32 */
+    max_score?: number;
+    /** @format int32 */
+    total?: number;
+    total_relation?: string;
+    hits?: HitsHits[];
+}
+
+export interface ResultListSearchDocumentVO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: SearchDocumentVO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface SearchDocumentVO {
+    acl?: string[];
+    collections?: string[];
+    content?: string;
+    contributors?: string[];
+    metadatas?: Record<string, object>;
+    name?: string;
+    path?: string;
+    /** @format int32 */
+    status?: number;
+    tags?: TagVO[];
+    type?: string;
+    version?: Record<string, object>;
+    id?: string;
+    properties?: Record<string, object>;
+    be_index?: boolean;
+    create_by?: string;
+    /** @format date-time */
+    create_date?: string;
+    docpal_type?: string;
+    document_type?: string;
+    /** @format int32 */
+    event_id?: number;
+    extend_datas?: Record<string, object>;
+    file_content?: Record<string, object>;
+    file_suffix?: string;
+    is_folder?: boolean;
+    is_ocr?: boolean;
+    is_update_child_name?: boolean;
+    last_modify_by?: string;
+    mixin_type?: string[];
+    /** @format date-time */
+    modify_date?: string;
+    parent_id?: string;
+    path_levels?: Record<string, object>;
+}
+
+export interface TagVO {
+    username?: string;
+    label?: string;
 }
 
 /** Retention Policy Document RequestDTO */
@@ -9967,6 +9967,28 @@ export interface AddAiCommentRequestDTO {
     answerId?: number;
 }
 
+/** Batch delete users */
+export interface BatchDeleteUserDTO {
+    /** keycloak user ids */
+    userIds?: string[];
+}
+
+/** Batch delete users */
+export interface BatchAddUsersToGroupsDTO {
+    /** keycloak user ids */
+    userIds?: string[];
+    /** groups ids */
+    groupIds?: string[];
+}
+
+/** Batch add groups to user */
+export interface UserBatchAddGroupsDTO {
+    /** acl_user id */
+    userId?: string;
+    /** group ids */
+    groupIds?: string[];
+}
+
 export interface PasswordConfigDTO {
     /**
      * @format int32
@@ -10011,28 +10033,6 @@ export interface PasswordConfigDTO {
      * @max 10
      */
     reusePasswordCount?: number;
-}
-
-/** Batch delete users */
-export interface BatchDeleteUserDTO {
-    /** keycloak user ids */
-    userIds?: string[];
-}
-
-/** Batch delete users */
-export interface BatchAddUsersToGroupsDTO {
-    /** keycloak user ids */
-    userIds?: string[];
-    /** groups ids */
-    groupIds?: string[];
-}
-
-/** Batch add groups to user */
-export interface UserBatchAddGroupsDTO {
-    /** acl_user id */
-    userId?: string;
-    /** group ids */
-    groupIds?: string[];
 }
 
 /** Batch add users to group */
@@ -11169,20 +11169,21 @@ export interface ResultListAclPermissionDTO {
     data?: AclPermissionDTO[];
 }
 
-export interface ResultListAclUserRelationshipWithUserGroup {
+export interface ResultVerifyPermission {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: AclUserRelationshipWithUserGroup[];
+    data?: VerifyPermission;
+    messageKey?: string;
+    locale?: string;
 }
 
-export interface ResultAclUserGroupDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: AclUserGroupDTO;
+export interface VerifyPermission {
+    userId?: string;
+    userPermissions?: string[];
+    groupPermissions?: string[];
+    rolePermissions?: string[];
 }
 
 export interface ResultUserStatusDTO {
@@ -11230,43 +11231,20 @@ export interface ResultPasswordConfigDTO {
     locale?: string;
 }
 
-export interface NestedSearchLogRecord {
-    /** @format int64 */
-    id?: number;
-    userId?: string;
-    label?: string;
-    queryCondition?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-}
-
-export interface ResultListNestedSearchLogRecord {
+export interface ResultListAclUserRelationshipWithUserGroup {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: NestedSearchLogRecord[];
-    messageKey?: string;
-    locale?: string;
+    data?: AclUserRelationshipWithUserGroup[];
 }
 
-export interface ResultVerifyPermission {
+export interface ResultAclUserGroupDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: VerifyPermission;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface VerifyPermission {
-    userId?: string;
-    userPermissions?: string[];
-    groupPermissions?: string[];
-    rolePermissions?: string[];
+    data?: AclUserGroupDTO;
 }
 
 export interface NotificationUnreadCountDTO {
@@ -11878,6 +11856,28 @@ export interface ResultAccountPropertyDTO {
     message?: string;
     /** AccountPropertyDTO */
     data?: AccountPropertyDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface NestedSearchLogRecord {
+    /** @format int64 */
+    id?: number;
+    userId?: string;
+    label?: string;
+    queryCondition?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface ResultListNestedSearchLogRecord {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: NestedSearchLogRecord[];
     messageKey?: string;
     locale?: string;
 }
@@ -13654,13 +13654,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PutNuxeoIdentityStatus
+         * @name PutUcenterStatus
          * @summary Update User State
-         * @request PUT:/api/nuxeo/identity/status
+         * @request PUT:/api/ucenter/status
          */
-        putNuxeoIdentityStatus: (data: ActiveUserRequestDTO, params: RequestParams = {}) =>
+        putUcenterStatus: (data: ActiveUserRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/status`,
+                path: `/api/ucenter/status`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -17398,6 +17398,286 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterUser
+         * @summary Create new User
+         * @request POST:/api/ucenter/user
+         */
+        postUcenterUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/user`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PatchUcenterUser
+         * @summary Update User
+         * @request PATCH:/api/ucenter/user
+         */
+        patchUcenterUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/user`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name PostUcenterPasswordResetPassword
+         * @request POST:/api/ucenter/password/reset-password
+         */
+        postUcenterPasswordResetPassword: (data: PasswordRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/reset-password`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name PostUcenterPasswordInitPassword
+         * @request POST:/api/ucenter/password/init-password
+         */
+        postUcenterPasswordInitPassword: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/init-password`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name PostUcenterPasswordForgetPassword
+         * @request POST:/api/ucenter/password/forget-password
+         */
+        postUcenterPasswordForgetPassword: (
+            query: {
+                userId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/forget-password`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterPage
+         * @request POST:/api/ucenter/page
+         */
+        postUcenterPage: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterMembership
+         * @summary Add user to group
+         * @request POST:/api/ucenter/membership
+         */
+        postUcenterMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/membership`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name DeleteUcenterMembership
+         * @summary Remove user from group
+         * @request DELETE:/api/ucenter/membership
+         */
+        deleteUcenterMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/membership`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterMember
+         * @summary Get the members of a group
+         * @request POST:/api/ucenter/member
+         */
+        postUcenterMember: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/member`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterMemberGroup
+         * @summary Get the groups of a member
+         * @request POST:/api/ucenter/member-group
+         */
+        postUcenterMemberGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/member-group`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterGroups
+         * @summary Get groups list
+         * @request POST:/api/ucenter/groups
+         */
+        postUcenterGroups: (params: RequestParams = {}) =>
+            this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/groups`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterGroup
+         * @summary Create new group
+         * @request POST:/api/ucenter/group
+         */
+        postUcenterGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/group`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PatchUcenterGroup
+         * @summary Update group
+         * @request PATCH:/api/ucenter/group
+         */
+        patchUcenterGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/group`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterGetKeycloakAllUsers
+         * @summary Find all active user list
+         * @request POST:/api/ucenter/get-keycloak-all-users
+         */
+        postUcenterGetKeycloakAllUsers: (params: RequestParams = {}) =>
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/get-keycloak-all-users`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterUsers
+         * @summary Find all active user list
+         * @request POST:/api/ucenter/users
+         */
+        postUcenterUsers: (params: RequestParams = {}) =>
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/users`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterCopyUsers
+         * @request POST:/api/ucenter/copy-users
+         */
+        postUcenterCopyUsers: (params: RequestParams = {}) =>
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/copy-users`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterBatchActive
+         * @summary Batch update user active status
+         * @request POST:/api/ucenter/batch/active
+         */
+        postUcenterBatchActive: (data: UserBatchActiveDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/batch/active`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
          * @description 以查询参数方式调用 `/rpc/{func}`。不注入 `_schema_name`，不转发任何请求头。建议使用 POST 方式。
          *
          * @tags PostgREST 代理
@@ -17650,366 +17930,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postPermissionUserGroupAddUsers: (data: AclUserRelationshipWithUserGroup[], params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/permission/user/group/add/users`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Password Controller
-         * @name PostPasswordInitPassword
-         * @request POST:/api/password/init-password
-         */
-        postPasswordInitPassword: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/password/init-password`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name PostNuxeoSearchSaveNestedSearchLog
-         * @request POST:/api/nuxeo/search/save_nested_search_log
-         */
-        postNuxeoSearchSaveNestedSearchLog: (data: NestedSearchLogRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/save_nested_search_log`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name PostNuxeoSearchOpenSearch
-         * @summary Open Search
-         * @request POST:/api/nuxeo/search/open-search
-         */
-        postNuxeoSearchOpenSearch: (data: SearchRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/open-search`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name PostNuxeoSearchNestedsearchV2
-         * @summary Open Search
-         * @request POST:/api/nuxeo/search/nestedSearch_v2
-         */
-        postNuxeoSearchNestedsearchV2: (data: SearchRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/nestedSearch_v2`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name PostNuxeoSearchManticoreSearch
-         * @summary Manticore Search
-         * @request POST:/api/nuxeo/search/manticore-search
-         */
-        postNuxeoSearchManticoreSearch: (data: DocpalSearchRequest, params: RequestParams = {}) =>
-            this.request<ResultSearchResponse, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/manticore-search`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name PostNuxeoSearchDocument
-         * @request POST:/api/nuxeo/search/document
-         */
-        postNuxeoSearchDocument: (data: SearchFilterDTO, params: RequestParams = {}) =>
-            this.request<ResultListSearchDocumentVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/document`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name PostNuxeoSearchDocumentPaths
-         * @request POST:/api/nuxeo/search/document/paths
-         */
-        postNuxeoSearchDocumentPaths: (data: SearchFilterDTO, params: RequestParams = {}) =>
-            this.request<ResultListSearchDocumentVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/document/paths`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name PostNuxeoSearchAdminOpenSearch
-         * @summary Admin Open Search
-         * @request POST:/api/nuxeo/search/admin-open-search
-         */
-        postNuxeoSearchAdminOpenSearch: (data: SearchRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/admin-open-search`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityUser
-         * @summary Create new User
-         * @request POST:/api/nuxeo/identity/user
-         */
-        postNuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/user`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PatchNuxeoIdentityUser
-         * @summary Update User
-         * @request PATCH:/api/nuxeo/identity/user
-         */
-        patchNuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/user`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityPage
-         * @request POST:/api/nuxeo/identity/page
-         */
-        postNuxeoIdentityPage: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityMembership
-         * @summary Add user to group
-         * @request POST:/api/nuxeo/identity/membership
-         */
-        postNuxeoIdentityMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/membership`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name DeleteNuxeoIdentityMembership
-         * @summary Remove user from group
-         * @request DELETE:/api/nuxeo/identity/membership
-         */
-        deleteNuxeoIdentityMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/membership`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityMember
-         * @summary Get the members of a group
-         * @request POST:/api/nuxeo/identity/member
-         */
-        postNuxeoIdentityMember: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/member`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityMembergroup
-         * @summary Get the groups of a member
-         * @request POST:/api/nuxeo/identity/memberGroup
-         */
-        postNuxeoIdentityMembergroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/memberGroup`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityGroups
-         * @summary Get groups list
-         * @request POST:/api/nuxeo/identity/groups
-         */
-        postNuxeoIdentityGroups: (params: RequestParams = {}) =>
-            this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/groups`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityGroup
-         * @summary Create new group
-         * @request POST:/api/nuxeo/identity/group
-         */
-        postNuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/group`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PatchNuxeoIdentityGroup
-         * @summary Update group
-         * @request PATCH:/api/nuxeo/identity/group
-         */
-        patchNuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/group`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityUsers
-         * @summary Find all active user list
-         * @request POST:/api/nuxeo/identity/users
-         */
-        postNuxeoIdentityUsers: (params: RequestParams = {}) =>
-            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/users`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityGetkeycloakallusers
-         * @summary Find all active user list
-         * @request POST:/api/nuxeo/identity/getKeyCloakAllUsers
-         */
-        postNuxeoIdentityGetkeycloakallusers: (params: RequestParams = {}) =>
-            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/getKeyCloakAllUsers`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityCopyusers
-         * @request POST:/api/nuxeo/identity/copyUsers
-         */
-        postNuxeoIdentityCopyusers: (params: RequestParams = {}) =>
-            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/copyUsers`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityBatchActive
-         * @summary Batch update user active status
-         * @request POST:/api/nuxeo/identity/batch/active
-         */
-        postNuxeoIdentityBatchActive: (data: UserBatchActiveDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/batch/active`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -22480,6 +22400,122 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags Search (Nuxeo)
+         * @name PostDmsSearchSaveNestedSearchLog
+         * @request POST:/api/dms/search/save-nested-search-log
+         */
+        postDmsSearchSaveNestedSearchLog: (data: NestedSearchLogRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/save-nested-search-log`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name PostDmsSearchOpenSearch
+         * @summary Open Search
+         * @request POST:/api/dms/search/open-search
+         */
+        postDmsSearchOpenSearch: (data: SearchRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/open-search`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name PostDmsSearchNestedSearchV2
+         * @summary Open Search
+         * @request POST:/api/dms/search/nested-search-v2
+         */
+        postDmsSearchNestedSearchV2: (data: SearchRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/nested-search-v2`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name PostDmsSearchManticoreSearch
+         * @summary Manticore Search
+         * @request POST:/api/dms/search/manticore-search
+         */
+        postDmsSearchManticoreSearch: (data: DocpalSearchRequest, params: RequestParams = {}) =>
+            this.request<ResultSearchResponse, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/manticore-search`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name PostDmsSearchDocument
+         * @request POST:/api/dms/search/document
+         */
+        postDmsSearchDocument: (data: SearchFilterDTO, params: RequestParams = {}) =>
+            this.request<ResultListSearchDocumentVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/document`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name PostDmsSearchDocumentPaths
+         * @request POST:/api/dms/search/document/paths
+         */
+        postDmsSearchDocumentPaths: (data: SearchFilterDTO, params: RequestParams = {}) =>
+            this.request<ResultListSearchDocumentVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/document/paths`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name PostDmsSearchAdminOpenSearch
+         * @summary Admin Open Search
+         * @request POST:/api/dms/search/admin-open-search
+         */
+        postDmsSearchAdminOpenSearch: (data: SearchRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/admin-open-search`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags Public
          * @name PostDmsPublicUploadRequestFiles
          * @request POST:/api/dms/public/upload-request/files
@@ -26881,14 +26917,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags AclPermissionController
-         * @name PatchPermissionsUpdateEntry
-         * @summary batch modify list of entries of permissions
-         * @request PATCH:/api/permissions/update/entry
+         * @tags Password Controller
+         * @name PatchUcenterPasswordUpdatePassword
+         * @request PATCH:/api/ucenter/password/update-password
          */
-        patchPermissionsUpdateEntry: (data: AclPermissionDTO, params: RequestParams = {}) =>
-            this.request<ResultAclPermissionDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/permissions/update/entry`,
+        patchUcenterPasswordUpdatePassword: (data: UpdatePasswordDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/update-password`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -26898,13 +26933,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Password Controller
-         * @name PatchPasswordUpdatePassword
-         * @request PATCH:/api/password/update-password
+         * @tags AclPermissionController
+         * @name PatchPermissionsUpdateEntry
+         * @summary batch modify list of entries of permissions
+         * @request PATCH:/api/permissions/update/entry
          */
-        patchPasswordUpdatePassword: (data: UpdatePasswordDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/password/update-password`,
+        patchPermissionsUpdateEntry: (data: AclPermissionDTO, params: RequestParams = {}) =>
+            this.request<ResultAclPermissionDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/permissions/update/entry`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -28340,6 +28376,161 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
+         * No description
+         *
+         * @tags Identity
+         * @name GetUcenterUserUseridInformation
+         * @summary Query user information include roles and groups
+         * @request GET:/api/ucenter/user/{userId}/information
+         */
+        getUcenterUserUseridInformation: (userId: string, params: RequestParams = {}) =>
+            this.request<ResultVerifyPermission, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/user/${userId}/information`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetUcenterPasswordUserStatus
+         * @request GET:/api/ucenter/password/user-status
+         */
+        getUcenterPasswordUserStatus: (params: RequestParams = {}) =>
+            this.request<ResultUserStatusDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/user-status`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetUcenterPasswordHasLockUserid
+         * @request GET:/api/ucenter/password/has-lock/{userId}
+         */
+        getUcenterPasswordHasLockUserid: (userId: string, params: RequestParams = {}) =>
+            this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/has-lock/${userId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetUcenterPasswordConfirmReset
+         * @request GET:/api/ucenter/password/confirm-reset
+         */
+        getUcenterPasswordConfirmReset: (
+            query: {
+                token: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/confirm-reset`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetUcenterPasswordConfig
+         * @request GET:/api/ucenter/password/config
+         */
+        getUcenterPasswordConfig: (params: RequestParams = {}) =>
+            this.request<ResultPasswordConfigDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/config`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetUcenterPasswordCheckOldPasswordPassword
+         * @request GET:/api/ucenter/password/check-old-password/{password}
+         */
+        getUcenterPasswordCheckOldPasswordPassword: (password: string, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/check-old-password/${password}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetUcenterPasswordCheckLockUserUserid
+         * @request GET:/api/ucenter/password/check-lock-user/{userId}
+         */
+        getUcenterPasswordCheckLockUserUserid: (
+            userId: string,
+            query?: {
+                skipAddLoginCount?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/check-lock-user/${userId}`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetUcenterPasswordCheckExpire
+         * @request GET:/api/ucenter/password/check-expire
+         */
+        getUcenterPasswordCheckExpire: (params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/check-expire`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name GetUcenterKeycloakKeycloakuserid
+         * @summary Get keycloak user through keycloak user id
+         * @request GET:/api/ucenter/keycloak/{keycloakUserId}
+         */
+        getUcenterKeycloakKeycloakuserid: (keycloakUserId: string, params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/keycloak/${keycloakUserId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name GetUcenterDocpalRoles
+         * @request GET:/api/ucenter/docpal/roles
+         */
+        getUcenterDocpalRoles: (params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/docpal/roles`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
          * @description 透传查询参数到 PostgREST 目标表 `/{table}`。支持常规筛选与 JSONB 操作符（例如 `metadata->>key=eq.value`）。不转发任何请求头。
          *
          * @tags PostgREST 代理
@@ -28555,97 +28746,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Password Controller
-         * @name GetPasswordUserStatus
-         * @request GET:/api/password/user-status
-         */
-        getPasswordUserStatus: (params: RequestParams = {}) =>
-            this.request<ResultUserStatusDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/password/user-status`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Password Controller
-         * @name GetPasswordHasLockUserid
-         * @request GET:/api/password/has-lock/{userId}
-         */
-        getPasswordHasLockUserid: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/password/has-lock/${userId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Password Controller
-         * @name GetPasswordConfig
-         * @request GET:/api/password/config
-         */
-        getPasswordConfig: (params: RequestParams = {}) =>
-            this.request<ResultPasswordConfigDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/password/config`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Password Controller
-         * @name GetPasswordCheckOldPasswordPassword
-         * @request GET:/api/password/check-old-password/{password}
-         */
-        getPasswordCheckOldPasswordPassword: (password: string, params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/password/check-old-password/${password}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Password Controller
-         * @name GetPasswordCheckLockUserUserid
-         * @request GET:/api/password/check-lock-user/{userId}
-         */
-        getPasswordCheckLockUserUserid: (
-            userId: string,
-            query?: {
-                skipAddLoginCount?: boolean;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/password/check-lock-user/${userId}`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Password Controller
-         * @name GetPasswordCheckExpire
-         * @request GET:/api/password/check-expire
-         */
-        getPasswordCheckExpire: (params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/password/check-expire`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags ViewSettingController
          * @name GetNuxeoSettingView
          * @request GET:/api/nuxeo/setting/view
@@ -28654,115 +28754,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         getNuxeoSettingView: (params: RequestParams = {}) =>
             this.request<ResultViewSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/nuxeo/setting/view`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name GetNuxeoSearchSearchallparent
-         * @summary Search All Parent Documents
-         * @request GET:/api/nuxeo/search/searchAllParent
-         */
-        getNuxeoSearchSearchallparent: (
-            query: {
-                documentPath: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/searchAllParent`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name GetNuxeoSearchQueryNestedSearchLog
-         * @request GET:/api/nuxeo/search/query_nested_search_log
-         */
-        getNuxeoSearchQueryNestedSearchLog: (params: RequestParams = {}) =>
-            this.request<ResultListNestedSearchLogRecord, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/query_nested_search_log`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name GetNuxeoSearchOpenSearchDocumentid
-         * @summary Open Search By Id
-         * @request GET:/api/nuxeo/search/open-search/{documentId}
-         */
-        getNuxeoSearchOpenSearchDocumentid: (documentId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/open-search/${documentId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name GetNuxeoSearchGetexportheader
-         * @summary get export header for Nested Search
-         * @request GET:/api/nuxeo/search/getExportHeader
-         */
-        getNuxeoSearchGetexportheader: (params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/getExportHeader`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name GetNuxeoIdentityUserUseridInformation
-         * @summary Query user information include roles and groups
-         * @request GET:/api/nuxeo/identity/user/{userId}/information
-         */
-        getNuxeoIdentityUserUseridInformation: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultVerifyPermission, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/user/${userId}/information`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name GetNuxeoIdentityKeycloakKeycloakuserid
-         * @summary Get keycloak user through keycloak user id
-         * @request GET:/api/nuxeo/identity/keycloak/{keycloakUserId}
-         */
-        getNuxeoIdentityKeycloakKeycloakuserid: (keycloakUserId: string, params: RequestParams = {}) =>
-            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/keycloak/${keycloakUserId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name GetNuxeoIdentityDocpalRoles
-         * @request GET:/api/nuxeo/identity/docpal/roles
-         */
-        getNuxeoIdentityDocpalRoles: (params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/docpal/roles`,
                 method: "GET",
                 ...params,
             }),
@@ -31308,6 +31299,71 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 path: `/api/dms/setting/concurrent-session`,
                 method: "GET",
                 query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name GetDmsSearchSearchallparent
+         * @summary Search All Parent Documents
+         * @request GET:/api/dms/search/searchAllParent
+         */
+        getDmsSearchSearchallparent: (
+            query: {
+                documentPath: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/searchAllParent`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name GetDmsSearchQueryNestedSearchLog
+         * @request GET:/api/dms/search/query-nested-search-log
+         */
+        getDmsSearchQueryNestedSearchLog: (params: RequestParams = {}) =>
+            this.request<ResultListNestedSearchLogRecord, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/query-nested-search-log`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name GetDmsSearchOpenSearchDocumentid
+         * @summary Open Search By Id
+         * @request GET:/api/dms/search/open-search/{documentId}
+         */
+        getDmsSearchOpenSearchDocumentid: (documentId: string, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/open-search/${documentId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name GetDmsSearchGetexportheader
+         * @summary get export header for Nested Search
+         * @request GET:/api/dms/search/getExportHeader
+         */
+        getDmsSearchGetexportheader: (params: RequestParams = {}) =>
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/getExportHeader`,
+                method: "GET",
                 ...params,
             }),
 
@@ -34489,28 +34545,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Search (Nuxeo)
-         * @name DeleteNuxeoSearchDeleteNestedSearchLogId
-         * @request DELETE:/api/nuxeo/search/delete_nested_search_log/{id}
-         */
-        deleteNuxeoSearchDeleteNestedSearchLogId: (id: number, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/delete_nested_search_log/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Identity
-         * @name DeleteNuxeoIdentityUserUserid
+         * @name DeleteUcenterUserUserid
          * @summary Delete User
-         * @request DELETE:/api/nuxeo/identity/user/{userId}
+         * @request DELETE:/api/ucenter/user/{userId}
          */
-        deleteNuxeoIdentityUserUserid: (userId: string, data: any, params: RequestParams = {}) =>
+        deleteUcenterUserUserid: (userId: string, data: any, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/user/${userId}`,
+                path: `/api/ucenter/user/${userId}`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -34521,13 +34563,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name DeleteNuxeoIdentityGroupGroupid
+         * @name DeleteUcenterGroupGroupid
          * @summary Delete group by ID
-         * @request DELETE:/api/nuxeo/identity/group/{groupId}
+         * @request DELETE:/api/ucenter/group/{groupId}
          */
-        deleteNuxeoIdentityGroupGroupid: (groupId: string, params: RequestParams = {}) =>
+        deleteUcenterGroupGroupid: (groupId: string, params: RequestParams = {}) =>
             this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/group/${groupId}`,
+                path: `/api/ucenter/group/${groupId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34716,6 +34758,20 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         deleteDmsSettingVirtualFolderSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dms/setting/virtual-folder/setting/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name DeleteDmsSearchDeleteNestedSearchLogId
+         * @request DELETE:/api/dms/search/delete-nested-search-log/{id}
+         */
+        deleteDmsSearchDeleteNestedSearchLogId: (id: number, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/delete-nested-search-log/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -35076,18 +35132,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name GetNuxeoIdentityIscanmodified
+         * @name GetUcenterIsCanModified
          * @summary group is can modified ?
-         * @request GET:/api/nuxeo/identity/isCanModified
+         * @request GET:/api/ucenter/is-can-modified
          */
-        getNuxeoIdentityIscanmodified: (
+        getUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/isCanModified`,
+                path: `/api/ucenter/is-can-modified`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -35097,18 +35153,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PutNuxeoIdentityIscanmodified
+         * @name PutUcenterIsCanModified
          * @summary group is can modified ?
-         * @request PUT:/api/nuxeo/identity/isCanModified
+         * @request PUT:/api/ucenter/is-can-modified
          */
-        putNuxeoIdentityIscanmodified: (
+        putUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/isCanModified`,
+                path: `/api/ucenter/is-can-modified`,
                 method: "PUT",
                 query: query,
                 ...params,
@@ -35118,18 +35174,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostNuxeoIdentityIscanmodified
+         * @name PostUcenterIsCanModified
          * @summary group is can modified ?
-         * @request POST:/api/nuxeo/identity/isCanModified
+         * @request POST:/api/ucenter/is-can-modified
          */
-        postNuxeoIdentityIscanmodified: (
+        postUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/isCanModified`,
+                path: `/api/ucenter/is-can-modified`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -35139,18 +35195,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name DeleteNuxeoIdentityIscanmodified
+         * @name DeleteUcenterIsCanModified
          * @summary group is can modified ?
-         * @request DELETE:/api/nuxeo/identity/isCanModified
+         * @request DELETE:/api/ucenter/is-can-modified
          */
-        deleteNuxeoIdentityIscanmodified: (
+        deleteUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/isCanModified`,
+                path: `/api/ucenter/is-can-modified`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -35160,18 +35216,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name OptionsNuxeoIdentityIscanmodified
+         * @name OptionsUcenterIsCanModified
          * @summary group is can modified ?
-         * @request OPTIONS:/api/nuxeo/identity/isCanModified
+         * @request OPTIONS:/api/ucenter/is-can-modified
          */
-        optionsNuxeoIdentityIscanmodified: (
+        optionsUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/isCanModified`,
+                path: `/api/ucenter/is-can-modified`,
                 method: "OPTIONS",
                 query: query,
                 ...params,
@@ -35181,18 +35237,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name HeadNuxeoIdentityIscanmodified
+         * @name HeadUcenterIsCanModified
          * @summary group is can modified ?
-         * @request HEAD:/api/nuxeo/identity/isCanModified
+         * @request HEAD:/api/ucenter/is-can-modified
          */
-        headNuxeoIdentityIscanmodified: (
+        headUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/isCanModified`,
+                path: `/api/ucenter/is-can-modified`,
                 method: "HEAD",
                 query: query,
                 ...params,
@@ -35202,18 +35258,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PatchNuxeoIdentityIscanmodified
+         * @name PatchUcenterIsCanModified
          * @summary group is can modified ?
-         * @request PATCH:/api/nuxeo/identity/isCanModified
+         * @request PATCH:/api/ucenter/is-can-modified
          */
-        patchNuxeoIdentityIscanmodified: (
+        patchUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/isCanModified`,
+                path: `/api/ucenter/is-can-modified`,
                 method: "PATCH",
                 query: query,
                 ...params,
@@ -37782,30 +37838,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Password Controller
-         * @name PostAdminpasswordSaveConfig
-         * @request POST:/admin/api/password/save-config
-         */
-        postAdminpasswordSaveConfig: (data: PasswordConfigDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/password/save-config`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityUsers
+         * @name PostAdminucenterUsers
          * @summary List users
-         * @request POST:/admin/api/nuxeo/identity/users
+         * @request POST:/admin/api/ucenter/users
          */
-        postAdminnuxeoIdentityUsers: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postAdminucenterUsers: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/users`,
+                path: `/admin/api/ucenter/users`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -37816,13 +37856,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityUsersBatchDelete
+         * @name PostAdminucenterUsersBatchDelete
          * @summary Batch delete users
-         * @request POST:/admin/api/nuxeo/identity/users/batch/delete
+         * @request POST:/admin/api/ucenter/users/batch/delete
          */
-        postAdminnuxeoIdentityUsersBatchDelete: (data: BatchDeleteUserDTO, params: RequestParams = {}) =>
+        postAdminucenterUsersBatchDelete: (data: BatchDeleteUserDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/users/batch/delete`,
+                path: `/admin/api/ucenter/users/batch/delete`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -37833,13 +37873,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityUsersBatchAddGroups
+         * @name PostAdminucenterUsersBatchAddGroups
          * @summary Batch add groups to users
-         * @request POST:/admin/api/nuxeo/identity/users/batch/add/groups
+         * @request POST:/admin/api/ucenter/users/batch/add/groups
          */
-        postAdminnuxeoIdentityUsersBatchAddGroups: (data: BatchAddUsersToGroupsDTO, params: RequestParams = {}) =>
+        postAdminucenterUsersBatchAddGroups: (data: BatchAddUsersToGroupsDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/users/batch/add/groups`,
+                path: `/admin/api/ucenter/users/batch/add/groups`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -37850,12 +37890,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityUser
-         * @request POST:/admin/api/nuxeo/identity/user
+         * @name PostAdminucenterUser
+         * @request POST:/admin/api/ucenter/user
          */
-        postAdminnuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postAdminucenterUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/user`,
+                path: `/admin/api/ucenter/user`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -37866,12 +37906,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name DeleteAdminnuxeoIdentityUser
-         * @request DELETE:/admin/api/nuxeo/identity/user
+         * @name DeleteAdminucenterUser
+         * @request DELETE:/admin/api/ucenter/user
          */
-        deleteAdminnuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        deleteAdminucenterUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/user`,
+                path: `/admin/api/ucenter/user`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -37882,13 +37922,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PatchAdminnuxeoIdentityUser
+         * @name PatchAdminucenterUser
          * @summary Update User
-         * @request PATCH:/admin/api/nuxeo/identity/user
+         * @request PATCH:/admin/api/ucenter/user
          */
-        patchAdminnuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        patchAdminucenterUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/user`,
+                path: `/admin/api/ucenter/user`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -37899,13 +37939,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityUserBatchRemoveGroups
+         * @name PostAdminucenterUserBatchRemoveGroups
          * @summary Batch remove groups from user
-         * @request POST:/admin/api/nuxeo/identity/user/batch/remove/groups
+         * @request POST:/admin/api/ucenter/user/batch/remove/groups
          */
-        postAdminnuxeoIdentityUserBatchRemoveGroups: (data: UserBatchAddGroupsDTO, params: RequestParams = {}) =>
+        postAdminucenterUserBatchRemoveGroups: (data: UserBatchAddGroupsDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/user/batch/remove/groups`,
+                path: `/admin/api/ucenter/user/batch/remove/groups`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -37916,13 +37956,29 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityUserBatchAddGroups
+         * @name PostAdminucenterUserBatchAddGroups
          * @summary Batch add groups to user
-         * @request POST:/admin/api/nuxeo/identity/user/batch/add/groups
+         * @request POST:/admin/api/ucenter/user/batch/add/groups
          */
-        postAdminnuxeoIdentityUserBatchAddGroups: (data: UserBatchAddGroupsDTO, params: RequestParams = {}) =>
+        postAdminucenterUserBatchAddGroups: (data: UserBatchAddGroupsDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/user/batch/add/groups`,
+                path: `/admin/api/ucenter/user/batch/add/groups`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name PostAdminucenterPasswordSaveConfig
+         * @request POST:/admin/api/ucenter/password/save-config
+         */
+        postAdminucenterPasswordSaveConfig: (data: PasswordConfigDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ucenter/password/save-config`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -37933,12 +37989,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityMembership
-         * @request POST:/admin/api/nuxeo/identity/membership
+         * @name PostAdminucenterMembership
+         * @request POST:/admin/api/ucenter/membership
          */
-        postAdminnuxeoIdentityMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postAdminucenterMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/membership`,
+                path: `/admin/api/ucenter/membership`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -37949,13 +38005,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name DeleteAdminnuxeoIdentityMembership
+         * @name DeleteAdminucenterMembership
          * @summary Remove user from group
-         * @request DELETE:/admin/api/nuxeo/identity/membership
+         * @request DELETE:/admin/api/ucenter/membership
          */
-        deleteAdminnuxeoIdentityMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        deleteAdminucenterMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultIdentityRequestDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/membership`,
+                path: `/admin/api/ucenter/membership`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -37966,12 +38022,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityMember
-         * @request POST:/admin/api/nuxeo/identity/member
+         * @name PostAdminucenterMember
+         * @request POST:/admin/api/ucenter/member
          */
-        postAdminnuxeoIdentityMember: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postAdminucenterMember: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/member`,
+                path: `/admin/api/ucenter/member`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -37982,12 +38038,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityMembergroup
-         * @request POST:/admin/api/nuxeo/identity/memberGroup
+         * @name PostAdminucenterMemberGroup
+         * @request POST:/admin/api/ucenter/member-group
          */
-        postAdminnuxeoIdentityMembergroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postAdminucenterMemberGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/memberGroup`,
+                path: `/admin/api/ucenter/member-group`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -37998,12 +38054,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityGroups
-         * @request POST:/admin/api/nuxeo/identity/groups
+         * @name PostAdminucenterGroups
+         * @request POST:/admin/api/ucenter/groups
          */
-        postAdminnuxeoIdentityGroups: (params: RequestParams = {}) =>
+        postAdminucenterGroups: (params: RequestParams = {}) =>
             this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/groups`,
+                path: `/admin/api/ucenter/groups`,
                 method: "POST",
                 ...params,
             }),
@@ -38012,12 +38068,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityGroupsActive
-         * @request POST:/admin/api/nuxeo/identity/groups/active
+         * @name PostAdminucenterGroupsActive
+         * @request POST:/admin/api/ucenter/groups/active
          */
-        postAdminnuxeoIdentityGroupsActive: (params: RequestParams = {}) =>
+        postAdminucenterGroupsActive: (params: RequestParams = {}) =>
             this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/groups/active`,
+                path: `/admin/api/ucenter/groups/active`,
                 method: "POST",
                 ...params,
             }),
@@ -38026,12 +38082,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityGroup
-         * @request POST:/admin/api/nuxeo/identity/group
+         * @name PostAdminucenterGroup
+         * @request POST:/admin/api/ucenter/group
          */
-        postAdminnuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postAdminucenterGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/group`,
+                path: `/admin/api/ucenter/group`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38042,12 +38098,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name DeleteAdminnuxeoIdentityGroup
-         * @request DELETE:/admin/api/nuxeo/identity/group
+         * @name DeleteAdminucenterGroup
+         * @request DELETE:/admin/api/ucenter/group
          */
-        deleteAdminnuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        deleteAdminucenterGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/group`,
+                path: `/admin/api/ucenter/group`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -38058,13 +38114,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PatchAdminnuxeoIdentityGroup
+         * @name PatchAdminucenterGroup
          * @summary Update group
-         * @request PATCH:/admin/api/nuxeo/identity/group
+         * @request PATCH:/admin/api/ucenter/group
          */
-        patchAdminnuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        patchAdminucenterGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/group`,
+                path: `/admin/api/ucenter/group`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -38075,13 +38131,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityGroupBatchRemoveUsers
+         * @name PostAdminucenterGroupBatchRemoveUsers
          * @summary Batch remove users from group
-         * @request POST:/admin/api/nuxeo/identity/group/batch/remove/users
+         * @request POST:/admin/api/ucenter/group/batch/remove/users
          */
-        postAdminnuxeoIdentityGroupBatchRemoveUsers: (data: GroupBatchAddUsersDTO, params: RequestParams = {}) =>
+        postAdminucenterGroupBatchRemoveUsers: (data: GroupBatchAddUsersDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/group/batch/remove/users`,
+                path: `/admin/api/ucenter/group/batch/remove/users`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38092,13 +38148,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityGroupBatchAddUsers
+         * @name PostAdminucenterGroupBatchAddUsers
          * @summary Batch add users to group
-         * @request POST:/admin/api/nuxeo/identity/group/batch/add/users
+         * @request POST:/admin/api/ucenter/group/batch/add/users
          */
-        postAdminnuxeoIdentityGroupBatchAddUsers: (data: GroupBatchAddUsersDTO, params: RequestParams = {}) =>
+        postAdminucenterGroupBatchAddUsers: (data: GroupBatchAddUsersDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/group/batch/add/users`,
+                path: `/admin/api/ucenter/group/batch/add/users`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38109,12 +38165,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityGetlicenseusernumandactivecount
-         * @request POST:/admin/api/nuxeo/identity/getLicenseUserNumAndActiveCount
+         * @name PostAdminucenterGetLicenseUserNumAndActiveCount
+         * @request POST:/admin/api/ucenter/get-license-user-num-and-active-count
          */
-        postAdminnuxeoIdentityGetlicenseusernumandactivecount: (params: RequestParams = {}) =>
+        postAdminucenterGetLicenseUserNumAndActiveCount: (params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/getLicenseUserNumAndActiveCount`,
+                path: `/admin/api/ucenter/get-license-user-num-and-active-count`,
                 method: "POST",
                 ...params,
             }),
@@ -38123,13 +38179,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityGetkeycloakallusers
+         * @name PostAdminucenterGetKeycloakAllUsers
          * @summary Find all active user list
-         * @request POST:/admin/api/nuxeo/identity/getKeyCloakAllUsers
+         * @request POST:/admin/api/ucenter/get-keycloak-all-users
          */
-        postAdminnuxeoIdentityGetkeycloakallusers: (params: RequestParams = {}) =>
+        postAdminucenterGetKeycloakAllUsers: (params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/getKeyCloakAllUsers`,
+                path: `/admin/api/ucenter/get-keycloak-all-users`,
                 method: "POST",
                 ...params,
             }),
@@ -38138,12 +38194,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityGetallusers
-         * @request POST:/admin/api/nuxeo/identity/getAllUsers
+         * @name PostAdminucenterGetAllUsers
+         * @request POST:/admin/api/ucenter/get-all-users
          */
-        postAdminnuxeoIdentityGetallusers: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postAdminucenterGetAllUsers: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/getAllUsers`,
+                path: `/admin/api/ucenter/get-all-users`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38154,12 +38210,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityUserPage
-         * @request POST:/admin/api/nuxeo/identity/user/page
+         * @name PostAdminucenterUserPage
+         * @request POST:/admin/api/ucenter/user/page
          */
-        postAdminnuxeoIdentityUserPage: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postAdminucenterUserPage: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/user/page`,
+                path: `/admin/api/ucenter/user/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38170,12 +38226,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityCopyusers
-         * @request POST:/admin/api/nuxeo/identity/copyUsers
+         * @name PostAdminucenterCopyUsers
+         * @request POST:/admin/api/ucenter/copy-users
          */
-        postAdminnuxeoIdentityCopyusers: (params: RequestParams = {}) =>
+        postAdminucenterCopyUsers: (params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/copyUsers`,
+                path: `/admin/api/ucenter/copy-users`,
                 method: "POST",
                 ...params,
             }),
@@ -42894,13 +42950,35 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Password Controller
-         * @name PatchAdminpasswordUpdatePassword
-         * @request PATCH:/admin/api/password/update-password
+         * @tags Identity
+         * @name PatchAdminucenterUserPassword
+         * @summary Update user password
+         * @request PATCH:/admin/api/ucenter/user/password
          */
-        patchAdminpasswordUpdatePassword: (data: UpdatePasswordDTO, params: RequestParams = {}) =>
+        patchAdminucenterUserPassword: (
+            query: {
+                userId: string;
+                password: string;
+            },
+            params: RequestParams = {},
+        ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/password/update-password`,
+                path: `/admin/api/ucenter/user/password`,
+                method: "PATCH",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name PatchAdminucenterPasswordUpdatePassword
+         * @request PATCH:/admin/api/ucenter/password/update-password
+         */
+        patchAdminucenterPasswordUpdatePassword: (data: UpdatePasswordDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ucenter/password/update-password`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -42911,35 +42989,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name PatchAdminpasswordUnlockUserid
-         * @request PATCH:/admin/api/password/unlock/{userId}
+         * @name PatchAdminucenterPasswordUnlockUserid
+         * @request PATCH:/admin/api/ucenter/password/unlock/{userId}
          */
-        patchAdminpasswordUnlockUserid: (userId: string, params: RequestParams = {}) =>
+        patchAdminucenterPasswordUnlockUserid: (userId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/password/unlock/${userId}`,
+                path: `/admin/api/ucenter/password/unlock/${userId}`,
                 method: "PATCH",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PatchAdminnuxeoIdentityUserPassword
-         * @summary Update user password
-         * @request PATCH:/admin/api/nuxeo/identity/user/password
-         */
-        patchAdminnuxeoIdentityUserPassword: (
-            query: {
-                userId: string;
-                password: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/user/password`,
-                method: "PATCH",
-                query: query,
                 ...params,
             }),
 
@@ -43968,13 +44024,27 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Password Controller
-         * @name GetAdminpasswordUserStatus
-         * @request GET:/admin/api/password/user-status
+         * @tags Identity
+         * @name GetAdminucenterSendInitPasswordEmailUserid
+         * @request GET:/admin/api/ucenter/send-init-password-email/{userId}
          */
-        getAdminpasswordUserStatus: (params: RequestParams = {}) =>
+        getAdminucenterSendInitPasswordEmailUserid: (userId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ucenter/send-init-password-email/${userId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetAdminucenterPasswordUserStatus
+         * @request GET:/admin/api/ucenter/password/user-status
+         */
+        getAdminucenterPasswordUserStatus: (params: RequestParams = {}) =>
             this.request<ResultUserStatusDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/password/user-status`,
+                path: `/admin/api/ucenter/password/user-status`,
                 method: "GET",
                 ...params,
             }),
@@ -43983,12 +44053,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name GetAdminpasswordHasLockUserid
-         * @request GET:/admin/api/password/has-lock/{userId}
+         * @name GetAdminucenterPasswordHasLockUserid
+         * @request GET:/admin/api/ucenter/password/has-lock/{userId}
          */
-        getAdminpasswordHasLockUserid: (userId: string, params: RequestParams = {}) =>
+        getAdminucenterPasswordHasLockUserid: (userId: string, params: RequestParams = {}) =>
             this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/password/has-lock/${userId}`,
+                path: `/admin/api/ucenter/password/has-lock/${userId}`,
                 method: "GET",
                 ...params,
             }),
@@ -43997,12 +44067,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name GetAdminpasswordConfig
-         * @request GET:/admin/api/password/config
+         * @name GetAdminucenterPasswordConfig
+         * @request GET:/admin/api/ucenter/password/config
          */
-        getAdminpasswordConfig: (params: RequestParams = {}) =>
+        getAdminucenterPasswordConfig: (params: RequestParams = {}) =>
             this.request<ResultPasswordConfigDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/password/config`,
+                path: `/admin/api/ucenter/password/config`,
                 method: "GET",
                 ...params,
             }),
@@ -44011,10 +44081,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name GetAdminpasswordCheckLockUserUserid
-         * @request GET:/admin/api/password/check-lock-user/{userId}
+         * @name GetAdminucenterPasswordCheckLockUserUserid
+         * @request GET:/admin/api/ucenter/password/check-lock-user/{userId}
          */
-        getAdminpasswordCheckLockUserUserid: (
+        getAdminucenterPasswordCheckLockUserUserid: (
             userId: string,
             query?: {
                 skipAddLoginCount?: boolean;
@@ -44022,7 +44092,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             params: RequestParams = {},
         ) =>
             this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/password/check-lock-user/${userId}`,
+                path: `/admin/api/ucenter/password/check-lock-user/${userId}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -44032,26 +44102,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name GetAdminpasswordCheckExpire
-         * @request GET:/admin/api/password/check-expire
+         * @name GetAdminucenterPasswordCheckExpire
+         * @request GET:/admin/api/ucenter/password/check-expire
          */
-        getAdminpasswordCheckExpire: (params: RequestParams = {}) =>
+        getAdminucenterPasswordCheckExpire: (params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/password/check-expire`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name GetAdminnuxeoIdentitySendInitPasswordEmailUserid
-         * @request GET:/admin/api/nuxeo/identity/send-init-password-email/{userId}
-         */
-        getAdminnuxeoIdentitySendInitPasswordEmailUserid: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/send-init-password-email/${userId}`,
+                path: `/admin/api/ucenter/password/check-expire`,
                 method: "GET",
                 ...params,
             }),
@@ -48290,18 +48346,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name GetAdminnuxeoIdentityIscanmodified
+         * @name GetAdminucenterIsCanModified
          * @summary group is can modified ?
-         * @request GET:/admin/api/nuxeo/identity/isCanModified
+         * @request GET:/admin/api/ucenter/is-can-modified
          */
-        getAdminnuxeoIdentityIscanmodified: (
+        getAdminucenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/isCanModified`,
+                path: `/admin/api/ucenter/is-can-modified`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -48311,18 +48367,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PutAdminnuxeoIdentityIscanmodified
+         * @name PutAdminucenterIsCanModified
          * @summary group is can modified ?
-         * @request PUT:/admin/api/nuxeo/identity/isCanModified
+         * @request PUT:/admin/api/ucenter/is-can-modified
          */
-        putAdminnuxeoIdentityIscanmodified: (
+        putAdminucenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/isCanModified`,
+                path: `/admin/api/ucenter/is-can-modified`,
                 method: "PUT",
                 query: query,
                 ...params,
@@ -48332,18 +48388,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityIscanmodified
+         * @name PostAdminucenterIsCanModified
          * @summary group is can modified ?
-         * @request POST:/admin/api/nuxeo/identity/isCanModified
+         * @request POST:/admin/api/ucenter/is-can-modified
          */
-        postAdminnuxeoIdentityIscanmodified: (
+        postAdminucenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/isCanModified`,
+                path: `/admin/api/ucenter/is-can-modified`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -48353,18 +48409,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name DeleteAdminnuxeoIdentityIscanmodified
+         * @name DeleteAdminucenterIsCanModified
          * @summary group is can modified ?
-         * @request DELETE:/admin/api/nuxeo/identity/isCanModified
+         * @request DELETE:/admin/api/ucenter/is-can-modified
          */
-        deleteAdminnuxeoIdentityIscanmodified: (
+        deleteAdminucenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/isCanModified`,
+                path: `/admin/api/ucenter/is-can-modified`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -48374,18 +48430,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name OptionsAdminnuxeoIdentityIscanmodified
+         * @name OptionsAdminucenterIsCanModified
          * @summary group is can modified ?
-         * @request OPTIONS:/admin/api/nuxeo/identity/isCanModified
+         * @request OPTIONS:/admin/api/ucenter/is-can-modified
          */
-        optionsAdminnuxeoIdentityIscanmodified: (
+        optionsAdminucenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/isCanModified`,
+                path: `/admin/api/ucenter/is-can-modified`,
                 method: "OPTIONS",
                 query: query,
                 ...params,
@@ -48395,18 +48451,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name HeadAdminnuxeoIdentityIscanmodified
+         * @name HeadAdminucenterIsCanModified
          * @summary group is can modified ?
-         * @request HEAD:/admin/api/nuxeo/identity/isCanModified
+         * @request HEAD:/admin/api/ucenter/is-can-modified
          */
-        headAdminnuxeoIdentityIscanmodified: (
+        headAdminucenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/isCanModified`,
+                path: `/admin/api/ucenter/is-can-modified`,
                 method: "HEAD",
                 query: query,
                 ...params,
@@ -48416,18 +48472,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PatchAdminnuxeoIdentityIscanmodified
+         * @name PatchAdminucenterIsCanModified
          * @summary group is can modified ?
-         * @request PATCH:/admin/api/nuxeo/identity/isCanModified
+         * @request PATCH:/admin/api/ucenter/is-can-modified
          */
-        patchAdminnuxeoIdentityIscanmodified: (
+        patchAdminucenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/isCanModified`,
+                path: `/admin/api/ucenter/is-can-modified`,
                 method: "PATCH",
                 query: query,
                 ...params,
