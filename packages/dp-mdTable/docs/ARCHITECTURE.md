@@ -89,15 +89,24 @@ interface ColumnConfig {
 - Stores array of UUIDs referencing related records
 - Has `displayFieldNames` - list of fields to fetch from target table
 - Renders all display fields combined in one cell
+- Has `displayStructure.virtualColumnSettings` - persisted settings for each virtual column
 
 **VirtualColumn (type 15)**: A derived column showing ONE field from a relation.
 - Created from an existing MagicLink column
 - Shows a single `displayFieldName` as a separate column
 - Useful when you need relation data in its own sortable/filterable column
+- **Inherits target field's display settings** (colors, formatting, etc.)
+- Settings (aggregation, showUniqueOnly) are persisted in parent relation's `displayStructure.virtualColumnSettings`
+
+**Auto-create virtual columns**: When creating a relation with multiple display fields:
+- First display field stays in the combined relation column
+- Virtual columns are auto-created for all other display fields (2nd, 3rd, etc.)
 
 Example flow:
-1. Create relation `rel_company` (MagicLink) → shows "Company Name, Email" combined
-2. Add virtual column `rel_company.email` → shows only "Email" in separate column
+1. Create relation `rel_company` (MagicLink) with displayFieldNames: `['name', 'email', 'phone']`
+2. Virtual columns `rel_company.email` and `rel_company.phone` are auto-created
+3. Relation column shows "name", virtual columns show "email" and "phone" separately
+4. Virtual columns inherit target field's display settings (e.g., SingleSelect colors)
 
 ## Composables Architecture
 
@@ -385,18 +394,80 @@ column.properties = {
 
 ### 4. Virtual Column Updates
 
-Virtual columns are view-level only (no database record). When updating:
+Virtual columns persist their settings to the parent relation's `displayStructure.virtualColumnSettings`:
 ```typescript
 // In updateColumn():
 if (fieldName.includes('.')) {
-  // Virtual column - only update local column config
-  // Do NOT update the parent relation field
-  columns.value[index] = { ...existingColumn, ...updates }
-  return
+  // Virtual column - persist settings to parent relation
+  const [relationFieldName, displayFieldName] = fieldName.split('.')
+  const relationField = getField(relationFieldName)
+  
+  // Update displayStructure.virtualColumnSettings[displayFieldName]
+  const updatedDisplayStructure = {
+    ...relationField.displayStructure,
+    virtualColumnSettings: {
+      ...relationField.displayStructure.virtualColumnSettings,
+      [displayFieldName]: { aggregation, showUniqueOnly, separator, linkToRecord }
+    }
+  }
+  await updateField(relationFieldName, { displayStructure: updatedDisplayStructure })
 }
 ```
 
-### 5. Reactive Arrays and Worker Serialization
+### 5. Virtual Column Target Field Rendering
+
+Virtual columns inherit the target field's display settings:
+```typescript
+// In createVirtualColumnConfig():
+const targetField = targetFieldsMap.get(relationField.relationTableId)
+  ?.find(f => f.fieldName === displayFieldName)
+
+return {
+  type: 15, // VirtualColumn
+  properties: {
+    // Target field config for rendering (loaded fresh, not persisted)
+    targetFieldConfig: {
+      type: targetField.displayStructure.type,
+      properties: targetField.displayStructure.properties
+    },
+    // Virtual column settings (persisted)
+    aggregation, showUniqueOnly, separator, linkToRecord
+  }
+}
+```
+
+### 6. Virtual Column Sync on Display Field Changes
+
+When a relation's `displayFieldNames` are modified (add, remove, reorder), virtual columns are automatically synced:
+
+```typescript
+// In updateColumn() for relation fields:
+
+// 1. Compare old vs new display fields
+const oldVirtualFields = oldDisplayFieldNames.slice(1)  // All except first
+const newVirtualFields = newDisplayFieldNames.slice(1)
+
+// 2. Determine virtual columns to add/remove
+const virtualColumnsToRemove = oldVirtualFields.filter(name => !newVirtualFields.includes(name))
+const virtualColumnsToAdd = newVirtualFields.filter(name => !oldVirtualFields.includes(name))
+
+// 3. Handle first field changes (e.g., reordering moves first field)
+if (firstFieldChanged) {
+  // Old first field demoted to virtual → add virtual column
+  // New first field promoted from virtual → remove virtual column
+}
+
+// 4. Update view.fields to sync virtual columns
+// 5. Clean up virtualColumnSettings for completely removed fields
+```
+
+**Sync behaviors:**
+- **Add display field**: Creates virtual column (except for first field)
+- **Remove display field**: Removes virtual column + cleans up `virtualColumnSettings`
+- **First field changes**: Old first becomes virtual column, new first's virtual column is removed
+- **Reorder non-first fields**: No change to virtual columns (they stay in original positions)
+
+### 7. Reactive Arrays and Worker Serialization
 
 When passing arrays through pglite (which uses Workers), convert reactive arrays to plain arrays:
 ```typescript

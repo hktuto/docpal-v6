@@ -53,11 +53,25 @@ UUID of the target table for MagicLink/VirtualColumn relations.
 Settings specific to virtual columns:
 - `sourceRelationField` - Parent relation field name
 - `displayFieldName` - Which field from the relation to show
-- `displayMode` - How to render: `'text'`, `'chips'`, `'list'`, `'link'`
 - `aggregation` - How to aggregate multiple values: `'first'`, `'last'`, `'all'`, `'count'`
 - `showUniqueOnly` - Deduplicate values
 - `linkToRecord` - Make values clickable to navigate
 - `separator` - Separator string for text mode (default: `', '`)
+- `targetFieldConfig` - (Dynamic, not persisted) Target field's display configuration for rendering
+
+### VirtualColumnSettings
+Persisted settings for a virtual column (stored in parent relation's `displayStructure.virtualColumnSettings`):
+- `aggregation` - How to aggregate: `'first'`, `'last'`, `'all'`, `'count'`
+- `showUniqueOnly` - Deduplicate values
+- `separator` - Separator string
+- `linkToRecord` - Make values clickable
+
+### TargetFieldConfig
+Dynamic configuration injected into virtual columns from the target table's field:
+- `type` - Target field's ColumnFieldType (e.g., SingleSelect, Number)
+- `properties` - Target field's display properties (e.g., options with colors, number formatting)
+
+Virtual columns inherit the target field's rendering style automatically.
 
 ## Contexts
 

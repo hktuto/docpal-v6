@@ -544,31 +544,70 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     }
 
     // Handle displayFieldNames update for relation fields
-    // Also auto-create virtual columns for newly added display fields (except first)
+    // Sync virtual columns: add new ones, remove old ones, handle first field changes
     if (existingField.businessType === 'relation' && updates.properties?.displayFieldNames) {
       const newDisplayFieldNames = updates.properties.displayFieldNames as string[]
       const oldDisplayFieldNames = existingField.displayFieldNames || []
       
       fieldUpdates.displayFieldNames = newDisplayFieldNames
       
-      // Find newly added display fields (not in old list)
-      const newlyAddedFields = newDisplayFieldNames.filter(
-        (name, index) => index > 0 && !oldDisplayFieldNames.includes(name)
+      // Determine what changed
+      const oldFirstField = oldDisplayFieldNames[0]
+      const newFirstField = newDisplayFieldNames[0]
+      const firstFieldChanged = oldFirstField !== newFirstField
+      
+      // Fields that need virtual columns: all except the first one
+      const oldVirtualFields = oldDisplayFieldNames.slice(1)
+      const newVirtualFields = newDisplayFieldNames.slice(1)
+      
+      // Virtual columns to REMOVE: were in old virtual list, not in new virtual list
+      const virtualColumnsToRemove = oldVirtualFields.filter(
+        name => !newVirtualFields.includes(name)
       )
       
-      // Auto-create virtual columns for newly added fields
-      if (newlyAddedFields.length > 0 && currentView.value) {
+      // Virtual columns to ADD: are in new virtual list, not in old virtual list
+      const virtualColumnsToAdd = newVirtualFields.filter(
+        name => !oldVirtualFields.includes(name)
+      )
+      
+      // Handle first field change specially
+      if (firstFieldChanged) {
+        // If old first field is now in virtual position, add it as virtual column
+        if (oldFirstField && newDisplayFieldNames.includes(oldFirstField) && newDisplayFieldNames.indexOf(oldFirstField) > 0) {
+          if (!virtualColumnsToAdd.includes(oldFirstField)) {
+            virtualColumnsToAdd.push(oldFirstField)
+          }
+        }
+        // If new first field was a virtual column, remove it (it's now in the relation column)
+        if (newFirstField && oldDisplayFieldNames.includes(newFirstField) && oldDisplayFieldNames.indexOf(newFirstField) > 0) {
+          if (!virtualColumnsToRemove.includes(newFirstField)) {
+            virtualColumnsToRemove.push(newFirstField)
+          }
+        }
+      }
+      
+      // Update view fields if there are changes
+      if ((virtualColumnsToRemove.length > 0 || virtualColumnsToAdd.length > 0) && currentView.value) {
         let updatedViewFields = [...currentView.value.fields]
         const relationIndex = updatedViewFields.indexOf(fieldName)
         
-        for (const displayFieldName of newlyAddedFields) {
+        // Remove virtual columns that are no longer needed
+        for (const displayFieldName of virtualColumnsToRemove) {
+          const virtualFieldName = `${fieldName}.${displayFieldName}`
+          updatedViewFields = updatedViewFields.filter(f => f !== virtualFieldName)
+        }
+        
+        // Add new virtual columns
+        for (const displayFieldName of virtualColumnsToAdd) {
           const virtualFieldName = `${fieldName}.${displayFieldName}`
           // Only add if not already in view
           if (!updatedViewFields.includes(virtualFieldName)) {
-            if (relationIndex !== -1) {
+            // Recalculate relation index after removals
+            const currentRelationIndex = updatedViewFields.indexOf(fieldName)
+            if (currentRelationIndex !== -1) {
               // Find the last virtual column for this relation to insert after
-              let insertIndex = relationIndex + 1
-              for (let i = relationIndex + 1; i < updatedViewFields.length; i++) {
+              let insertIndex = currentRelationIndex + 1
+              for (let i = currentRelationIndex + 1; i < updatedViewFields.length; i++) {
                 if (updatedViewFields[i].startsWith(`${fieldName}.`)) {
                   insertIndex = i + 1
                 } else {
@@ -582,8 +621,29 @@ export function useTableColumns(options: UseTableColumnsOptions) {
           }
         }
         
-        // Update view with new virtual columns
+        // Update view with synced virtual columns
         await updateView(currentView.value.id, { fields: updatedViewFields })
+      }
+      
+      // Clean up virtualColumnSettings for completely removed fields
+      const completelyRemovedFields = oldDisplayFieldNames.filter(
+        name => !newDisplayFieldNames.includes(name)
+      )
+      if (completelyRemovedFields.length > 0) {
+        const currentDisplayStructure = existingField.displayStructure || {}
+        const currentVCSettings = (currentDisplayStructure as any).virtualColumnSettings || {}
+        const updatedVCSettings = { ...currentVCSettings }
+        
+        for (const removedFieldName of completelyRemovedFields) {
+          delete updatedVCSettings[removedFieldName]
+        }
+        
+        // Merge cleaned virtualColumnSettings into displayStructure
+        fieldUpdates.displayStructure = {
+          ...currentDisplayStructure,
+          ...fieldUpdates.displayStructure,
+          virtualColumnSettings: updatedVCSettings
+        } as FieldDisplayStructure
       }
     }
 

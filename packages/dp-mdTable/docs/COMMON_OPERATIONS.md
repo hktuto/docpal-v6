@@ -54,13 +54,12 @@ await addVirtualColumn('rel_company', 'email', {
 
 ### Update Virtual Column Settings
 
-Virtual columns are view-level only - updates don't affect the parent relation:
+Virtual column settings are persisted to the parent relation's `displayStructure.virtualColumnSettings`:
 
 ```typescript
-// This only updates the local column config, not the database
+// Updates are persisted to the parent relation field
 await updateColumn('rel_company.email', {
   properties: {
-    displayMode: 'chips',      // 'text' | 'chips' | 'list' | 'link'
     aggregation: 'first',      // 'first' | 'last' | 'all' | 'count'
     showUniqueOnly: true,
     linkToRecord: false,
@@ -68,6 +67,8 @@ await updateColumn('rel_company.email', {
   }
 })
 ```
+
+**Note:** Virtual columns automatically inherit the target field's display settings (colors, formatting). The `aggregation`, `showUniqueOnly`, `separator`, and `linkToRecord` settings are virtual-column-specific and persisted.
 
 ### Delete Virtual Column
 
@@ -77,6 +78,25 @@ await deleteColumn('rel_company.email')
 ```
 
 ## Relation Operations
+
+### Update Relation Display Fields
+
+When updating a relation's `displayFieldNames`, virtual columns are automatically synced:
+
+```typescript
+// Update relation to change display fields
+await updateColumn('rel_company', {
+  properties: {
+    displayFieldNames: ['email', 'name', 'phone']  // Reordered: email is now first
+  }
+})
+```
+
+**Auto-sync behavior:**
+- **Removed fields**: Virtual columns are removed from the view
+- **Added fields**: Virtual columns are created (except for first field)
+- **First field changes**: Old first field gets a virtual column, new first field's virtual column is removed
+- **Settings cleanup**: `virtualColumnSettings` entries are cleaned up for completely removed fields
 
 ### Create Relation from Column
 
@@ -89,7 +109,14 @@ await createRelationFromColumn(
   ['name', 'email'],      // Display field names (array)
   'Company'               // Relation column name
 )
+// Result: Creates relation column + auto-creates virtual column for 'email'
+// First display field ('name') stays in the combined relation column
 ```
+
+**Auto-create virtual columns**: When creating a relation with multiple display fields:
+- First display field stays in the combined relation column
+- Virtual columns are automatically created for all other display fields
+- Virtual columns are positioned right after the relation column
 
 ### Get Existing Relation to Table
 
