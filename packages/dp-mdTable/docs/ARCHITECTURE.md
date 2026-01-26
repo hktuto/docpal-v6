@@ -526,6 +526,105 @@ emit('accepted', { displayFieldNames: [...formData.displayFieldNames] })
 await query('...', [ensurePlainArray(displayFieldNames)])
 ```
 
+## Record Detail View (WIP)
+
+The detail view provides a dashboard-like widget layout for viewing individual record details. It uses a grid system similar to `dp-dashboard` for drag-and-drop widget configuration.
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  User clicks expand icon in table row                           │
+│  ↓                                                              │
+│  MdTable emits 'expand-click' event                             │
+│  ↓                                                              │
+│  TableDetailView calls navigateToRecord(tableId, recordId)      │
+│  ↓                                                              │
+│  useSingleWorkspace updates workspaceRouteParams                │
+│  { detailType: 'record', tableId, recordId }                    │
+│  ↓                                                              │
+│  detail/index.vue renders LazyWorkspacesDetailRecord            │
+│  ↓                                                              │
+│  detail/record.vue loads record + renders DetailViewLayout      │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Key Components
+
+| File | Purpose |
+|------|---------|
+| `utils/detailWidgetHelper.ts` | Widget settings compatible with DashboardWidgetSetting |
+| `components/detailView/DetailViewLayout.vue` | Grid layout using `grid-layout-plus` |
+| `components/detailView/widgets/TableInfo.vue` | Displays selected fields from record |
+| `components/detailView/widgets/RelatedTableList.vue` | Shows related records for a relation |
+
+### Phase 1 Widgets
+
+1. **TableInfo** - Display selected fields from the current record
+   - Settings: fields to show, layout (grid/list), show labels
+   
+2. **RelatedTableList** - Show related records for a relation field
+   - Settings: relation field, columns to display, page size, allow add/open
+
+### Widget Setting Structure
+
+Follows `DashboardWidgetSetting` pattern for future dashboard integration:
+
+```typescript
+interface DetailWidgetSetting {
+  x?: number      // Grid x position
+  y?: number      // Grid y position
+  i?: string      // Unique widget instance ID
+  minW?: number   // Min width in grid columns
+  minH?: number   // Min height in grid rows
+  maxW?: number   // Max width
+  maxH?: number   // Max height
+  w: number       // Default width
+  h: number       // Default height
+  component: DetailWidgetType  // 'TableInfo' | 'RelatedTableList'
+  setting?: any   // Widget-specific settings
+  label: string   // i18n label key
+}
+```
+
+### Navigation
+
+Uses multi-tab navigation via `useSingleWorkspace`:
+
+```typescript
+// Navigate to record detail
+navigateToRecord(tableId: string, recordId: string)
+
+// Go back to table view
+goBackFromRecord()
+```
+
+### Configuration Storage
+
+Detail layout is stored in `case_tables.formStructure.detail`:
+
+```typescript
+formStructure: {
+  card?: CardViewConfig,
+  detail?: {
+    widgets: DetailWidgetSetting[]
+  }
+}
+```
+
+### Current Status
+
+- [x] Widget helper with DashboardWidgetSetting structure
+- [x] Navigation system (navigateToRecord, goBackFromRecord)
+- [x] DetailViewLayout with grid-layout-plus
+- [x] TableInfo widget (basic)
+- [x] RelatedTableList widget (basic)
+- [x] detail/record.vue page component
+- [x] Expand click triggers detail view
+- [ ] Widget settings dialogs (polish)
+- [ ] DetailViewEditor for admin configuration
+- [ ] Table settings panel for detail view
+
 ## Common Tasks
 
 ### Adding a New Column Type
@@ -570,11 +669,17 @@ await query('...', [ensurePlainArray(displayFieldNames)])
 | `components/mdTable/addColumn/field/VirtualColumn.vue` | Virtual column settings |
 | `components/mdTable/header/index.vue` | Column header with suggestion badge |
 | `components/mdTable/header/popover.vue` | Column header context menu |
+| `utils/detailWidgetHelper.ts` | Detail view widget settings and helpers |
+| `components/detailView/DetailViewLayout.vue` | Grid layout for record detail view |
+| `components/detailView/widgets/TableInfo.vue` | Widget to display record fields |
+| `components/detailView/widgets/RelatedTableList.vue` | Widget to show related records |
 
 ### Consumer Files (demo/workspaces)
 
 | File | Purpose |
 |------|---------|
+| `composables/useSingleWorkspace.ts` | Workspace navigation including navigateToRecord |
+| `components/global/workspaces/detail/record.vue` | Record detail view page |
 | `composables/useTableView.ts` | Main orchestrator, combines all composables |
 | `composables/useTableColumns.ts` | Field→Column mapping, virtual columns |
 | `composables/useTableDataProvider.ts` | Data CRUD, relation resolution, upsertRows |
