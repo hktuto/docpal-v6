@@ -13,7 +13,7 @@ import { useTableDataProvider } from './useTableDataProvider'
 import { useTableColumns } from './useTableColumns'
 
 // Re-export ViewContext for backwards compatibility
-export { ViewContextKey, type ViewContext }
+// export { ViewContextKey, type ViewContext }
 
 /**
  * Main orchestrator composable for dynamic table view
