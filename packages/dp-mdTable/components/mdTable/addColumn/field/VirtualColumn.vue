@@ -12,25 +12,31 @@
       </div>
     </div>
 
+    <!-- Target Field Info -->
+    <el-alert 
+      v-if="targetTypeName" 
+      type="info" 
+      :closable="false"
+      class="target-info-alert"
+    >
+      <template #title>
+        Display type: {{ targetTypeName }}
+      </template>
+      <span class="target-info-desc">
+        This column inherits display settings from the target table.
+      </span>
+    </el-alert>
+
     <el-divider />
 
-    <!-- Display Settings -->
-    <el-form-item label="Display Mode">
-      <el-select v-model="formData.displayMode" style="width: 100%">
-        <el-option value="text" label="Text (comma-separated)" />
-        <el-option value="chips" label="Chips/Tags" />
-        <el-option value="list" label="List (vertical)" />
-        <el-option value="link" label="Link (clickable)" />
-      </el-select>
-    </el-form-item>
-
-    <el-form-item label="Aggregation">
-      <el-select v-model="formData.aggregation" style="width: 100%">
-        <el-option value="all" label="Show All Values" />
-        <el-option value="first" label="First Value Only" />
-        <el-option value="last" label="Last Value Only" />
-        <el-option value="count" label="Count" />
-      </el-select>
+    <!-- Aggregation Settings (Virtual Column specific) -->
+    <el-form-item label="Value Aggregation">
+      <el-radio-group v-model="formData.aggregation">
+        <el-radio-button value="all">Show All</el-radio-button>
+        <el-radio-button value="first">First</el-radio-button>
+        <el-radio-button value="last">Last</el-radio-button>
+        <el-radio-button value="count">Count</el-radio-button>
+      </el-radio-group>
     </el-form-item>
 
     <el-form-item label="Options">
@@ -44,7 +50,7 @@
       </div>
     </el-form-item>
 
-    <el-form-item v-if="formData.displayMode === 'text'" label="Separator">
+    <el-form-item v-if="formData.aggregation === 'all'" label="Separator">
       <el-input 
         v-model="formData.separator" 
         placeholder=", "
@@ -55,17 +61,42 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 
 const props = defineProps<{
   formData: any
 }>()
 
+// Column type name mapping
+const COLUMN_TYPE_NAMES: Record<number, string> = {
+  1: 'Multi-line Text',
+  2: 'Number',
+  3: 'Single Select',
+  4: 'Multi Select',
+  5: 'Date/Time',
+  6: 'Attachment',
+  8: 'URL',
+  9: 'Email',
+  10: 'Phone',
+  11: 'Checkbox',
+  12: 'Rating',
+  13: 'Member',
+  14: 'Relation',
+  16: 'Formula',
+  17: 'Currency',
+  18: 'Percent',
+  19: 'Text'
+}
+
+// Get target field type name from targetFieldConfig
+const targetTypeName = computed(() => {
+  const type = props.formData?.targetFieldConfig?.type
+  if (!type) return null
+  return COLUMN_TYPE_NAMES[type] || 'Text'
+})
+
 // Initialize form data with defaults
 const initializeFormData = () => {
-  if (props.formData.displayMode === undefined) {
-    props.formData.displayMode = 'text'
-  }
   if (props.formData.aggregation === undefined) {
     props.formData.aggregation = 'all'
   }
@@ -113,6 +144,15 @@ onMounted(() => {
     }
   }
 
+  .target-info-alert {
+    margin-top: 12px;
+    
+    .target-info-desc {
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+    }
+  }
+
   .options-list {
     display: flex;
     flex-direction: column;
@@ -121,6 +161,12 @@ onMounted(() => {
 
   :deep(.el-divider) {
     margin: 12px 0;
+  }
+
+  :deep(.el-radio-group) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
   }
 }
 </style>

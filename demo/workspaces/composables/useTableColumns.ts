@@ -84,31 +84,74 @@ export function useTableColumns(options: UseTableColumnsOptions) {
   }
 
   /**
+   * Get virtual column settings from parent relation's displayStructure.virtualColumnSettings
+   * These settings are persisted and specific to how the virtual column aggregates/displays values
+   */
+  function getVirtualColumnSettings(
+    relationField: CaseFieldRecord,
+    displayFieldName: string
+  ): { aggregation: string; showUniqueOnly: boolean; separator: string; linkToRecord: boolean } {
+    const vcSettings = (relationField.displayStructure as any)?.virtualColumnSettings?.[displayFieldName]
+    return {
+      aggregation: vcSettings?.aggregation || 'all',
+      showUniqueOnly: vcSettings?.showUniqueOnly || false,
+      separator: vcSettings?.separator || ', ',
+      linkToRecord: vcSettings?.linkToRecord || false
+    }
+  }
+
+  /**
    * Create a virtual column config for a relation display field
    * Virtual columns are view-specific and show one display field from a relation
    * Uses type 15 (VirtualColumn) instead of type 14 (MagicLink)
+   * 
+   * @param relationField - The parent relation field
+   * @param displayFieldName - The field name from the target table to display
+   * @param targetFieldsMap - Map of target table ID -> fields (for injecting target field config)
    */
   function createVirtualColumnConfig(
     relationField: CaseFieldRecord,
-    displayFieldName: string
+    displayFieldName: string,
+    targetFieldsMap: Map<string, CaseFieldRecord[]>
   ): ColumnConfig {
-    const width = Math.max(displayFieldName.length * 13, 100) + 20
+    // Get target field from the map
+    const targetFields = relationField.relationTableId 
+      ? targetFieldsMap.get(relationField.relationTableId) 
+      : undefined
+    const targetField = targetFields?.find(f => f.fieldName === displayFieldName)
+    
+    // Get persisted virtual column settings from parent relation
+    const vcSettings = getVirtualColumnSettings(relationField, displayFieldName)
+    
+    // Build title using target field's alias if available
+    const title = targetField?.fieldNameAlias 
+      ? `${relationField.fieldNameAlias} → ${targetField.fieldNameAlias}`
+      : `${relationField.fieldNameAlias} (${displayFieldName})`
+    
+    const width = Math.max((targetField?.fieldNameAlias || displayFieldName).length * 13, 100) + 20
     
     return {
       id: `${relationField.id}_${displayFieldName}`,
       dataTableId: relationField.tableId ?? undefined,
       field: `${relationField.fieldName}.${displayFieldName}`,
-      title: `${relationField.fieldNameAlias} (${displayFieldName})`,
+      title,
       width,
       type: 15, // ColumnFieldType.VirtualColumn
       properties: {
+        // Virtual column metadata
         sourceRelationField: relationField.fieldName,
         displayFieldName: displayFieldName,
         relationTableId: relationField.relationTableId,
-        displayMode: 'text',
-        aggregation: 'all',
-        showUniqueOnly: false,
-        separator: ', '
+        // Persisted settings
+        aggregation: vcSettings.aggregation,
+        showUniqueOnly: vcSettings.showUniqueOnly,
+        separator: vcSettings.separator,
+        linkToRecord: vcSettings.linkToRecord,
+        // Target field config (loaded fresh, for rendering)
+        targetFieldConfig: targetField?.displayStructure ? {
+          type: targetField.displayStructure.type,
+          properties: targetField.displayStructure.properties || {}
+        } : null
       },
       headerAlign: 'left'
     }
@@ -129,22 +172,47 @@ export function useTableColumns(options: UseTableColumnsOptions) {
    * - Regular field: "company_name" -> normal column
    * - Relation column: "rel_company" -> shows all displayFieldNames combined
    * - Virtual column: "rel_company.email" -> shows one display field separately
+   * 
+   * For virtual columns, this function:
+   * 1. Collects unique target table IDs from virtual columns
+   * 2. Fetches target table fields in parallel
+   * 3. Passes the targetFieldsMap to createVirtualColumnConfig for injection
    */
   async function getAllColumns(): Promise<ColumnConfig[]> {
     if (!currentView.value) {
       throw new Error('No current view')
     }
 
+    // Step 1: Collect unique target table IDs from virtual columns
+    const targetTableIds = new Set<string>()
+    for (const fieldName of currentView.value.fields) {
+      if (fieldName.includes('.')) {
+        const [relationFieldName] = fieldName.split('.')
+        const relationField = getField(relationFieldName)
+        if (relationField?.relationTableId) {
+          targetTableIds.add(relationField.relationTableId)
+        }
+      }
+    }
+
+    // Step 2: Fetch all target table fields in parallel
+    const targetFieldsMap = new Map<string, CaseFieldRecord[]>()
+    if (targetTableIds.size > 0) {
+      await Promise.all([...targetTableIds].map(async (tableId) => {
+        const targetFields = await getFieldsForTable(tableId)
+        targetFieldsMap.set(tableId, targetFields)
+      }))
+    }
+
+    // Step 3: Build column configs
     const columnsData = currentView.value.fields.reduce<ColumnConfig[]>((result, viewFieldName) => {
       if (viewFieldName.includes('.')) {
-        console.log('viewFieldName', viewFieldName)
         // Virtual column: rel_company.email
         const [relationFieldName, displayFieldName] = viewFieldName.split('.')
         const field = getField(relationFieldName)
         
         if (field && field.businessType === 'relation') {
-          const virtualColumnConfig = createVirtualColumnConfig(field, displayFieldName)
-          console.log('virtualColumnConfig', virtualColumnConfig)
+          const virtualColumnConfig = createVirtualColumnConfig(field, displayFieldName, targetFieldsMap)
           result.push(virtualColumnConfig)
         }
       } else {
@@ -157,7 +225,7 @@ export function useTableColumns(options: UseTableColumnsOptions) {
      
       return result
     }, [])
-    console.log('result', columnsData)
+    
     columns.value = columnsData
     return columnsData
   }
@@ -282,6 +350,23 @@ export function useTableColumns(options: UseTableColumnsOptions) {
       updatedFields.push(fieldName)
     }
 
+    // For relation columns with multiple display fields, auto-create virtual columns
+    // Skip the first display field (it stays in the combined relation column)
+    if (isRelationType && column.properties?.displayFieldNames?.length > 1) {
+      const displayFieldNames = column.properties!.displayFieldNames as string[]
+      // Add virtual columns for all fields except the first one
+      for (let i = 1; i < displayFieldNames.length; i++) {
+        const virtualFieldName = `${fieldName}.${displayFieldNames[i]}`
+        // Insert virtual column right after the relation column
+        const relationIndex = updatedFields.indexOf(fieldName)
+        if (relationIndex !== -1) {
+          updatedFields.splice(relationIndex + i, 0, virtualFieldName)
+        } else {
+          updatedFields.push(virtualFieldName)
+        }
+      }
+    }
+
     await updateView(currentView.value.id, { fields: updatedFields })
     await getAllColumns()
 
@@ -373,11 +458,55 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     const isVirtualColumn = fieldName.includes('.')
     
     if (isVirtualColumn) {
-      // Virtual columns are view-level only - don't update the parent relation field
-      // Just update the local column config and refresh
-      console.log('Updating virtual column settings:', fieldName, updates)
+      // Virtual column - persist settings to parent relation's displayStructure.virtualColumnSettings
+      const [relationFieldName, displayFieldName] = fieldName.split('.')
+      const relationField = getField(relationFieldName)
       
-      // Update the column in the local columns array with the new settings
+      if (!relationField) {
+        console.error('Parent relation field not found:', relationFieldName)
+        return
+      }
+      
+      // Extract virtual column settings from updates.properties
+      const newSettings: Record<string, any> = {}
+      if (updates.properties?.aggregation !== undefined) {
+        newSettings.aggregation = updates.properties.aggregation
+      }
+      if (updates.properties?.showUniqueOnly !== undefined) {
+        newSettings.showUniqueOnly = updates.properties.showUniqueOnly
+      }
+      if (updates.properties?.separator !== undefined) {
+        newSettings.separator = updates.properties.separator
+      }
+      if (updates.properties?.linkToRecord !== undefined) {
+        newSettings.linkToRecord = updates.properties.linkToRecord
+      }
+      
+      // Only persist if there are settings to save
+      if (Object.keys(newSettings).length > 0) {
+        // Build updated displayStructure with virtualColumnSettings
+        const currentDisplayStructure = (relationField.displayStructure || {}) as Record<string, any>
+        const currentVCSettings = currentDisplayStructure.virtualColumnSettings || {}
+        const currentFieldSettings = currentVCSettings[displayFieldName] || {}
+        
+        const updatedDisplayStructure = {
+          ...currentDisplayStructure,
+          virtualColumnSettings: {
+            ...currentVCSettings,
+            [displayFieldName]: {
+              ...currentFieldSettings,
+              ...newSettings
+            }
+          }
+        }
+        
+        // Persist to database
+        await updateFieldFn(relationFieldName, { 
+          displayStructure: updatedDisplayStructure as unknown as FieldDisplayStructure 
+        })
+      }
+      
+      // Update the local column config
       const columnIndex = columns.value.findIndex(col => col.field === fieldName)
       if (columnIndex !== -1) {
         const existingColumn = columns.value[columnIndex]
@@ -391,9 +520,6 @@ export function useTableColumns(options: UseTableColumnsOptions) {
         }
       }
       
-      // Note: Virtual column settings are transient (not persisted to database)
-      // They will be rebuilt from the parent relation when the view is reloaded
-      // TODO: Consider storing virtual column settings in view.fieldSettings or similar
       return
     }
     
@@ -418,8 +544,47 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     }
 
     // Handle displayFieldNames update for relation fields
+    // Also auto-create virtual columns for newly added display fields (except first)
     if (existingField.businessType === 'relation' && updates.properties?.displayFieldNames) {
-      fieldUpdates.displayFieldNames = updates.properties.displayFieldNames
+      const newDisplayFieldNames = updates.properties.displayFieldNames as string[]
+      const oldDisplayFieldNames = existingField.displayFieldNames || []
+      
+      fieldUpdates.displayFieldNames = newDisplayFieldNames
+      
+      // Find newly added display fields (not in old list)
+      const newlyAddedFields = newDisplayFieldNames.filter(
+        (name, index) => index > 0 && !oldDisplayFieldNames.includes(name)
+      )
+      
+      // Auto-create virtual columns for newly added fields
+      if (newlyAddedFields.length > 0 && currentView.value) {
+        let updatedViewFields = [...currentView.value.fields]
+        const relationIndex = updatedViewFields.indexOf(fieldName)
+        
+        for (const displayFieldName of newlyAddedFields) {
+          const virtualFieldName = `${fieldName}.${displayFieldName}`
+          // Only add if not already in view
+          if (!updatedViewFields.includes(virtualFieldName)) {
+            if (relationIndex !== -1) {
+              // Find the last virtual column for this relation to insert after
+              let insertIndex = relationIndex + 1
+              for (let i = relationIndex + 1; i < updatedViewFields.length; i++) {
+                if (updatedViewFields[i].startsWith(`${fieldName}.`)) {
+                  insertIndex = i + 1
+                } else {
+                  break
+                }
+              }
+              updatedViewFields.splice(insertIndex, 0, virtualFieldName)
+            } else {
+              updatedViewFields.push(virtualFieldName)
+            }
+          }
+        }
+        
+        // Update view with new virtual columns
+        await updateView(currentView.value.id, { fields: updatedViewFields })
+      }
     }
 
     if (Object.keys(fieldUpdates).length > 0) {

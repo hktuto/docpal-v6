@@ -132,13 +132,45 @@ export interface CurrencyOptions {
   placeholder?: string
 }
 
+/**
+ * Settings for virtual columns that are persisted in the parent relation's displayStructure.virtualColumnSettings
+ * These are specific to virtual column behavior, not rendering style (which comes from target field)
+ */
+export interface VirtualColumnSettings {
+  aggregation?: 'first' | 'last' | 'all' | 'count'  // How to aggregate multiple values
+  showUniqueOnly?: boolean         // Deduplicate values when multiple relations
+  separator?: string               // Separator for text mode (default: ", ")
+  linkToRecord?: boolean           // Click to navigate to related record
+}
+
+/**
+ * Target field configuration injected into virtual column properties
+ * This is loaded dynamically from the target table and contains the field's display settings
+ */
+export interface TargetFieldConfig {
+  type: ColumnFieldType            // Target field's column type (e.g., SingleSelect, Number)
+  properties: Record<string, any>  // Target field's display properties (e.g., options, format)
+}
+
+/**
+ * Full options for virtual column rendering
+ * Combines metadata, persisted settings, and dynamically loaded target config
+ */
 export interface VirtualColumnOptions {
+  // Virtual column metadata
   sourceRelationField: string      // Parent relation field name (e.g., "rel_company")
   displayFieldName: string         // Display field from target table (e.g., "email")
   relationTableId?: string         // Target table ID for reference
-  showUniqueOnly?: boolean         // Deduplicate values when multiple relations
-  displayMode?: 'text' | 'chips' | 'list' | 'link'  // How to display values
+  
+  // Persisted settings (from displayStructure.virtualColumnSettings)
   aggregation?: 'first' | 'last' | 'all' | 'count'  // How to aggregate multiple values
-  linkToRecord?: boolean           // Click to navigate to related record
+  showUniqueOnly?: boolean         // Deduplicate values when multiple relations
   separator?: string               // Separator for text mode (default: ", ")
+  linkToRecord?: boolean           // Click to navigate to related record
+  
+  // Dynamic target field config (loaded fresh each time, not persisted)
+  targetFieldConfig?: TargetFieldConfig | null
+  
+  // Legacy - kept for backward compatibility but deprecated
+  displayMode?: 'text' | 'chips' | 'list' | 'link'
 }
