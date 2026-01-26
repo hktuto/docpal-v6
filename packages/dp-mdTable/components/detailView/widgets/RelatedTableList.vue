@@ -1,0 +1,413 @@
+<template>
+  <div class="related-table-widget">
+    <!-- Widget Header -->
+    <div class="widget-header">
+      <div class="header-left">
+        <Icon :name="getRelationIcon()" size="16" />
+        <span class="widget-title">
+          {{ relationField?.fieldNameAlias || relationField?.fieldName || $t('detailWidget.relatedTableList') }}
+        </span>
+        <el-tag v-if="relatedRecords.length > 0" size="small" type="info">
+          {{ relatedRecords.length }}
+        </el-tag>
+      </div>
+      <div class="widget-actions">
+        <el-button 
+          v-if="effectiveSetting.allowAdd && !hideSetting" 
+          size="small" 
+          type="primary"
+          text
+          @click="handleAddRelated"
+        >
+          <Icon name="lucide:plus" size="14" />
+          {{ $t('common_add') }}
+        </el-button>
+        <el-button v-if="!hideSetting" size="small" text @click="openSettings">
+          <Icon name="lucide:settings" size="14" />
+        </el-button>
+        <el-button v-if="!hideSetting" size="small" text type="danger" @click="handleDelete">
+          <Icon name="lucide:trash-2" size="14" />
+        </el-button>
+      </div>
+    </div>
+
+    <!-- Widget Content -->
+    <div class="widget-content">
+      <template v-if="!effectiveSetting.relationFieldName">
+        <!-- No relation configured -->
+        <div class="empty-state">
+          <Icon name="lucide:link" size="32" />
+          <span>{{ $t('detailWidget.selectRelation') }}</span>
+          <el-button v-if="!hideSetting" size="small" @click="openSettings">
+            {{ $t('common_configure') }}
+          </el-button>
+        </div>
+      </template>
+      
+      <template v-else-if="loading">
+        <div class="loading-state">
+          <el-icon class="is-loading">
+            <Icon name="lucide:loader-2" />
+          </el-icon>
+          <span>{{ $t('common_loading') }}</span>
+        </div>
+      </template>
+      
+      <template v-else-if="relatedRecords.length === 0">
+        <div class="empty-state">
+          <Icon name="lucide:inbox" size="32" />
+          <span>{{ $t('detailWidget.noRelatedRecords') }}</span>
+        </div>
+      </template>
+      
+      <template v-else>
+        <!-- Related Records Table -->
+        <div class="records-table">
+          <div 
+            v-for="record in paginatedRecords" 
+            :key="record.id"
+            class="record-row"
+            :class="{ clickable: effectiveSetting.allowOpen }"
+            @click="handleOpenRecord(record)"
+          >
+            <div 
+              v-for="col in displayColumns" 
+              :key="col"
+              class="record-cell"
+            >
+              <span class="cell-value">{{ formatCellValue(record, col) }}</span>
+            </div>
+            <div v-if="effectiveSetting.allowOpen" class="record-action">
+              <Icon name="lucide:external-link" size="14" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="totalPages > 1" class="pagination">
+          <el-pagination
+            v-model:current-page="currentPage"
+            :page-size="effectiveSetting.pageSize"
+            :total="relatedRecords.length"
+            layout="prev, pager, next"
+            small
+          />
+        </div>
+      </template>
+    </div>
+
+    <!-- Settings Dialog -->
+    <RelatedTableListSetting
+      ref="settingRef"
+      :setting="effectiveSetting"
+      :relation-fields="relationFields"
+      :target-fields="targetFields"
+      @refresh="handleRefreshSetting"
+      @delete="handleDelete"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, ref, watch, onMounted } from 'vue'
+import type { RelatedTableListWidgetSetting } from '../../../utils/detailWidgetHelper'
+import type { FieldInfo } from '../../../types/view-config'
+import { ColumnFieldType } from '../../../types/column-types'
+import RelatedTableListSetting from './RelatedTableListSetting.vue'
+
+const props = defineProps<{
+  /** Widget settings */
+  setting?: RelatedTableListWidgetSetting
+  /** Hide settings controls (view mode) */
+  hideSetting?: boolean
+  /** Available fields from the table */
+  fields: FieldInfo[]
+  /** Current record data */
+  record: Record<string, any>
+  /** Function to fetch related records */
+  fetchRelatedRecords?: (relationFieldName: string, recordIds: string[]) => Promise<any[]>
+  /** Function to get fields for target table */
+  getTargetFields?: (relationTableId: string) => Promise<FieldInfo[]>
+  /** Function to navigate to a record */
+  onOpenRecord?: (tableId: string, recordId: string) => void
+}>()
+
+const emit = defineEmits<{
+  delete: []
+  refreshSetting: [setting: RelatedTableListWidgetSetting]
+}>()
+
+const settingRef = ref()
+const loading = ref(false)
+const relatedRecords = ref<any[]>([])
+const targetFields = ref<FieldInfo[]>([])
+const currentPage = ref(1)
+
+// Default settings
+const defaultSetting: RelatedTableListWidgetSetting = {
+  relationFieldName: '',
+  displayColumns: [],
+  pageSize: 5,
+  allowAdd: true,
+  allowOpen: true
+}
+
+// Merge with defaults
+const effectiveSetting = computed<RelatedTableListWidgetSetting>(() => ({
+  ...defaultSetting,
+  ...props.setting
+}))
+
+// Get relation fields from table fields
+const relationFields = computed(() => {
+  return props.fields.filter(f => f.type === ColumnFieldType.MagicLink)
+})
+
+// Get current relation field
+const relationField = computed(() => {
+  return relationFields.value.find(f => f.fieldName === effectiveSetting.value.relationFieldName)
+})
+
+// Get columns to display
+const displayColumns = computed(() => {
+  if (effectiveSetting.value.displayColumns.length > 0) {
+    return effectiveSetting.value.displayColumns
+  }
+  // Default: show first 3 text columns from target table
+  return targetFields.value
+    .filter(f => f.type === ColumnFieldType.Text || f.type === ColumnFieldType.MultiText)
+    .slice(0, 3)
+    .map(f => f.fieldName)
+})
+
+// Pagination
+const totalPages = computed(() => {
+  return Math.ceil(relatedRecords.value.length / effectiveSetting.value.pageSize)
+})
+
+const paginatedRecords = computed(() => {
+  const start = (currentPage.value - 1) * effectiveSetting.value.pageSize
+  const end = start + effectiveSetting.value.pageSize
+  return relatedRecords.value.slice(start, end)
+})
+
+// Get icon for relation
+function getRelationIcon(): string {
+  return 'lucide:link'
+}
+
+// Format cell value for display
+function formatCellValue(record: any, fieldName: string): string {
+  const value = record[fieldName]
+  if (value === null || value === undefined) return '-'
+  if (Array.isArray(value)) return value.join(', ')
+  if (typeof value === 'object') return JSON.stringify(value)
+  return String(value)
+}
+
+// Fetch related records when relation changes
+async function loadRelatedRecords() {
+  const fieldName = effectiveSetting.value.relationFieldName
+  if (!fieldName || !props.record) {
+    relatedRecords.value = []
+    return
+  }
+
+  const recordIds = props.record[fieldName]
+  if (!recordIds || !Array.isArray(recordIds) || recordIds.length === 0) {
+    relatedRecords.value = []
+    return
+  }
+
+  loading.value = true
+  try {
+    if (props.fetchRelatedRecords) {
+      relatedRecords.value = await props.fetchRelatedRecords(fieldName, recordIds)
+    } else {
+      // Fallback: show IDs if no fetch function provided
+      relatedRecords.value = recordIds.map(id => ({ id, _display: id }))
+    }
+  } catch (error) {
+    console.error('Failed to fetch related records:', error)
+    relatedRecords.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+// Load target table fields
+async function loadTargetFields() {
+  const field = relationField.value
+  if (!field?.relationTableId || !props.getTargetFields) {
+    targetFields.value = []
+    return
+  }
+
+  try {
+    targetFields.value = await props.getTargetFields(field.relationTableId)
+  } catch (error) {
+    console.error('Failed to fetch target fields:', error)
+    targetFields.value = []
+  }
+}
+
+// Watch for setting changes
+watch(
+  () => effectiveSetting.value.relationFieldName,
+  async () => {
+    currentPage.value = 1
+    await loadTargetFields()
+    await loadRelatedRecords()
+  },
+  { immediate: true }
+)
+
+// Watch for record changes
+watch(
+  () => props.record,
+  () => {
+    loadRelatedRecords()
+  },
+  { deep: true }
+)
+
+function openSettings() {
+  settingRef.value?.handleOpen(effectiveSetting.value)
+}
+
+function handleRefreshSetting(newSetting: RelatedTableListWidgetSetting) {
+  emit('refreshSetting', newSetting)
+}
+
+function handleDelete() {
+  emit('delete')
+}
+
+function handleAddRelated() {
+  // TODO: Open add relation dialog
+  console.log('Add related record')
+}
+
+function handleOpenRecord(record: any) {
+  if (!effectiveSetting.value.allowOpen) return
+  
+  const field = relationField.value
+  if (field?.relationTableId && props.onOpenRecord) {
+    props.onOpenRecord(field.relationTableId, record.id)
+  }
+}
+
+// Expose for parent
+defineExpose({
+  resize: () => {
+    // Handle resize if needed
+  }
+})
+</script>
+
+<style lang="scss" scoped>
+.related-table-widget {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--el-bg-color);
+  border-radius: var(--el-border-radius-base);
+  overflow: hidden;
+}
+
+.widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--app-space-s) var(--app-space-m);
+  border-bottom: 1px solid var(--el-border-color-lighter);
+  background: var(--el-fill-color-light);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-s);
+}
+
+.widget-title {
+  font-weight: 600;
+  font-size: var(--app-font-size-s);
+  color: var(--el-text-color-primary);
+}
+
+.widget-actions {
+  display: flex;
+  gap: var(--app-space-xs);
+}
+
+.widget-content {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.records-table {
+  flex: 1;
+}
+
+.record-row {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-m);
+  padding: var(--app-space-s) var(--app-space-m);
+  border-bottom: 1px solid var(--el-border-color-lighter);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &.clickable {
+    cursor: pointer;
+    
+    &:hover {
+      background: var(--el-fill-color-light);
+    }
+  }
+}
+
+.record-cell {
+  flex: 1;
+  min-width: 0;
+
+  .cell-value {
+    display: block;
+    font-size: var(--app-font-size-s);
+    color: var(--el-text-color-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.record-action {
+  flex-shrink: 0;
+  color: var(--el-text-color-placeholder);
+}
+
+.pagination {
+  padding: var(--app-space-s) var(--app-space-m);
+  border-top: 1px solid var(--el-border-color-lighter);
+  display: flex;
+  justify-content: center;
+}
+
+.empty-state,
+.loading-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--app-space-s);
+  padding: var(--app-space-xl);
+  color: var(--el-text-color-placeholder);
+  text-align: center;
+}
+</style>

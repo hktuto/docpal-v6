@@ -89,6 +89,8 @@ const detailComponent = computed(() => {
         return 'LazyWorkspacesSettingDashoard'
       }
       return 'LazyWorkspacessDetailDashboard'
+    case 'record':
+      return 'LazyWorkspacesDetailRecord'
     default:
       return 'LazyWorkspaceDetailRoot'
   }

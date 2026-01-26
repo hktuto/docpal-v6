@@ -111,3 +111,13 @@
     border-radius: var(--app-border-radius-s);
   }
 }
+
+// edit mode overrider
+.vxe-table--render-default .vxe-body--column.col--auto-height.col--edit{
+  overflow: visible !important;
+}
+
+.vxe-table--render-default .vxe-body--column.col--auto-height.col--checkbox,
+.vxe-table--render-default .vxe-body--column.col--auto-height.col--checkbox > .vxe-cell{
+  overflow: visible !important;
+}

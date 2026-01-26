@@ -25,7 +25,13 @@
         <vxe-grid ref="gridRef" v-bind="gridOptions" v-on="gridEvents" class="multi-dimension-grid">
           <!-- 插槽透传 -->
           <template #checkboxIndex="checkboxProps">
-            <ToolsCheckboxIndex ref="checkboxIndexRef" :row="checkboxProps.row" :seq="checkboxProps.seq" :props="checkboxProps" />
+            <ToolsCheckboxIndex 
+            ref="checkboxIndexRef" 
+            :row="checkboxProps.row" 
+            :seq="checkboxProps.seq" 
+            :props="checkboxProps"
+            @expand-click="handleExpandClick"
+            />
           </template>
           <template v-for="(_, slotName) in filteredSlots" #[slotName]="slotProps">
             <slot :name="slotName" v-bind="slotProps" />
@@ -90,6 +96,9 @@ const emit = defineEmits<{
   search: [value: string]
   'edit-closed': [params: any]
   'cell-click': [params: any]
+  'row-dblclick': [params: { row: any; rowIndex: number }]
+  'expand-click': [params: { row: any; rowIndex: number }]
+  'open-record': [params: { tableId: string; recordId: string; row: any }]
   'row-add': []
   'column-add': [column: ColumnConfig]
   'save-view': []
@@ -168,6 +177,10 @@ const gridEvents = computed<VxeGridListeners>(() => ({
   'cell-click': (params: any) => {
     emit('cell-click', params)
   },
+  // 'cell-dblclick': (params: any) => {
+  //   const { row, rowIndex } = params
+  //   emit('row-dblclick', { row, rowIndex })
+  // },
   columnDragend({ newColumn, oldColumn, dragPos }) {
     console.log(`拖拽完成，被拖拽列：${oldColumn.field} 目标列：${newColumn.field} 目标位置：${dragPos}`)
     saveColumnOrder({ newColumn, oldColumn, dragPos })
@@ -217,6 +230,12 @@ const handleSaveView = () => {
 
 const handleImport = () => {
   emit('import')
+}
+
+// Handle expand click from checkbox column
+const handleExpandClick = (row: any) => {
+  const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
+  emit('expand-click', { row, rowIndex })
 }
 
 // 处理添加列

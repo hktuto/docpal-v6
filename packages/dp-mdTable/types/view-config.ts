@@ -82,11 +82,13 @@ export interface DetailViewConfig {
  * Widget types for detail view
  */
 export type DetailViewWidgetType =
-  | 'field'       // Single field display
-  | 'section'     // Group of fields
-  | 'relations'   // Related records table
-  | 'timeline'    // Activity timeline
-  | 'stats'       // Quick statistics
+  | 'field'           // Single field display
+  | 'section'         // Group of fields
+  | 'relations'       // Related records table
+  | 'timeline'        // Activity timeline
+  | 'stats'           // Quick statistics
+  | 'TableInfo'       // Table info widget (Phase 1)
+  | 'RelatedTableList' // Related table list widget (Phase 1)
 
 /**
  * Widget configuration for detail view

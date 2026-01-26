@@ -1,0 +1,288 @@
+<template>
+  <div class="table-info-widget">
+    <!-- Widget Header (shown in edit mode) -->
+    <div v-if="!hideSetting" class="widget-header">
+      <span class="widget-title">{{ $t('detailWidget.tableInfo') }}</span>
+      <div class="widget-actions">
+        <el-button size="small" text @click="openSettings">
+          <Icon name="lucide:settings" size="14" />
+        </el-button>
+        <el-button size="small" text type="danger" @click="handleDelete">
+          <Icon name="lucide:trash-2" size="14" />
+        </el-button>
+      </div>
+    </div>
+
+    <!-- Widget Content -->
+    <div class="widget-content" :class="[`layout-${effectiveSetting.layout}`]">
+      <template v-if="displayFields.length > 0">
+        <div 
+          v-for="field in displayFields" 
+          :key="field.fieldName"
+          class="field-item"
+          :style="getFieldStyle(field)"
+        >
+          <div v-if="effectiveSetting.showLabels" class="field-label">
+            {{ field.fieldNameAlias || field.fieldName }}
+          </div>
+          <div class="field-value">
+            <component
+              v-if="getFieldRenderer(field)"
+              :is="getFieldRenderer(field)"
+              :value="getFieldValue(field.fieldName)"
+              :field="field"
+              :record="record"
+            />
+            <span v-else class="text-value">
+              {{ formatFieldValue(field) }}
+            </span>
+          </div>
+        </div>
+      </template>
+      <template v-else>
+        <div class="empty-state">
+          <Icon name="lucide:file-text" size="32" />
+          <span>{{ $t('detailWidget.noFieldsConfigured') }}</span>
+          <el-button v-if="!hideSetting" size="small" @click="openSettings">
+            {{ $t('common_configure') }}
+          </el-button>
+        </div>
+      </template>
+    </div>
+
+    <!-- Settings Dialog -->
+    <TableInfoSetting
+      ref="settingRef"
+      :setting="effectiveSetting"
+      :fields="fields"
+      @refresh="handleRefreshSetting"
+      @delete="handleDelete"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import type { TableInfoWidgetSetting } from '../../../utils/detailWidgetHelper'
+import type { FieldInfo } from '../../../types/view-config'
+import { ColumnFieldType } from '../../../types/column-types'
+import TableInfoSetting from './TableInfoSetting.vue'
+
+const props = defineProps<{
+  /** Widget settings */
+  setting?: TableInfoWidgetSetting
+  /** Hide settings controls (view mode) */
+  hideSetting?: boolean
+  /** Available fields from the table */
+  fields: FieldInfo[]
+  /** Record data to display */
+  record: Record<string, any>
+}>()
+
+const emit = defineEmits<{
+  delete: []
+  refreshSetting: [setting: TableInfoWidgetSetting]
+}>()
+
+const settingRef = ref()
+
+// Default settings
+const defaultSetting: TableInfoWidgetSetting = {
+  fields: [],
+  layout: 'grid',
+  showLabels: true,
+  gridColumns: 2
+}
+
+// Merge with defaults
+const effectiveSetting = computed<TableInfoWidgetSetting>(() => ({
+  ...defaultSetting,
+  ...props.setting
+}))
+
+// Get fields to display
+const displayFields = computed(() => {
+  if (effectiveSetting.value.fields.length === 0) {
+    // If no fields configured, show all non-relation fields
+    return props.fields.filter(f => 
+      f.type !== ColumnFieldType.MagicLink && 
+      f.type !== ColumnFieldType.VirtualColumn
+    ).slice(0, 10)
+  }
+  
+  return effectiveSetting.value.fields
+    .map(fieldName => props.fields.find(f => f.fieldName === fieldName))
+    .filter((f): f is FieldInfo => !!f)
+})
+
+// Get field value from record
+function getFieldValue(fieldName: string): any {
+  return props.record?.[fieldName]
+}
+
+// Format field value for display
+function formatFieldValue(field: FieldInfo): string {
+  const value = getFieldValue(field.fieldName)
+  
+  if (value === null || value === undefined) return '-'
+  
+  switch (field.type) {
+    case ColumnFieldType.DateTime:
+      try {
+        return new Date(value).toLocaleDateString()
+      } catch {
+        return String(value)
+      }
+    
+    case ColumnFieldType.Checkbox:
+      return value ? '✓' : '✗'
+    
+    case ColumnFieldType.Rating:
+      const rating = Number(value) || 0
+      return '★'.repeat(rating) + '☆'.repeat(5 - rating)
+    
+    case ColumnFieldType.Number:
+    case ColumnFieldType.Currency:
+      return new Intl.NumberFormat().format(Number(value))
+    
+    case ColumnFieldType.Percent:
+      return `${(Number(value) * 100).toFixed(0)}%`
+    
+    case ColumnFieldType.MultiSelect:
+      if (Array.isArray(value)) return value.join(', ')
+      return String(value)
+    
+    case ColumnFieldType.Member:
+      if (typeof value === 'object' && value?.name) return value.name
+      return String(value)
+    
+    default:
+      if (Array.isArray(value)) return value.join(', ')
+      if (typeof value === 'object') return JSON.stringify(value)
+      return String(value)
+  }
+}
+
+// Get field style based on layout
+function getFieldStyle(field: FieldInfo): Record<string, string> {
+  if (effectiveSetting.value.layout === 'list') {
+    return {}
+  }
+  
+  const columns = effectiveSetting.value.gridColumns || 2
+  return {
+    gridColumn: `span ${12 / columns}`
+  }
+}
+
+// Get custom renderer for field type (placeholder for future)
+function getFieldRenderer(field: FieldInfo): any {
+  // Future: return custom renderer component based on field type
+  return null
+}
+
+function openSettings() {
+  settingRef.value?.handleOpen(effectiveSetting.value)
+}
+
+function handleRefreshSetting(newSetting: TableInfoWidgetSetting) {
+  emit('refreshSetting', newSetting)
+}
+
+function handleDelete() {
+  emit('delete')
+}
+
+// Expose for parent
+defineExpose({
+  resize: () => {
+    // Handle resize if needed
+  }
+})
+</script>
+
+<style lang="scss" scoped>
+.table-info-widget {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--el-bg-color);
+  border-radius: var(--el-border-radius-base);
+  overflow: hidden;
+}
+
+.widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--app-space-s) var(--app-space-m);
+  border-bottom: 1px solid var(--el-border-color-lighter);
+  background: var(--el-fill-color-light);
+}
+
+.widget-title {
+  font-weight: 600;
+  font-size: var(--app-font-size-s);
+  color: var(--el-text-color-primary);
+}
+
+.widget-actions {
+  display: flex;
+  gap: var(--app-space-xs);
+}
+
+.widget-content {
+  flex: 1;
+  padding: var(--app-space-m);
+  overflow: auto;
+
+  &.layout-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--app-space-m);
+    align-content: start;
+  }
+
+  &.layout-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--app-space-s);
+  }
+}
+
+.field-item {
+  min-width: 0;
+}
+
+.field-label {
+  font-size: var(--app-font-size-xs);
+  color: var(--el-text-color-secondary);
+  font-weight: 500;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.field-value {
+  font-size: var(--app-font-size-s);
+  color: var(--el-text-color-primary);
+  word-break: break-word;
+
+  .text-value {
+    display: block;
+    line-height: 1.5;
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--app-space-s);
+  padding: var(--app-space-xl);
+  color: var(--el-text-color-placeholder);
+  text-align: center;
+}
+</style>

@@ -43,6 +43,8 @@ export interface WorkspaceContext {
   deleteItem: (id: string) => Promise<void>
   addItem: (parentId: string | null, type: CaseTreeItemType, viewData?: ViewCreationData) => Promise<TreeItem>
   navigateToItem: (item?: TreeItem) => void
+  navigateToRecord: (tableId: string, recordId: string) => void
+  goBackFromRecord: () => void
   openSetting: (slug: string, type: CaseTreeItemType) => void
   getMenuFromDb: () => Promise<void>
   saveMenuItemToDb: (item: Partial<CaseTreeRecord>) => Promise<void>
@@ -63,7 +65,11 @@ export function useSingleWorkspaceContext() {
 export type WorkspaceRouteParams = {
   detailId: string | null
   pageType: "setting" | "detail",
-  detailType: 'folder' | 'table' | 'view' | 'dashboard' | 'root'
+  detailType: 'folder' | 'table' | 'view' | 'dashboard' | 'root' | 'record'
+  /** For record detail view: the record ID being viewed */
+  recordId?: string | null
+  /** For record detail view: the table ID the record belongs to */
+  tableId?: string | null
 }
 
 export function useSingleWorkspace() {
@@ -75,6 +81,7 @@ export function useSingleWorkspace() {
 
   const workspaceRouteParams = ref<WorkspaceRouteParams>({
     detailId: null,
+    pageType: 'detail',
     detailType: 'root'
   })
 
@@ -482,6 +489,55 @@ export function useSingleWorkspace() {
     }
   }
 
+  /**
+   * Navigate to a record's detail view
+   * @param tableId - The table ID the record belongs to
+   * @param recordId - The record ID to view
+   */
+  function navigateToRecord(tableId: string, recordId: string) {
+    workspaceRouteParams.value.detailType = 'record'
+    workspaceRouteParams.value.tableId = tableId
+    workspaceRouteParams.value.recordId = recordId
+    workspaceRouteParams.value.pageType = 'detail'
+  }
+
+  /**
+   * Go back from record detail view to the table view
+   */
+  function goBackFromRecord() {
+    const tableId = workspaceRouteParams.value.tableId
+    // Clear record-specific params
+    workspaceRouteParams.value.recordId = null
+    workspaceRouteParams.value.tableId = null
+    
+    // Navigate back to table if we have a tableId
+    if (tableId) {
+      // Find the tree item for this table
+      const findTableTreeItem = (items: TreeItem[]): TreeItem | undefined => {
+        for (const item of items) {
+          if (item.itemType === 'table' && item.itemId === tableId) {
+            return item
+          }
+          if (item.children) {
+            const found = findTableTreeItem(item.children)
+            if (found) return found
+          }
+        }
+        return undefined
+      }
+      
+      const tableItem = findTableTreeItem(menuState.value.items)
+      if (tableItem) {
+        navigateToItem(tableItem)
+        return
+      }
+    }
+    
+    // Fallback to root
+    workspaceRouteParams.value.detailType = 'root'
+    workspaceRouteParams.value.detailId = null
+  }
+
   function openSetting(slug: string, type: CaseTreeItemType) {
     console.log('openSetting', slug, type)
     workspaceRouteParams.value.pageType = 'setting'
@@ -521,6 +577,8 @@ export function useSingleWorkspace() {
     deleteItem,
     addItem,
     navigateToItem,
+    navigateToRecord,
+    goBackFromRecord,
     openSetting,
     getMenuFromDb,
     saveMenuItemToDb,

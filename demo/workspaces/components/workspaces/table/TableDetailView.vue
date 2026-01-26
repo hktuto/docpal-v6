@@ -9,6 +9,7 @@ const props = defineProps<{
 }>()
 
 const { query } = usePglite()
+const { navigateToRecord } = useSingleWorkspaceContext()
 
 const realTableError = ref<string | null>(null)
 const isLoading = ref(false)
@@ -412,6 +413,16 @@ async function handleImportComplete(result: any) {
   }
 }
 
+/**
+ * Handle expand click to open record detail view
+ */
+function handleExpandClick(params: { row: any; rowIndex: number }) {
+  const { row } = params
+  if (row?.id && props.dataTableId) {
+    navigateToRecord(props.dataTableId, row.id)
+  }
+}
+
 // Drag-and-drop file import handlers
 function isValidExcelFile(file: File): boolean {
   const validTypes = [
@@ -551,7 +562,13 @@ watch(
         </div>
         
         <!-- Use wrapper component that sets up MdTable providers -->
-        <MdTable v-if="tableReady" :editable="true" @saveView="handleSaveView" @import="handleImport" />
+        <MdTable 
+          v-if="tableReady" 
+          :editable="true" 
+          @saveView="handleSaveView" 
+          @import="handleImport"
+          @expand-click="handleExpandClick"
+        />
       </div>
     </div>
 

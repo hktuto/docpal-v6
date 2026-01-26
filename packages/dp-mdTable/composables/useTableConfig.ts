@@ -91,11 +91,11 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     _columns[0].treeNode = !!groupBy.value && groupBy.value.length > 0
     _columns.unshift({
       type: 'checkbox',
-      width: 40,
+      width: 60,
       slots: {
         checkbox: 'checkboxIndex'
       },
-      headerAlign: 'center',
+      headerAlign: 'right',
       align: 'center'
     })
     return _columns.map((col) => {
