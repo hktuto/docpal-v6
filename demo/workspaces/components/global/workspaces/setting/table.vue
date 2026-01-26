@@ -49,9 +49,10 @@ const sectionComponent = computed(() => {
       return 'LazyWorkspacesSettingTableGeneral'
     case 'columns':
       return 'LazyWorkspacesSettingTableColumns'
+    case 'card':
+      return 'LazyWorkspacesSettingTableCard'
     case 'detail':
     case 'form':
-    case 'card':
     case 'list':
       return 'LazyWorkspacesSettingTableData'
     case 'automation':

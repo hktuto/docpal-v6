@@ -1,6 +1,9 @@
 // src/types/vxe-grid.d.ts
 import type { VxeGridProps, VxeGridListeners } from 'vxe-table'
 
+// Re-export view config types
+export * from './view-config'
+
 export interface GridColumn {
   field: string
   title: string

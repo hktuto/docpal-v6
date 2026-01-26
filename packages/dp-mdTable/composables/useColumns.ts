@@ -28,6 +28,9 @@ export interface ColumnContext {
   addVirtualColumn?: (relationFieldName: string, displayFieldName: string, position?: { targetColumn: string; side: 'left' | 'right' }) => Promise<void>
   tableId?: Ref<string>
   entityId?: Ref<string>
+  // Record card preview helpers
+  getTableCardConfig?: (tableId: string) => Promise<any | null>
+  getRecordById?: (tableId: string, recordId: string) => Promise<Record<string, any> | null>
 }
 
 export const ColumnContextKey: InjectionKey<ColumnContext> = Symbol('ColumnContextKey')

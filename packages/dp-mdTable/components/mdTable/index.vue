@@ -55,6 +55,7 @@
       </div>
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" @headerClick="handleHeaderClick" />
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
+      <RecordCardDialog ref="recordCardDialogRef" />
     </div>
     <ToolsRightClickCellPopover ref="rightClickCellPopoverRef" />
   </div>
@@ -69,6 +70,7 @@ import { useTableConfig } from '../../composables/useTableConfig'
 import { ColumnContextKey } from '../../composables/useColumns'
 import Toolbar from './Toolbar.vue'
 import VirtualColumnDialog from './addColumn/VirtualColumnDialog.vue'
+import RecordCardDialog from './RecordCardDialog.vue'
 import { onClickOutside } from '@vueuse/core'
 // 导入并注册自定义渲染器（必须在组件加载时执行）
 const slots = useSlots()
@@ -117,8 +119,20 @@ const {
 // Import update status composable
 const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
 const rightClickCellPopoverRef = ref()
+const recordCardDialogRef = ref()
+
 // 表格事件
 const gridEvents = computed<VxeGridListeners>(() => ({
+  'relation-cell-click': (params: any) => {
+    const { targetElement, targetTableId, recordId, displayValue, row } = params
+    if (targetTableId && recordId && recordCardDialogRef.value) {
+      recordCardDialogRef.value.open(targetElement, {
+        targetTableId,
+        recordId,
+        displayValue
+      })
+    }
+  },
   'edit-closed': async (params: any) => {
     console.log('edit-closed', params)
     const { column, row } = params

@@ -2,9 +2,9 @@ import type { ViewRenderFunctionParams } from "../../../types/column-types";
 import { ElTag } from "element-plus";
 
 export const RelationView = ({options, params}: ViewRenderFunctionParams<string>) => {
-  const { $table, row, column } = params
+  const { $table,$grid, row, column } = params
   const relationOptions = options?.props
-  
+  // console.log("table", params)
   // Parse the column field to get relation field and display field
   // Format: relationFieldName.displayFieldName
   let relationFieldName = column.field
@@ -22,6 +22,14 @@ export const RelationView = ({options, params}: ViewRenderFunctionParams<string>
   // Display as tags for arrays
   const displayValues = Array.isArray(displayValue) ? displayValue : []
   
+  // Get the base relation field name (without display field suffix)
+  const baseRelationFieldName = column.field.includes('.') 
+    ? column.field.split('.')[0] 
+    : column.field
+  
+  // Get the UUID values from the base relation field
+  const relationUuids = row[baseRelationFieldName] || []
+  
   // Multiple items: display as tags
   return h('div', { 
     class: 'relation-view multiple',
@@ -34,7 +42,18 @@ export const RelationView = ({options, params}: ViewRenderFunctionParams<string>
     h(ElTag, {
       key: value[index] || index,
       size: 'small',
-      type: 'info'
+      type: 'info',
+      onClick: (e: MouseEvent) => {
+        e.stopPropagation()
+        $grid.dispatchEvent('relation-cell-click', {
+          event: e,
+          targetElement: e.currentTarget,
+          targetTableId: relationOptions?.relationTableId,
+          recordId: Array.isArray(relationUuids) ? relationUuids[index] : relationUuids,
+          displayValue: val,
+          row
+        })
+      }
     }, () => val || value[index])
   ))
 }

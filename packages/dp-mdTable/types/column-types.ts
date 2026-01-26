@@ -40,6 +40,7 @@ export interface RenderParams {
   row: any
   column: any
   $table: any
+  $grid?: any
 }
 
 // 统一模式渲染函数参数

@@ -758,19 +758,90 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     }
   }
 
+  // Cache for target table fields (used for virtual columns and card preview)
+  const targetFieldsCache = new Map<string, CaseFieldRecord[]>()
+  
+  // Cache for target table info (including formStructure with card config)
+  const targetTableCache = new Map<string, CaseTableRecord>()
+
   /**
-   * Get fields for a specific table
+   * Get fields for a specific table (with caching)
    */
   async function getFieldsForTable(targetTableId: string): Promise<CaseFieldRecord[]> {
+    // Check cache first
+    if (targetFieldsCache.has(targetTableId)) {
+      return targetFieldsCache.get(targetTableId)!
+    }
+    
     try {
       const tableFields = await query<CaseFieldRecord>(
         `SELECT * FROM case_fields WHERE "tableId" = $1 ORDER BY "fieldNameAlias"`,
         [targetTableId]
       )
+      // Cache the result
+      targetFieldsCache.set(targetTableId, tableFields)
       return tableFields
     } catch (error) {
       console.error('Error loading fields for table:', error)
       throw error
+    }
+  }
+  
+  /**
+   * Get table info (with caching) - includes formStructure with card config
+   */
+  async function getTableInfo(targetTableId: string): Promise<CaseTableRecord | null> {
+    // Check cache first
+    if (targetTableCache.has(targetTableId)) {
+      return targetTableCache.get(targetTableId)!
+    }
+    
+    try {
+      const tables = await query<CaseTableRecord>(
+        `SELECT * FROM case_tables WHERE id = $1`,
+        [targetTableId]
+      )
+      if (tables.length > 0) {
+        targetTableCache.set(targetTableId, tables[0])
+        return tables[0]
+      }
+      return null
+    } catch (error) {
+      console.error('Error loading table info:', error)
+      return null
+    }
+  }
+  
+  /**
+   * Get card view config for a table
+   * Returns the formStructure.card config if configured
+   */
+  async function getTableCardConfig(targetTableId: string): Promise<any | null> {
+    const tableInfo = await getTableInfo(targetTableId)
+    if (!tableInfo?.formStructure) return null
+    
+    // formStructure contains { form, card, detail, list }
+    const formStructure = tableInfo.formStructure as Record<string, any>
+    return formStructure.card || null
+  }
+  
+  /**
+   * Get a single record by ID from a target table
+   */
+  async function getRecordById(targetTableId: string, recordId: string): Promise<Record<string, any> | null> {
+    try {
+      // Get target table info
+      const tableInfo = await getTableInfo(targetTableId)
+      if (!tableInfo?.tableName) return null
+      
+      const records = await query<Record<string, any>>(
+        `SELECT * FROM "${tableInfo.tableName}" WHERE id = $1`,
+        [recordId]
+      )
+      return records.length > 0 ? records[0] : null
+    } catch (error) {
+      console.error('Error loading record:', error)
+      return null
     }
   }
 
@@ -821,7 +892,10 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     getRelationFields,
     addVirtualColumn,
     tableId,
-    entityId
+    entityId,
+    // Record card preview helpers
+    getTableCardConfig,
+    getRecordById
   } as ColumnContext)
 
   return {
@@ -841,6 +915,9 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     getExistingRelationToTable,
     getRelationFields,
     fieldToColumnConfig,
-    createVirtualColumnConfig
+    createVirtualColumnConfig,
+    // Record card preview helpers
+    getTableCardConfig,
+    getRecordById
   }
 }
