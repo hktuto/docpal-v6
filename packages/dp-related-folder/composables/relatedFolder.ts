@@ -43,6 +43,7 @@ export const useRelatedFolder =() => {
     async function getRelatedChild(doc:any) {
         const returnObject:any[] = []
         try{
+            // TODO 缺少新API
             const relatedList = await clientApi.api.getTypesNameNameRelated(doc.type).then(res => res.data)
             const pList: any = []
             relatedList.forEach((item: { metaData: string, rootDocPalType: string }) => {

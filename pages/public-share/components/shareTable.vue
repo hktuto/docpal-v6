@@ -19,7 +19,6 @@
   <ReaderDialog ref="ReaderRef" v-bind="previewFile" :options="{ readOnly: true, print: false, loadAnnotations: false }"> </ReaderDialog>
 </template>
 <script lang="ts" setup>
-import { ElMessageBox } from 'element-plus'
 import { clientApi } from 'api'
 import dayjs from 'dayjs'
 

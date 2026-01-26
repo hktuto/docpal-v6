@@ -61,7 +61,7 @@ async function init() {
     if (!setting) setting = {}
     setTimeout(async () => {
       state.setting = setting
-      state.setting.actionType = setting?.actionType === 'D' ? true : false
+      state.setting.actionType = setting?.actionType === 'D'
       await FormRendererRef.value.vFormRenderRef.setFormData({ ...state.setting })
     })
   } catch (error) {
