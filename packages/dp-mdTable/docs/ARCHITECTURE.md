@@ -216,6 +216,8 @@ export const MDTableComponents = {
 ├── <addColumn/popover.vue>         # Add column dialog
 │   └── <field/*.vue>               # Type-specific settings
 ├── <VirtualColumnDialog>           # Add virtual column picker
+├── <RecordCardDialog>              # Card preview for relation records
+│   └── <CardPreview>               # Renders card with fields
 └── <tools/*>                       # Filter/Sort/Group popovers
 
 Consumer Components (demo/workspaces):
@@ -436,7 +438,50 @@ return {
 }
 ```
 
-### 6. Virtual Column Sync on Display Field Changes
+### 6. Record Card Preview on Relation Click
+
+When clicking a relation tag in a cell, a card preview dialog appears showing the related record:
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  User clicks relation tag                                     │
+│  ↓                                                            │
+│  RelationView dispatches 'relation-cell-click' event          │
+│  { targetElement, targetTableId, recordId }                   │
+│  ↓                                                            │
+│  mdTable/index.vue handles event                              │
+│  ↓                                                            │
+│  RecordCardDialog.open(targetElement, params)                 │
+│  ↓                                                            │
+│  Fetch in parallel via ColumnContext:                         │
+│  - getTableCardConfig(tableId) → formStructure.card           │
+│  - getFieldsForTable(tableId) → cached target fields          │
+│  - getRecordById(tableId, recordId) → record data             │
+│  ↓                                                            │
+│  CardPreview renders the card                                 │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Key Components:**
+- `RecordCardDialog.vue` - UiPopoverDialog wrapper that fetches data and shows CardPreview
+- `CardPreview.vue` - Renders card using CardViewConfig
+- `relation/view.ts` - Dispatches `relation-cell-click` event on tag click
+
+**ColumnContext Functions for Card Preview:**
+```typescript
+// Added to ColumnContext interface
+getTableCardConfig?: (tableId: string) => Promise<CardViewConfig | null>
+getRecordById?: (tableId: string, recordId: string) => Promise<Record<string, any> | null>
+```
+
+**Caching Strategy:**
+Target table fields and table info are cached in Maps to avoid repeated queries:
+```typescript
+const targetFieldsCache = new Map<string, CaseFieldRecord[]>()
+const targetTableCache = new Map<string, CaseTableRecord>()
+```
+
+### 7. Virtual Column Sync on Display Field Changes
 
 When a relation's `displayFieldNames` are modified (add, remove, reorder), virtual columns are automatically synced:
 
@@ -518,6 +563,7 @@ await query('...', [ensurePlainArray(displayFieldNames)])
 | `renderers/render-components.ts` | Maps types to renderer configs |
 | `renderers/components/VirtualColumn/` | Virtual column renderer |
 | `components/mdTable/index.vue` | Main table Vue component |
+| `components/mdTable/RecordCardDialog.vue` | Card preview dialog for relation records |
 | `components/mdTable/addColumn/popover.vue` | Add/edit column dialog |
 | `components/mdTable/addColumn/VirtualColumnDialog.vue` | Virtual column picker dialog |
 | `components/mdTable/addColumn/field/Relation.vue` | Relation column settings (multi-select display fields) |

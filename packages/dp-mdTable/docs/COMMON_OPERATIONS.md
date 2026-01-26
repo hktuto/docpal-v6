@@ -135,6 +135,30 @@ const relationFields = getRelationFields()
 // Returns array of fields where businessType === 'relation'
 ```
 
+### Get Card Config for a Table
+
+```typescript
+// Returns formStructure.card from target table (cached)
+const cardConfig = await getTableCardConfig(targetTableId)
+// Returns CardViewConfig or null if not configured
+```
+
+### Get Record by ID from Target Table
+
+```typescript
+// Fetch a single record by ID (uses cached table info)
+const record = await getRecordById(targetTableId, recordId)
+// Returns record data or null if not found
+```
+
+### Get Fields for Table (Cached)
+
+```typescript
+// Fields are cached after first fetch
+const fields = await getFieldsForTable(targetTableId)
+// Cache is reused for virtual columns and card preview
+```
+
 ## Data Operations
 
 ### Get Data Context
@@ -471,6 +495,59 @@ async function handleImportComplete(result) {
   }
 }
 ```
+
+## Record Card Preview
+
+### How Card Preview Works
+
+When a user clicks on a relation tag in a cell, a card preview dialog appears:
+
+```typescript
+// 1. RelationView (view.ts) dispatches event on tag click
+$grid.dispatchEvent('relation-cell-click', {
+  event: e,
+  targetElement: e.currentTarget,
+  targetTableId: relationOptions?.relationTableId,
+  recordId: relationUuids[index],
+  displayValue: val,
+  row
+})
+
+// 2. mdTable/index.vue handles the event
+'relation-cell-click': (params: any) => {
+  const { targetElement, targetTableId, recordId } = params
+  recordCardDialogRef.value.open(targetElement, { targetTableId, recordId })
+}
+
+// 3. RecordCardDialog fetches data via ColumnContext
+const [config, fields, record] = await Promise.all([
+  columnContext.getTableCardConfig(params.targetTableId),
+  columnContext.getFieldsForTable(params.targetTableId),  // Cached
+  columnContext.getRecordById(params.targetTableId, params.recordId)
+])
+
+// 4. CardPreview renders the card with data
+```
+
+### Card Configuration
+
+Card config is stored in `case_tables.formStructure.card`:
+
+```typescript
+interface CardViewConfig {
+  fields: ViewFieldConfig[]     // Fields to display
+  titleField?: string           // Field for card title
+  subtitleField?: string        // Field for subtitle
+  coverField?: string           // Attachment field for cover image
+  advanced?: AdvancedConfig     // Custom CSS/JS/template
+}
+```
+
+### Default Card Config
+
+If no card config exists, a default is generated:
+- Title field: First text field
+- Display fields: First 5 non-system fields
 
 ## Error Handling
 

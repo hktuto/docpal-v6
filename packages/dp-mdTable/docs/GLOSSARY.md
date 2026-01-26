@@ -87,6 +87,12 @@ Vue injection key for view operations. Provides `currentView`, `views`, `updateV
 ### MdTableContextKey
 Vue injection key for the main table context. Provides access to the grid ref and helper functions.
 
+### ColumnContext Extended Functions
+Additional functions available on ColumnContext for relation features:
+- `getFieldsForTable(tableId)` - Returns cached fields for a table
+- `getTableCardConfig(tableId)` - Returns card view config from formStructure.card
+- `getRecordById(tableId, recordId)` - Fetches a single record by ID
+
 ### columnSuggestions (inject key)
 Consumer-level injection (from TableDetailView) providing suggestion data to headers:
 - `getSuggestionCount(fieldName)` - Returns count of pending suggestions
@@ -124,6 +130,20 @@ A lightweight popover that appears when clicking a suggestion badge. Shows sugge
 ### RelationSuggestionsDialog
 A full dialog showing all pending relation suggestions for a table, accessible from the table toolbar.
 
+### RecordCardDialog
+A popover dialog that shows a card preview of a related record when clicking on a relation tag. Uses `UiPopoverDialog` for positioning relative to the clicked element.
+
+### CardPreview
+Vue component that renders a record as a card using `CardViewConfig`. Shows title, subtitle, cover image, and configurable fields.
+
+### CardViewConfig
+Configuration for how a record is displayed as a card:
+- `fields` - Array of ViewFieldConfig defining which fields to show
+- `titleField` - Field to use as the card title
+- `subtitleField` - Field for subtitle
+- `coverField` - Attachment field for cover image
+- `advanced` - Custom CSS/JS/template
+
 ## Patterns
 
 ### Provider/Consumer
@@ -134,6 +154,18 @@ The process of converting a `CaseFieldRecord` into a `ColumnConfig` for display.
 
 ### Dot Notation
 Convention for identifying virtual columns in view.fields: `"relationFieldName.displayFieldName"` (e.g., `"rel_company.email"`).
+
+### Target Fields Cache
+A Map in `useTableColumns` that caches field definitions for target tables. Used for:
+- Virtual column rendering (target field display settings)
+- Card preview (loading fields without re-fetching)
+Key: tableId, Value: `CaseFieldRecord[]`
+
+### Target Table Cache
+A Map in `useTableColumns` that caches table info (including `formStructure`). Used for:
+- Card preview (loading card config)
+- Getting physical table name for record queries
+Key: tableId, Value: `CaseTableRecord`
 
 ## Relation Suggestions
 
@@ -171,6 +203,9 @@ Creates a relation from a suggestion, marks it as accepted, and dismisses other 
 
 ### Dismiss Suggestion
 Marks a suggestion as dismissed so it won't be shown again.
+
+### Open Record Card
+Displays a card preview for a related record when clicking on a relation tag. Triggered by `relation-cell-click` grid event.
 
 ## Import Terms
 
