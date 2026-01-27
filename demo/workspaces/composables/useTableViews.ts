@@ -1,5 +1,5 @@
 import type { CaseViewRecord, ViewFilter, ViewSorting, ViewGrouping } from '../utils/db/schema/newTableSchema'
-
+import { ElMessage } from 'element-plus'
 /**
  * View Context for view management
  */
@@ -33,7 +33,7 @@ export function useTableViews(options: UseTableViewsOptions) {
 
   const currentView = ref<CaseViewRecord | null>(null)
   const views = ref<CaseViewRecord[]>([])
-  
+
   // Filter, sort, group rules - loaded from view
   const columnFilterRules = ref<any[]>([])
   const columnSortRules = ref<any[]>([])
@@ -46,12 +46,9 @@ export function useTableViews(options: UseTableViewsOptions) {
     if (!tableId.value) {
       throw new Error('tableId is required')
     }
-    const data = await query<CaseViewRecord>(
-      `SELECT * FROM case_views WHERE "tableId" = $1 ORDER BY "isDefault" DESC, name ASC`,
-      [tableId.value]
-    )
+    const data = await query<CaseViewRecord>(`SELECT * FROM case_views WHERE "tableId" = $1 ORDER BY "isDefault" DESC, name ASC`, [tableId.value])
     views.value = data
-    
+
     // Set current view to default if not set
     if (!currentView.value && data.length > 0) {
       currentView.value = data.find((v) => v.isDefault) || data[0]
@@ -67,10 +64,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     if (!tableId.value) {
       return null
     }
-    const data = await query<CaseViewRecord>(
-      `SELECT * FROM case_views WHERE "tableId" = $1 AND "isDefault" = true`,
-      [tableId.value]
-    )
+    const data = await query<CaseViewRecord>(`SELECT * FROM case_views WHERE "tableId" = $1 AND "isDefault" = true`, [tableId.value])
     return data[0] || null
   }
 
@@ -82,14 +76,14 @@ export function useTableViews(options: UseTableViewsOptions) {
     if (!data || !data.length) {
       throw new Error(`View with id ${viewId} not found`)
     }
-    
+
     currentView.value = data[0]
-    
+
     // Load filter, sort, group from view
     columnFilterRules.value = data[0].filter || []
     columnSortRules.value = data[0].sorting || []
     columnGroupRules.value = data[0].grouping || []
-    
+
     onViewChanged?.(data[0])
   }
 
@@ -208,6 +202,7 @@ export function useTableViews(options: UseTableViewsOptions) {
       sorting: columnSortRules.value as ViewSorting[],
       grouping: columnGroupRules.value as ViewGrouping[]
     })
+    ElMessage.success('View has saved ')
   }
 
   /**

@@ -14,18 +14,10 @@ const tableView = useTableView()
 const viewReady = ref(false)
 
 // Lazy-loaded view components
-const TableViewComponent = defineAsyncComponent(() => 
-  import('../views/TableView.vue')
-)
-const KanbanViewComponent = defineAsyncComponent(() => 
-  import('../views/KanbanView.vue')
-)
-const GanttViewComponent = defineAsyncComponent(() => 
-  import('../views/GanttView.vue')
-)
-const CalendarViewComponent = defineAsyncComponent(() => 
-  import('../views/CalendarView.vue')
-)
+const TableViewComponent = defineAsyncComponent(() => import('../views/TableView.vue'))
+const KanbanViewComponent = defineAsyncComponent(() => import('../views/KanbanView.vue'))
+const GanttViewComponent = defineAsyncComponent(() => import('../views/GanttView.vue'))
+const CalendarViewComponent = defineAsyncComponent(() => import('../views/CalendarView.vue'))
 
 function getCurrentMenuItem() {
   if (!workspaceRouteParams.value.detailId) return null
@@ -40,7 +32,7 @@ function checkMenuItemStatus() {
 // Get the component based on view type
 const viewComponent = computed(() => {
   if (!currentView.value) return null
-  
+
   switch (currentView.value.viewType) {
     case 'kanban':
       return KanbanViewComponent
@@ -57,7 +49,7 @@ const viewComponent = computed(() => {
 // Get view type icon
 const viewTypeIcon = computed(() => {
   if (!currentView.value) return 'material-symbols:view-list-outline'
-  
+
   switch (currentView.value.viewType) {
     case 'kanban':
       return 'material-symbols:view-kanban-outline'
@@ -73,11 +65,11 @@ const viewTypeIcon = computed(() => {
 
 async function loadViewData() {
   if (!currentMenuItem.value?.itemId) return
-  
+
   isLoading.value = true
   error.value = null
   viewReady.value = false
-  
+
   try {
     // Initialize by view ID
     await tableView.initializeByView(currentMenuItem.value.itemId)
@@ -93,18 +85,14 @@ async function loadViewData() {
 
 async function handleDeleteView() {
   if (!currentMenuItem.value) return
-  
+
   try {
-    await ElMessageBox.confirm(
-      'This will delete this view. The underlying table data will not be affected.',
-      'Delete View',
-      {
-        confirmButtonText: 'Delete',
-        cancelButtonText: 'Cancel',
-        type: 'warning'
-      }
-    )
-    
+    await ElMessageBox.confirm('This will delete this view. The underlying table data will not be affected.', 'Delete View', {
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+      type: 'warning'
+    })
+
     await deleteItem(currentMenuItem.value.id)
     navigateToItem() // Navigate to root
     ElMessage.success('View deleted successfully')
@@ -124,12 +112,15 @@ onMounted(() => {
   }
 })
 
-watch(() => workspaceRouteParams.value.detailId, () => {
-  checkMenuItemStatus()
-  if (currentMenuItem.value) {
-    loadViewData()
+watch(
+  () => workspaceRouteParams.value.detailId,
+  () => {
+    checkMenuItemStatus()
+    if (currentMenuItem.value) {
+      loadViewData()
+    }
   }
-})
+)
 </script>
 
 <template>
@@ -143,19 +134,17 @@ watch(() => workspaceRouteParams.value.detailId, () => {
         <span>Loading view...</span>
       </div>
     </template>
-    
+
     <!-- Error State -->
     <template v-else-if="error">
       <div class="error-state">
         <Icon name="material-symbols:error-outline" class="error-icon" />
         <h3>View Not Found</h3>
         <p>{{ error }}</p>
-        <el-button type="danger" @click="handleDeleteView">
-          Delete and try again
-        </el-button>
+        <el-button type="danger" @click="handleDeleteView"> Delete and try again </el-button>
       </div>
     </template>
-    
+
     <!-- Menu item not found -->
     <template v-else-if="!currentMenuItem">
       <div class="error-state">
@@ -164,19 +153,17 @@ watch(() => workspaceRouteParams.value.detailId, () => {
         <p>The requested view could not be found.</p>
       </div>
     </template>
-    
+
     <!-- View not properly created -->
     <template v-else-if="!currentMenuItem.itemId">
       <div class="error-state">
         <Icon name="material-symbols:error-outline" class="error-icon" />
         <h3>View Not Configured</h3>
         <p>This view was not created properly.</p>
-        <el-button type="danger" @click="handleDeleteView">
-          Delete and try again
-        </el-button>
+        <el-button type="danger" @click="handleDeleteView"> Delete and try again </el-button>
       </div>
     </template>
-    
+
     <!-- View Content -->
     <template v-else-if="viewReady && currentView">
       <div class="view-content">
@@ -187,16 +174,11 @@ watch(() => workspaceRouteParams.value.detailId, () => {
             {{ currentView.viewType?.charAt(0).toUpperCase() + currentView.viewType?.slice(1) }} View
           </el-tag>
         </div>
-        
+
         <!-- Dynamic View Component -->
         <Suspense>
           <template #default>
-            <component 
-              :is="viewComponent" 
-              :view="currentView"
-              :table-view="tableView"
-              @save-view="handleSaveView"
-            />
+            <component :is="viewComponent" :view="currentView" :table-view="tableView" @save-view="handleSaveView" />
           </template>
           <template #fallback>
             <div class="loading-state">
@@ -228,7 +210,7 @@ watch(() => workspaceRouteParams.value.detailId, () => {
   height: 100%;
   gap: 12px;
   color: var(--el-text-color-secondary);
-  
+
   .el-icon {
     font-size: 32px;
   }
@@ -243,17 +225,17 @@ watch(() => workspaceRouteParams.value.detailId, () => {
   gap: 16px;
   color: var(--el-text-color-secondary);
   text-align: center;
-  
+
   .error-icon {
     font-size: 64px;
     color: var(--el-color-danger);
   }
-  
+
   h3 {
     margin: 0;
     color: var(--el-text-color-primary);
   }
-  
+
   p {
     margin: 0;
   }
@@ -272,12 +254,12 @@ watch(() => workspaceRouteParams.value.detailId, () => {
   align-items: center;
   gap: var(--app-space-s);
   flex-shrink: 0;
-  
+
   .el-tag {
     display: flex;
     align-items: center;
     gap: var(--app-space-xs);
-    
+
     .iconify {
       font-size: 14px;
     }

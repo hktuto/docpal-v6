@@ -164,7 +164,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         drag: true
       },
       columnDragConfig: {
-        disabledMethod ({ column }: any) {
+        disabledMethod({ column }: any) {
           if (column.type === 'checkbox') {
             return true
           }
@@ -175,7 +175,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       // 注意：虚拟滚动与树形懒加载存在兼容性问题，当启用树形结构时，建议禁用虚拟滚动或使用固定行高
       virtualYConfig: {
         enabled: true,
-        mode:'wheel',
+        mode: 'wheel',
         gt: 0 // 大于20条数据时启用虚拟滚动
       },
       virtualXConfig: {
@@ -212,18 +212,18 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         }
       },
       menuConfig: {
-        enabled: true,
+        enabled: true
       },
       // 行配置 - 固定行高确保虚拟滚动正常工作
       rowConfig: {
         keyField: rowId,
         isHover: true,
-        useKey: true,
+        useKey: true
       },
       // 单元格类名配置 - 用于更新状态视觉反馈
       cellClassName: cellClassName || undefined
     }
-    
+
     // IMPORTANT: treeConfig with lazy:true DISABLES virtual scrolling!
     // Only enable treeConfig when grouping/aggregation is actually being used
     const isGroupingEnabled = groupBy?.value && groupBy.value.length > 0
@@ -234,7 +234,8 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         parentField: 'parentId',
         lazy: true,
         hasChild: 'isAggregate',
-        loadMethod: treeLoadData
+        loadMethod: treeLoadData,
+        expandAll: true
       }
       // Must disable virtual scroll when using tree config with lazy loading
       // options.virtualYConfig = { enabled: false }
@@ -267,7 +268,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
   })
   function loadData(pageParams: any) {
     const gb: any = (options?.groupBy as any)?.value
-    
+
     return apiMethod(pageParams, gb.length > 0 ? gb : null)
   }
   async function treeLoadData(params: any) {
@@ -286,7 +287,6 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
   watch(
     () => [options.groupBy, options.filterBy, options.sortBy],
     ([newGroupBy, newFilterBy, newSortBy]) => {
-      
       gridRef.value?.commitProxy('reload')
     },
     { deep: true }

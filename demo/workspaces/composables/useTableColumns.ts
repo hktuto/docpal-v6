@@ -50,10 +50,15 @@ export function useTableColumns(options: UseTableColumnsOptions) {
   /**
    * Convert CaseFieldRecord to ColumnConfig for dp-mdTable compatibility
    */
-  function fieldToColumnConfig(field: CaseFieldRecord): ColumnConfig {
-    const width = Math.max(field.fieldNameAlias.length * 13, 100) + 20
-    const headerAlign = field.displayStructure?.type === 2 ? 'right' : 'left'
+  function fieldToColumnConfig(field: CaseFieldRecord, index?: number): ColumnConfig {
+    let width = Math.max(field.fieldNameAlias.length * 13, 100) + 20
+    let isAgg = false
+    if (columnGroupRules.value.length > 0 && (index !== undefined || index !== null) && index === 0) {
+      isAgg = true
+      width = 300
+    }
 
+    const headerAlign = field.displayStructure?.type === 2 ? 'right' : 'left'
     // Build properties from displayStructure.properties
     let properties = field.displayStructure?.properties as Record<string, any> | undefined
 
@@ -104,32 +109,26 @@ export function useTableColumns(options: UseTableColumnsOptions) {
    * Create a virtual column config for a relation display field
    * Virtual columns are view-specific and show one display field from a relation
    * Uses type 15 (VirtualColumn) instead of type 14 (MagicLink)
-   * 
+   *
    * @param relationField - The parent relation field
    * @param displayFieldName - The field name from the target table to display
    * @param targetFieldsMap - Map of target table ID -> fields (for injecting target field config)
    */
-  function createVirtualColumnConfig(
-    relationField: CaseFieldRecord,
-    displayFieldName: string,
-    targetFieldsMap: Map<string, CaseFieldRecord[]>
-  ): ColumnConfig {
+  function createVirtualColumnConfig(relationField: CaseFieldRecord, displayFieldName: string, targetFieldsMap: Map<string, CaseFieldRecord[]>): ColumnConfig {
     // Get target field from the map
-    const targetFields = relationField.relationTableId 
-      ? targetFieldsMap.get(relationField.relationTableId) 
-      : undefined
-    const targetField = targetFields?.find(f => f.fieldName === displayFieldName)
-    
+    const targetFields = relationField.relationTableId ? targetFieldsMap.get(relationField.relationTableId) : undefined
+    const targetField = targetFields?.find((f) => f.fieldName === displayFieldName)
+
     // Get persisted virtual column settings from parent relation
     const vcSettings = getVirtualColumnSettings(relationField, displayFieldName)
-    
+
     // Build title using target field's alias if available
-    const title = targetField?.fieldNameAlias 
+    const title = targetField?.fieldNameAlias
       ? `${relationField.fieldNameAlias} → ${targetField.fieldNameAlias}`
       : `${relationField.fieldNameAlias} (${displayFieldName})`
-    
+
     const width = Math.max((targetField?.fieldNameAlias || displayFieldName).length * 13, 100) + 20
-    
+
     return {
       id: `${relationField.id}_${displayFieldName}`,
       dataTableId: relationField.tableId ?? undefined,
@@ -148,10 +147,12 @@ export function useTableColumns(options: UseTableColumnsOptions) {
         separator: vcSettings.separator,
         linkToRecord: vcSettings.linkToRecord,
         // Target field config (loaded fresh, for rendering)
-        targetFieldConfig: targetField?.displayStructure ? {
-          type: targetField.displayStructure.type,
-          properties: targetField.displayStructure.properties || {}
-        } : null
+        targetFieldConfig: targetField?.displayStructure
+          ? {
+              type: targetField.displayStructure.type,
+              properties: targetField.displayStructure.properties || {}
+            }
+          : null
       },
       headerAlign: 'left'
     }
@@ -167,12 +168,12 @@ export function useTableColumns(options: UseTableColumnsOptions) {
 
   /**
    * Get all columns based on current view's fields
-   * 
+   *
    * Column types:
    * - Regular field: "company_name" -> normal column
    * - Relation column: "rel_company" -> shows all displayFieldNames combined
    * - Virtual column: "rel_company.email" -> shows one display field separately
-   * 
+   *
    * For virtual columns, this function:
    * 1. Collects unique target table IDs from virtual columns
    * 2. Fetches target table fields in parallel
@@ -198,19 +199,21 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     // Step 2: Fetch all target table fields in parallel
     const targetFieldsMap = new Map<string, CaseFieldRecord[]>()
     if (targetTableIds.size > 0) {
-      await Promise.all([...targetTableIds].map(async (tableId) => {
-        const targetFields = await getFieldsForTable(tableId)
-        targetFieldsMap.set(tableId, targetFields)
-      }))
+      await Promise.all(
+        [...targetTableIds].map(async (tableId) => {
+          const targetFields = await getFieldsForTable(tableId)
+          targetFieldsMap.set(tableId, targetFields)
+        })
+      )
     }
 
     // Step 3: Build column configs
-    const columnsData = currentView.value.fields.reduce<ColumnConfig[]>((result, viewFieldName) => {
+    const columnsData = currentView.value.fields.reduce<ColumnConfig[]>((result, viewFieldName, index) => {
       if (viewFieldName.includes('.')) {
         // Virtual column: rel_company.email
         const [relationFieldName, displayFieldName] = viewFieldName.split('.')
         const field = getField(relationFieldName)
-        
+
         if (field && field.businessType === 'relation') {
           const virtualColumnConfig = createVirtualColumnConfig(field, displayFieldName, targetFieldsMap)
           result.push(virtualColumnConfig)
@@ -219,13 +222,13 @@ export function useTableColumns(options: UseTableColumnsOptions) {
         // Regular or relation column
         const field = getField(viewFieldName)
         if (field) {
-          result.push(fieldToColumnConfig(field))
+          result.push(fieldToColumnConfig(field, index))
         }
       }
-     
+
       return result
     }, [])
-    
+
     columns.value = columnsData
     return columnsData
   }
@@ -243,7 +246,7 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     }
 
     const virtualFieldName = `${relationFieldName}.${displayFieldName}`
-    
+
     // Check if virtual column already exists
     if (currentView.value.fields.includes(virtualFieldName)) {
       throw new Error(`Virtual column ${virtualFieldName} already exists`)
@@ -294,11 +297,7 @@ export function useTableColumns(options: UseTableColumnsOptions) {
   /**
    * Add a new column (creates field + adds to view)
    */
-  async function addColumn(
-    column: ColumnConfig,
-    targetColumnName?: string,
-    position?: 'left' | 'right'
-  ): Promise<void> {
+  async function addColumn(column: ColumnConfig, targetColumnName?: string, position?: 'left' | 'right'): Promise<void> {
     if (!currentView.value) {
       throw new Error('No current view')
     }
@@ -308,14 +307,17 @@ export function useTableColumns(options: UseTableColumnsOptions) {
 
     // For new relation columns, generate proper field name
     if (isRelationType && column.properties?.relationTableId) {
-      const targetTableData = await query<CaseTableRecord>(
-        `SELECT name FROM case_tables WHERE id = $1`,
-        [column.properties.relationTableId]
-      )
+      const targetTableData = await query<CaseTableRecord>(`SELECT name FROM case_tables WHERE id = $1`, [column.properties.relationTableId])
       if (targetTableData.length > 0) {
         const targetTableName = targetTableData[0].name
-        const sanitizedTitle = column.title.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')
-        const sanitizedTargetName = targetTableName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')
+        const sanitizedTitle = column.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '_')
+          .replace(/^_|_$/g, '')
+        const sanitizedTargetName = targetTableName
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '_')
+          .replace(/^_|_$/g, '')
         fieldName = `rel_${sanitizedTitle}_to_${sanitizedTargetName}`
       }
     }
@@ -337,7 +339,7 @@ export function useTableColumns(options: UseTableColumnsOptions) {
 
     // Add to view at correct position
     let updatedFields = [...currentView.value.fields]
-    
+
     if (targetColumnName) {
       const targetIndex = updatedFields.indexOf(targetColumnName)
       if (targetIndex !== -1) {
@@ -390,20 +392,13 @@ export function useTableColumns(options: UseTableColumnsOptions) {
   /**
    * Prepare field data based on column type
    */
-  async function prepareFieldData(
-    column: ColumnConfig,
-    isRelationType: boolean,
-    fieldName: string
-  ): Promise<Partial<CaseFieldRecord>> {
+  async function prepareFieldData(column: ColumnConfig, isRelationType: boolean, fieldName: string): Promise<Partial<CaseFieldRecord>> {
     if (isRelationType) {
       if (!column.properties?.relationTableId) {
         throw new Error('relationTableId is required for relation columns')
       }
 
-      const targetTableData = await query<CaseTableRecord>(
-        `SELECT * FROM case_tables WHERE id = $1`,
-        [column.properties.relationTableId]
-      )
+      const targetTableData = await query<CaseTableRecord>(`SELECT * FROM case_tables WHERE id = $1`, [column.properties.relationTableId])
       if (targetTableData.length === 0) {
         throw new Error('Target table not found')
       }
@@ -456,17 +451,17 @@ export function useTableColumns(options: UseTableColumnsOptions) {
   async function updateColumn(fieldName: string, updates: Partial<ColumnConfig>): Promise<void> {
     // Check if this is a virtual column (has dot notation like "rel_company.email")
     const isVirtualColumn = fieldName.includes('.')
-    
+
     if (isVirtualColumn) {
       // Virtual column - persist settings to parent relation's displayStructure.virtualColumnSettings
       const [relationFieldName, displayFieldName] = fieldName.split('.')
       const relationField = getField(relationFieldName)
-      
+
       if (!relationField) {
         console.error('Parent relation field not found:', relationFieldName)
         return
       }
-      
+
       // Extract virtual column settings from updates.properties
       const newSettings: Record<string, any> = {}
       if (updates.properties?.aggregation !== undefined) {
@@ -481,14 +476,14 @@ export function useTableColumns(options: UseTableColumnsOptions) {
       if (updates.properties?.linkToRecord !== undefined) {
         newSettings.linkToRecord = updates.properties.linkToRecord
       }
-      
+
       // Only persist if there are settings to save
       if (Object.keys(newSettings).length > 0) {
         // Build updated displayStructure with virtualColumnSettings
         const currentDisplayStructure = (relationField.displayStructure || {}) as Record<string, any>
         const currentVCSettings = currentDisplayStructure.virtualColumnSettings || {}
         const currentFieldSettings = currentVCSettings[displayFieldName] || {}
-        
+
         const updatedDisplayStructure = {
           ...currentDisplayStructure,
           virtualColumnSettings: {
@@ -499,15 +494,15 @@ export function useTableColumns(options: UseTableColumnsOptions) {
             }
           }
         }
-        
+
         // Persist to database
-        await updateFieldFn(relationFieldName, { 
-          displayStructure: updatedDisplayStructure as unknown as FieldDisplayStructure 
+        await updateFieldFn(relationFieldName, {
+          displayStructure: updatedDisplayStructure as unknown as FieldDisplayStructure
         })
       }
-      
+
       // Update the local column config
-      const columnIndex = columns.value.findIndex(col => col.field === fieldName)
+      const columnIndex = columns.value.findIndex((col) => col.field === fieldName)
       if (columnIndex !== -1) {
         const existingColumn = columns.value[columnIndex]
         columns.value[columnIndex] = {
@@ -519,10 +514,10 @@ export function useTableColumns(options: UseTableColumnsOptions) {
           }
         }
       }
-      
+
       return
     }
-    
+
     const existingField = getField(fieldName)
 
     if (!existingField) {
@@ -548,28 +543,24 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     if (existingField.businessType === 'relation' && updates.properties?.displayFieldNames) {
       const newDisplayFieldNames = updates.properties.displayFieldNames as string[]
       const oldDisplayFieldNames = existingField.displayFieldNames || []
-      
+
       fieldUpdates.displayFieldNames = newDisplayFieldNames
-      
+
       // Determine what changed
       const oldFirstField = oldDisplayFieldNames[0]
       const newFirstField = newDisplayFieldNames[0]
       const firstFieldChanged = oldFirstField !== newFirstField
-      
+
       // Fields that need virtual columns: all except the first one
       const oldVirtualFields = oldDisplayFieldNames.slice(1)
       const newVirtualFields = newDisplayFieldNames.slice(1)
-      
+
       // Virtual columns to REMOVE: were in old virtual list, not in new virtual list
-      const virtualColumnsToRemove = oldVirtualFields.filter(
-        name => !newVirtualFields.includes(name)
-      )
-      
+      const virtualColumnsToRemove = oldVirtualFields.filter((name) => !newVirtualFields.includes(name))
+
       // Virtual columns to ADD: are in new virtual list, not in old virtual list
-      const virtualColumnsToAdd = newVirtualFields.filter(
-        name => !oldVirtualFields.includes(name)
-      )
-      
+      const virtualColumnsToAdd = newVirtualFields.filter((name) => !oldVirtualFields.includes(name))
+
       // Handle first field change specially
       if (firstFieldChanged) {
         // If old first field is now in virtual position, add it as virtual column
@@ -585,18 +576,18 @@ export function useTableColumns(options: UseTableColumnsOptions) {
           }
         }
       }
-      
+
       // Update view fields if there are changes
       if ((virtualColumnsToRemove.length > 0 || virtualColumnsToAdd.length > 0) && currentView.value) {
         let updatedViewFields = [...currentView.value.fields]
         const relationIndex = updatedViewFields.indexOf(fieldName)
-        
+
         // Remove virtual columns that are no longer needed
         for (const displayFieldName of virtualColumnsToRemove) {
           const virtualFieldName = `${fieldName}.${displayFieldName}`
-          updatedViewFields = updatedViewFields.filter(f => f !== virtualFieldName)
+          updatedViewFields = updatedViewFields.filter((f) => f !== virtualFieldName)
         }
-        
+
         // Add new virtual columns
         for (const displayFieldName of virtualColumnsToAdd) {
           const virtualFieldName = `${fieldName}.${displayFieldName}`
@@ -620,24 +611,22 @@ export function useTableColumns(options: UseTableColumnsOptions) {
             }
           }
         }
-        
+
         // Update view with synced virtual columns
         await updateView(currentView.value.id, { fields: updatedViewFields })
       }
-      
+
       // Clean up virtualColumnSettings for completely removed fields
-      const completelyRemovedFields = oldDisplayFieldNames.filter(
-        name => !newDisplayFieldNames.includes(name)
-      )
+      const completelyRemovedFields = oldDisplayFieldNames.filter((name) => !newDisplayFieldNames.includes(name))
       if (completelyRemovedFields.length > 0) {
         const currentDisplayStructure = existingField.displayStructure || {}
         const currentVCSettings = (currentDisplayStructure as any).virtualColumnSettings || {}
         const updatedVCSettings = { ...currentVCSettings }
-        
+
         for (const removedFieldName of completelyRemovedFields) {
           delete updatedVCSettings[removedFieldName]
         }
-        
+
         // Merge cleaned virtualColumnSettings into displayStructure
         fieldUpdates.displayStructure = {
           ...currentDisplayStructure,
@@ -673,9 +662,7 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     await deleteField(fieldName)
 
     // Remove from view (including any virtual columns derived from this field)
-    const updatedFields = currentView.value.fields.filter(
-      (f) => f !== fieldName && !f.startsWith(`${fieldName}.`)
-    )
+    const updatedFields = currentView.value.fields.filter((f) => f !== fieldName && !f.startsWith(`${fieldName}.`))
     await updateView(currentView.value.id, { fields: updatedFields })
     await getAllColumns()
   }
@@ -736,13 +723,10 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     }
 
     try {
-      const whereClause = excludeCurrentTable && tableId.value
-        ? `WHERE status = 'A' AND "entityId" = $1 AND id != $2`
-        : `WHERE status = 'A' AND "entityId" = $1`
+      const whereClause =
+        excludeCurrentTable && tableId.value ? `WHERE status = 'A' AND "entityId" = $1 AND id != $2` : `WHERE status = 'A' AND "entityId" = $1`
 
-      const params = excludeCurrentTable && tableId.value
-        ? [entityId.value, tableId.value]
-        : [entityId.value]
+      const params = excludeCurrentTable && tableId.value ? [entityId.value, tableId.value] : [entityId.value]
 
       const tables = await query<CaseTableRecord>(
         `SELECT DISTINCT ON (name, "tableName") *
@@ -760,7 +744,7 @@ export function useTableColumns(options: UseTableColumnsOptions) {
 
   // Cache for target table fields (used for virtual columns and card preview)
   const targetFieldsCache = new Map<string, CaseFieldRecord[]>()
-  
+
   // Cache for target table info (including formStructure with card config)
   const targetTableCache = new Map<string, CaseTableRecord>()
 
@@ -772,12 +756,9 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     if (targetFieldsCache.has(targetTableId)) {
       return targetFieldsCache.get(targetTableId)!
     }
-    
+
     try {
-      const tableFields = await query<CaseFieldRecord>(
-        `SELECT * FROM case_fields WHERE "tableId" = $1 ORDER BY "fieldNameAlias"`,
-        [targetTableId]
-      )
+      const tableFields = await query<CaseFieldRecord>(`SELECT * FROM case_fields WHERE "tableId" = $1 ORDER BY "fieldNameAlias"`, [targetTableId])
       // Cache the result
       targetFieldsCache.set(targetTableId, tableFields)
       return tableFields
@@ -786,7 +767,7 @@ export function useTableColumns(options: UseTableColumnsOptions) {
       throw error
     }
   }
-  
+
   /**
    * Get table info (with caching) - includes formStructure with card config
    */
@@ -795,12 +776,9 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     if (targetTableCache.has(targetTableId)) {
       return targetTableCache.get(targetTableId)!
     }
-    
+
     try {
-      const tables = await query<CaseTableRecord>(
-        `SELECT * FROM case_tables WHERE id = $1`,
-        [targetTableId]
-      )
+      const tables = await query<CaseTableRecord>(`SELECT * FROM case_tables WHERE id = $1`, [targetTableId])
       if (tables.length > 0) {
         targetTableCache.set(targetTableId, tables[0])
         return tables[0]
@@ -811,7 +789,7 @@ export function useTableColumns(options: UseTableColumnsOptions) {
       return null
     }
   }
-  
+
   /**
    * Get card view config for a table
    * Returns the formStructure.card config if configured
@@ -819,12 +797,12 @@ export function useTableColumns(options: UseTableColumnsOptions) {
   async function getTableCardConfig(targetTableId: string): Promise<any | null> {
     const tableInfo = await getTableInfo(targetTableId)
     if (!tableInfo?.formStructure) return null
-    
+
     // formStructure contains { form, card, detail, list }
     const formStructure = tableInfo.formStructure as Record<string, any>
     return formStructure.card || null
   }
-  
+
   /**
    * Get a single record by ID from a target table
    */
@@ -833,11 +811,8 @@ export function useTableColumns(options: UseTableColumnsOptions) {
       // Get target table info
       const tableInfo = await getTableInfo(targetTableId)
       if (!tableInfo?.tableName) return null
-      
-      const records = await query<Record<string, any>>(
-        `SELECT * FROM "${tableInfo.tableName}" WHERE id = $1`,
-        [recordId]
-      )
+
+      const records = await query<Record<string, any>>(`SELECT * FROM "${tableInfo.tableName}" WHERE id = $1`, [recordId])
       return records.length > 0 ? records[0] : null
     } catch (error) {
       console.error('Error loading record:', error)
@@ -852,9 +827,9 @@ export function useTableColumns(options: UseTableColumnsOptions) {
   async function getExistingRelationToTable(targetTableId: string): Promise<CaseFieldRecord | null> {
     try {
       const existingRelations = await query<CaseFieldRecord>(
-        `SELECT * FROM case_fields 
-         WHERE "tableId" = $1 
-         AND "businessType" = 'relation' 
+        `SELECT * FROM case_fields
+         WHERE "tableId" = $1
+         AND "businessType" = 'relation'
          AND "relationTableId" = $2`,
         [tableId.value, targetTableId]
       )
@@ -869,7 +844,7 @@ export function useTableColumns(options: UseTableColumnsOptions) {
    * Get all relation fields for the current table
    */
   function getRelationFields(): CaseFieldRecord[] {
-    return fields.value.filter(f => f.businessType === 'relation')
+    return fields.value.filter((f) => f.businessType === 'relation')
   }
 
   // Provide ColumnContext

@@ -25,12 +25,12 @@
         <vxe-grid ref="gridRef" v-bind="gridOptions" v-on="gridEvents" class="multi-dimension-grid">
           <!-- 插槽透传 -->
           <template #checkboxIndex="checkboxProps">
-            <ToolsCheckboxIndex 
-            ref="checkboxIndexRef" 
-            :row="checkboxProps.row" 
-            :seq="checkboxProps.seq" 
-            :props="checkboxProps"
-            @expand-click="handleExpandClick"
+            <ToolsCheckboxIndex
+              ref="checkboxIndexRef"
+              :row="checkboxProps.row"
+              :seq="checkboxProps.seq"
+              :props="checkboxProps"
+              @expand-click="handleExpandClick"
             />
           </template>
           <template v-for="(_, slotName) in filteredSlots" #[slotName]="slotProps">
@@ -102,7 +102,7 @@ const emit = defineEmits<{
   'row-add': []
   'column-add': [column: ColumnConfig]
   'save-view': []
-  'import': []
+  import: []
 }>()
 
 // 引用
@@ -306,7 +306,7 @@ provide('mdTableHeaderPopover', mdTableHeaderPopoverRef)
 // Handle virtual column selection from dialog
 const handleVirtualColumnSelect = async (relationFieldName: string, displayFieldName: string) => {
   // Use the injected addVirtualColumn or fall back to context
-  
+
   if (addVirtualColumn) {
     try {
       await addVirtualColumn(relationFieldName, displayFieldName)

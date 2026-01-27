@@ -57,7 +57,6 @@
       background: linear-gradient(to right, var(--vxe-ui-table-border-color) 50%, transparent);
     }
   }
-  
 }
 .col--checkbox {
   .vxe-header-cell--wrapper:hover {
@@ -65,7 +64,6 @@
       display: none;
     }
   }
-
 }
 // handle drag over handler styles
 .vxe-cell--drag-handle {
@@ -90,16 +88,20 @@
   display: flex;
   flex-direction: column;
   gap: var(--app-space-xs);
+
   .tree-node-header {
     display: flex;
     flex-direction: column;
     gap: 2px;
     line-height: 1;
+    text-align: left !important;
+    font-weight: 900;
   }
-  .tree-node-title{
+  .tree-node-title {
     font-size: var(--app-font-size-s);
+    font-weight: 500;
   }
-  .tree-node-count{
+  .tree-node-count {
     position: absolute;
     display: block;
     right: 0;
@@ -113,11 +115,11 @@
 }
 
 // edit mode overrider
-.vxe-table--render-default .vxe-body--column.col--auto-height.col--edit{
+.vxe-table--render-default .vxe-body--column.col--auto-height.col--edit {
   overflow: visible !important;
 }
 
 .vxe-table--render-default .vxe-body--column.col--auto-height.col--checkbox,
-.vxe-table--render-default .vxe-body--column.col--auto-height.col--checkbox > .vxe-cell{
+.vxe-table--render-default .vxe-body--column.col--auto-height.col--checkbox > .vxe-cell {
   overflow: visible !important;
 }

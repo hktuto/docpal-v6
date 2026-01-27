@@ -79,15 +79,7 @@ const gridRef = mdTable.gridRef
 // 判断是否为数字类型
 const isNumericType = computed(() => {
   const type = props.column.type
-  return (
-    type === 'number' ||
-    type === 'integer' ||
-    type === ColumnFieldType.Number ||
-    type === ColumnFieldType.Currency ||
-    type === ColumnFieldType.Percent ||
-    type === ColumnFieldType.Rating ||
-    type === ColumnFieldType.AutoNumber
-  )
+  return type === 'number' || type === 'integer' || type === ColumnFieldType.Number
 })
 
 // 根据列类型获取可用的统计方法
@@ -99,12 +91,24 @@ const availableMethods = computed(() => {
   }
 })
 
+function makeFlatData(data: any[], childKey: string) {
+  let result: any = []
+  data.forEach((item) => {
+    if (item[childKey] && item[childKey].length > 0) {
+      const child = makeFlatData(item[childKey], childKey)
+      result.push(...child)
+    }
+    result.push(item)
+  })
+  return result
+}
 // 获取表格数据列表
 const getTableData = (): any[] => {
   if (gridRef?.value) {
     try {
       const result = (gridRef.value as any).getTableData()
-      return result?.fullData || []
+
+      return makeFlatData(result?.fullData || [], '_X_ROW_CHILD')
     } catch (error) {
       console.error(t('mdTable.countMethod.getDataError'), error)
       return []
@@ -126,6 +130,7 @@ const displayValue = computed(() => {
   const tableData = getTableData()
   const field = props.column.field || ''
   const sumData = tableData.filter((item: any) => !item.isAggregate)
+
   return calculateCount(method as CountMethod, field, sumData)
 })
 
@@ -149,7 +154,7 @@ const handleMethodSelect = (method: CountMethod) => {
   border-radius: 4px;
   transition: background-color 0.2s;
   min-width: 0;
-  
+
   .method-name {
     font-size: 12px;
     color: #909399;
@@ -165,7 +170,7 @@ const handleMethodSelect = (method: CountMethod) => {
     color: #606266;
     flex-shrink: 0;
   }
-  
+
   .count-value--none {
     display: flex;
     align-items: center;
@@ -176,7 +181,7 @@ const handleMethodSelect = (method: CountMethod) => {
     width: 100%;
     opacity: 0;
     min-width: 0;
-    
+
     .method-name {
       overflow: hidden;
       text-overflow: ellipsis;
@@ -184,7 +189,7 @@ const handleMethodSelect = (method: CountMethod) => {
       flex-shrink: 1;
       min-width: 0;
     }
-    
+
     .dropdown-icon {
       flex-shrink: 0;
     }
