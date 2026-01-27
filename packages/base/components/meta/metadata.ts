@@ -1,8 +1,9 @@
 import type { WidgetItem } from '@/types/vform'
 import type { DocumentMetadata, VariableItem } from '@/types/vform.extend'
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 import { mounteMasterTableOptions, mounteRoleOptions } from './metadata.vform.extent'
 import dayjs from 'dayjs'
+
 export const useMetadata = () => {
   const ignoreList = [
     'dc:title',
@@ -44,7 +45,7 @@ export const useMetadata = () => {
       })
       console.log('data', data)
       const metadataSchema: any = data.properties || {}
-      return  await initMetadataVformOptions(metadataSchema, isInitOption)
+      return await initMetadataVformOptions(metadataSchema, isInitOption)
     } catch (error) {
       return null
     }
@@ -143,6 +144,7 @@ export const useMetadata = () => {
       widgetVariableList.push(_item)
     })
     return widgetVariableList
+
     function getVariableItem(row: any, key: string) {
       const resultItem: any = {
         name: key,
@@ -210,6 +212,7 @@ export const useMetadata = () => {
       return resultItem
     }
   }
+
   // get vform data
   function getStringfyData(data: Record<string, any>, variableList: VariableItem[]) {
     const result: any = {}
@@ -238,6 +241,7 @@ export const useMetadata = () => {
     })
     return result
   }
+
   // set vform data
   function getParseData(data: Record<string, any>, variableList: VariableItem[]) {
     const result = { ...data }
@@ -267,10 +271,12 @@ export const useMetadata = () => {
     })
     return result
   }
+
   function generateId(prefix: string = '') {
     const random = Math.floor(100000 + Math.random() * 900000)
     return `${prefix}_${random}${count++}`
   }
+
   function vFormWidgetListDecorator(variableList: VariableItem[]) {
     const widgetList: WidgetItem[] = []
     variableList.forEach((item: VariableItem, index: number) => {
@@ -278,6 +284,7 @@ export const useMetadata = () => {
       widgetList.push(_item)
     })
     return widgetList
+
     function getWidgetItem(row: VariableItem, isSubForm = false) {
       const id = generateId(row.type)
       const resultItem: any = {
@@ -306,7 +313,7 @@ export const useMetadata = () => {
         resultItem.options.format = row.options.type === 'datetime' ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD' //日期显示格式
         resultItem.options.valueFormat = 'YYYY-MM-DDTHH:mm:ss.000Z'
         resultItem.options.onDisabledDate =
-          "const myDate = new Date();\nconst year = myDate.getFullYear() + 100;  \nconst minDate = new Date('1901-01-01 00:00:00').getTime()\nconst maxDate = new Date(year + '-12-31 23:59:59').getTime()\nreturn dateTime.getTime() < minDate || dateTime.getTime() > maxDate;"
+          'const myDate = new Date();\nconst year = myDate.getFullYear() + 100;  \nconst minDate = new Date(\'1901-01-01 00:00:00\').getTime()\nconst maxDate = new Date(year + \'-12-31 23:59:59\').getTime()\nreturn dateTime.getTime() < minDate || dateTime.getTime() > maxDate;'
       } else if (row.type === 'input') {
         resultItem.options.type = 'text'
         resultItem.options.maxLength = 255
@@ -378,13 +385,17 @@ export const useMetadata = () => {
           }
           break
         default:
-          backendMetadataListMap[key] = { ...ruleItem, ...ruleItem.validationRule, validationName: ruleItem.validationRule?.type }
+          backendMetadataListMap[key] = {
+            ...ruleItem, ...ruleItem.validationRule,
+            validationName: ruleItem.validationRule?.type
+          }
           delete backendMetadataListMap[key].validationRule
           break
       }
     })
     return backendMetadataListMap
   }
+
   return {
     turnWorkflowRuleToBackendMetadata,
     vFormWidgetListDecorator,
@@ -410,6 +421,7 @@ const ignoreDisplayList = [
   'readonlyList',
   'folderCabinetId'
 ]
+
 export function getDisplayProperties(properties: Record<string, any>) {
   if (!properties) return []
   const result: any = []
@@ -430,19 +442,20 @@ export function getDisplayProperties(properties: Record<string, any>) {
   })
   return result
 }
+
 export const getMasterTableOptions = async ({
-  masterTableName,
-  displayColumn,
-  valueColumn
-}: {
+                                              masterTableName,
+                                              displayColumn,
+                                              valueColumn
+                                            }: {
   masterTableName: string
   displayColumn: string
   valueColumn: string
 }): Promise<any> => {
   try {
     const record: any = await clientApi.api.postDmsMasterTableRecordPageNonpermission({
-        name: masterTableName
-      })
+      name: masterTableName
+    })
       .then((res) => res.data)
     const options: any[] = record.map((item: any) => ({
       label: item[displayColumn],
@@ -453,6 +466,7 @@ export const getMasterTableOptions = async ({
     return []
   }
 }
+
 function getParseDataItem(s: string) {
   try {
     return JSON.parse(s)
@@ -460,9 +474,10 @@ function getParseDataItem(s: string) {
     return s
   }
 }
+
 export async function getUserList() {
   try {
-    const { data }: any = await clientApi.api.postNuxeoIdentityUsers()
+    const data: any =  await clientApi.api.postUcenterUsers({}).then((res) => res.data)
     return data.map((item: any) => ({
       label: item.username,
       value: item.userId
@@ -472,6 +487,7 @@ export async function getUserList() {
     return []
   }
 }
+
 export async function getRoleList(type: string = 'role') {
   try {
     const data = await clientApi.api.getDocpalAclRoleRoot().then((res: any) => res.data)
@@ -498,9 +514,10 @@ function makeFlapRoleList(data: any[], roleList: any[] = []) {
   })
   return roleList
 }
+
 export async function getUserGroupList(type: string = 'group') {
   try {
-    const { data }: any = await adminApi.api.postNuxeoIdentityGroups()
+    const data: any = await clientApi.api.postUcenterGroups().then(r => r.data)
     return data.map((item: any) => ({
       label: item.name,
       value: item.id,
@@ -511,6 +528,7 @@ export async function getUserGroupList(type: string = 'group') {
     return []
   }
 }
+
 function selectDecorator(data: any) {
   const result: any = {
     type: data.options && data.options[0] && data.options[0].options ? 'select-group' : 'select',
@@ -528,6 +546,7 @@ function selectDecorator(data: any) {
   result.options.multiple = data.isMultiple || false
   return result
 }
+
 function numberDecorator(data: any) {
   const result: any = {
     type: 'number',
@@ -548,6 +567,7 @@ function numberDecorator(data: any) {
   }
   return result
 }
+
 function dateDecorator(data: any) {
   const metaDateFormat = useDisplayTimeFormat()
   const result: any = {
@@ -579,6 +599,7 @@ function dateDecorator(data: any) {
   }
   return result
 }
+
 function dateDefaultDecorator(defaultValue: any, valueFormat: string) {
   if (Date.parse(defaultValue)) {
     return formatDate(defaultValue, valueFormat)
@@ -594,6 +615,7 @@ function dateDefaultDecorator(defaultValue: any, valueFormat: string) {
     return ''
   }
 }
+
 function getSubFormOptions(row: any) {
   return {
     name: row.name,
@@ -611,6 +633,7 @@ function getSubFormOptions(row: any) {
     onSubFormRowChange: ''
   }
 }
+
 function getFormItemOptions(row: any) {
   return {
     name: row.name,

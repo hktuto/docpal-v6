@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 import type { UserDTO } from 'api/src/generate/admin'
 import { userProviderDetailKey } from "~/util/userProvider";
 const { id } = defineProps<{
@@ -61,8 +61,7 @@ provide(userProviderDetailKey, {
     return adminApi.api.postNuxeoIdentityUserBatchAddGroups(params)
   },
   GetGroupListApi : async() => {
-    const res = await adminApi.api.postNuxeoIdentityGroups({})
-    return res.data
+    return await clientApi.api.postUcenterGroups().then(r => r.data)
   },
   getUser,
   openUserList

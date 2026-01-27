@@ -34,7 +34,7 @@ export async function initUserRulesOpts() {
   const t = window.$t
   async function getGroupList() {
     try {
-      return await adminApi.api.postNuxeoIdentityGroups({}).then((res) => res.data)
+      return await clientApi.api.postUcenterGroups().then(r => r.data)
     } catch (error) {
       console.error(error)
       return []

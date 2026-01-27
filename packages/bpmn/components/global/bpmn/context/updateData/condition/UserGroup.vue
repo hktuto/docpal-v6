@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 const condition = defineModel<any>('condition', {required: true})
 const {disabled} = defineProps<{    
     disabled:boolean
@@ -14,8 +14,7 @@ if (!graphProvider || !editorProvider) {
 const userGroupList = ref<any[]>([])
 
 async function getUserGroupList(){
-    const {data} = await adminApi.api.postNuxeoIdentityGroups()
-    userGroupList.value = data
+    userGroupList.value = await clientApi.api.postUcenterGroups().then(r => r.data)
 }
 
 const stringFields = computed(() => {

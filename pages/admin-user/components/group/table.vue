@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 import { groupProviderKey } from '~/util/userProvider'
 
@@ -129,7 +129,7 @@ function handleFilterFormChange(formModel: any) {
 // #endregion
 async function getGroup() {
   tableConfig.loading = true
-  state.groupList = await adminApi.api.postNuxeoIdentityGroups().then((res) => res.data)
+  state.groupList = await clientApi.api.postUcenterGroups().then(r => r.data)
   handleFilterFormChange(filterParams)
   tableConfig.loading = false
   return state.groupList

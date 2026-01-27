@@ -9,7 +9,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 import formJson from './acl.vform.json'
 import { ElMessage } from 'element-plus'
 const routerProvider = inject(MenuRouterKey)
@@ -75,13 +75,13 @@ function handleOptions() {
 }
 
 onMounted(async () => {
-  const { data } = await adminApi.api.postNuxeoIdentityUsers({})
+  const data =  await clientApi.api.postUcenterUsers({}).then((res) => res.data)
   state.userList = data || ([] as any)
   state.userList.forEach((item: any) => {
     item.value = item.userId
     item.label = item.username
   })
-  const groupResponse = await adminApi.api.postNuxeoIdentityGroups({})
+  const groupResponse = await clientApi.api.postUcenterGroups()
   state.groupList = groupResponse.data || ([] as any)
   state.groupList.forEach((item: any) => {
     item.value = item.id

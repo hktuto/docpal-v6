@@ -26,7 +26,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 import { groupProviderDetailKey } from '~/util/userProvider'
 
@@ -96,8 +96,7 @@ provide(groupProviderDetailKey, {
     return adminApi.api.patchNuxeoIdentityGroup(params)
   },
   getUserListApi: async () => {
-    const res = await adminApi.api.postNuxeoIdentityUsers({})
-    return res.data
+    return  await clientApi.api.postUcenterUsers({}).then((res) => res.data)
   }
 })
 watch(

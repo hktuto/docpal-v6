@@ -179,7 +179,7 @@ async function getUserGroupOptions() {
     value: item.userId || item.username,
     label: item.username || item.userId,
   }));
-  const { data: groupData }: any = await clientApi.api.postNuxeoIdentityGroups();
+  const groupData: any = await clientApi.api.postUcenterGroups().then(r => r.data)
   const groups = groupData.sort((a: any, b: any) => a.name.localeCompare(b.name));
 
   state.userOptions = [

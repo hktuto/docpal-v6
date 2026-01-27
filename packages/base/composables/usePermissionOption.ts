@@ -273,7 +273,7 @@ export const getCachePermissionOptions = async () => {
 }
 
 export const getUserSelectOption = async () => {
-  const list: any = await clientApi.api.postNuxeoIdentityUsers().then((res) => res.data)
+  const list: any = await clientApi.api.postUcenterUsers({}).then((res) => res.data)
   if (list.length === 0) return []
 
   return list.map((item: any) => ({
@@ -303,7 +303,7 @@ export const getRoleSelectOption = async () => {
 }
 
 export const getGroupsSelectOption = async () => {
-  let list: any = await clientApi.api.postNuxeoIdentityGroups().then((res) => res.data)
+  let list: any = await clientApi.api.postUcenterGroups().then((res) => res.data)
   if (list.length === 0) return []
 
   return list.map((item: any) => ({

@@ -164,7 +164,7 @@
                 "labelIconPosition": "rear",
                 "labelTooltip": null,
                 "onCreated": "",
-                "onMounted": "$api.post('/nuxeo/identity/users', {}).then(res => {\n   res = res.data.data\n  const reponse = res.map(item => ({\n    value: item.username,\n    label: item.username\n  }))\n  this.loadOptions(reponse)\n}).catch(err => {\n})",
+                "onMounted": "$api.post('/api/ucenter/users', {}).then(res => {\n   res = res.data.data\n  const reponse = res.map(item => ({\n    value: item.username,\n    label: item.username\n  }))\n  this.loadOptions(reponse)\n}).catch(err => {\n})",
                 "onRemoteQuery": "",
                 "onChange": "",
                 "onFocus": "",

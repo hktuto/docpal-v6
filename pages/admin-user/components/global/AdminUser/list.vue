@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from "api";
+import { adminApi, clientApi } from 'api'
 import { userProviderKey } from "~/util/userProvider";
 const routerProvider = inject(MenuRouterKey);
 
@@ -66,7 +66,7 @@ provide(userProviderKey, {
     return adminApi.api.postNuxeoIdentityUsersBatchDelete(params);
   },
   getAllUserAndActiveCountApi: async () => {
-    const res = await adminApi.api.postNuxeoIdentityGetlicenseusernumandactivecount();
+    const res = await clientApi.admin.postAdminucenterGetLicenseUserNumAndActiveCount();
     return res.data;
   },
 
@@ -74,8 +74,7 @@ provide(userProviderKey, {
     return adminApi.api.postNuxeoIdentityUsersBatchAddGroups(params);
   },
   GetGroupListApi: async () => {
-    const res = await adminApi.api.postNuxeoIdentityGroups();
-    return res.data;
+    return await clientApi.api.postUcenterGroups().then(r => r.data)
   },
   sendInvitation,
   openUserDetail,

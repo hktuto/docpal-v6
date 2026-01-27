@@ -53,7 +53,7 @@ async function getFilterOptions() {
       const res = await clientApi.api.getPermissionUserGroupGroupidUsers(props.options.userFilter).then((res) => res.data)
       user = res.users
     } else {
-      user = await clientApi.api.postNuxeoIdentityUsers({}).then((res) => res.data)
+      user =  await clientApi.api.postUcenterUsers({}).then((res) => res.data)
       if (!user) throw new Error('no user')
     }
 

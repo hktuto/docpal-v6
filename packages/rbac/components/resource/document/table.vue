@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 const props = defineProps<{
   id: string
   expandedItems: any[]
@@ -243,7 +243,7 @@ const { flatRole } = useRBAC()
 async function getFilter() {
   async function getGroupList() {
     try {
-      return await adminApi.api.postNuxeoIdentityGroups({}).then((res) => res.data)
+      return await clientApi.api.postUcenterGroups().then(r => r.data)
     } catch (error) {
       console.error(error)
       return []

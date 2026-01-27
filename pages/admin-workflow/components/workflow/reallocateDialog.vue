@@ -23,7 +23,7 @@
 
 <script lang="ts" setup>
 import { ElMessage, type FormInstance } from 'element-plus'
-import { adminApi } from 'api'
+import { adminApi,clientApi } from 'api'
 
 const { t } = useI18n()
 const emit = defineEmits(['success'])
@@ -44,7 +44,7 @@ async function handleOpen(row) {
     form.assignee = ''
     form.id = row.id
   }
-  state.userList = await adminApi.api.postNuxeoIdentityUsers({}).then((res) => res.data)
+  state.userList = await clientApi.api.postUcenterUsers({}).then((res) => res.data)
   state.userList = state.userList.filter((item) => item.userId !== row.assignee && item.userId)
 }
 

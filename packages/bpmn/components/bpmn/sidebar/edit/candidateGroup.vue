@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 
 import type { Node } from '@antv/x6'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 
 const { node } = defineProps<{
   node: Node
@@ -58,7 +58,7 @@ function candidateGroupChanged(newVal: string) {
 }
 
 async function getUserGroup() {
-  const data = await adminApi.api.postNuxeoIdentityGroups()
+  const data = await clientApi.api.postUcenterGroups().then(r => r.data)
   if (data.data) {
     allUserGroup.value = data.data.sort((a: any, b: any) => a.name.localeCompare(b.name))
   } else {

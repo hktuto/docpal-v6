@@ -391,7 +391,7 @@ function getConditionList(fieldId: string) {
 }
 
 async function getGroup() {
-  const { data: groupList } = await clientApi.api.postNuxeoIdentityGroups()
+  const groupList = await clientApi.api.postUcenterGroups().then(r => r.data)
   state.groupList = groupList
     ?.sort((a: any, b: any) => a.name.localeCompare(b.name))
     .map((item) => ({

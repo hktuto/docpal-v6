@@ -65,8 +65,7 @@ async function getCaseList() {
 }
 
 async function getUserGroupList() {
-  const res = await adminApi.api.postNuxeoIdentityGroups()
-  userGroupList.value = res.data || []
+  userGroupList.value = await clientApi.api.postUcenterGroups().then(r => r.data)|| []
 }
 
 async function getWorkflowList() {

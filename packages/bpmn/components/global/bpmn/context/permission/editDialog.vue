@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api';
+import { clientApi } from 'api'
 
 const props = defineProps<{
   allPermission: any[]
@@ -24,7 +24,7 @@ const validationRules = {
     ]
 }
 async function gertUserGroupList() {
-  const response = await adminApi.api.postNuxeoIdentityGroups()
+  const response = await clientApi.api.postUcenterGroups().then(r => r.data)
     if(!response.data){
         throw new Error("获取用户组列表失败")
     }

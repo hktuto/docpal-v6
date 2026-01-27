@@ -29,7 +29,7 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { globalApi } from 'api'
+import { clientApi, globalApi } from 'api'
 import { ElNotification } from 'element-plus'
 
 interface UserOption {
@@ -85,7 +85,7 @@ const loadUsers = async () => {
         value: item.userId || ''
       }))
     } else if(props.type === 2) {
-      const groupUserResponse = await globalApi.api.postNuxeoIdentityUsers({}).then((res) => res.data)
+      const groupUserResponse =  await clientApi.api.postUcenterUsers({}).then((res) => res.data)
       if(!groupUserResponse) {
         throw new Error(t('common.invalidResponseFormat'))
       }

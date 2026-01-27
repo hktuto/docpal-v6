@@ -393,7 +393,7 @@ async function getUserList() {
     state.userList = userListStore.value
     return
   }
-  const userList = await adminApi.api.postNuxeoIdentityUsers().then((res) => res.data)
+  const userList = await clientApi.api.postUcenterUsers({}).then((res) => res.data)
   const _userList = userList.map((item) => ({
     label: (item.firstName && item.lastName && item.firstName !== item.lastName ? `${item.firstName} ${item.lastName}` : item.username) + ` <${item.email}>`,
     value: item.userId

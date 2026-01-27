@@ -176,8 +176,7 @@ function tagTextFilter(status: number) {
 }
 
 async function getWorkflowAdhoc(documentId) {
-  const data = (await clientApi.api
-    .getWorkflowAdhocList({
+  const data = (await clientApi.api.getDocpalWorkflowAdhocList({
       documentId: documentId,
       userId: userId.value
     })
@@ -219,7 +218,7 @@ watch(
 )
 
 onMounted(async () => {
-  const res = (await clientApi.api.postNuxeoIdentityUsers().then((res) => res.data)) as any
+  const res =  await clientApi.api.postUcenterUsers({}).then((res) => res.data)
   userList.value = res.sort((a, b) => a.username.localeCompare(b.username))
 })
 onUnmounted(() => {

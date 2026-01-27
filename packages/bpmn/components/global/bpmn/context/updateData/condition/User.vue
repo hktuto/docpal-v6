@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 const condition = defineModel<any>('condition', {required: true})
 const {disabled} = defineProps<{
     disabled:boolean
@@ -14,7 +14,7 @@ const { bpmnGlobalRules } = editorProvider.BpmnRule
 const userList = ref<any[]>([])
 
 async function getUserList(){
-    const {data} = await adminApi.api.postNuxeoIdentityUsers()
+    const data = await clientApi.api.postUcenterUsers({}).then((res) => res.data)
     console.log(data)
     userList.value = data
 }

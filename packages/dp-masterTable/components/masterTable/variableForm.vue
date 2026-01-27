@@ -207,9 +207,7 @@ async function turnFields(fields: any, initData: any, flexible: boolean = false)
   }
   async function getUserGroup(field: any): Promise<any> {
     try {
-      const groups = await adminApi.api
-        .postNuxeoIdentityGroups({})
-        .then((res) => res.data);
+      const groups = await clientApi.api.postUcenterGroups().then(r => r.data)
       const _groups = groups?.map((item) => ({
         label: item.name,
         value: item.id,

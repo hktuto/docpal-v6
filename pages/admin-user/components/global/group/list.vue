@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from "api";
+import { adminApi, clientApi } from 'api'
 import { groupProviderKey } from "~/util/userProvider";
 const routerProvider = inject(MenuRouterKey);
 if (!routerProvider) {
@@ -25,8 +25,7 @@ function openGroupDetail(data: any, openInNewTab = false) {
 provide(groupProviderKey, {
   openGroupDetail,
   GetGroupListApi: async () => {
-    const res = await adminApi.api.postNuxeoIdentityGroups();
-    return res.data;
+    return await clientApi.api.postUcenterGroups().then(r => r.data)
   },
   DeleteGroupApi: (params: any) => {
     return adminApi.api.deleteNuxeoIdentityGroup(params);
