@@ -258,7 +258,7 @@ async function getTargetOptions() {
 
   async function getUserList() {
     try {
-      return await adminApi.api.postNuxeoIdentityGetkeycloakallusers({}).then((res) => res.data)
+      return await clientApi.admin.postAdminucenterGetKeycloakAllUsers({}).then((res) => res.data)
     } catch (error) {
       console.error(error)
       return []

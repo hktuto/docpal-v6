@@ -16,7 +16,7 @@ const state = reactive<any>({
 const { t } = useI18n()
 
 async function getList() {
-  const { data } = (await clientApi.api.getNuxeoSearchQueryNestedSearchLog()) as any
+  const data: any = await clientApi.api.getDmsSearchQueryNestedSearchLog().then(r => r.data)
   // state.searchList = await GetSearchApi()
   state.records = [...data]
 
@@ -58,7 +58,7 @@ async function handleDelete(row: any) {
   try {
     const action = await ElMessageBox.confirm(t('msg_confirmWhetherToDelete'))
     if (action !== 'confirm') return
-    await clientApi.api.deleteNuxeoSearchDeleteNestedSearchLogId(row.id)
+    await clientApi.api.deleteDmsSearchDeleteNestedSearchLogId(row.id).then(r => r.data)
     getList()
   } catch (error) {
 

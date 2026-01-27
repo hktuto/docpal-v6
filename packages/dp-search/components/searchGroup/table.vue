@@ -31,7 +31,7 @@
 <script lang="ts" setup>
 import { watchDebounced } from '@vueuse/core'
 import * as mime from 'mime-types'
-import { globalApi } from 'api'
+import { clientApi } from 'api'
 
 const { tableId, showCheckbox } = defineProps<{
   tableId: string
@@ -278,7 +278,7 @@ async function getList(param: any) {
         }
       }
     }
-    const { data: res } = (await globalApi.api.postNuxeoSearchOpenSearch({ ...cleanBarParams, ...state.aggParams, ...param })) as any
+    const res = await clientApi.api.postDmsSearchOpenSearch({ ...cleanBarParams, ...state.aggParams, ...param }).then(r => r.data)
     if (!res.page)
       res.page = {
         data: {

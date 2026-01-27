@@ -29,7 +29,7 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { clientApi, globalApi } from 'api'
+import { clientApi } from 'api'
 import { ElNotification } from 'element-plus'
 
 interface UserOption {
@@ -53,7 +53,7 @@ const dialogVisible = ref(props.modelValue)
 const selectedUsers = ref<string[]>([])
 const users = ref<UserOption[]>([])
 
-watch(() => props.modelValue, async(newVal) => {
+watch(() => props.modelValue, async (newVal) => {
   dialogVisible.value = newVal
   if (newVal) {
     await loadUsers()
@@ -71,22 +71,22 @@ const loadUsers = async () => {
     // type 2 = group
     // need to check type if type is 1 , use role user dropdown 
     let allUsers = []
-    if(props.type === 1) {
-      const response = await globalApi.api.getAclRoleUsersDropdown({
+    if (props.type === 1) {
+      const response = await clientApi.admin.getAdmindocpalAclRoleUsersDropdown({
         params: {
           roleId: props.roleId
-        } 
+        }
       } as any).then((res) => res.data)
-      if(!response) {
+      if (!response) {
         throw new Error(t('common.invalidResponseFormat'))
       }
       allUsers = response.map((item) => ({
         label: item.username || '',
         value: item.userId || ''
       }))
-    } else if(props.type === 2) {
-      const groupUserResponse =  await clientApi.api.postUcenterUsers({}).then((res) => res.data)
-      if(!groupUserResponse) {
+    } else if (props.type === 2) {
+      const groupUserResponse = await clientApi.api.postUcenterUsers({}).then((res) => res.data)
+      if (!groupUserResponse) {
         throw new Error(t('common.invalidResponseFormat'))
       }
       allUsers = groupUserResponse.map((item) => ({
@@ -95,7 +95,7 @@ const loadUsers = async () => {
       }))
     }
     users.value = allUsers
-    
+
   } catch (error) {
     console.error(t('rbac.role.fetchUsersError'), error)
     ElNotification({

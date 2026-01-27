@@ -273,7 +273,7 @@ export const getCachePermissionOptions = async () => {
 }
 
 export const getUserSelectOption = async () => {
-  const list: any = await clientApi.api.postUcenterUsers({}).then((res) => res.data)
+  const list: any = await clientApi.api.postUcenterUsers().then((res) => res.data)
   if (list.length === 0) return []
 
   return list.map((item: any) => ({

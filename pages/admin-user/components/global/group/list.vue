@@ -28,10 +28,10 @@ provide(groupProviderKey, {
     return await clientApi.api.postUcenterGroups().then(r => r.data)
   },
   DeleteGroupApi: (params: any) => {
-    return adminApi.api.deleteNuxeoIdentityGroup(params);
+    return clientApi.admin.deleteAdminucenterGroup(params);
   },
   CreateGroupApi: (params: any) => {
-    return adminApi.api.postNuxeoIdentityGroup(params);
+    return clientApi.admin.postAdminucenterGroup(params);
   },
 });
 </script>

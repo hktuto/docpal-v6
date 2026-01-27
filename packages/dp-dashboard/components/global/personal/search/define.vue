@@ -48,7 +48,7 @@ const state = reactive<any>({
 })
 
 async function getList() {
-  const { data } = (await clientApi.api.getNuxeoSearchQueryNestedSearchLog()) as any
+  const data = await clientApi.api.getDmsSearchQueryNestedSearchLog().then(r => r.data)
   state.records = [...data]
   state._records = [...state.records]
 }

@@ -130,7 +130,7 @@ async function save() {
         newUserInfo[item.key] = state.form[item.key]
       }
     })
-    await clientApi.api.patchNuxeoIdentityUser(newUserInfo).then(r => r.data)
+    await clientApi.api.patchUcenterUser(newUserInfo).then(r => r.data)
 
     await clientApi.api.putDmsUserSetting(userPreference.value as any).then(r => r.data)
 

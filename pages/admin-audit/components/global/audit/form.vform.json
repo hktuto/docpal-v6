@@ -50,7 +50,7 @@
                 "onFocus": "",
                 "onBlur": "",
                 "onValidate": "",
-                "onLazyLoad": "const { level, value, childrenData } = node\nif(!!childrenData) {\n  resolve(childrenData)\n  return\n}\nconst idOrPath = level == 0 ? \"/\" : value\n$api.post('/nuxeo/document/children/thumbnail', {idOrPath, pageSize: 100000}).then(res => {\n  const nodes = res.data.data.entryList.reduce((prev, item) => { \n    if(item.isFolder) prev.push({\n      value: item.id,\n      label: item.name\n    })\n    return prev\n  },[])\n  // 通过调用resolve将子节点数据返回，通知组件数据加载完成\n  resolve(nodes)\n}).catch(err => {\n  resolve([])\n})"
+                "onLazyLoad": "const { level, value, childrenData } = node\nif(!!childrenData) {\n  resolve(childrenData)\n  return\n}\nconst idOrPath = level == 0 ? \"/\" : value\n$api.post('/admin/api/dms/document/children/thumbnail', {idOrPath, pageSize: 100000}).then(res => {\n  const nodes = res.data.data.entryList.reduce((prev, item) => { \n    if(item.isFolder) prev.push({\n      value: item.id,\n      label: item.name\n    })\n    return prev\n  },[])\n  // 通过调用resolve将子节点数据返回，通知组件数据加载完成\n  resolve(nodes)\n}).catch(err => {\n  resolve([])\n})"
               },
               "id": "cascader76990"
             }
@@ -109,7 +109,7 @@
                 "labelIconPosition": "rear",
                 "labelTooltip": null,
                 "onCreated": "",
-                "onMounted": "const _this = this\n$api.get('/nuxeo/document/queryAuditTemplate').then(res => {\n  const options = []\n  res.data.data.forEach((item) => { \n    let _item = options.find(o => o.value === item.eventCategory)\n    if(!_item){\n      options.push({\n        value: item.eventCategory,\n        label: item.eventCategory,\n        children: []\n      })\n      _item = options[options.length - 1]\n    }\n    _item.children.push({\n      value: item.eventId,\n      label: $i18n.t(item.eventId),\n    })\n  })\n  _this.loadOptions(options)\n}).catch(err => {\n})",
+                "onMounted": "const _this = this\n$api.get('/admin/api/dms/document/queryAuditTemplate').then(res => {\n  const options = []\n  res.data.data.forEach((item) => { \n    let _item = options.find(o => o.value === item.eventCategory)\n    if(!_item){\n      options.push({\n        value: item.eventCategory,\n        label: item.eventCategory,\n        children: []\n      })\n      _item = options[options.length - 1]\n    }\n    _item.children.push({\n      value: item.eventId,\n      label: $i18n.t(item.eventId),\n    })\n  })\n  _this.loadOptions(options)\n}).catch(err => {\n})",
                 "onChange": "",
                 "onFocus": "",
                 "onBlur": "",

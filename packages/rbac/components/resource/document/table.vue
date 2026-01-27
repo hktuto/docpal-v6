@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 const props = defineProps<{
   id: string
   expandedItems: any[]
@@ -16,8 +16,7 @@ let extraParams = {
 }
 let isFilter = false
 async function getChildApi(id: string = 'root') {
-  return adminApi.api
-    .postAclDocumentList({
+  return clientApi.admin.postAdmindocpalAclDocumentList({
       documentId: id,
       ...extraParams
     })
@@ -251,7 +250,7 @@ async function getFilter() {
   }
   async function getUserList() {
     try {
-      return await adminApi.api.postNuxeoIdentityGetkeycloakallusers({}).then((res) => res.data)
+      return await clientApi.admin.postAdminucenterGetKeycloakAllUsers({}).then((res) => res.data)
     } catch (error) {
       console.error(error)
       return []

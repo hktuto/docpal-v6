@@ -212,9 +212,7 @@ async function turnFields(fields: any, initData: any, flexible: boolean = false)
         label: item.name,
         value: item.id,
       }));
-      const users = await adminApi.api
-        .postNuxeoIdentityGetkeycloakallusers({})
-        .then((res) => res.data);
+      const users = await clientApi.admin.postAdminucenterGetKeycloakAllUsers({}).then((res) => res.data);
       const _users = users?.map((item) => ({
         label: item.username,
         value: item.userId,

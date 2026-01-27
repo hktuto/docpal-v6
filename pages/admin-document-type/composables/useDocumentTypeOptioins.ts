@@ -1,4 +1,4 @@
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 
 export const masterTableOpts = useState('masterTableOpts', () => [])
 export const metadataOpts = useState('metadataOpts', () => [])
@@ -42,7 +42,7 @@ export async function initUserRulesOpts() {
   }
   async function getUserList() {
     try {
-      return await adminApi.api.postNuxeoIdentityGetkeycloakallusers({}).then((res) => res.data)
+      return await clientApi.admin.postAdminucenterGetKeycloakAllUsers({}).then((res) => res.data)
     } catch (error) {
       console.error(error)
       return []

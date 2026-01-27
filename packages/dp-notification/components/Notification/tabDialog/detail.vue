@@ -80,7 +80,7 @@ async function getList() {
   if (props.type !== 'Unread') param.type = props.type
   try {
     state.loading = true
-    const { data: res }: any = await clientApi.api.postNotificationList({ ...param, ...pageParams.value })
+    const res: any = await clientApi.api.postNotificationList({ ...param, ...pageParams.value }).then(r => r.data)
     res.entryList.map((item: any) => {
       try {
         if (typeof item.content === 'string') {

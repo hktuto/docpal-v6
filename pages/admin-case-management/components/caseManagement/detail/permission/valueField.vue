@@ -172,9 +172,7 @@ async function getMasterTableOptions(masterTableId: string, displayField: string
 }
 async function getUserGroupOptions() {
   if (state.userOptions.length > 0) return;
-  const {
-    data: userData,
-  }: any = await clientApi.api.postNuxeoIdentityGetkeycloakallusers();
+  const userData: any = await clientApi.admin.postAdminucenterGetKeycloakAllUsers({}).then((res) => res.data)
   const userList = userData.map((item: any) => ({
     value: item.userId || item.username,
     label: item.username || item.userId,
