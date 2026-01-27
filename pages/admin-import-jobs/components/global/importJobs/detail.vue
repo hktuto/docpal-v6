@@ -14,9 +14,9 @@
       <el-form-item label="File Name" required>
         <el-input v-model="job.fileName" disabled />
       </el-form-item>
-<!--      <el-form-item label="Source Folder">-->
-<!--        <el-input v-model="job.source" disabled />-->
-<!--      </el-form-item>-->
+      <el-form-item label="Source Folder">
+        <el-input v-model="job.source" disabled />
+      </el-form-item>
       <!--      <el-form-item label="Destination Folder">-->
       <!--        <el-input v-model="job.fileName" disabled />-->
       <!--      </el-form-item>-->
