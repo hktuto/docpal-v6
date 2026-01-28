@@ -2,6 +2,7 @@ import { v7 as uuidv7 } from 'uuid'
 import { parseImportError, type ParsedImportError } from '../utils/importErrorParser'
 import { useCurrentUser } from './useCurrentUser'
 import { useAuditLog } from './useAuditLog'
+import type { SkippedSheetInfo } from './useImportBatch'
 
 export interface ImportRowError {
   rowIndex: number
@@ -37,6 +38,7 @@ export interface ImportReport {
   totalErrors: number
   startedAt: string
   completedAt: string
+  skippedSheets?: SkippedSheetInfo[]
 }
 
 // Global state for import queue
@@ -152,7 +154,7 @@ export function useImportQueue() {
     completedReports.value.push(report)
     eventBus.emit('import-completed', report)
     currentReportId.value = null
-    
+
     // Phase 3: Analyze tables for relation suggestions (after all data is imported)
     // Group jobs by entityId to avoid duplicate analysis
     const jobsByEntity = new Map<string, Set<string>>()
@@ -164,25 +166,25 @@ export function useImportQueue() {
         jobsByEntity.get(job.entityId)!.add(job.tableName)
       }
     }
-    
+
     // Set all tables to 'analyzing' status immediately (before actual analysis starts)
     const allTableIds: string[] = []
     for (const tableIds of jobsByEntity.values()) {
       allTableIds.push(...Array.from(tableIds))
     }
-    
+
     if (allTableIds.length > 0) {
       // Batch update all tables to 'pending' status
       // The background poller will pick them up and process them
       const now = new Date()
       const placeholders = allTableIds.map((_, i) => `$${i + 2}`).join(', ')
       await query(
-        `UPDATE case_tables 
-         SET "suggestionStatus" = 'pending', "updatedAt" = $1 
+        `UPDATE case_tables
+         SET "suggestionStatus" = 'pending', "updatedAt" = $1
          WHERE id IN (${placeholders})`,
         [now, ...allTableIds]
       )
-      
+
       console.log(`📋 Queued ${allTableIds.length} table(s) for relation analysis (background poller will process)`)
     }
   }
@@ -312,7 +314,7 @@ export function useImportQueue() {
         }
 
         const sql = `INSERT INTO "${physicalTableName}" (${columnNames.join(', ')}) VALUES ${valueSets.join(', ')} RETURNING id`
-        
+
         // Execute single batch INSERT
         const insertedRows = await query<{ id: string }>(sql, allValues)
 
@@ -338,11 +340,10 @@ export function useImportQueue() {
             console.warn('[Audit] Failed to log bulk insert:', auditError)
           }
         }
-
       } catch (error: any) {
         // If batch INSERT fails, fall back to individual inserts to identify problem rows
         console.warn(`Batch insert failed, falling back to individual inserts: ${error.message}`)
-        
+
         for (let batchRowIndex = 0; batchRowIndex < batchRows.length; batchRowIndex++) {
           const row = batchRows[batchRowIndex]
           const rowIndex = startIndex + batchRowIndex
@@ -415,20 +416,15 @@ export function useImportQueue() {
             // Log audit entry for individual insert (fallback)
             if (insertedRows.length > 0) {
               try {
-                await logBulkInsert(
-                  physicalTableName,
-                  [{ id: insertedRows[0].id, data: row }],
-                  {
-                    tableType: 'dynamic',
-                    caseTableId: job.tableName,
-                    description: 'Imported record from Excel'
-                  }
-                )
+                await logBulkInsert(physicalTableName, [{ id: insertedRows[0].id, data: row }], {
+                  tableType: 'dynamic',
+                  caseTableId: job.tableName,
+                  description: 'Imported record from Excel'
+                })
               } catch (auditError) {
                 console.warn('[Audit] Failed to log insert:', auditError)
               }
             }
-
           } catch (rowError: any) {
             const parsedError = parseImportError(rowError.message || 'Unknown error', row, columnMapping)
             job.progress.errors.push({
@@ -471,6 +467,14 @@ export function useImportQueue() {
     return () => eventBus.off(event, callback)
   }
 
+  /**
+   * Emit import-completed event with a report (for cases where no import queue was needed)
+   */
+  function notifyImportCompleted(report: ImportReport): void {
+    completedReports.value.push(report)
+    eventBus.emit('import-completed', report)
+  }
+
   return {
     // State
     importQueue: readonly(importQueue),
@@ -482,7 +486,8 @@ export function useImportQueue() {
     queueImportJobs,
     getLatestReport,
     clearReport,
-    onImportEvent
+    onImportEvent,
+    notifyImportCompleted
   }
 }
 

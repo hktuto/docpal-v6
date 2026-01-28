@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { ElSplitter } from 'element-plus'
 import { useSingleWorkspace } from '../../../../composables/useSingleWorkspace'
 import type { ImportReport } from '../../../../composables/useImportQueue'
 
@@ -13,8 +12,8 @@ const { workspace, menuActionsRef, getWorkspaceById, workspaceRouteParams } = us
 const importReportDialogRef = ref()
 
 // Responsive sidebar state
-const isSidebarVisible = ref(true)
 const pageContainerRef = ref<HTMLElement | null>(null)
+const isSidebarOpen = ref(true) // Sidebar visibility state (for mobile toggle)
 const isMobileView = ref(false)
 
 // Check container size on mount and resize
@@ -22,32 +21,46 @@ function checkContainerSize() {
   if (!pageContainerRef.value) return
 
   const containerWidth = pageContainerRef.value.offsetWidth
+  const wasMobile = isMobileView.value
   isMobileView.value = containerWidth < 800
 
-  // Auto-hide sidebar on mobile if it's visible
-  if (isMobileView.value && isSidebarVisible.value) {
-    isSidebarVisible.value = false
+  // Auto-close sidebar when transitioning to mobile
+  if (!wasMobile && isMobileView.value) {
+    isSidebarOpen.value = false
+  }
+  // Auto-open sidebar when transitioning to desktop
+  if (wasMobile && !isMobileView.value) {
+    isSidebarOpen.value = true
   }
 }
 
 onMounted(() => {
-  checkContainerSize()
+  // Initial check
+  nextTick(() => {
+    checkContainerSize()
+  })
 
   // Use ResizeObserver to detect container size changes
   if (pageContainerRef.value) {
     const resizeObserver = new ResizeObserver(checkContainerSize)
     resizeObserver.observe(pageContainerRef.value)
 
-    // Cleanup on unmount
     onUnmounted(() => {
       resizeObserver.disconnect()
     })
   }
 })
 
-// Toggle sidebar with mobile awareness
+// Toggle sidebar
 function toggleSidebar() {
-  isSidebarVisible.value = !isSidebarVisible.value
+  isSidebarOpen.value = !isSidebarOpen.value
+}
+
+// Close sidebar on mobile when navigating
+function closeSidebarOnMobile() {
+  if (isMobileView.value) {
+    isSidebarOpen.value = false
+  }
 }
 
 function handleViewImportReport(report: ImportReport) {
@@ -65,13 +78,12 @@ const openDetail = () => {
 const detailComponent = computed(() => {
   switch (workspaceRouteParams.value.detailType) {
     case 'root':
-    if (workspaceRouteParams.value.pageType === 'setting') {
+      if (workspaceRouteParams.value.pageType === 'setting') {
         return 'LazyWorkspacesSettingRoot'
       }
       if (!workspaceRouteParams.value.detailId) {
         return 'LazyWorkspacesDetailRoot'
       }
-      
     case 'folder':
       return 'LazyWorkspacesDetailFolder'
     case 'table':
@@ -97,20 +109,19 @@ const detailComponent = computed(() => {
 })
 
 // Expose toggle function and state to child components
-provide('isSidebarVisible', readonly(isSidebarVisible))
+provide('isSidebarOpen', readonly(isSidebarOpen))
 provide('isMobileView', readonly(isMobileView))
+provide('toggleSidebar', toggleSidebar)
 
+// Close sidebar on navigation in mobile mode
 watch(
   workspaceRouteParams,
   () => {
-    if (isMobileView.value && isSidebarVisible.value) {
-      isSidebarVisible.value = false
-    }
+    closeSidebarOnMobile()
   },
-  {
-    deep: true
-  }
+  { deep: true }
 )
+
 watch(
   props,
   async () => {
@@ -121,198 +132,238 @@ watch(
       workspaceRouteParams.value.detailType = props.detailType
     }
   },
-  {
-    immediate: true,
-    deep: true
-  }
+  { immediate: true, deep: true }
 )
 </script>
 
 <template>
-  <div class="pageContainer" ref="pageContainerRef">
+  <div 
+    ref="pageContainerRef" 
+    class="page-container" 
+    :class="{ 
+      'is-mobile': isMobileView, 
+      'sidebar-open': isSidebarOpen 
+    }"
+  >
     <template v-if="!workspace">
       <NuxtLoadingIndicator />
     </template>
     <template v-else>
-      <!-- Desktop layout with splitter (sidebar always visible) -->
-      <template v-if="!isMobileView">
-        <ElSplitter>
-          <ElSplitterPanel :min="120" size="220px">
-            <div class="sideBarContainer">
-              <WorkspacesMenuHeader />
-              <WorkspacesMenu :workspace-id="workspace?.id" :initialMenu="[]" :is-admin="true"> </WorkspacesMenu>
-            </div>
-          </ElSplitterPanel>
-          <ElSplitterPanel>
-            <div class="detailContainer">
-              <WorkspacesDetailHeader>
-                <template #left>
-                  <el-button v-if="isMobileView" class="sidebar-toggle-btn" @click="toggleSidebar" circle plain size="small" type="primary">
-                    <el-icon><Menu /></el-icon>
-                  </el-button>
-                </template>
-                <template #right>
-                  <div id="database-table-header-right">
-
-                  </div>
-                  <template v-if="workspaceRouteParams.pageType !== 'setting'">
-                    <Icon name="lucide:settings" @click="openSetting" />
-                  </template>
-                  <template v-if="workspaceRouteParams.pageType === 'setting'">
-                    <Icon name="lucide:table" @click="openDetail" />
-                  </template>
-                </template>
-              </WorkspacesDetailHeader>
-              <component :is="detailComponent" :is-admin="true" />
-            </div>
-          </ElSplitterPanel>
-        </ElSplitter>
-      </template>
-
-      <!-- Mobile layout (sidebar as overlay) -->
-      <template v-else>
-        <!-- Sidebar overlay for mobile -->
-        <div class="sideBarContainer" :class="{ 'sidebar-hidden': !isSidebarVisible }">
+      <!-- Single layout structure - CSS handles responsive behavior -->
+      <div class="layout-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
           <WorkspacesMenuHeader />
-          <WorkspacesMenu :workspace-id="workspace?.id" :initialMenu="[]" :is-admin="true"> </WorkspacesMenu>
-        </div>
+          <WorkspacesMenu 
+            :workspace-id="workspace?.id" 
+            :initialMenu="[]" 
+            :is-admin="true"
+          />
+        </aside>
 
-        <!-- Main content (always full width on mobile) -->
-        <div class="detailContainer" @click="isSidebarVisible = false">
+        <!-- Resize handle (desktop only) -->
+        <div class="resize-handle" />
+
+        <!-- Main content - never re-renders on resize -->
+        <main class="main-content">
           <WorkspacesDetailHeader>
             <template #left>
-              <Icon name="lucide:menu" @click.stop="toggleSidebar" />
+              <button 
+                v-if="isMobileView" 
+                class="menu-toggle-btn" 
+                @click.stop="toggleSidebar"
+                aria-label="Toggle menu"
+              >
+                <Icon name="lucide:menu" size="20" />
+              </button>
             </template>
             <template #right>
-                <div id="database-table-header-right">
-                  
-                </div>
-                <template v-if="workspaceRouteParams.pageType !== 'setting'">
-                  <Icon name="lucide:settings" @click="openSetting" />
-                </template>
-                <template v-if="workspaceRouteParams.pageType === 'setting'">
-                  <Icon name="lucide:table" @click="openDetail" />
-                </template>
+              <div id="database-table-header-right" />
+              <template v-if="workspaceRouteParams.pageType !== 'setting'">
+                <Icon name="lucide:settings" class="header-action" @click="openSetting" />
               </template>
+              <template v-if="workspaceRouteParams.pageType === 'setting'">
+                <Icon name="lucide:table" class="header-action" @click="openDetail" />
+              </template>
+            </template>
           </WorkspacesDetailHeader>
-          <component :is="detailComponent" :is-admin="true" />
-        </div>
+          <div class="content-area">
+            <component :is="detailComponent" :is-admin="true" />
+          </div>
+        </main>
 
-        <!-- Backdrop overlay for mobile sidebar -->
-        <div v-if="isSidebarVisible" class="sidebar-backdrop" @click="isSidebarVisible = false"></div>
-      </template>
+        <!-- Backdrop for mobile sidebar -->
+        <div 
+          v-if="isMobileView && isSidebarOpen" 
+          class="sidebar-backdrop" 
+          @click="isSidebarOpen = false"
+        />
+      </div>
+
       <WorkspacesMenuActions ref="menuActionsRef" />
-
-      <!-- Import Progress Indicator (bottom-left) -->
       <WorkspacesTableImportProgressIndicator @view-report="handleViewImportReport" />
-
-      <!-- Import Report Dialog -->
       <WorkspacesTableImportReportDialog ref="importReportDialogRef" />
     </template>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.pageContainer {
+.page-container {
   height: 100%;
   width: 100%;
-  --app-header-height: 48px;
-  container-type: inline-size;
-  container-name: workspace-container;
-  /* transform: translateX(0); */
+  position: relative;
+  overflow: hidden;
+  --sidebar-width: 220px;
+  --header-height: 48px;
 }
 
-.sideBarContainer {
+.layout-wrapper {
+  display: flex;
   height: 100%;
-  display: grid;
-  grid-template-rows: min-content 1fr;
-  gap: 0;
+  width: 100%;
+  position: relative;
+}
+
+// ============================================
+// Sidebar
+// ============================================
+.sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--app-grey-950);
   overflow: hidden;
+  flex-shrink: 0;
+  transition: transform 0.3s ease, width 0.3s ease;
+}
 
-  @container workspace-container (max-width: 800px) {
-    display: grid;
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 220px;
-    z-index: 1001;
-    background: var(--app-grey-950);
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-
-    &.sidebar-hidden {
-      transform: translateX(-100%);
-    }
-
-    &:not(.sidebar-hidden) {
-      transform: translateX(0);
-    }
+// ============================================
+// Resize handle (desktop only)
+// ============================================
+.resize-handle {
+  width: 4px;
+  height: 100%;
+  background: transparent;
+  cursor: col-resize;
+  flex-shrink: 0;
+  
+  &:hover {
+    background: var(--el-color-primary-light-7);
   }
 }
 
-.detailContainer {
+// ============================================
+// Main content
+// ============================================
+.main-content {
+  flex: 1;
+  min-width: 0;
   height: 100%;
-  width: 100%;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   background: var(--app-paper);
-  position: relative;
-  display: grid;
-  grid-template-rows: min-content 1fr;
-  gap: 0;
+  overflow: hidden;
 }
 
-:deep(.actionIcon) {
-  font-size: var(--app-font-size-m);
+.content-area {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+// ============================================
+// Header actions
+// ============================================
+.header-action {
   cursor: pointer;
   color: var(--app-grey-600);
-  line-height: 0;
+  
   &:hover {
     color: var(--app-grey-300);
   }
 }
 
-// Container query for responsive behavior
-@container workspace-container (max-width: 800px) {
-  // Show backdrop when sidebar is visible on mobile
-  .sidebar-backdrop {
+.menu-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--el-border-radius-base);
+  color: var(--app-grey-400);
+  
+  &:hover {
+    background: var(--app-grey-800);
+    color: var(--app-grey-200);
+  }
+}
+
+// ============================================
+// Sidebar backdrop (mobile)
+// ============================================
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+// ============================================
+// Mobile responsive styles
+// ============================================
+.page-container.is-mobile {
+  .layout-wrapper {
     display: block;
+    position: relative;
+  }
+
+  .sidebar {
     position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+
+    &.is-open {
+      transform: translateX(0);
+    }
+  }
+
+  .resize-handle {
+    display: none;
+  }
+
+  .main-content {
+    width: 100%;
+    height: 100%;
+    position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    cursor: pointer;
   }
 }
 
-// Hide backdrop on larger screens
-.sidebar-backdrop {
-  display: none;
-}
-
-// Auto-hide sidebar on mobile when clicking on main content
-@container workspace-container (max-width: 800px) {
-  .detailContainer {
-    cursor: pointer;
-    height: 100%;
-    width: 100%;
-  }
-}
-
-// Toggle button styling
-.sidebar-toggle-btn {
-  margin-right: var(--app-space-s);
-
-  @container workspace-container (min-width: 800px) {
+// ============================================
+// Desktop styles (hide mobile-only elements)
+// ============================================
+.page-container:not(.is-mobile) {
+  .menu-toggle-btn {
     display: none;
   }
 
-  .el-icon {
-    font-size: var(--app-font-size-l);
+  .sidebar-backdrop {
+    display: none;
   }
 }
 </style>

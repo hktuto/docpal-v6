@@ -164,6 +164,10 @@ defineExpose({ open, close })
           <div class="stat-value">{{ report.totalErrors }}</div>
           <div class="stat-label">Errors</div>
         </div>
+        <div v-if="report.skippedSheets && report.skippedSheets.length > 0" class="stat-card warning">
+          <div class="stat-value">{{ report.skippedSheets.length }}</div>
+          <div class="stat-label">Skipped</div>
+        </div>
         <!-- <div class="stat-card">
           <div class="stat-value">{{ formatDuration(report.startedAt, report.completedAt) }}</div>
           <div class="stat-label">Duration</div>
@@ -310,6 +314,27 @@ defineExpose({ open, close })
               </el-table>
             </div>
           </template>
+        </el-tab-pane>
+
+        <!-- Skipped Sheets Tab -->
+        <el-tab-pane v-if="report.skippedSheets && report.skippedSheets.length > 0" label="Skipped" name="skipped">
+          <div class="skipped-sheets-list">
+            <div v-for="skipped in report.skippedSheets" :key="skipped.sheetIndex" class="skipped-sheet-row">
+              <div class="skipped-sheet-info">
+                <Icon name="material-symbols:hide-source" class="skipped-icon" />
+                <div class="skipped-sheet-details">
+                  <span class="sheet-name">{{ skipped.sheetName }}</span>
+                  <span class="skip-reason">{{ skipped.details }}</span>
+                </div>
+              </div>
+              <div class="skip-badge">
+                <el-tag v-if="skipped.reason === 'hidden'" type="info" size="small">Hidden</el-tag>
+                <el-tag v-else-if="skipped.reason === 'no_headers'" type="warning" size="small">No Headers</el-tag>
+                <el-tag v-else-if="skipped.reason === 'empty'" type="info" size="small">Empty</el-tag>
+                <el-tag v-else type="info" size="small">{{ skipped.reason }}</el-tag>
+              </div>
+            </div>
+          </div>
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -604,5 +629,53 @@ defineExpose({ open, close })
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+}
+
+// Skipped sheets styles
+.skipped-sheets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skipped-sheet-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--el-fill-color-light);
+  border-radius: 8px;
+
+  .skipped-sheet-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .skipped-icon {
+      font-size: 24px;
+      color: var(--el-text-color-placeholder);
+    }
+
+    .skipped-sheet-details {
+      display: flex;
+      flex-direction: column;
+
+      .sheet-name {
+        font-weight: 500;
+        color: var(--el-text-color-primary);
+      }
+
+      .skip-reason {
+        font-size: 12px;
+        color: var(--el-text-color-secondary);
+      }
+    }
+  }
+}
+
+.stat-card {
+  &.warning .stat-value {
+    color: var(--el-color-warning);
+  }
 }
 </style>

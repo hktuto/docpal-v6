@@ -30,12 +30,23 @@ export interface DuplicateSheetInfo {
   headers: string[]
 }
 
+/**
+ * Info about a skipped sheet and the reason
+ */
+export interface SkippedSheetInfo {
+  sheetName: string
+  sheetIndex: number
+  reason: 'hidden' | 'no_headers' | 'empty'
+  details?: string
+}
+
 interface ImportBatchResult {
   success: boolean
   duplicates?: string[]
   duplicateSheets?: DuplicateSheetInfo[]
   tablesCreated?: { id: string; name: string }[]
   tablesUpdated?: { id: string; name: string }[]
+  skippedSheets?: SkippedSheetInfo[]
   error?: string
   /** When 'update' action is chosen, caller should handle duplicateSheets */
   action?: 'skip' | 'update' | 'cancelled'
@@ -905,7 +916,7 @@ function mapToDatabaseType(type: ColumnFieldType): string {
 export function useImportBatch() {
   const { menuState, saveMenuItemToDb, findItemById, workspace } = useSingleWorkspaceContext()
   const { createCaseTable, generateSlug } = useTableSchema()
-  const { queueImportJobs } = useImportQueue()
+  const { queueImportJobs, notifyImportCompleted } = useImportQueue()
   const { analyzeTableForRelations } = useRelationSuggestions()
 
   /**
@@ -960,7 +971,7 @@ export function useImportBatch() {
   /**
    * Parse Excel file and extract sheet data
    */
-  async function parseExcelFile(file: File, entityId: string): Promise<SheetData[]> {
+  async function parseExcelFile(file: File, entityId: string): Promise<{ sheets: SheetData[]; skippedSheets: SkippedSheetInfo[] }> {
     const data = await readFileAsArrayBuffer(file)
     const workbook = XLSX.read(data, { type: 'array', cellDates: false, cellNF: true })
 
@@ -971,6 +982,7 @@ export function useImportBatch() {
 
     const { slugs: existingSlugs } = getExistingTableNames()
     const parsedSheets: SheetData[] = []
+    const skippedSheets: SkippedSheetInfo[] = []
     const usedSlugs = [...existingSlugs]
 
     for (let i = 0; i < sheetNames.length; i++) {
@@ -981,10 +993,29 @@ export function useImportBatch() {
       const wbSheet = (workbook as any).Workbook?.Sheets?.[i]
       if (wbSheet?.Hidden === 1) {
         console.log(`[useImportBatch] Skipping hidden sheet: '${sheetName}'`)
+        skippedSheets.push({
+          sheetName,
+          sheetIndex: i,
+          reason: 'hidden',
+          details: 'Sheet is hidden in Excel'
+        })
         continue
       }
 
       const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false }) as any[][]
+
+      // Check if sheet is completely empty
+      const isEmpty = jsonData.length === 0 || jsonData.every((row) => !row || row.every((cell) => cell === undefined || cell === null || cell === ''))
+      if (isEmpty) {
+        console.log(`[useImportBatch] Skipping empty sheet: '${sheetName}'`)
+        skippedSheets.push({
+          sheetName,
+          sheetIndex: i,
+          reason: 'empty',
+          details: 'Sheet contains no data'
+        })
+        continue
+      }
 
       // Detect and flatten multi-level headers (for pivot table style sheets)
       const { headers: validHeaders, headerRowCount } = detectAndFlattenHeaders(jsonData)
@@ -992,6 +1023,12 @@ export function useImportBatch() {
       // Skip sheets with no valid headers
       if (validHeaders.length === 0) {
         console.log(`[useImportBatch] Skipping sheet '${sheetName}': no valid headers`)
+        skippedSheets.push({
+          sheetName,
+          sheetIndex: i,
+          reason: 'no_headers',
+          details: 'No valid column headers found'
+        })
         continue
       }
 
@@ -1099,7 +1136,10 @@ export function useImportBatch() {
       })
     }
 
-    return parsedSheets
+    const hiddenCount = sheetNames.length - parsedSheets.length - skippedSheets.length
+    console.log(`[useImportBatch] Parsed ${parsedSheets.length} sheets, skipped ${skippedSheets.length} sheets from ${sheetNames.length} total`)
+
+    return { sheets: parsedSheets, skippedSheets }
   }
 
   /**
@@ -1114,11 +1154,11 @@ export function useImportBatch() {
 
     try {
       // Parse the Excel file
-      const sheets = await parseExcelFile(file, entityId)
+      const { sheets, skippedSheets } = await parseExcelFile(file, entityId)
 
       if (sheets.length === 0) {
         ElMessage.warning('No valid sheets found in the file')
-        return { success: false, error: 'No valid sheets found' }
+        return { success: false, error: 'No valid sheets found', skippedSheets }
       }
 
       // Check for duplicate table names
@@ -1182,14 +1222,15 @@ export function useImportBatch() {
           let createResult: ImportBatchResult = { success: true, tablesCreated: [] }
 
           if (newSheets.length > 0) {
-            createResult = await createTablesFromSheets(newSheets, entityId, parentFolderId, file.name)
+            createResult = await createTablesFromSheets(newSheets, entityId, parentFolderId, file.name, skippedSheets)
           }
 
-          const finalResult = {
+          const finalResult: ImportBatchResult = {
             ...createResult,
-            action: 'update' as const,
+            action: 'update',
             duplicates: uniqueDuplicates,
-            duplicateSheets
+            duplicateSheets,
+            skippedSheets
           }
           console.log('[useImportBatch] Returning update result:', finalResult)
           console.log('[useImportBatch] About to return from importExcelFile')
@@ -1206,12 +1247,13 @@ export function useImportBatch() {
                 success: true,
                 action: 'skip',
                 duplicates: uniqueDuplicates,
-                tablesCreated: []
+                tablesCreated: [],
+                skippedSheets
               }
             }
 
-            const result = await createTablesFromSheets(filteredSheets, entityId, parentFolderId, file.name)
-            return { ...result, action: 'skip', duplicates: uniqueDuplicates }
+            const result = await createTablesFromSheets(filteredSheets, entityId, parentFolderId, file.name, skippedSheets)
+            return { ...result, action: 'skip', duplicates: uniqueDuplicates, skippedSheets }
           }
 
           // User closed the dialog (X button or ESC)
@@ -1219,16 +1261,18 @@ export function useImportBatch() {
             success: false,
             action: 'cancelled',
             duplicates: uniqueDuplicates,
-            error: 'Import cancelled'
+            error: 'Import cancelled',
+            skippedSheets
           }
         }
       }
 
-      return await createTablesFromSheets(sheets, entityId, parentFolderId, file.name)
+      const result = await createTablesFromSheets(sheets, entityId, parentFolderId, file.name, skippedSheets)
+      return { ...result, skippedSheets }
     } catch (error: any) {
       console.error('Error importing Excel file:', error)
       ElMessage.error(error.message || 'Failed to import Excel file')
-      return { success: false, error: error.message || 'Unknown error' }
+      return { success: false, error: error.message || 'Unknown error', skippedSheets }
     }
   }
 
@@ -1239,7 +1283,8 @@ export function useImportBatch() {
     sheets: SheetData[],
     entityId: string,
     parentFolderId: string | null | undefined,
-    fileName: string
+    fileName: string,
+    skippedSheets: SkippedSheetInfo[] = []
   ): Promise<ImportBatchResult> {
     const createdTables: { id: string; name: string; physicalTableName: string; fields: any[]; rows: any[] }[] = []
 
@@ -1323,16 +1368,45 @@ export function useImportBatch() {
           }))
 
         queueImportJobs(importJobs)
+      } else {
+        // No rows to import, but we still want to show a report
+        // Create a report with empty jobs to show table creation summary
+        const now = new Date().toISOString()
+        const emptyReport: import('./useImportQueue').ImportReport = {
+          id: uuidv7(),
+          jobs: createdTables.map((t) => ({
+            id: uuidv7(),
+            tableName: t.id,
+            tableDisplayName: t.name,
+            physicalTableName: t.physicalTableName,
+            columns: t.fields,
+            rows: [],
+            progress: { total: 0, imported: 0, errors: [] },
+            status: 'completed' as const,
+            startedAt: now,
+            completedAt: now,
+            entityId
+          })),
+          totalTables: tableCount,
+          totalRowsAttempted: 0,
+          totalRowsImported: 0,
+          totalErrors: 0,
+          startedAt: now,
+          completedAt: now,
+          skippedSheets
+        }
+        notifyImportCompleted(emptyReport)
       }
 
       return {
         success: true,
-        tablesCreated: createdTables.map((t) => ({ id: t.id, name: t.name }))
+        tablesCreated: createdTables.map((t) => ({ id: t.id, name: t.name })),
+        skippedSheets
       }
     } catch (error: any) {
       console.error('Error creating tables:', error)
       ElMessage.error('Failed to create tables. Please try again.')
-      return { success: false, error: error.message || 'Failed to create tables' }
+      return { success: false, error: error.message || 'Failed to create tables', skippedSheets }
     }
   }
 

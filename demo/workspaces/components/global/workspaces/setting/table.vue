@@ -5,7 +5,7 @@ const activeSection = ref('info')
 // Responsive state
 const pageContainerRef = ref<HTMLElement | null>(null)
 const isMobileView = ref(false)
-const isSidebarVisible = ref(true)
+const isSidebarOpen = ref(true)
 
 const settingsSections = [
   {
@@ -48,7 +48,7 @@ function switchSection(sectionId: string) {
   activeSection.value = sectionId
   // Auto-hide sidebar on mobile after selection
   if (isMobileView.value) {
-    isSidebarVisible.value = false
+    isSidebarOpen.value = false
   }
 }
 
@@ -80,22 +80,27 @@ const sectionComponent = computed(() => {
 function checkContainerSize() {
   if (!pageContainerRef.value) return
   const containerWidth = pageContainerRef.value.offsetWidth
+  const wasMobile = isMobileView.value
   isMobileView.value = containerWidth < 700
   
-  // Auto-hide sidebar on mobile
-  if (isMobileView.value && isSidebarVisible.value) {
-    isSidebarVisible.value = false
-  } else if (!isMobileView.value) {
-    isSidebarVisible.value = true
+  // Auto-hide sidebar when transitioning to mobile
+  if (!wasMobile && isMobileView.value) {
+    isSidebarOpen.value = false
+  }
+  // Auto-show sidebar when transitioning to desktop
+  if (wasMobile && !isMobileView.value) {
+    isSidebarOpen.value = true
   }
 }
 
 function toggleSidebar() {
-  isSidebarVisible.value = !isSidebarVisible.value
+  isSidebarOpen.value = !isSidebarOpen.value
 }
 
 onMounted(() => {
-  checkContainerSize()
+  nextTick(() => {
+    checkContainerSize()
+  })
   
   if (pageContainerRef.value) {
     const resizeObserver = new ResizeObserver(checkContainerSize)
@@ -109,7 +114,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <div ref="pageContainerRef" class="setting-page">
+  <div 
+    ref="pageContainerRef" 
+    class="setting-page"
+    :class="{ 
+      'is-mobile': isMobileView,
+      'sidebar-open': isSidebarOpen
+    }"
+  >
     <!-- Toggle button teleported to header for mobile -->
     <Teleport to="#database-table-header-right">
       <el-button 
@@ -117,89 +129,54 @@ onMounted(() => {
         size="small" 
         @click="toggleSidebar"
       >
-        <Icon :name="isSidebarVisible ? 'lucide:panel-left-close' : 'lucide:panel-left'" size="16" />
+        <Icon :name="isSidebarOpen ? 'lucide:panel-left-close' : 'lucide:panel-left'" size="16" />
       </el-button>
     </Teleport>
 
-    <!-- Desktop: Splitter layout -->
-    <template v-if="!isMobileView">
-      <el-splitter>
-        <el-splitter-panel :min="180" size="220px" collapsible>
-          <div class="setting-nav">
-            <div class="nav-title">Table Settings</div>
-            <div class="nav-content">
-              <template v-for="section in settingsSections" :key="section.group">
-                <div class="settings-group">
-                  <div class="group-title">{{ section.group }}</div>
-                  <div class="group-items">
-                    <div
-                      v-for="item in section.items"
-                      :key="item.id"
-                      class="nav-item"
-                      :class="{ active: activeSection === item.id }"
-                      @click="switchSection(item.id)"
-                    >
-                      <Icon :name="item.icon" />
-                      <span>{{ item.label }}</span>
-                    </div>
-                  </div>
-                </div>
-              </template>
-            </div>
-          </div>
-        </el-splitter-panel>
-        <el-splitter-panel>
-          <div class="setting-container">
-            <component 
-              :is="sectionComponent" 
-              :active-sub-section="activeSection"
-            />
-          </div>
-        </el-splitter-panel>
-      </el-splitter>
-    </template>
-
-    <!-- Mobile: Overlay sidebar -->
-    <template v-else>
-      <!-- Sidebar overlay -->
-      <Transition name="slide">
-        <div v-if="isSidebarVisible" class="setting-nav mobile-sidebar">
-          <div class="nav-title">Table Settings</div>
-          <div class="nav-content">
-            <template v-for="section in settingsSections" :key="section.group">
-              <div class="settings-group">
-                <div class="group-title">{{ section.group }}</div>
-                <div class="group-items">
-                  <div
-                    v-for="item in section.items"
-                    :key="item.id"
-                    class="nav-item"
-                    :class="{ active: activeSection === item.id }"
-                    @click="switchSection(item.id)"
-                  >
-                    <Icon :name="item.icon" />
-                    <span>{{ item.label }}</span>
-                  </div>
+    <!-- Single layout structure - CSS handles responsive -->
+    <div class="layout-wrapper">
+      <!-- Sidebar navigation -->
+      <aside class="setting-nav" :class="{ 'is-open': isSidebarOpen }">
+        <div class="nav-title">Table Settings</div>
+        <div class="nav-content">
+          <template v-for="section in settingsSections" :key="section.group">
+            <div class="settings-group">
+              <div class="group-title">{{ section.group }}</div>
+              <div class="group-items">
+                <div
+                  v-for="item in section.items"
+                  :key="item.id"
+                  class="nav-item"
+                  :class="{ active: activeSection === item.id }"
+                  @click="switchSection(item.id)"
+                >
+                  <Icon :name="item.icon" />
+                  <span>{{ item.label }}</span>
                 </div>
               </div>
-            </template>
-          </div>
+            </div>
+          </template>
         </div>
-      </Transition>
+      </aside>
 
-      <!-- Backdrop -->
-      <Transition name="fade">
-        <div v-if="isSidebarVisible" class="sidebar-backdrop" @click="isSidebarVisible = false" />
-      </Transition>
+      <!-- Resize handle (desktop only) -->
+      <div class="resize-handle" />
 
-      <!-- Main content -->
-      <div class="setting-container">
+      <!-- Main content - never re-renders on resize -->
+      <main class="setting-container">
         <component 
           :is="sectionComponent" 
           :active-sub-section="activeSection"
         />
-      </div>
-    </template>
+      </main>
+
+      <!-- Backdrop for mobile sidebar -->
+      <div 
+        v-if="isMobileView && isSidebarOpen" 
+        class="sidebar-backdrop" 
+        @click="isSidebarOpen = false"
+      />
+    </div>
   </div>
 </template>
 
@@ -208,15 +185,30 @@ onMounted(() => {
   height: 100%;
   overflow: hidden;
   position: relative;
+  --sidebar-width: 220px;
 }
 
+.layout-wrapper {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+// ============================================
+// Sidebar Navigation
+// ============================================
 .setting-nav {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
   height: 100%;
   background: var(--app-grey-950);
   padding: var(--app-space-m) 0;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
 
   .nav-title {
     font-size: var(--app-font-size-xl);
@@ -278,50 +270,93 @@ onMounted(() => {
       border-right: 2px solid var(--app-primary-color);
     }
   }
+}
 
-  &.mobile-sidebar {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 260px;
-    z-index: 1001;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+// ============================================
+// Resize handle (desktop only)
+// ============================================
+.resize-handle {
+  width: 4px;
+  height: 100%;
+  background: transparent;
+  cursor: col-resize;
+  flex-shrink: 0;
+  
+  &:hover {
+    background: var(--el-color-primary-light-7);
   }
 }
 
+// ============================================
+// Main content
+// ============================================
 .setting-container {
+  flex: 1;
+  min-width: 0;
   height: 100%;
   overflow-y: auto;
   padding: var(--app-space-m);
   background: var(--app-paper);
 }
 
+// ============================================
+// Sidebar backdrop (mobile)
+// ============================================
 .sidebar-backdrop {
-  position: absolute;
-  inset: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  z-index: 999;
 }
 
-// Transitions
-.slide-enter-active,
-.slide-leave-active {
-  transition: transform 0.3s ease;
+// ============================================
+// Mobile responsive styles
+// ============================================
+.setting-page.is-mobile {
+  .layout-wrapper {
+    display: block;
+    position: relative;
+  }
+
+  .setting-nav {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 260px;
+    z-index: 1000;
+    transform: translateX(-100%);
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+
+    &.is-open {
+      transform: translateX(0);
+    }
+  }
+
+  .resize-handle {
+    display: none;
+  }
+
+  .setting-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
 }
 
-.slide-enter-from,
-.slide-leave-to {
-  transform: translateX(-100%);
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+// ============================================
+// Desktop styles
+// ============================================
+.setting-page:not(.is-mobile) {
+  .sidebar-backdrop {
+    display: none;
+  }
 }
 </style>

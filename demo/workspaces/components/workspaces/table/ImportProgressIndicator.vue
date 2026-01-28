@@ -45,6 +45,8 @@ onMounted(() => {
   onImportEvent('import-completed', async (report: ImportReport) => {
     latestReport.value = report
     showCompletedBanner.value = true
+    isVisible.value = true // Make sure the indicator is visible to show the report
+    isMinimized.value = false // Ensure it's expanded to show the completed banner
 
     // Run relationship analysis if import was successful and we have a workspace
     if (report.totalTables > 0 && workspace.value?.id) {
