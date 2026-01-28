@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import { ElNotification } from 'element-plus'
-
 import { clientApi } from 'api'
-
 import { newWorkflowEditorDetail } from '~/utils/workflowEditorMenu'
 import type { PermissionMethodParams } from 'base/composables/useVxeTable'
+import { saveWorkflowFormToNewVersion } from '~/utils/workflowEditorhelpers'
 
 const { id, name, draftId, latestVersion } = defineProps<{
   id: string
