@@ -1,18 +1,11 @@
 <template>
-  <div class="table-info-widget">
-    <!-- Widget Header (shown in edit mode) -->
-    <div v-if="!hideSetting" class="widget-header">
-      <span class="widget-title">{{ $t('detailWidget.tableInfo') }}</span>
-      <div class="widget-actions">
-        <el-button size="small" text @click="openSettings">
-          <Icon name="lucide:settings" size="14" />
-        </el-button>
-        <el-button size="small" text type="danger" @click="handleDelete">
-          <Icon name="lucide:trash-2" size="14" />
-        </el-button>
-      </div>
-    </div>
-
+  <DashboardCard
+    :title="$t('detailWidget.tableInfo')"
+    :hide-setting="hideSetting"
+    :setting-ref="settingRef"
+    :setting="effectiveSetting"
+    @delete="handleDelete"
+  >
     <!-- Widget Content -->
     <div class="widget-content" :class="[`layout-${effectiveSetting.layout}`]">
       <template v-if="displayFields.length > 0">
@@ -58,7 +51,7 @@
       @refresh="handleRefreshSetting"
       @delete="handleDelete"
     />
-  </div>
+  </DashboardCard>
 </template>
 
 <script setup lang="ts">
@@ -202,35 +195,6 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
-.table-info-widget {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: var(--el-bg-color);
-  border-radius: var(--el-border-radius-base);
-  overflow: hidden;
-}
-
-.widget-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--app-space-s) var(--app-space-m);
-  border-bottom: 1px solid var(--el-border-color-lighter);
-  background: var(--el-fill-color-light);
-}
-
-.widget-title {
-  font-weight: 600;
-  font-size: var(--app-font-size-s);
-  color: var(--el-text-color-primary);
-}
-
-.widget-actions {
-  display: flex;
-  gap: var(--app-space-xs);
-}
-
 .widget-content {
   flex: 1;
   padding: var(--app-space-m);

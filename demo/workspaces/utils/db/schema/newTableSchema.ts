@@ -240,8 +240,66 @@ export const relationSuggestion = pgTable('relation_suggestions', {
   sampleValues: text('sampleValues').array().notNull().default([]), // Sample matching values
   suggestedType: text('suggestedType').notNull().default('multiple'), // Always 'multiple'
   status: text('status').notNull().default('pending'), // 'pending', 'accepted', 'dismissed'
+  createdBy: uuid('createdBy').references(() => users.id),
   createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedBy: uuid('updatedBy').references(() => users.id),
   updatedAt: timestamp('updatedAt').notNull().defaultNow()
+})
+
+// =============================================================================
+// Audit Log Schema
+// =============================================================================
+
+/**
+ * Audit operation types
+ */
+export type AuditOperation = 'INSERT' | 'UPDATE' | 'DELETE' | 'BULK_INSERT' | 'BULK_UPDATE' | 'BULK_DELETE'
+
+/**
+ * Audit log status for rollback tracking
+ */
+export type AuditStatus = 'active' | 'rolled_back' | 'superseded'
+
+/**
+ * Audit log table - tracks all changes for rollback capability
+ */
+export const auditLog = pgTable('audit_logs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  
+  // What was changed
+  tableName: text('tableName').notNull(), // Physical table name (e.g., "case_tables", "tbl_xxx")
+  tableType: text('tableType').notNull().default('system'), // 'system' for schema tables, 'dynamic' for user tables
+  recordId: uuid('recordId'), // The ID of the record that was changed (null for bulk operations)
+  
+  // Operation details
+  operation: text('operation').$type<AuditOperation>().notNull(), // INSERT, UPDATE, DELETE, BULK_*
+  
+  // Change data (stored as JSONB for flexibility)
+  oldValues: jsonb('oldValues'), // Previous state (null for INSERT)
+  newValues: jsonb('newValues'), // New state (null for DELETE)
+  changedFields: text('changedFields').array(), // List of field names that changed (for UPDATE)
+  
+  // Bulk operation support
+  affectedRecordIds: uuid('affectedRecordIds').array(), // For bulk operations, list of all affected record IDs
+  affectedCount: integer('affectedCount').default(1), // Number of records affected
+  
+  // Rollback support
+  status: text('status').$type<AuditStatus>().notNull().default('active'),
+  rolledBackAt: timestamp('rolledBackAt'), // When this change was rolled back
+  rolledBackBy: uuid('rolledBackBy').references(() => users.id),
+  rollbackAuditId: uuid('rollbackAuditId'), // Reference to the audit log that rolled this back
+  
+  // Context
+  entityId: uuid('entityId').references(() => caseType.id), // Workspace context
+  caseTableId: uuid('caseTableId').references(() => caseTable.id), // For dynamic table changes
+  
+  // Metadata
+  description: text('description'), // Human-readable description of the change
+  metadata: jsonb('metadata'), // Additional context (e.g., import source, batch ID)
+  
+  // Who and when
+  createdBy: uuid('createdBy').references(() => users.id),
+  createdAt: timestamp('createdAt').notNull().defaultNow()
 })
 
 // =============================================================================
@@ -265,3 +323,6 @@ export type CaseViewInsert = typeof caseView.$inferInsert
 
 export type RelationSuggestionRecord = typeof relationSuggestion.$inferSelect
 export type RelationSuggestionInsert = typeof relationSuggestion.$inferInsert
+
+export type AuditLogRecord = typeof auditLog.$inferSelect
+export type AuditLogInsert = typeof auditLog.$inferInsert

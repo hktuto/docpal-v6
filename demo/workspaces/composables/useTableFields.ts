@@ -1,4 +1,5 @@
 import type { CaseFieldRecord, FieldDisplayStructure } from '../utils/db/schema/newTableSchema'
+import { getCurrentUserId } from './useCurrentUser'
 
 /**
  * Field Context for field management
@@ -73,11 +74,14 @@ export function useTableFields(options: UseTableFieldsOptions) {
     }
 
     const now = new Date()
+    const currentUserId = getCurrentUserId()
     const newField: Partial<CaseFieldRecord> = {
       ...field,
       id: field.id || crypto.randomUUID(),
       tableId: tableId.value,
+      createdBy: currentUserId,
       createdAt: now,
+      updatedBy: currentUserId,
       updatedAt: now
     }
 
@@ -85,9 +89,9 @@ export function useTableFields(options: UseTableFieldsOptions) {
       `INSERT INTO case_fields (
         id, "tableId", "fieldName", "fieldNameAlias", "businessType", "fieldType",
         "displayStructure", "isRequired", "isHidden", "isArray", "isUnique",
-        "defaultValue", "fieldLength", "createdAt", "updatedAt",
+        "defaultValue", "fieldLength", "createdBy", "createdAt", "updatedBy", "updatedAt",
         "isReference", "relationTableId", "displayFieldNames", "lookupColumnName", "lookupFieldId"
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20) RETURNING *`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22) RETURNING *`,
       [
         newField.id,
         newField.tableId,
@@ -102,7 +106,9 @@ export function useTableFields(options: UseTableFieldsOptions) {
         newField.isUnique || false,
         newField.defaultValue || null,
         newField.fieldLength || 0,
+        newField.createdBy,
         newField.createdAt,
+        newField.updatedBy,
         newField.updatedAt,
         newField.isReference || false,
         newField.relationTableId || null,
@@ -184,9 +190,13 @@ export function useTableFields(options: UseTableFieldsOptions) {
       paramIndex++
     }
 
-    // Always update updatedAt
+    // Always update updatedAt and updatedBy
     setClauses.push(`"updatedAt" = $${paramIndex}`)
     values.push(new Date().toISOString())
+    paramIndex++
+
+    setClauses.push(`"updatedBy" = $${paramIndex}`)
+    values.push(getCurrentUserId())
     paramIndex++
 
     // Add the WHERE clause parameter

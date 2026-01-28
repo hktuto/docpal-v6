@@ -27,6 +27,9 @@ const pendingRelationColumn = ref<any>(null)
 // Import Dialog
 const importToTableDialogRef = ref()
 
+// Audit Log Sidebar
+const auditLogVisible = ref(false)
+
 // Drag-and-drop state for file import
 const isDraggingFile = ref(false)
 let dragCounter = 0 // Track nested drag events
@@ -414,6 +417,13 @@ async function handleImportComplete(result: any) {
 }
 
 /**
+ * Handle audit log rollback - refresh table data
+ */
+async function handleAuditRollback() {
+  await tableView.refresh()
+}
+
+/**
  * Handle expand click to open record detail view
  */
 function handleExpandClick(params: { row: any; rowIndex: number }) {
@@ -560,6 +570,15 @@ watch(
             </el-tag>
           </Teleport>
         </div>
+
+        <!-- Audit Log Button -->
+        <Teleport to="#database-table-header-right">
+          <el-tooltip content="View Audit History" placement="bottom">
+            <el-button size="small" @click="auditLogVisible = true">
+              <Icon name="lucide:history" size="16" />
+            </el-button>
+          </el-tooltip>
+        </Teleport>
         
         <!-- Use wrapper component that sets up MdTable providers -->
         <MdTable 
@@ -597,6 +616,16 @@ watch(
     <WorkspacesDialogsImportToTableDialog
       ref="importToTableDialogRef"
       @complete="handleImportComplete"
+    />
+
+    <!-- Audit Log Sidebar -->
+    <WorkspacesTableAuditLogSidebar
+      v-if="tableView.physicalTableName.value && tableView.tableId.value"
+      v-model:visible="auditLogVisible"
+      :table-name="tableView.physicalTableName.value"
+      :case-table-id="tableView.tableId.value"
+      :entity-id="tableView.entityId.value"
+      @rollback="handleAuditRollback"
     />
 
     <!-- Debug Sidebar -->

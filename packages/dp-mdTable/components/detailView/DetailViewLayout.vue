@@ -1,223 +1,164 @@
 <template>
-  <div class="detail-view-layout">
-    <!-- Header -->
-    <div v-if="showHeader" class="layout-header">
-      <div class="header-left">
-        <el-button 
-          v-if="showBackButton" 
-          size="small" 
-          text 
-          @click="emit('back')"
+  <el-splitter>
+    <el-splitter-panel v-if="editMode" collapsible size="20%" :min="200">
+      <el-collapse v-model="activeNames">
+        <el-collapse-item 
+          v-for="(widgets, key) in widgetSettingList" 
+          :key="key" 
+          :title="$t(`detailWidgetType.${key}`)" 
+          :name="key"
         >
-          <Icon name="lucide:arrow-left" size="16" />
-          {{ $t('common_back') }}
-        </el-button>
-        <h2 v-if="title" class="layout-title">{{ title }}</h2>
-      </div>
-      <div class="header-right">
-        <slot name="header-actions">
-          <el-button 
-            v-if="editable && !editMode" 
-            size="small" 
-            @click="editMode = true"
+          <div
+            v-for="widget in widgets"
+            :key="widget.component"
+            class="detail-item-widget"
+            draggable="true"
+            unselectable="on"
+            @dragstart="handleDragStart($event, widget)"
+            @dragend="handleDragEnd"
+            @dblclick="emits('add', widget)"
           >
-            <Icon name="lucide:edit" size="14" />
-            {{ $t('common_edit') }}
-          </el-button>
-          <el-button 
-            v-if="editMode" 
-            size="small" 
-            type="primary" 
-            @click="handleFinishEdit"
-          >
-            {{ $t('dpButtom_finish') }}
-          </el-button>
-        </slot>
-      </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="layout-content">
-      <el-splitter v-if="editMode">
-        <!-- Widget Palette (Edit Mode) -->
-        <el-splitter-panel :min="180" size="200px">
-          <div class="widget-palette">
-            <div class="palette-header">
-              {{ $t('detailWidget.availableWidgets') }}
-            </div>
-            <el-collapse v-model="activePaletteGroups">
-              <el-collapse-item 
-                v-for="(widgets, groupName) in widgetsByType" 
-                :key="groupName" 
-                :title="$t(`detailWidgetType.${groupName}`)" 
-                :name="groupName"
-              >
-                <div
-                  v-for="widget in widgets"
-                  :key="widget.component"
-                  class="palette-item"
-                  draggable="true"
-                  @dragstart="handleDragStart($event, widget)"
-                  @dragend="handleDragEnd"
-                  @dblclick="handleAddWidget(widget)"
-                >
-                  <Icon :name="getWidgetIcon(widget.component)" size="14" />
-                  {{ $t(`detailWidget.${widget.label}`) }}
-                </div>
-              </el-collapse-item>
-            </el-collapse>
+            <Icon v-if="widget.icon" class="el-icon--left" :name="widget.icon" size="14" />
+            {{ $t(`detailWidget.${widget.label}`) }}
           </div>
-        </el-splitter-panel>
-
-        <!-- Grid Layout -->
-        <el-splitter-panel>
-          <div 
-            ref="gridWrapper" 
-            class="grid-wrapper" 
-            :class="{ 'edit-mode': editMode }"
-            @drop="handleDrop"
-            @dragover="handleDragOver"
-          >
-            <GridLayout
-              ref="gridLayoutRef"
-              v-model:layout="localLayout"
-              :col-num="colNum"
-              :row-height="rowHeight"
-              :margin="[12, 12]"
-              :is-draggable="editMode"
-              :is-resizable="editMode"
-              :responsive="true"
-              :vertical-compact="true"
-              :prevent-collision="false"
-              :use-css-transforms="true"
-            >
-              <!-- Drag Placeholder -->
-              <GridItem
-                v-if="placeholder.show"
-                :x="placeholder.x"
-                :y="placeholder.y"
-                :w="placeholder.w"
-                :h="placeholder.h"
-                :i="'placeholder'"
-                :is-draggable="false"
-                :is-resizable="false"
-                :static="true"
-                class="widget-placeholder"
-              >
-                <div class="placeholder-content">
-                  <Icon name="lucide:plus" size="24" />
-                </div>
-              </GridItem>
-
-              <!-- Widgets -->
-              <GridItem
-                v-for="item in localLayout"
-                :key="item.i"
-                v-bind="item"
-                class="widget-item"
-                drag-ignore-from=".no-drag"
-                @resize="handleWidgetResize(item)"
-                @moved="handleWidgetMoved"
-              >
-                <component
-                  :is="getWidgetComponent(item.component)"
-                  :ref="(el: any) => { widgetRefs[item.i] = el }"
-                  :setting="item.setting"
-                  :hide-setting="!editMode"
-                  :fields="fields"
-                  :record="record"
-                  :fetch-related-records="fetchRelatedRecords"
-                  :get-target-fields="getTargetFields"
-                  :on-open-record="onOpenRecord"
-                  @delete="handleDeleteWidget(item)"
-                  @refresh-setting="(setting: any) => handleRefreshSetting(item, setting)"
-                />
-              </GridItem>
-            </GridLayout>
-
-            <!-- Empty State -->
-            <div v-if="localLayout.length === 0 && editMode" class="empty-state">
-              {{ $t('detailWidget.dragWidgetsHere') }}
-            </div>
-          </div>
-        </el-splitter-panel>
-      </el-splitter>
-
-      <!-- View Mode (no splitter) -->
-      <div v-else class="grid-wrapper view-mode">
+        </el-collapse-item>
+      </el-collapse>
+    </el-splitter-panel>
+    <el-splitter-panel @update:size="handleResize">
+      <div ref="wrapper" style="position: relative; height: 100%; overflow: auto" @drop="handleDrop" @dragover="handleDragOver">
+        <div v-if="layout.length === 0 && editMode" class="detail-null-placeholder">
+          {{ $t('detailWidget.dragWidgetsHere') }}
+        </div>
         <GridLayout
-          ref="gridLayoutRef"
-          v-model:layout="localLayout"
+          ref="gridLayout"
+          :style="`--grid-row-height: ${rowHeight}px; --grid-row-margin: 12px;`"
+          :class="{ 'vue-grid-layout--edit': editMode }"
+          v-model:layout="layout"
           :col-num="colNum"
-          :row-height="rowHeight"
           :margin="[12, 12]"
-          :is-draggable="false"
-          :is-resizable="false"
+          :row-height="rowHeight"
+          :is-draggable="draggable"
+          :is-resizable="resizable"
           :responsive="true"
           :vertical-compact="true"
+          :prevent-collision="false"
           :use-css-transforms="true"
         >
+          <!-- Drag Placeholder -->
           <GridItem
-            v-for="item in localLayout"
-            :key="item.i"
-            v-bind="item"
-            class="widget-item"
+            v-if="placeholder.show"
+            :x="placeholder.x"
+            :y="placeholder.y"
+            :w="placeholder.w"
+            :h="placeholder.h"
+            :i="'placeholder'"
+            :is-draggable="false"
+            :is-resizable="false"
+            :static="true"
+            class="detail-placeholder"
           >
-            <component
-              :is="getWidgetComponent(item.component)"
-              :ref="(el: any) => { widgetRefs[item.i] = el }"
-              :setting="item.setting"
-              :hide-setting="true"
-              :fields="fields"
-              :record="record"
-              :fetch-related-records="fetchRelatedRecords"
-              :get-target-fields="getTargetFields"
-              :on-open-record="onOpenRecord"
-            />
+            <div class="placeholder-content">
+              <el-icon class="placeholder-icon"><Plus /></el-icon>
+              <span class="placeholder-text">{{ $t('common_add') }}</span>
+            </div>
+          </GridItem>
+
+          <GridItem
+            v-for="item in layout"
+            :key="item.i"
+            class="detail-item"
+            v-bind="item"
+            drag-ignore-from=".no-drag"
+            @resize="chartResize(item)"
+            @moved="emits('save')"
+          >
+            <NuxtErrorBoundary>
+              <template v-if="!componentMap[item.component]">
+                <el-card class="custom-card" shadow="always">
+                  <template #header>
+                    <b>{{ item.label }}</b>
+                  </template>
+                  <div class="card-content">
+                    <b class="button-container">
+                      {{ $t('detailWidget.error') }}
+                    </b>
+                    <div class="button-container">
+                      <el-button type="primary" @click="handleDelete(item)">{{ $t('common_confirmDelete') }}</el-button>
+                    </div>
+                  </div>
+                </el-card>
+              </template>
+              <component
+                v-else
+                :is="componentMap[item.component]"
+                :ref="(el: any) => { widgetRefs[item.i] = el }"
+                :key="item.i"
+                :setting="item.setting"
+                :hide-setting="hideSetting"
+                :fields="fields"
+                :record="record"
+                :table-name="tableName"
+                :table-id="tableId"
+                :entity-id="entityId"
+                :fetch-related-records="fetchRelatedRecords"
+                :get-target-fields="getTargetFields"
+                :on-open-record="onOpenRecord"
+                @delete="handleDelete(item)"
+                @refresh-setting="(setting: any) => handleRefreshSetting(setting, item)"
+              />
+              <template #error="{ error, clearError }">
+                <div class="errorBoundaryContainer">
+                  <div class="messageContainer">
+                    <h5 class="errorTitle">ERROR: {{ $t(`detailWidget.${item.label}`) }}</h5>
+                    <pre>{{ error }}</pre>
+                    <el-button size="small" :icon="Refresh" circle @click="clearError">
+                      {{ $t('common_refresh') }}
+                    </el-button>
+                  </div>
+                </div>
+              </template>
+            </NuxtErrorBoundary>
           </GridItem>
         </GridLayout>
-
-        <!-- Empty State -->
-        <div v-if="localLayout.length === 0" class="empty-state view-mode">
-          <Icon name="lucide:layout-dashboard" size="48" />
-          <span>{{ $t('detailWidget.noWidgetsConfigured') }}</span>
-        </div>
       </div>
-    </div>
-  </div>
+    </el-splitter-panel>
+  </el-splitter>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-import { GridLayout, GridItem } from 'grid-layout-plus'
-import type { DetailWidgetSetting, DetailWidgetType } from '../../utils/detailWidgetHelper'
-import { 
-  detailWidgetSettings, 
-  getDetailWidgetsByType, 
-  createWidgetInstance 
-} from '../../utils/detailWidgetHelper'
+import { Refresh, Plus } from '@element-plus/icons-vue'
+import { GridItem, GridLayout } from 'grid-layout-plus'
+import type { DetailWidgetSetting } from '../../utils/detailWidgetHelper'
+import { useDebounceFn } from '@vueuse/core'
 import type { FieldInfo } from '../../types/view-config'
-import { TableInfo, RelatedTableList } from './widgets'
 
 const props = withDefaults(defineProps<{
-  /** Layout configuration */
-  layout?: DetailWidgetSetting[]
-  /** Show header with back button and title */
-  showHeader?: boolean
-  /** Show back button */
-  showBackButton?: boolean
-  /** Title to display */
-  title?: string
-  /** Allow editing layout */
-  editable?: boolean
+  /** Allow resizing widgets */
+  resizable?: boolean
+  /** Allow dragging widgets */
+  draggable?: boolean
+  /** Hide settings buttons on widgets */
+  hideSetting?: boolean
   /** Number of grid columns */
   colNum?: number
   /** Row height in pixels */
   rowHeight?: number
+  /** Edit mode - shows widget palette */
+  editMode?: boolean
+  /** Widget settings grouped by type */
+  widgetSettingList?: Record<string, DetailWidgetSetting[]>
+  /** Map of component names to component instances */
+  componentMap?: Record<string, any>
   /** Available fields from the table */
-  fields: FieldInfo[]
+  fields?: FieldInfo[]
   /** Current record data */
-  record: Record<string, any>
+  record?: Record<string, any>
+  /** Physical table name (for audit logging) */
+  tableName?: string
+  /** Table ID (case_tables.id) */
+  tableId?: string
+  /** Entity/workspace ID */
+  entityId?: string
   /** Function to fetch related records */
   fetchRelatedRecords?: (relationFieldName: string, recordIds: string[]) => Promise<any[]>
   /** Function to get fields for target table */
@@ -225,295 +166,103 @@ const props = withDefaults(defineProps<{
   /** Function to navigate to a record */
   onOpenRecord?: (tableId: string, recordId: string) => void
 }>(), {
-  layout: () => [],
-  showHeader: true,
-  showBackButton: true,
-  editable: false,
+  resizable: true,
+  draggable: true,
+  hideSetting: false,
   colNum: 12,
-  rowHeight: 60
+  rowHeight: 80,
+  componentMap: () => ({})
 })
 
-const emit = defineEmits<{
-  'update:layout': [layout: DetailWidgetSetting[]]
-  back: []
-  save: []
-}>()
+const activeNames = ref<string[]>([])
+const layout = defineModel<DetailWidgetSetting[]>('layout', { default: [] })
 
-// Local state
-const editMode = ref(false)
-const gridLayoutRef = ref()
-const gridWrapper = ref<HTMLElement>()
+const emits = defineEmits(['refreshSetting', 'delete', 'update:layout', 'save', 'add'])
+
 const widgetRefs = ref<Record<string, any>>({})
-const activePaletteGroups = ref<string[]>([])
 
-// Local layout copy
-const localLayout = ref<DetailWidgetSetting[]>([])
-
-// Drag state
-const draggedWidget = ref<DetailWidgetSetting | null>(null)
-const placeholder = ref({
-  show: false,
-  x: 0,
-  y: 0,
-  w: 4,
-  h: 3
-})
-
-// Widget groups
-const widgetsByType = computed(() => getDetailWidgetsByType(detailWidgetSettings))
-
-// Initialize palette groups
-onMounted(() => {
-  activePaletteGroups.value = Object.keys(widgetsByType.value)
-})
-
-// Sync layout with props
-watch(
-  () => props.layout,
-  (newLayout) => {
-    localLayout.value = newLayout ? [...newLayout] : []
-  },
-  { immediate: true, deep: true }
-)
-
-// Emit layout changes
-watch(
-  localLayout,
-  (newLayout) => {
-    emit('update:layout', newLayout)
-  },
-  { deep: true }
-)
-
-// Get widget component
-function getWidgetComponent(componentName: string) {
-  switch (componentName) {
-    case 'TableInfo':
-      return TableInfo
-    case 'RelatedTableList':
-      return RelatedTableList
-    default:
-      console.warn(`Unknown widget component: ${componentName}`)
-      return null
-  }
+function handleDelete(row: DetailWidgetSetting) {
+  emits('delete', row.i)
 }
 
-// Get widget icon
-function getWidgetIcon(componentName: string): string {
-  switch (componentName) {
-    case 'TableInfo':
-      return 'lucide:file-text'
-    case 'RelatedTableList':
-      return 'lucide:link'
-    default:
-      return 'lucide:box'
-  }
+function handleRefreshSetting(setting: any, row: DetailWidgetSetting) {
+  row.setting = setting
+  emits('refreshSetting', row)
 }
 
-// Drag handlers
-function handleDragStart(event: DragEvent, widget: DetailWidgetSetting) {
-  draggedWidget.value = widget
-  if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = 'copy'
-  }
-}
-
-function handleDragEnd() {
-  draggedWidget.value = null
-  placeholder.value.show = false
-}
-
-function handleDragOver(event: DragEvent) {
-  if (!draggedWidget.value || !gridWrapper.value) return
-  
-  event.preventDefault()
-  if (event.dataTransfer) {
-    event.dataTransfer.dropEffect = 'copy'
-  }
-
-  // Calculate grid position from mouse
-  const rect = gridWrapper.value.getBoundingClientRect()
-  const x = event.clientX - rect.left
-  const y = event.clientY - rect.top
-
-  const colWidth = rect.width / props.colNum
-  const gridX = Math.floor(x / colWidth)
-  const gridY = Math.floor(y / (props.rowHeight + 12))
-
-  placeholder.value = {
-    show: true,
-    x: Math.max(0, Math.min(gridX, props.colNum - draggedWidget.value.w)),
-    y: gridY,
-    w: draggedWidget.value.w,
-    h: draggedWidget.value.h
-  }
-}
-
-function handleDrop(event: DragEvent) {
-  event.preventDefault()
-  
-  if (!draggedWidget.value) return
-
-  const newWidget = createWidgetInstance(
-    draggedWidget.value.component as DetailWidgetType,
-    { x: placeholder.value.x, y: placeholder.value.y }
-  )
-  
-  localLayout.value.push(newWidget)
-  
-  draggedWidget.value = null
-  placeholder.value.show = false
-}
-
-function handleAddWidget(widget: DetailWidgetSetting) {
-  const newWidget = createWidgetInstance(
-    widget.component as DetailWidgetType,
-    { x: 0, y: localLayout.value.length * 4 }
-  )
-  localLayout.value.push(newWidget)
-}
-
-function handleDeleteWidget(item: DetailWidgetSetting) {
-  const index = localLayout.value.findIndex(w => w.i === item.i)
-  if (index !== -1) {
-    localLayout.value.splice(index, 1)
-  }
-}
-
-function handleRefreshSetting(item: DetailWidgetSetting, setting: any) {
-  const index = localLayout.value.findIndex(w => w.i === item.i)
-  if (index !== -1) {
-    localLayout.value[index] = {
-      ...localLayout.value[index],
-      setting
+function handleResize() {
+  Object.keys(widgetRefs.value).forEach((key) => {
+    if (widgetRefs.value[key]?.resize) {
+      setTimeout(() => {
+        widgetRefs.value[key].resize()
+      }, 100)
     }
+  })
+}
+
+const chartResize = useDebounceFn(
+  (row: DetailWidgetSetting) => {
+    if (widgetRefs.value[row.i!]?.resize) {
+      widgetRefs.value[row.i!].resize()
+    }
+    emits('save')
+  },
+  1000,
+  { maxWait: 5000 }
+)
+
+const calColNum = ref(props.colNum)
+const wrapper = ref<HTMLElement>()
+const gridLayout = ref()
+
+// Initialize drag functionality
+const { handleDragStart, handleDragOver, handleDrop, handleDragEnd, placeholder } = useDetailViewDrag({
+  wrapper,
+  layout: layout as Ref<DetailWidgetSetting[]>,
+  colNum: calColNum,
+  rowHeight: props.rowHeight,
+  onAdd: () => {
+    emits('save')
   }
-}
+})
 
-function handleWidgetResize(item: DetailWidgetSetting) {
-  // Trigger resize on widget if it has a resize method
-  const widgetRef = widgetRefs.value[item.i!]
-  if (widgetRef?.resize) {
-    setTimeout(() => widgetRef.resize(), 100)
-  }
-}
-
-function handleWidgetMoved() {
-  emit('save')
-}
-
-function handleFinishEdit() {
-  editMode.value = false
-  emit('save')
-}
-
-// Expose methods
 defineExpose({
-  setEditMode: (mode: boolean) => { editMode.value = mode }
+  handleResize
+})
+
+onMounted(() => {
+  if (props.widgetSettingList) {
+    activeNames.value = Object.keys(props.widgetSettingList)
+  }
 })
 </script>
 
 <style lang="scss" scoped>
-.detail-view-layout {
+.custom-card {
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: var(--el-bg-color-page);
-}
 
-.layout-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--app-space-m);
-  background: var(--el-bg-color);
-  border-bottom: 1px solid var(--el-border-color);
-}
+  .card-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--el-card-padding);
+    margin-top: 100px;
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: var(--app-space-m);
-}
-
-.layout-title {
-  margin: 0;
-  font-size: var(--app-font-size-l);
-  font-weight: 600;
-  color: var(--el-text-color-primary);
-}
-
-.header-right {
-  display: flex;
-  gap: var(--app-space-s);
-}
-
-.layout-content {
-  flex: 1;
-  overflow: hidden;
-}
-
-.widget-palette {
-  height: 100%;
-  background: var(--el-bg-color);
-  border-right: 1px solid var(--el-border-color);
-  overflow-y: auto;
-}
-
-.palette-header {
-  padding: var(--app-space-m);
-  font-weight: 600;
-  font-size: var(--app-font-size-s);
-  color: var(--el-text-color-primary);
-  border-bottom: 1px solid var(--el-border-color);
-}
-
-.palette-item {
-  display: flex;
-  align-items: center;
-  gap: var(--app-space-s);
-  padding: var(--app-space-s) var(--app-space-m);
-  margin: var(--app-space-xs);
-  cursor: grab;
-  border: 1px solid var(--el-border-color);
-  border-radius: var(--el-border-radius-base);
-  background: var(--el-bg-color);
-  font-size: var(--app-font-size-s);
-  transition: all 0.2s;
-
-  &:hover {
-    border-color: var(--el-color-primary);
-    box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
-  }
-
-  &:active {
-    cursor: grabbing;
+    .button-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
   }
 }
 
-.grid-wrapper {
-  height: 100%;
-  overflow: auto;
-  position: relative;
-  padding: var(--app-space-m);
-
-  &.edit-mode {
-    background-color: var(--el-fill-color-light);
-    background-size: calc((100% - 24px) / 12) calc(60px + 12px);
-    background-image:
-      linear-gradient(to right, var(--el-border-color-lighter) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--el-border-color-lighter) 1px, transparent 1px);
+.detail-item {
+  :deep(.detail-item-main) {
+    height: 100%;
   }
 }
 
-.widget-item {
-  background: var(--el-bg-color);
-  border-radius: var(--el-border-radius-base);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-.widget-placeholder {
+.detail-placeholder {
   background: transparent !important;
   pointer-events: none;
   z-index: 9999;
@@ -521,30 +270,123 @@ defineExpose({
   .placeholder-content {
     height: 100%;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 8px;
     border: 2px dashed var(--el-color-primary);
-    border-radius: var(--el-border-radius-base);
+    border-radius: 8px;
     background: rgba(64, 158, 255, 0.05);
-    color: var(--el-color-primary);
+    animation: placeholderPulse 1.5s ease-in-out infinite;
+
+    .placeholder-icon {
+      font-size: 32px;
+      color: var(--el-color-primary);
+    }
+
+    .placeholder-text {
+      font-size: 14px;
+      color: var(--el-color-primary);
+      font-weight: 500;
+    }
   }
 }
 
-.empty-state {
+@keyframes placeholderPulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.vue-grid-layout--edit {
+  position: relative;
+
+  &::after {
+    --b-gap: 24px;
+    content: '';
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    position: absolute;
+    z-index: -1;
+    background-color: var(--el-fill-color-light);
+    background-size: calc((100% - 20px) / 12) calc(var(--grid-row-height) + var(--grid-row-margin));
+    background-image:
+      linear-gradient(to right, var(--el-border-color-lighter) var(--b-gap), transparent var(--b-gap)),
+      linear-gradient(to bottom, var(--el-border-color-lighter) var(--b-gap), transparent var(--b-gap));
+  }
+}
+
+.detail-item-widget {
+  border: 1px solid var(--el-border-color);
+  display: flex;
+  align-items: center;
+  height: 32px;
+  line-height: 32px;
+  width: fit-content;
+  float: left;
+  margin: 2px 6px 6px 0;
+  cursor: move;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  background: var(--el-bg-color);
+  border-radius: 4px;
+  padding: 0 8px;
+  transition: all 0.2s ease;
+  user-select: none;
+
+  &:hover {
+    border-color: var(--el-color-primary);
+    box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    cursor: grabbing;
+    opacity: 0.8;
+  }
+}
+
+.detail-null-placeholder {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--app-space-m);
+  font-size: var(--app-font-size-xxl);
   color: var(--el-text-color-placeholder);
-  font-size: var(--app-font-size-l);
-  text-align: center;
+}
 
-  &.view-mode {
-    padding: var(--app-space-xxl);
+:deep(.el-collapse-item__header),
+:deep(.el-collapse-item__wrap) {
+  padding-left: var(--app-space-xs);
+}
+
+.errorBoundaryContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--app-space-m);
+  
+  .messageContainer {
+    text-align: center;
+  }
+  
+  .errorTitle {
+    margin: 0 0 var(--app-space-s);
+    color: var(--el-color-danger);
+  }
+  
+  pre {
+    font-size: var(--app-font-size-xs);
+    max-height: 100px;
+    overflow: auto;
+    margin-bottom: var(--app-space-s);
   }
 }
 </style>

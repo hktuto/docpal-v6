@@ -1,35 +1,27 @@
 <template>
-  <div class="related-table-widget">
-    <!-- Widget Header -->
-    <div class="widget-header">
-      <div class="header-left">
-        <Icon :name="getRelationIcon()" size="16" />
-        <span class="widget-title">
-          {{ relationField?.fieldNameAlias || relationField?.fieldName || $t('detailWidget.relatedTableList') }}
-        </span>
-        <el-tag v-if="relatedRecords.length > 0" size="small" type="info">
-          {{ relatedRecords.length }}
-        </el-tag>
-      </div>
-      <div class="widget-actions">
-        <el-button 
-          v-if="effectiveSetting.allowAdd && !hideSetting" 
-          size="small" 
-          type="primary"
-          text
-          @click="handleAddRelated"
-        >
-          <Icon name="lucide:plus" size="14" />
-          {{ $t('common_add') }}
-        </el-button>
-        <el-button v-if="!hideSetting" size="small" text @click="openSettings">
-          <Icon name="lucide:settings" size="14" />
-        </el-button>
-        <el-button v-if="!hideSetting" size="small" text type="danger" @click="handleDelete">
-          <Icon name="lucide:trash-2" size="14" />
-        </el-button>
-      </div>
-    </div>
+  <DashboardCard
+    :title="widgetTitle"
+    :hide-setting="hideSetting"
+    :setting-ref="settingRef"
+    :setting="effectiveSetting"
+    @delete="handleDelete"
+  >
+    <template #title_suffix>
+      <el-tag v-if="relatedRecords.length > 0" size="small" type="info">
+        {{ relatedRecords.length }}
+      </el-tag>
+    </template>
+    <template #action_prefix>
+      <el-button 
+        v-if="effectiveSetting.allowAdd && !hideSetting" 
+        size="small" 
+        type="primary"
+        text
+        @click="handleAddRelated"
+      >
+        <Icon name="lucide:plus" size="14" />
+      </el-button>
+    </template>
 
     <!-- Widget Content -->
     <div class="widget-content">
@@ -105,15 +97,17 @@
       @refresh="handleRefreshSetting"
       @delete="handleDelete"
     />
-  </div>
+  </DashboardCard>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { RelatedTableListWidgetSetting } from '../../../utils/detailWidgetHelper'
 import type { FieldInfo } from '../../../types/view-config'
 import { ColumnFieldType } from '../../../types/column-types'
 import RelatedTableListSetting from './RelatedTableListSetting.vue'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   /** Widget settings */
@@ -166,6 +160,11 @@ const relationFields = computed(() => {
 // Get current relation field
 const relationField = computed(() => {
   return relationFields.value.find(f => f.fieldName === effectiveSetting.value.relationFieldName)
+})
+
+// Widget title
+const widgetTitle = computed(() => {
+  return relationField.value?.fieldNameAlias || relationField.value?.fieldName || t('detailWidget.relatedTableList')
 })
 
 // Get columns to display
@@ -306,41 +305,6 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
-.related-table-widget {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: var(--el-bg-color);
-  border-radius: var(--el-border-radius-base);
-  overflow: hidden;
-}
-
-.widget-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--app-space-s) var(--app-space-m);
-  border-bottom: 1px solid var(--el-border-color-lighter);
-  background: var(--el-fill-color-light);
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: var(--app-space-s);
-}
-
-.widget-title {
-  font-weight: 600;
-  font-size: var(--app-font-size-s);
-  color: var(--el-text-color-primary);
-}
-
-.widget-actions {
-  display: flex;
-  gap: var(--app-space-xs);
-}
-
 .widget-content {
   flex: 1;
   overflow: auto;

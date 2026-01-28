@@ -5,6 +5,7 @@ import type {
   FieldDisplayStructure
 } from '../utils/db/schema/newTableSchema'
 import { ElMessage } from 'element-plus'
+import { getCurrentUserId } from './useCurrentUser'
 
 // Import sub-composables
 import { useTableFields, ensurePlainArray } from './useTableFields'
@@ -75,7 +76,11 @@ export const useTableView = () => {
     columnSortRules: viewComposable.columnSortRules,
     columnGroupRules: viewComposable.columnGroupRules,
     query,
-    getField: fieldComposable.getField
+    getField: fieldComposable.getField,
+    // Audit logging options
+    tableId,
+    entityId,
+    enableAuditLog: true
   })
 
   /**
@@ -246,14 +251,15 @@ export const useTableView = () => {
         }
       }
 
+      const currentUserId = getCurrentUserId()
       await query(
         `INSERT INTO case_fields (
           id, "tableId", "fieldName", "fieldNameAlias", "businessType", "fieldType",
           "displayStructure", "isRequired", "isHidden", "isArray", "isUnique",
           "isReference", "relationTableId", "displayFieldNames",
           "lookupColumnName", "lookupFieldId",
-          "createdAt", "updatedAt"
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
+          "createdBy", "createdAt", "updatedBy", "updatedAt"
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)`,
         [
           newFieldId,
           tableId.value,
@@ -271,7 +277,9 @@ export const useTableView = () => {
           ensurePlainArray(displayFieldNames), // Convert to plain array to avoid DataCloneError
           sourceFieldName,
           targetFieldId,
+          currentUserId,
           now,
+          currentUserId,
           now
         ]
       )

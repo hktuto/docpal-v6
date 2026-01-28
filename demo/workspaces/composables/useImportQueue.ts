@@ -1,5 +1,7 @@
 import { v7 as uuidv7 } from 'uuid'
 import { parseImportError, type ParsedImportError } from '../utils/importErrorParser'
+import { useCurrentUser } from './useCurrentUser'
+import { useAuditLog } from './useAuditLog'
 
 export interface ImportRowError {
   rowIndex: number
@@ -63,6 +65,8 @@ const eventBus = {
 
 export function useImportQueue() {
   const { query } = usePglite()
+  const { initCurrentUser, getCurrentUserId } = useCurrentUser()
+  const { logBulkInsert } = useAuditLog()
 
   /**
    * Add jobs to the import queue and start processing
@@ -189,6 +193,10 @@ export function useImportQueue() {
   async function processJob(job: ImportJob) {
     const { physicalTableName, columns, rows } = job
 
+    // Ensure current user is initialized before processing
+    await initCurrentUser()
+    const currentUserId = getCurrentUserId()
+
     // Filter out system columns for import
     // System columns: CreatedTime, LastModifiedTime, CreatedBy, LastModifiedBy
     const systemColumnTypes = [21, 22, 23, 24]
@@ -273,7 +281,7 @@ export function useImportQueue() {
           }
 
           // Add system columns (createdBy, updatedBy)
-          values.push(null, null)
+          values.push(currentUserId, currentUserId)
 
           batchData.push({ values, rowIndex, rowData: row })
         }
@@ -303,13 +311,33 @@ export function useImportQueue() {
           allValues.push(...values)
         }
 
-        const sql = `INSERT INTO "${physicalTableName}" (${columnNames.join(', ')}) VALUES ${valueSets.join(', ')}`
+        const sql = `INSERT INTO "${physicalTableName}" (${columnNames.join(', ')}) VALUES ${valueSets.join(', ')} RETURNING id`
         
         // Execute single batch INSERT
-        await query(sql, allValues)
+        const insertedRows = await query<{ id: string }>(sql, allValues)
 
         // All rows in batch succeeded
         job.progress.imported += batchData.length
+
+        // Log audit entry for bulk insert
+        if (insertedRows.length > 0) {
+          try {
+            await logBulkInsert(
+              physicalTableName,
+              insertedRows.map((r, idx) => ({
+                id: r.id,
+                data: batchData[idx]?.rowData || {}
+              })),
+              {
+                tableType: 'dynamic',
+                caseTableId: job.tableName,
+                description: `Imported ${insertedRows.length} records from Excel`
+              }
+            )
+          } catch (auditError) {
+            console.warn('[Audit] Failed to log bulk insert:', auditError)
+          }
+        }
 
       } catch (error: any) {
         // If batch INSERT fails, fall back to individual inserts to identify problem rows
@@ -378,11 +406,28 @@ export function useImportQueue() {
 
             columnNames.push('"createdBy"', '"updatedBy"')
             placeholders.push(`$${paramIndex}`, `$${paramIndex + 1}`)
-            values.push(null, null)
+            values.push(currentUserId, currentUserId)
 
-            const sql = `INSERT INTO "${physicalTableName}" (${columnNames.join(', ')}) VALUES (${placeholders.join(', ')})`
-            await query(sql, values)
+            const sql = `INSERT INTO "${physicalTableName}" (${columnNames.join(', ')}) VALUES (${placeholders.join(', ')}) RETURNING id`
+            const insertedRows = await query<{ id: string }>(sql, values)
             job.progress.imported++
+
+            // Log audit entry for individual insert (fallback)
+            if (insertedRows.length > 0) {
+              try {
+                await logBulkInsert(
+                  physicalTableName,
+                  [{ id: insertedRows[0].id, data: row }],
+                  {
+                    tableType: 'dynamic',
+                    caseTableId: job.tableName,
+                    description: 'Imported record from Excel'
+                  }
+                )
+              } catch (auditError) {
+                console.warn('[Audit] Failed to log insert:', auditError)
+              }
+            }
 
           } catch (rowError: any) {
             const parsedError = parseImportError(rowError.message || 'Unknown error', row, columnMapping)

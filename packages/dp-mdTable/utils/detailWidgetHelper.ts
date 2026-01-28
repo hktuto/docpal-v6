@@ -5,17 +5,29 @@
  * so widgets can be extended to dashboard later.
  */
 
-// Widget component imports (lazy loaded)
+import { defineAsyncComponent } from 'vue'
 import type { Component } from 'vue'
+
+/**
+ * Widget component map - lazy loaded components
+ * Same pattern as dashboardWidgetHelper's widgetComponent
+ */
+export const detailWidgetComponent: Record<string, Component> = {
+  TableInfo: defineAsyncComponent(() => import('../components/detailView/widgets/TableInfo.vue')),
+  RelatedTableList: defineAsyncComponent(() => import('../components/detailView/widgets/RelatedTableList.vue')),
+  RecordAuditHistory: defineAsyncComponent(() => import('../components/detailView/widgets/RecordAuditHistory.vue'))
+}
 
 /**
  * Detail widget types for Phase 1
  * - TableInfo: Display selected fields from the current record
  * - RelatedTableList: Show related records for a relation field
+ * - RecordAuditHistory: Show audit history for the current record
  */
 export type DetailWidgetType = 
   | 'TableInfo' 
   | 'RelatedTableList'
+  | 'RecordAuditHistory'
 
 /**
  * Detail widget type categories
@@ -23,6 +35,7 @@ export type DetailWidgetType =
 export const enum DETAIL_WIDGET_TYPE {
   info = 'info',
   relations = 'relations',
+  audit = 'audit',
   default = 'default'
 }
 
@@ -56,6 +69,8 @@ export interface DetailWidgetSetting {
   divided?: boolean
   /** i18n label key */
   label: string
+  /** Widget icon (lucide icon name) */
+  icon?: string
   /** Widget type category */
   type?: DETAIL_WIDGET_TYPE
   /** Feature flag (optional) */
@@ -93,12 +108,32 @@ export interface RelatedTableListWidgetSetting {
 }
 
 /**
+ * RecordAuditHistory widget settings
+ */
+export interface RecordAuditHistoryWidgetSetting {
+  /** Widget position/size (from DetailWidgetSetting) */
+  i?: string
+  x?: number
+  y?: number
+  w?: number
+  h?: number
+  widgetName?: string
+  /** Maximum number of audit entries to show initially */
+  maxItems: number
+  /** Show detailed field changes */
+  showDetails: boolean
+  /** Maximum number of fields to show in change details */
+  maxFieldsToShow: number
+}
+
+/**
  * Default widget settings registry
  */
 export const detailWidgetSettings: Record<string, DetailWidgetSetting> = {
   TableInfo: {
     type: DETAIL_WIDGET_TYPE.info,
-    label: 'detailWidget.tableInfo',
+    label: 'tableInfo',
+    icon: 'lucide:file-text',
     minW: 4,
     minH: 2,
     maxW: 12,
@@ -115,7 +150,8 @@ export const detailWidgetSettings: Record<string, DetailWidgetSetting> = {
   },
   RelatedTableList: {
     type: DETAIL_WIDGET_TYPE.relations,
-    label: 'detailWidget.relatedTableList',
+    label: 'relatedTableList',
+    icon: 'lucide:link',
     minW: 4,
     minH: 3,
     maxW: 12,
@@ -130,6 +166,23 @@ export const detailWidgetSettings: Record<string, DetailWidgetSetting> = {
       allowAdd: true,
       allowOpen: true
     } as RelatedTableListWidgetSetting
+  },
+  RecordAuditHistory: {
+    type: DETAIL_WIDGET_TYPE.audit,
+    label: 'auditHistory',
+    icon: 'lucide:history',
+    minW: 4,
+    minH: 3,
+    maxW: 12,
+    maxH: 12,
+    w: 6,
+    h: 4,
+    component: 'RecordAuditHistory',
+    setting: {
+      maxItems: 5,
+      showDetails: true,
+      maxFieldsToShow: 3
+    } as RecordAuditHistoryWidgetSetting
   }
 }
 

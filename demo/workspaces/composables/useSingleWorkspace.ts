@@ -1,5 +1,6 @@
 import type { CaseTypeRecord, CaseTreeRecord, ViewType, ViewSettings } from '../utils/db/schema/newTableSchema'
 import type { CaseTreeItemType } from '../utils/db/schema/newTableSchema'
+import { getCurrentUserId } from './useCurrentUser'
 
 export type { CaseTreeItemType }
 import { v7 as uuidv7 } from 'uuid'
@@ -111,7 +112,8 @@ export function useSingleWorkspace() {
     newWorkspaceData ||= workspace.value as CaseTypeRecord
     const { name, description, icon, id } = newWorkspaceData
     const now = new Date().toISOString()
-    await query(`UPDATE case_type SET name = $1, icon = $2, description = $3, "updatedAt" = $4 WHERE id = $5`, [name, icon, description, now, id])
+    const currentUserId = getCurrentUserId()
+    await query(`UPDATE case_type SET name = $1, icon = $2, description = $3, "updatedAt" = $4, "updatedBy" = $5 WHERE id = $6`, [name, icon, description, now, currentUserId, id])
   }
 
   /**
@@ -185,18 +187,20 @@ export function useSingleWorkspace() {
 
     if (existing.length > 0) {
       // Update existing item
+      const currentUserId = getCurrentUserId()
       await query(
         `UPDATE case_tree
          SET label = $1, slug = $2, description = $3, "itemType" = $4, "itemId" = $5,
-             "parentId" = $6, "order" = $7, "updatedAt" = $8
-         WHERE id = $9`,
-        [item.label, item.slug, item.description || null, item.itemType, item.itemId || null, item.parentId || null, item.order || 0, now, item.id]
+             "parentId" = $6, "order" = $7, "updatedAt" = $8, "updatedBy" = $9
+         WHERE id = $10`,
+        [item.label, item.slug, item.description || null, item.itemType, item.itemId || null, item.parentId || null, item.order || 0, now, currentUserId, item.id]
       )
     } else {
       // Insert new item
+      const currentUserId = getCurrentUserId()
       await query(
-        `INSERT INTO case_tree (id, "entityId", label, slug, description, "itemType", "itemId", "parentId", "order", "createdAt", "updatedAt")
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+        `INSERT INTO case_tree (id, "entityId", label, slug, description, "itemType", "itemId", "parentId", "order", "createdBy", "createdAt", "updatedBy", "updatedAt")
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
         [
           item.id,
           item.entityId || workspace.value?.id,
@@ -207,7 +211,9 @@ export function useSingleWorkspace() {
           item.itemId || null,
           item.parentId || null,
           item.order || 0,
+          currentUserId,
           now,
+          currentUserId,
           now
         ]
       )
@@ -386,12 +392,13 @@ export function useSingleWorkspace() {
         const fieldNames = tableFields.map(f => f.fieldName)
 
         // Create the view record
+        const currentUserId = getCurrentUserId()
         await query(
           `INSERT INTO case_views (
             id, name, description, "viewName", "viewType", "viewSettings",
             filter, sorting, grouping, "tableId", "isDefault", "entityId", 
-            fields, "createdAt", "updatedAt"
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
+            fields, "createdBy", "createdAt", "updatedBy", "updatedAt"
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
           [
             viewId,
             viewData.name,
@@ -406,7 +413,9 @@ export function useSingleWorkspace() {
             false, // isDefault
             workspace.value.id,
             fieldNames,
+            currentUserId,
             now,
+            currentUserId,
             now
           ]
         )

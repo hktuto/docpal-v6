@@ -25,9 +25,16 @@ flowchart TB
         TableRow[Table Row Click]
     end
     
-    subgraph detail [Detail View Page]
-        DetailPage[DetailViewPage.vue]
+    subgraph consumer [Consumer - demo/workspaces]
+        RecordVue[record.vue]
+        Teleport[Teleport to #database-table-header-right]
+        EditButtons[Edit/Finish Buttons]
+    end
+    
+    subgraph package [dp-mdTable Package]
+        DetailLayout[DetailViewLayout.vue - Headless]
         GridLayout[GridLayout from grid-layout-plus]
+        WidgetPalette[Widget Palette - edit mode only]
         WidgetRenderer[Widget Renderer]
     end
     
@@ -36,26 +43,26 @@ flowchart TB
         RelatedList[RelatedTableListWidget]
     end
     
-    subgraph config [Configuration]
-        DetailViewEditor[DetailViewEditor.vue]
-        WidgetSettings[detailWidgetHelper.ts]
-    end
-    
-    CardView -->|"navigateToRecord()"| DetailPage
-    TableRow -->|"navigateToRecord()"| DetailPage
-    DetailPage --> GridLayout
+    CardView -->|"navigateToRecord()"| RecordVue
+    TableRow -->|"navigateToRecord()"| RecordVue
+    RecordVue --> Teleport
+    Teleport --> EditButtons
+    RecordVue --> DetailLayout
+    DetailLayout --> GridLayout
+    DetailLayout --> WidgetPalette
     GridLayout --> WidgetRenderer
     WidgetRenderer --> TableInfo
     WidgetRenderer --> RelatedList
-    DetailViewEditor -->|"Configure layout"| DetailPage
-    WidgetSettings -->|"Widget definitions"| WidgetRenderer
 ```
 
 ## Key Design Decisions
 
+- **Headless component pattern**: `DetailViewLayout` is a pure grid layout + widget drawer. It has no header, title, or navigation. Parent components (like `record.vue`) build their own editing UI.
+- **Teleport for header actions**: Parent components use `<Teleport to="#database-table-header-right">` to insert edit buttons into the existing workspace header. This avoids duplicate headers and keeps breadcrumb navigation in the parent.
+- **v-model:editMode**: Edit mode is controlled by the parent via two-way binding, allowing parent to provide its own edit/finish buttons.
 - **Reuse `DashboardWidgetSetting` structure** from `dp-dashboard/utils/dashboardWidgetHelper.ts` so widgets can migrate to dashboard later
 - **Multi-tab navigation** via `useSingleWorkspace` composable (not Vue Router)
-- **Editor pattern** follows existing `CardViewEditor.vue`
+- **Pattern follows `dashboard/detail.vue`**: The dashboard component uses a similar approach where the grid layout is the main content and parent provides chrome.
 
 ## Files Created
 
@@ -120,9 +127,11 @@ export const detailWidgetSettings: Record<string, DetailWidgetSetting> = {
 
 **`packages/dp-mdTable/components/detailView/DetailViewLayout.vue`**
 
+- **Headless component** - no header, title, or navigation buttons
 - Grid layout using `grid-layout-plus` (same as dashboard)
-- Renders widgets based on `DetailViewConfig.widgets`
-- Handles edit mode toggle for admin configuration
+- Widget palette (drawer) shown in edit mode via el-splitter
+- Renders widgets based on layout prop
+- Edit mode controlled by parent via `v-model:editMode`
 
 ### 4. Demo Workspaces Integration
 
@@ -131,7 +140,9 @@ export const detailWidgetSettings: Record<string, DetailWidgetSetting> = {
 - Record detail view component (loaded via multi-tab navigation)
 - Gets `tableId` and `recordId` from `workspaceRouteParams`
 - Fetches record data and table's `formStructure.detail` config
-- Renders `DetailViewLayout` with widgets
+- **Provides edit UI via Teleport**: Uses `<Teleport to="#database-table-header-right">` to insert edit/finish buttons into workspace header
+- Controls `editMode` state and handles save logic
+- No duplicate header - uses parent breadcrumb from `detail/index.vue`
 
 ## Phase 1 Widget Specifications
 

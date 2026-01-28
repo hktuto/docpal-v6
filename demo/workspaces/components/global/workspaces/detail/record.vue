@@ -4,19 +4,28 @@
  * 
  * Displays a single record using the DetailViewLayout with configurable widgets.
  * Uses the table's formStructure.detail configuration for the layout.
+ * 
+ * Parent handles the chrome (header, edit buttons) via Teleport to #database-table-header-right.
+ * DetailViewLayout follows the same pattern as dashboard/detail.vue.
  */
 import { DetailViewLayout } from '#components'
-import { generateDefaultDetailLayout } from '#imports'
+import { generateDefaultDetailLayout, getDetailWidgetsByType, detailWidgetSettings, detailWidgetComponent } from '#imports'
 import type { DetailWidgetSetting } from '#imports'
 import type { CaseTableRecord, CaseFieldRecord } from '../../../../utils/db/schema/newTableSchema'
+
 interface FieldInfo {
   fieldName: string
   fieldNameAlias: string
   type: number
   isSystem?: boolean
+  relationTableId?: string
 }
+
 const { query } = usePglite()
 const { workspaceRouteParams, goBackFromRecord, navigateToRecord } = useSingleWorkspaceContext()
+
+// Widget configuration - same pattern as dashboard
+const widgetSettingList = getDetailWidgetsByType(detailWidgetSettings)
 
 // State
 const loading = ref(true)
@@ -25,6 +34,7 @@ const tableInfo = ref<CaseTableRecord | null>(null)
 const record = ref<Record<string, any>>({})
 const fields = ref<FieldInfo[]>([])
 const layout = ref<DetailWidgetSetting[]>([])
+const editMode = ref(false)
 
 // Get current tableId and recordId from route params
 const tableId = computed(() => workspaceRouteParams.value.tableId)
@@ -81,7 +91,7 @@ async function loadRecordData() {
       fieldNameAlias: f.fieldNameAlias || f.fieldName,
       type: f.displayStructure?.type || 19, // Default to Text
       isSystem: f.fieldName.startsWith('_') || ['id', 'created_at', 'updated_at', 'created_by'].includes(f.fieldName),
-      relationTableId: f.relationTableId
+      relationTableId: f.relationTableId || undefined
     }))
 
     // 3. Get record data
@@ -209,6 +219,46 @@ function handleBack() {
   goBackFromRecord()
 }
 
+/**
+ * Handle finishing edit mode
+ */
+async function handleFinishEdit() {
+  editMode.value = false
+  await handleSaveLayout()
+}
+
+/**
+ * Handle adding a new widget (from palette double-click)
+ */
+function handleAddWidget(widget: DetailWidgetSetting) {
+  layout.value.push({
+    x: (layout.value.length * 2) % 12,
+    y: layout.value.length + 4,
+    i: new Date().valueOf().toString(),
+    ...widget
+  })
+}
+
+/**
+ * Handle deleting a widget
+ */
+function handleDeleteWidget(widgetId: string) {
+  const index = layout.value.findIndex(item => item.i === widgetId)
+  if (index !== -1) {
+    layout.value.splice(index, 1)
+  }
+}
+
+/**
+ * Handle refreshing widget settings
+ */
+function handleRefreshSetting(widgetSetting: DetailWidgetSetting) {
+  const index = layout.value.findIndex(item => item.i === widgetSetting.i)
+  if (index !== -1) {
+    layout.value[index] = { ...widgetSetting }
+  }
+}
+
 // Load data when tableId/recordId changes
 watch(
   [tableId, recordId],
@@ -244,19 +294,46 @@ watch(
 
     <!-- Record Detail View -->
     <template v-else>
+      <!-- Edit buttons teleported to header -->
+      <Teleport to="#database-table-header-right">
+        <el-button 
+          v-if="!editMode" 
+          size="small" 
+          @click="editMode = true"
+        >
+          <Icon name="lucide:edit" size="14" />
+          {{ $t('common_edit') }}
+        </el-button>
+        <el-button 
+          v-else 
+          size="small" 
+          type="primary" 
+          @click="handleFinishEdit"
+        >
+          {{ $t('dpButtom_finish') }}
+        </el-button>
+      </Teleport>
+
       <DetailViewLayout
         v-model:layout="layout"
-        :show-header="true"
-        :show-back-button="true"
-        :title="recordTitle"
-        :editable="true"
+        :edit-mode="editMode"
+        :hide-setting="!editMode"
+        :resizable="editMode"
+        :draggable="editMode"
+        :widget-setting-list="widgetSettingList"
+        :component-map="detailWidgetComponent"
         :fields="fields"
         :record="record"
+        :table-name="tableInfo?.tableName"
+        :table-id="tableId || undefined"
+        :entity-id="tableInfo?.entityId"
         :fetch-related-records="fetchRelatedRecords"
         :get-target-fields="getTargetFields"
         :on-open-record="handleOpenRecord"
-        @back="handleBack"
+        @add="handleAddWidget"
         @save="handleSaveLayout"
+        @delete="handleDeleteWidget"
+        @refresh-setting="handleRefreshSetting"
       />
     </template>
   </div>

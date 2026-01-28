@@ -1,4 +1,10 @@
+import { seedUsers } from '../utils/db/seed/users'
+
 type WorkerRequestType = 'init' | 'exec' | 'query' | 'transaction' | 'close'
+
+// Track if seeding has been performed this session
+let seedingPerformed = false
+let seedingPromise: Promise<void> | null = null
 
 interface WorkerRequest<T = any> {
   id: string
@@ -64,19 +70,60 @@ function send<T = any>(type: WorkerRequestType, payload?: any): Promise<T> {
 }
 
 export function usePglite() {
+  /**
+   * Run seeding if not already done
+   * This is called internally after first query to ensure demo data exists
+   */
+  async function runSeeding(): Promise<void> {
+    if (seedingPerformed) return
+    
+    // Use a promise to prevent concurrent seeding attempts
+    if (!seedingPromise) {
+      seedingPromise = (async () => {
+        try {
+          // Use raw query to avoid recursion
+          await seedUsers(queryRaw, execRaw)
+          seedingPerformed = true
+        } catch (error) {
+          console.warn('[usePglite] Seeding failed:', error)
+          seedingPerformed = true // Mark as done to prevent retries
+        }
+      })()
+    }
+    
+    await seedingPromise
+  }
+
   // Initialize database and apply migrations
   async function init(): Promise<void> {
-    return send('init')
+    await send('init')
+    await runSeeding()
+  }
+
+  // Execute SQL (for migrations, DDL, etc.) - raw version without seeding
+  async function execRaw(sql: string): Promise<void> {
+    return send('exec', { sql })
+  }
+
+  // Query database and return results - raw version without seeding
+  async function queryRaw<T = any>(sql: string, params?: any[]): Promise<T[]> {
+    const result = await send<T[]>('query', { sql, params })
+    return result
   }
 
   // Execute SQL (for migrations, DDL, etc.)
   async function exec(sql: string): Promise<void> {
-    return send('exec', { sql })
+    const result = await send('exec', { sql })
+    // Trigger seeding after first exec (non-blocking)
+    runSeeding()
+    return result
   }
 
   // Query database and return results
   async function query<T = any>(sql: string, params?: any[]): Promise<T[]> {
     const result = await send<T[]>('query', { sql, params })
+    // Trigger seeding after first query (non-blocking)
+    runSeeding()
     return result
   }
 

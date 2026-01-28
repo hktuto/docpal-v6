@@ -5,6 +5,7 @@ import type {
   FieldDisplayStructure 
 } from '../utils/db/schema/newTableSchema'
 import { ColumnFieldType } from '../utils/tableColumnType'
+import { getCurrentUserId } from './useCurrentUser'
 
 /**
  * A detected potential relationship between two tables
@@ -471,8 +472,9 @@ export function useRelationAnalyzer() {
       relationTableId: suggestion.targetTable.id,
       relationFieldId: suggestion.sourceField.id,
       displayFieldNames: [],  // User can configure display fields later
-      createdBy: createdBy || null,
+      createdBy: createdBy || getCurrentUserId(),
       createdAt: now,
+      updatedBy: createdBy || getCurrentUserId(),
       updatedAt: now
     }
     
@@ -482,8 +484,8 @@ export function useRelationAnalyzer() {
         id, "tableId", "fieldName", "fieldNameAlias", "businessType", "fieldType",
         "displayStructure", "isRequired", "isHidden", "isArray", "isUnique",
         "isReference", "relationTableId", "relationFieldId", "displayFieldNames",
-        "createdBy", "createdAt", "updatedAt"
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
+        "createdBy", "createdAt", "updatedBy", "updatedAt"
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
       [
         newField.id,
         newField.tableId,
@@ -502,6 +504,7 @@ export function useRelationAnalyzer() {
         newField.displayFieldNames,
         newField.createdBy,
         newField.createdAt,
+        newField.updatedBy,
         newField.updatedAt
       ]
     )

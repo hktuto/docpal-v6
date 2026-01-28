@@ -1,4 +1,5 @@
 import type { CaseTypeRecord } from '../utils/db/schema/newTableSchema'
+import { getCurrentUserId } from './useCurrentUser'
 
 export function useWorkspaces() {
   const { query, search, removeAllTables } = usePglite()
@@ -52,11 +53,12 @@ export function useWorkspaces() {
    */
   async function createWorkspace(workspace: Partial<CaseTypeRecord>): Promise<CaseTypeRecord> {
     const now = new Date().toISOString()
+    const currentUserId = workspace.createdBy || getCurrentUserId()
     const data = await query<CaseTypeRecord>(
-      `INSERT INTO case_type (name, description, icon, "entityType", "createdBy", "createdAt", "updatedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO case_type (name, description, icon, "entityType", "createdBy", "createdAt", "updatedBy", "updatedAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING *`,
-      [workspace.name, workspace.description || null, workspace.icon || null, workspace.entityType || 'case', workspace.createdBy || null, now, now]
+      [workspace.name, workspace.description || null, workspace.icon || null, workspace.entityType || 'case', currentUserId, now, currentUserId, now]
     )
     // Update local state
     workspaces.value = [...workspaces.value, data[0]]
@@ -68,14 +70,16 @@ export function useWorkspaces() {
    */
   async function updateWorkspace(id: string, updates: Partial<CaseTypeRecord>): Promise<void> {
     const now = new Date().toISOString()
+    const currentUserId = getCurrentUserId()
     await query(
       `UPDATE case_type
        SET name = COALESCE($1, name),
            description = COALESCE($2, description),
            icon = COALESCE($3, icon),
-           "updatedAt" = $4
-       WHERE id = $5`,
-      [updates.name, updates.description, updates.icon, now, id]
+           "updatedAt" = $4,
+           "updatedBy" = $5
+       WHERE id = $6`,
+      [updates.name, updates.description, updates.icon, now, currentUserId, id]
     )
     // Update local state
     getWorkspaces()

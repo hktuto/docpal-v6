@@ -13,6 +13,29 @@ CREATE TABLE "users" (
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
+CREATE TABLE "audit_logs" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"tableName" text NOT NULL,
+	"tableType" text DEFAULT 'system' NOT NULL,
+	"recordId" uuid,
+	"operation" text NOT NULL,
+	"oldValues" jsonb,
+	"newValues" jsonb,
+	"changedFields" text[],
+	"affectedRecordIds" uuid[],
+	"affectedCount" integer DEFAULT 1,
+	"status" text DEFAULT 'active' NOT NULL,
+	"rolledBackAt" timestamp,
+	"rolledBackBy" uuid,
+	"rollbackAuditId" uuid,
+	"entityId" uuid,
+	"caseTableId" uuid,
+	"description" text,
+	"metadata" jsonb,
+	"createdBy" uuid,
+	"createdAt" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "case_fields" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"aggregationFieldName" text,
@@ -120,10 +143,16 @@ CREATE TABLE "relation_suggestions" (
 	"sampleValues" text[] DEFAULT '{}' NOT NULL,
 	"suggestedType" text DEFAULT 'multiple' NOT NULL,
 	"status" text DEFAULT 'pending' NOT NULL,
+	"createdBy" uuid,
 	"createdAt" timestamp DEFAULT now() NOT NULL,
+	"updatedBy" uuid,
 	"updatedAt" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_rolledBackBy_users_id_fk" FOREIGN KEY ("rolledBackBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_entityId_case_type_id_fk" FOREIGN KEY ("entityId") REFERENCES "public"."case_type"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_caseTableId_case_tables_id_fk" FOREIGN KEY ("caseTableId") REFERENCES "public"."case_tables"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_createdBy_users_id_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "case_fields" ADD CONSTRAINT "case_fields_tableId_case_tables_id_fk" FOREIGN KEY ("tableId") REFERENCES "public"."case_tables"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "case_fields" ADD CONSTRAINT "case_fields_createdBy_users_id_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "case_fields" ADD CONSTRAINT "case_fields_updatedBy_users_id_fk" FOREIGN KEY ("updatedBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -143,4 +172,6 @@ ALTER TABLE "case_views" ADD CONSTRAINT "case_views_updatedBy_users_id_fk" FOREI
 ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_sourceTableId_case_tables_id_fk" FOREIGN KEY ("sourceTableId") REFERENCES "public"."case_tables"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_sourceFieldId_case_fields_id_fk" FOREIGN KEY ("sourceFieldId") REFERENCES "public"."case_fields"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_targetTableId_case_tables_id_fk" FOREIGN KEY ("targetTableId") REFERENCES "public"."case_tables"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_targetFieldId_case_fields_id_fk" FOREIGN KEY ("targetFieldId") REFERENCES "public"."case_fields"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_targetFieldId_case_fields_id_fk" FOREIGN KEY ("targetFieldId") REFERENCES "public"."case_fields"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_createdBy_users_id_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_updatedBy_users_id_fk" FOREIGN KEY ("updatedBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;

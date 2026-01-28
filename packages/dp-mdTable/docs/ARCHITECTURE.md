@@ -554,9 +554,21 @@ The detail view provides a dashboard-like widget layout for viewing individual r
 | File | Purpose |
 |------|---------|
 | `utils/detailWidgetHelper.ts` | Widget settings compatible with DashboardWidgetSetting |
-| `components/detailView/DetailViewLayout.vue` | Grid layout using `grid-layout-plus` |
+| `components/detailView/DetailViewLayout.vue` | Headless grid layout + widget drawer. No header - parent provides edit UI via Teleport |
 | `components/detailView/widgets/TableInfo.vue` | Displays selected fields from record |
 | `components/detailView/widgets/RelatedTableList.vue` | Shows related records for a relation |
+
+### Headless Pattern
+
+`DetailViewLayout` is a **headless component** that only provides:
+- Grid layout using `grid-layout-plus`
+- Widget palette (drawer) shown in edit mode
+- Drag-and-drop widget positioning
+
+Parent components (e.g., `record.vue`) are responsible for:
+- Header, title, navigation (uses existing breadcrumb from workspace)
+- Edit/Finish buttons via `<Teleport to="#database-table-header-right">`
+- Controlling `editMode` via v-model and handling save
 
 ### Phase 1 Widgets
 
@@ -679,7 +691,8 @@ formStructure: {
 | File | Purpose |
 |------|---------|
 | `composables/useSingleWorkspace.ts` | Workspace navigation including navigateToRecord |
-| `components/global/workspaces/detail/record.vue` | Record detail view page |
+| `components/global/workspaces/detail/record.vue` | Record detail view page. Uses Teleport for edit buttons |
+| `components/global/workspaces/detail/index.vue` | Detail container with `#database-table-header-right` teleport target |
 | `composables/useTableView.ts` | Main orchestrator, combines all composables |
 | `composables/useTableColumns.ts` | Field→Column mapping, virtual columns |
 | `composables/useTableDataProvider.ts` | Data CRUD, relation resolution, upsertRows |

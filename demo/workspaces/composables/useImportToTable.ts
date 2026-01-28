@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx'
 import type { CaseFieldRecord, CaseTableRecord } from '../utils/db/schema/newTableSchema'
 import { ElMessage } from 'element-plus'
+import { useCurrentUser } from './useCurrentUser'
 
 // =============================================================================
 // Types
@@ -115,6 +116,7 @@ export interface UseImportToTableOptions {
 
 export function useImportToTable(options: UseImportToTableOptions) {
   const { physicalTableName, fields, query } = options
+  const { initCurrentUser, getCurrentUserId } = useCurrentUser()
 
   const loading = ref(false)
   const progress = ref<ImportProgress>({ current: 0, total: 0, phase: 'parsing' })
@@ -359,6 +361,9 @@ export function useImportToTable(options: UseImportToTableOptions) {
       throw new Error('Table name is not set')
     }
 
+    // Ensure current user is initialized before importing
+    await initCurrentUser()
+
     const result: ImportResult = {
       inserted: 0,
       updated: 0,
@@ -500,12 +505,20 @@ export function useImportToTable(options: UseImportToTableOptions) {
    * Insert a new row
    */
   async function insertNewRow(row: Record<string, any>): Promise<void> {
-    const columnNames = Object.keys(row).filter((k) => row[k] !== null && row[k] !== undefined)
+    // Add createdBy and updatedBy
+    const currentUserId = getCurrentUserId()
+    const rowWithUser = {
+      ...row,
+      createdBy: currentUserId,
+      updatedBy: currentUserId
+    }
+
+    const columnNames = Object.keys(rowWithUser).filter((k) => rowWithUser[k] !== null && rowWithUser[k] !== undefined)
     if (columnNames.length === 0) return
 
     const placeholders = columnNames.map((_, i) => `$${i + 1}`)
     const values = columnNames.map((k) => {
-      const val = row[k]
+      const val = rowWithUser[k]
       // Convert arrays to proper format for PostgreSQL
       if (Array.isArray(val)) {
         return val
@@ -537,15 +550,16 @@ export function useImportToTable(options: UseImportToTableOptions) {
 
     if (updateKeys.length === 0) return
 
+    const currentUserId = getCurrentUserId()
     const setClauses = updateKeys.map((k, i) => `"${k}" = $${i + 1}`)
     const values = [...updateKeys.map((k) => {
       const val = row[k]
       if (Array.isArray(val)) return val
       return val
-    }), id]
+    }), currentUserId, id]
 
     const sql = `UPDATE "${physicalTableName.value}" 
-                 SET ${setClauses.join(', ')}, "updatedAt" = NOW()
+                 SET ${setClauses.join(', ')}, "updatedAt" = NOW(), "updatedBy" = $${values.length - 1}
                  WHERE id = $${values.length}`
 
     await query(sql, values)

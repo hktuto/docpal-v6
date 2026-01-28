@@ -9,6 +9,7 @@ import type {
   CaseTableInsert
 } from '../utils/db/schema/newTableSchema'
 import { v7 as uuidv7 } from 'uuid'
+import { getCurrentUserId } from './useCurrentUser'
 
 /**
  * Helper composable for generating database schema from caseFields
@@ -313,16 +314,16 @@ export function useTableSchema() {
       viewName: viewId,
       entityId: tableData.entityId!,
       formStructure: null,
-      createdBy: createdBy || null,
+      createdBy: createdBy || getCurrentUserId(),
       createdAt: now,
-      updatedBy: null,
+      updatedBy: createdBy || getCurrentUserId(),
       updatedAt: now
     }
 
     // Insert case_tables record
     await query(
-      `INSERT INTO case_tables (id, name, status, description, "tableName", "viewName", "entityId", "suggestionStatus", "createdBy", "createdAt", "updatedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+      `INSERT INTO case_tables (id, name, status, description, "tableName", "viewName", "entityId", "suggestionStatus", "createdBy", "createdAt", "updatedBy", "updatedAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
       [
         tableRecord.id,
         tableRecord.name,
@@ -334,6 +335,7 @@ export function useTableSchema() {
         'none', // Initial suggestion status
         tableRecord.createdBy,
         tableRecord.createdAt,
+        tableRecord.updatedBy,
         tableRecord.updatedAt
       ]
     )
@@ -366,11 +368,12 @@ export function useTableSchema() {
 
       for (const field of allFields) {
         const placeholders = []
-        for (let i = 0; i < 16; i++) {
+        for (let i = 0; i < 17; i++) {
           placeholders.push(`$${paramIndex++}`)
         }
         valueSets.push(`(${placeholders.join(', ')})`)
         
+        const currentUserId = createdBy || getCurrentUserId()
         fieldValues.push(
           field.id,
           field.tableId,
@@ -385,8 +388,9 @@ export function useTableSchema() {
           field.isUnique || false,
           field.defaultValue || null,
           field.fieldLength || 0,
-          field.createdBy,
+          currentUserId,
           field.createdAt,
+          currentUserId,
           field.updatedAt
         )
       }
@@ -394,7 +398,7 @@ export function useTableSchema() {
       const batchSql = `INSERT INTO case_fields (
         id, "tableId", "fieldName", "fieldNameAlias", "businessType", "fieldType",
         "displayStructure", "isRequired", "isHidden", "isArray", "isUnique",
-        "defaultValue", "fieldLength", "createdBy", "createdAt", "updatedAt"
+        "defaultValue", "fieldLength", "createdBy", "createdAt", "updatedBy", "updatedAt"
       ) VALUES ${valueSets.join(', ')}`
       
       await query(batchSql, fieldValues)
@@ -416,17 +420,17 @@ export function useTableSchema() {
       isDefault: true,
       entityId: tableData.entityId!,
       fields: allFields.map((f) => f.fieldName!),
-      createdBy: createdBy || null,
+      createdBy: createdBy || getCurrentUserId(),
       createdAt: now,
-      updatedBy: null,
+      updatedBy: createdBy || getCurrentUserId(),
       updatedAt: now
     }
 
     await query(
       `INSERT INTO case_views (
         id, name, description, "viewName", filter, sorting, grouping,
-        "tableId", "isDefault", "entityId", fields, "createdBy", "createdAt", "updatedAt"
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+        "tableId", "isDefault", "entityId", fields, "createdBy", "createdAt", "updatedBy", "updatedAt"
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
       [
         viewRecord.id,
         viewRecord.name,
@@ -441,6 +445,7 @@ export function useTableSchema() {
         viewRecord.fields,
         viewRecord.createdBy,
         viewRecord.createdAt,
+        viewRecord.updatedBy,
         viewRecord.updatedAt
       ]
     )

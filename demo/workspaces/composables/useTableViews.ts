@@ -1,5 +1,6 @@
 import type { CaseViewRecord, ViewFilter, ViewSorting, ViewGrouping } from '../utils/db/schema/newTableSchema'
 import { ElMessage } from 'element-plus'
+import { getCurrentUserId } from './useCurrentUser'
 /**
  * View Context for view management
  */
@@ -113,17 +114,17 @@ export function useTableViews(options: UseTableViewsOptions) {
       isDefault: viewData.isDefault || false,
       entityId: entityId.value,
       fields: viewData.fields || [],
-      createdBy: viewData.createdBy || null,
+      createdBy: viewData.createdBy || getCurrentUserId(),
       createdAt: now,
-      updatedBy: null,
+      updatedBy: viewData.createdBy || getCurrentUserId(),
       updatedAt: now
     }
 
     await query(
       `INSERT INTO case_views (
         id, name, description, "viewName", "viewType", "viewSettings", filter, sorting, grouping,
-        "tableId", "isDefault", "entityId", fields, "createdBy", "createdAt", "updatedAt"
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
+        "tableId", "isDefault", "entityId", fields, "createdBy", "createdAt", "updatedBy", "updatedAt"
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
       [
         newView.id,
         newView.name,
@@ -140,6 +141,7 @@ export function useTableViews(options: UseTableViewsOptions) {
         newView.fields,
         newView.createdBy,
         newView.createdAt,
+        newView.updatedBy,
         newView.updatedAt
       ]
     )
@@ -173,6 +175,10 @@ export function useTableViews(options: UseTableViewsOptions) {
 
     setClauses.push(`"updatedAt" = $${paramIndex}`)
     values.push(now)
+    paramIndex++
+
+    setClauses.push(`"updatedBy" = $${paramIndex}`)
+    values.push(getCurrentUserId())
     paramIndex++
 
     values.push(viewId)

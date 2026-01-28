@@ -89,6 +89,222 @@ function generateUniqueFieldNames(titles: string[]): string[] {
 }
 
 /**
+ * Check if a value looks like a header (descriptive label) vs data
+ * Headers are typically: longer text, contain spaces, descriptive words
+ * Data is typically: short IDs, numbers, names, codes
+ */
+function looksLikeHeader(value: string): boolean {
+  if (!value || value.trim() === '') return false
+
+  const str = value.trim()
+  const lowerStr = str.toLowerCase()
+
+  // Common header keywords
+  const headerKeywords = [
+    'id',
+    'no',
+    'number',
+    'name',
+    'date',
+    'time',
+    'status',
+    'type',
+    'code',
+    'description',
+    'remark',
+    'note',
+    'amount',
+    'price',
+    'quantity',
+    'total',
+    'address',
+    'email',
+    'phone',
+    'contact',
+    'person',
+    'company',
+    'sales',
+    'start',
+    'end',
+    'expiry',
+    'update',
+    'duration',
+    'value',
+    'item'
+  ]
+
+  // Check for header indicators
+  const hasHeaderKeyword = headerKeywords.some((kw) => lowerStr.includes(kw))
+  const hasMultipleWords = str.includes(' ') || str.includes('_')
+  const isReasonableLength = str.length >= 3 && str.length <= 50
+  const looksLikeLabel = /^[A-Za-z][A-Za-z0-9\s_\-\(\)\/]+$/.test(str)
+
+  // Score the likelihood of being a header
+  let score = 0
+  if (hasHeaderKeyword) score += 2
+  if (hasMultipleWords) score += 1
+  if (isReasonableLength) score += 1
+  if (looksLikeLabel) score += 1
+
+  // Consider it a header if score >= 3
+  return score >= 3
+}
+
+/**
+ * Check if a row looks like a header row (most cells look like headers)
+ */
+function looksLikeHeaderRow(row: string[]): boolean {
+  const nonEmptyCells = row.filter((cell) => cell !== '')
+  if (nonEmptyCells.length === 0) return false
+
+  const headerLikeCells = nonEmptyCells.filter((cell) => looksLikeHeader(cell))
+
+  // If majority of cells look like headers, it's likely a header row
+  return headerLikeCells.length >= nonEmptyCells.length * 0.5
+}
+
+/**
+ * Detect multi-level headers and flatten them into single-level headers.
+ * Returns the flattened headers and the number of rows that are part of the header.
+ *
+ * Example:
+ *   Row 1: [Name, Name, Address, Address]  <- Group headers
+ *   Row 2: [First, Last, City, Street]     <- Actual column headers
+ *   Result: [Name_First, Name_Last, Address_City, Address_Street]
+ */
+function detectAndFlattenHeaders(jsonData: any[][]): { headers: string[]; headerRowCount: number } {
+  if (jsonData.length === 0) {
+    return { headers: [], headerRowCount: 0 }
+  }
+
+  // Find the last header row by analyzing the data pattern
+  let headerRowCount = 1 // Default to 1 row header
+  const maxCheckRows = Math.min(5, jsonData.length) // Check up to 5 rows
+
+  // Get all potential header rows
+  const potentialHeaderRows: string[][] = []
+  for (let i = 0; i < maxCheckRows; i++) {
+    const row = jsonData[i] || []
+    const stringCells = row.map((cell) => (cell !== undefined && cell !== null ? String(cell).trim() : ''))
+    potentialHeaderRows.push(stringCells)
+  }
+
+  // First, verify that row 0 looks like a header row
+  const firstRowLooksLikeHeader = looksLikeHeaderRow(potentialHeaderRows[0])
+
+  // Detect multi-level headers by looking for:
+  // 1. Subsequent rows that also look like headers
+  // 2. Alignment patterns (empty cells under group headers)
+  // 3. Hierarchical structure where row 1+ completes row 0
+
+  for (let i = 1; i < maxCheckRows; i++) {
+    const prevRow = potentialHeaderRows[i - 1]
+    const currRow = potentialHeaderRows[i]
+
+    // Check if current row looks like headers
+    const currLooksLikeHeader = looksLikeHeaderRow(currRow)
+
+    // If the first row looks like headers but current row doesn't, stop here
+    if (firstRowLooksLikeHeader && !currLooksLikeHeader) {
+      break
+    }
+
+    // If neither row looks like headers, assume single-row headers
+    if (!firstRowLooksLikeHeader && !currLooksLikeHeader) {
+      break
+    }
+
+    // Check alignment - sub-headers often have content positioned under group headers
+    const prevNonEmpty = prevRow.filter((h) => h !== '').length
+    const currNonEmpty = currRow.filter((h) => h !== '').length
+
+    let alignmentScore = 0
+    let prevFilledCol = -1
+    let hasEmptyUnderGroup = false
+
+    for (let col = 0; col < Math.max(prevRow.length, currRow.length); col++) {
+      const prevCell = prevRow[col] || ''
+      const currCell = currRow[col] || ''
+
+      // Track the last column with content in previous row
+      if (prevCell !== '') {
+        prevFilledCol = col
+      }
+
+      // If current row has content under a group header, increment score
+      if (currCell !== '' && prevFilledCol !== -1) {
+        alignmentScore++
+      }
+
+      // Check for empty cells under group headers (indicates multi-level)
+      if (prevCell !== '' && currCell === '' && prevFilledCol === col) {
+        hasEmptyUnderGroup = true
+      }
+    }
+
+    // Multi-level header indicators:
+    // 1. Current row looks like headers AND
+    // 2. Good alignment with previous row AND
+    // 3. Either has empty cells under groups OR fewer non-empty cells than prev
+    const isMultiLevel =
+      currLooksLikeHeader && alignmentScore >= currNonEmpty * 0.5 && (hasEmptyUnderGroup || currNonEmpty < prevNonEmpty || currNonEmpty <= prevNonEmpty * 0.8)
+
+    if (isMultiLevel) {
+      headerRowCount = i + 1
+    } else {
+      // This row doesn't look like a header row, stop here
+      break
+    }
+  }
+
+  // Now flatten the headers
+  const maxCols = Math.max(...potentialHeaderRows.slice(0, headerRowCount).map((r) => r.length))
+  const flattenedHeaders: string[] = []
+
+  for (let col = 0; col < maxCols; col++) {
+    const parts: string[] = []
+    let lastGroupName = ''
+
+    for (let rowIdx = 0; rowIdx < headerRowCount; rowIdx++) {
+      const cell = potentialHeaderRows[rowIdx][col] || ''
+
+      if (cell !== '') {
+        // For the first row, use as group name
+        if (rowIdx === 0) {
+          lastGroupName = cell
+          parts.push(cell)
+        } else {
+          // For subsequent rows, check if it's a sub-item or a new group
+          // If it's more specific/detailed than previous, add it
+          if (!parts.includes(cell) && cell !== lastGroupName) {
+            parts.push(cell)
+          }
+        }
+      } else if (rowIdx > 0 && lastGroupName !== '') {
+        // Empty cell in sub-header row - inherit from the group above
+        // but don't add duplicate
+      }
+    }
+
+    // Combine parts with underscore, or use a default name
+    const headerName = parts.length > 0 ? parts.join('_') : `Column_${col + 1}`
+    flattenedHeaders.push(headerName)
+  }
+
+  // Clean up headers
+  const cleanedHeaders = flattenedHeaders.map((h) => {
+    // Remove newlines, excessive underscores, and clean up
+    return h
+      .replace(/\r\n|\r|\n/g, ' ') // Replace newlines with space
+      .replace(/_+/g, '_') // Remove excessive underscores
+      .replace(/^_+|_+$/g, '') // Remove leading/trailing underscores
+      .trim()
+  })
+
+  return { headers: cleanedHeaders, headerRowCount }
+}
+
+/**
  * Detect the column type based on cell values
  */
 function detectColumnType(samples: any[], excelFormat?: string): { type: ColumnFieldType; properties: Record<string, any> } {
@@ -757,36 +973,44 @@ export function useImportBatch() {
     const parsedSheets: SheetData[] = []
     const usedSlugs = [...existingSlugs]
 
-    for (const sheetName of sheetNames) {
+    for (let i = 0; i < sheetNames.length; i++) {
+      const sheetName = sheetNames[i]
       const sheet = workbook.Sheets[sheetName]
+
+      // Skip hidden sheets (Hidden = 1 means hidden in Excel UI)
+      const wbSheet = (workbook as any).Workbook?.Sheets?.[i]
+      if (wbSheet?.Hidden === 1) {
+        console.log(`[useImportBatch] Skipping hidden sheet: '${sheetName}'`)
+        continue
+      }
 
       const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false }) as any[][]
 
-      // Get headers from first row
-      const headerRow = jsonData[0] || []
-      const validHeaders = headerRow.filter((h: any) => h !== undefined && h !== null && String(h).trim() !== '').map((h: any) => String(h).trim())
+      // Detect and flatten multi-level headers (for pivot table style sheets)
+      const { headers: validHeaders, headerRowCount } = detectAndFlattenHeaders(jsonData)
 
       // Skip sheets with no valid headers
       if (validHeaders.length === 0) {
+        console.log(`[useImportBatch] Skipping sheet '${sheetName}': no valid headers`)
         continue
+      }
+
+      if (headerRowCount > 1) {
+        console.log(`[useImportBatch] Detected multi-level headers in '${sheetName}': ${headerRowCount} rows flattened to ${validHeaders.length} columns`)
       }
 
       // Generate unique field names
       const fieldNames = generateUniqueFieldNames(validHeaders)
 
-      // Get data rows (excluding header)
-      const dataRows = jsonData.slice(1).filter((row: any[]) => row && !row.every((cell: any) => cell === undefined || cell === null || cell === ''))
+      // Get data rows (excluding all header rows)
+      const dataRows = jsonData
+        .slice(headerRowCount)
+        .filter((row: any[]) => row && !row.every((cell: any) => cell === undefined || cell === null || cell === ''))
 
       // Create field definitions with auto-detected types
       const fields: ImportField[] = validHeaders.map((header, idx) => {
-        const originalIdx = headerRow.findIndex(
-          (h: any, i: number) =>
-            h !== undefined &&
-            h !== null &&
-            String(h).trim() === header &&
-            headerRow.slice(0, i).filter((hh: any) => hh !== undefined && hh !== null && String(hh).trim() === header).length ===
-              validHeaders.slice(0, idx).filter((vh) => vh === header).length
-        )
+        // For flattened headers, use the column index directly as original index
+        const originalIdx = idx
 
         // Collect samples for type detection
         const samples: any[] = []
@@ -800,7 +1024,8 @@ export function useImportBatch() {
         // Get Excel format string for this column if available
         let excelFormat: string | undefined
         // Try to get format from first data cell in this column
-        const firstDataRowIndex = 1 // Row 0 is header
+        // Account for multi-level headers when getting cell address
+        const firstDataRowIndex = headerRowCount // Use detected header row count
         if (firstDataRowIndex < jsonData.length) {
           const cellAddress = XLSX.utils.encode_cell({ r: firstDataRowIndex, c: originalIdx })
           const cell = sheet[cellAddress]
@@ -843,22 +1068,19 @@ export function useImportBatch() {
         }
       })
 
-      for (let i = 1; i < jsonData.length; i++) {
+      for (let i = headerRowCount; i < jsonData.length; i++) {
         const rowData = jsonData[i]
         if (!rowData || rowData.every((cell: any) => cell === undefined || cell === null || cell === '')) {
           continue
         }
 
         const row: Record<string, any> = {}
-        headerRow.forEach((header: any, idx: number) => {
-          if (header !== undefined && header !== null && String(header).trim() !== '') {
-            const colTitle = String(header).trim()
-            const field = fieldByColumnIndex[idx]
-            const dateFormat = field?.displayStructure?.type === ColumnFieldType.DateTime ? field.displayStructure.properties?.dateFormat : undefined
-            const fieldType = field?.displayStructure?.type
-            const fieldProperties = field?.displayStructure?.properties
-            row[colTitle] = cellValueToString(rowData[idx], dateFormat, fieldType, fieldProperties)
-          }
+        validHeaders.forEach((header: string, idx: number) => {
+          const field = fieldByColumnIndex[idx]
+          const dateFormat = field?.displayStructure?.type === ColumnFieldType.DateTime ? field.displayStructure.properties?.dateFormat : undefined
+          const fieldType = field?.displayStructure?.type
+          const fieldProperties = field?.displayStructure?.properties
+          row[header] = cellValueToString(rowData[idx], dateFormat, fieldType, fieldProperties)
         })
         rows.push(row)
       }
@@ -901,9 +1123,7 @@ export function useImportBatch() {
 
       // Check for duplicate table names
       const { names: existingNames, tableMap } = getExistingTableNames()
-      const duplicateSheetNames = sheets
-        .map((s) => s.tableName.toLowerCase())
-        .filter((name) => existingNames.includes(name))
+      const duplicateSheetNames = sheets.map((s) => s.tableName.toLowerCase()).filter((name) => existingNames.includes(name))
 
       if (duplicateSheetNames.length > 0) {
         const uniqueDuplicates = [...new Set(duplicateSheetNames)]
@@ -933,15 +1153,15 @@ export function useImportBatch() {
 
           // User clicked "Update Existing" - ElMessageBox resolves when confirm is clicked
           console.log('[useImportBatch] User chose to update existing')
-          
+
           // Build duplicate sheet info for the caller to handle
           const duplicateSheets: DuplicateSheetInfo[] = []
-          
+
           for (let i = 0; i < sheets.length; i++) {
             const sheet = sheets[i]
             const lowerName = sheet.tableName.toLowerCase()
             const existingTable = tableMap.get(lowerName)
-            
+
             if (existingTable) {
               console.log('[useImportBatch] Adding duplicate sheet:', sheet.name, '-> table:', existingTable)
               duplicateSheets.push({
@@ -960,7 +1180,7 @@ export function useImportBatch() {
           // Create new tables (non-duplicates)
           const newSheets = sheets.filter((s) => !existingNames.includes(s.tableName.toLowerCase()))
           let createResult: ImportBatchResult = { success: true, tablesCreated: [] }
-          
+
           if (newSheets.length > 0) {
             createResult = await createTablesFromSheets(newSheets, entityId, parentFolderId, file.name)
           }
@@ -982,24 +1202,24 @@ export function useImportBatch() {
 
             if (filteredSheets.length === 0) {
               ElMessage.info('All sheets match existing tables. No new tables to import.')
-              return { 
-                success: true, 
+              return {
+                success: true,
                 action: 'skip',
-                duplicates: uniqueDuplicates, 
-                tablesCreated: [] 
+                duplicates: uniqueDuplicates,
+                tablesCreated: []
               }
             }
 
             const result = await createTablesFromSheets(filteredSheets, entityId, parentFolderId, file.name)
             return { ...result, action: 'skip', duplicates: uniqueDuplicates }
           }
-          
+
           // User closed the dialog (X button or ESC)
-          return { 
-            success: false, 
+          return {
+            success: false,
             action: 'cancelled',
-            duplicates: uniqueDuplicates, 
-            error: 'Import cancelled' 
+            duplicates: uniqueDuplicates,
+            error: 'Import cancelled'
           }
         }
       }

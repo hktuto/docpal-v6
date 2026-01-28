@@ -2,6 +2,8 @@ import type { CaseFieldRecord, CaseTableRecord, CaseViewRecord } from '../utils/
 import { TableDataContextKey, type TableDataContext } from '#imports'
 import { buildGroupByQuery, buildSelectQuery, type FilterRule, type SortRule } from './useQueryBuilder'
 import { ensurePlainArray } from './useTableFields'
+import { useCurrentUser } from './useCurrentUser'
+import { useAuditLog } from './useAuditLog'
 
 export interface UseTableDataProviderOptions {
   physicalTableName: Ref<string>
@@ -12,6 +14,10 @@ export interface UseTableDataProviderOptions {
   columnGroupRules: Ref<any[]>
   query: <T = any>(sql: string, params?: any[]) => Promise<T[]>
   getField: (fieldName: string) => CaseFieldRecord | undefined
+  // Audit logging options
+  tableId?: Ref<string>
+  entityId?: Ref<string>
+  enableAuditLog?: boolean
 }
 
 export function useTableDataProvider(options: UseTableDataProviderOptions) {
@@ -23,13 +29,22 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
     columnSortRules,
     columnGroupRules,
     query,
-    getField
+    getField,
+    tableId,
+    entityId,
+    enableAuditLog = true
   } = options
 
   const loading = ref(false)
   const error = ref<Error | null>(null)
   const tableData = ref<any[]>([])
   const queryParams = ref<any>({})
+  
+  // Current user management
+  const { initCurrentUser, getCurrentUserId } = useCurrentUser()
+  
+  // Audit logging
+  const { logInsert, logUpdate, logDelete, logBulkInsert, logBulkUpdate } = useAuditLog()
   
   // State to track which group index is the current group
   const groupListIndex = ref<number>(0)
@@ -250,9 +265,20 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
       throw new Error('physicalTableName is required')
     }
 
-    const columnNames = Object.keys(row).filter((k) => k !== 'id')
+    // Ensure current user is initialized
+    await initCurrentUser()
+
+    // Add createdBy and updatedBy
+    const currentUserId = getCurrentUserId()
+    const rowWithUser = {
+      ...row,
+      createdBy: currentUserId,
+      updatedBy: currentUserId
+    }
+
+    const columnNames = Object.keys(rowWithUser).filter((k) => k !== 'id')
     const placeholders = columnNames.map((_, i) => `$${i + 1}`)
-    const values = columnNames.map((k) => row[k])
+    const values = columnNames.map((k) => rowWithUser[k])
 
     const sql = `INSERT INTO "${physicalTableName.value}" (${columnNames.map((c) => `"${c}"`).join(', ')})
                  VALUES (${placeholders.join(', ')}) RETURNING *`
@@ -291,15 +317,29 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
 
       if (matches.length > 0) {
         const uniqueIds = [...new Set(matches.map((m) => m.id))]
+        const currentUserId = getCurrentUserId()
         await query(
-          `UPDATE "${physicalTableName.value}" SET "${relField.fieldName}" = $1 WHERE id = $2`,
-          [uniqueIds, newRow.id]
+          `UPDATE "${physicalTableName.value}" SET "${relField.fieldName}" = $1, "updatedBy" = $3, "updatedAt" = NOW() WHERE id = $2`,
+          [uniqueIds, newRow.id, currentUserId]
         )
         newRow[relField.fieldName] = uniqueIds
       }
     }
 
     tableData.value.push(newRow)
+
+    // Log audit entry for the insert
+    if (enableAuditLog) {
+      try {
+        await logInsert(physicalTableName.value, newRow.id, newRow, {
+          tableType: 'dynamic',
+          entityId: entityId?.value,
+          caseTableId: tableId?.value
+        })
+      } catch (auditError) {
+        console.warn('[Audit] Failed to log insert:', auditError)
+      }
+    }
   }
 
   /**
@@ -309,6 +349,9 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
     if (!physicalTableName.value) {
       throw new Error('physicalTableName is required')
     }
+
+    // Ensure current user is initialized
+    await initCurrentUser()
 
     const internalFields = new Set(['__filter_data', 'isAggregate', '__count'])
 
@@ -325,10 +368,24 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
         continue
       }
 
-      const setClauses = updateKeys.map((k, i) => `"${k}" = $${i + 1}`)
-      const values = [...updateKeys.map((k) => row[k]), row.id]
+      // Get old values for audit logging
+      let oldValues: Record<string, any> | null = null
+      if (enableAuditLog) {
+        const oldData = await query<Record<string, any>>(
+          `SELECT * FROM "${physicalTableName.value}" WHERE id = $1`,
+          [row.id]
+        )
+        if (oldData.length > 0) {
+          oldValues = oldData[0]
+        }
+      }
 
-      const sql = `UPDATE "${physicalTableName.value}" SET ${setClauses.join(', ')}, "updatedAt" = NOW()
+      const currentUserId = getCurrentUserId()
+      const setClauses = updateKeys.map((k, i) => `"${k}" = $${i + 1}`)
+      // Add updatedBy to values
+      const values = [...updateKeys.map((k) => row[k]), currentUserId, row.id]
+
+      const sql = `UPDATE "${physicalTableName.value}" SET ${setClauses.join(', ')}, "updatedAt" = NOW(), "updatedBy" = $${values.length - 1}
                    WHERE id = $${values.length} RETURNING *`
 
       try {
@@ -337,6 +394,19 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
         const index = tableData.value.findIndex((item) => item.id === row.id)
         if (index !== -1) {
           tableData.value[index] = { ...tableData.value[index], ...data[0] }
+        }
+
+        // Log audit entry for the update
+        if (enableAuditLog && oldValues) {
+          try {
+            await logUpdate(physicalTableName.value, row.id, oldValues, data[0], {
+              tableType: 'dynamic',
+              entityId: entityId?.value,
+              caseTableId: tableId?.value
+            })
+          } catch (auditError) {
+            console.warn('[Audit] Failed to log update:', auditError)
+          }
         }
       } catch (err) {
         console.error(`Failed to update row ${row.id}:`, err)
@@ -355,16 +425,48 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
     if (!ids) {
       throw new Error('row id is required')
     }
-    if (Array.isArray(ids)) {
-      const sql = `DELETE FROM "${physicalTableName.value}" WHERE id = ANY($1)`
-      const queryValues = [ids]
-      await query(sql, queryValues)
-    } else {
-      const sql = `DELETE FROM "${physicalTableName.value}" WHERE id = $1`
-      const queryValues = [ids]
-      await query(sql, queryValues)
+
+    const idArray = Array.isArray(ids) ? ids : [ids]
+
+    // Get old values for audit logging before deleting
+    let deletedRecords: Array<{ id: string; data: Record<string, any> }> = []
+    if (enableAuditLog) {
+      const oldData = await query<Record<string, any>>(
+        `SELECT * FROM "${physicalTableName.value}" WHERE id = ANY($1)`,
+        [idArray]
+      )
+      deletedRecords = oldData.map(row => ({ id: row.id, data: row }))
     }
-    // tableData.value = tableData.value.filter((item) => item.id !== id)
+
+    // Perform the delete
+    const sql = `DELETE FROM "${physicalTableName.value}" WHERE id = ANY($1)`
+    await query(sql, [idArray])
+
+    // Log audit entries for the delete
+    if (enableAuditLog && deletedRecords.length > 0) {
+      try {
+        if (deletedRecords.length === 1) {
+          await logDelete(physicalTableName.value, deletedRecords[0].id, deletedRecords[0].data, {
+            tableType: 'dynamic',
+            entityId: entityId?.value,
+            caseTableId: tableId?.value
+          })
+        } else {
+          await logBulkUpdate(physicalTableName.value, deletedRecords.map(r => ({
+            id: r.id,
+            oldData: r.data,
+            newData: {}
+          })), {
+            tableType: 'dynamic',
+            entityId: entityId?.value,
+            caseTableId: tableId?.value,
+            description: `Deleted ${deletedRecords.length} records from ${physicalTableName.value}`
+          })
+        }
+      } catch (auditError) {
+        console.warn('[Audit] Failed to log delete:', auditError)
+      }
+    }
   }
 
   /**
@@ -427,11 +529,12 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
           })
 
           if (updateKeys.length > 0) {
+            const currentUserId = getCurrentUserId()
             const setClauses = updateKeys.map((k, idx) => `"${k}" = $${idx + 1}`)
-            const values = [...updateKeys.map((k) => row[k]), existingId]
+            const values = [...updateKeys.map((k) => row[k]), currentUserId, existingId]
 
             await query(
-              `UPDATE "${physicalTableName.value}" SET ${setClauses.join(', ')}, "updatedAt" = NOW()
+              `UPDATE "${physicalTableName.value}" SET ${setClauses.join(', ')}, "updatedAt" = NOW(), "updatedBy" = $${values.length - 1}
                WHERE id = $${values.length}`,
               values
             )

@@ -12,6 +12,11 @@ const currentMenuItem = computed(() => {
 // Navigation state
 const activeSection = ref('info')
 
+// Responsive state
+const pageContainerRef = ref<HTMLElement | null>(null)
+const isMobileView = ref(false)
+const isSidebarVisible = ref(true)
+
 const settingsSections = [
   {
     group: 'GENERAL',
@@ -45,6 +50,10 @@ const settingsSections = [
 
 function switchSection(sectionId: string) {
   activeSection.value = sectionId
+  // Auto-hide sidebar on mobile after selection
+  if (isMobileView.value) {
+    isSidebarVisible.value = false
+  }
 }
 
 const sectionComponent = computed(() => {
@@ -69,60 +78,152 @@ const sectionComponent = computed(() => {
       return 'LazyWorkspacesSettingViewGeneral'
   }
 })
+
+// Responsive handling
+function checkContainerSize() {
+  if (!pageContainerRef.value) return
+  const containerWidth = pageContainerRef.value.offsetWidth
+  isMobileView.value = containerWidth < 700
+  
+  // Auto-hide sidebar on mobile
+  if (isMobileView.value && isSidebarVisible.value) {
+    isSidebarVisible.value = false
+  } else if (!isMobileView.value) {
+    isSidebarVisible.value = true
+  }
+}
+
+function toggleSidebar() {
+  isSidebarVisible.value = !isSidebarVisible.value
+}
+
+onMounted(() => {
+  checkContainerSize()
+  
+  if (pageContainerRef.value) {
+    const resizeObserver = new ResizeObserver(checkContainerSize)
+    resizeObserver.observe(pageContainerRef.value)
+    
+    onUnmounted(() => {
+      resizeObserver.disconnect()
+    })
+  }
+})
 </script>
 
 <template>
-  <div class="setting-page">
-    <!-- Navigation Sidebar -->
-    <div class="setting-nav">
-      <div class="nav-title">View Settings</div>
-      <div class="nav-content">
-        <template v-for="section in settingsSections" :key="section.group">
-          <div class="settings-group">
-            <div class="group-title">{{ section.group }}</div>
-            <div class="group-items">
-              <div
-                v-for="item in section.items"
-                :key="item.id"
-                class="nav-item"
-                :class="{ active: activeSection === item.id }"
-                tabindex="0"
-                :aria-label="`Go to ${item.label}`"
-                @click="switchSection(item.id)"
-                @keydown.enter="switchSection(item.id)"
-              >
-                <Icon :name="item.icon" />
-                <span>{{ item.label }}</span>
-              </div>
+  <div ref="pageContainerRef" class="setting-page">
+    <!-- Toggle button teleported to header for mobile -->
+    <Teleport to="#database-table-header-right">
+      <el-button 
+        v-if="isMobileView" 
+        size="small" 
+        @click="toggleSidebar"
+      >
+        <Icon :name="isSidebarVisible ? 'lucide:panel-left-close' : 'lucide:panel-left'" size="16" />
+      </el-button>
+    </Teleport>
+
+    <!-- Desktop: Splitter layout -->
+    <template v-if="!isMobileView">
+      <el-splitter>
+        <el-splitter-panel :min="180" size="220px" collapsible>
+          <div class="setting-nav">
+            <div class="nav-title">View Settings</div>
+            <div class="nav-content">
+              <template v-for="section in settingsSections" :key="section.group">
+                <div class="settings-group">
+                  <div class="group-title">{{ section.group }}</div>
+                  <div class="group-items">
+                    <div
+                      v-for="item in section.items"
+                      :key="item.id"
+                      class="nav-item"
+                      :class="{ active: activeSection === item.id }"
+                      tabindex="0"
+                      :aria-label="`Go to ${item.label}`"
+                      @click="switchSection(item.id)"
+                      @keydown.enter="switchSection(item.id)"
+                    >
+                      <Icon :name="item.icon" />
+                      <span>{{ item.label }}</span>
+                    </div>
+                  </div>
+                </div>
+              </template>
             </div>
           </div>
-        </template>
-      </div>
-    </div>
+        </el-splitter-panel>
+        <el-splitter-panel>
+          <div class="setting-container">
+            <component 
+              :is="sectionComponent" 
+              :menu-item="currentMenuItem"
+              :active-sub-section="activeSection"
+            />
+          </div>
+        </el-splitter-panel>
+      </el-splitter>
+    </template>
 
-    <!-- Content Area -->
-    <div class="setting-container">
-      <component 
-        :is="sectionComponent" 
-        :menu-item="currentMenuItem"
-        :active-sub-section="activeSection"
-      />
-    </div>
+    <!-- Mobile: Overlay sidebar -->
+    <template v-else>
+      <!-- Sidebar overlay -->
+      <Transition name="slide">
+        <div v-if="isSidebarVisible" class="setting-nav mobile-sidebar">
+          <div class="nav-title">View Settings</div>
+          <div class="nav-content">
+            <template v-for="section in settingsSections" :key="section.group">
+              <div class="settings-group">
+                <div class="group-title">{{ section.group }}</div>
+                <div class="group-items">
+                  <div
+                    v-for="item in section.items"
+                    :key="item.id"
+                    class="nav-item"
+                    :class="{ active: activeSection === item.id }"
+                    tabindex="0"
+                    :aria-label="`Go to ${item.label}`"
+                    @click="switchSection(item.id)"
+                    @keydown.enter="switchSection(item.id)"
+                  >
+                    <Icon :name="item.icon" />
+                    <span>{{ item.label }}</span>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </Transition>
+
+      <!-- Backdrop -->
+      <Transition name="fade">
+        <div v-if="isSidebarVisible" class="sidebar-backdrop" @click="isSidebarVisible = false" />
+      </Transition>
+
+      <!-- Main content -->
+      <div class="setting-container">
+        <component 
+          :is="sectionComponent" 
+          :menu-item="currentMenuItem"
+          :active-sub-section="activeSection"
+        />
+      </div>
+    </template>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .setting-page {
   height: 100%;
-  display: grid;
-  grid-template-columns: 220px 1fr;
   overflow: hidden;
+  position: relative;
 }
 
 .setting-nav {
   height: 100%;
   background: var(--app-grey-950);
-  border-right: 1px solid var(--app-grey-800);
   padding: var(--app-space-m) 0;
   display: flex;
   flex-direction: column;
@@ -188,11 +289,50 @@ const sectionComponent = computed(() => {
       border-right: 2px solid var(--app-primary-color);
     }
   }
+
+  &.mobile-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 260px;
+    z-index: 1001;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  }
 }
 
 .setting-container {
   height: 100%;
   overflow-y: auto;
   padding: var(--app-space-m);
+  background: var(--app-paper);
+}
+
+.sidebar-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+// Transitions
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(-100%);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

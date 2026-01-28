@@ -1,4 +1,5 @@
 import type { RelationSuggestionRecord, RelationSuggestionInsert, CaseFieldRecord, CaseTableRecord } from '../utils/db/schema/newTableSchema'
+import { getCurrentUserId } from './useCurrentUser'
 
 // Configuration
 const ANALYSIS_ROW_LIMIT = 10 // Only analyze first N rows
@@ -238,8 +239,9 @@ export function useRelationSuggestions() {
     // ========== PHASE 8: Batch insert all suggestions (1 query) ==========
     if (suggestions.length > 0) {
       console.time('[Analyzer] Phase 7: Insert suggestions')
+      const currentUserId = getCurrentUserId()
       const values = suggestions.map((_, i) => 
-        `($${i*9+1}, $${i*9+2}, $${i*9+3}, $${i*9+4}, $${i*9+5}, $${i*9+6}, $${i*9+7}, $${i*9+8}, $${i*9+9})`
+        `($${i*11+1}, $${i*11+2}, $${i*11+3}, $${i*11+4}, $${i*11+5}, $${i*11+6}, $${i*11+7}, $${i*11+8}, $${i*11+9}, $${i*11+10}, $${i*11+11})`
       ).join(', ')
 
       const params = suggestions.flatMap(s => [
@@ -251,13 +253,16 @@ export function useRelationSuggestions() {
         s.matchCount,
         s.totalCount,
         s.sampleValues,
-        s.suggestedType
+        s.suggestedType,
+        currentUserId,
+        currentUserId
       ])
 
       await query(
         `INSERT INTO relation_suggestions (
           "sourceTableId", "sourceFieldId", "targetTableId", "targetFieldId",
-          "matchReason", "matchCount", "totalCount", "sampleValues", "suggestedType"
+          "matchReason", "matchCount", "totalCount", "sampleValues", "suggestedType",
+          "createdBy", "updatedBy"
         ) VALUES ${values}`,
         params
       )

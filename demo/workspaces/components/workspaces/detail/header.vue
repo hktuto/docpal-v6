@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import type { WorkspaceRouteParams, TreeItem } from '../../../composables/useSingleWorkspace'
-import { ArrowDown, Folder, Grid, Postcard, DataAnalysis } from '@element-plus/icons-vue'
+import type { CaseTableRecord } from '../../../utils/db/schema/newTableSchema'
+import { ArrowDown, Folder, Grid, Postcard, DataAnalysis, Document } from '@element-plus/icons-vue'
 
-const { workspaceRouteParams, workspace, menuState, navigateToItem, findItemById } = useSingleWorkspaceContext()
+const { workspaceRouteParams, workspace, menuState, navigateToItem, findItemById, goBackFromRecord } = useSingleWorkspaceContext()
+const { query } = usePglite()
 
 defineSlots<{
   default?: (props: {}) => any
@@ -14,9 +16,13 @@ type BreadcrumbItem = {
   label: string
   params: WorkspaceRouteParams
   isFolder: boolean
+  isRecord?: boolean // Flag for record items
   children?: TreeItem[] // Children items for dropdown (only for folders)
   itemId?: string | null // Original item ID for finding children
 }
+
+// Record title for breadcrumb when viewing a record
+const recordTitle = ref<string>('')
 
 const breadcrumbList = ref<BreadcrumbItem[]>([])
 
@@ -31,7 +37,8 @@ function findPathToItem(items: TreeItem[], targetId: string, path: BreadcrumbIte
       label: item.label,
       params: {
         detailId: item.id,
-        detailType: item.itemType
+        detailType: item.itemType,
+        pageType: 'detail'
       },
       isFolder: item.itemType === 'folder',
       itemId: item.id,
@@ -57,17 +64,68 @@ function findPathToItem(items: TreeItem[], targetId: string, path: BreadcrumbIte
   return false
 }
 
-function createBreadcrumb() {
+async function createBreadcrumb() {
   // Always start with root (workspace)
   const rootItem: BreadcrumbItem = {
     label: workspace.value?.name || '',
     params: {
       detailId: null,
-      detailType: 'root'
+      detailType: 'root',
+      pageType: 'detail'
     },
     isFolder: true, // Workspace root acts like a folder
     itemId: null,
     children: menuState.value.items // Root children are the top-level items
+  }
+
+  // Handle record detail view
+  if (workspaceRouteParams.value.detailType === 'record' && workspaceRouteParams.value.tableId) {
+    const tableId = workspaceRouteParams.value.tableId
+    const recordId = workspaceRouteParams.value.recordId
+    
+    // Find the table's menu item to get the path
+    const tableMenuItem = findTableMenuItemById(menuState.value.items, tableId)
+    
+    if (tableMenuItem) {
+      // Build path to table
+      const path: BreadcrumbItem[] = []
+      findPathToItem(menuState.value.items, tableMenuItem.id, path)
+      
+      // Load record title if not already loaded
+      if (recordId && !recordTitle.value) {
+        await loadRecordTitle(tableId, recordId)
+      }
+      
+      // Add record item to breadcrumb
+      const recordItem: BreadcrumbItem = {
+        label: recordTitle.value || `Record`,
+        params: {
+          detailId: null,
+          detailType: 'record',
+          pageType: 'detail'
+        },
+        isFolder: false,
+        isRecord: true,
+        itemId: recordId
+      }
+      
+      breadcrumbList.value = [rootItem, ...path, recordItem]
+    } else {
+      // Fallback if table not found in menu
+      const recordItem: BreadcrumbItem = {
+        label: recordTitle.value || `Record`,
+        params: {
+          detailId: null,
+          detailType: 'record',
+          pageType: 'detail'
+        },
+        isFolder: false,
+        isRecord: true,
+        itemId: recordId
+      }
+      breadcrumbList.value = [rootItem, recordItem]
+    }
+    return
   }
 
   if (workspaceRouteParams.value.detailType === 'root' || !workspaceRouteParams.value.detailId) {
@@ -82,10 +140,99 @@ function createBreadcrumb() {
   breadcrumbList.value = [rootItem, ...path]
 }
 
+/**
+ * Find menu item by table ID (itemId)
+ */
+function findTableMenuItemById(items: TreeItem[], tableId: string): TreeItem | undefined {
+  for (const item of items) {
+    if (item.itemType === 'table' && item.itemId === tableId) {
+      return item
+    }
+    if (item.children && item.children.length > 0) {
+      const found = findTableMenuItemById(item.children, tableId)
+      if (found) return found
+    }
+  }
+  return undefined
+}
+
+/**
+ * Load record title from database
+ */
+async function loadRecordTitle(tableId: string, recordId: string) {
+  try {
+    // Get table info to find physical table name
+    const tableData = await query<CaseTableRecord>(
+      `SELECT * FROM case_tables WHERE id = $1`,
+      [tableId]
+    )
+    
+    if (tableData.length === 0) {
+      recordTitle.value = `Record ${recordId.slice(0, 8)}...`
+      return
+    }
+    
+    const table = tableData[0]
+    const physicalTableName = table.tableName
+    
+    // Get record data
+    const records = await query<Record<string, any>>(
+      `SELECT * FROM "${physicalTableName}" WHERE id = $1`,
+      [recordId]
+    )
+    
+    if (records.length === 0) {
+      recordTitle.value = `Record ${recordId.slice(0, 8)}...`
+      return
+    }
+    
+    const record = records[0]
+    
+    // Try to find a suitable title field
+    // First try common title field names
+    const titleFieldNames = ['name', 'title', 'label', 'subject', 'display_name']
+    for (const fieldName of titleFieldNames) {
+      if (record[fieldName] && typeof record[fieldName] === 'string') {
+        recordTitle.value = record[fieldName]
+        return
+      }
+    }
+    
+    // Otherwise use the first non-id string field
+    for (const [key, value] of Object.entries(record)) {
+      if (key !== 'id' && typeof value === 'string' && value.length > 0 && !key.startsWith('_')) {
+        recordTitle.value = value.length > 50 ? value.slice(0, 50) + '...' : value
+        return
+      }
+    }
+    
+    // Fallback to truncated ID
+    recordTitle.value = `Record ${recordId.slice(0, 8)}...`
+  } catch (error) {
+    console.error('Error loading record title:', error)
+    recordTitle.value = `Record ${recordId.slice(0, 8)}...`
+  }
+}
+
 function handleBreadcrumbClick(item: BreadcrumbItem) {
+  // Clear record title when navigating away
+  recordTitle.value = ''
+  
   if (item.params.detailType === 'root') {
-    navigateToItem(undefined)
+    // If currently viewing a record, use goBackFromRecord
+    if (workspaceRouteParams.value.detailType === 'record') {
+      goBackFromRecord()
+      // Then navigate to root
+      navigateToItem(undefined)
+    } else {
+      navigateToItem(undefined)
+    }
   } else if (item.params.detailId) {
+    // If currently viewing a record and clicking on a breadcrumb item
+    if (workspaceRouteParams.value.detailType === 'record') {
+      goBackFromRecord()
+    }
+    
     const menuItem = findItemById(menuState.value.items, item.params.detailId)
     if (menuItem) {
       navigateToItem(menuItem)
@@ -94,6 +241,11 @@ function handleBreadcrumbClick(item: BreadcrumbItem) {
 }
 
 function handleDropdownItemClick(item: TreeItem) {
+  // Clear record title when navigating away
+  if (workspaceRouteParams.value.detailType === 'record') {
+    recordTitle.value = ''
+    goBackFromRecord()
+  }
   navigateToItem(item)
 }
 
@@ -106,9 +258,18 @@ watch(
     deep: true
   }
 )
+
 watch(
   workspaceRouteParams,
-  () => {
+  (newParams, oldParams) => {
+    // Reset record title when navigating away from record view
+    if (oldParams?.detailType === 'record' && newParams?.detailType !== 'record') {
+      recordTitle.value = ''
+    }
+    // Reset record title when record ID changes
+    if (newParams?.detailType === 'record' && oldParams?.recordId !== newParams?.recordId) {
+      recordTitle.value = ''
+    }
     createBreadcrumb()
   },
   { immediate: true, deep: true }
@@ -188,7 +349,8 @@ watch(
           </span>
 
           <!-- Current (last) item - not clickable -->
-          <span v-else class="breadcrumb-current">
+          <span v-else class="breadcrumb-current" :class="{ 'is-record': item.isRecord }">
+            <el-icon v-if="item.isRecord" class="record-icon"><Document /></el-icon>
             {{ item.label }}
           </span>
         </el-breadcrumb-item>
@@ -257,6 +419,19 @@ watch(
 .breadcrumb-current {
   color: var(--el-text-color-primary);
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  &.is-record {
+    .record-icon {
+      color: var(--el-color-info);
+    }
+  }
+}
+
+.record-icon {
+  font-size: 14px;
 }
 
 .headerLeft {
