@@ -189,7 +189,7 @@ async function handleDisabled(row: any) {
     if (action !== 'confirm') return
     const param: any = []
     param.push(row.shareID)
-    await clientApi.api.deleteDmsShare(param)
+    await clientApi.api.deleteDmsShare(param).then(r => r.data)
     query({})
   } catch (error) {
     console.log(error)

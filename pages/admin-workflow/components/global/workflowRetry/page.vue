@@ -6,7 +6,7 @@
                           inputKey="businessKey"
                           inputPlaceHolder="workflow_retryFilter"
                           @form-change="handleFilterFormChange"
-                          />
+        />
       </template>
       <template #status="{ row }">
         <el-tag v-if="retryStatues.includes(row.state.toLowerCase())" type="danger">{{ row.state }}</el-tag>
@@ -17,7 +17,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 
 const { t } = useI18n()
 let extraParams: any = {}
@@ -32,7 +32,7 @@ const {
 } = useVxeTable({
   id: 'a-workflow-retry',
   api: async (pageParams: any) => {
-    return await adminApi.api.postWorkflowQueryWorkflowRetryPage({ ...pageParams, ...extraParams })
+    return await clientApi.admin.postAdmindocpalWorkflowQueryWorkflowRetryPage({ ...pageParams, ...extraParams })
   },
   columns: [
     { field: 'businessKey', title: 'workflow_taskName', fixed: 'left' },
@@ -79,7 +79,7 @@ const {
 
 async function handleRetry(id: number) {
   try {
-    await adminApi.api.postWorkflowRetryFailWorkflow({ id })
+    await clientApi.admin.postAdmindocpalWorkflowRetryFailWorkflow({ id })
     query({})
   } catch (error: any) {
   }

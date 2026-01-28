@@ -87,170 +87,178 @@
   </el-select-v2>
 </template>
 <script lang="ts" setup>
-import { clientApi } from "api";
-const props = defineProps(["config", "value"]);
+import { clientApi } from 'api'
+import { getGroupsSelectOption } from '#imports'
 
-const emits = defineEmits(["formChange"]);
-const { t } = useI18n();
+const props = defineProps(['config', 'value'])
+
+const emits = defineEmits(['formChange'])
+const { t } = useI18n()
 const state = reactive<any>({
-  value: "",
+  value: '',
   precisionSetting: {},
   options: [],
   recordOptions: [],
-  userOptions: [],
-});
-const numberTypes = ["number", "float"];
+  userOptions: []
+})
+const numberTypes = ['number', 'float']
 const type = computed(() => {
-  const type = props.config.type || "date";
+  const type = props.config.type || 'date'
   switch (props.config.condition) {
-    case "In Between":
-    case "Not Between":
-      if (type === "date") {
-        return "date-range";
+    case 'In Between':
+    case 'Not Between':
+      if (type === 'date') {
+        return 'date-range'
       } else if (numberTypes.includes(type)) {
-        setPrecision(type);
-        return "number-range";
+        setPrecision(type)
+        return 'number-range'
       }
-      break;
-    case "equal":
-    case "not equal":
-      if (type === "date") {
-        return "date";
-      } else if (type === "user_group") {
-        return "user_group";
-      } else if (type === "master_table") {
-        return "master_table";
+      break
+    case 'equal':
+    case 'not equal':
+      if (type === 'date') {
+        return 'date'
+      } else if (type === 'user_group') {
+        return 'user_group'
+      } else if (type === 'master_table') {
+        return 'master_table'
       } else if (numberTypes.includes(type)) {
-        setPrecision(type);
-        return "number";
-      } else if (type === "boolean") {
-        return "boolean";
+        setPrecision(type)
+        return 'number'
+      } else if (type === 'boolean') {
+        return 'boolean'
       } else {
-        return "input";
+        return 'input'
       }
     default:
       if (numberTypes.includes(type)) {
-        setPrecision(type);
-        return "number";
+        setPrecision(type)
+        return 'number'
       }
-      return "input";
+      return 'input'
   }
-});
+})
+
 function setPrecision(type: string) {
-  if (type === "number") state.precisionSetting.precision = 0;
-  else state.precisionSetting = {};
+  if (type === 'number') state.precisionSetting.precision = 0
+  else state.precisionSetting = {}
 }
+
 function handleChange(value: any) {
-  let _value = value;
-  let label = "";
+  let _value = value
+  let label = ''
   if (Array.isArray(value)) {
-    const dateRange: any = {};
-    if (value[0]) dateRange.start = value[0];
-    if (value[1]) dateRange.end = value[1];
-    _value = JSON.stringify(dateRange);
+    const dateRange: any = {}
+    if (value[0]) dateRange.start = value[0]
+    if (value[1]) dateRange.end = value[1]
+    _value = JSON.stringify(dateRange)
   }
-  emits("formChange", _value, label);
+  emits('formChange', _value, label)
 }
+
 function setValue(value: any) {
-  state.value = value;
+  state.value = value
 }
+
 async function getMasterTableOptions(masterTableId: string, displayField: string) {
-  if (state.recordOptions.length > 0) return;
+  if (state.recordOptions.length > 0) return
   const params = {
-    id: masterTableId,
-  };
+    id: masterTableId
+  }
   // displayField: displayField
   try {
-    const record: any = await clientApi.api.postDmsMasterTableRecordPageNonpermission(params).then((res) => res.data);
+    const record: any = await clientApi.admin.postAdmindmsMasterTableRecordPageNonpermission(params).then((res) => res.data)
     state.recordOptions = record.map((item: any) => ({
       label: item[displayField],
-      value: item[displayField],
-    }));
+      value: item[displayField]
+    }))
   } catch (error) {
-    state.recordOptions = [];
+    state.recordOptions = []
   }
 }
+
 async function getUserGroupOptions() {
-  if (state.userOptions.length > 0) return;
+  if (state.userOptions.length > 0) return
   const userData: any = await clientApi.admin.postAdminucenterGetKeycloakAllUsers({}).then((res) => res.data)
   const userList = userData.map((item: any) => ({
     value: item.userId || item.username,
-    label: item.username || item.userId,
-  }));
-  const groupData: any = await clientApi.api.postUcenterGroups().then(r => r.data)
-  const groups = groupData.sort((a: any, b: any) => a.name.localeCompare(b.name));
+    label: item.username || item.userId
+  }))
+  const groups = await getGroupsSelectOption().sort((a: any, b: any) => a.label.localeCompare(b.label))
 
   state.userOptions = [
     {
-      label: t("user_groups"),
-      value: "user_groups",
+      label: t('user_groups'),
+      value: 'user_groups',
       options: groups
         .map((item: any) => ({
           label: item.name,
-          value: "UserGroupId:" + item.id,
+          value: 'UserGroupId:' + item.id
         }))
-        .filter((item: any) => !item.id),
+        .filter((item: any) => !item.id)
     },
     {
-      label: t("user_users"),
-      value: "user_users",
+      label: t('user_users'),
+      value: 'user_users',
       options: userList.map((item: any) => ({
         label: item.label,
-        value: "UserId:" + item.value,
-      })),
-    },
-  ];
+        value: 'UserId:' + item.value
+      }))
+    }
+  ]
 }
+
 function isJSON(str: string) {
   try {
-    JSON.parse(str);
+    JSON.parse(str)
   } catch (e) {
     // 转换出错，抛出异常
-    return false;
+    return false
   }
-  return true;
+  return true
 }
+
 watch(
   () => props.config,
   (newValue, oldValue) => {
     if (!oldValue || newValue.__cdata !== oldValue.__cdata) {
       if (isJSON(newValue.__cdata) && JSON.parse(newValue.__cdata) instanceof Object) {
-        const cData = JSON.parse(newValue.__cdata);
-        let cDataArr = ["", ""];
+        const cData = JSON.parse(newValue.__cdata)
+        let cDataArr = ['', '']
         if (cData.start)
-          cDataArr[0] = ["number", "float"].includes(newValue.type)
+          cDataArr[0] = ['number', 'float'].includes(newValue.type)
             ? Number(cData.start)
-            : cData.start;
+            : cData.start
         if (cData.end)
-          cDataArr[1] = ["number", "float"].includes(newValue.type)
+          cDataArr[1] = ['number', 'float'].includes(newValue.type)
             ? Number(cData.end)
-            : cData.end;
-        setValue(cDataArr);
+            : cData.end
+        setValue(cDataArr)
       } else {
-        let _cData = newValue.__cdata;
-        if (["number", "float"].includes(newValue.type)) _cData = Number(_cData);
-        else if (newValue.type === "boolean")
-          _cData = _cData === "false" ? false : Boolean(_cData);
-        setValue(_cData);
+        let _cData = newValue.__cdata
+        if (['number', 'float'].includes(newValue.type)) _cData = Number(_cData)
+        else if (newValue.type === 'boolean')
+          _cData = _cData === 'false' ? false : Boolean(_cData)
+        setValue(_cData)
       }
     } else if (!newValue.__cdata && newValue.type && newValue.condition) {
-      if (["Not Between", "In Between"].includes(newValue.condition)) {
-        if (["number", "float"].includes(newValue.type)) {
-          setValue([0, 0]);
-        } else if (newValue.type === "date") {
-          setValue(["", ""]);
+      if (['Not Between', 'In Between'].includes(newValue.condition)) {
+        if (['number', 'float'].includes(newValue.type)) {
+          setValue([0, 0])
+        } else if (newValue.type === 'date') {
+          setValue(['', ''])
         }
       }
     }
-    if (newValue.type === "master_table")
-      getMasterTableOptions(newValue.masterTable, newValue.displayField);
-    else if (newValue.type === "user_group") getUserGroupOptions();
+    if (newValue.type === 'master_table')
+      getMasterTableOptions(newValue.masterTable, newValue.displayField)
+    else if (newValue.type === 'user_group') getUserGroupOptions()
   },
   {
     immediate: true,
-    deep: true,
+    deep: true
   }
-);
+)
 </script>
 <style lang="scss" scoped>
 .range-input {
@@ -258,10 +266,12 @@ watch(
   display: grid;
   grid-template-columns: 1fr min-content 1fr;
   gap: 0 5px;
+
   :deep(.el-date-editor.el-input) {
     width: 100% !important;
   }
 }
+
 .el-input-number {
   width: 100% !important;
 }

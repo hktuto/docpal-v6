@@ -13,7 +13,7 @@ const { setting, getCalendarsSetting, calendarViewOptions, weekDayOptions } = us
 const loading = ref(false)
 
 const saveSetting = useDebounceFn(async () => {
-  await clientApi.api.postDmsCalendarsSetting(setting.value).then(r => r.data)
+  await clientApi.admin.postAdmindmsCalendarsSetting(setting.value).then(r => r.data)
   routerProvider?.message.success(t('dpMsg_success'))
 }, 500)
 

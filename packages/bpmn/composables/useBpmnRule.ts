@@ -1,4 +1,5 @@
-import { adminApi } from 'api'
+import { clientApi } from 'api'
+
 const mockRules = [
   {
     id: 'testOyDate',
@@ -19,12 +20,12 @@ const mockRules = [
  * @param ruleId
  */
 export const useBpmnRule = ({
-  versionDraftId,
-  version,
-  taskName,
-  draftId,
-  workflowDetail
-}: {
+                              versionDraftId,
+                              version,
+                              taskName,
+                              draftId,
+                              workflowDetail
+                            }: {
   versionDraftId: string
   version: number
   taskName: string
@@ -33,14 +34,14 @@ export const useBpmnRule = ({
 }) => {
   const bpmnGlobalRules = ref<any>([])
   let isNew = false
+
   async function getBpmnRules() {
     try {
-      const rule = await adminApi.api
-        .getValidationRulesVersiondraftid(versionDraftId, {
-          headers: {
-            noThrowError: 'true'
-          }
-        })
+      const rule = await clientApi.admin.getAdmindocpalValidationRulesVersiondraftid(versionDraftId, {
+        headers: {
+          noThrowError: 'true'
+        }
+      })
         .then((res) => res.data)
       if (!rule || !rule.validationRules) {
         isNew = true
@@ -53,6 +54,7 @@ export const useBpmnRule = ({
       isNew = true
     }
   }
+
   // set bpmn 1
   async function addBpmnRule(rule: any) {
     try {
@@ -64,12 +66,13 @@ export const useBpmnRule = ({
         draftId,
         validationRules: bpmnGlobalRules.value
       }
-      const res = await adminApi.api.postValidationRules(params)
+      const res = await clientApi.admin.postAdmindocpalValidationRules(params)
       isNew = false
     } catch (error) {
       console.log('error', error)
     }
   }
+
   // set bpmn 2
   async function updateBpmnRule(rules: any, nodes: any) {
     try {
@@ -89,8 +92,8 @@ export const useBpmnRule = ({
         draftId,
         validationRules: bpmnGlobalRules.value
       }
-      const res = await adminApi.api.putValidationRulesVersiondraftid(versionDraftId, params)
-      if(rules.length > 1) {
+      const res = await clientApi.admin.putAdmindocpalValidationRulesVersiondraftid(versionDraftId, params)
+      if (rules.length > 1) {
         return
       }
       const rule = rules[0]
@@ -120,8 +123,10 @@ export const useBpmnRule = ({
           workflowDetail.saveDraft()
         }
       }
-    } catch (error) {}
+    } catch (error) {
+    }
   }
+
   async function setBpmnRules(newRule: any, nodes: any) {
     let newRules = newRule
     if (!Array.isArray(newRule)) newRules = [newRule]
@@ -144,6 +149,7 @@ export const useBpmnRule = ({
       await updateBpmnRule(formatRules, nodes)
     }
   }
+
   function getBpmnRuleType(ruleType: string) {
     switch (ruleType) {
       case 'timestamp':
@@ -169,7 +175,7 @@ export const useBpmnRule = ({
       draftId,
       validationRules: bpmnGlobalRules.value
     }
-    await adminApi.api.putValidationRulesVersiondraftid(versionDraftId, params)
+    await clientApi.admin.putAdmindocpalValidationRulesVersiondraftid(versionDraftId, params)
     let isChanged = false
     nodes.forEach((node: any) => {
       if (node.data?.data?.extensionElements?.['flowable:formProperty']) {
@@ -185,6 +191,7 @@ export const useBpmnRule = ({
       workflowDetail.saveDraft()
     }
   }
+
   function getTaskFieldRules(taskFields: any[]) {
     if (!taskFields) {
       return JSON.parse(JSON.stringify(bpmnGlobalRules.value))
@@ -196,6 +203,7 @@ export const useBpmnRule = ({
       }
     })
   }
+
   onMounted(() => {
     getBpmnRules()
   })
@@ -208,6 +216,7 @@ export const useBpmnRule = ({
     getTaskFieldRules
   }
 }
+
 export function setNodeData(node: any, formPropertys: any) {
   const newData = {
     ...node.data,

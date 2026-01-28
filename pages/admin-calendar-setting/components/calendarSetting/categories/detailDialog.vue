@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElColorPicker, ElDialog } from 'element-plus'
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 
@@ -40,7 +40,7 @@ async function generateDefWorkflow(name: string) {
     categories: ['business_processes', 'system_processes']
   }
 
-  const { entryList } = await adminApi.api.postWorkflowProcessDefinitionDraftPage(params).then((r) => r.data)
+  const { entryList } = await clientApi.admin.postDocpalWorkflowProcessDefinitionDraftPage(params).then((r) => r.data)
 
   const eventActions: any = {
     'Def Calendar Event By Create': 'Create',
@@ -239,7 +239,7 @@ async function submit() {
 async function handleJumpWorkflow(workflowKey: string) {
   if (!workflowKey) return
 
-  const data = await adminApi.api.getWorkflowVersionKeyProcessdefinitionkey(workflowKey).then((r) => r.data)
+  const data = await clientApi.admin.getAdminworkflowDefinitionVersionKeyProcessdefinitionkey(workflowKey).then((r) => r.data)
   if (!data) return
 
   const params: NewWorkflowVersionDetailParams = {

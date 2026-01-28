@@ -1678,6 +1678,32 @@ export interface WhatsAppSettingDTO {
     whatsAppSwitch?: boolean;
 }
 
+export interface AzureOcrSettingDTO {
+    cutOffTime?: string;
+    /** @format int32 */
+    readThreshold?: number;
+    /** @format int32 */
+    preBuildThreshold?: number;
+    /** @format int32 */
+    customModelThreshold?: number;
+    alertEmail?: string;
+    emailTemplate?: string;
+}
+
+export interface AzureOcrApiKeyDTO {
+    apiKey?: string;
+    description?: string;
+}
+
+export interface ProfileMappingRequestDTO {
+    /** @format int64 */
+    id?: number;
+    name?: string;
+    scanProfile?: string;
+    normalizeSetting?: string;
+    status?: string;
+}
+
 /** Validation Rule Request DTO */
 export interface ValidationRuleRequestDTO {
     /** Validation Rule ID */
@@ -1735,32 +1761,6 @@ export interface ValidationRuleResponseDTO {
      * @format date-time
      */
     modifiedDate?: string;
-}
-
-export interface AzureOcrSettingDTO {
-    cutOffTime?: string;
-    /** @format int32 */
-    readThreshold?: number;
-    /** @format int32 */
-    preBuildThreshold?: number;
-    /** @format int32 */
-    customModelThreshold?: number;
-    alertEmail?: string;
-    emailTemplate?: string;
-}
-
-export interface ProfileMappingRequestDTO {
-    /** @format int64 */
-    id?: number;
-    name?: string;
-    scanProfile?: string;
-    normalizeSetting?: string;
-    status?: string;
-}
-
-export interface AzureOcrApiKeyDTO {
-    apiKey?: string;
-    description?: string;
 }
 
 /** Resource permission data transfer object */
@@ -12652,6 +12652,39 @@ export interface ResultListLanguageDTO {
     locale?: string;
 }
 
+export interface AzureOcrProfileMapping {
+    /** @format int64 */
+    id?: number;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    ocrProfileName?: string;
+    scanProfile?: string;
+    normalizeSetting?: string;
+    scanType?: string;
+    status?: string;
+}
+
+export interface AzureSettingDTO {
+    azureOcrApiKey?: AzureOcrApiKeyDTO;
+    azureOcrSetting?: AzureOcrSettingDTO;
+    azureOcrProfileMappings?: AzureOcrProfileMapping[];
+    ocrTransactionLogs?: PaginationDTOOcrTransactionLogDTO;
+}
+
+export interface ResultAzureSettingDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: AzureSettingDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface ResultListLong {
     result?: boolean;
     /** @format int32 */
@@ -12778,39 +12811,6 @@ export interface ResultMapStringMapStringObject {
     code?: number;
     message?: string;
     data?: Record<string, Record<string, object>>;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface AzureOcrProfileMapping {
-    /** @format int64 */
-    id?: number;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    ocrProfileName?: string;
-    scanProfile?: string;
-    normalizeSetting?: string;
-    scanType?: string;
-    status?: string;
-}
-
-export interface AzureSettingDTO {
-    azureOcrApiKey?: AzureOcrApiKeyDTO;
-    azureOcrSetting?: AzureOcrSettingDTO;
-    azureOcrProfileMappings?: AzureOcrProfileMapping[];
-    ocrTransactionLogs?: PaginationDTOOcrTransactionLogDTO;
-}
-
-export interface ResultAzureSettingDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: AzureSettingDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -13849,6 +13849,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PutExt3RdstorageIdUpdate
          * @summary Update an existing external storage configuration
          * @request PUT:/api/ext3rdStorage/{id}/update
+         * @deprecated
          */
         putExt3rdstorageIdUpdate: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
@@ -13866,6 +13867,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PutExt3RdstorageIdUpdateProfilesProfileid
          * @summary Update a external profile in external storage id
          * @request PUT:/api/ext3rdStorage/{id}/update-profiles/{profileId}
+         * @deprecated
          */
         putExt3rdstorageIdUpdateProfilesProfileid: (
             id: string,
@@ -13888,6 +13890,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PutExt3RdstorageImportjobsIdUpdate
          * @summary Update import job
          * @request PUT:/api/ext3rdStorage/importJobs/{id}/update
+         * @deprecated
          */
         putExt3rdstorageImportjobsIdUpdate: (
             id: string,
@@ -18458,6 +18461,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostExt3Rdstorage
          * @summary Create a new external storage
          * @request POST:/api/ext3rdStorage
+         * @deprecated
          */
         postExt3rdstorage: (data: ExternalStorageDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
@@ -18475,6 +18479,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostExt3RdstorageIdProfiles
          * @summary Create a new external profile in external storage id
          * @request POST:/api/ext3rdStorage/{id}/profiles
+         * @deprecated
          */
         postExt3rdstorageIdProfiles: (id: string, data: ExternalProfileDTO, params: RequestParams = {}) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
@@ -18492,6 +18497,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostExt3RdstorageIdProfilesPage
          * @summary Paging query external storage profiles by external storage id
          * @request POST:/api/ext3rdStorage/{id}/profiles/page
+         * @deprecated
          */
         postExt3rdstorageIdProfilesPage: (id: string, data: ExternalProfileRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
@@ -18509,6 +18515,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostExt3RdstorageIdConnectionTest
          * @summary Testing SMB connection is correct
          * @request POST:/api/ext3rdStorage/{id}/connection/test
+         * @deprecated
          */
         postExt3rdstorageIdConnectionTest: (id: string, data: Record<string, string>, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -18526,6 +18533,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostExt3RdstorageProfilesProfileidOutputrecord
          * @summary Create External Profile Output
          * @request POST:/api/ext3rdStorage/profiles/{profileId}/outputRecord
+         * @deprecated
          */
         postExt3rdstorageProfilesProfileidOutputrecord: (
             profileId: string,
@@ -18547,6 +18555,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostExt3RdstorageProfilesProfileidDuplicateOutputrecordOutputrecordid
          * @summary Duplicate (Copy) a exist External Profile Output
          * @request POST:/api/ext3rdStorage/profiles/{profileId}/duplicate-outputRecord/{outputRecordId}
+         * @deprecated
          */
         postExt3rdstorageProfilesProfileidDuplicateOutputrecordOutputrecordid: (
             profileId: string,
@@ -18566,6 +18575,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostExt3RdstoragePage
          * @summary Paging query External Storage
          * @request POST:/api/ext3rdStorage/page
+         * @deprecated
          */
         postExt3rdstoragePage: (data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
@@ -18583,6 +18593,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostExt3RdstorageImportjobsPage
          * @summary Paginated query for import jobs
          * @request POST:/api/ext3rdStorage/importJobs/page
+         * @deprecated
          */
         postExt3rdstorageImportjobsPage: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
             this.request<
@@ -18603,6 +18614,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostExt3RdstorageImportjobsJobqueueFirst
          * @summary Place a task in the first queue
          * @request POST:/api/ext3rdStorage/importJobs/jobQueue/first
+         * @deprecated
          */
         postExt3rdstorageImportjobsJobqueueFirst: (
             data: ExternalStorageImportJobRequestDTO,
@@ -18623,6 +18635,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostExt3RdstorageImportjobsAdd
          * @summary Save import job record
          * @request POST:/api/ext3rdStorage/importJobs/add
+         * @deprecated
          */
         postExt3rdstorageImportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
@@ -18640,6 +18653,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostExt3RdstorageImportjobs
          * @summary Save import job record
          * @request POST:/api/ext3rdStorage/importJobs
+         * @deprecated
          */
         postExt3rdstorageImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
@@ -26971,6 +26985,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchExt3RdstorageIdUpdateStatus
          * @summary Active/Inactive a external storage
          * @request PATCH:/api/ext3rdStorage/{id}/update-status
+         * @deprecated
          */
         patchExt3rdstorageIdUpdateStatus: (id: string, data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -26988,6 +27003,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchExt3RdstorageIdProfilesProfileidUpdateStatus
          * @summary Active/Inactive a external profile
          * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/update-status
+         * @deprecated
          */
         patchExt3rdstorageIdProfilesProfileidUpdateStatus: (
             id: string,
@@ -27010,6 +27026,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchExt3RdstorageIdProfilesProfileidUpdateProcess
          * @summary Update an setting of existing external profile for a specific external storage
          * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/update-process
+         * @deprecated
          */
         patchExt3rdstorageIdProfilesProfileidUpdateProcess: (
             id: string,
@@ -27032,6 +27049,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchExt3RdstorageIdProfilesProfileidUpdateImport
          * @summary Update an import setting of existing external profile for a specific external storage
          * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/update-import
+         * @deprecated
          */
         patchExt3rdstorageIdProfilesProfileidUpdateImport: (
             id: string,
@@ -27054,6 +27072,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchExt3RdstorageIdProfilesProfileidUpdateGeneral
          * @summary Update an general setting of existing external profile for a specific external storage
          * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/update-general
+         * @deprecated
          */
         patchExt3rdstorageIdProfilesProfileidUpdateGeneral: (
             id: string,
@@ -27076,6 +27095,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchExt3RdstorageIdProfilesProfileidUpdateCapture
          * @summary Update an capture setting of existing external profile for a specific external storage
          * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/update-capture
+         * @deprecated
          */
         patchExt3rdstorageIdProfilesProfileidUpdateCapture: (
             id: string,
@@ -27098,6 +27118,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchExt3RdstorageProfilesProfileidUpdateOutputrecordOutputrecordid
          * @summary Update a external profile output record
          * @request PATCH:/api/ext3rdStorage/profiles/{profileId}/update-outputRecord/{outputRecordId}
+         * @deprecated
          */
         patchExt3rdstorageProfilesProfileidUpdateOutputrecordOutputrecordid: (
             profileId: string,
@@ -27120,6 +27141,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchExt3RdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus
          * @summary Active/Inactive a external profile output record
          * @request PATCH:/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}/update-status
+         * @deprecated
          */
         patchExt3rdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus: (
             profileId: string,
@@ -27142,6 +27164,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchExt3RdstorageImportjobsIdUpdateStatus
          * @summary Update import job status
          * @request PATCH:/api/ext3rdStorage/importJobs/{id}/update-status
+         * @deprecated
          */
         patchExt3rdstorageImportjobsIdUpdateStatus: (
             id: string,
@@ -29114,6 +29137,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name GetExt3RdstorageId
          * @summary Get External Storage Detail
          * @request GET:/api/ext3rdStorage/{id}
+         * @deprecated
          */
         getExt3rdstorageId: (id: string, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
@@ -29129,6 +29153,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name DeleteExt3RdstorageId
          * @summary Delete External Storage
          * @request DELETE:/api/ext3rdStorage/{id}
+         * @deprecated
          */
         deleteExt3rdstorageId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -29144,6 +29169,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name GetExt3RdstorageIdProfilesProfileid
          * @summary Get a external profile in external storage id
          * @request GET:/api/ext3rdStorage/{id}/profiles/{profileId}
+         * @deprecated
          */
         getExt3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
@@ -29159,6 +29185,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name DeleteExt3RdstorageIdProfilesProfileid
          * @summary Delete a external profile in external storage id
          * @request DELETE:/api/ext3rdStorage/{id}/profiles/{profileId}
+         * @deprecated
          */
         deleteExt3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -29174,6 +29201,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name GetExt3RdstorageIdProfilesList
          * @summary Get all profile by external storage id
          * @request GET:/api/ext3rdStorage/{id}/profiles/list
+         * @deprecated
          */
         getExt3rdstorageIdProfilesList: (id: string, params: RequestParams = {}) =>
             this.request<ResultListExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
@@ -29188,6 +29216,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageController
          * @name GetExt3RdstorageProfilesProfileidOutputrecordOutputrecordid
          * @request GET:/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @deprecated
          */
         getExt3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
             profileId: string,
@@ -29206,6 +29235,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageController
          * @name DeleteExt3RdstorageProfilesProfileidOutputrecordOutputrecordid
          * @request DELETE:/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @deprecated
          */
         deleteExt3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
             profileId: string,
@@ -29225,6 +29255,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name GetExt3RdstorageProfilesProfileidOutputrecordList
          * @summary Retrieve all output settings of specific profile
          * @request GET:/api/ext3rdStorage/profiles/{profileId}/outputRecord/list
+         * @deprecated
          */
         getExt3rdstorageProfilesProfileidOutputrecordList: (profileId: string, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -29240,6 +29271,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name GetExt3RdstorageList
          * @summary Get External Storage Detail List
          * @request GET:/api/ext3rdStorage/list
+         * @deprecated
          */
         getExt3rdstorageList: (
             query: {
@@ -29262,6 +29294,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name GetExt3RdstorageImportjobsId
          * @summary Get import job details
          * @request GET:/api/ext3rdStorage/importJobs/{id}
+         * @deprecated
          */
         getExt3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
@@ -29277,6 +29310,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name DeleteExt3RdstorageImportjobsId
          * @summary Delete import job
          * @request DELETE:/api/ext3rdStorage/importJobs/{id}
+         * @deprecated
          */
         deleteExt3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -29291,6 +29325,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageImportJobController
          * @name GetExt3RdstorageImportjobsPageConditions
          * @request GET:/api/ext3rdStorage/importJobs/page/conditions
+         * @deprecated
          */
         getExt3rdstorageImportjobsPageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -29306,6 +29341,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name GetExt3RdstorageImportjobsList
          * @summary Get all import jobs list
          * @request GET:/api/ext3rdStorage/importJobs/list
+         * @deprecated
          */
         getExt3rdstorageImportjobsList: (
             query: {
@@ -35491,7 +35527,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PutAdminext3RdstorageIdUpdate
          * @summary Update an existing external storage configuration
          * @request PUT:/admin/api/ext3rdStorage/{id}/update
-         * @deprecated
          */
         putAdminext3rdstorageIdUpdate: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
@@ -35509,7 +35544,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PutAdminext3RdstorageIdUpdateProfilesProfileid
          * @summary Update a external profile in external storage id
          * @request PUT:/admin/api/ext3rdStorage/{id}/update-profiles/{profileId}
-         * @deprecated
          */
         putAdminext3rdstorageIdUpdateProfilesProfileid: (
             id: string,
@@ -35532,7 +35566,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PutAdminext3RdstorageImportjobsIdUpdate
          * @summary Update import job
          * @request PUT:/admin/api/ext3rdStorage/importJobs/{id}/update
-         * @deprecated
          */
         putAdminext3rdstorageImportjobsIdUpdate: (
             id: string,
@@ -35558,6 +35591,84 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/ext3rdMessage/whatsapp/settings`,
                 method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-controller
+         * @name GetAdmindsbAzureOcrSetting
+         * @request GET:/admin/api/dsb/azure/ocr/setting
+         */
+        getAdmindsbAzureOcrSetting: (params: RequestParams = {}) =>
+            this.request<ResultAzureSettingDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dsb/azure/ocr/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-controller
+         * @name PutAdmindsbAzureOcrSetting
+         * @request PUT:/admin/api/dsb/azure/ocr/setting
+         */
+        putAdmindsbAzureOcrSetting: (data: AzureOcrSettingDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dsb/azure/ocr/setting`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-controller
+         * @name PutAdmindsbAzureOcrSettingApiKey
+         * @request PUT:/admin/api/dsb/azure/ocr/setting/api-key
+         */
+        putAdmindsbAzureOcrSettingApiKey: (data: AzureOcrApiKeyDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dsb/azure/ocr/setting/api-key`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-controller
+         * @name PutAdmindsbAzureOcrProfileMapping
+         * @request PUT:/admin/api/dsb/azure/ocr/profile/mapping
+         */
+        putAdmindsbAzureOcrProfileMapping: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dsb/azure/ocr/profile/mapping`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-controller
+         * @name PostAdmindsbAzureOcrProfileMapping
+         * @request POST:/admin/api/dsb/azure/ocr/profile/mapping
+         */
+        postAdmindsbAzureOcrProfileMapping: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dsb/azure/ocr/profile/mapping`,
+                method: "POST",
                 body: data,
                 type: ContentType.Json,
                 ...params,
@@ -35659,54 +35770,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/docpal/id-templates/${id}`,
                 method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name PutAdmindocpalAzureOcrUpdateocrsetting
-         * @request PUT:/admin/api/docpal/azure/ocr/updateOcrSetting
-         */
-        putAdmindocpalAzureOcrUpdateocrsetting: (data: AzureOcrSettingDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/azure/ocr/updateOcrSetting`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name PutAdmindocpalAzureOcrUpdateocrprofilemapping
-         * @request PUT:/admin/api/docpal/azure/ocr/updateOcrProfileMapping
-         */
-        putAdmindocpalAzureOcrUpdateocrprofilemapping: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/azure/ocr/updateOcrProfileMapping`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name PutAdmindocpalAzureOcrUpdateapisetting
-         * @request PUT:/admin/api/docpal/azure/ocr/updateApiSetting
-         */
-        putAdmindocpalAzureOcrUpdateapisetting: (data: AzureOcrApiKeyDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/azure/ocr/updateApiSetting`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
                 ...params,
             }),
 
@@ -38294,7 +38357,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostAdminext3Rdstorage
          * @summary Create a new external storage
          * @request POST:/admin/api/ext3rdStorage
-         * @deprecated
          */
         postAdminext3rdstorage: (data: ExternalStorageDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
@@ -38312,7 +38374,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostAdminext3RdstorageIdProfiles
          * @summary Create a new external profile in external storage id
          * @request POST:/admin/api/ext3rdStorage/{id}/profiles
-         * @deprecated
          */
         postAdminext3rdstorageIdProfiles: (id: string, data: ExternalProfileDTO, params: RequestParams = {}) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
@@ -38330,7 +38391,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostAdminext3RdstorageIdProfilesPage
          * @summary Paging query external storage profiles by external storage id
          * @request POST:/admin/api/ext3rdStorage/{id}/profiles/page
-         * @deprecated
          */
         postAdminext3rdstorageIdProfilesPage: (
             id: string,
@@ -38352,7 +38412,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostAdminext3RdstorageIdConnectionTest
          * @summary Testing SMB connection is correct
          * @request POST:/admin/api/ext3rdStorage/{id}/connection/test
-         * @deprecated
          */
         postAdminext3rdstorageIdConnectionTest: (
             id: string,
@@ -38374,7 +38433,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostAdminext3RdstorageProfilesProfileidOutputrecord
          * @summary Create External Profile Output
          * @request POST:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord
-         * @deprecated
          */
         postAdminext3rdstorageProfilesProfileidOutputrecord: (
             profileId: string,
@@ -38396,7 +38454,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostAdminext3RdstorageProfilesProfileidDuplicateOutputrecordOutputrecordid
          * @summary Duplicate (Copy) a exist External Profile Output
          * @request POST:/admin/api/ext3rdStorage/profiles/{profileId}/duplicate-outputRecord/{outputRecordId}
-         * @deprecated
          */
         postAdminext3rdstorageProfilesProfileidDuplicateOutputrecordOutputrecordid: (
             profileId: string,
@@ -38416,7 +38473,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostAdminext3RdstoragePage
          * @summary Paging query External Storage
          * @request POST:/admin/api/ext3rdStorage/page
-         * @deprecated
          */
         postAdminext3rdstoragePage: (data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
@@ -38434,7 +38490,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostAdminext3RdstorageImportjobsPage
          * @summary Paginated query for import jobs
          * @request POST:/admin/api/ext3rdStorage/importJobs/page
-         * @deprecated
          */
         postAdminext3rdstorageImportjobsPage: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
             this.request<
@@ -38455,7 +38510,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostAdminext3RdstorageImportjobsJobqueueFirst
          * @summary Place a task in the first queue
          * @request POST:/admin/api/ext3rdStorage/importJobs/jobQueue/first
-         * @deprecated
          */
         postAdminext3rdstorageImportjobsJobqueueFirst: (
             data: ExternalStorageImportJobRequestDTO,
@@ -38476,7 +38530,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostAdminext3RdstorageImportjobsAdd
          * @summary Save import job record
          * @request POST:/admin/api/ext3rdStorage/importJobs/add
-         * @deprecated
          */
         postAdminext3rdstorageImportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
@@ -38494,7 +38547,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PostAdminext3RdstorageImportjobs
          * @summary Save import job record
          * @request POST:/admin/api/ext3rdStorage/importJobs
-         * @deprecated
          */
         postAdminext3rdstorageImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
@@ -38531,6 +38583,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postAdminext3rdmessageWhatsappLogsQuery: (data: BasePageRequest, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOWhatsAppLogDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/ext3rdMessage/whatsapp/logs/query`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-controller
+         * @name PostAdmindsbAzureOcrTransactionLogs
+         * @request POST:/admin/api/dsb/azure/ocr/transaction/logs
+         */
+        postAdmindsbAzureOcrTransactionLogs: (data: OcrTransactionLogRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOOcrTransactionLogDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dsb/azure/ocr/transaction/logs`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -39633,41 +39701,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postAdmindocpalDataStatisticsExecuteDailyStatistics: (data: ExecuteSqlDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/docpal/data_statistics/execute_daily_statistics`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name PostAdmindocpalAzureOcrQueryocrtransactionlogs
-         * @request POST:/admin/api/docpal/azure/ocr/queryOcrTransactionLogs
-         */
-        postAdmindocpalAzureOcrQueryocrtransactionlogs: (
-            data: OcrTransactionLogRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginationDTOOcrTransactionLogDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/azure/ocr/queryOcrTransactionLogs`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name PostAdmindocpalAzureOcrCreateocrprofilemapping
-         * @request POST:/admin/api/docpal/azure/ocr/createOcrProfileMapping
-         */
-        postAdmindocpalAzureOcrCreateocrprofilemapping: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/azure/ocr/createOcrProfileMapping`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -43006,7 +43039,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchAdminext3RdstorageIdUpdateStatus
          * @summary Active/Inactive a external storage
          * @request PATCH:/admin/api/ext3rdStorage/{id}/update-status
-         * @deprecated
          */
         patchAdminext3rdstorageIdUpdateStatus: (
             id: string,
@@ -43028,7 +43060,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateStatus
          * @summary Active/Inactive a external profile
          * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-status
-         * @deprecated
          */
         patchAdminext3rdstorageIdProfilesProfileidUpdateStatus: (
             id: string,
@@ -43051,7 +43082,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateProcess
          * @summary Update an setting of existing external profile for a specific external storage
          * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-process
-         * @deprecated
          */
         patchAdminext3rdstorageIdProfilesProfileidUpdateProcess: (
             id: string,
@@ -43074,7 +43104,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateImport
          * @summary Update an import setting of existing external profile for a specific external storage
          * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-import
-         * @deprecated
          */
         patchAdminext3rdstorageIdProfilesProfileidUpdateImport: (
             id: string,
@@ -43097,7 +43126,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateGeneral
          * @summary Update an general setting of existing external profile for a specific external storage
          * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-general
-         * @deprecated
          */
         patchAdminext3rdstorageIdProfilesProfileidUpdateGeneral: (
             id: string,
@@ -43120,7 +43148,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateCapture
          * @summary Update an capture setting of existing external profile for a specific external storage
          * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-capture
-         * @deprecated
          */
         patchAdminext3rdstorageIdProfilesProfileidUpdateCapture: (
             id: string,
@@ -43143,7 +43170,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchAdminext3RdstorageProfilesProfileidUpdateOutputrecordOutputrecordid
          * @summary Update a external profile output record
          * @request PATCH:/admin/api/ext3rdStorage/profiles/{profileId}/update-outputRecord/{outputRecordId}
-         * @deprecated
          */
         patchAdminext3rdstorageProfilesProfileidUpdateOutputrecordOutputrecordid: (
             profileId: string,
@@ -43166,7 +43192,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus
          * @summary Active/Inactive a external profile output record
          * @request PATCH:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}/update-status
-         * @deprecated
          */
         patchAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus: (
             profileId: string,
@@ -43189,7 +43214,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name PatchAdminext3RdstorageImportjobsIdUpdateStatus
          * @summary Update import job status
          * @request PATCH:/admin/api/ext3rdStorage/importJobs/{id}/update-status
-         * @deprecated
          */
         patchAdminext3rdstorageImportjobsIdUpdateStatus: (
             id: string,
@@ -44234,7 +44258,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name GetAdminext3RdstorageId
          * @summary Get External Storage Detail
          * @request GET:/admin/api/ext3rdStorage/{id}
-         * @deprecated
          */
         getAdminext3rdstorageId: (id: string, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
@@ -44250,7 +44273,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name DeleteAdminext3RdstorageId
          * @summary Delete External Storage
          * @request DELETE:/admin/api/ext3rdStorage/{id}
-         * @deprecated
          */
         deleteAdminext3rdstorageId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -44266,7 +44288,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name GetAdminext3RdstorageIdProfilesProfileid
          * @summary Get a external profile in external storage id
          * @request GET:/admin/api/ext3rdStorage/{id}/profiles/{profileId}
-         * @deprecated
          */
         getAdminext3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
@@ -44282,7 +44303,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name DeleteAdminext3RdstorageIdProfilesProfileid
          * @summary Delete a external profile in external storage id
          * @request DELETE:/admin/api/ext3rdStorage/{id}/profiles/{profileId}
-         * @deprecated
          */
         deleteAdminext3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -44298,7 +44318,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name GetAdminext3RdstorageIdProfilesList
          * @summary Get all profile by external storage id
          * @request GET:/admin/api/ext3rdStorage/{id}/profiles/list
-         * @deprecated
          */
         getAdminext3rdstorageIdProfilesList: (id: string, params: RequestParams = {}) =>
             this.request<ResultListExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
@@ -44313,7 +44332,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageController
          * @name GetAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordid
          * @request GET:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         * @deprecated
          */
         getAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
             profileId: string,
@@ -44332,7 +44350,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageController
          * @name DeleteAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordid
          * @request DELETE:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         * @deprecated
          */
         deleteAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
             profileId: string,
@@ -44352,7 +44369,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name GetAdminext3RdstorageProfilesProfileidOutputrecordList
          * @summary Retrieve all output settings of specific profile
          * @request GET:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/list
-         * @deprecated
          */
         getAdminext3rdstorageProfilesProfileidOutputrecordList: (profileId: string, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
@@ -44368,7 +44384,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name GetAdminext3RdstorageList
          * @summary Get External Storage Detail List
          * @request GET:/admin/api/ext3rdStorage/list
-         * @deprecated
          */
         getAdminext3rdstorageList: (
             query: {
@@ -44391,7 +44406,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name GetAdminext3RdstorageImportjobsId
          * @summary Get import job details
          * @request GET:/admin/api/ext3rdStorage/importJobs/{id}
-         * @deprecated
          */
         getAdminext3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
@@ -44407,7 +44421,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name DeleteAdminext3RdstorageImportjobsId
          * @summary Delete import job
          * @request DELETE:/admin/api/ext3rdStorage/importJobs/{id}
-         * @deprecated
          */
         deleteAdminext3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
@@ -44422,7 +44435,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @tags ExternalStorageImportJobController
          * @name GetAdminext3RdstorageImportjobsPageConditions
          * @request GET:/admin/api/ext3rdStorage/importJobs/page/conditions
-         * @deprecated
          */
         getAdminext3rdstorageImportjobsPageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
@@ -44438,7 +44450,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @name GetAdminext3RdstorageImportjobsList
          * @summary Get all import jobs list
          * @request GET:/admin/api/ext3rdStorage/importJobs/list
-         * @deprecated
          */
         getAdminext3rdstorageImportjobsList: (
             query: {
@@ -44478,6 +44489,34 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         getAdminext3rdmessageWhatsappConnectionStatus: (params: RequestParams = {}) =>
             this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/ext3rdMessage/whatsapp/connection/status`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-controller
+         * @name GetAdmindsbAzureOcrModels
+         * @request GET:/admin/api/dsb/azure/ocr/models
+         */
+        getAdmindsbAzureOcrModels: (params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dsb/azure/ocr/models`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-controller
+         * @name GetAdmindsbAzureOcrConditions
+         * @request GET:/admin/api/dsb/azure/ocr/conditions
+         */
+        getAdmindsbAzureOcrConditions: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dsb/azure/ocr/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -45450,48 +45489,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         getAdmindocpalIdTemplatesList: (params: RequestParams = {}) =>
             this.request<ResultListIdTemplate, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/docpal/id-templates/list`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name GetAdmindocpalAzureOcrQueryazuresetting
-         * @request GET:/admin/api/docpal/azure/ocr/queryAzureSetting
-         */
-        getAdmindocpalAzureOcrQueryazuresetting: (params: RequestParams = {}) =>
-            this.request<ResultAzureSettingDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/azure/ocr/queryAzureSetting`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name GetAdmindocpalAzureOcrQueryazureocrmodels
-         * @request GET:/admin/api/docpal/azure/ocr/queryAzureOcrModels
-         */
-        getAdmindocpalAzureOcrQueryazureocrmodels: (params: RequestParams = {}) =>
-            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/azure/ocr/queryAzureOcrModels`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name GetAdmindocpalAzureOcrConditions
-         * @request GET:/admin/api/docpal/azure/ocr/conditions
-         */
-        getAdmindocpalAzureOcrConditions: (params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/azure/ocr/conditions`,
                 method: "GET",
                 ...params,
             }),

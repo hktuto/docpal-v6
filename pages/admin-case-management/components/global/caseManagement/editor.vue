@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 
 const { caseId } = useCmmnGraph()
 const props = defineProps<{
@@ -23,7 +23,7 @@ if (!routerProvider) {
 
 async function getCaseData() {
   console.log('getCaseData')
-  const { data } = await clientApi.api.getCaseTypesVersionVersionid(props.versionId) as any
+  const data: any = await clientApi.admin.getAdmincaseTypesVersionVersionid(props.versionId).then(r => r.data)
   readOnly.value = data.production
   production.value = data.production
   caseInfo.value = data
@@ -43,7 +43,7 @@ async function getCaseData() {
 // }
 
 // async function loadXml() {
-//   const blob = await clientApi.api.getCaseTypesIdDownloadXml(props.caseTypeId, {versionNumber: props?.currentVersion}, {
+//   const blob = await clientApi.admin.getAdmincaseTypesIdDownloadXml(props.caseTypeId, {versionNumber: props?.currentVersion}, {
 //     format: 'blob'
 //   }) as any
 //   const cmmnString = await blob.text()
@@ -51,9 +51,9 @@ async function getCaseData() {
 // }
 
 async function loadJsonAndXml() {
-  let { data: styleJson } = await clientApi.api.getCaseTypesIdStylejson(props.caseTypeId, { versionNumber: props?.currentVersion })
+  let styleJson: any = await clientApi.admin.getAdmincaseTypesIdStylejson(props.caseTypeId, { versionNumber: props?.currentVersion }).then(r => r.data)
   styleJson = styleJson ? JSON.parse(styleJson) : null
-  const blob = await clientApi.api.getCaseTypesIdDownloadXml(props.caseTypeId, { versionNumber: props?.currentVersion }, {
+  const blob = await clientApi.admin.getAdmincaseTypesIdDownloadXml(props.caseTypeId, { versionNumber: props?.currentVersion }, {
     format: 'blob'
   }) as any
   const cmmnString = await blob.text()
@@ -74,12 +74,13 @@ async function handleSave() {
     const formData = new FormData()
     formData.append('file', blob)
     // TODO : method are not correct in swagger, tem use instance.
-    await adminApi.instance.patch(`/api/case/types/version/${props.versionId}/save`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-    await clientApi.api.postCaseTypesStylejsonSave(
+    // await clientApi.instance.patch(`admin/api/case/types/version/${props.versionId}/save`, formData, {
+    //   headers: {
+    //     'Content-Type': 'multipart/form-data'
+    //   }
+    // })
+    await clientApi.admin.patchAdmincaseTypesVersionVersionidSave(props.versionId, { file: blob }, {}, { format: 'blob' })
+    await clientApi.admin.postAdmincaseTypesStylejsonSave(
       {
         caseTypeId: props.caseTypeId,
         versionNumber: props.currentVersion,
@@ -130,7 +131,7 @@ function openVersionList() {
 async function saveAsNewVersion() {
   try {
     console.log('saveAsNewVersion', props)
-    const data = await clientApi.api.postCaseTypesVersionVersionidNew(props.versionId).then(r = r.data)
+    const data = await clientApi.admin.postAdmincaseTypesVersionVersionidNew(props.versionId).then(r = r.data)
     // console.log("data", data)
     // get all form in case and save as to new version
     const allNodes = editorEl.value.graph.getNodes()
@@ -141,7 +142,7 @@ async function saveAsNewVersion() {
       const nodeData = node.getData()
       if (nodeData.type === 'humanTask') {
         console.log('is human task', nodeData)
-        const response = await clientApi.api.getDmsFormPropertiesQuery({
+        const response = await clientApi.admin.getAdmindmsFormPropertiesQuery({
           processKey,
           userTaskId: nodeData.data.attr_id,
           versionId: props.versionId
@@ -154,7 +155,7 @@ async function saveAsNewVersion() {
             versionId: data.id,
             jsonValue: response.data[0].jsonValue
           }
-          await clientApi.api.postDmsFormPropertiesSave(params)
+          await clientApi.admin.postAdmindmsFormPropertiesSave(params)
         }
       }
     }
@@ -177,7 +178,7 @@ async function saveAsNewVersion() {
 }
 
 async function promoteToProduction() {
-  const data = await clientApi.api.postCaseTypesVersionVersionidActive(props.versionId).then(r => r.data)
+  await clientApi.admin.postAdmincaseTypesVersionVersionidActive(props.versionId).then(r => r.data)
   routerProvider?.message.success(t('dpMsg_success'))
   await getCaseData()
   await init()
