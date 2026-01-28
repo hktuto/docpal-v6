@@ -46,7 +46,7 @@ async function handleChange() {
   try {
     state.loading = true
     if (form.value.permission.length === 0) return
-    await clientApi.api.postDmsEasyFormSavePermission({
+    await clientApi.admin.postAdmindmsEasyFormSavePermission({
       id: props.detail.id,
       permissions: convertPermissionObjectByPermissions(form.value.permission)
     })

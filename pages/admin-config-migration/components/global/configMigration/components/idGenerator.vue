@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 
 const props = defineProps<{
   idGeneratorList: any[]
@@ -18,7 +18,7 @@ async function handleCreateIdGenerator() {
   for (const idTemplateItem of Object.values(props.idGeneratorList)) {
     let data
     try {
-      data = await adminApi.api.postIdTemplates({
+      data = await clientApi.admin.getAdmindocpalIdTemplates({
         name: idTemplateItem.name
       }).then(res => res.data)
       idList.value.push({
@@ -43,7 +43,7 @@ async function handleCreateIdGenerator() {
       startNumber: idTemplateItem.startNumber
     }
     try {
-      await adminApi.api.putIdTemplatesId(data.id, form).then(res => res.data)
+      await clientApi.admin.putAdmindocpalIdTemplatesId(data.id, form).then(res => res.data)
     } catch (e) {
       list.push(idTemplateItem.name)
     }

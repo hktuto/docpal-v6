@@ -1,11 +1,5 @@
 <template>
-  <el-dialog
-    v-model="state.visible"
-    :title="title"
-    class="scroll-dialog"
-    append-to-body
-    :close-on-click-modal="false"
-  >
+  <el-dialog v-model="state.visible" :title="title" class="scroll-dialog" append-to-body :close-on-click-modal="false">
     <FormRenderer ref="FormRendererRef" :form-json="formJson" />
     <template #footer>
       <div class="footer-grid">
@@ -18,7 +12,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import formJson from './dialog.vform.json'
 import { ElMessage } from 'element-plus'
 
@@ -41,24 +35,32 @@ async function handleSubmit() {
       groupId: data.groupId.join(',')
     }
     if (state.edit) {
-      const res = await adminApi.api.putPersonalDashboardUpdate({
-        ...state.setting,
-        ..._data
-      })
-      ElMessage.success(t('tip_updateMsg', {
-        modelName: t('workPanel_workPanel'),
-        name: _data.name
-      }))
+      await clientApi.admin
+        .putAdmindocpalPersonalDashboardUpdate({
+          ...state.setting,
+          ..._data
+        })
+        .then((r) => r.data)
+      ElMessage.success(
+        t('tip_updateMsg', {
+          modelName: t('workPanel_workPanel'),
+          name: _data.name
+        })
+      )
       emits('refresh')
     } else {
-      const res = await adminApi.api.postPersonalDashboardSave({
-        ..._data,
-        styleJson: '{}'
-      }).then(res => res.data)
-      ElMessage.success(t('tip_createdMsg', {
-        modelName: t('tip_newMsg') + t('workPanel_workPanel'),
-        name: _data.name
-      }))
+      const res = await clientApi.admin
+        .postAdmindocpalPersonalDashboardSave({
+          ..._data,
+          styleJson: '{}'
+        })
+        .then((res) => res.data)
+      ElMessage.success(
+        t('tip_createdMsg', {
+          modelName: t('tip_newMsg') + t('workPanel_workPanel'),
+          name: _data.name
+        })
+      )
       emits('add', res)
     }
     state.visible = false

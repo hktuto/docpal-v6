@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { clientApi, adminApi } from 'api'
+import { clientApi } from 'api'
+import { getGroupsSelectOption } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -29,22 +30,22 @@ const relatedUserGroup = new Set<string>()
 const relatedUserRole = new Set<string>()
 
 const exportData = ref<any>({
-  case:{},
-  workflow:{},
-  documentTemplate:{},
-  folderCabinet:{},
-  masterTable:{},
-  idGenerator:{},
-  emailTemplate:{},
-  homePage:{},
-  userGroup:{},
-  userRole:{}
+  case: {},
+  workflow: {},
+  documentTemplate: {},
+  folderCabinet: {},
+  masterTable: {},
+  idGenerator: {},
+  emailTemplate: {},
+  homePage: {},
+  userGroup: {},
+  userRole: {}
 })
 
 const loading = ref(false)
 
 async function getHomePageList() {
-  const res = await adminApi.api.postPersonalDashboard({ pageNum: 0, pageSize: 1000 })
+  const res = await clientApi.admin.postAdmindocpalPersonalDashboard({ pageNum: 0, pageSize: 1000 })
   homePageList.value = res.data?.entryList || []
 }
 
@@ -60,12 +61,12 @@ async function getListData() {
 }
 
 async function getCaseList() {
-  const res = await clientApi.api.postCaseTypesPage({ pageNum: 0, pageSize: 1000 })
+  const res = await clientApi.admin.postAdmincaseTypesPage({ pageNum: 0, pageSize: 1000 })
   caseList.value = res.data?.entryList.filter((item: any) => item.productionVersion) || []
 }
 
 async function getUserGroupList() {
-  userGroupList.value = await clientApi.api.postUcenterGroups().then(r => r.data)|| []
+  userGroupList.value = await getGroupsSelectOption()
 }
 
 async function getWorkflowList() {
@@ -74,7 +75,7 @@ async function getWorkflowList() {
 }
 
 async function handleExportEmailTemplate(emailTemplateId: string) {
-  const emailTemplateDetail = await clientApi.api.getDmsTemplateEmailTemplateId(emailTemplateId)
+  const emailTemplateDetail = await clientApi.admin.getAdmindmsTemplateEmailTemplateId(emailTemplateId)
   exportData.value.emailTemplate[emailTemplateId] = emailTemplateDetail.data
 }
 
@@ -131,14 +132,14 @@ async function handleWorkflowExport(workflowKey: string) {
 }
 
 async function handleMasterTableExport(masterTableId: string) {
-  const { data: masterTableDetail } = await clientApi.api.getDmsMasterTableId(masterTableId)
-  const aclsData = await clientApi.api.getDmsMasterTableIdAcls(masterTableId) as any
+  const { data: masterTableDetail } = await clientApi.admin.getAdmindmsMasterTableId(masterTableId)
+  const aclsData = await clientApi.admin.getAdmindmsMasterTableIdAcls(masterTableId) as any
   // loop acls data and remove user permission
-  if(!aclsData || !aclsData?.data ) {
+  if (!aclsData || !aclsData?.data) {
     return
   }
-  let acls = aclsData?.data.filter((acl:any) => acl.userType === 'G')
-  acls.forEach((acl:any) => {
+  let acls = aclsData?.data.filter((acl: any) => acl.userType === 'G')
+  acls.forEach((acl: any) => {
     relatedUserGroup.add(acl.userId)
   })
   exportData.value.masterTable[masterTableId] = {
@@ -148,12 +149,12 @@ async function handleMasterTableExport(masterTableId: string) {
 }
 
 async function handleIdGeneratorExport(idGeneratorId: string) {
-  exportData.value.idGenerator[idGeneratorId] = await adminApi.api.getIdTemplatesId(idGeneratorId).then(res => res.data)
+  exportData.value.idGenerator[idGeneratorId] = await clientApi.admin.getAdmindocpalIdTemplatesId(idGeneratorId).then(res => res.data)
 }
 
 async function handleDocumentTemplateExport(documentTemplateId: string) {
   const templateData = await clientApi.admin.getAdmindmsTemplateDocumentId(documentTemplateId).then(r => r.data)
-  if(!templateData) {
+  if (!templateData) {
     return
   }
   const fileBlob = await clientApi.admin.postAdmindmsDocumentPreview({ idOrPath: templateData.documentId }, {
@@ -176,9 +177,9 @@ async function handleDocumentTemplateExport(documentTemplateId: string) {
 }
 
 async function handleFolderCabinetExport(folderCabinetId: string) {
-  const { data: folderCabinetDetail } = await clientApi.api.getDmsCabinetTemplateId(folderCabinetId)
+  const folderCabinetDetail = await clientApi.admin.getAdmindmsCabinetTemplateId(folderCabinetId).then(r => r.data)
   exportData.value.folderCabinet[folderCabinetId] = folderCabinetDetail
-  const userGroups = folderCabinetDetail?.binds?.filter((bind:any) => bind.type === 'group') || []
+  const userGroups = folderCabinetDetail?.binds?.filter((bind: any) => bind.type === 'group') || []
   userGroups.forEach((bind: any) => {
     const groupId = bind.bindId
     relatedUserGroup.add(groupId)
@@ -201,39 +202,39 @@ async function handleExport() {
     relatedHomePage.clear()
     relatedEmailTemplate.clear()
     exportData.value = {
-      case:{},
-      workflow:{},
-      documentTemplate:{},
-      folderCabinet:{},
-      masterTable:{},
-      idGenerator:{},
-      emailTemplate:{},
-      homePage:{},
-      userGroup:{},
-      userRole:{}
+      case: {},
+      workflow: {},
+      documentTemplate: {},
+      folderCabinet: {},
+      masterTable: {},
+      idGenerator: {},
+      emailTemplate: {},
+      homePage: {},
+      userGroup: {},
+      userRole: {}
     }
-    if(selectedCase.value.length === 0 && selectedWorkflow.value.length === 0 && selectedHomePage.value.length === 0) {
+    if (selectedCase.value.length === 0 && selectedWorkflow.value.length === 0 && selectedHomePage.value.length === 0) {
       routerProvider?.message.error('Please select at least one case, workflow or home page')
       return
     }
     // get case export data
-    for(let i = 0; i < selectedCase.value.length; i++) {
+    for (let i = 0; i < selectedCase.value.length; i++) {
       await handleCaseExport(selectedCase.value[i])
     }
     // get workflow export data
-    for(let i = 0; i < selectedWorkflow.value.length; i++) {
+    for (let i = 0; i < selectedWorkflow.value.length; i++) {
       await handleWorkflowExport(selectedWorkflow.value[i])
     }
     // get home page export data
-    for(let i = 0; i < selectedHomePage.value.length; i++) {
+    for (let i = 0; i < selectedHomePage.value.length; i++) {
       await handleHomePageExport(selectedHomePage.value[i])
     }
     // loop case and handleCaseExport
-    for( let caseId of relatedCase) {
+    for (let caseId of relatedCase) {
       await handleCaseExport(caseId)
     }
     // loop workflow and handleWorkflowExport
-    for(let workflowKey of relatedWorkflow) {
+    for (let workflowKey of relatedWorkflow) {
       await handleWorkflowExport(workflowKey)
     }
 
@@ -243,32 +244,32 @@ async function handleExport() {
     }
 
     // loop document template and handleDocumentTemplateExport
-    for(let documentTemplateId of relatedDocumentTemplate) {
+    for (let documentTemplateId of relatedDocumentTemplate) {
       await handleDocumentTemplateExport(documentTemplateId)
     }
     // loop folder cabinet and handleFolderCabinetExport
-    for(let folderCabinetId of relatedFolderCabinet) {
+    for (let folderCabinetId of relatedFolderCabinet) {
       await handleFolderCabinetExport(folderCabinetId)
     }
 
     // loop master table and handleMasterTableExport
-    for(let masterTableId of relatedMasterTable) {
+    for (let masterTableId of relatedMasterTable) {
       await handleMasterTableExport(masterTableId)
     }
 
-    for(let idGeneratorId of relatedIdGenerator) {
+    for (let idGeneratorId of relatedIdGenerator) {
       await handleIdGeneratorExport(idGeneratorId)
     }
 
     // Remark: over data may add item to relatedUserGroup                                                       
     // loop user group and handleUserGroupExport
-    for(let groupId of relatedUserGroup) {
+    for (let groupId of relatedUserGroup) {
       await handleUserGroupExport(groupId)
     }
   } catch (err: any) {
     console.error(err)
     routerProvider?.message.error(err.message)
-  }finally{
+  } finally {
     loading.value = false
   }
 }
@@ -300,29 +301,29 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="exportFormContainer" >
+  <div class="exportFormContainer">
     <template v-if="mode === 'select'">
-    <h3>
-      Export Case
-    </h3>
-    <ElForm  ref="formRef" label-position="top">
-      <ElFormItem label="Case List" >
-        <ElSelect v-model="selectedCase" placeholder="Select Case" multiple filterable clearable>
-          <ElOption v-for="item in caseList" :key="item.id" :label="item.name" :value="item.id" />
-        </ElSelect>
-      </ElFormItem>
-      <ElFormItem label="Workflow List" >
-        <ElSelect v-model="selectedWorkflow" placeholder="Select Workflow" multiple filterable clearable>
-          <ElOption v-for="item in workflowList" :key="item.id" :label="item.name" :value="item.key" />
-        </ElSelect>
-      </ElFormItem>
-      <ElFormItem label="Home Page List" >
-        <ElSelect v-model="selectedHomePage" placeholder="Select Home Page" multiple filterable clearable>
-          <ElOption v-for="item in homePageList" :key="item.id" :label="item.name" :value="item.id" />
-        </ElSelect>
-      </ElFormItem>
-    </ElForm>
-    <ElButton type="primary" @click="handleExport">Confirm</ElButton>
+      <h3>
+        Export Case
+      </h3>
+      <ElForm ref="formRef" label-position="top">
+        <ElFormItem label="Case List">
+          <ElSelect v-model="selectedCase" placeholder="Select Case" multiple filterable clearable>
+            <ElOption v-for="item in caseList" :key="item.id" :label="item.name" :value="item.id" />
+          </ElSelect>
+        </ElFormItem>
+        <ElFormItem label="Workflow List">
+          <ElSelect v-model="selectedWorkflow" placeholder="Select Workflow" multiple filterable clearable>
+            <ElOption v-for="item in workflowList" :key="item.id" :label="item.name" :value="item.key" />
+          </ElSelect>
+        </ElFormItem>
+        <ElFormItem label="Home Page List">
+          <ElSelect v-model="selectedHomePage" placeholder="Select Home Page" multiple filterable clearable>
+            <ElOption v-for="item in homePageList" :key="item.id" :label="item.name" :value="item.id" />
+          </ElSelect>
+        </ElFormItem>
+      </ElForm>
+      <ElButton type="primary" @click="handleExport">Confirm</ElButton>
     </template>
     <div v-if="mode === 'confirm'" v-loading="loading" class="preContainer">
       <div class="exportedCaseContainer">

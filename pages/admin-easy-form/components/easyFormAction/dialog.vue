@@ -14,8 +14,8 @@
           {
             required: true,
             message: $t('docType_label') + $t('render.hint.fieldRequired'),
-            trigger: 'blur',
-          },
+            trigger: 'blur'
+          }
         ]"
       >
         <el-input v-model="form.actionName" />
@@ -27,8 +27,8 @@
           {
             required: true,
             message: $t('easyForm.type') + $t('render.hint.fieldRequired'),
-            trigger: 'change',
-          },
+            trigger: 'change'
+          }
         ]"
       >
         <el-select-v2
@@ -51,8 +51,8 @@
             {
               required: true,
               message: $t('easyForm.' + form.actionType + 'TemplateKey') + $t('render.hint.fieldRequired'),
-              trigger: 'change',
-            },
+              trigger: 'change'
+            }
           ]"
         >
           <el-select-v2
@@ -67,11 +67,7 @@
       </template>
       <template v-if="form.actionType === 'Email'">
         <div class="grid-layout_3">
-          <el-form-item
-            v-for="(item, index) in ['to', 'cc', 'bcc']"
-            :key="index"
-            :label="$t(`easyForm_addFormAction_${item}`)"
-          >
+          <el-form-item v-for="(item, index) in ['to', 'cc', 'bcc']" :key="index" :label="$t(`easyForm_addFormAction_${item}`)">
             <!-- :prop="`dataMapping[${index}].source`" -->
             <el-select-v2
               v-model="form[item]"
@@ -89,24 +85,10 @@
       <template v-if="form.actionKey">
         <h3>{{ $t(`easyForm.${form.actionType}VariableMapping`) }}</h3>
         <div class="grid-layout_3">
-          <el-form-item
-            v-for="(item, index) in form.dataMapping"
-            :key="index"
-            :label="getTargetLabel(item.target)"
-          >
+          <el-form-item v-for="(item, index) in form.dataMapping" :key="index" :label="getTargetLabel(item.target)">
             <!-- :prop="`dataMapping[${index}].source`" -->
-            <ElSelect
-              v-model="item.source"
-              filterable
-              :placeholder="$t('easyform.actionFieldSelect')"
-              clearable
-            >
-              <ElOption
-                v-for="option in sourceList"
-                :key="option.value"
-                :label="option.label"
-                :value="option.value"
-              />
+            <ElSelect v-model="item.source" filterable :placeholder="$t('easyform.actionFieldSelect')" clearable>
+              <ElOption v-for="option in sourceList" :key="option.value" :label="option.label" :value="option.value" />
             </ElSelect>
             <!-- <el-select-v2 v-model="item.source" filterable :placeholder="$t('easyform.actionFieldSelect')" :options="sourceList" clearable /> -->
           </el-form-item>
@@ -115,8 +97,7 @@
     </el-form>
     <template #footer>
       <div class="footer-grid">
-        <el-button id="EasyForm__Detail__FormActions__AddNewFormAction__Submit" type="primary" :loading="state.loading"
-                   @click="handleSubmit">
+        <el-button id="EasyForm__Detail__FormActions__AddNewFormAction__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
           {{ $t('common_submit') }}
         </el-button>
       </div>
@@ -124,7 +105,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi, adminApi } from 'api'
+import { clientApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const routerProvider = inject(MenuRouterKey)
@@ -223,7 +204,7 @@ async function handleSubmit() {
     if (state.editMode) {
       params.formResult.id = state.setting.id
     }
-    const action = await clientApi.api.postDmsEasyFormSaveFormresultAppend(params).then((res) => res.data)
+    const action = await clientApi.admin.postAdmindmsEasyFormSaveFormresultAppend(params).then((res) => res.data)
     ElMessage.success(t('tip_createdMsg', { modelName: t('tip_newMsg') + t('easyForm_formAction'), name: null }))
     emits('refresh', action)
   } catch (error) {
@@ -275,7 +256,7 @@ async function handleChange(key, isInit = false) {
 
 async function getWorkflow() {
   if (workflowList.length === 0) {
-    const res = await clientApi.api.getDmsEasyFormProcessDefinitions().then((res) => res.data)
+    const res = await clientApi.admin.getAdmindmsEasyFormProcessDefinitions().then((res) => res.data)
     workflowList = res.map((item) => ({
       label: item.label,
       value: item.key
@@ -285,7 +266,7 @@ async function getWorkflow() {
 
 async function getCase() {
   if (caseList.length === 0) {
-    const res = await clientApi.api.postCaseTypesPage({ pageSize: 9999 }).then((res) => res.data)
+    const res = await clientApi.admin.postAdmincaseTypesPage({ pageSize: 9999 }).then((res) => res.data)
     caseList = res.entryList.map((item) => ({
       label: item.name,
       value: item.id,
@@ -296,7 +277,7 @@ async function getCase() {
 
 async function getEmail() {
   if (emailList.length === 0) {
-    const res = await clientApi.api.getDmsTemplateEmailAll().then((res) => res.data)
+    const res = await clientApi.admin.getAdmindmsTemplateEmailAll().then((res) => res.data)
     emailList = res.map((item) => ({
       label: item.label,
       value: item.id
@@ -326,9 +307,7 @@ async function handleKeyChange(value: string, isInit = false) {
   }
 
   state.targetList.forEach((item) => {
-    const index = form.value.dataMapping.findIndex(
-      (fItem) => fItem.target === item.value
-    )
+    const index = form.value.dataMapping.findIndex((fItem) => fItem.target === item.value)
     if (index === -1)
       form.value.dataMapping.push({
         source: '',
@@ -338,9 +317,7 @@ async function handleKeyChange(value: string, isInit = false) {
 }
 
 async function getWorkflowProps(processKey: string) {
-  const options = await adminApi.api
-    .postWorkflowProperties({ processKey })
-    .then((res) => res.data)
+  const options = await clientApi.admin.postAdmindocpalWorkflowProperties({ processKey }).then((res) => res.data)
   console.log('getWorkflowProps', options)
   if (!options || options.length == 0) {
     return []
@@ -353,7 +330,7 @@ async function getWorkflowProps(processKey: string) {
 
 async function getEmailProps(id: string) {
   try {
-    const options = await clientApi.api.getDmsTemplateEmailTemplateId(id).then((res) => res.data)
+    const options = await clientApi.admin.getAdmindmsTemplateEmailTemplateId(id).then((res) => res.data)
     if (!options || options.length == 0) {
       return []
     }
@@ -370,9 +347,9 @@ async function getEmailProps(id: string) {
 
 async function getCaseProps(key: string) {
   try {
-    const caseItem = caseList.find(item => item.value === key)
+    const caseItem = caseList.find((item) => item.value === key)
 
-    const options: any = await clientApi.api.getCaseDashboardVersionVersionidPrimaryform(caseItem.productionVersionId).then((res) => res.data)
+    const options: any = await clientApi.admin.getAdmincaseDashboardVersionVersionidPrimaryform(caseItem.productionVersionId).then((res) => res.data)
     if (!options || options.length == 0) {
       return []
     }
@@ -393,11 +370,13 @@ async function getUserList() {
     state.userList = userListStore.value
     return
   }
-  const userList = await clientApi.api.postUcenterUsers({}).then((res) => res.data)
-  const _userList = userList.map((item) => ({
-    label: (item.firstName && item.lastName && item.firstName !== item.lastName ? `${item.firstName} ${item.lastName}` : item.username) + ` <${item.email}>`,
-    value: item.userId
-  })).filter((item) => item.value !== userId)
+  const userList = await clientApi.admin.postAdminucenterUsers({}).then((res) => res.data)
+  const _userList = userList
+    .map((item) => ({
+      label: (item.firstName && item.lastName && item.firstName !== item.lastName ? `${item.firstName} ${item.lastName}` : item.username) + ` <${item.email}>`,
+      value: item.userId
+    }))
+    .filter((item) => item.value !== userId)
   // state.userList.unshift(...sourceList.value)
   state.userList = [
     { label: t('easyForm.formInfomation'), value: '', options: sourceList.value },

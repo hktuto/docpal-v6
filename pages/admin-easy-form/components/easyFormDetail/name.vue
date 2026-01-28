@@ -2,20 +2,11 @@
   <el-card>
     <h3 class="title">{{ $t('easyForm.formSetting') }}</h3>
     <el-form ref="FormRef" label-position="top" :model="form" @submit.prevent>
-      <el-formItem
-        :label="$t('easyForm.name')"
-        prop="name"
-        :rules="[{ required: true, message: $t('easyForm.name') + $t('render.hint.fieldRequired') }]"
-      >
-        <el-input
-          v-model="form.name"
-          @change="handleChange"
-          :placeholder="$t('tip.input')"
-        />
+      <el-formItem :label="$t('easyForm.name')" prop="name" :rules="[{ required: true, message: $t('easyForm.name') + $t('render.hint.fieldRequired') }]">
+        <el-input v-model="form.name" @change="handleChange" :placeholder="$t('tip.input')" />
       </el-formItem>
     </el-form>
-    <el-button id="EasyForm__Detail__FormSetting__Publish" :loading="state.publishLoading" type="primary"
-               @click="handlePublish">
+    <el-button id="EasyForm__Detail__FormSetting__Publish" :loading="state.publishLoading" type="primary" @click="handlePublish">
       {{ $t('button.publish') }}
     </el-button>
   </el-card>
@@ -40,7 +31,7 @@ async function handleChange(value: string) {
   try {
     if (value === props.detail.name) return
     form.value.name = value
-    await clientApi.api.patchDmsEasyFormName({
+    await clientApi.admin.patchAdmindmsEasyFormName({
       id: props.detail.id,
       name: value
     })
@@ -57,11 +48,11 @@ async function handleChange(value: string) {
 async function handlePublish() {
   try {
     state.publishLoading = true
-    await clientApi.api.postDmsEasyFormPublish({ id: props.detail.id })
+    await clientApi.admin.postAdmindmsEasyFormPublish({ id: props.detail.id }).then(r => r.data)
     routerProvider?.message.success(t('dpMsg_success'))
     emits('refresh')
   } catch (error) {
-
+    console.log(error)
   } finally {
     state.publishLoading = false
   }

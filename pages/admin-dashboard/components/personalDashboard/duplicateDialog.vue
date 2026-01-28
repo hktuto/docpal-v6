@@ -11,7 +11,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import formJson from './dialog.vform.json'
 import { ElMessage } from 'element-plus'
 const emits = defineEmits(['refresh', 'delete', 'add'])
@@ -32,8 +32,8 @@ async function handleSubmit() {
       groupId: data.groupId.join(',')
     }
 
-    const res = await adminApi.api
-      .postPersonalDashboardSave({
+    const res = await clientApi.admin
+      .postAdmindocpalPersonalDashboardSave({
         ..._data,
         styleJson: state.setting.styleJson
       })

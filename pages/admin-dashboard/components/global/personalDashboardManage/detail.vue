@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import type { DashboardWidgetSetting, DashboardWidget } from '#imports'
 import { dashboardWidgetSetting, getNormalizeSetting, getWidgetSetting, getDashboardWidgetByType } from '#imports'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const { id } = defineProps<{
   id: number
@@ -54,7 +54,7 @@ async function handleClear() {
 async function handleSave() {
   try {
     state.saveLoading = true
-    await adminApi.api.putPersonalDashboardUpdate({
+    await clientApi.admin.putAdmindocpalPersonalDashboardUpdate({
       ...state.info,
       styleJson: JSON.stringify(state.layout)
     })
@@ -72,7 +72,7 @@ function handleEdit() {
 }
 
 async function getInfo() {
-  state.info = await adminApi.api.getPersonalDashboardId(id).then((res) => res.data)
+  state.info = await clientApi.admin.getAdmindocpalPersonalDashboardId(id).then((res) => res.data)
   if (!state.info || !state.info.styleJson) {
     return
   }
