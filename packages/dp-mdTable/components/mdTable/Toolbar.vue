@@ -1,22 +1,19 @@
 <template>
   <div v-if="showToolbar" class="table-toolbar">
     <div class="toolbar-left">
-      <el-input
-          v-if="showSearch"
-          v-model="searchValue"
-          placeholder="Filter..."
-          style="width: 200px"
-          @input="handleSearch"
-        >
-          <template #prefix>
-            <el-icon><Search /></el-icon>
-          </template>
-        </el-input>
-      <ToolsGroupingButton :groupableColumns="groupableColumns" @grouping-change="emit('grouping-change', $event)"/>
+      <el-input v-if="showSearch" v-model="searchValue" placeholder="Filter..." style="width: 200px" @input="handleSearch">
+        <template #prefix>
+          <el-icon><Search /></el-icon>
+        </template>
+      </el-input>
+      <ToolsGroupingButton :groupableColumns="groupableColumns" @grouping-change="emit('grouping-change', $event)" />
       <ToolsFilterButton :available-columns="groupableColumns" @filter-change="handleFilterChange" />
       <ToolsSortButton :available-columns="groupableColumns" @sort-change="handleSortChange" />
       <slot name="toolbar-left">
-
+        <el-button type="primary" @click="handleAddRow">
+          <el-icon><Plus /></el-icon>
+          Add Row
+        </el-button>
       </slot>
     </div>
     <div class="toolbar-right">
@@ -29,9 +26,7 @@
           <el-icon><Download /></el-icon>
           Export
         </el-button>
-        <el-button type="primary" @click="handleSaveView">
-          Save View
-        </el-button>
+        <el-button type="primary" @click="handleSaveView"> Save View </el-button>
       </slot>
     </div>
   </div>
@@ -39,8 +34,8 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { Refresh, Search, Download, Upload, Operation, DataAnalysis } from '@element-plus/icons-vue'
-import type{ FilterGroup, SortRule} from '#imports'
+import { Refresh, Search, Download, Upload, Operation, DataAnalysis, Plus } from '@element-plus/icons-vue'
+import type { FilterGroup, SortRule } from '#imports'
 
 interface ColumnConfig {
   field: string
@@ -70,6 +65,7 @@ interface Emits {
   (e: 'filter-change', group: FilterGroup): void
   (e: 'sort-change', rules: SortRule[]): void
   (e: 'save-view'): void
+  (e: 'add-row'): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -111,6 +107,10 @@ const handleExport = () => {
 
 const handleImport = () => {
   emit('import')
+}
+
+const handleAddRow = () => {
+  emit('add-row')
 }
 
 const handleFilterChange = (group: FilterGroup) => {
@@ -166,4 +166,3 @@ defineExpose({
   }
 }
 </style>
-

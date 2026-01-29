@@ -10,6 +10,7 @@
       @sort-change="handleSortChange"
       @save-view="handleSaveView"
       @import="handleImport"
+      @add-row="handleAddRow"
     >
       <template #toolbar-left>
         <slot name="toolbar-left" />
@@ -103,6 +104,7 @@ const emit = defineEmits<{
   'column-add': [column: ColumnConfig]
   'save-view': []
   import: []
+  'add-row': []
 }>()
 
 // 引用
@@ -230,6 +232,10 @@ const handleSaveView = () => {
 
 const handleImport = () => {
   emit('import')
+}
+
+const handleAddRow = () => {
+  emit('add-row')
 }
 
 // Handle expand click from checkbox column

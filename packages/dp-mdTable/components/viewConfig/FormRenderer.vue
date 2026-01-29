@@ -1,5 +1,5 @@
 <template>
-  <div 
+  <div
     class="form-renderer"
     :class="{
       'layout-single': config.layout === 'single',
@@ -19,87 +19,40 @@
     >
       <div class="form-fields-grid">
         <template v-for="field in visibleFields" :key="field.fieldName">
-          <div 
-            class="form-field-wrapper"
-            :style="getFieldStyle(field)"
-          >
-            <el-form-item
-              :label="getFieldLabel(field)"
-              :prop="field.fieldName"
-              :required="isFieldRequired(field)"
-              class="dynamic-form-item"
-            >
+          <div class="form-field-wrapper" :style="getFieldStyle(field)">
+            <el-form-item :label="getFieldLabel(field)" :prop="field.fieldName" :required="isFieldRequired(field)" class="dynamic-form-item">
               <!-- Text Input -->
               <template v-if="getFieldType(field.fieldName) === ColumnFieldType.Text">
-                <el-input
-                  v-model="formData[field.fieldName]"
-                  :placeholder="getFieldPlaceholder(field.fieldName)"
-                  clearable
-                />
+                <el-input v-model="formData[field.fieldName]" :placeholder="getFieldPlaceholder(field.fieldName)" clearable />
               </template>
 
               <!-- Multi-line Text -->
               <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.MultiText">
-                <el-input
-                  v-model="formData[field.fieldName]"
-                  type="textarea"
-                  :rows="3"
-                  :placeholder="getFieldPlaceholder(field.fieldName)"
-                />
+                <el-input v-model="formData[field.fieldName]" type="textarea" :rows="3" :placeholder="getFieldPlaceholder(field.fieldName)" />
               </template>
 
               <!-- Number -->
               <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.Number">
-                <el-input-number
-                  v-model="formData[field.fieldName]"
-                  :placeholder="getFieldPlaceholder(field.fieldName)"
-                  style="width: 100%"
-                />
+                <el-input-number v-model="formData[field.fieldName]" :placeholder="getFieldPlaceholder(field.fieldName)" style="width: 100%" />
               </template>
 
               <!-- Single Select -->
               <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.SingleSelect">
-                <el-select
-                  v-model="formData[field.fieldName]"
-                  :placeholder="getFieldPlaceholder(field.fieldName)"
-                  clearable
-                  style="width: 100%"
-                >
-                  <el-option
-                    v-for="option in getFieldOptions(field.fieldName)"
-                    :key="option.value"
-                    :label="option.label"
-                    :value="option.value"
-                  />
+                <el-select v-model="formData[field.fieldName]" :placeholder="getFieldPlaceholder(field.fieldName)" clearable style="width: 100%">
+                  <el-option v-for="option in getFieldOptions(field.fieldName)" :key="option.value" :label="option.label" :value="option.value" />
                 </el-select>
               </template>
 
               <!-- Multi Select -->
               <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.MultiSelect">
-                <el-select
-                  v-model="formData[field.fieldName]"
-                  :placeholder="getFieldPlaceholder(field.fieldName)"
-                  multiple
-                  clearable
-                  style="width: 100%"
-                >
-                  <el-option
-                    v-for="option in getFieldOptions(field.fieldName)"
-                    :key="option.value"
-                    :label="option.label"
-                    :value="option.value"
-                  />
+                <el-select v-model="formData[field.fieldName]" :placeholder="getFieldPlaceholder(field.fieldName)" multiple clearable style="width: 100%">
+                  <el-option v-for="option in getFieldOptions(field.fieldName)" :key="option.value" :label="option.label" :value="option.value" />
                 </el-select>
               </template>
 
               <!-- DateTime -->
               <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.DateTime">
-                <el-date-picker
-                  v-model="formData[field.fieldName]"
-                  type="datetime"
-                  :placeholder="getFieldPlaceholder(field.fieldName)"
-                  style="width: 100%"
-                />
+                <el-date-picker v-model="formData[field.fieldName]" type="datetime" :placeholder="getFieldPlaceholder(field.fieldName)" style="width: 100%" />
               </template>
 
               <!-- Checkbox -->
@@ -111,20 +64,12 @@
 
               <!-- Rating -->
               <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.Rating">
-                <el-rate
-                  v-model="formData[field.fieldName]"
-                  :max="5"
-                />
+                <el-rate v-model="formData[field.fieldName]" :max="5" />
               </template>
 
               <!-- Email -->
               <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.Email">
-                <el-input
-                  v-model="formData[field.fieldName]"
-                  type="email"
-                  :placeholder="getFieldPlaceholder(field.fieldName)"
-                  clearable
-                >
+                <el-input v-model="formData[field.fieldName]" type="email" :placeholder="getFieldPlaceholder(field.fieldName)" clearable>
                   <template #prefix>
                     <Icon name="lucide:mail" size="14" />
                   </template>
@@ -133,12 +78,7 @@
 
               <!-- URL -->
               <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.URL">
-                <el-input
-                  v-model="formData[field.fieldName]"
-                  type="url"
-                  :placeholder="getFieldPlaceholder(field.fieldName)"
-                  clearable
-                >
+                <el-input v-model="formData[field.fieldName]" type="url" :placeholder="getFieldPlaceholder(field.fieldName)" clearable>
                   <template #prefix>
                     <Icon name="lucide:link" size="14" />
                   </template>
@@ -147,11 +87,7 @@
 
               <!-- Phone -->
               <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.Phone">
-                <el-input
-                  v-model="formData[field.fieldName]"
-                  :placeholder="getFieldPlaceholder(field.fieldName)"
-                  clearable
-                >
+                <el-input v-model="formData[field.fieldName]" :placeholder="getFieldPlaceholder(field.fieldName)" clearable>
                   <template #prefix>
                     <Icon name="lucide:phone" size="14" />
                   </template>
@@ -184,12 +120,7 @@
 
               <!-- Member -->
               <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.Member">
-                <el-select
-                  v-model="formData[field.fieldName]"
-                  :placeholder="getFieldPlaceholder(field.fieldName)"
-                  clearable
-                  style="width: 100%"
-                >
+                <el-select v-model="formData[field.fieldName]" :placeholder="getFieldPlaceholder(field.fieldName)" clearable style="width: 100%">
                   <!-- Member options would be populated from workspace members -->
                   <el-option label="Current User" value="current" />
                 </el-select>
@@ -197,11 +128,7 @@
 
               <!-- Default fallback -->
               <template v-else>
-                <el-input
-                  v-model="formData[field.fieldName]"
-                  :placeholder="getFieldPlaceholder(field.fieldName)"
-                  clearable
-                />
+                <el-input v-model="formData[field.fieldName]" :placeholder="getFieldPlaceholder(field.fieldName)" clearable />
               </template>
             </el-form-item>
           </div>
@@ -252,24 +179,28 @@ onMounted(() => {
 })
 
 // Watch for external data changes
-watch(() => props.modelValue, (newValue) => {
-  if (newValue) {
-    formData.value = { ...newValue }
-  }
-}, { deep: true })
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (newValue) {
+      formData.value = { ...newValue }
+    }
+  },
+  { deep: true }
+)
 
 // Initialize form data with defaults
 function initializeFormData() {
   const initialData: Record<string, any> = {}
-  
-  props.config.fields.forEach(fieldConfig => {
+
+  props.config.fields.forEach((fieldConfig) => {
     const fieldInfo = getFieldInfo(fieldConfig.fieldName)
     if (!fieldInfo) return
-    
+
     // Use provided value or default
     initialData[fieldConfig.fieldName] = props.modelValue?.[fieldConfig.fieldName] ?? getDefaultValue(fieldInfo.type)
   })
-  
+
   formData.value = initialData
 }
 
@@ -294,31 +225,65 @@ function getDefaultValue(type: number): any {
 
 // Filter visible fields (not hidden)
 const visibleFields = computed(() => {
-  return props.config.fields.filter(f => !f.hidden)
+  return props.config.fields.filter((f) => !f.hidden)
 })
 
 // Generate form validation rules
 const formRules = computed<FormRules>(() => {
   const rules: FormRules = {}
-  
-  visibleFields.value.forEach(fieldConfig => {
+
+  visibleFields.value.forEach((fieldConfig) => {
+    const fieldInfo = getFieldInfo(fieldConfig.fieldName)
+    const fieldType = fieldInfo?.type
+    const fieldRules: any[] = []
+
+    // Required validation
     if (fieldConfig.required) {
-      const fieldInfo = getFieldInfo(fieldConfig.fieldName)
-      rules[fieldConfig.fieldName] = [{
+      const rule: any = {
         required: true,
         message: `${getFieldLabel(fieldConfig)} is required`,
-        trigger: fieldInfo?.type === ColumnFieldType.MultiSelect ? 'change' : 'blur',
-        type: fieldInfo?.type === ColumnFieldType.MultiSelect ? 'array' : undefined
-      }]
+        trigger: 'blur'
+      }
+
+      // Set type based on field type for proper validation
+      if (fieldType === ColumnFieldType.MultiSelect) {
+        rule.type = 'array'
+        rule.trigger = 'change'
+      } else if (fieldType === ColumnFieldType.Number || fieldType === ColumnFieldType.Rating) {
+        rule.type = 'number'
+      } else if (fieldType === ColumnFieldType.DateTime) {
+        rule.type = 'date'
+      }
+
+      fieldRules.push(rule)
+    }
+
+    // Type-specific validation (even if not required, validate type when value exists)
+    if (fieldType === ColumnFieldType.Number && !fieldConfig.required) {
+      fieldRules.push({
+        type: 'number',
+        message: `${getFieldLabel(fieldConfig)} must be a number`,
+        trigger: 'blur'
+      })
+    } else if (fieldType === ColumnFieldType.DateTime && !fieldConfig.required) {
+      fieldRules.push({
+        type: 'date',
+        message: `${getFieldLabel(fieldConfig)} must be a valid date`,
+        trigger: 'change'
+      })
+    }
+
+    if (fieldRules.length > 0) {
+      rules[fieldConfig.fieldName] = fieldRules
     }
   })
-  
+
   return rules
 })
 
 // Get field info by name
 function getFieldInfo(fieldName: string): FieldInfo | undefined {
-  return props.fields.find(f => f.fieldName === fieldName)
+  return props.fields.find((f) => f.fieldName === fieldName)
 }
 
 // Get field type
@@ -342,12 +307,12 @@ function isFieldRequired(fieldConfig: ViewFieldConfig): boolean {
 // Get field style based on colSpan and layout
 function getFieldStyle(field: ViewFieldConfig): Record<string, string> {
   const span = field.colSpan || 12
-  
+
   // In single column layout, always full width
   if (props.config.layout === 'single') {
     return { gridColumn: 'span 12' }
   }
-  
+
   return { gridColumn: `span ${span}` }
 }
 
@@ -355,7 +320,7 @@ function getFieldStyle(field: ViewFieldConfig): Record<string, string> {
 function getFieldOptions(fieldName: string): Array<{ label: string; value: string }> {
   const fieldInfo = getFieldInfo(fieldName)
   if (!fieldInfo?.properties?.options) return []
-  
+
   return fieldInfo.properties.options.map((opt: any) => ({
     label: opt.label || opt.value,
     value: opt.value
@@ -366,7 +331,7 @@ function getFieldOptions(fieldName: string): Array<{ label: string; value: strin
 function getFieldPlaceholder(fieldName: string): string {
   const fieldInfo = getFieldInfo(fieldName)
   if (!fieldInfo) return 'Enter value'
-  
+
   const placeholderMap: Record<number, string> = {
     [ColumnFieldType.Text]: 'Enter text',
     [ColumnFieldType.MultiText]: 'Enter description',
@@ -382,7 +347,7 @@ function getFieldPlaceholder(fieldName: string): string {
     [ColumnFieldType.Currency]: 'Enter amount',
     [ColumnFieldType.Percent]: 'Enter percentage (0-1)'
   }
-  
+
   return placeholderMap[fieldInfo.type] || 'Enter value'
 }
 
@@ -395,7 +360,7 @@ function getFieldCheckboxLabel(fieldName: string): string {
 // Validate and submit form
 async function submitForm(): Promise<boolean> {
   if (!formRef.value) return false
-  
+
   try {
     await formRef.value.validate()
     emit('submit', { ...formData.value })
@@ -429,7 +394,7 @@ defineExpose({
   :deep(.el-form-item) {
     margin-bottom: var(--app-space-m);
   }
-  
+
   :deep(.el-form-item__label) {
     font-weight: 500;
     color: var(--el-text-color-primary);
