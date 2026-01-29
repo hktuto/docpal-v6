@@ -176,6 +176,30 @@ const {
 } = useTableDataContext()
 ```
 
+### Add Row via Form Dialog
+
+The table toolbar includes an "Add Row" button that opens a form dialog for creating new records:
+
+```typescript
+// In TableDetailView.vue
+function handleAddRow() {
+  addRowDialogRef.value?.open()
+}
+
+async function handleAddRowSubmit(data: Record<string, any>) {
+  try {
+    await tableView.addRow(data)
+    ElMessage.success('Row added successfully')
+    // Table data is automatically refreshed
+  } catch (error) {
+    console.error('Error adding row:', error)
+    ElMessage.error('Failed to add row')
+  }
+}
+```
+
+The form dialog uses the table's form configuration (`formStructure.form`) to render fields. If no form is configured, a default form is generated from the table fields (excluding system fields like `id`, `created_at`, `updated_at`, etc.).
+
 ### Refresh Table Data
 
 ```typescript
@@ -548,6 +572,98 @@ interface CardViewConfig {
 If no card config exists, a default is generated:
 - Title field: First text field
 - Display fields: First 5 non-system fields
+
+## Form Configuration
+
+### Form View Config
+
+Form configuration is stored in `case_tables.formStructure.form`:
+
+```typescript
+interface FormViewConfig {
+  fields: ViewFieldConfig[]      // Fields to display in the form
+  layout?: 'single' | 'multi'    // Form layout mode
+  labelPosition?: 'top' | 'left' // Label position
+  labelWidth?: number            // Label width in pixels (when position is 'left')
+  advanced?: AdvancedConfig      // Custom CSS/JS/template
+}
+```
+
+### ViewFieldConfig
+
+```typescript
+interface ViewFieldConfig {
+  fieldName: string              // Field name from the table
+  colSpan?: number               // Grid column span (1-12, default: 12)
+  label?: string                 // Custom label (optional)
+  hidden?: boolean               // Hide this field
+  required?: boolean             // Make field required
+  advanced?: AdvancedConfig      // Field-level customization
+}
+```
+
+### Form Renderer Component
+
+The `FormRenderer` component renders a form based on the configuration:
+
+```vue
+<template>
+  <FormRenderer
+    ref="formRendererRef"
+    :config="formConfig"
+    :fields="fieldInfoList"
+    :model-value="formData"
+    @submit="handleSubmit"
+  />
+</template>
+
+<script setup>
+const formRendererRef = ref()
+
+// Validate and submit form
+async function submitForm() {
+  const isValid = await formRendererRef.value?.submitForm()
+  if (isValid) {
+    const formData = formRendererRef.value?.formData
+    // Process formData...
+  }
+}
+
+// Reset form
+function resetForm() {
+  formRendererRef.value?.resetForm()
+}
+</script>
+```
+
+### Default Form Config
+
+If no form config exists, a default is generated:
+- Excludes system fields: `id`, `created_at`, `updated_at`, `created_by`, `updated_by`, `col_id`
+- Excludes read-only fields: Formula, Aggregation/VirtualColumn
+- Excludes complex fields: Attachment, Relation
+- All fields are full width (`colSpan: 12`)
+- Checkbox fields are not required by default
+
+### Supported Form Field Types
+
+The form renderer supports these field types:
+
+| Type | Component | Validation |
+|------|-----------|------------|
+| Text (19) | el-input | string |
+| MultiText (1) | el-input (textarea) | string |
+| Number (2) | el-input-number | number |
+| SingleSelect (3) | el-select | string |
+| MultiSelect (4) | el-select (multiple) | array |
+| DateTime (5) | el-date-picker | date |
+| Checkbox (11) | el-checkbox | boolean |
+| Rating (12) | el-rate | number |
+| Email (9) | el-input (type=email) | email |
+| URL (8) | el-input (type=url) | url |
+| Phone (10) | el-input | string |
+| Currency (17) | el-input-number | number |
+| Percent (18) | el-input-number | number |
 
 ## Error Handling
 

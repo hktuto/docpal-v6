@@ -21,12 +21,12 @@
     <div class="card-content">
       <!-- Title -->
       <div v-if="config.titleField" class="card-title">
-        {{ getFieldValue(config.titleField) || 'Untitled' }}
+        {{ formatFieldValue(config.titleField) || 'Untitled' }}
       </div>
 
       <!-- Subtitle -->
       <div v-if="config.subtitleField" class="card-subtitle">
-        {{ getFieldValue(config.subtitleField) || '' }}
+        {{ formatFieldValue(config.subtitleField) || '' }}
       </div>
 
       <!-- Fields Grid -->
@@ -37,14 +37,101 @@
             :style="getFieldStyle(field)"
           >
             <div class="field-label">{{ getFieldLabel(field.fieldName) }}</div>
-            <div class="field-value">
-              <component
-                :is="getFieldRenderer(field.fieldName)"
-                v-if="getFieldRenderer(field.fieldName)"
-                :value="getFieldValue(field.fieldName)"
-                :field-info="getFieldInfo(field.fieldName)"
-              />
-              <span v-else>{{ formatFieldValue(field.fieldName) }}</span>
+            <div class="field-value" :class="getFieldValueClass(field.fieldName)">
+              <!-- Single Select -->
+              <template v-if="getFieldType(field.fieldName) === ColumnFieldType.SingleSelect">
+                <span 
+                  v-if="getSelectOption(field.fieldName)" 
+                  class="select-tag"
+                  :style="{ '--select-color': getSelectOption(field.fieldName)?.color }"
+                >
+                  {{ getSelectOption(field.fieldName)?.label }}
+                </span>
+                <span v-else>-</span>
+              </template>
+
+              <!-- Multi Select -->
+              <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.MultiSelect">
+                <div v-if="getSelectOptions(field.fieldName)?.length" class="multi-select-tags">
+                  <span 
+                    v-for="option in getSelectOptions(field.fieldName)" 
+                    :key="option.id"
+                    class="select-tag"
+                    :style="{ '--select-color': option?.color }"
+                  >
+                    {{ option?.label }}
+                  </span>
+                </div>
+                <span v-else>-</span>
+              </template>
+
+              <!-- DateTime -->
+              <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.DateTime">
+                {{ formatDateTime(field.fieldName) }}
+              </template>
+
+              <!-- Number -->
+              <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.Number">
+                {{ formatNumber(field.fieldName) }}
+              </template>
+
+              <!-- Currency -->
+              <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.Currency">
+                {{ formatCurrency(field.fieldName) }}
+              </template>
+
+              <!-- Percent -->
+              <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.Percent">
+                {{ formatPercent(field.fieldName) }}
+              </template>
+
+              <!-- Rating -->
+              <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.Rating">
+                <span class="rating-stars">{{ formatRating(field.fieldName) }}</span>
+              </template>
+
+              <!-- Checkbox -->
+              <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.Checkbox">
+                <el-checkbox :model-value="getFieldValue(field.fieldName)" disabled />
+              </template>
+
+              <!-- Member -->
+              <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.Member">
+                {{ formatMember(field.fieldName) }}
+              </template>
+
+              <!-- Email -->
+              <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.Email">
+                <a :href="`mailto:${getFieldValue(field.fieldName)}`" class="field-link" @click.stop>
+                  {{ getFieldValue(field.fieldName) }}
+                </a>
+              </template>
+
+              <!-- URL -->
+              <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.URL">
+                <a :href="getFieldValue(field.fieldName)" target="_blank" class="field-link" @click.stop>
+                  {{ getFieldValue(field.fieldName) }}
+                </a>
+              </template>
+
+              <!-- Phone -->
+              <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.Phone">
+                {{ formatFieldValue(field.fieldName) }}
+              </template>
+
+              <!-- Attachment -->
+              <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.Attachment">
+                <span v-if="getAttachmentCount(field.fieldName)" class="attachment-count">
+                  <Icon name="lucide:paperclip" size="14" />
+                  {{ getAttachmentCount(field.fieldName) }} files
+                </span>
+                <span v-else>-</span>
+              </template>
+
+              <!-- Default text display -->
+              <template v-else>
+                {{ formatFieldValue(field.fieldName) }}
+              </template>
             </div>
           </div>
         </template>
@@ -59,9 +146,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h } from 'vue'
+import { computed } from 'vue'
 import type { CardViewConfig, ViewFieldConfig, FieldInfo } from '../../types/view-config'
 import { ColumnFieldType } from '../../types/column-types'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+
+// Initialize dayjs plugins
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const props = defineProps<{
   /** Card configuration */
@@ -182,6 +276,16 @@ function getFieldInfo(fieldName: string): FieldInfo | undefined {
   return props.fields.find(f => f.fieldName === fieldName)
 }
 
+// Get field type
+function getFieldType(fieldName: string): ColumnFieldType | undefined {
+  return getFieldInfo(fieldName)?.type
+}
+
+// Get field properties (display settings)
+function getFieldProperties(fieldName: string): Record<string, any> {
+  return getFieldInfo(fieldName)?.properties || {}
+}
+
 // Get field label
 function getFieldLabel(fieldName: string): string {
   const fieldConfig = props.config.fields.find(f => f.fieldName === fieldName)
@@ -204,43 +308,152 @@ function getFieldStyle(field: ViewFieldConfig): Record<string, string> {
   }
 }
 
-// Format field value for display
+// Get field value class for styling
+function getFieldValueClass(fieldName: string): string {
+  const type = getFieldType(fieldName)
+  if (type === undefined) return ''
+  return `field-type-${ColumnFieldType[type].toLowerCase()}`
+}
+
+// ==================== Formatting Functions ====================
+
+// Format DateTime with proper format settings
+function formatDateTime(fieldName: string): string {
+  const value = getFieldValue(fieldName)
+  if (!value) return '-'
+  
+  const properties = getFieldProperties(fieldName)
+  const { dateFormat, includeTime, dateTimeFormat, timezone: tz } = properties
+  
+  try {
+    const format = includeTime && dateTimeFormat 
+      ? `${dateFormat || 'YYYY-MM-DD'} ${dateTimeFormat}` 
+      : (dateFormat || 'YYYY-MM-DD')
+    
+    let displayValue = dayjs(value).format(format)
+    
+    if (includeTime && tz) {
+      displayValue = dayjs(value).tz(tz).format(format)
+    }
+    
+    return displayValue
+  } catch {
+    return String(value)
+  }
+}
+
+// Format Number with precision and thousands separator
+function formatNumber(fieldName: string): string {
+  const value = getFieldValue(fieldName)
+  if (value === null || value === undefined || isNaN(Number(value))) return '-'
+  
+  const properties = getFieldProperties(fieldName)
+  const { precision = 0, showThouComma } = properties
+  
+  let formatted = Number(value).toFixed(precision)
+  
+  if (showThouComma) {
+    formatted = formatted.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  }
+  
+  return formatted
+}
+
+// Format Currency with symbol
+function formatCurrency(fieldName: string): string {
+  const value = getFieldValue(fieldName)
+  if (value === null || value === undefined || isNaN(Number(value))) return '-'
+  
+  const properties = getFieldProperties(fieldName)
+  const { precision = 2, symbol = '$', symbolAlign = 'left' } = properties
+  
+  let formatted = Number(value).toFixed(precision)
+  formatted = formatted.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  
+  if (symbolAlign === 'right') {
+    return `${formatted} ${symbol}`
+  }
+  return `${symbol}${formatted}`
+}
+
+// Format Percent
+function formatPercent(fieldName: string): string {
+  const value = getFieldValue(fieldName)
+  if (value === null || value === undefined || isNaN(Number(value))) return '-'
+  
+  const properties = getFieldProperties(fieldName)
+  const { precision = 0 } = properties
+  
+  return `${(Number(value) * 100).toFixed(precision)}%`
+}
+
+// Format Rating as stars
+function formatRating(fieldName: string): string {
+  const value = getFieldValue(fieldName)
+  const properties = getFieldProperties(fieldName)
+  const max = properties.max || 5
+  const rating = Number(value) || 0
+  return '★'.repeat(Math.min(rating, max)) + '☆'.repeat(Math.max(0, max - rating))
+}
+
+// Format Member
+function formatMember(fieldName: string): string {
+  const value = getFieldValue(fieldName)
+  if (!value) return '-'
+  
+  if (typeof value === 'object') {
+    return value.name || value.displayName || value.email || JSON.stringify(value)
+  }
+  return String(value)
+}
+
+// Get select option for SingleSelect
+function getSelectOption(fieldName: string): { id: string; label: string; color: string } | null {
+  const value = getFieldValue(fieldName)
+  if (!value) return null
+  
+  const properties = getFieldProperties(fieldName)
+  const options = properties.options || []
+  
+  return options.find((opt: any) => opt.id === value) || null
+}
+
+// Get select options for MultiSelect
+function getSelectOptions(fieldName: string): { id: string; label: string; color: string }[] {
+  const value = getFieldValue(fieldName)
+  if (!value || !Array.isArray(value)) return []
+  
+  const properties = getFieldProperties(fieldName)
+  const options = properties.options || []
+  
+  return value.map((id: string) => options.find((opt: any) => opt.id === id)).filter(Boolean)
+}
+
+// Get attachment count
+function getAttachmentCount(fieldName: string): number {
+  const value = getFieldValue(fieldName)
+  if (!value) return 0
+  if (Array.isArray(value)) return value.length
+  return 1
+}
+
+// Generic format field value (fallback)
 function formatFieldValue(fieldName: string): string {
   const value = getFieldValue(fieldName)
-  const fieldInfo = getFieldInfo(fieldName)
-  
   if (value === null || value === undefined) return '-'
   
-  if (!fieldInfo) return String(value)
+  const type = getFieldType(fieldName)
   
-  switch (fieldInfo.type) {
-    case ColumnFieldType.DateTime:
-      try {
-        return new Date(value).toLocaleDateString()
-      } catch {
-        return String(value)
-      }
-    
-    case ColumnFieldType.Checkbox:
-      return value ? 'Yes' : 'No'
-    
-    case ColumnFieldType.Rating:
-      const rating = Number(value) || 0
-      return '★'.repeat(rating) + '☆'.repeat(5 - rating)
-    
-    case ColumnFieldType.Number:
-    case ColumnFieldType.Currency:
-      return new Intl.NumberFormat().format(Number(value))
-    
-    case ColumnFieldType.Percent:
-      return `${(Number(value) * 100).toFixed(0)}%`
-    
-    case ColumnFieldType.MultiSelect:
-      if (Array.isArray(value)) return value.join(', ')
+  // Handle specific types that don't have special rendering
+  switch (type) {
+    case ColumnFieldType.Phone:
       return String(value)
     
-    case ColumnFieldType.Member:
-      if (typeof value === 'object' && value.name) return value.name
+    case ColumnFieldType.MultiSelect:
+      if (Array.isArray(value)) {
+        const options = getSelectOptions(fieldName)
+        return options.map(o => o.label).join(', ') || value.join(', ')
+      }
       return String(value)
     
     default:
@@ -248,12 +461,8 @@ function formatFieldValue(fieldName: string): string {
   }
 }
 
-// Get custom renderer for field (placeholder for future implementation)
-function getFieldRenderer(fieldName: string): any {
-  // Future: return custom renderer component based on field type
-  // For now, return null to use default text rendering
-  return null
-}
+// Expose ColumnFieldType for template
+const ColumnFieldTypeRef = ColumnFieldType
 </script>
 
 <style lang="scss" scoped>
@@ -339,6 +548,53 @@ function getFieldRenderer(fieldName: string): any {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  
+  // Select tag styling
+  .select-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: var(--app-font-size-xs);
+    background-color: var(--select-color, var(--el-fill-color));
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+  
+  // Multi-select tags container
+  .multi-select-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    
+    .select-tag {
+      flex-shrink: 0;
+    }
+  }
+  
+  // Rating stars
+  .rating-stars {
+    color: #f7ba2a;
+    letter-spacing: 2px;
+  }
+  
+  // Link styling
+  .field-link {
+    color: var(--el-color-primary);
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  
+  // Attachment count
+  .attachment-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--el-text-color-secondary);
+  }
 }
 
 .card-empty {

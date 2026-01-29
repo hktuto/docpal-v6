@@ -144,6 +144,29 @@ Configuration for how a record is displayed as a card:
 - `coverField` - Attachment field for cover image
 - `advanced` - Custom CSS/JS/template
 
+### FormViewConfig
+Configuration for creating/editing records via a form:
+- `fields` - Array of ViewFieldConfig defining form fields
+- `layout` - Form layout: `'single'` (one column) or `'multi'` (two columns)
+- `labelPosition` - Label position: `'top'` or `'left'`
+- `labelWidth` - Label width in pixels (when position is 'left')
+- `advanced` - Custom CSS/JS/template
+
+### ViewFieldConfig
+Field configuration used in Card, Form, Detail, and List views:
+- `fieldName` - The table field name
+- `colSpan` - Grid column span (1-12)
+- `label` - Custom label override
+- `hidden` - Hide this field
+- `required` - Make field required (forms only)
+- `advanced` - Custom CSS/JS/template
+
+### FormRenderer
+Vue component that renders a dynamic form based on FormViewConfig. Supports validation, multiple field types, and custom layouts.
+
+### AddRowDialog
+Dialog component that opens when clicking the "Add Row" button in the table toolbar. Uses FormRenderer to display the form for creating new records.
+
 ## Patterns
 
 ### Provider/Consumer
@@ -206,6 +229,18 @@ Marks a suggestion as dismissed so it won't be shown again.
 
 ### Open Record Card
 Displays a card preview for a related record when clicking on a relation tag. Triggered by `relation-cell-click` grid event.
+
+### Add Row
+Opens the AddRowDialog form for creating a new record. Form fields are determined by the table's FormViewConfig.
+
+### Submit Form
+Validates form data and creates a new record. Validation includes type checking for numbers, dates, emails, and URLs.
+
+### Reset Form
+Clears form data and resets validation state. Called when closing the AddRowDialog.
+
+### Configure Form
+Opens the form settings page to customize which fields appear in the Add Row dialog and their layout.
 
 ## Import Terms
 
