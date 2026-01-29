@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi, clientApi, globalApi } from 'api'
+import { clientApi, globalApi } from 'api'
 
 const platform = useAppPlatform()
 const { t } = useI18n()
@@ -85,8 +85,7 @@ async function handleWorkflowhange(newSelectedWorkflow: string) {
 }
 
 async function getWorkflow() {
-  const { data } = (await globalApi.api.postWorkflowProcessList()) as any
-  allWorkflow.value = data
+  allWorkflow.value = await clientApi.api.postDsbWorkflowProcessList().then(r => r.data)
 }
 
 async function beforeOpen(setting) {

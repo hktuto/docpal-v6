@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 
 const dialogVisible = ref(false)
 
@@ -14,7 +14,7 @@ const { list } = defineProps<{
 const emits = defineEmits(['create'])
 
 async function getAllWorkflows() {
-  workflowList.value = await adminApi.api.postWorkflowProcessList({}).then((res) => res.data || [])
+  workflowList.value = await clientApi.api.postDsbWorkflowProcessList({}).then((res) => res.data || [])
 }
 
 const form = reactive<any>({

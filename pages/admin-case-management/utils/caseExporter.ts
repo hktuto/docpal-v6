@@ -107,7 +107,7 @@ async function getAllCaseList() {
 
 async function getAllWorkflowList() {
   const allWorkflowList = useAllWorkflowList()
-  const res = await adminApi.api.postWorkflowProcessList({ pageNum: 0, pageSize: 1000 })
+  const res = await clientApi.api.postDsbWorkflowProcessList({ pageNum: 0, pageSize: 1000 })
   if(!res.data || !res.data.length) {
     throw new Error('Failed to get all workflow list')
   }
