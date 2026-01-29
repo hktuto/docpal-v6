@@ -26,21 +26,15 @@ const settingsSections = [
   },
   {
     group: 'ACCESS & SECURITY',
-    items: [
-      { id: 'permissions', label: 'Permissions', icon: 'lucide:shield' }
-    ]
+    items: [{ id: 'permissions', label: 'Permissions', icon: 'lucide:shield' }]
   },
   {
     group: 'AUTOMATION',
-    items: [
-      { id: 'automation', label: 'Workflows', icon: 'lucide:workflow' }
-    ]
+    items: [{ id: 'automation', label: 'Workflows', icon: 'lucide:workflow' }]
   },
   {
     group: 'SETTINGS',
-    items: [
-      { id: 'settings', label: 'Delete Table', icon: 'lucide:trash-2' }
-    ]
+    items: [{ id: 'settings', label: 'Delete Table', icon: 'lucide:trash-2' }]
   }
 ]
 
@@ -63,6 +57,7 @@ const sectionComponent = computed(() => {
     case 'detail':
       return 'LazyWorkspacesSettingTableDetail'
     case 'form':
+      return 'LazyWorkspacesSettingTableForm'
     case 'list':
       return 'LazyWorkspacesSettingTableData'
     case 'automation':
@@ -82,7 +77,7 @@ function checkContainerSize() {
   const containerWidth = pageContainerRef.value.offsetWidth
   const wasMobile = isMobileView.value
   isMobileView.value = containerWidth < 700
-  
+
   // Auto-hide sidebar when transitioning to mobile
   if (!wasMobile && isMobileView.value) {
     isSidebarOpen.value = false
@@ -101,11 +96,11 @@ onMounted(() => {
   nextTick(() => {
     checkContainerSize()
   })
-  
+
   if (pageContainerRef.value) {
     const resizeObserver = new ResizeObserver(checkContainerSize)
     resizeObserver.observe(pageContainerRef.value)
-    
+
     onUnmounted(() => {
       resizeObserver.disconnect()
     })
@@ -114,21 +109,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <div 
-    ref="pageContainerRef" 
+  <div
+    ref="pageContainerRef"
     class="setting-page"
-    :class="{ 
+    :class="{
       'is-mobile': isMobileView,
       'sidebar-open': isSidebarOpen
     }"
   >
     <!-- Toggle button teleported to header for mobile -->
     <Teleport to="#database-table-header-right">
-      <el-button 
-        v-if="isMobileView" 
-        size="small" 
-        @click="toggleSidebar"
-      >
+      <el-button v-if="isMobileView" size="small" @click="toggleSidebar">
         <Icon :name="isSidebarOpen ? 'lucide:panel-left-close' : 'lucide:panel-left'" size="16" />
       </el-button>
     </Teleport>
@@ -164,18 +155,11 @@ onMounted(() => {
 
       <!-- Main content - never re-renders on resize -->
       <main class="setting-container">
-        <component 
-          :is="sectionComponent" 
-          :active-sub-section="activeSection"
-        />
+        <component :is="sectionComponent" :active-sub-section="activeSection" />
       </main>
 
       <!-- Backdrop for mobile sidebar -->
-      <div 
-        v-if="isMobileView && isSidebarOpen" 
-        class="sidebar-backdrop" 
-        @click="isSidebarOpen = false"
-      />
+      <div v-if="isMobileView && isSidebarOpen" class="sidebar-backdrop" @click="isSidebarOpen = false" />
     </div>
   </div>
 </template>
@@ -281,7 +265,7 @@ onMounted(() => {
   background: transparent;
   cursor: col-resize;
   flex-shrink: 0;
-  
+
   &:hover {
     background: var(--el-color-primary-light-7);
   }
@@ -303,12 +287,11 @@ onMounted(() => {
 // Sidebar backdrop (mobile)
 // ============================================
 .sidebar-backdrop {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
   z-index: 999;
 }
 

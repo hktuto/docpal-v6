@@ -137,12 +137,12 @@ watch(
 </script>
 
 <template>
-  <div 
-    ref="pageContainerRef" 
-    class="page-container" 
-    :class="{ 
-      'is-mobile': isMobileView, 
-      'sidebar-open': isSidebarOpen 
+  <div
+    ref="pageContainerRef"
+    class="page-container"
+    :class="{
+      'is-mobile': isMobileView,
+      'sidebar-open': isSidebarOpen
     }"
   >
     <template v-if="!workspace">
@@ -154,11 +154,7 @@ watch(
         <!-- Sidebar -->
         <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
           <WorkspacesMenuHeader />
-          <WorkspacesMenu 
-            :workspace-id="workspace?.id" 
-            :initialMenu="[]" 
-            :is-admin="true"
-          />
+          <WorkspacesMenu :workspace-id="workspace?.id" :initialMenu="[]" :is-admin="true" />
         </aside>
 
         <!-- Resize handle (desktop only) -->
@@ -168,12 +164,7 @@ watch(
         <main class="main-content">
           <WorkspacesDetailHeader>
             <template #left>
-              <button 
-                v-if="isMobileView" 
-                class="menu-toggle-btn" 
-                @click.stop="toggleSidebar"
-                aria-label="Toggle menu"
-              >
+              <button v-if="isMobileView" class="menu-toggle-btn" @click.stop="toggleSidebar" aria-label="Toggle menu">
                 <Icon name="lucide:menu" size="20" />
               </button>
             </template>
@@ -193,11 +184,7 @@ watch(
         </main>
 
         <!-- Backdrop for mobile sidebar -->
-        <div 
-          v-if="isMobileView && isSidebarOpen" 
-          class="sidebar-backdrop" 
-          @click="isSidebarOpen = false"
-        />
+        <div v-if="isMobileView && isSidebarOpen" class="sidebar-backdrop" @click="isSidebarOpen = false" />
       </div>
 
       <WorkspacesMenuActions ref="menuActionsRef" />
@@ -236,7 +223,9 @@ watch(
   background: var(--app-grey-950);
   overflow: hidden;
   flex-shrink: 0;
-  transition: transform 0.3s ease, width 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    width 0.3s ease;
 }
 
 // ============================================
@@ -248,7 +237,7 @@ watch(
   background: transparent;
   cursor: col-resize;
   flex-shrink: 0;
-  
+
   &:hover {
     background: var(--el-color-primary-light-7);
   }
@@ -279,7 +268,7 @@ watch(
 .header-action {
   cursor: pointer;
   color: var(--app-grey-600);
-  
+
   &:hover {
     color: var(--app-grey-300);
   }
@@ -296,7 +285,7 @@ watch(
   cursor: pointer;
   border-radius: var(--el-border-radius-base);
   color: var(--app-grey-400);
-  
+
   &:hover {
     background: var(--app-grey-800);
     color: var(--app-grey-200);
@@ -307,12 +296,11 @@ watch(
 // Sidebar backdrop (mobile)
 // ============================================
 .sidebar-backdrop {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
   z-index: 999;
 }
 
@@ -326,7 +314,7 @@ watch(
   }
 
   .sidebar {
-    position: fixed;
+    position: absolute;
     left: 0;
     top: 0;
     bottom: 0;

@@ -51,7 +51,8 @@ const fieldInfoList = computed<FieldInfo[]>(() => {
     fieldName: field.fieldName,
     fieldNameAlias: field.fieldNameAlias || field.fieldName,
     type: field.displayStructure?.type || 19, // Default to Text
-    isSystem: field.isHidden || false
+    isSystem: field.isHidden || false,
+    properties: field.displayStructure?.properties || {}
   }))
 })
 
