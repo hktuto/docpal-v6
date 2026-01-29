@@ -3,7 +3,6 @@ import { ElNotification } from 'element-plus'
 import { clientApi } from 'api'
 import { newWorkflowEditorDetail } from '~/utils/workflowEditorMenu'
 import type { PermissionMethodParams } from 'base/composables/useVxeTable'
-import { saveWorkflowFormToNewVersion } from '~/utils/workflowEditorhelpers'
 
 const { id, name, draftId, latestVersion } = defineProps<{
   id: string
@@ -83,7 +82,11 @@ async function saveAsNewVersionHandler(row: any) {
   form.append('draftId', row.draftId)
   form.append('oldVersion', row.id)
   const xml = await blob.text()
-  const data = (await clientApi.admin.postAdmindocpalWorkflowVersionNew({ requestDTO: {} }, form).then(r => r.data)
+  const data: any = await clientApi.admin.postAdmindocpalWorkflowVersionNew({ requestDTO: {} }, form).then(r => r.data)
+  if (!data) {
+    return
+  }
+
   await saveWorkflowFormToNewVersion(xml, workflowData.value.key, row.id, data.id)
   routerProvider?.message.success(t('dpMsg_success'))
 
