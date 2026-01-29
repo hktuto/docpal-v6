@@ -72,12 +72,11 @@ provide(userProviderKey, {
     const res = await clientApi.admin.postAdminucenterGetLicenseUserNumAndActiveCount()
     return res.data
   },
-
   BatchUsersToGroupsApi: (params: any) => {
     return clientApi.admin.postAdminucenterUsersBatchAddGroups(params)
   },
   GetGroupListApi: async () => {
-    return await clientApi.api.postAdminucenterGroups().then((r) => r.data)
+    return await clientApi.admin.postAdminucenterGroups().then((r) => r.data)
   },
   sendInvitation,
   openUserDetail

@@ -34,7 +34,7 @@ function openUserList(openInNewTab: boolean = false) {
 }
 
 async function getUser() {
-  const data: any = await clientApi.admin.getAdmindmsUserUserid(id).then((r) => r.data)
+  const data: any = await clientApi.admin.getAdminucenterUserUserid(id).then((r) => r.data)
   if (!data) return
   console.log('user info', data)
   data.status = data.status === 'A' ? 'A' : 'D'
@@ -78,7 +78,6 @@ onMounted(() => {
   <div class="userDetailSection" v-if="state.curUser">
     <UserInfo class="info" :user="state.curUser" @refresh="getUser"></UserInfo>
     <UserGroupTable class="group" :user="state.curUser">group</UserGroupTable>
-    <!-- <UserVirtualFolder v-if="state.curUser" class="virtualFolder" :userOrGroup="state.curUser" mode="userAllowList">virtualFolder</UserVirtualFolder> -->
   </div>
 </template>
 <style lang="scss" scoped>

@@ -56,7 +56,6 @@
 import { ElMessageBox } from 'element-plus'
 import { userProviderDetailKey } from '~/util/userProvider'
 import type { UserDTO } from 'api/src/generate/admin'
-import { clientApi } from 'api'
 
 const { t } = useI18n()
 const userProviderDetail = inject(userProviderDetailKey)
@@ -75,8 +74,7 @@ async function handleDelete() {
     })
 
     if (action !== 'confirm') return
-    const res = await clientApi.admin.deleteAdminucenterUser({ userId: props.user.userId }).then(r => r.data)
-    // const res = await userProviderDetail?.BatchDeleteUserApi({ userIds: [props.user.userId] })
+    const res = await userProviderDetail?.BatchDeleteUserApi({ userIds: [props.user.userId] })
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('User') }))
     if (!!res) userProviderDetail?.openUserList()
   } catch (error) {

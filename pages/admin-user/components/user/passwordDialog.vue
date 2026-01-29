@@ -134,7 +134,8 @@ async function handleSubmit() {
     form.confirmPassword = ''
     emits('refresh')
   } catch (error) {
-    console.error(error)
+    console.log(error)
+    return
   } finally {
     state.loading = false
   }
