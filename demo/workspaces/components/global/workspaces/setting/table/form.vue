@@ -3,7 +3,7 @@ import { ElMessage } from 'element-plus'
 import { useSingleWorkspaceContext } from '../../../../../composables/useSingleWorkspace'
 import type { CaseTableRecord, CaseFieldRecord } from '../../../../../utils/db/schema/newTableSchema'
 import { ViewConfigFormViewEditor } from '#components'
-import type { FormViewConfig, FieldInfo } from '@/../packages/dp-mdTable/types/view-config'
+import type { FormViewConfig, FieldInfo } from '#imports'
 
 const { workspaceRouteParams, findItemById, menuState } = useSingleWorkspaceContext()
 const { query } = usePglite()
@@ -16,13 +16,16 @@ const isLoading = ref(true)
 // Current form configuration
 const formConfig = ref<FormViewConfig | undefined>(undefined)
 
+// System field names that should be excluded from forms
+const systemFieldNames = new Set(['id', 'created_at', 'updated_at', 'created_by', 'updated_by', 'col_id'])
+
 // Convert CaseFieldRecord to FieldInfo for the editor
 const fieldInfoList = computed<FieldInfo[]>(() => {
   return tableFields.value.map((field) => ({
     fieldName: field.fieldName,
     fieldNameAlias: field.fieldNameAlias || field.fieldName,
     type: field.displayStructure?.type || 19, // Default to Text
-    isSystem: field.isHidden || false,
+    isSystem: field.isHidden || systemFieldNames.has(field.fieldName) || field.fieldName?.startsWith('_'),
     properties: field.displayStructure?.properties || {}
   }))
 })
