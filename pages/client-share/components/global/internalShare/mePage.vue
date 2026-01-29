@@ -43,7 +43,7 @@ const {
 } = useVxeTable({
   id: 'internal-me',
   api: (pageParams: any) =>
-    clientApi.api.postInternalshareMe({ ...pageParams, ...extraParams }),
+    clientApi.api.postDmsInternalshareMe({ ...pageParams, ...extraParams }),
   columns: [
     {
       field: 'documentNames',
@@ -177,8 +177,7 @@ const {
         code: 'docWatermark',
         name: 'filePopover_watermark',
         action: async ({ row }: any) => {
-          const detail = await clientApi.api
-            .postNuxeoDocument({ idOrPath: row.documentIds })
+          const detail = await clientApi.api.postDmsDocumentFetch({ idOrPath: row.documentIds })
             .then((res) => res.data)
           const ev = new CustomEvent('docWatermark', { detail: detail })
           document.dispatchEvent(ev)

@@ -62,7 +62,7 @@ async function handleCreateMasterTable() {
       }
     })
 
-    const data = await clientApi.api.postDmsMasterTable({
+    const data = await clientApi.admin.postAdmindmsMasterTable({
       name: item.name,
       fields: createFields
     }).then(r => r.data)

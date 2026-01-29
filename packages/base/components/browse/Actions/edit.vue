@@ -57,7 +57,7 @@ async function openDialog() {
   form.value.name = props.doc.name
   dialogOpened.value = true
   nextTick(async () => {
-    const analysis: any = await clientApi.api.getNuxeoDocumentQueryaianalyzeIdorpath(props.doc.id)
+    const analysis: any = await clientApi.api.getDmsDocumentQueryaianalyzeIdorpath(props.doc.id).then(r => r.data)
     state.MetaRenderMode = checkLicenseFeatures('AI_CLASSIFICATION') && analysis.aiId ? 'ai-edit' : 'normal'
     const readonlyFields = props.doc.properties?.readonlyList || []
     const hiddenFields = props.doc.properties?.maskList || []
@@ -95,7 +95,7 @@ async function handleSave() {
         return
       }
     }
-    await clientApi.api.patchNuxeoDocument({
+    await clientApi.api.patchDmsDocument({
       idOrPath: props.doc.id,
       name: form.value.name,
       properties: metaFormData

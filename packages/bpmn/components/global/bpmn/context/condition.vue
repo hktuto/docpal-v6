@@ -126,7 +126,7 @@ function updateCondition(newVal:any, index:number){
 
 const userGroupOption = ref<any[]>([]);
 async function getUserGroup() {
-    const data = await adminApi.api.postNuxeoIdentityGroups();
+    const data = await clientApi.api.postUcenterGroups().then(r => r.data)
     if(data.data){
         userGroupOption.value = data.data
     }

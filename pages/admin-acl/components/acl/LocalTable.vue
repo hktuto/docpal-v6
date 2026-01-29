@@ -44,8 +44,8 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
+import { ElMessageBox } from 'element-plus'
+import { adminApi, clientApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const props = defineProps<{
   tableData: any[],
@@ -137,7 +137,7 @@ async function removeLocalAcl(row: any) {
   try {
     let msg = ''
 
-    const isShareInternal = await adminApi.api.postInternalshareCheckdocumentisinshare({
+    const isShareInternal = await clientApi.admin.postAdmindmsInternalshareCheckDocumentIsInShare({
       documentId: props.doc.id,
       shareToUserId: row.userId
     })

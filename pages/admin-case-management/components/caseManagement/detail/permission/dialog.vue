@@ -112,10 +112,11 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
+import { getGroupsSelectOption, getRoleSelectOption } from '#imports'
+
 const { t } = useI18n()
 const inputRule = { required: true, message: t('tip.input'), trigger: 'blur' }
 const selectRule = { required: true, message: t('el.select.placeholder'), trigger: 'change' }
-import { clientApi } from 'api'
 
 const emits = defineEmits(['refresh', 'delete'])
 
@@ -391,24 +392,12 @@ function getConditionList(fieldId: string) {
 }
 
 async function getGroup() {
-  const { data: groupList } = await clientApi.api.postNuxeoIdentityGroups()
-  state.groupList = groupList
-    ?.sort((a: any, b: any) => a.name.localeCompare(b.name))
-    .map((item) => ({
-      label: item.name,
-      value: item.id
-    }))
+  const list = await getGroupsSelectOption()
+  state.groupList = list.sort((a: any, b: any) => a.label.localeCompare(b.label))
 }
 
 async function getRole() {
-  const { flatRole, getRoleTree } = useRBAC()
-  if (flatRole.value.length === 0) {
-    await getRoleTree()
-  }
-  state.roleList = flatRole.value.map((item: any) => ({
-    label: item.name,
-    value: item.id
-  }))
+  state.roleList = await getRoleSelectOption()
 }
 
 onMounted(async () => {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Node } from '@antv/x6'
 import { useDebounceFn } from '@vueuse/core'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 
 const { t } = useI18n()
 const { node } = defineProps<{
@@ -68,7 +68,7 @@ const handelFileOnChange = useDebounceFn(
     const formData = new FormData()
     formData.append('file', state.fileList[0].raw)
     loading.value = true
-    const { fields, id } = await adminApi.api.postTemplateDocumentParse({}, formData).then(res => res.data)
+    const { fields, id } = await clientApi.admin.postAdmindmsTemplateDocumentParse({}, formData).then(res => res.data)
     // 轉bpmn json
     state.fields = fields
     state.id = id

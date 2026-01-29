@@ -16,7 +16,7 @@ import { clientApi } from 'api';
 const unreadCount = ref(0);
 const dialogOpened = ref(false);
 async function getUnreadCount() {
-    const { data:{result}} = await clientApi.api.getNotificationUnreadNumber()
+    const { result } = await clientApi.api.getNotificationUnreadNumber().then(r =>r.data)
     unreadCount.value = result;
 }
 onMounted(() => {

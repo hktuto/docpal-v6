@@ -156,10 +156,10 @@ async function handleSubmit() {
     return
   }
   try {
-    const { data } = await clientApi.api.postDmsMasterTable({
+    const data = await clientApi.admin.postAdmindmsMasterTable({
       name: state.name,
       fields: tableConfig.data
-    })
+    }).then(r => r.data)
     routerProvider?.navigateTo(routeMasterTableDetail(data))
   } catch (error) {
     console.log(error)
@@ -216,7 +216,7 @@ function handleUpdateSchama(schema: any) {
 }
 
 onMounted(async () => {
-  const res = await clientApi.api.getDmsMasterTableDatatypeMapping()
+  const res = await clientApi.admin.getAdmindmsMasterTableDatatypeMapping()
   state.dataTypeList = res.data
   state.dataTypeList.push({
     value: 'relation',

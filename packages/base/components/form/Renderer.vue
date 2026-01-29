@@ -142,7 +142,7 @@ async function handleFilePreview(file: any, fieldOptions: any) {
     let fileId = ''
     if (fieldOptions?.uploadName === 'file') {
       fileId = file.response?.data ? file.response.data.id : file.id
-      previewFile.blob = (await clientApi.api.postNuxeoDocumentDownloadNonpermission(
+      previewFile.blob = (await clientApi.api.postDmsDocumentDownloadPublic(
         { idOrPath: fileId },
         {
           format: 'blob'

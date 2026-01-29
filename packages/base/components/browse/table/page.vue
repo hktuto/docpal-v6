@@ -162,7 +162,7 @@ watch(
 
 provide(BrowseListProviderKey, {
   getchildApi: (pageParams: any) => {
-    return clientApi.api.postNuxeoDocumentChildrenThumbnailV2(pageParams)
+    return clientApi.api.postDmsDocumentChildrenThumbnail(pageParams)
   },
   idOrPath: currentIdOrPath,
   docDetail,
@@ -274,7 +274,6 @@ function handleSearchBlur() {
               </div>
             </slot>
             <slot name="toolbarTools">
-              <BrowseActionsShare class="shareActions" :doc="docDetail" :selectedList="selectedList" />
               <div :class="{ searchContainer: true, expanded: isSearchExpanded }">
                 <div v-if="!isSearchExpanded" class="searchButton" @click="expandSearch">
                   <Icon name="mdi:magnify" />

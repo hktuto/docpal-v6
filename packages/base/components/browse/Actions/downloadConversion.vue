@@ -36,7 +36,7 @@ const supportedFormatObject = ref<any>({})
 // #region new convert
 const supportedFormatList = computed(() => {
   try {
-    const suffix = mime.extension(props.doc.properties['file:content']['mime-type'])
+    const suffix = mime.extension(props.doc.properties['file_content']['mime-type'])
     return filterArrObj(supportedFormatObject.value[suffix], 'targetFileType')
   } catch (error) {
     return []

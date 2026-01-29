@@ -19,7 +19,6 @@
   <ReaderDialog ref="ReaderRef" v-bind="previewFile" :options="{ readOnly: true, print: false, loadAnnotations: false }"> </ReaderDialog>
 </template>
 <script lang="ts" setup>
-import { ElMessageBox } from 'element-plus'
 import { clientApi } from 'api'
 import dayjs from 'dayjs'
 
@@ -85,7 +84,7 @@ async function handleDblclick(row: any) {
       password: sessionStorage.getItem('sharePWD'),
       documentId: fileId
     }
-    previewFile.blob = await clientApi.api.getNuxeoPublicSharePreview(params, {
+    previewFile.blob = await clientApi.api.getDmsPublicShareDocumentsDocumentidPreview(params, {
       format: 'blob'
     })
   } catch (error) {}
@@ -102,7 +101,7 @@ async function handleDownload(row: any) {
       password: sessionStorage.getItem('sharePWD'),
       documentId: row.id
     }
-    const blob: any = await clientApi.api.getNuxeoPublicShareDownload(params, {
+    const blob: any = await clientApi.api.getDmsPublicShareDocumentsDocumentidDownload(params, {
       format: 'blob'
     })
     downloadBlob(blob, row.name || row.title, blob.type)

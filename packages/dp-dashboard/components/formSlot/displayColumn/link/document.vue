@@ -18,8 +18,7 @@ const loading = ref(false)
 async function getDocDetail() {
   loading.value = true
   try {
-    const { data } = await clientApi.api.postNuxeoDocument({idOrPath: props.docId})
-    docDetail.value = data
+    docDetail.value = await clientApi.api.postDmsDocumentFetch({idOrPath: props.docId}).then(r => r.data)
   } catch (error) {
     console.error(error)
   } finally {

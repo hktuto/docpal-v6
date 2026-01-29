@@ -230,7 +230,7 @@ onMounted(() => {
   getData()
 })
 onMounted(async () => {
-  const res: any = await clientApi.api.getTypesActive().then((res) => res.data)
+  const res: any = await clientApi.api.getDmsDocpalTypeActive().then((res) => res.data)
   state.fileTypes = res.filter((item: any) => !item.isFolder)
 })
 </script>

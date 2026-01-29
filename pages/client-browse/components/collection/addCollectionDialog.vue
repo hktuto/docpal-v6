@@ -36,16 +36,16 @@ const FormRendererRef = ref()
 async function handleSubmit() {
   try {
     const data = await FormRendererRef.value.getFormData()
-    if(!data) return
+    if (!data) return
     state.loading = true
-    let params = {
+
+    const cdata = await clientApi.api.postDmsCollection({
       name: data.name,
       description: null
-    }
-    const cdata = await clientApi.api.postNuxeoCollectionCreate(params).then(res => res.data)
+    }).then(res => res.data)
     ElMessage.success(t('tip_createdMsg', {
       modelName: null,
-      name: params.name
+      name: data.name
     }))
     state.visible = false
     FormRendererRef.value.vFormRenderRef.resetForm()

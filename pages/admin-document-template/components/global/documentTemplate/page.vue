@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { provide, ref, toRefs } from 'vue'
 import { DocumentTemplateListTable } from '#components'
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 import { DocumentTemplateProviderKey } from '~/utils/documentTemplateHelper'
-import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
+import { ElMessageBox, ElNotification } from 'element-plus'
 import { Download } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
@@ -88,7 +88,7 @@ function officeUrl(docId: string, token: string) {
 }
 
 async function handleEdit(row: any) {
-  const { data: token }: any = await clientApi.api.getNuxeoGetofficetokenId(row.documentId, { fileType: 'NUXEO' })
+  const token = await clientApi.api.getGetofficetokenId(row.documentId, { fileType: 'NUXEO' }).then(r => r.data)
   const baseUrl = officeUrl(row.documentId, token)
   window.open(baseUrl, '_blank')
 }
@@ -107,7 +107,7 @@ async function handleDelete(row: any) {
       confirmButtonText: t('common_confirmDelete')
     })
     if (action !== 'confirm') return
-    await adminApi.api.deleteTemplateDocumentId(row.id)
+    await clientApi.admin.deleteAdmindmsTemplateDocumentId(row.id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('adminMenu.template') }))
 
     tableRef.value?.reload()
@@ -129,7 +129,7 @@ async function handleDownload(row: any) {
     position: 'bottom-right'
   })
   try {
-    const blob = await adminApi.api.postNuxeoDocumentDownload(
+    const blob = await clientApi.admin.postAdmindmsDocumentDownload(
       { idOrPath: row.documentId },
       {
         format: 'blob',
@@ -163,7 +163,7 @@ provide(DocumentTemplateProviderKey, {
       isDesc: params.isDesc,
       filters
     })
-    return adminApi.api.postTemplateDocumentPage(params)
+    return clientApi.admin.postAdmindmsTemplateDocumentPage(params)
   },
   dblClickHandle: (row: any) => {
     const item = createNewDocumentTemplateDetail(row, true)
@@ -188,7 +188,8 @@ provide(DocumentTemplateProviderKey, {
     <DocumentTemplateListTable ref="tableRef" v-bind="props">
       <template #toolbar_buttons>
         <div class="actionsContainer">
-          <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="name" inputPlaceHolder="documentTemplate_Filter" />
+          <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="name"
+                            inputPlaceHolder="documentTemplate_Filter" />
           <div class="button-add">
             <el-button id="DocumentTemplate__CreateNewDocumentTemplate" type="primary" @click="handleAdd">
               {{ $t('documentTemplate_Create') }}
@@ -197,7 +198,7 @@ provide(DocumentTemplateProviderKey, {
         </div>
       </template>
     </DocumentTemplateListTable>
-    <TemplateAddStep1Dialog ref="TemplateAddStep1DialogRef" @update="tableRef?.reload"/>
+    <TemplateAddStep1Dialog ref="TemplateAddStep1DialogRef" @update="tableRef?.reload" />
     <TemplateReplaceDialog ref="TemplateReplaceDialogRef" @refresh="tableRef?.reload" />
   </div>
 </template>

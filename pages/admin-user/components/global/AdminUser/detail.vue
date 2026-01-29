@@ -1,68 +1,70 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import type { UserDTO } from 'api/src/generate/admin'
-import { userProviderDetailKey } from "~/util/userProvider";
+import { userProviderDetailKey } from '~/util/userProvider'
+
 const { id } = defineProps<{
-  id: string;
-}>();
+  id: string
+}>()
 const routerProvider = inject(MenuRouterKey)
-if( !routerProvider) {
-    throw new Error('MenuRouterKey is not provided')
+if (!routerProvider) {
+  throw new Error('MenuRouterKey is not provided')
 }
 const state = reactive<{
-  curUser: UserDTO | null;
+  curUser: UserDTO | null
 }>({
-  curUser: null,
+  curUser: null
 })
 defineOptions({
   name: 'AdminUserDetailDead'
 })
-function openUserList(openInNewTab: boolean = false){
-    // TODO: open detail page
-    const newItem: any = {
-        menuKey: routerProvider?.menuSymbol,
-        id: "admin-user",
-        name: "admin-user-list",
-        icon: 'lucide:user',
-        label: 'Admin User',
-        component: 'LazyAdminUserList',
-        props: {
-        }
-    }        
-    routerProvider?.navigateTo({...newItem}, openInNewTab)
+
+function openUserList(openInNewTab: boolean = false) {
+  // TODO: open detail page
+  const newItem: any = {
+    menuKey: routerProvider?.menuSymbol,
+    id: 'admin-user',
+    name: 'admin-user-list',
+    icon: 'lucide:user',
+    label: 'Admin User',
+    component: 'LazyAdminUserList',
+    props: {}
+  }
+  routerProvider?.navigateTo({ ...newItem }, openInNewTab)
 }
+
 async function getUser() {
-  const res = await adminApi.api.getNuxeoUserUserid(id);
-  if(!res.data) return
-  console.log("res.data", res.data)
-  res.data.status = res.data.status === "A" ? "A" : "D";
-  state.curUser = res.data;
+  const data: any = await clientApi.admin.getAdmindmsUserUserid(id).then((r) => r.data)
+  if (!data) return
+  console.log('user info', data)
+  data.status = data.status === 'A' ? 'A' : 'D'
+  state.curUser = data
 }
+
 provide(userProviderDetailKey, {
-  SetUserStatusApi: (params:any) => {
-    return adminApi.api.putNuxeoUserStatus(params)
+  SetUserStatusApi: (params: any) => {
+    return clientApi.api.putUcenterStatus(params)
   },
-  BatchActiveUserApi: (params:any) => {
-    return adminApi.api.postNuxeoUserBatchActive(params)
+  BatchActiveUserApi: (params: any) => {
+    return clientApi.api.postUcenterBatchActive(params)
   },
-  BatchDeleteUserApi: (params:any) => {
-    return adminApi.api.postNuxeoIdentityUsersBatchDelete(params)
+  BatchDeleteUserApi: (params: any) => {
+    return clientApi.admin.postAdminucenterUsersBatchDelete(params)
   },
   PatchUserPasswordApi: (params: any) => {
-    return adminApi.api.patchNuxeoIdentityUserPassword(params)
+    return clientApi.admin.patchAdminucenterUserPassword(params)
   },
   MemberGroupGetApi: (params: any) => {
-    return adminApi.api.postNuxeoIdentityMembergroup(params)
+    return clientApi.admin.postAdminucenterMemberGroup(params)
   },
   BatchUserRemoveGroupsApi: (params: any) => {
-    return adminApi.api.postNuxeoIdentityUserBatchRemoveGroups(params)
+    return clientApi.admin.postAdminucenterUserBatchRemoveGroups(params)
   },
   BatchUserAddGroupsApi: (params: any) => {
-    return adminApi.api.postNuxeoIdentityUserBatchAddGroups(params)
+    return clientApi.admin.postAdminucenterUserBatchAddGroups(params)
   },
-  GetGroupListApi : async() => {
-    const res = await adminApi.api.postNuxeoIdentityGroups({})
-    return res.data
+  GetGroupListApi: async () => {
+    return await clientApi.admin.postAdminucenterGroups().then((r) => r.data)
   },
   getUser,
   openUserList
@@ -74,21 +76,17 @@ onMounted(() => {
 </script>
 <template>
   <div class="userDetailSection" v-if="state.curUser">
-    <UserInfo
-      class="info"
-      :user="state.curUser"
-      @refresh="getUser"
-    ></UserInfo>
+    <UserInfo class="info" :user="state.curUser" @refresh="getUser"></UserInfo>
     <UserGroupTable class="group" :user="state.curUser">group</UserGroupTable>
     <!-- <UserVirtualFolder v-if="state.curUser" class="virtualFolder" :userOrGroup="state.curUser" mode="userAllowList">virtualFolder</UserVirtualFolder> -->
   </div>
 </template>
 <style lang="scss" scoped>
-.userDetailSection{
+.userDetailSection {
   height: 100%;
   padding: var(--app-space-s);
-  display : grid;
-  grid-template-columns: minmax(min-content, 400px) 1fr ;
+  display: grid;
+  grid-template-columns: minmax(min-content, 400px) 1fr;
   grid-template-rows: 1fr;
   gap: var(--app-space-xs);
   grid-template-areas:
@@ -96,17 +94,19 @@ onMounted(() => {
     'list group virtualFolder';
   height: 100%;
   overflow: hidden;
-  :deep(.el-card){
+
+  :deep(.el-card) {
     height: 100%;
     overflow: hidden;
-
   }
+
   :deep(.el-card__header) {
     min-height: 45px !important;
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
     align-items: center;
+
     > * {
       width: 100%;
     }

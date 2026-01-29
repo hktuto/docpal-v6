@@ -60,7 +60,7 @@ const userId = useUserId()
 const dialogEl = ref()
 
 async function handleDataGet() {
-  const data: any = await clientApi.api.getAclResourceResourceid(props.doc.id).then(res => res.data)
+  const data: any = await clientApi.api.getDocpalAclResourceResourceid(props.doc.id).then(res => res.data)
 
   aces.value = data.filter((item: any) => item.name !== null)
 }

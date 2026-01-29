@@ -45,7 +45,7 @@ async function getFilterOptions() {
     user = res.users.filter(item => item.status).sort((a, b) => a.username.localeCompare(b.username))
     console.log('user', user)
   } else {
-    user = await clientApi.api.postNuxeoIdentityUsers({}).then(res => res.data)
+    user =  await clientApi.api.postUcenterUsers({}).then((res) => res.data)
     user = user.filter(item => item.status).sort((a, b) => a.username.localeCompare(b.username))
   }
   userFiterOptions.value = user.map(item => {

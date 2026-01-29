@@ -1,7 +1,5 @@
-import dayjs from 'dayjs'
-
-import { ElMessage } from 'element-plus'
 import { clientApi } from 'api'
+
 export type uploadRequest = {
   doc: any
   startDate: Date
@@ -16,21 +14,22 @@ export const useUploadAIStore = () => {
   const uploadState = useState('uploadAIState', () => ({
     uploadRequestList: <uploadRequest[]>[]
   }))
+
   async function createUploadRequest(doc: any, files: any[]) {
     const docList = getUploadFiles(files)
     //doc.path 是 id 的 path 要用 breadcrumb
-    const { data: breadcrumbList } = (await clientApi.api.postNuxeoDocumentBreadcrumb({ idOrPath: doc.path })) as any
+    const breadcrumbList: any = await clientApi.api.postDmsDocumentBreadcrumb({ idOrPath: doc.path }).then(r => r.data)
     const path = breadcrumbList.reduce((prev: any, item: any) => {
       if (prev !== '/') prev += '/'
       prev += item.name
       return prev
     }, '/')
-    const { data: uploadAiId } = await clientApi.api.postNuxeoDocumentSaveuploadfileoverview({
+    const uploadAiId = await clientApi.api.postDmsUploadBatch({
       userId: userId.value,
       filesCount: docList.length,
       uploadPath: path,
       nuxeoPath: doc.path
-    })
+    }).then(r => r.data)
     if (!uploadAiId) return false
     uploadState.value.uploadRequestList.push({
       doc,
@@ -48,6 +47,7 @@ export const useUploadAIStore = () => {
     })
     return uploadState.value
   }
+
   function getUploadFiles(files: any[]) {
     const treeData: any = []
     const treeMap: any = {}
@@ -92,12 +92,14 @@ export const useUploadAIStore = () => {
     })
     return treeData
   }
+
   function getFileName(name, isFolder: boolean = false) {
     if (isFolder) return name
     const names = name.split('.')
     if (names.length > 1) names.pop()
     return names.join('.')
   }
+
   async function handleCreateDocument(doc: any, parentPath: string, uploadRequestItem: uploadRequest) {
     let result
     let _document = {
@@ -112,30 +114,13 @@ export const useUploadAIStore = () => {
       console.log('doc', doc)
 
       if (doc.isFolder) {
-        result = await clientApi.api.postNuxeoDocumentUploadtempfolder(_document)
+        result = await clientApi.api.postDmsUploadTmpFolder(_document)
       } else {
         _document.fileModifiedTimestamp = doc.file.lastModified
         const formData = new FormData()
         formData.append('file', doc.file)
         formData.append('uploadTempFileRequestStr', JSON.stringify(_document))
-        const result = await clientApi.instance
-          .post('/nuxeo/document/uploadTempFile', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          })
-          .then((res) => res.data)
-        // result = await clientApi.api.postNuxeoDocumentUploadtempfile(
-        //     {
-        //         uploadTempFileRequestStr:""
-        //     },
-        //     formData as any,
-        //     {
-        //         onUploadProgress: (e: any) => {
-        //             doc.progress = Math.round((e.loaded / e.total) * 100)
-        //         }
-        //     }
-        // )
+        const result = await clientApi.api.postDmsUploadTmpFile({}, formData).then((res) => res.data)
       }
       doc.status = 'success'
     } catch (error) {
@@ -148,6 +133,7 @@ export const useUploadAIStore = () => {
     }
     return result
   }
+
   function getUploadRequestList() {
     return uploadState.value.uploadRequestList
   }
@@ -174,6 +160,7 @@ export const useUploadAIStore = () => {
     })
     return result
   }
+
   return {
     createUploadRequest,
     getUploadFiles,

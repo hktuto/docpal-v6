@@ -36,7 +36,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   id: 'c-share',
   api: async (pageParams: any) => {
     cleanSelectedRows()
-    return await clientApi.api.postNotificationQueryNotificationList({
+    return await clientApi.api.postNotificationList({
       ...pageParams,
       ...extraParams
     })
@@ -162,7 +162,7 @@ async function handleDismissSelected(row?: any) {
   let ids: number[] = []
   if (!!row) ids = [row.id]
   else ids = state.selectList.map((item: any) => item.id)
-  await clientApi.api.putNotificationDissmissByIds({ ids })
+  await clientApi.api.putNotificationDissmissByIds({ ids }).then(r => r.data)
   reload()
   if (!!row && row.readStatus === 'READED') return
   updateNotificationUnreadCount()
@@ -189,7 +189,7 @@ async function handleDisabled(row: any) {
     if (action !== 'confirm') return
     const param: any = []
     param.push(row.shareID)
-    await clientApi.api.deleteNuxeoShare(param)
+    await clientApi.api.deleteDmsShare(param).then(r => r.data)
     query({})
   } catch (error) {
     console.log(error)

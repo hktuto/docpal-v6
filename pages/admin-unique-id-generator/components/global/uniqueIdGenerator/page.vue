@@ -2,14 +2,8 @@
   <div class="pageContainer--padding">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter
-          ref="responsiveFilterRef"
-          inputKey="name"
-          @form-change="handleFilterFormChange"
-          inputPlaceHolder="folder_cabinetFilterItemName"
-        />
-        <el-button id="UniqueIdGeneratorList__AddUniqueIdGenerator" class="el-icon--right button" type="primary"
-                   @click="handleAdd">
+        <ResponsiveFilter ref="responsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange" inputPlaceHolder="folder_cabinetFilterItemName" />
+        <el-button id="UniqueIdGeneratorList__AddUniqueIdGenerator" class="el-icon--right button" type="primary" @click="handleAdd">
           {{ $t('button.add') }}
         </el-button>
       </template>
@@ -18,12 +12,11 @@
 
   <LazyUniqueIdGeneratorAddDialog ref="addDialogRef"></LazyUniqueIdGeneratorAddDialog>
 
-  <LazyUniqueIdGeneratorDuplicateDialog ref="duplicateDialogRef" @refresh="reload">
-  </LazyUniqueIdGeneratorDuplicateDialog>
+  <LazyUniqueIdGeneratorDuplicateDialog ref="duplicateDialogRef" @refresh="reload"> </LazyUniqueIdGeneratorDuplicateDialog>
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { routeUniqueIdGeneratorDetail } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -33,17 +26,10 @@ let extraParams: any = {}
 const addDialogRef = ref()
 const duplicateDialogRef = ref()
 
-const {
-  tableConfig,
-  tableEvent,
-  tableRef,
-  query,
-  reload,
-  cleanSelectedRows
-} = useVxeTable({
+const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'unique-id-generator',
   api: async (pageParams: any) => {
-    return await adminApi.api.postIdTemplatesPage({
+    return await clientApi.admin.postAdmindocpalIdTemplatesPage({
       ...pageParams,
       ...extraParams
     })
@@ -115,11 +101,13 @@ async function handleDelete(row: any) {
     confirmButtonText: t('common_delete')
   }).then(async () => {
     try {
-      await adminApi.api.deleteIdTemplatesId(row.id)
-      routerProvider?.message.success(t('tip_deleteSuccessMsg', {
-        modelName: t('adminMenu.uniqueIdGenerator'),
-        name: row.name
-      }))
+      await clientApi.admin.deleteAdmindocpalIdTemplatesId(row.id)
+      routerProvider?.message.success(
+        t('tip_deleteSuccessMsg', {
+          modelName: t('adminMenu.uniqueIdGenerator'),
+          name: row.name
+        })
+      )
     } catch (error) {
       console.log(error)
     } finally {

@@ -225,7 +225,7 @@ export interface ResultFileDTO {
 }
 
 /** Document Type */
-export interface DocumentTypeDTO {
+export interface DocPalTypeDTO {
     /** Document Type Name */
     name?: string;
     /** Is Folder Type */
@@ -258,12 +258,12 @@ export interface KeywordValueScope {
     scopeName?: string;
 }
 
-export interface ResultListDocumentTypeDTO {
+export interface ResultListDocPalTypeDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: DocumentTypeDTO[];
+    data?: DocPalTypeDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -456,50 +456,72 @@ export interface ResultVoid {
     locale?: string;
 }
 
-/** Updated import job information */
-export interface ExternalStorageImportJobDTO {
-    /** Unique identifier for the import job */
-    id?: string;
-    /**
-     * Type of the job
-     * @example "import_job"
-     */
-    type?: string;
-    /** Profile ID associated with the job */
-    profileId?: string;
-    /** Name of the file being imported */
-    fileName?: string;
-    /** Name of the profile */
-    profileName?: string;
-    /** Source of the import */
-    source?: string;
-    /** Batch ID for grouping related jobs */
-    batchId?: string;
-    /** Status of the import job */
-    status?: string;
-    /** @format int64 */
-    queue_order?: number;
-    /** Activity log in JSON format */
-    activityLog?: Record<string, object>[];
-    /**
-     * Creation timestamp
-     * @format date-time
-     */
-    createdDate?: string;
-    /**
-     * Last modification timestamp
-     * @format date-time
-     */
-    modifiedDate?: string;
+export interface UpdateSyncTaskRequest {
+    name?: string;
+    cron_expression?: string;
+    is_enabled?: boolean;
 }
 
-export interface ResultExternalStorageImportJobDTO {
+export interface ResultSyncTaskDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    /** Updated import job information */
-    data?: ExternalStorageImportJobDTO;
+    data?: SyncTaskDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface SyncTaskDTO {
+    /** @format int32 */
+    id?: number;
+    name?: string;
+    /** @format int32 */
+    cloud_service_id?: number;
+    source_path?: string;
+    target_path?: string;
+    sync_mode?: string;
+    cron_expression?: string;
+    is_enabled?: boolean;
+    /** @format date-time */
+    created_at?: string;
+}
+
+export interface UpdateOAuthAppRequest {
+    name?: string;
+    provider?: string;
+    client_id?: string;
+    client_secret?: string;
+    redirect_uri?: string;
+    scopes?: string;
+    sharepoint_site_url?: string;
+    create_by?: string;
+}
+
+export interface CloudServiceDTO {
+    id?: string;
+    name?: string;
+    provider?: string;
+    status?: string;
+    authorized_at?: string;
+    expires_at?: string;
+}
+
+export interface OAuthAppDTO {
+    id?: string;
+    name?: string;
+    provider?: string;
+    client_id?: string;
+    client_secret?: string;
+    cloud_service?: CloudServiceDTO;
+}
+
+export interface ResultOAuthAppDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: OAuthAppDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -608,72 +630,50 @@ export interface ResultExternalProfileDTO {
     locale?: string;
 }
 
-export interface UpdateSyncTaskRequest {
-    name?: string;
-    cron_expression?: string;
-    is_enabled?: boolean;
-}
-
-export interface ResultSyncTaskDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: SyncTaskDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface SyncTaskDTO {
-    /** @format int32 */
-    id?: number;
-    name?: string;
-    /** @format int32 */
-    cloud_service_id?: number;
-    source_path?: string;
-    target_path?: string;
-    sync_mode?: string;
-    cron_expression?: string;
-    is_enabled?: boolean;
-    /** @format date-time */
-    created_at?: string;
-}
-
-export interface UpdateOAuthAppRequest {
-    name?: string;
-    provider?: string;
-    client_id?: string;
-    client_secret?: string;
-    redirect_uri?: string;
-    scopes?: string;
-    sharepoint_site_url?: string;
-    create_by?: string;
-}
-
-export interface CloudServiceDTO {
+/** Updated import job information */
+export interface ExternalStorageImportJobDTO {
+    /** Unique identifier for the import job */
     id?: string;
-    name?: string;
-    provider?: string;
+    /**
+     * Type of the job
+     * @example "import_job"
+     */
+    type?: string;
+    /** Profile ID associated with the job */
+    profileId?: string;
+    /** Name of the file being imported */
+    fileName?: string;
+    /** Name of the profile */
+    profileName?: string;
+    /** Source of the import */
+    source?: string;
+    /** Batch ID for grouping related jobs */
+    batchId?: string;
+    /** Status of the import job */
     status?: string;
-    authorized_at?: string;
-    expires_at?: string;
+    /** @format int64 */
+    queue_order?: number;
+    /** Activity log in JSON format */
+    activityLog?: Record<string, object>[];
+    /**
+     * Creation timestamp
+     * @format date-time
+     */
+    createdDate?: string;
+    /**
+     * Last modification timestamp
+     * @format date-time
+     */
+    modifiedDate?: string;
 }
 
-export interface OAuthAppDTO {
-    id?: string;
-    name?: string;
-    provider?: string;
-    client_id?: string;
-    client_secret?: string;
-    cloud_service?: CloudServiceDTO;
-}
-
-export interface ResultOAuthAppDTO {
+export interface ResultExternalStorageImportJobDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: OAuthAppDTO;
+    /** Updated import job information */
+    data?: ExternalStorageImportJobDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -1671,6 +1671,39 @@ export interface ResultCmmnDashboardResponseDTO {
     locale?: string;
 }
 
+export interface WhatsAppSettingDTO {
+    accessToken?: string;
+    phoneNum?: string;
+    accountNum?: string;
+    whatsAppSwitch?: boolean;
+}
+
+export interface AzureOcrSettingDTO {
+    cutOffTime?: string;
+    /** @format int32 */
+    readThreshold?: number;
+    /** @format int32 */
+    preBuildThreshold?: number;
+    /** @format int32 */
+    customModelThreshold?: number;
+    alertEmail?: string;
+    emailTemplate?: string;
+}
+
+export interface AzureOcrApiKeyDTO {
+    apiKey?: string;
+    description?: string;
+}
+
+export interface ProfileMappingRequestDTO {
+    /** @format int64 */
+    id?: number;
+    name?: string;
+    scanProfile?: string;
+    normalizeSetting?: string;
+    status?: string;
+}
+
 /** Validation Rule Request DTO */
 export interface ValidationRuleRequestDTO {
     /** Validation Rule ID */
@@ -1728,32 +1761,6 @@ export interface ValidationRuleResponseDTO {
      * @format date-time
      */
     modifiedDate?: string;
-}
-
-export interface AzureOcrSettingDTO {
-    cutOffTime?: string;
-    /** @format int32 */
-    readThreshold?: number;
-    /** @format int32 */
-    preBuildThreshold?: number;
-    /** @format int32 */
-    customModelThreshold?: number;
-    alertEmail?: string;
-    emailTemplate?: string;
-}
-
-export interface ProfileMappingRequestDTO {
-    /** @format int64 */
-    id?: number;
-    name?: string;
-    scanProfile?: string;
-    normalizeSetting?: string;
-    status?: string;
-}
-
-export interface AzureOcrApiKeyDTO {
-    apiKey?: string;
-    description?: string;
 }
 
 /** Resource permission data transfer object */
@@ -2191,11 +2198,12 @@ export interface IdentityRequestDTO {
 }
 
 export interface AddMetadataRequestDTO {
-    docType?: string;
-    name?: string;
+    "DocPal Type ID"?: string;
+    "DocPal Type Name"?: string;
+    "Metadata Name"?: string;
     display?: boolean;
-    metaDataDefinition?: MetaDataDefinitionRequestDTO;
     metadataId?: string;
+    metaDataDefinition?: MetaDataDefinitionRequestDTO;
     metadataPermissionRule?: MetadataPermissionRuleDTO;
     metadataPermission?: MetadataPermissionDTO;
 }
@@ -2300,13 +2308,6 @@ export type UserRoleUserGroupValidation = MetadataValidation & {
 export type UserValidation = MetadataValidation;
 
 export type WorkflowValidation = MetadataValidation;
-
-export interface WhatsAppSettingDTO {
-    accessToken?: string;
-    phoneNum?: string;
-    accountNum?: string;
-    whatsAppSwitch?: boolean;
-}
 
 /** Workflow (Request) */
 export interface WorkflowRequestDTO {
@@ -3521,6 +3522,54 @@ export interface ResultAclUserPermission {
     data?: AclUserPermission;
 }
 
+/** Password (Request) */
+export interface PasswordRequestDTO {
+    token?: string;
+    oldPassword?: string;
+    newPassword: string;
+}
+
+export interface ResultListUserDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: UserDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListGroupDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: GroupDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultGroupDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Group data transfer object */
+    data?: GroupDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** User batch active params */
+export interface UserBatchActiveDTO {
+    /** acl_user ids */
+    ids?: string[];
+    /** keycloak user ids */
+    userIds?: string[];
+    /** active A/D */
+    active?: string;
+}
+
 /** Define access control permission */
 export interface AccessControlPermission {
     id?: string;
@@ -3581,8 +3630,7 @@ export interface ResultListString {
     data?: string[];
 }
 
-/** Define access control entry */
-export interface AccessControlEntry {
+export interface AclEntry {
     id?: string;
     /**
      * 名称
@@ -3652,7 +3700,7 @@ export interface AclPermissionDTO {
      * @format date-time
      */
     modifiedDate: string;
-    permissionEntrys?: AccessControlEntry[];
+    permissionEntrys?: AclEntry[];
 }
 
 export interface ResultAclPermissionDTO {
@@ -3822,334 +3870,6 @@ export interface ResultListAclUserGroup {
     code?: number;
     message?: string;
     data?: AclUserGroup[];
-}
-
-export interface ResultAccessControlEntry {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Define access control entry */
-    data?: AccessControlEntry;
-}
-
-/** EasyShare (Request) */
-export interface SharePageRequestDTO {
-    /**
-     * page
-     * @format int32
-     */
-    page?: number;
-    /**
-     * size
-     * @format int32
-     */
-    size?: number;
-    /** orderByAsc */
-    orderByAsc?: string;
-    /** orderByDesc */
-    orderByDesc?: string;
-    /** searchKey */
-    searchKey?: string;
-}
-
-export interface ResultMapObjectObject {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: Record<string, object>;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** The Bind Document List */
-export interface EasyShareDocumentDetails {
-    /** @format int64 */
-    id?: number;
-    path?: string;
-    docId?: string;
-    readOnly?: boolean;
-    watermarkData?: WatermarkData;
-    createdBy?: string;
-    watermarkTemplateId?: string;
-    watermarkStatus?: string;
-    originFilePath?: string;
-    watermarkFile?: string;
-    previewFile?: string;
-    conversionId?: string;
-    watermarkedLocalPath?: string;
-}
-
-/** EasyShare (Request) */
-export interface ShareRequestDTO {
-    /** PATH Size */
-    pathList?: string[];
-    /** Share PWD */
-    sharePWD?: string;
-    /**
-     * Token Expiration Time
-     * @format int32
-     */
-    tokenTime?: number;
-    /** Email List */
-    emailList?: string[];
-    /** Password for shared document(s) */
-    password?: string;
-    /**
-     * How long the token can last for? (in # of minutes)
-     * @format int32
-     */
-    tokenLiveInMinutes?: number;
-    /** The Bind Document List */
-    documentList?: EasyShareDocumentDetails[];
-}
-
-export interface WatermarkData {
-    templateId?: string;
-    originFilePath?: string;
-    previewFile?: string;
-    status?: string;
-    watermarkFile?: string;
-    conversionId?: string;
-}
-
-/** EasyShare */
-export interface EasyShareDTO {
-    /** Token for access shared document */
-    access_token?: string;
-    /** UUID of saved Nuxeo PATH */
-    shareId?: string;
-    /** document in Nuxeo with PATH */
-    documentURL?: string;
-    /** Document ID List */
-    documentIdList?: string;
-    /** How long the token can last for? (in # of minutes) */
-    dueTime?: string;
-    /** Document shared to a list of email */
-    emailList?: string;
-}
-
-export interface ResultEasyShareDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** EasyShare */
-    data?: EasyShareDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface NestedSearchLogRequestDTO {
-    /** @format int64 */
-    id?: number;
-    label?: string;
-    queryCondition?: string;
-}
-
-export interface MatchDTO {
-    queryType?: string;
-    type?: string;
-    value?: object;
-    option?: OptionDTO;
-    extract?: MatchExtractDTO;
-}
-
-export interface MatchExtractDTO {
-    synonyms?: string[];
-}
-
-export interface OptionDTO {
-    matchCase?: boolean;
-    fullMatch?: boolean;
-    synonyms?: boolean;
-    includeLanguages?: string[];
-}
-
-export interface QueryConditionDTO {
-    condition?: string;
-    matchs?: MatchDTO[];
-}
-
-export interface SearchFilterDTO {
-    documentTypes?: string[];
-    collections?: string[];
-    tags?: string[];
-    creators?: string[];
-    lastModifyBy?: string[];
-    authors?: string[];
-    createdDate?: string;
-    modified?: string;
-}
-
-export interface SearchRequestDTO {
-    condition?: string;
-    docId?: string;
-    /** @format int32 */
-    pageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    isExport?: boolean;
-    filter?: SearchFilterDTO;
-    query?: QueryConditionDTO[];
-}
-
-export interface DocpalSearchRequest {
-    condition?: string;
-    docId?: string;
-    query?: QueryCondition[];
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageSize?: number;
-}
-
-export interface Match {
-    queryType?: string;
-    value?: object;
-    option?: Record<string, object>;
-}
-
-export interface QueryCondition {
-    condition?: string;
-    matchs?: Match[];
-}
-
-export interface HitsHits {
-    /** @format int64 */
-    _id?: number;
-    /** @format int32 */
-    _score?: number;
-    _source?: object;
-    _knn_dist?: number;
-    highlight?: object;
-    table?: string;
-    "_type:"?: string;
-    fields?: object;
-}
-
-export interface ResultSearchResponse {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: SearchResponse;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface SearchResponse {
-    /** @format int32 */
-    took?: number;
-    timed_out?: boolean;
-    aggregations?: object;
-    hits?: SearchResponseHits;
-    profile?: object;
-    scroll?: string;
-    warning?: object;
-}
-
-export interface SearchResponseHits {
-    /** @format int32 */
-    max_score?: number;
-    /** @format int32 */
-    total?: number;
-    total_relation?: string;
-    hits?: HitsHits[];
-}
-
-export interface ResultListSearchDocumentVO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: SearchDocumentVO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface SearchDocumentVO {
-    acl?: string[];
-    collections?: string[];
-    content?: string;
-    contributors?: string[];
-    metadatas?: Record<string, object>;
-    name?: string;
-    path?: string;
-    /** @format int32 */
-    status?: number;
-    tags?: TagVO[];
-    type?: string;
-    version?: Record<string, object>;
-    id?: string;
-    properties?: Record<string, object>;
-    be_index?: boolean;
-    create_by?: string;
-    /** @format date-time */
-    create_date?: string;
-    docpal_type?: string;
-    document_type?: string;
-    /** @format int32 */
-    event_id?: number;
-    extend_datas?: Record<string, object>;
-    file_content?: Record<string, object>;
-    file_suffix?: string;
-    is_folder?: boolean;
-    is_ocr?: boolean;
-    is_update_child_name?: boolean;
-    last_modify_by?: string;
-    mixin_type?: string[];
-    /** @format date-time */
-    modify_date?: string;
-    parent_id?: string;
-    path_levels?: Record<string, object>;
-}
-
-export interface TagVO {
-    username?: string;
-    label?: string;
-}
-
-export interface ResultListUserDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: UserDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListGroupDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: GroupDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultGroupDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Group data transfer object */
-    data?: GroupDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-/** User batch active params */
-export interface UserBatchActiveDTO {
-    /** acl_user ids */
-    ids?: string[];
-    /** keycloak user ids */
-    userIds?: string[];
-    /** active A/D */
-    active?: string;
 }
 
 export interface NotificationRecord {
@@ -4384,74 +4104,6 @@ export interface ResultPaginationDTONotificationInfoDTO {
     locale?: string;
 }
 
-/** External Storage Import Job Request */
-export interface ExternalStorageImportJobRequestDTO {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    /** Profile ID filter */
-    id?: string;
-    /** Profile ID filter */
-    profileId?: string;
-    /** File name filter */
-    fileName?: string;
-    /** Profile name filter */
-    profileName?: string;
-    /** Source filter */
-    source?: string;
-    /** Batch ID filter */
-    batchId?: string;
-    /** Status filter */
-    status?: string;
-    /** Start date for filtering */
-    startDate?: string;
-    /** End date for filtering */
-    endDate?: string;
-    sort?: SortObject;
-    sortOrModifiedDate?: SortObject;
-    descSort?: SortObject;
-    desc?: boolean;
-    orderByValue?: string;
-    /** @format int32 */
-    pageIndex?: number;
-}
-
-export interface PaginationDTOExternalStorageImportJobDTO {
-    entryList?: ExternalStorageImportJobDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOExternalStorageImportJobDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOExternalStorageImportJobDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface QueryFileOverviewRequestDTO {
     /** Fuzzy Search Parameter */
     q?: string;
@@ -4665,6 +4317,28 @@ export interface UploadBatchItemDTO {
     parentId?: string;
 }
 
+export interface CreateSyncTaskRequest {
+    name: string;
+    /** @format int32 */
+    cloud_service_id: number;
+    source_path: string;
+    target_path: string;
+    sync_mode: string;
+    cron_expression: string;
+    is_enabled?: boolean;
+}
+
+export interface CreateOAuthAppRequest {
+    name?: string;
+    provider?: string;
+    client_id?: string;
+    client_secret?: string;
+    redirect_uri?: string;
+    scopes?: string;
+    sharepoint_site_url?: string;
+    create_by?: string;
+}
+
 /** External Storage Profile Configuration */
 export interface ExternalProfileRequestDTO {
     /** Fuzzy Search Parameter */
@@ -4821,26 +4495,108 @@ export interface ResultPaginationDTOExternalStorageDTO {
     locale?: string;
 }
 
-export interface CreateSyncTaskRequest {
-    name: string;
+/** External Storage Import Job Request */
+export interface ExternalStorageImportJobRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** Profile ID filter */
+    id?: string;
+    /** Profile ID filter */
+    profileId?: string;
+    /** File name filter */
+    fileName?: string;
+    /** Profile name filter */
+    profileName?: string;
+    /** Source filter */
+    source?: string;
+    /** Batch ID filter */
+    batchId?: string;
+    /** Status filter */
+    status?: string;
+    /** Start date for filtering */
+    startDate?: string;
+    /** End date for filtering */
+    endDate?: string;
+    sort?: SortObject;
+    sortOrModifiedDate?: SortObject;
+    descSort?: SortObject;
+    desc?: boolean;
+    orderByValue?: string;
     /** @format int32 */
-    cloud_service_id: number;
-    source_path: string;
-    target_path: string;
-    sync_mode: string;
-    cron_expression: string;
-    is_enabled?: boolean;
+    pageIndex?: number;
 }
 
-export interface CreateOAuthAppRequest {
+export interface PaginationDTOExternalStorageImportJobDTO {
+    entryList?: ExternalStorageImportJobDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOExternalStorageImportJobDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOExternalStorageImportJobDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ParamDTO {
     name?: string;
-    provider?: string;
-    client_id?: string;
-    client_secret?: string;
-    redirect_uri?: string;
-    scopes?: string;
-    sharepoint_site_url?: string;
-    create_by?: string;
+    value?: string;
+}
+
+export interface WhatsAppMessageRequestDTO {
+    to?: string;
+    templateName?: string;
+    languageCode?: string;
+    components?: {
+        empty?: boolean;
+        /** @deprecated */
+        componentType?: {
+            typeName?: string;
+        };
+        /** @deprecated */
+        relatedArray?: object;
+    };
+    textParamDTOList?: ParamDTO[];
+}
+
+export interface ResultSendMessageResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: SendMessageResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface SendMessageResponseDTO {
+    successCallWhatsAppApi?: boolean;
+    messageId?: string;
 }
 
 /** Dashboard Workflow Request DTO */
@@ -5570,214 +5326,6 @@ export interface ResultPersonalDashboard {
     code?: number;
     message?: string;
     data?: PersonalDashboard;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface InternalShareQueryDTO {
-    /** @format int64 */
-    id?: number;
-    internalShareId?: string;
-    shareByUserId?: string;
-    shareByUserIds?: string[];
-    permission?: string;
-    /** @format date-time */
-    startDate?: string;
-    /** @format date-time */
-    expiredDate?: string;
-    /** @format date-time */
-    beforeExpiredDate?: string;
-    /** @format date-time */
-    afterExpiredDate?: string;
-    isSendEmail?: boolean;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    beforeCreatedDate?: string;
-    /** @format date-time */
-    afterCreatedate?: string;
-    createdUserId?: string;
-    modifiedUserId?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    /** @format int64 */
-    detailId?: number;
-    /** @format int64 */
-    biggerThenDetailId?: number;
-    shareToUserId?: string;
-    shareToUserIds?: string[];
-    documentId?: string;
-    documentIds?: string;
-    documentName?: string;
-    documentType?: string;
-    /** @format date-time */
-    documentLastModifiedDate?: string;
-    permissionId?: string;
-    isAddAcl?: boolean;
-    isFolder?: boolean;
-    /** @format date-time */
-    detailCreatedDate?: string;
-    /** @format date-time */
-    detailModifiedDate?: string;
-    ids?: number[];
-    detailIds?: number[];
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageSize?: number;
-    /** @format int32 */
-    status?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    /** @format int64 */
-    biggerThenId?: number;
-}
-
-export interface PaginableEntityDTOObject {
-    entryList?: object[];
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    currentPageIndex?: number;
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginableEntityDTOObject {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginableEntityDTOObject;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface InternalShareToMePageRequestDTO {
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageSize?: number;
-    sortByDesc?: string;
-    sortByAsc?: string;
-}
-
-export interface InternalShareByGroupsRequestDTO {
-    groupIds?: string[];
-    permission?: string;
-    isSendEmail?: boolean;
-    documentIds?: string[];
-    /** @format date-time */
-    startDate?: string;
-    /** @format date-time */
-    expiredDate?: string;
-}
-
-export interface InternalShare {
-    /** @format int64 */
-    id?: number;
-    internalShareId?: string;
-    documentIds?: string;
-    documentNames?: string;
-    shareToUserIds?: string;
-    shareByUserId?: string;
-    permission?: string;
-    /** @format date-time */
-    startDate?: string;
-    /** @format date-time */
-    expiredDate?: string;
-    isSendEmail?: boolean;
-    /** @format date-time */
-    createdDate?: string;
-    createdUserId?: string;
-    modifiedUserId?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    shareGroupIds?: string;
-    shareUserIds?: string;
-    /** @format int32 */
-    status?: number;
-    isFolder?: boolean;
-}
-
-export interface ResultInternalShare {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: InternalShare;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface InternalShareRequestDTO {
-    /** @format int64 */
-    id?: number;
-    internalShareId?: string;
-    /** @uniqueItems true */
-    documentIds?: string[];
-    /** @uniqueItems true */
-    shareToUserIds?: string[];
-    shareByUserId?: string;
-    permission?: string;
-    /** @format date-time */
-    startDate?: string;
-    /** @format date-time */
-    expiredDate?: string;
-    /** @format date-time */
-    endDate?: string;
-    isSendEmail?: boolean;
-    /** @format date-time */
-    createdDate?: string;
-    createdUserId?: string;
-    modifiedUserId?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    shareToGroupIds?: string[];
-    shareToRoleIds?: string[];
-}
-
-export interface InternalShareAudit {
-    /** @format int64 */
-    id?: number;
-    internalShareId?: string;
-    documentIds?: string;
-    documentNames?: string;
-    shareToUserIds?: string;
-    shareByUserId?: string;
-    permission?: string;
-    /** @format date-time */
-    startDate?: string;
-    /** @format date-time */
-    expiredDate?: string;
-    isSendEmail?: boolean;
-    /** @format date-time */
-    createdDate?: string;
-    createdUserId?: string;
-    modifiedUserId?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    shareGroupIds?: string;
-    shareUserIds?: string;
-    /** @format int32 */
-    status?: number;
-    isFolder?: boolean;
-    documentId?: string;
-    path?: string;
-    type?: string;
-}
-
-export interface ResultInternalShareAudit {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: InternalShareAudit;
     messageKey?: string;
     locale?: string;
 }
@@ -6599,13 +6147,6 @@ export interface RoleDTO {
     additionUsers?: string[];
 }
 
-/** Password (Request) */
-export interface PasswordRequestDTO {
-    token?: string;
-    oldPassword?: string;
-    newPassword: string;
-}
-
 export interface UploadRequestRequestDTO {
     idOrPath?: string;
     email?: string;
@@ -6962,6 +6503,114 @@ export interface SmartFolderResponseDTO {
     userGroups?: string[];
 }
 
+/** EasyShare (Request) */
+export interface SharePageRequestDTO {
+    /**
+     * page
+     * @format int32
+     */
+    page?: number;
+    /**
+     * size
+     * @format int32
+     */
+    size?: number;
+    /** orderByAsc */
+    orderByAsc?: string;
+    /** orderByDesc */
+    orderByDesc?: string;
+    /** searchKey */
+    searchKey?: string;
+}
+
+export interface ResultMapObjectObject {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: Record<string, object>;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** The Bind Document List */
+export interface EasyShareDocumentDetails {
+    /** @format int64 */
+    id?: number;
+    path?: string;
+    docId?: string;
+    readOnly?: boolean;
+    watermarkData?: WatermarkData;
+    createdBy?: string;
+    watermarkTemplateId?: string;
+    watermarkStatus?: string;
+    originFilePath?: string;
+    watermarkFile?: string;
+    previewFile?: string;
+    conversionId?: string;
+    watermarkedLocalPath?: string;
+}
+
+/** EasyShare (Request) */
+export interface ShareRequestDTO {
+    /** PATH Size */
+    pathList?: string[];
+    /** Share PWD */
+    sharePWD?: string;
+    /**
+     * Token Expiration Time
+     * @format int32
+     */
+    tokenTime?: number;
+    /** Email List */
+    emailList?: string[];
+    /** Password for shared document(s) */
+    password?: string;
+    /**
+     * How long the token can last for? (in # of minutes)
+     * @format int32
+     */
+    tokenLiveInMinutes?: number;
+    /** The Bind Document List */
+    documentList?: EasyShareDocumentDetails[];
+}
+
+export interface WatermarkData {
+    templateId?: string;
+    originFilePath?: string;
+    previewFile?: string;
+    status?: string;
+    watermarkFile?: string;
+    conversionId?: string;
+}
+
+/** EasyShare */
+export interface EasyShareDTO {
+    /** Token for access shared document */
+    access_token?: string;
+    /** UUID of saved Nuxeo PATH */
+    shareId?: string;
+    /** document in Nuxeo with PATH */
+    documentURL?: string;
+    /** Document ID List */
+    documentIdList?: string;
+    /** How long the token can last for? (in # of minutes) */
+    dueTime?: string;
+    /** Document shared to a list of email */
+    emailList?: string;
+}
+
+export interface ResultEasyShareDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** EasyShare */
+    data?: EasyShareDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface ResultListVirtualFolderSettingResponseDTO {
     result?: boolean;
     /** @format int32 */
@@ -7001,6 +6650,176 @@ export interface ActiveUserConfigDTO {
     activeUsersConfig?: Record<string, number>;
     /** @format int32 */
     concurrentSession?: number;
+}
+
+export interface NestedSearchLogRequestDTO {
+    /** @format int64 */
+    id?: number;
+    label?: string;
+    queryCondition?: string;
+}
+
+export interface MatchDTO {
+    queryType?: string;
+    type?: string;
+    value?: object;
+    option?: OptionDTO;
+    extract?: MatchExtractDTO;
+}
+
+export interface MatchExtractDTO {
+    synonyms?: string[];
+}
+
+export interface OptionDTO {
+    matchCase?: boolean;
+    fullMatch?: boolean;
+    synonyms?: boolean;
+    includeLanguages?: string[];
+}
+
+export interface QueryConditionDTO {
+    condition?: string;
+    matchs?: MatchDTO[];
+}
+
+export interface SearchFilterDTO {
+    documentTypes?: string[];
+    collections?: string[];
+    tags?: string[];
+    creators?: string[];
+    lastModifyBy?: string[];
+    authors?: string[];
+    createdDate?: string;
+    modified?: string;
+}
+
+export interface SearchRequestDTO {
+    condition?: string;
+    docId?: string;
+    /** @format int32 */
+    pageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    isExport?: boolean;
+    filter?: SearchFilterDTO;
+    query?: QueryConditionDTO[];
+}
+
+export interface DocpalSearchRequest {
+    condition?: string;
+    docId?: string;
+    query?: QueryCondition[];
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageSize?: number;
+}
+
+export interface Match {
+    queryType?: string;
+    value?: object;
+    option?: Record<string, object>;
+}
+
+export interface QueryCondition {
+    condition?: string;
+    matchs?: Match[];
+}
+
+export interface HitsHits {
+    /** @format int64 */
+    _id?: number;
+    /** @format int32 */
+    _score?: number;
+    _source?: object;
+    _knn_dist?: number;
+    highlight?: object;
+    table?: string;
+    "_type:"?: string;
+    fields?: object;
+}
+
+export interface ResultSearchResponse {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: SearchResponse;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface SearchResponse {
+    /** @format int32 */
+    took?: number;
+    timed_out?: boolean;
+    aggregations?: object;
+    hits?: SearchResponseHits;
+    profile?: object;
+    scroll?: string;
+    warning?: object;
+}
+
+export interface SearchResponseHits {
+    /** @format int32 */
+    max_score?: number;
+    /** @format int32 */
+    total?: number;
+    total_relation?: string;
+    hits?: HitsHits[];
+}
+
+export interface ResultListSearchDocumentVO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: SearchDocumentVO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface SearchDocumentVO {
+    acl?: string[];
+    collections?: string[];
+    content?: string;
+    contributors?: string[];
+    metadatas?: Record<string, object>;
+    name?: string;
+    path?: string;
+    /** @format int32 */
+    status?: number;
+    tags?: TagVO[];
+    type?: string;
+    version?: Record<string, object>;
+    id?: string;
+    properties?: Record<string, object>;
+    be_index?: boolean;
+    create_by?: string;
+    /** @format date-time */
+    create_date?: string;
+    docpal_type?: string;
+    document_type?: string;
+    /** @format int32 */
+    event_id?: number;
+    extend_datas?: Record<string, object>;
+    file_content?: Record<string, object>;
+    file_suffix?: string;
+    is_folder?: boolean;
+    is_ocr?: boolean;
+    is_update_child_name?: boolean;
+    last_modify_by?: string;
+    mixin_type?: string[];
+    /** @format date-time */
+    modify_date?: string;
+    parent_id?: string;
+    path_levels?: Record<string, object>;
+}
+
+export interface TagVO {
+    username?: string;
+    label?: string;
 }
 
 /** Retention Policy Document RequestDTO */
@@ -7447,6 +7266,210 @@ export interface MTPermissionDTO {
     enable?: boolean;
 }
 
+export interface InternalShareQueryDTO {
+    id?: string;
+    internalShareId?: string;
+    shareByUserId?: string;
+    shareByUserIds?: string[];
+    permission?: string;
+    /** @format date-time */
+    startDate?: string;
+    /** @format date-time */
+    expiredDate?: string;
+    /** @format date-time */
+    beforeExpiredDate?: string;
+    /** @format date-time */
+    afterExpiredDate?: string;
+    isSendEmail?: boolean;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    beforeCreatedDate?: string;
+    /** @format date-time */
+    afterCreatedate?: string;
+    createdUserId?: string;
+    modifiedUserId?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    /** @format int64 */
+    detailId?: number;
+    /** @format int64 */
+    biggerThenDetailId?: number;
+    shareToUserId?: string;
+    shareToUserIds?: string[];
+    documentId?: string;
+    documentIds?: string;
+    documentName?: string;
+    documentType?: string;
+    /** @format date-time */
+    documentLastModifiedDate?: string;
+    permissionId?: string;
+    isAddAcl?: boolean;
+    isFolder?: boolean;
+    /** @format date-time */
+    detailCreatedDate?: string;
+    /** @format date-time */
+    detailModifiedDate?: string;
+    ids?: number[];
+    detailIds?: number[];
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageSize?: number;
+    /** @format int32 */
+    status?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** @format int64 */
+    biggerThenId?: number;
+}
+
+export interface PaginableEntityDTOObject {
+    entryList?: object[];
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    currentPageIndex?: number;
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginableEntityDTOObject {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginableEntityDTOObject;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface InternalShareToMePageRequestDTO {
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageSize?: number;
+    sortByDesc?: string;
+    sortByAsc?: string;
+}
+
+export interface InternalShareByGroupsRequestDTO {
+    groupIds?: string[];
+    permission?: string;
+    isSendEmail?: boolean;
+    documentIds?: string[];
+    /** @format date-time */
+    startDate?: string;
+    /** @format date-time */
+    expiredDate?: string;
+}
+
+export interface InternalShare {
+    id?: string;
+    internalShareId?: string;
+    documentIds?: string;
+    documentNames?: string;
+    shareToUserIds?: string;
+    shareByUserId?: string;
+    permission?: string;
+    /** @format date-time */
+    startDate?: string;
+    /** @format date-time */
+    expiredDate?: string;
+    isSendEmail?: boolean;
+    shareGroupIds?: string;
+    shareUserIds?: string;
+    /** @format int32 */
+    status?: number;
+    isFolder?: boolean;
+    /** @format date-time */
+    createdDate?: string;
+    createdUserId?: string;
+    modifiedUserId?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface ResultInternalShare {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: InternalShare;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface InternalShareRequestDTO {
+    id?: string;
+    internalShareId?: string;
+    /** @uniqueItems true */
+    documentIds?: string[];
+    /** @uniqueItems true */
+    shareToUserIds?: string[];
+    shareByUserId?: string;
+    permission?: string;
+    /** @format date-time */
+    startDate?: string;
+    /** @format date-time */
+    expiredDate?: string;
+    /** @format date-time */
+    endDate?: string;
+    isSendEmail?: boolean;
+    /** @format date-time */
+    createdDate?: string;
+    createdUserId?: string;
+    modifiedUserId?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    shareToGroupIds?: string[];
+    shareToRoleIds?: string[];
+}
+
+export interface InternalShareAudit {
+    id?: string;
+    internalShareId?: string;
+    documentIds?: string;
+    documentNames?: string;
+    shareToUserIds?: string;
+    shareByUserId?: string;
+    permission?: string;
+    /** @format date-time */
+    startDate?: string;
+    /** @format date-time */
+    expiredDate?: string;
+    isSendEmail?: boolean;
+    /** @format date-time */
+    createdDate?: string;
+    createdUserId?: string;
+    modifiedUserId?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    shareGroupIds?: string;
+    shareUserIds?: string;
+    /** @format int32 */
+    status?: number;
+    isFolder?: boolean;
+    documentId?: string;
+    path?: string;
+    type?: string;
+}
+
+export interface ResultInternalShareAudit {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: InternalShareAudit;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface FormPropertiesRelation {
     /** @format int64 */
     id?: number;
@@ -7480,42 +7503,6 @@ export interface WorkflowInstanceDTO {
 export interface WorkflowInstanceRequest {
     currWorkflowInstance?: WorkflowInstanceDTO;
     nextWorkflowInstance?: WorkflowInstanceDTO;
-}
-
-export interface ParamDTO {
-    name?: string;
-    value?: string;
-}
-
-export interface WhatsAppMessageRequestDTO {
-    to?: string;
-    templateName?: string;
-    languageCode?: string;
-    components?: {
-        empty?: boolean;
-        /** @deprecated */
-        componentType?: {
-            typeName?: string;
-        };
-        /** @deprecated */
-        relatedArray?: object;
-    };
-    textParamDTOList?: ParamDTO[];
-}
-
-export interface ResultSendMessageResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: SendMessageResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface SendMessageResponseDTO {
-    successCallWhatsAppApi?: boolean;
-    messageId?: string;
 }
 
 export interface WhatsAppUsageDTO {
@@ -9913,44 +9900,6 @@ export interface ResultPaginationDTOCmmnDashboardResponseDTO {
     locale?: string;
 }
 
-/** Define block inherited permission of document */
-export interface BlockInheritedPermission {
-    /** @format int64 */
-    id?: number;
-    /** the document id */
-    docId?: string;
-    /** the document path */
-    docPath?: string;
-    /** the block id of document */
-    blockId?: string;
-}
-
-export interface ResultBlockInheritedPermission {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Define block inherited permission of document */
-    data?: BlockInheritedPermission;
-}
-
-export interface DocDTO {
-    /** the document id */
-    docId?: string;
-    /** the document path */
-    docPath?: string;
-    /** the parent document id */
-    parentDocId?: string;
-}
-
-export interface ResultListDocDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: DocDTO[];
-}
-
 export interface DocumentClassificationRequestDTO {
     context?: string;
     /** @uniqueItems true */
@@ -10018,6 +9967,28 @@ export interface AddAiCommentRequestDTO {
     answerId?: number;
 }
 
+/** Batch delete users */
+export interface BatchDeleteUserDTO {
+    /** keycloak user ids */
+    userIds?: string[];
+}
+
+/** Batch delete users */
+export interface BatchAddUsersToGroupsDTO {
+    /** keycloak user ids */
+    userIds?: string[];
+    /** groups ids */
+    groupIds?: string[];
+}
+
+/** Batch add groups to user */
+export interface UserBatchAddGroupsDTO {
+    /** acl_user id */
+    userId?: string;
+    /** group ids */
+    groupIds?: string[];
+}
+
 export interface PasswordConfigDTO {
     /**
      * @format int32
@@ -10062,28 +10033,6 @@ export interface PasswordConfigDTO {
      * @max 10
      */
     reusePasswordCount?: number;
-}
-
-/** Batch delete users */
-export interface BatchDeleteUserDTO {
-    /** keycloak user ids */
-    userIds?: string[];
-}
-
-/** Batch delete users */
-export interface BatchAddUsersToGroupsDTO {
-    /** keycloak user ids */
-    userIds?: string[];
-    /** groups ids */
-    groupIds?: string[];
-}
-
-/** Batch add groups to user */
-export interface UserBatchAddGroupsDTO {
-    /** acl_user id */
-    userId?: string;
-    /** group ids */
-    groupIds?: string[];
 }
 
 /** Batch add users to group */
@@ -10148,6 +10097,55 @@ export interface ResultPageBusinessResultRecord {
     code?: number;
     message?: string;
     data?: PageBusinessResultRecord;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PaginationDTOWhatsAppLogDTO {
+    entryList?: WhatsAppLogDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultWhatsAppOverviewResponse {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: WhatsAppOverviewResponse;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface WhatsAppLogDTO {
+    id?: string;
+    status?: string;
+    responseMessage?: string;
+    /** @format date-time */
+    createdDate?: string;
+}
+
+export interface WhatsAppOverviewResponse {
+    whatsAppSetting?: WhatsAppSettingDTO;
+    responseTime?: string;
+    successPercent?: string;
+    status?: string;
+    whatsAppLogDTOPage?: PaginationDTOWhatsAppLogDTO;
+}
+
+export interface ResultPaginationDTOWhatsAppLogDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOWhatsAppLogDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -10364,29 +10362,6 @@ export interface ResultCreateMessageResponseDTO {
     code?: number;
     message?: string;
     data?: CreateMessageResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface PaginationDTOInternalShareQueryDTO {
-    entryList?: InternalShareQueryDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultPaginationDTOInternalShareQueryDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOInternalShareQueryDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -10715,6 +10690,29 @@ export interface MetadataRequestDTO {
     pageIndex?: number;
 }
 
+export interface PaginationDTOInternalShareQueryDTO {
+    entryList?: InternalShareQueryDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOInternalShareQueryDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOInternalShareQueryDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface DocpalTypeRequestV2DTO {
     id?: string;
     name?: string;
@@ -10762,6 +10760,16 @@ export interface DocPalTypeResponseDTO {
     /** @format date-time */
     modifiedDate?: string;
     metadata?: DocPalTypeMetadata[];
+    relatedMetadata?: RelatedMetadataDTO[];
+}
+
+export interface RelatedMetadataDTO {
+    id?: string;
+    name?: string;
+    dataType?: string;
+    display?: boolean;
+    lastModifiedDate?: string;
+    metadataPermission?: MetadataPermissionDTO;
 }
 
 export interface ResultDocPalTypeResponseDTO {
@@ -10846,30 +10854,21 @@ export interface ResultPaginationDTODocumentTypeResponseVO {
     locale?: string;
 }
 
-export interface DocpalTypeDetailResponseVO {
+export interface DocpalTypeResponseVO {
     docpalTypeName?: string;
     category?: string;
     isFolder?: string;
     langs?: Record<string, object>;
     permission?: Permission;
-    metadataList?: DocpalTypeMetadataResponseVO[];
+    metadataList?: RelatedMetadataDTO[];
 }
 
-export interface DocpalTypeMetadataResponseVO {
-    id?: string;
-    name?: string;
-    dataType?: string;
-    display?: boolean;
-    lastModifiedDate?: string;
-    metadataPermission?: MetadataPermissionDTO;
-}
-
-export interface ResultDocpalTypeDetailResponseVO {
+export interface ResultDocpalTypeResponseVO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: DocpalTypeDetailResponseVO;
+    data?: DocpalTypeResponseVO;
     messageKey?: string;
     locale?: string;
 }
@@ -10947,73 +10946,9 @@ export interface ResultPaginationDTOCmmnProcessInstanceDTO {
     locale?: string;
 }
 
-export interface PaginationDTOWhatsAppLogDTO {
-    entryList?: WhatsAppLogDTO[];
-    /** @format int32 */
-    totalSize?: number;
-    /** @format int32 */
-    currentPageSize?: number;
-    /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageCount?: number;
-    isNextPageAvailable?: boolean;
-}
-
-export interface ResultWhatsAppOverviewResponse {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: WhatsAppOverviewResponse;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface WhatsAppLogDTO {
-    id?: string;
-    status?: string;
-    responseMessage?: string;
-    /** @format date-time */
-    createdDate?: string;
-}
-
-export interface WhatsAppOverviewResponse {
-    whatsAppSetting?: WhatsAppSettingDTO;
-    responseTime?: string;
-    successPercent?: string;
-    status?: string;
-    whatsAppLogDTOPage?: PaginationDTOWhatsAppLogDTO;
-}
-
-export interface ResultPaginationDTOWhatsAppLogDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: PaginationDTOWhatsAppLogDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface UpdatePasswordDTO {
     oldPassword?: string;
     newPassword?: string;
-}
-
-/** ResetEasyShare (Request) */
-export interface ShareSaveRequestDTO {
-    /** Share Id */
-    shareId?: string;
-    /** Document shared to a list of email */
-    emailList?: string[];
-    /** Password for shared document(s) */
-    password?: string;
-    /**
-     * How long the token can last for? (in # of minutes)
-     * @format int32
-     */
-    tokenLiveInMinutes?: number;
 }
 
 export interface UpdateAiDocumentRequestDTO {
@@ -11053,6 +10988,21 @@ export interface ResultSmartFolderResponseDTO {
     data?: SmartFolderResponseDTO;
     messageKey?: string;
     locale?: string;
+}
+
+/** ResetEasyShare (Request) */
+export interface ShareSaveRequestDTO {
+    /** Share Id */
+    shareId?: string;
+    /** Document shared to a list of email */
+    emailList?: string[];
+    /** Password for shared document(s) */
+    password?: string;
+    /**
+     * How long the token can last for? (in # of minutes)
+     * @format int32
+     */
+    tokenLiveInMinutes?: number;
 }
 
 export interface ViewSettingRequestDTO {
@@ -11219,20 +11169,21 @@ export interface ResultListAclPermissionDTO {
     data?: AclPermissionDTO[];
 }
 
-export interface ResultListAclUserRelationshipWithUserGroup {
+export interface ResultVerifyPermission {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: AclUserRelationshipWithUserGroup[];
+    data?: VerifyPermission;
+    messageKey?: string;
+    locale?: string;
 }
 
-export interface ResultAclUserGroupDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: AclUserGroupDTO;
+export interface VerifyPermission {
+    userId?: string;
+    userPermissions?: string[];
+    groupPermissions?: string[];
+    rolePermissions?: string[];
 }
 
 export interface ResultUserStatusDTO {
@@ -11280,68 +11231,20 @@ export interface ResultPasswordConfigDTO {
     locale?: string;
 }
 
-export interface EasyShareDocumentResponseDTO {
-    id?: string;
-    uid?: string;
-    title?: string;
-    path?: string;
-    type?: string;
-    fileExtension?: string;
-    fileSize?: string;
-    lastModified?: string;
-    readOnly?: boolean;
-    watermarkTemplateId?: string;
-    watermarkStatus?: string;
-    status?: string;
-}
-
-export interface ResultListEasyShareDocumentResponseDTO {
+export interface ResultListAclUserRelationshipWithUserGroup {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: EasyShareDocumentResponseDTO[];
-    messageKey?: string;
-    locale?: string;
+    data?: AclUserRelationshipWithUserGroup[];
 }
 
-export interface NestedSearchLogRecord {
-    /** @format int64 */
-    id?: number;
-    userId?: string;
-    label?: string;
-    queryCondition?: string;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-}
-
-export interface ResultListNestedSearchLogRecord {
+export interface ResultAclUserGroupDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
-    data?: NestedSearchLogRecord[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultVerifyPermission {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: VerifyPermission;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface VerifyPermission {
-    userId?: string;
-    userPermissions?: string[];
-    groupPermissions?: string[];
-    rolePermissions?: string[];
+    data?: AclUserGroupDTO;
 }
 
 export interface NotificationUnreadCountDTO {
@@ -11392,36 +11295,6 @@ export interface ResultListCheckBoxDTO {
     locale?: string;
 }
 
-export interface ResultListExternalStorageImportJobDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ExternalStorageImportJobDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-/** All Condition ResponseDTO */
-export interface ConditionResponseDTO {
-    key?: string;
-    label?: string;
-    type?: string;
-    options?: Record<string, object>[];
-    belong?: string;
-    isMultiple?: boolean;
-}
-
-export interface ResultListConditionResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ConditionResponseDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface AiAnalysisDocumentVO {
     documentType?: string;
     metaDatas?: MetadataVO[];
@@ -11435,26 +11308,6 @@ export interface ResultAiAnalysisDocumentVO {
     code?: number;
     message?: string;
     data?: AiAnalysisDocumentVO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListExternalStorageDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ExternalStorageDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListExternalProfileDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ExternalProfileDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -11485,6 +11338,86 @@ export interface ResultListOAuthAppDTO {
     code?: number;
     message?: string;
     data?: OAuthAppDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListExternalProfileDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ExternalProfileDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListExternalStorageDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ExternalStorageDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+/** All Condition ResponseDTO */
+export interface ConditionResponseDTO {
+    key?: string;
+    label?: string;
+    type?: string;
+    options?: Record<string, object>[];
+    belong?: string;
+    isMultiple?: boolean;
+}
+
+export interface ResultListConditionResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ConditionResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListExternalStorageImportJobDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ExternalStorageImportJobDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface Content {
+    type?: string;
+    format?: string;
+    text?: string;
+}
+
+export interface MessageTemplateDTO {
+    id?: string;
+    status?: string;
+    name?: string;
+    category?: string;
+    language?: string;
+    parameter_format?: string;
+    needSendTextMessage?: boolean;
+    headerVariables?: string[];
+    bodyVariables?: string[];
+    textVariables?: string[];
+    components?: Content[];
+}
+
+export interface ResultListMessageTemplateDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: MessageTemplateDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -11851,6 +11784,31 @@ export interface ResultListSmartFolderResponseDTO {
     locale?: string;
 }
 
+export interface EasyShareDocumentResponseDTO {
+    id?: string;
+    uid?: string;
+    title?: string;
+    path?: string;
+    type?: string;
+    fileExtension?: string;
+    fileSize?: string;
+    lastModified?: string;
+    readOnly?: boolean;
+    watermarkTemplateId?: string;
+    watermarkStatus?: string;
+    status?: string;
+}
+
+export interface ResultListEasyShareDocumentResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: EasyShareDocumentResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
 /** CustomIcon */
 export interface CustomIconDTO {
     docTypeId?: string;
@@ -11898,6 +11856,28 @@ export interface ResultAccountPropertyDTO {
     message?: string;
     /** AccountPropertyDTO */
     data?: AccountPropertyDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface NestedSearchLogRecord {
+    /** @format int64 */
+    id?: number;
+    userId?: string;
+    label?: string;
+    queryCondition?: string;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+}
+
+export interface ResultListNestedSearchLogRecord {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: NestedSearchLogRecord[];
     messageKey?: string;
     locale?: string;
 }
@@ -12546,36 +12526,6 @@ export interface ResultAiChatInitInfoVO {
     locale?: string;
 }
 
-export interface Content {
-    type?: string;
-    format?: string;
-    text?: string;
-}
-
-export interface MessageTemplateDTO {
-    id?: string;
-    status?: string;
-    name?: string;
-    category?: string;
-    language?: string;
-    parameter_format?: string;
-    needSendTextMessage?: boolean;
-    headerVariables?: string[];
-    bodyVariables?: string[];
-    textVariables?: string[];
-    components?: Content[];
-}
-
-export interface ResultListMessageTemplateDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: MessageTemplateDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
 /** Process Instance Information */
 export interface ProcessInstanceDTO {
     /** process Instance ID */
@@ -12683,6 +12633,54 @@ export interface ResultListMQConfigurationInfo {
     code?: number;
     message?: string;
     data?: MQConfigurationInfo[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface LanguageDTO {
+    name?: string;
+    code?: string;
+}
+
+export interface ResultListLanguageDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: LanguageDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface AzureOcrProfileMapping {
+    /** @format int64 */
+    id?: number;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    ocrProfileName?: string;
+    scanProfile?: string;
+    normalizeSetting?: string;
+    scanType?: string;
+    status?: string;
+}
+
+export interface AzureSettingDTO {
+    azureOcrApiKey?: AzureOcrApiKeyDTO;
+    azureOcrSetting?: AzureOcrSettingDTO;
+    azureOcrProfileMappings?: AzureOcrProfileMapping[];
+    ocrTransactionLogs?: PaginationDTOOcrTransactionLogDTO;
+}
+
+export interface ResultAzureSettingDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: AzureSettingDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -12817,39 +12815,6 @@ export interface ResultMapStringMapStringObject {
     locale?: string;
 }
 
-export interface AzureOcrProfileMapping {
-    /** @format int64 */
-    id?: number;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    ocrProfileName?: string;
-    scanProfile?: string;
-    normalizeSetting?: string;
-    scanType?: string;
-    status?: string;
-}
-
-export interface AzureSettingDTO {
-    azureOcrApiKey?: AzureOcrApiKeyDTO;
-    azureOcrSetting?: AzureOcrSettingDTO;
-    azureOcrProfileMappings?: AzureOcrProfileMapping[];
-    ocrTransactionLogs?: PaginationDTOOcrTransactionLogDTO;
-}
-
-export interface ResultAzureSettingDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: AzureSettingDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface ResultListRetentionTrigger {
     result?: boolean;
     /** @format int32 */
@@ -12887,28 +12852,13 @@ export interface ResultListAuditTemplate {
     locale?: string;
 }
 
-export interface ResultDocumentTypeDTO {
+export interface ResultDocPalTypeDTO {
     result?: boolean;
     /** @format int32 */
     code?: number;
     message?: string;
     /** Document Type */
-    data?: DocumentTypeDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface LanguageDTO {
-    name?: string;
-    code?: string;
-}
-
-export interface ResultListLanguageDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: LanguageDTO[];
+    data?: DocPalTypeDTO;
     messageKey?: string;
     locale?: string;
 }
@@ -12939,45 +12889,6 @@ export interface ResultListHistoricProcessInstanceEntityImpl {
     data?: HistoricProcessInstanceEntityImpl[];
     messageKey?: string;
     locale?: string;
-}
-
-export interface AclEntryDTO {
-    id?: string;
-    /**
-     * 名称
-     * @example "Write"
-     */
-    name: string;
-    /**
-     * 标签
-     * @example "Write"
-     */
-    label?: string;
-    /** 类型 */
-    type?: "System" | "Document";
-    /** 是否删除的标记 */
-    deleteFlag?: "YES" | "NO";
-    /**
-     * 创建者
-     * @example "Administrator"
-     */
-    createdBy?: string;
-    /**
-     * 更新者
-     * @example "Administrator"
-     */
-    modifiedBy?: string;
-    /**
-     * Created Date
-     * @format date-time
-     */
-    createdDate?: string;
-    /**
-     * Modified Date
-     * @format date-time
-     */
-    modifiedDate?: string;
-    ids?: string[];
 }
 
 export interface ResultIdentityRequestDTO {
@@ -13410,7 +13321,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultListDocPalTypeDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dsb/config/types`,
                 method: "GET",
                 query: query,
@@ -13432,7 +13343,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultListDocPalTypeDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dsb/config/types`,
                 method: "POST",
                 query: query,
@@ -13454,7 +13365,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultListDocPalTypeDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dsb/config/types/`,
                 method: "GET",
                 query: query,
@@ -13476,7 +13387,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             },
             params: RequestParams = {},
         ) =>
-            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultListDocPalTypeDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dsb/config/types/`,
                 method: "POST",
                 query: query,
@@ -13743,13 +13654,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PutNuxeoIdentityStatus
+         * @name PutUcenterStatus
          * @summary Update User State
-         * @request PUT:/api/nuxeo/identity/status
+         * @request PUT:/api/ucenter/status
          */
-        putNuxeoIdentityStatus: (data: ActiveUserRequestDTO, params: RequestParams = {}) =>
+        putUcenterStatus: (data: ActiveUserRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/status`,
+                path: `/api/ucenter/status`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -13760,13 +13671,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags NotificationRecordController
-         * @name PutNotificationIdStatusStatus
+         * @name PutNotificationIdUpdateStatusStatus
          * @summary Update status of notification record
-         * @request PUT:/api/notification/{id}/status/{status}
+         * @request PUT:/api/notification/{id}/update-status/{status}
          */
-        putNotificationIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
+        putNotificationIdUpdateStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/notification/${id}/status/${status}`,
+                path: `/api/notification/${id}/update-status/${status}`,
                 method: "PUT",
                 ...params,
             }),
@@ -13834,152 +13745,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * @description Get detailed information of an import job by ID
-         *
-         * @tags ExternalStorageImportJobController
-         * @name GetImportjobsId
-         * @summary Get import job details
-         * @request GET:/api/importJobs/{id}
-         */
-        getImportjobsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PutImportjobsId
-         * @summary Update import job
-         * @request PUT:/api/importJobs/{id}
-         */
-        putImportjobsId: (id: string, data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs/${id}`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name DeleteImportjobsId
-         * @summary Delete import job
-         * @request DELETE:/api/importJobs/{id}
-         */
-        deleteImportjobsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * @description Retrieve detailed information of a specific external storage
-         *
-         * @tags ExternalStorageController
-         * @name GetExternalstorageId
-         * @summary Get External Storage Detail
-         * @request GET:/api/externalStorage/{id}
-         */
-        getExternalstorageId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PutExternalstorageId
-         * @summary Update an existing external storage configuration
-         * @request PUT:/api/externalStorage/{id}
-         */
-        putExternalstorageId: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name DeleteExternalstorageId
-         * @summary Delete External Storage
-         * @request DELETE:/api/externalStorage/{id}
-         */
-        deleteExternalstorageId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name GetExternalstorageIdProfilesProfileid
-         * @summary Get a external profile in external storage id
-         * @request GET:/api/externalStorage/{id}/profiles/{profileId}
-         */
-        getExternalstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
-            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/${profileId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * @description Update an existing external profile for a specific external storage
-         *
-         * @tags ExternalStorageController
-         * @name PutExternalstorageIdProfilesProfileid
-         * @summary Update a external profile in external storage id
-         * @request PUT:/api/externalStorage/{id}/profiles/{profileId}
-         */
-        putExternalstorageIdProfilesProfileid: (
-            id: string,
-            profileId: string,
-            data: ExternalProfileDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/${profileId}`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name DeleteExternalstorageIdProfilesProfileid
-         * @summary Delete a external profile in external storage id
-         * @request DELETE:/api/externalStorage/{id}/profiles/{profileId}
-         */
-        deleteExternalstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/${profileId}`,
-                method: "DELETE",
                 ...params,
             }),
 
@@ -14074,6 +13839,69 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/external-drive/oauth/apps/${appId}`,
                 method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PutExt3RdstorageIdUpdate
+         * @summary Update an existing external storage configuration
+         * @request PUT:/api/ext3rdStorage/{id}/update
+         * @deprecated
+         */
+        putExt3rdstorageIdUpdate: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/update`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Update an existing external profile for a specific external storage
+         *
+         * @tags ExternalStorageController
+         * @name PutExt3RdstorageIdUpdateProfilesProfileid
+         * @summary Update a external profile in external storage id
+         * @request PUT:/api/ext3rdStorage/{id}/update-profiles/{profileId}
+         * @deprecated
+         */
+        putExt3rdstorageIdUpdateProfilesProfileid: (
+            id: string,
+            profileId: string,
+            data: ExternalProfileDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/update-profiles/${profileId}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PutExt3RdstorageImportjobsIdUpdate
+         * @summary Update import job
+         * @request PUT:/api/ext3rdStorage/importJobs/{id}/update
+         * @deprecated
+         */
+        putExt3rdstorageImportjobsIdUpdate: (
+            id: string,
+            data: ExternalStorageImportJobDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/importJobs/${id}/update`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
@@ -17573,6 +17401,286 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterUser
+         * @summary Create new User
+         * @request POST:/api/ucenter/user
+         */
+        postUcenterUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/user`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PatchUcenterUser
+         * @summary Update User
+         * @request PATCH:/api/ucenter/user
+         */
+        patchUcenterUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/user`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name PostUcenterPasswordResetPassword
+         * @request POST:/api/ucenter/password/reset-password
+         */
+        postUcenterPasswordResetPassword: (data: PasswordRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/reset-password`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name PostUcenterPasswordInitPassword
+         * @request POST:/api/ucenter/password/init-password
+         */
+        postUcenterPasswordInitPassword: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/init-password`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name PostUcenterPasswordForgetPassword
+         * @request POST:/api/ucenter/password/forget-password
+         */
+        postUcenterPasswordForgetPassword: (
+            query: {
+                userId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/forget-password`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterPage
+         * @request POST:/api/ucenter/page
+         */
+        postUcenterPage: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterMembership
+         * @summary Add user to group
+         * @request POST:/api/ucenter/membership
+         */
+        postUcenterMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/membership`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name DeleteUcenterMembership
+         * @summary Remove user from group
+         * @request DELETE:/api/ucenter/membership
+         */
+        deleteUcenterMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/membership`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterMember
+         * @summary Get the members of a group
+         * @request POST:/api/ucenter/member
+         */
+        postUcenterMember: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/member`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterMemberGroup
+         * @summary Get the groups of a member
+         * @request POST:/api/ucenter/member-group
+         */
+        postUcenterMemberGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/member-group`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterGroups
+         * @summary Get groups list
+         * @request POST:/api/ucenter/groups
+         */
+        postUcenterGroups: (params: RequestParams = {}) =>
+            this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/groups`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterGroup
+         * @summary Create new group
+         * @request POST:/api/ucenter/group
+         */
+        postUcenterGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/group`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PatchUcenterGroup
+         * @summary Update group
+         * @request PATCH:/api/ucenter/group
+         */
+        patchUcenterGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/group`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterGetKeycloakAllUsers
+         * @summary Find all active user list
+         * @request POST:/api/ucenter/get-keycloak-all-users
+         */
+        postUcenterGetKeycloakAllUsers: (params: RequestParams = {}) =>
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/get-keycloak-all-users`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterUsers
+         * @summary Find all active user list
+         * @request POST:/api/ucenter/users
+         */
+        postUcenterUsers: (params: RequestParams = {}) =>
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/users`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterCopyUsers
+         * @request POST:/api/ucenter/copy-users
+         */
+        postUcenterCopyUsers: (params: RequestParams = {}) =>
+            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/copy-users`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name PostUcenterBatchActive
+         * @summary Batch update user active status
+         * @request POST:/api/ucenter/batch/active
+         */
+        postUcenterBatchActive: (data: UserBatchActiveDTO, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/batch/active`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
          * @description 以查询参数方式调用 `/rpc/{func}`。不注入 `_schema_name`，不转发任何请求头。建议使用 POST 方式。
          *
          * @tags PostgREST 代理
@@ -17834,466 +17942,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags AclEntryController
-         * @name PostPermissionEntry
-         * @summary Create Access control entry
-         * @request POST:/api/permission/entry
-         */
-        postPermissionEntry: (data: AccessControlEntry, params: RequestParams = {}) =>
-            this.request<ResultAccessControlEntry, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/permission/entry`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AclEntryController
-         * @name DeletePermissionEntry
-         * @summary Batch delete entry by id list
-         * @request DELETE:/api/permission/entry
-         */
-        deletePermissionEntry: (data: AclEntryDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/permission/entry`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Password Controller
-         * @name PostPasswordInitPassword
-         * @request POST:/api/password/init-password
-         */
-        postPasswordInitPassword: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/password/init-password`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name PostNuxeoSharePrepareDownload
-         * @summary check download file is complete
-         * @request POST:/api/nuxeo/share/prepare/download
-         */
-        postNuxeoSharePrepareDownload: (data: string[], params: RequestParams = {}) =>
-            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/prepare/download`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name PostNuxeoSharePage
-         * @request POST:/api/nuxeo/share/page
-         */
-        postNuxeoSharePage: (data: SharePageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name PostNuxeoShareNew
-         * @summary generate share link
-         * @request POST:/api/nuxeo/share/new
-         */
-        postNuxeoShareNew: (data: ShareRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/new`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name PostNuxeoShareGet
-         * @request POST:/api/nuxeo/share/get
-         */
-        postNuxeoShareGet: (data: SharePageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/get`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name PostNuxeoSearchSaveNestedSearchLog
-         * @request POST:/api/nuxeo/search/save_nested_search_log
-         */
-        postNuxeoSearchSaveNestedSearchLog: (data: NestedSearchLogRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/save_nested_search_log`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name PostNuxeoSearchOpenSearch
-         * @summary Open Search
-         * @request POST:/api/nuxeo/search/open-search
-         */
-        postNuxeoSearchOpenSearch: (data: SearchRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/open-search`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name PostNuxeoSearchNestedsearchV2
-         * @summary Open Search
-         * @request POST:/api/nuxeo/search/nestedSearch_v2
-         */
-        postNuxeoSearchNestedsearchV2: (data: SearchRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/nestedSearch_v2`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name PostNuxeoSearchManticoreSearch
-         * @summary Manticore Search
-         * @request POST:/api/nuxeo/search/manticore-search
-         */
-        postNuxeoSearchManticoreSearch: (data: DocpalSearchRequest, params: RequestParams = {}) =>
-            this.request<ResultSearchResponse, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/manticore-search`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name PostNuxeoSearchDocument
-         * @request POST:/api/nuxeo/search/document
-         */
-        postNuxeoSearchDocument: (data: SearchFilterDTO, params: RequestParams = {}) =>
-            this.request<ResultListSearchDocumentVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/document`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name PostNuxeoSearchDocumentPaths
-         * @request POST:/api/nuxeo/search/document/paths
-         */
-        postNuxeoSearchDocumentPaths: (data: SearchFilterDTO, params: RequestParams = {}) =>
-            this.request<ResultListSearchDocumentVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/document/paths`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name PostNuxeoSearchAdminOpenSearch
-         * @summary Admin Open Search
-         * @request POST:/api/nuxeo/search/admin-open-search
-         */
-        postNuxeoSearchAdminOpenSearch: (data: SearchRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/admin-open-search`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityUser
-         * @summary Create new User
-         * @request POST:/api/nuxeo/identity/user
-         */
-        postNuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/user`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PatchNuxeoIdentityUser
-         * @summary Update User
-         * @request PATCH:/api/nuxeo/identity/user
-         */
-        patchNuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/user`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityPage
-         * @request POST:/api/nuxeo/identity/page
-         */
-        postNuxeoIdentityPage: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityMembership
-         * @summary Add user to group
-         * @request POST:/api/nuxeo/identity/membership
-         */
-        postNuxeoIdentityMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/membership`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name DeleteNuxeoIdentityMembership
-         * @summary Remove user from group
-         * @request DELETE:/api/nuxeo/identity/membership
-         */
-        deleteNuxeoIdentityMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/membership`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityMember
-         * @summary Get the members of a group
-         * @request POST:/api/nuxeo/identity/member
-         */
-        postNuxeoIdentityMember: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/member`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityMembergroup
-         * @summary Get the groups of a member
-         * @request POST:/api/nuxeo/identity/memberGroup
-         */
-        postNuxeoIdentityMembergroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/memberGroup`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityGroups
-         * @summary Get groups list
-         * @request POST:/api/nuxeo/identity/groups
-         */
-        postNuxeoIdentityGroups: (params: RequestParams = {}) =>
-            this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/groups`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityGroup
-         * @summary Create new group
-         * @request POST:/api/nuxeo/identity/group
-         */
-        postNuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/group`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PatchNuxeoIdentityGroup
-         * @summary Update group
-         * @request PATCH:/api/nuxeo/identity/group
-         */
-        patchNuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/group`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityUsers
-         * @summary Find all active user list
-         * @request POST:/api/nuxeo/identity/users
-         */
-        postNuxeoIdentityUsers: (params: RequestParams = {}) =>
-            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/users`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityGetkeycloakallusers
-         * @summary Find all active user list
-         * @request POST:/api/nuxeo/identity/getKeyCloakAllUsers
-         */
-        postNuxeoIdentityGetkeycloakallusers: (params: RequestParams = {}) =>
-            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/getKeyCloakAllUsers`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityCopyusers
-         * @request POST:/api/nuxeo/identity/copyUsers
-         */
-        postNuxeoIdentityCopyusers: (params: RequestParams = {}) =>
-            this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/copyUsers`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name PostNuxeoIdentityBatchActive
-         * @summary Batch update user active status
-         * @request POST:/api/nuxeo/identity/batch/active
-         */
-        postNuxeoIdentityBatchActive: (data: UserBatchActiveDTO, params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/batch/active`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags NotificationRecordController
          * @name PostNotification
          * @summary Create notification record
@@ -18485,99 +18133,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postNotificationList: (data: QueryNotificationRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTONotificationInfoDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/notification/list`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PostImportjobsPage
-         * @summary Paginated query for import jobs
-         * @request POST:/api/importJobs/page
-         */
-        postImportjobsPage: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
-            this.request<
-                ResultPaginationDTOExternalStorageImportJobDTO,
-                Result | (ResultObject | Result | ResultString)
-            >({
-                path: `/api/importJobs/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PostImportjobsJobqueueFirst
-         * @summary Place a task in the first queue
-         * @request POST:/api/importJobs/jobQueue/first
-         */
-        postImportjobsJobqueueFirst: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs/jobQueue/first`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * @description Save a external storage import job
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PostImportjobsAdd
-         * @summary Save import job record
-         * @request POST:/api/importJobs/add
-         */
-        postImportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs/add`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name GetImportjobs
-         * @summary Get all import jobs list
-         * @request GET:/api/importJobs
-         */
-        getImportjobs: (
-            query: {
-                /** External Storage Import Job Request */
-                requestDTO: ExternalStorageImportJobRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * @description Save a external storage import job
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PostImportjobs
-         * @summary Save import job record
-         * @request POST:/api/importJobs
-         */
-        postImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -18808,211 +18363,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags ExternalStorageController
-         * @name GetExternalstorage
-         * @summary Get External Storage Detail List
-         * @request GET:/api/externalStorage
-         */
-        getExternalstorage: (
-            query: {
-                /** External Storage Request DTO */
-                externalStorageVO: ExternalStorageRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * @description Create a new external storage configuration
-         *
-         * @tags ExternalStorageController
-         * @name PostExternalstorage
-         * @summary Create a new external storage
-         * @request POST:/api/externalStorage
-         */
-        postExternalstorage: (data: ExternalStorageDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * @description Create a new external profile for a specific external storage
-         *
-         * @tags ExternalStorageController
-         * @name PostExternalstorageIdProfiles
-         * @summary Create a new external profile in external storage id
-         * @request POST:/api/externalStorage/{id}/profiles
-         */
-        postExternalstorageIdProfiles: (id: string, data: ExternalProfileDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PostExternalstorageIdProfilesPage
-         * @summary Paging query external storage profiles by external storage id
-         * @request POST:/api/externalStorage/{id}/profiles/page
-         */
-        postExternalstorageIdProfilesPage: (id: string, data: ExternalProfileRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PostExternalstorageIdConnectionTest
-         * @summary Testing SMB connection is correct
-         * @request POST:/api/externalStorage/{id}/connection/test
-         */
-        postExternalstorageIdConnectionTest: (id: string, data: Record<string, string>, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/connection/test`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * @description Create a new external profile output record
-         *
-         * @tags ExternalStorageController
-         * @name PostExternalstorageProfilesProfileidOutputrecord
-         * @summary Create External Profile Output
-         * @request POST:/api/externalStorage/profiles/{profileId}/outputRecord
-         */
-        postExternalstorageProfilesProfileidOutputrecord: (
-            profileId: string,
-            data: Record<string, object>,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/profiles/${profileId}/outputRecord`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name GetExternalstorageProfilesProfileidOutputrecordOutputrecordid
-         * @request GET:/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         */
-        getExternalstorageProfilesProfileidOutputrecordOutputrecordid: (
-            profileId: string,
-            outputRecordId: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PostExternalstorageProfilesProfileidOutputrecordOutputrecordid
-         * @summary Duplicate (Copy) a exist External Profile Output
-         * @request POST:/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         */
-        postExternalstorageProfilesProfileidOutputrecordOutputrecordid: (
-            profileId: string,
-            outputRecordId: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
-                method: "POST",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name DeleteExternalstorageProfilesProfileidOutputrecordOutputrecordid
-         * @request DELETE:/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         */
-        deleteExternalstorageProfilesProfileidOutputrecordOutputrecordid: (
-            profileId: string,
-            outputRecordId: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PatchExternalstorageProfilesProfileidOutputrecordOutputrecordid
-         * @summary Update a external profile output record
-         * @request PATCH:/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         */
-        patchExternalstorageProfilesProfileidOutputrecordOutputrecordid: (
-            profileId: string,
-            outputRecordId: string,
-            data: Record<string, object>,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PostExternalstoragePage
-         * @summary Paging query External Storage
-         * @request POST:/api/externalStorage/page
-         */
-        postExternalstoragePage: (data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Sync Task Management
          * @name GetExternalDriveSyncTasks
          * @summary Get all sync tasks
@@ -19098,6 +18448,268 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postExternalDriveOauthApps: (data: CreateOAuthAppRequest, params: RequestParams = {}) =>
             this.request<ResultOAuthAppDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/external-drive/oauth/apps`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Create a new external storage configuration
+         *
+         * @tags ExternalStorageController
+         * @name PostExt3Rdstorage
+         * @summary Create a new external storage
+         * @request POST:/api/ext3rdStorage
+         * @deprecated
+         */
+        postExt3rdstorage: (data: ExternalStorageDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Create a new external profile for a specific external storage
+         *
+         * @tags ExternalStorageController
+         * @name PostExt3RdstorageIdProfiles
+         * @summary Create a new external profile in external storage id
+         * @request POST:/api/ext3rdStorage/{id}/profiles
+         * @deprecated
+         */
+        postExt3rdstorageIdProfiles: (id: string, data: ExternalProfileDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/profiles`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PostExt3RdstorageIdProfilesPage
+         * @summary Paging query external storage profiles by external storage id
+         * @request POST:/api/ext3rdStorage/{id}/profiles/page
+         * @deprecated
+         */
+        postExt3rdstorageIdProfilesPage: (id: string, data: ExternalProfileRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/profiles/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PostExt3RdstorageIdConnectionTest
+         * @summary Testing SMB connection is correct
+         * @request POST:/api/ext3rdStorage/{id}/connection/test
+         * @deprecated
+         */
+        postExt3rdstorageIdConnectionTest: (id: string, data: Record<string, string>, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/connection/test`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Create a new external profile output record
+         *
+         * @tags ExternalStorageController
+         * @name PostExt3RdstorageProfilesProfileidOutputrecord
+         * @summary Create External Profile Output
+         * @request POST:/api/ext3rdStorage/profiles/{profileId}/outputRecord
+         * @deprecated
+         */
+        postExt3rdstorageProfilesProfileidOutputrecord: (
+            profileId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/profiles/${profileId}/outputRecord`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PostExt3RdstorageProfilesProfileidDuplicateOutputrecordOutputrecordid
+         * @summary Duplicate (Copy) a exist External Profile Output
+         * @request POST:/api/ext3rdStorage/profiles/{profileId}/duplicate-outputRecord/{outputRecordId}
+         * @deprecated
+         */
+        postExt3rdstorageProfilesProfileidDuplicateOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/profiles/${profileId}/duplicate-outputRecord/${outputRecordId}`,
+                method: "POST",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PostExt3RdstoragePage
+         * @summary Paging query External Storage
+         * @request POST:/api/ext3rdStorage/page
+         * @deprecated
+         */
+        postExt3rdstoragePage: (data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostExt3RdstorageImportjobsPage
+         * @summary Paginated query for import jobs
+         * @request POST:/api/ext3rdStorage/importJobs/page
+         * @deprecated
+         */
+        postExt3rdstorageImportjobsPage: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
+            this.request<
+                ResultPaginationDTOExternalStorageImportJobDTO,
+                Result | (ResultObject | Result | ResultString)
+            >({
+                path: `/api/ext3rdStorage/importJobs/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostExt3RdstorageImportjobsJobqueueFirst
+         * @summary Place a task in the first queue
+         * @request POST:/api/ext3rdStorage/importJobs/jobQueue/first
+         * @deprecated
+         */
+        postExt3rdstorageImportjobsJobqueueFirst: (
+            data: ExternalStorageImportJobRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/importJobs/jobQueue/first`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Save a external storage import job
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostExt3RdstorageImportjobsAdd
+         * @summary Save import job record
+         * @request POST:/api/ext3rdStorage/importJobs/add
+         * @deprecated
+         */
+        postExt3rdstorageImportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/importJobs/add`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Save a external storage import job
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostExt3RdstorageImportjobs
+         * @summary Save import job record
+         * @request POST:/api/ext3rdStorage/importJobs
+         * @deprecated
+         */
+        postExt3rdstorageImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/importJobs`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WhatsAppController
+         * @name PostExt3RdmessageWhatsappWhatsappMessage
+         * @request POST:/api/ext3rdMessage/whatsapp/whatsapp/message
+         */
+        postExt3rdmessageWhatsappWhatsappMessage: (data: WhatsAppMessageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultSendMessageResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdMessage/whatsapp/whatsapp/message`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WhatsAppController
+         * @name GetExt3RdmessageWhatsappWebhook
+         * @request GET:/api/ext3rdMessage/whatsapp/webhook
+         */
+        getExt3rdmessageWhatsappWebhook: (
+            query: {
+                queryParams: Record<string, string>;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdMessage/whatsapp/webhook`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WhatsAppController
+         * @name PostExt3RdmessageWhatsappWebhook
+         * @request POST:/api/ext3rdMessage/whatsapp/webhook
+         */
+        postExt3rdmessageWhatsappWebhook: (data: JSONObject, params: RequestParams = {}) =>
+            this.request<void, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdMessage/whatsapp/webhook`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -21344,253 +20956,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags InternalShareController
-         * @name PostDocpalInternalsharePageDeprecate
-         * @request POST:/api/docpal/internalShare/page/
-         */
-        postDocpalInternalsharePageDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/page/`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalsharePage
-         * @request POST:/api/docpal/internalShare/page
-         */
-        postDocpalInternalsharePage: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshareOthersDeprecate
-         * @request POST:/api/docpal/internalShare/others/
-         */
-        postDocpalInternalshareOthersDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/others/`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshareOthers
-         * @request POST:/api/docpal/internalShare/others
-         */
-        postDocpalInternalshareOthers: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/others`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshareMeDeprecate
-         * @request POST:/api/docpal/internalShare/me/
-         */
-        postDocpalInternalshareMeDeprecate: (data: InternalShareToMePageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/me/`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name DeleteDocpalInternalshareMeDeprecate
-         * @request DELETE:/api/docpal/internalShare/me/
-         */
-        deleteDocpalInternalshareMeDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/me/`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshareMe
-         * @request POST:/api/docpal/internalShare/me
-         */
-        postDocpalInternalshareMe: (data: InternalShareToMePageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/me`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name DeleteDocpalInternalshareMe
-         * @request DELETE:/api/docpal/internalShare/me
-         */
-        deleteDocpalInternalshareMe: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/me`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshareGroups
-         * @request POST:/api/docpal/internalShare/groups
-         */
-        postDocpalInternalshareGroups: (data: InternalShareByGroupsRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultInternalShare, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/groups`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshareCheckdocumentisinshareDeprecate
-         * @request POST:/api/docpal/internalShare/checkDocumentIsInShare/
-         */
-        postDocpalInternalshareCheckdocumentisinshareDeprecate: (
-            data: InternalShareQueryDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/checkDocumentIsInShare/`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshareCheckdocumentisinshare
-         * @request POST:/api/docpal/internalShare/checkDocumentIsInShare
-         */
-        postDocpalInternalshareCheckdocumentisinshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/checkDocumentIsInShare`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name GetDocpalInternalshare
-         * @request GET:/api/docpal/internalShare
-         */
-        getDocpalInternalshare: (
-            query: {
-                queryDTO: InternalShareQueryDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshare
-         * @request POST:/api/docpal/internalShare
-         */
-        postDocpalInternalshare: (data: InternalShareRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultInternalShareAudit, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name DeleteDocpalInternalshare
-         * @request DELETE:/api/docpal/internalShare
-         */
-        deleteDocpalInternalshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostDocpalInternalshareDeprecate
-         * @request POST:/api/docpal/internalShare/
-         */
-        postDocpalInternalshareDeprecate: (data: InternalShareRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultInternalShareAudit, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags IdTemplateController
          * @name GetDocpalIdTemplates
          * @summary Get all ID templates
@@ -22893,6 +22258,72 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags Share (Nuxeo)
+         * @name PostDmsSharePrepareDownloadCheckFileComplete
+         * @summary check download file is complete
+         * @request POST:/api/dms/share/prepare/download/check-file-complete
+         */
+        postDmsSharePrepareDownloadCheckFileComplete: (data: string[], params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/prepare/download/check-file-complete`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name PostDmsSharePage
+         * @request POST:/api/dms/share/page
+         */
+        postDmsSharePage: (data: SharePageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name PostDmsShareNew
+         * @summary generate share link
+         * @request POST:/api/dms/share/new
+         */
+        postDmsShareNew: (data: ShareRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/new`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name PostDmsShareGet
+         * @request POST:/api/dms/share/get
+         */
+        postDmsShareGet: (data: SharePageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/get`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags SettingController
          * @name PostDmsSettingInitializationConfigurationData
          * @summary Initialization configuration data when deployed new project environment.
@@ -22974,6 +22405,122 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDmsSettingActiveUsersConfiguration: (data: ActiveUserConfigDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dms/setting/active-users/configuration`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name PostDmsSearchSaveNestedSearchLog
+         * @request POST:/api/dms/search/save-nested-search-log
+         */
+        postDmsSearchSaveNestedSearchLog: (data: NestedSearchLogRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/save-nested-search-log`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name PostDmsSearchOpenSearch
+         * @summary Open Search
+         * @request POST:/api/dms/search/open-search
+         */
+        postDmsSearchOpenSearch: (data: SearchRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/open-search`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name PostDmsSearchNestedSearchV2
+         * @summary Open Search
+         * @request POST:/api/dms/search/nested-search-v2
+         */
+        postDmsSearchNestedSearchV2: (data: SearchRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/nested-search-v2`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name PostDmsSearchManticoreSearch
+         * @summary Manticore Search
+         * @request POST:/api/dms/search/manticore-search
+         */
+        postDmsSearchManticoreSearch: (data: DocpalSearchRequest, params: RequestParams = {}) =>
+            this.request<ResultSearchResponse, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/manticore-search`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name PostDmsSearchDocument
+         * @request POST:/api/dms/search/document
+         */
+        postDmsSearchDocument: (data: SearchFilterDTO, params: RequestParams = {}) =>
+            this.request<ResultListSearchDocumentVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/document`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name PostDmsSearchDocumentPaths
+         * @request POST:/api/dms/search/document/paths
+         */
+        postDmsSearchDocumentPaths: (data: SearchFilterDTO, params: RequestParams = {}) =>
+            this.request<ResultListSearchDocumentVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/document/paths`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name PostDmsSearchAdminOpenSearch
+         * @summary Admin Open Search
+         * @request POST:/api/dms/search/admin-open-search
+         */
+        postDmsSearchAdminOpenSearch: (data: SearchRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/admin-open-search`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23529,6 +23076,253 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDmsMasterTableAclsAdd: (data: MTPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dms/master-table/acls/add`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalsharePage
+         * @request POST:/api/dms/internalShare/page
+         */
+        postDmsInternalsharePage: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalsharePageDeprecate
+         * @request POST:/api/dms/internalShare/page/
+         */
+        postDmsInternalsharePageDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/page/`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshareOthersDeprecate
+         * @request POST:/api/dms/internalShare/others/
+         */
+        postDmsInternalshareOthersDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/others/`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshareOthers
+         * @request POST:/api/dms/internalShare/others
+         */
+        postDmsInternalshareOthers: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/others`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshareMe
+         * @request POST:/api/dms/internalShare/me
+         */
+        postDmsInternalshareMe: (data: InternalShareToMePageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/me`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name DeleteDmsInternalshareMe
+         * @request DELETE:/api/dms/internalShare/me
+         */
+        deleteDmsInternalshareMe: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/me`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshareMeDeprecate
+         * @request POST:/api/dms/internalShare/me/
+         */
+        postDmsInternalshareMeDeprecate: (data: InternalShareToMePageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/me/`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name DeleteDmsInternalshareMeDeprecate
+         * @request DELETE:/api/dms/internalShare/me/
+         */
+        deleteDmsInternalshareMeDeprecate: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/me/`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshareGroups
+         * @request POST:/api/dms/internalShare/groups
+         */
+        postDmsInternalshareGroups: (data: InternalShareByGroupsRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultInternalShare, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/groups`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshareCheckDocumentIsInShareDeprecate
+         * @request POST:/api/dms/internalShare/check-document-is-in-share/
+         */
+        postDmsInternalshareCheckDocumentIsInShareDeprecate: (
+            data: InternalShareQueryDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/check-document-is-in-share/`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshareCheckDocumentIsInShare
+         * @request POST:/api/dms/internalShare/check-document-is-in-share
+         */
+        postDmsInternalshareCheckDocumentIsInShare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/check-document-is-in-share`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name GetDmsInternalshare
+         * @request GET:/api/dms/internalShare
+         */
+        getDmsInternalshare: (
+            query: {
+                queryDTO: InternalShareQueryDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshare
+         * @request POST:/api/dms/internalShare
+         */
+        postDmsInternalshare: (data: InternalShareRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultInternalShareAudit, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name DeleteDmsInternalshare
+         * @request DELETE:/api/dms/internalShare
+         */
+        deleteDmsInternalshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostDmsInternalshareDeprecate
+         * @request POST:/api/dms/internalShare/
+         */
+        postDmsInternalshareDeprecate: (data: InternalShareRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultInternalShareAudit, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -27089,40 +26883,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags DocBlockPermissionController
-         * @name PostBlockPermission
-         * @summary Create DocBlockPermission
-         * @request POST:/api/block/permission
-         */
-        postBlockPermission: (data: BlockInheritedPermission, params: RequestParams = {}) =>
-            this.request<ResultBlockInheritedPermission, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/block/permission`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags DocBlockPermissionController
-         * @name PostBlockPermissionFilter
-         * @summary filter block document permission
-         * @request POST:/api/block/permission/filter
-         */
-        postBlockPermissionFilter: (data: DocDTO, params: RequestParams = {}) =>
-            this.request<ResultListDocDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/block/permission/filter`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags AI
          * @name PostAiDocumentClassification
          * @request POST:/api/ai/document-classification
@@ -27171,50 +26931,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags WhatsAppController
-         * @name PostExt3RdmessageWhatsappWhatsappMessage
-         * @request POST:/api/Ext3rdMessage/whatsapp/whatsapp/message
+         * @tags Password Controller
+         * @name PatchUcenterPasswordUpdatePassword
+         * @request PATCH:/api/ucenter/password/update-password
          */
-        postExt3rdmessageWhatsappWhatsappMessage: (data: WhatsAppMessageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultSendMessageResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/Ext3rdMessage/whatsapp/whatsapp/message`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WhatsAppController
-         * @name GetExt3RdmessageWhatsappWebhook
-         * @request GET:/api/Ext3rdMessage/whatsapp/webhook
-         */
-        getExt3rdmessageWhatsappWebhook: (
-            query: {
-                queryParams: Record<string, string>;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/Ext3rdMessage/whatsapp/webhook`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WhatsAppController
-         * @name PostExt3RdmessageWhatsappWebhook
-         * @request POST:/api/Ext3rdMessage/whatsapp/webhook
-         */
-        postExt3rdmessageWhatsappWebhook: (data: JSONObject, params: RequestParams = {}) =>
-            this.request<void, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/Ext3rdMessage/whatsapp/webhook`,
-                method: "POST",
+        patchUcenterPasswordUpdatePassword: (data: UpdatePasswordDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/update-password`,
+                method: "PATCH",
                 body: data,
                 type: ContentType.Json,
                 ...params,
@@ -27231,71 +26955,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         patchPermissionsUpdateEntry: (data: AclPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultAclPermissionDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/permissions/update/entry`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Password Controller
-         * @name PatchPasswordUpdatePassword
-         * @request PATCH:/api/password/update-password
-         */
-        patchPasswordUpdatePassword: (data: UpdatePasswordDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/password/update-password`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name DeleteNuxeoShare
-         * @request DELETE:/api/nuxeo/share
-         */
-        deleteNuxeoShare: (data: string[], params: RequestParams = {}) =>
-            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name PatchNuxeoShare
-         * @request PATCH:/api/nuxeo/share
-         */
-        patchNuxeoShare: (data: ShareSaveRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * @description Update the status of an import job
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PatchImportjobsIdStatus
-         * @summary Update import job status
-         * @request PATCH:/api/importJobs/{id}/status
-         */
-        patchImportjobsIdStatus: (id: string, data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs/${id}/status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -27323,13 +26982,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Change the status of an external storage (A/D)
          *
          * @tags ExternalStorageController
-         * @name PatchExternalstorageIdStatus
+         * @name PatchExt3RdstorageIdUpdateStatus
          * @summary Active/Inactive a external storage
-         * @request PATCH:/api/externalStorage/{id}/status
+         * @request PATCH:/api/ext3rdStorage/{id}/update-status
+         * @deprecated
          */
-        patchExternalstorageIdStatus: (id: string, data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
+        patchExt3rdstorageIdUpdateStatus: (id: string, data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/status`,
+                path: `/api/ext3rdStorage/${id}/update-status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -27340,18 +27000,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update profile status of a specific external storage, status value=[A/D]
          *
          * @tags ExternalStorageController
-         * @name PatchExternalstorageIdProfilesProfileidStatus
+         * @name PatchExt3RdstorageIdProfilesProfileidUpdateStatus
          * @summary Active/Inactive a external profile
-         * @request PATCH:/api/externalStorage/{id}/profiles/{profileId}/status
+         * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/update-status
+         * @deprecated
          */
-        patchExternalstorageIdProfilesProfileidStatus: (
+        patchExt3rdstorageIdProfilesProfileidUpdateStatus: (
             id: string,
             profileId: string,
             data: ExternalProfileDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/${profileId}/status`,
+                path: `/api/ext3rdStorage/${id}/profiles/${profileId}/update-status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -27362,18 +27023,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchExternalstorageIdProfilesProfileidProcess
+         * @name PatchExt3RdstorageIdProfilesProfileidUpdateProcess
          * @summary Update an setting of existing external profile for a specific external storage
-         * @request PATCH:/api/externalStorage/{id}/profiles/{profileId}/process
+         * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/update-process
+         * @deprecated
          */
-        patchExternalstorageIdProfilesProfileidProcess: (
+        patchExt3rdstorageIdProfilesProfileidUpdateProcess: (
             id: string,
             profileId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/${profileId}/process`,
+                path: `/api/ext3rdStorage/${id}/profiles/${profileId}/update-process`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -27384,18 +27046,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchExternalstorageIdProfilesProfileidImport
+         * @name PatchExt3RdstorageIdProfilesProfileidUpdateImport
          * @summary Update an import setting of existing external profile for a specific external storage
-         * @request PATCH:/api/externalStorage/{id}/profiles/{profileId}/import
+         * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/update-import
+         * @deprecated
          */
-        patchExternalstorageIdProfilesProfileidImport: (
+        patchExt3rdstorageIdProfilesProfileidUpdateImport: (
             id: string,
             profileId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/${profileId}/import`,
+                path: `/api/ext3rdStorage/${id}/profiles/${profileId}/update-import`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -27406,18 +27069,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchExternalstorageIdProfilesProfileidGeneral
+         * @name PatchExt3RdstorageIdProfilesProfileidUpdateGeneral
          * @summary Update an general setting of existing external profile for a specific external storage
-         * @request PATCH:/api/externalStorage/{id}/profiles/{profileId}/general
+         * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/update-general
+         * @deprecated
          */
-        patchExternalstorageIdProfilesProfileidGeneral: (
+        patchExt3rdstorageIdProfilesProfileidUpdateGeneral: (
             id: string,
             profileId: string,
             data: ExternalProfileDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/${profileId}/general`,
+                path: `/api/ext3rdStorage/${id}/profiles/${profileId}/update-general`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -27428,18 +27092,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchExternalstorageIdProfilesProfileidCapture
+         * @name PatchExt3RdstorageIdProfilesProfileidUpdateCapture
          * @summary Update an capture setting of existing external profile for a specific external storage
-         * @request PATCH:/api/externalStorage/{id}/profiles/{profileId}/capture
+         * @request PATCH:/api/ext3rdStorage/{id}/profiles/{profileId}/update-capture
+         * @deprecated
          */
-        patchExternalstorageIdProfilesProfileidCapture: (
+        patchExt3rdstorageIdProfilesProfileidUpdateCapture: (
             id: string,
             profileId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/${profileId}/capture`,
+                path: `/api/ext3rdStorage/${id}/profiles/${profileId}/update-capture`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -27450,18 +27115,64 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchExternalstorageProfilesProfileidOutputrecordOutputrecordidStatus
-         * @summary Active/Inactive a external profile output record
-         * @request PATCH:/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}/status
+         * @name PatchExt3RdstorageProfilesProfileidUpdateOutputrecordOutputrecordid
+         * @summary Update a external profile output record
+         * @request PATCH:/api/ext3rdStorage/profiles/{profileId}/update-outputRecord/{outputRecordId}
+         * @deprecated
          */
-        patchExternalstorageProfilesProfileidOutputrecordOutputrecordidStatus: (
+        patchExt3rdstorageProfilesProfileidUpdateOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/profiles/${profileId}/update-outputRecord/${outputRecordId}`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PatchExt3RdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus
+         * @summary Active/Inactive a external profile output record
+         * @request PATCH:/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}/update-status
+         * @deprecated
+         */
+        patchExt3rdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus: (
             profileId: string,
             outputRecordId: string,
             data: ExternalProfileOutputDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}/status`,
+                path: `/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}/update-status`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Update the status of an import job
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PatchExt3RdstorageImportjobsIdUpdateStatus
+         * @summary Update import job status
+         * @request PATCH:/api/ext3rdStorage/importJobs/{id}/update-status
+         * @deprecated
+         */
+        patchExt3rdstorageImportjobsIdUpdateStatus: (
+            id: string,
+            data: ExternalStorageImportJobRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/importJobs/${id}/update-status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -27651,6 +27362,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         patchDmsSmartFolder: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
             this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dms/smart-folder`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name PatchDmsShareSave
+         * @request PATCH:/api/dms/share/save
+         */
+        patchDmsShareSave: (data: ShareSaveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/save`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -28672,6 +28399,161 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
+         * No description
+         *
+         * @tags Identity
+         * @name GetUcenterUserUseridInformation
+         * @summary Query user information include roles and groups
+         * @request GET:/api/ucenter/user/{userId}/information
+         */
+        getUcenterUserUseridInformation: (userId: string, params: RequestParams = {}) =>
+            this.request<ResultVerifyPermission, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/user/${userId}/information`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetUcenterPasswordUserStatus
+         * @request GET:/api/ucenter/password/user-status
+         */
+        getUcenterPasswordUserStatus: (params: RequestParams = {}) =>
+            this.request<ResultUserStatusDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/user-status`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetUcenterPasswordHasLockUserid
+         * @request GET:/api/ucenter/password/has-lock/{userId}
+         */
+        getUcenterPasswordHasLockUserid: (userId: string, params: RequestParams = {}) =>
+            this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/has-lock/${userId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetUcenterPasswordConfirmReset
+         * @request GET:/api/ucenter/password/confirm-reset
+         */
+        getUcenterPasswordConfirmReset: (
+            query: {
+                token: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/confirm-reset`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetUcenterPasswordConfig
+         * @request GET:/api/ucenter/password/config
+         */
+        getUcenterPasswordConfig: (params: RequestParams = {}) =>
+            this.request<ResultPasswordConfigDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/config`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetUcenterPasswordCheckOldPasswordPassword
+         * @request GET:/api/ucenter/password/check-old-password/{password}
+         */
+        getUcenterPasswordCheckOldPasswordPassword: (password: string, params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/check-old-password/${password}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetUcenterPasswordCheckLockUserUserid
+         * @request GET:/api/ucenter/password/check-lock-user/{userId}
+         */
+        getUcenterPasswordCheckLockUserUserid: (
+            userId: string,
+            query?: {
+                skipAddLoginCount?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/check-lock-user/${userId}`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetUcenterPasswordCheckExpire
+         * @request GET:/api/ucenter/password/check-expire
+         */
+        getUcenterPasswordCheckExpire: (params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/password/check-expire`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name GetUcenterKeycloakKeycloakuserid
+         * @summary Get keycloak user through keycloak user id
+         * @request GET:/api/ucenter/keycloak/{keycloakUserId}
+         */
+        getUcenterKeycloakKeycloakuserid: (keycloakUserId: string, params: RequestParams = {}) =>
+            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/keycloak/${keycloakUserId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Identity
+         * @name GetUcenterDocpalRoles
+         * @request GET:/api/ucenter/docpal/roles
+         */
+        getUcenterDocpalRoles: (params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ucenter/docpal/roles`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
          * @description 透传查询参数到 PostgREST 目标表 `/{table}`。支持常规筛选与 JSONB 操作符（例如 `metadata->>key=eq.value`）。不转发任何请求头。
          *
          * @tags PostgREST 代理
@@ -28887,250 +28769,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags AclEntryController
-         * @name GetPermissionEntryId
-         * @summary Query entry by id
-         * @request GET:/api/permission/entry/{id}
-         */
-        getPermissionEntryId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultAccessControlEntry, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/permission/entry/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags AclEntryController
-         * @name DeletePermissionEntryId
-         * @summary Delete entry by id
-         * @request DELETE:/api/permission/entry/{id}
-         */
-        deletePermissionEntryId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/permission/entry/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Password Controller
-         * @name GetPasswordUserStatus
-         * @request GET:/api/password/user-status
-         */
-        getPasswordUserStatus: (params: RequestParams = {}) =>
-            this.request<ResultUserStatusDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/password/user-status`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Password Controller
-         * @name GetPasswordHasLockUserid
-         * @request GET:/api/password/has-lock/{userId}
-         */
-        getPasswordHasLockUserid: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/password/has-lock/${userId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Password Controller
-         * @name GetPasswordConfig
-         * @request GET:/api/password/config
-         */
-        getPasswordConfig: (params: RequestParams = {}) =>
-            this.request<ResultPasswordConfigDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/password/config`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Password Controller
-         * @name GetPasswordCheckOldPasswordPassword
-         * @request GET:/api/password/check-old-password/{password}
-         */
-        getPasswordCheckOldPasswordPassword: (password: string, params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/password/check-old-password/${password}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Password Controller
-         * @name GetPasswordCheckLockUserUserid
-         * @request GET:/api/password/check-lock-user/{userId}
-         */
-        getPasswordCheckLockUserUserid: (
-            userId: string,
-            query?: {
-                skipAddLoginCount?: boolean;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/password/check-lock-user/${userId}`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Password Controller
-         * @name GetPasswordCheckExpire
-         * @request GET:/api/password/check-expire
-         */
-        getPasswordCheckExpire: (params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/password/check-expire`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name GetNuxeoSharePreview
-         * @request GET:/api/nuxeo/share/preview
-         */
-        getNuxeoSharePreview: (
-            query: {
-                /** @format int64 */
-                shareId: number;
-                documentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/preview`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name GetNuxeoSharePreviewRetry
-         * @request GET:/api/nuxeo/share/preview/retry
-         */
-        getNuxeoSharePreviewRetry: (
-            query: {
-                /** @format int64 */
-                easyShareDetailsId: number;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/preview/retry`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name GetNuxeoSharePrepareDownloadDocid
-         * @summary Get Status of download file is complete
-         * @request GET:/api/nuxeo/share/prepare/download/{docId}
-         */
-        getNuxeoSharePrepareDownloadDocid: (docId: string, params: RequestParams = {}) =>
-            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/prepare/download/${docId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name GetNuxeoShareDownload
-         * @request GET:/api/nuxeo/share/download
-         */
-        getNuxeoShareDownload: (
-            query: {
-                /** @format int64 */
-                shareId: number;
-                documentId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/download`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name GetNuxeoShareDownloadRetry
-         * @request GET:/api/nuxeo/share/download/retry
-         */
-        getNuxeoShareDownloadRetry: (
-            query: {
-                /** @format int64 */
-                easyShareDetailsId: number;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<string[], Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/download/retry`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Share (Nuxeo)
-         * @name GetNuxeoShareDocuments
-         * @summary Get sharing documents through ID
-         * @request GET:/api/nuxeo/share/documents
-         */
-        getNuxeoShareDocuments: (
-            query: {
-                /** @format int64 */
-                id: number;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListEasyShareDocumentResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/share/documents`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags ViewSettingController
          * @name GetNuxeoSettingView
          * @request GET:/api/nuxeo/setting/view
@@ -29140,136 +28778,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultViewSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/nuxeo/setting/view`,
                 method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name GetNuxeoSearchSearchallparent
-         * @summary Search All Parent Documents
-         * @request GET:/api/nuxeo/search/searchAllParent
-         */
-        getNuxeoSearchSearchallparent: (
-            query: {
-                documentPath: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/searchAllParent`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name GetNuxeoSearchQueryNestedSearchLog
-         * @request GET:/api/nuxeo/search/query_nested_search_log
-         */
-        getNuxeoSearchQueryNestedSearchLog: (params: RequestParams = {}) =>
-            this.request<ResultListNestedSearchLogRecord, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/query_nested_search_log`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name GetNuxeoSearchOpenSearchDocumentid
-         * @summary Open Search By Id
-         * @request GET:/api/nuxeo/search/open-search/{documentId}
-         */
-        getNuxeoSearchOpenSearchDocumentid: (documentId: string, params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/open-search/${documentId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Search (Nuxeo)
-         * @name GetNuxeoSearchGetexportheader
-         * @summary get export header for Nested Search
-         * @request GET:/api/nuxeo/search/getExportHeader
-         */
-        getNuxeoSearchGetexportheader: (params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/getExportHeader`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name GetNuxeoIdentityUserUseridInformation
-         * @summary Query user information include roles and groups
-         * @request GET:/api/nuxeo/identity/user/{userId}/information
-         */
-        getNuxeoIdentityUserUseridInformation: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultVerifyPermission, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/user/${userId}/information`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name GetNuxeoIdentityKeycloakKeycloakuserid
-         * @summary Get keycloak user through keycloak user id
-         * @request GET:/api/nuxeo/identity/keycloak/{keycloakUserId}
-         */
-        getNuxeoIdentityKeycloakKeycloakuserid: (keycloakUserId: string, params: RequestParams = {}) =>
-            this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/keycloak/${keycloakUserId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name GetNuxeoIdentityDocpalRoles
-         * @request GET:/api/nuxeo/identity/docpal/roles
-         */
-        getNuxeoIdentityDocpalRoles: (params: RequestParams = {}) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/docpal/roles`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags wopi-host-controller
-         * @name GetNuxeoGetofficetokenId
-         * @request GET:/api/nuxeo/getOfficeToken/{id}
-         */
-        getNuxeoGetofficetokenId: (
-            id: string,
-            query?: {
-                fileType?: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/getOfficeToken/${id}`,
-                method: "GET",
-                query: query,
                 ...params,
             }),
 
@@ -29326,7 +28834,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          *
          * @tags NotificationRecordController
          * @name DeleteNotificationSubscriberSubscriberIdorpathIdorpath
-         * @summary Remove notification subscriber
+         * @summary Delete notification subscriber
          * @request DELETE:/api/notification/subscriber/{subscriber}/idOrPath/{idOrPath}
          */
         deleteNotificationSubscriberSubscriberIdorpathIdorpath: (
@@ -29447,14 +28955,21 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags ExternalStorageImportJobController
-         * @name GetImportjobsPageConditions
-         * @request GET:/api/importJobs/page/conditions
+         * @tags wopi-host-controller
+         * @name GetGetofficetokenId
+         * @request GET:/api/getOfficeToken/{id}
          */
-        getImportjobsPageConditions: (params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/importJobs/page/conditions`,
+        getGetofficetokenId: (
+            id: string,
+            query?: {
+                fileType?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/getOfficeToken/${id}`,
                 method: "GET",
+                query: query,
                 ...params,
             }),
 
@@ -29499,36 +29014,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         getFileDownloadFileId: (id: string, params: RequestParams = {}) =>
             this.request<string, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/file/download/file/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * @description Retrieve all profiles for a specific external storage
-         *
-         * @tags ExternalStorageController
-         * @name GetExternalstorageIdProfilesList
-         * @summary Get all profile by external storage id
-         * @request GET:/api/externalStorage/{id}/profiles/list
-         */
-        getExternalstorageIdProfilesList: (id: string, params: RequestParams = {}) =>
-            this.request<ResultListExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/${id}/profiles/list`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name GetExternalstorageProfilesProfileidOutputrecordList
-         * @summary Retrieve all output settings of specific profile
-         * @request GET:/api/externalStorage/profiles/{profileId}/outputRecord/list
-         */
-        getExternalstorageProfilesProfileidOutputrecordList: (profileId: string, params: RequestParams = {}) =>
-            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/externalStorage/profiles/${profileId}/outputRecord/list`,
                 method: "GET",
                 ...params,
             }),
@@ -29641,6 +29126,248 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         getExternalDriveOauthAppsDeprecate: (params: RequestParams = {}) =>
             this.request<ResultListOAuthAppDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/external-drive/oauth/apps/`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * @description Retrieve detailed information of a specific external storage
+         *
+         * @tags ExternalStorageController
+         * @name GetExt3RdstorageId
+         * @summary Get External Storage Detail
+         * @request GET:/api/ext3rdStorage/{id}
+         * @deprecated
+         */
+        getExt3rdstorageId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name DeleteExt3RdstorageId
+         * @summary Delete External Storage
+         * @request DELETE:/api/ext3rdStorage/{id}
+         * @deprecated
+         */
+        deleteExt3rdstorageId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetExt3RdstorageIdProfilesProfileid
+         * @summary Get a external profile in external storage id
+         * @request GET:/api/ext3rdStorage/{id}/profiles/{profileId}
+         * @deprecated
+         */
+        getExt3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/profiles/${profileId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name DeleteExt3RdstorageIdProfilesProfileid
+         * @summary Delete a external profile in external storage id
+         * @request DELETE:/api/ext3rdStorage/{id}/profiles/{profileId}
+         * @deprecated
+         */
+        deleteExt3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/profiles/${profileId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * @description Retrieve all profiles for a specific external storage
+         *
+         * @tags ExternalStorageController
+         * @name GetExt3RdstorageIdProfilesList
+         * @summary Get all profile by external storage id
+         * @request GET:/api/ext3rdStorage/{id}/profiles/list
+         * @deprecated
+         */
+        getExt3rdstorageIdProfilesList: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/${id}/profiles/list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetExt3RdstorageProfilesProfileidOutputrecordOutputrecordid
+         * @request GET:/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @deprecated
+         */
+        getExt3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name DeleteExt3RdstorageProfilesProfileidOutputrecordOutputrecordid
+         * @request DELETE:/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         * @deprecated
+         */
+        deleteExt3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetExt3RdstorageProfilesProfileidOutputrecordList
+         * @summary Retrieve all output settings of specific profile
+         * @request GET:/api/ext3rdStorage/profiles/{profileId}/outputRecord/list
+         * @deprecated
+         */
+        getExt3rdstorageProfilesProfileidOutputrecordList: (profileId: string, params: RequestParams = {}) =>
+            this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/profiles/${profileId}/outputRecord/list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetExt3RdstorageList
+         * @summary Get External Storage Detail List
+         * @request GET:/api/ext3rdStorage/list
+         * @deprecated
+         */
+        getExt3rdstorageList: (
+            query: {
+                /** External Storage Request DTO */
+                externalStorageVO: ExternalStorageRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * @description Get detailed information of an import job by ID
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetExt3RdstorageImportjobsId
+         * @summary Get import job details
+         * @request GET:/api/ext3rdStorage/importJobs/{id}
+         * @deprecated
+         */
+        getExt3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/importJobs/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name DeleteExt3RdstorageImportjobsId
+         * @summary Delete import job
+         * @request DELETE:/api/ext3rdStorage/importJobs/{id}
+         * @deprecated
+         */
+        deleteExt3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/importJobs/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetExt3RdstorageImportjobsPageConditions
+         * @request GET:/api/ext3rdStorage/importJobs/page/conditions
+         * @deprecated
+         */
+        getExt3rdstorageImportjobsPageConditions: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/importJobs/page/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetExt3RdstorageImportjobsList
+         * @summary Get all import jobs list
+         * @request GET:/api/ext3rdStorage/importJobs/list
+         * @deprecated
+         */
+        getExt3rdstorageImportjobsList: (
+            query: {
+                /** External Storage Import Job Request */
+                requestDTO: ExternalStorageImportJobRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdStorage/importJobs/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags WhatsAppController
+         * @name GetExt3RdmessageWhatsappGetMessageTemplates
+         * @request GET:/api/ext3rdMessage/whatsapp/get_message_templates
+         * @deprecated
+         */
+        getExt3rdmessageWhatsappGetMessageTemplates: (params: RequestParams = {}) =>
+            this.request<ResultListMessageTemplateDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/ext3rdMessage/whatsapp/get_message_templates`,
                 method: "GET",
                 ...params,
             }),
@@ -30576,48 +30303,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags InternalShareController
-         * @name GetDocpalInternalshareInitscheduler
-         * @request GET:/api/docpal/internalShare/initScheduler
-         */
-        getDocpalInternalshareInitscheduler: (
-            query: {
-                /** @format date-time */
-                date: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/initScheduler`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name GetDocpalInternalshareInitschedulerDeprecate
-         * @request GET:/api/docpal/internalShare/initScheduler/
-         */
-        getDocpalInternalshareInitschedulerDeprecate: (
-            query: {
-                /** @format date-time */
-                date: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/docpal/internalShare/initScheduler/`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags IdTemplateController
          * @name GetDocpalIdTemplatesNameName
          * @summary Find ID template by name
@@ -31428,6 +31113,129 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags Share (Nuxeo)
+         * @name GetDmsSharePreview
+         * @request GET:/api/dms/share/preview
+         */
+        getDmsSharePreview: (
+            query: {
+                /** @format int64 */
+                shareId: number;
+                documentId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/preview`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name GetDmsSharePreviewRetry
+         * @request GET:/api/dms/share/preview/retry
+         */
+        getDmsSharePreviewRetry: (
+            query: {
+                /** @format int64 */
+                easyShareDetailsId: number;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/preview/retry`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name GetDmsSharePrepareDownloadDocidGetDownloadStatus
+         * @summary Get Status of download file is complete
+         * @request GET:/api/dms/share/prepare/download/{docId}/get-download-status
+         */
+        getDmsSharePrepareDownloadDocidGetDownloadStatus: (docId: string, params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/prepare/download/${docId}/get-download-status`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name GetDmsShareDownload
+         * @request GET:/api/dms/share/download
+         */
+        getDmsShareDownload: (
+            query: {
+                /** @format int64 */
+                shareId: number;
+                documentId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/download`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name GetDmsShareDownloadRetry
+         * @request GET:/api/dms/share/download/retry
+         */
+        getDmsShareDownloadRetry: (
+            query: {
+                /** @format int64 */
+                easyShareDetailsId: number;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string[], Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/download/retry`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Share (Nuxeo)
+         * @name GetDmsShareDocuments
+         * @summary Get sharing documents through ID
+         * @request GET:/api/dms/share/documents
+         */
+        getDmsShareDocuments: (
+            query: {
+                /** @format int64 */
+                id: number;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListEasyShareDocumentResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share/documents`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags SettingController
          * @name GetDmsSettingWorkflowCondition
          * @request GET:/api/dms/setting/workflow/condition
@@ -31527,6 +31335,71 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 path: `/api/dms/setting/concurrent-session`,
                 method: "GET",
                 query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name GetDmsSearchSearchallparent
+         * @summary Search All Parent Documents
+         * @request GET:/api/dms/search/searchAllParent
+         */
+        getDmsSearchSearchallparent: (
+            query: {
+                documentPath: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListDocumentDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/searchAllParent`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name GetDmsSearchQueryNestedSearchLog
+         * @request GET:/api/dms/search/query-nested-search-log
+         */
+        getDmsSearchQueryNestedSearchLog: (params: RequestParams = {}) =>
+            this.request<ResultListNestedSearchLogRecord, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/query-nested-search-log`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name GetDmsSearchOpenSearchDocumentid
+         * @summary Open Search By Id
+         * @request GET:/api/dms/search/open-search/{documentId}
+         */
+        getDmsSearchOpenSearchDocumentid: (documentId: string, params: RequestParams = {}) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/open-search/${documentId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name GetDmsSearchGetexportheader
+         * @summary get export header for Nested Search
+         * @request GET:/api/dms/search/getExportHeader
+         */
+        getDmsSearchGetexportheader: (params: RequestParams = {}) =>
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/getExportHeader`,
+                method: "GET",
                 ...params,
             }),
 
@@ -32045,6 +31918,48 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags InternalShareController
+         * @name GetDmsInternalshareInitSchedulerDeprecate
+         * @request GET:/api/dms/internalShare/init-scheduler/
+         */
+        getDmsInternalshareInitSchedulerDeprecate: (
+            query: {
+                /** @format date-time */
+                date: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/init-scheduler/`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name GetDmsInternalshareInitScheduler
+         * @request GET:/api/dms/internalShare/init-scheduler
+         */
+        getDmsInternalshareInitScheduler: (
+            query: {
+                /** @format date-time */
+                date: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultPaginableEntityDTOObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/internalShare/init-scheduler`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags form-properties-relation-controller
          * @name GetDmsFormPropertiesQuery
          * @request GET:/api/dms/form-properties/query
@@ -32532,7 +32447,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request GET:/api/dms/docpal-type/active
          */
         getDmsDocpalTypeActive: (params: RequestParams = {}) =>
-            this.request<ResultListDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultListDocPalTypeDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dms/docpal-type/active`,
                 method: "GET",
                 ...params,
@@ -34555,21 +34470,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags WhatsAppController
-         * @name GetExt3RdmessageWhatsappGetMessageTemplates
-         * @request GET:/api/Ext3rdMessage/whatsapp/get_message_templates
-         * @deprecated
-         */
-        getExt3rdmessageWhatsappGetMessageTemplates: (params: RequestParams = {}) =>
-            this.request<ResultListMessageTemplateDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/Ext3rdMessage/whatsapp/get_message_templates`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Workflow Task
          * @name DeleteWorkflowTask
          * @summary Delete a task
@@ -34681,28 +34581,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Search (Nuxeo)
-         * @name DeleteNuxeoSearchDeleteNestedSearchLogId
-         * @request DELETE:/api/nuxeo/search/delete_nested_search_log/{id}
-         */
-        deleteNuxeoSearchDeleteNestedSearchLogId: (id: number, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/search/delete_nested_search_log/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Identity
-         * @name DeleteNuxeoIdentityUserUserid
+         * @name DeleteUcenterUserUserid
          * @summary Delete User
-         * @request DELETE:/api/nuxeo/identity/user/{userId}
+         * @request DELETE:/api/ucenter/user/{userId}
          */
-        deleteNuxeoIdentityUserUserid: (userId: string, data: any, params: RequestParams = {}) =>
+        deleteUcenterUserUserid: (userId: string, data: any, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/user/${userId}`,
+                path: `/api/ucenter/user/${userId}`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -34713,13 +34599,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name DeleteNuxeoIdentityGroupGroupid
+         * @name DeleteUcenterGroupGroupid
          * @summary Delete group by ID
-         * @request DELETE:/api/nuxeo/identity/group/{groupId}
+         * @request DELETE:/api/ucenter/group/{groupId}
          */
-        deleteNuxeoIdentityGroupGroupid: (groupId: string, params: RequestParams = {}) =>
+        deleteUcenterGroupGroupid: (groupId: string, params: RequestParams = {}) =>
             this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/group/${groupId}`,
+                path: `/api/ucenter/group/${groupId}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -34885,6 +34771,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags Share (Nuxeo)
+         * @name DeleteDmsShare
+         * @request DELETE:/api/dms/share
+         */
+        deleteDmsShare: (data: string[], params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/share`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags SettingController
          * @name DeleteDmsSettingVirtualFolderSettingId
          * @request DELETE:/api/dms/setting/virtual-folder/setting/{id}
@@ -34892,6 +34794,20 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         deleteDmsSettingVirtualFolderSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultVirtualFolderSettingResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/api/dms/setting/virtual-folder/setting/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name DeleteDmsSearchDeleteNestedSearchLogId
+         * @request DELETE:/api/dms/search/delete-nested-search-log/{id}
+         */
+        deleteDmsSearchDeleteNestedSearchLogId: (id: number, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/api/dms/search/delete-nested-search-log/${id}`,
                 method: "DELETE",
                 ...params,
             }),
@@ -35251,34 +35167,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags DocBlockPermissionController
-         * @name DeleteBlockPermissionDocumentDocidPathDocpath
-         * @summary Delete block permission
-         * @request DELETE:/api/block/permission/document/{docId}/path/{docPath}
-         */
-        deleteBlockPermissionDocumentDocidPathDocpath: (docId: string, docPath: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/block/permission/document/${docId}/path/${docPath}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Identity
-         * @name GetNuxeoIdentityIscanmodified
+         * @name GetUcenterIsCanModified
          * @summary group is can modified ?
-         * @request GET:/api/nuxeo/identity/isCanModified
+         * @request GET:/api/ucenter/is-can-modified
          */
-        getNuxeoIdentityIscanmodified: (
+        getUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/isCanModified`,
+                path: `/api/ucenter/is-can-modified`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -35288,18 +35189,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PutNuxeoIdentityIscanmodified
+         * @name PutUcenterIsCanModified
          * @summary group is can modified ?
-         * @request PUT:/api/nuxeo/identity/isCanModified
+         * @request PUT:/api/ucenter/is-can-modified
          */
-        putNuxeoIdentityIscanmodified: (
+        putUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/isCanModified`,
+                path: `/api/ucenter/is-can-modified`,
                 method: "PUT",
                 query: query,
                 ...params,
@@ -35309,18 +35210,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostNuxeoIdentityIscanmodified
+         * @name PostUcenterIsCanModified
          * @summary group is can modified ?
-         * @request POST:/api/nuxeo/identity/isCanModified
+         * @request POST:/api/ucenter/is-can-modified
          */
-        postNuxeoIdentityIscanmodified: (
+        postUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/isCanModified`,
+                path: `/api/ucenter/is-can-modified`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -35330,18 +35231,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name DeleteNuxeoIdentityIscanmodified
+         * @name DeleteUcenterIsCanModified
          * @summary group is can modified ?
-         * @request DELETE:/api/nuxeo/identity/isCanModified
+         * @request DELETE:/api/ucenter/is-can-modified
          */
-        deleteNuxeoIdentityIscanmodified: (
+        deleteUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/isCanModified`,
+                path: `/api/ucenter/is-can-modified`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -35351,18 +35252,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name OptionsNuxeoIdentityIscanmodified
+         * @name OptionsUcenterIsCanModified
          * @summary group is can modified ?
-         * @request OPTIONS:/api/nuxeo/identity/isCanModified
+         * @request OPTIONS:/api/ucenter/is-can-modified
          */
-        optionsNuxeoIdentityIscanmodified: (
+        optionsUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/isCanModified`,
+                path: `/api/ucenter/is-can-modified`,
                 method: "OPTIONS",
                 query: query,
                 ...params,
@@ -35372,18 +35273,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name HeadNuxeoIdentityIscanmodified
+         * @name HeadUcenterIsCanModified
          * @summary group is can modified ?
-         * @request HEAD:/api/nuxeo/identity/isCanModified
+         * @request HEAD:/api/ucenter/is-can-modified
          */
-        headNuxeoIdentityIscanmodified: (
+        headUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/isCanModified`,
+                path: `/api/ucenter/is-can-modified`,
                 method: "HEAD",
                 query: query,
                 ...params,
@@ -35393,18 +35294,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PatchNuxeoIdentityIscanmodified
+         * @name PatchUcenterIsCanModified
          * @summary group is can modified ?
-         * @request PATCH:/api/nuxeo/identity/isCanModified
+         * @request PATCH:/api/ucenter/is-can-modified
          */
-        patchNuxeoIdentityIscanmodified: (
+        patchUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/api/nuxeo/identity/isCanModified`,
+                path: `/api/ucenter/is-can-modified`,
                 method: "PATCH",
                 query: query,
                 ...params,
@@ -35620,118 +35521,19 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * @description Get detailed information of an import job by ID
-         *
-         * @tags ExternalStorageImportJobController
-         * @name GetAdminimportjobsId
-         * @summary Get import job details
-         * @request GET:/admin/api/importJobs/{id}
-         * @deprecated
-         */
-        getAdminimportjobsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PutAdminimportjobsId
-         * @summary Update import job
-         * @request PUT:/admin/api/importJobs/{id}
-         * @deprecated
-         */
-        putAdminimportjobsId: (id: string, data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs/${id}`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name DeleteAdminimportjobsId
-         * @summary Delete import job
-         * @request DELETE:/admin/api/importJobs/{id}
-         * @deprecated
-         */
-        deleteAdminimportjobsId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * @description Retrieve detailed information of a specific external storage
-         *
-         * @tags ExternalStorageController
-         * @name GetAdminexternalstorageId
-         * @summary Get External Storage Detail
-         * @request GET:/admin/api/externalStorage/{id}
-         * @deprecated
-         */
-        getAdminexternalstorageId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
          * No description
          *
          * @tags ExternalStorageController
-         * @name PutAdminexternalstorageId
+         * @name PutAdminext3RdstorageIdUpdate
          * @summary Update an existing external storage configuration
-         * @request PUT:/admin/api/externalStorage/{id}
-         * @deprecated
+         * @request PUT:/admin/api/ext3rdStorage/{id}/update
          */
-        putAdminexternalstorageId: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
+        putAdminext3rdstorageIdUpdate: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}`,
+                path: `/admin/api/ext3rdStorage/${id}/update`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name DeleteAdminexternalstorageId
-         * @summary Delete External Storage
-         * @request DELETE:/admin/api/externalStorage/{id}
-         * @deprecated
-         */
-        deleteAdminexternalstorageId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}`,
-                method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name GetAdminexternalstorageIdProfilesProfileid
-         * @summary Get a external profile in external storage id
-         * @request GET:/admin/api/externalStorage/{id}/profiles/{profileId}
-         * @deprecated
-         */
-        getAdminexternalstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
-            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/${profileId}`,
-                method: "GET",
                 ...params,
             }),
 
@@ -35739,19 +35541,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update an existing external profile for a specific external storage
          *
          * @tags ExternalStorageController
-         * @name PutAdminexternalstorageIdProfilesProfileid
+         * @name PutAdminext3RdstorageIdUpdateProfilesProfileid
          * @summary Update a external profile in external storage id
-         * @request PUT:/admin/api/externalStorage/{id}/profiles/{profileId}
-         * @deprecated
+         * @request PUT:/admin/api/ext3rdStorage/{id}/update-profiles/{profileId}
          */
-        putAdminexternalstorageIdProfilesProfileid: (
+        putAdminext3rdstorageIdUpdateProfilesProfileid: (
             id: string,
             profileId: string,
             data: ExternalProfileDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/${profileId}`,
+                path: `/admin/api/ext3rdStorage/${id}/update-profiles/${profileId}`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -35761,16 +35562,115 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags ExternalStorageController
-         * @name DeleteAdminexternalstorageIdProfilesProfileid
-         * @summary Delete a external profile in external storage id
-         * @request DELETE:/admin/api/externalStorage/{id}/profiles/{profileId}
-         * @deprecated
+         * @tags ExternalStorageImportJobController
+         * @name PutAdminext3RdstorageImportjobsIdUpdate
+         * @summary Update import job
+         * @request PUT:/admin/api/ext3rdStorage/importJobs/{id}/update
          */
-        deleteAdminexternalstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/${profileId}`,
-                method: "DELETE",
+        putAdminext3rdstorageImportjobsIdUpdate: (
+            id: string,
+            data: ExternalStorageImportJobDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/importJobs/${id}/update`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-whats-app-controller
+         * @name PutAdminext3RdmessageWhatsappSettings
+         * @request PUT:/admin/api/ext3rdMessage/whatsapp/settings
+         */
+        putAdminext3rdmessageWhatsappSettings: (data: WhatsAppSettingDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdMessage/whatsapp/settings`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-controller
+         * @name GetAdmindsbAzureOcrSetting
+         * @request GET:/admin/api/dsb/azure/ocr/setting
+         */
+        getAdmindsbAzureOcrSetting: (params: RequestParams = {}) =>
+            this.request<ResultAzureSettingDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dsb/azure/ocr/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-controller
+         * @name PutAdmindsbAzureOcrSetting
+         * @request PUT:/admin/api/dsb/azure/ocr/setting
+         */
+        putAdmindsbAzureOcrSetting: (data: AzureOcrSettingDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dsb/azure/ocr/setting`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-controller
+         * @name PutAdmindsbAzureOcrSettingApiKey
+         * @request PUT:/admin/api/dsb/azure/ocr/setting/api-key
+         */
+        putAdmindsbAzureOcrSettingApiKey: (data: AzureOcrApiKeyDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dsb/azure/ocr/setting/api-key`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-controller
+         * @name PutAdmindsbAzureOcrProfileMapping
+         * @request PUT:/admin/api/dsb/azure/ocr/profile/mapping
+         */
+        putAdmindsbAzureOcrProfileMapping: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dsb/azure/ocr/profile/mapping`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-controller
+         * @name PostAdmindsbAzureOcrProfileMapping
+         * @request POST:/admin/api/dsb/azure/ocr/profile/mapping
+         */
+        postAdmindsbAzureOcrProfileMapping: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dsb/azure/ocr/profile/mapping`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
@@ -35870,54 +35770,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/docpal/id-templates/${id}`,
                 method: "DELETE",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name PutAdmindocpalAzureOcrUpdateocrsetting
-         * @request PUT:/admin/api/docpal/azure/ocr/updateOcrSetting
-         */
-        putAdmindocpalAzureOcrUpdateocrsetting: (data: AzureOcrSettingDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/azure/ocr/updateOcrSetting`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name PutAdmindocpalAzureOcrUpdateocrprofilemapping
-         * @request PUT:/admin/api/docpal/azure/ocr/updateOcrProfileMapping
-         */
-        putAdmindocpalAzureOcrUpdateocrprofilemapping: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/azure/ocr/updateOcrProfileMapping`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name PutAdmindocpalAzureOcrUpdateapisetting
-         * @request PUT:/admin/api/docpal/azure/ocr/updateApiSetting
-         */
-        putAdmindocpalAzureOcrUpdateapisetting: (data: AzureOcrApiKeyDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/azure/ocr/updateApiSetting`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
                 ...params,
             }),
 
@@ -36921,7 +36773,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          *
          * @tags AdminDocPalTypeManagementController
          * @name PostAdmindmsDocpalTypeDocpaltypeidMetadata
-         * @summary Adding a metadata into docpal type
+         * @summary Adding a new metadata into the docpal type
          * @request POST:/admin/api/dms/docpal-type/{docpalTypeId}/metadata
          */
         postAdmindmsDocpalTypeDocpaltypeidMetadata: (
@@ -37459,22 +37311,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         putAdmincaseDashboardStatus: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/case/dashboard/status`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-whats-app-controller
-         * @name PutAdminext3RdmessageWhatsappSettings
-         * @request PUT:/admin/api/Ext3rdMessage/whatsapp/settings
-         */
-        putAdminext3rdmessageWhatsappSettings: (data: WhatsAppSettingDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/Ext3rdMessage/whatsapp/settings`,
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
@@ -38065,62 +37901,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Password Controller
-         * @name PostAdminpasswordSaveConfig
-         * @request POST:/admin/api/password/save-config
-         */
-        postAdminpasswordSaveConfig: (data: PasswordConfigDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/password/save-config`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags External Share
-         * @name PostAdminnuxeoSharePage
-         * @request POST:/admin/api/nuxeo/share/page
-         */
-        postAdminnuxeoSharePage: (data: SharePageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/share/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags External Share
-         * @name PostAdminnuxeoShareGet
-         * @request POST:/admin/api/nuxeo/share/get
-         */
-        postAdminnuxeoShareGet: (data: SharePageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/share/get`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityUsers
+         * @name PostAdminucenterUsers
          * @summary List users
-         * @request POST:/admin/api/nuxeo/identity/users
+         * @request POST:/admin/api/ucenter/users
          */
-        postAdminnuxeoIdentityUsers: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postAdminucenterUsers: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/users`,
+                path: `/admin/api/ucenter/users`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38131,13 +37919,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityUsersBatchDelete
+         * @name PostAdminucenterUsersBatchDelete
          * @summary Batch delete users
-         * @request POST:/admin/api/nuxeo/identity/users/batch/delete
+         * @request POST:/admin/api/ucenter/users/batch/delete
          */
-        postAdminnuxeoIdentityUsersBatchDelete: (data: BatchDeleteUserDTO, params: RequestParams = {}) =>
+        postAdminucenterUsersBatchDelete: (data: BatchDeleteUserDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/users/batch/delete`,
+                path: `/admin/api/ucenter/users/batch/delete`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38148,13 +37936,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityUsersBatchAddGroups
+         * @name PostAdminucenterUsersBatchAddGroups
          * @summary Batch add groups to users
-         * @request POST:/admin/api/nuxeo/identity/users/batch/add/groups
+         * @request POST:/admin/api/ucenter/users/batch/add/groups
          */
-        postAdminnuxeoIdentityUsersBatchAddGroups: (data: BatchAddUsersToGroupsDTO, params: RequestParams = {}) =>
+        postAdminucenterUsersBatchAddGroups: (data: BatchAddUsersToGroupsDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/users/batch/add/groups`,
+                path: `/admin/api/ucenter/users/batch/add/groups`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38165,12 +37953,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityUser
-         * @request POST:/admin/api/nuxeo/identity/user
+         * @name PostAdminucenterUser
+         * @request POST:/admin/api/ucenter/user
          */
-        postAdminnuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postAdminucenterUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/user`,
+                path: `/admin/api/ucenter/user`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38181,12 +37969,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name DeleteAdminnuxeoIdentityUser
-         * @request DELETE:/admin/api/nuxeo/identity/user
+         * @name DeleteAdminucenterUser
+         * @request DELETE:/admin/api/ucenter/user
          */
-        deleteAdminnuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        deleteAdminucenterUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/user`,
+                path: `/admin/api/ucenter/user`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -38197,13 +37985,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PatchAdminnuxeoIdentityUser
+         * @name PatchAdminucenterUser
          * @summary Update User
-         * @request PATCH:/admin/api/nuxeo/identity/user
+         * @request PATCH:/admin/api/ucenter/user
          */
-        patchAdminnuxeoIdentityUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        patchAdminucenterUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/user`,
+                path: `/admin/api/ucenter/user`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -38214,13 +38002,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityUserBatchRemoveGroups
+         * @name PostAdminucenterUserBatchRemoveGroups
          * @summary Batch remove groups from user
-         * @request POST:/admin/api/nuxeo/identity/user/batch/remove/groups
+         * @request POST:/admin/api/ucenter/user/batch/remove/groups
          */
-        postAdminnuxeoIdentityUserBatchRemoveGroups: (data: UserBatchAddGroupsDTO, params: RequestParams = {}) =>
+        postAdminucenterUserBatchRemoveGroups: (data: UserBatchAddGroupsDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/user/batch/remove/groups`,
+                path: `/admin/api/ucenter/user/batch/remove/groups`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38231,13 +38019,29 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityUserBatchAddGroups
+         * @name PostAdminucenterUserBatchAddGroups
          * @summary Batch add groups to user
-         * @request POST:/admin/api/nuxeo/identity/user/batch/add/groups
+         * @request POST:/admin/api/ucenter/user/batch/add/groups
          */
-        postAdminnuxeoIdentityUserBatchAddGroups: (data: UserBatchAddGroupsDTO, params: RequestParams = {}) =>
+        postAdminucenterUserBatchAddGroups: (data: UserBatchAddGroupsDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/user/batch/add/groups`,
+                path: `/admin/api/ucenter/user/batch/add/groups`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name PostAdminucenterPasswordSaveConfig
+         * @request POST:/admin/api/ucenter/password/save-config
+         */
+        postAdminucenterPasswordSaveConfig: (data: PasswordConfigDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ucenter/password/save-config`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38248,12 +38052,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityMembership
-         * @request POST:/admin/api/nuxeo/identity/membership
+         * @name PostAdminucenterMembership
+         * @request POST:/admin/api/ucenter/membership
          */
-        postAdminnuxeoIdentityMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postAdminucenterMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/membership`,
+                path: `/admin/api/ucenter/membership`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38264,13 +38068,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name DeleteAdminnuxeoIdentityMembership
+         * @name DeleteAdminucenterMembership
          * @summary Remove user from group
-         * @request DELETE:/admin/api/nuxeo/identity/membership
+         * @request DELETE:/admin/api/ucenter/membership
          */
-        deleteAdminnuxeoIdentityMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        deleteAdminucenterMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultIdentityRequestDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/membership`,
+                path: `/admin/api/ucenter/membership`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -38281,12 +38085,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityMember
-         * @request POST:/admin/api/nuxeo/identity/member
+         * @name PostAdminucenterMember
+         * @request POST:/admin/api/ucenter/member
          */
-        postAdminnuxeoIdentityMember: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postAdminucenterMember: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/member`,
+                path: `/admin/api/ucenter/member`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38297,12 +38101,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityMembergroup
-         * @request POST:/admin/api/nuxeo/identity/memberGroup
+         * @name PostAdminucenterMemberGroup
+         * @request POST:/admin/api/ucenter/member-group
          */
-        postAdminnuxeoIdentityMembergroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postAdminucenterMemberGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/memberGroup`,
+                path: `/admin/api/ucenter/member-group`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38313,12 +38117,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityGroups
-         * @request POST:/admin/api/nuxeo/identity/groups
+         * @name PostAdminucenterGroups
+         * @request POST:/admin/api/ucenter/groups
          */
-        postAdminnuxeoIdentityGroups: (params: RequestParams = {}) =>
+        postAdminucenterGroups: (params: RequestParams = {}) =>
             this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/groups`,
+                path: `/admin/api/ucenter/groups`,
                 method: "POST",
                 ...params,
             }),
@@ -38327,12 +38131,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityGroupsActive
-         * @request POST:/admin/api/nuxeo/identity/groups/active
+         * @name PostAdminucenterGroupsActive
+         * @request POST:/admin/api/ucenter/groups/active
          */
-        postAdminnuxeoIdentityGroupsActive: (params: RequestParams = {}) =>
+        postAdminucenterGroupsActive: (params: RequestParams = {}) =>
             this.request<ResultListGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/groups/active`,
+                path: `/admin/api/ucenter/groups/active`,
                 method: "POST",
                 ...params,
             }),
@@ -38341,12 +38145,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityGroup
-         * @request POST:/admin/api/nuxeo/identity/group
+         * @name PostAdminucenterGroup
+         * @request POST:/admin/api/ucenter/group
          */
-        postAdminnuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postAdminucenterGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/group`,
+                path: `/admin/api/ucenter/group`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38357,12 +38161,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name DeleteAdminnuxeoIdentityGroup
-         * @request DELETE:/admin/api/nuxeo/identity/group
+         * @name DeleteAdminucenterGroup
+         * @request DELETE:/admin/api/ucenter/group
          */
-        deleteAdminnuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        deleteAdminucenterGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/group`,
+                path: `/admin/api/ucenter/group`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -38373,13 +38177,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PatchAdminnuxeoIdentityGroup
+         * @name PatchAdminucenterGroup
          * @summary Update group
-         * @request PATCH:/admin/api/nuxeo/identity/group
+         * @request PATCH:/admin/api/ucenter/group
          */
-        patchAdminnuxeoIdentityGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        patchAdminucenterGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultGroupDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/group`,
+                path: `/admin/api/ucenter/group`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -38390,13 +38194,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityGroupBatchRemoveUsers
+         * @name PostAdminucenterGroupBatchRemoveUsers
          * @summary Batch remove users from group
-         * @request POST:/admin/api/nuxeo/identity/group/batch/remove/users
+         * @request POST:/admin/api/ucenter/group/batch/remove/users
          */
-        postAdminnuxeoIdentityGroupBatchRemoveUsers: (data: GroupBatchAddUsersDTO, params: RequestParams = {}) =>
+        postAdminucenterGroupBatchRemoveUsers: (data: GroupBatchAddUsersDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/group/batch/remove/users`,
+                path: `/admin/api/ucenter/group/batch/remove/users`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38407,13 +38211,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityGroupBatchAddUsers
+         * @name PostAdminucenterGroupBatchAddUsers
          * @summary Batch add users to group
-         * @request POST:/admin/api/nuxeo/identity/group/batch/add/users
+         * @request POST:/admin/api/ucenter/group/batch/add/users
          */
-        postAdminnuxeoIdentityGroupBatchAddUsers: (data: GroupBatchAddUsersDTO, params: RequestParams = {}) =>
+        postAdminucenterGroupBatchAddUsers: (data: GroupBatchAddUsersDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/group/batch/add/users`,
+                path: `/admin/api/ucenter/group/batch/add/users`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38424,12 +38228,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityGetlicenseusernumandactivecount
-         * @request POST:/admin/api/nuxeo/identity/getLicenseUserNumAndActiveCount
+         * @name PostAdminucenterGetLicenseUserNumAndActiveCount
+         * @request POST:/admin/api/ucenter/get-license-user-num-and-active-count
          */
-        postAdminnuxeoIdentityGetlicenseusernumandactivecount: (params: RequestParams = {}) =>
+        postAdminucenterGetLicenseUserNumAndActiveCount: (params: RequestParams = {}) =>
             this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/getLicenseUserNumAndActiveCount`,
+                path: `/admin/api/ucenter/get-license-user-num-and-active-count`,
                 method: "POST",
                 ...params,
             }),
@@ -38438,13 +38242,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityGetkeycloakallusers
+         * @name PostAdminucenterGetKeycloakAllUsers
          * @summary Find all active user list
-         * @request POST:/admin/api/nuxeo/identity/getKeyCloakAllUsers
+         * @request POST:/admin/api/ucenter/get-keycloak-all-users
          */
-        postAdminnuxeoIdentityGetkeycloakallusers: (params: RequestParams = {}) =>
+        postAdminucenterGetKeycloakAllUsers: (params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/getKeyCloakAllUsers`,
+                path: `/admin/api/ucenter/get-keycloak-all-users`,
                 method: "POST",
                 ...params,
             }),
@@ -38453,12 +38257,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityGetallusers
-         * @request POST:/admin/api/nuxeo/identity/getAllUsers
+         * @name PostAdminucenterGetAllUsers
+         * @request POST:/admin/api/ucenter/get-all-users
          */
-        postAdminnuxeoIdentityGetallusers: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postAdminucenterGetAllUsers: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/getAllUsers`,
+                path: `/admin/api/ucenter/get-all-users`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38469,12 +38273,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityUserPage
-         * @request POST:/admin/api/nuxeo/identity/user/page
+         * @name PostAdminucenterUserPage
+         * @request POST:/admin/api/ucenter/user/page
          */
-        postAdminnuxeoIdentityUserPage: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postAdminucenterUserPage: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/user/page`,
+                path: `/admin/api/ucenter/user/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38485,12 +38289,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityCopyusers
-         * @request POST:/admin/api/nuxeo/identity/copyUsers
+         * @name PostAdminucenterCopyUsers
+         * @request POST:/admin/api/ucenter/copy-users
          */
-        postAdminnuxeoIdentityCopyusers: (params: RequestParams = {}) =>
+        postAdminucenterCopyUsers: (params: RequestParams = {}) =>
             this.request<ResultListUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/copyUsers`,
+                path: `/admin/api/ucenter/copy-users`,
                 method: "POST",
                 ...params,
             }),
@@ -38547,138 +38351,16 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PostAdminimportjobsPage
-         * @summary Paginated query for import jobs
-         * @request POST:/admin/api/importJobs/page
-         * @deprecated
-         */
-        postAdminimportjobsPage: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
-            this.request<
-                ResultPaginationDTOExternalStorageImportJobDTO,
-                Result | (ResultObject | Result | ResultString)
-            >({
-                path: `/admin/api/importJobs/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PostAdminimportjobsJobqueueFirst
-         * @summary Place a task in the first queue
-         * @request POST:/admin/api/importJobs/jobQueue/first
-         * @deprecated
-         */
-        postAdminimportjobsJobqueueFirst: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs/jobQueue/first`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * @description Save a external storage import job
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PostAdminimportjobsAdd
-         * @summary Save import job record
-         * @request POST:/admin/api/importJobs/add
-         * @deprecated
-         */
-        postAdminimportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs/add`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageImportJobController
-         * @name GetAdminimportjobs
-         * @summary Get all import jobs list
-         * @request GET:/admin/api/importJobs
-         * @deprecated
-         */
-        getAdminimportjobs: (
-            query: {
-                /** External Storage Import Job Request */
-                requestDTO: ExternalStorageImportJobRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * @description Save a external storage import job
-         *
-         * @tags ExternalStorageImportJobController
-         * @name PostAdminimportjobs
-         * @summary Save import job record
-         * @request POST:/admin/api/importJobs
-         * @deprecated
-         */
-        postAdminimportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
-            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name GetAdminexternalstorage
-         * @summary Get External Storage Detail List
-         * @request GET:/admin/api/externalStorage
-         * @deprecated
-         */
-        getAdminexternalstorage: (
-            query: {
-                /** External Storage Request DTO */
-                externalStorageVO: ExternalStorageRequestDTO;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
          * @description Create a new external storage configuration
          *
          * @tags ExternalStorageController
-         * @name PostAdminexternalstorage
+         * @name PostAdminext3Rdstorage
          * @summary Create a new external storage
-         * @request POST:/admin/api/externalStorage
-         * @deprecated
+         * @request POST:/admin/api/ext3rdStorage
          */
-        postAdminexternalstorage: (data: ExternalStorageDTO, params: RequestParams = {}) =>
+        postAdminext3rdstorage: (data: ExternalStorageDTO, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage`,
+                path: `/admin/api/ext3rdStorage`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38689,14 +38371,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Create a new external profile for a specific external storage
          *
          * @tags ExternalStorageController
-         * @name PostAdminexternalstorageIdProfiles
+         * @name PostAdminext3RdstorageIdProfiles
          * @summary Create a new external profile in external storage id
-         * @request POST:/admin/api/externalStorage/{id}/profiles
-         * @deprecated
+         * @request POST:/admin/api/ext3rdStorage/{id}/profiles
          */
-        postAdminexternalstorageIdProfiles: (id: string, data: ExternalProfileDTO, params: RequestParams = {}) =>
+        postAdminext3rdstorageIdProfiles: (id: string, data: ExternalProfileDTO, params: RequestParams = {}) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38707,18 +38388,17 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PostAdminexternalstorageIdProfilesPage
+         * @name PostAdminext3RdstorageIdProfilesPage
          * @summary Paging query external storage profiles by external storage id
-         * @request POST:/admin/api/externalStorage/{id}/profiles/page
-         * @deprecated
+         * @request POST:/admin/api/ext3rdStorage/{id}/profiles/page
          */
-        postAdminexternalstorageIdProfilesPage: (
+        postAdminext3rdstorageIdProfilesPage: (
             id: string,
             data: ExternalProfileRequestDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultPaginationDTOExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/page`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/page`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38729,18 +38409,17 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PostAdminexternalstorageIdConnectionTest
+         * @name PostAdminext3RdstorageIdConnectionTest
          * @summary Testing SMB connection is correct
-         * @request POST:/admin/api/externalStorage/{id}/connection/test
-         * @deprecated
+         * @request POST:/admin/api/ext3rdStorage/{id}/connection/test
          */
-        postAdminexternalstorageIdConnectionTest: (
+        postAdminext3rdstorageIdConnectionTest: (
             id: string,
             data: Record<string, string>,
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/connection/test`,
+                path: `/admin/api/ext3rdStorage/${id}/connection/test`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38751,18 +38430,17 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Create a new external profile output record
          *
          * @tags ExternalStorageController
-         * @name PostAdminexternalstorageProfilesProfileidOutputrecord
+         * @name PostAdminext3RdstorageProfilesProfileidOutputrecord
          * @summary Create External Profile Output
-         * @request POST:/admin/api/externalStorage/profiles/{profileId}/outputRecord
-         * @deprecated
+         * @request POST:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord
          */
-        postAdminexternalstorageProfilesProfileidOutputrecord: (
+        postAdminext3rdstorageProfilesProfileidOutputrecord: (
             profileId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/profiles/${profileId}/outputRecord`,
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -38773,37 +38451,17 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name GetAdminexternalstorageProfilesProfileidOutputrecordOutputrecordid
-         * @request GET:/admin/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         * @deprecated
-         */
-        getAdminexternalstorageProfilesProfileidOutputrecordOutputrecordid: (
-            profileId: string,
-            outputRecordId: string,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags ExternalStorageController
-         * @name PostAdminexternalstorageProfilesProfileidOutputrecordOutputrecordid
+         * @name PostAdminext3RdstorageProfilesProfileidDuplicateOutputrecordOutputrecordid
          * @summary Duplicate (Copy) a exist External Profile Output
-         * @request POST:/admin/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         * @deprecated
+         * @request POST:/admin/api/ext3rdStorage/profiles/{profileId}/duplicate-outputRecord/{outputRecordId}
          */
-        postAdminexternalstorageProfilesProfileidOutputrecordOutputrecordid: (
+        postAdminext3rdstorageProfilesProfileidDuplicateOutputrecordOutputrecordid: (
             profileId: string,
             outputRecordId: string,
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/duplicate-outputRecord/${outputRecordId}`,
                 method: "POST",
                 ...params,
             }),
@@ -38812,39 +38470,88 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name DeleteAdminexternalstorageProfilesProfileidOutputrecordOutputrecordid
-         * @request DELETE:/admin/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         * @deprecated
+         * @name PostAdminext3RdstoragePage
+         * @summary Paging query External Storage
+         * @request POST:/admin/api/ext3rdStorage/page
          */
-        deleteAdminexternalstorageProfilesProfileidOutputrecordOutputrecordid: (
-            profileId: string,
-            outputRecordId: string,
+        postAdminext3rdstoragePage: (data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostAdminext3RdstorageImportjobsPage
+         * @summary Paginated query for import jobs
+         * @request POST:/admin/api/ext3rdStorage/importJobs/page
+         */
+        postAdminext3rdstorageImportjobsPage: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
+            this.request<
+                ResultPaginationDTOExternalStorageImportJobDTO,
+                Result | (ResultObject | Result | ResultString)
+            >({
+                path: `/admin/api/ext3rdStorage/importJobs/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostAdminext3RdstorageImportjobsJobqueueFirst
+         * @summary Place a task in the first queue
+         * @request POST:/admin/api/ext3rdStorage/importJobs/jobQueue/first
+         */
+        postAdminext3rdstorageImportjobsJobqueueFirst: (
+            data: ExternalStorageImportJobRequestDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
-                method: "DELETE",
+                path: `/admin/api/ext3rdStorage/importJobs/jobQueue/first`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
         /**
-         * No description
+         * @description Save a external storage import job
          *
-         * @tags ExternalStorageController
-         * @name PatchAdminexternalstorageProfilesProfileidOutputrecordOutputrecordid
-         * @summary Update a external profile output record
-         * @request PATCH:/admin/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}
-         * @deprecated
+         * @tags ExternalStorageImportJobController
+         * @name PostAdminext3RdstorageImportjobsAdd
+         * @summary Save import job record
+         * @request POST:/admin/api/ext3rdStorage/importJobs/add
          */
-        patchAdminexternalstorageProfilesProfileidOutputrecordOutputrecordid: (
-            profileId: string,
-            outputRecordId: string,
-            data: Record<string, object>,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
-                method: "PATCH",
+        postAdminext3rdstorageImportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/importJobs/add`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Save a external storage import job
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PostAdminext3RdstorageImportjobs
+         * @summary Save import job record
+         * @request POST:/admin/api/ext3rdStorage/importJobs
+         */
+        postAdminext3rdstorageImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/importJobs`,
+                method: "POST",
                 body: data,
                 type: ContentType.Json,
                 ...params,
@@ -38853,15 +38560,45 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags ExternalStorageController
-         * @name PostAdminexternalstoragePage
-         * @summary Paging query External Storage
-         * @request POST:/admin/api/externalStorage/page
-         * @deprecated
+         * @tags admin-whats-app-controller
+         * @name PostAdminext3RdmessageWhatsappOverview
+         * @request POST:/admin/api/ext3rdMessage/whatsapp/overview
          */
-        postAdminexternalstoragePage: (data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/page`,
+        postAdminext3rdmessageWhatsappOverview: (data: BasePageRequest, params: RequestParams = {}) =>
+            this.request<ResultWhatsAppOverviewResponse, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdMessage/whatsapp/overview`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-whats-app-controller
+         * @name PostAdminext3RdmessageWhatsappLogsQuery
+         * @request POST:/admin/api/ext3rdMessage/whatsapp/logs/query
+         */
+        postAdminext3rdmessageWhatsappLogsQuery: (data: BasePageRequest, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOWhatsAppLogDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdMessage/whatsapp/logs/query`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-controller
+         * @name PostAdmindsbAzureOcrTransactionLogs
+         * @request POST:/admin/api/dsb/azure/ocr/transaction/logs
+         */
+        postAdmindsbAzureOcrTransactionLogs: (data: OcrTransactionLogRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOOcrTransactionLogDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dsb/azure/ocr/transaction/logs`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -39874,38 +39611,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags InternalShareController
-         * @name PostAdmindocpalInternalsharePage
-         * @request POST:/admin/api/docpal/internalShare/page
-         */
-        postAdmindocpalInternalsharePage: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOInternalShareQueryDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/internalShare/page`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags InternalShareController
-         * @name PostAdmindocpalInternalshareCheckdocumentisinshare
-         * @request POST:/admin/api/docpal/internalShare/checkDocumentIsInShare
-         */
-        postAdmindocpalInternalshareCheckdocumentisinshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/internalShare/checkDocumentIsInShare`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags IdTemplateController(Admin Page)
          * @name GetAdmindocpalIdTemplates
          * @summary Get all ID templates
@@ -39996,41 +39701,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postAdmindocpalDataStatisticsExecuteDailyStatistics: (data: ExecuteSqlDTO, params: RequestParams = {}) =>
             this.request<Result, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/docpal/data_statistics/execute_daily_statistics`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name PostAdmindocpalAzureOcrQueryocrtransactionlogs
-         * @request POST:/admin/api/docpal/azure/ocr/queryOcrTransactionLogs
-         */
-        postAdmindocpalAzureOcrQueryocrtransactionlogs: (
-            data: OcrTransactionLogRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginationDTOOcrTransactionLogDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/azure/ocr/queryOcrTransactionLogs`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name PostAdmindocpalAzureOcrCreateocrprofilemapping
-         * @request POST:/admin/api/docpal/azure/ocr/createOcrProfileMapping
-         */
-        postAdmindocpalAzureOcrCreateocrprofilemapping: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/azure/ocr/createOcrProfileMapping`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -40425,6 +40095,38 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postAdmindmsSmartFolderPage: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/dms/smart-folder/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags External Share
+         * @name PostAdmindmsSharePage
+         * @request POST:/admin/api/dms/share/page
+         */
+        postAdmindmsSharePage: (data: SharePageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/share/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags External Share
+         * @name PostAdmindmsShareGet
+         * @request POST:/admin/api/dms/share/get
+         */
+        postAdmindmsShareGet: (data: SharePageRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMapObjectObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/share/get`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -41150,6 +40852,38 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags InternalShareController
+         * @name PostAdmindmsInternalsharePage
+         * @request POST:/admin/api/dms/internalShare/page
+         */
+        postAdmindmsInternalsharePage: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOInternalShareQueryDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/internalShare/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name PostAdmindmsInternalshareCheckDocumentIsInShare
+         * @request POST:/admin/api/dms/internalShare/check-document-is-in-share
+         */
+        postAdmindmsInternalshareCheckDocumentIsInShare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/internalShare/check-document-is-in-share`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags admin-form-properties-relation-controller
          * @name PostAdmindmsFormPropertiesSave
          * @request POST:/admin/api/dms/form-properties/save
@@ -41816,7 +41550,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request POST:/admin/api/dms/docpal-type/metadata
          */
         postAdmindmsDocpalTypeMetadata: (data: QueryMetadataRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultDocpalTypeDetailResponseVO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultDocpalTypeResponseVO, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/dms/docpal-type/metadata`,
                 method: "POST",
                 body: data,
@@ -43249,106 +42983,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags admin-whats-app-controller
-         * @name PostAdminext3RdmessageWhatsappOverview
-         * @request POST:/admin/api/Ext3rdMessage/whatsapp/overview
-         */
-        postAdminext3rdmessageWhatsappOverview: (data: BasePageRequest, params: RequestParams = {}) =>
-            this.request<ResultWhatsAppOverviewResponse, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/Ext3rdMessage/whatsapp/overview`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-whats-app-controller
-         * @name PostAdminext3RdmessageWhatsappLogsQuery
-         * @request POST:/admin/api/Ext3rdMessage/whatsapp/logs/query
-         */
-        postAdminext3rdmessageWhatsappLogsQuery: (data: BasePageRequest, params: RequestParams = {}) =>
-            this.request<ResultPaginationDTOWhatsAppLogDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/Ext3rdMessage/whatsapp/logs/query`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Password Controller
-         * @name PatchAdminpasswordUpdatePassword
-         * @request PATCH:/admin/api/password/update-password
-         */
-        patchAdminpasswordUpdatePassword: (data: UpdatePasswordDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/password/update-password`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Password Controller
-         * @name PatchAdminpasswordUnlockUserid
-         * @request PATCH:/admin/api/password/unlock/{userId}
-         */
-        patchAdminpasswordUnlockUserid: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/password/unlock/${userId}`,
-                method: "PATCH",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags External Share
-         * @name DeleteAdminnuxeoShare
-         * @request DELETE:/admin/api/nuxeo/share
-         */
-        deleteAdminnuxeoShare: (data: string[], params: RequestParams = {}) =>
-            this.request<Result, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/share`,
-                method: "DELETE",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags External Share
-         * @name PatchAdminnuxeoShare
-         * @request PATCH:/admin/api/nuxeo/share
-         */
-        patchAdminnuxeoShare: (data: ShareSaveRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/share`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Identity
-         * @name PatchAdminnuxeoIdentityUserPassword
+         * @name PatchAdminucenterUserPassword
          * @summary Update user password
-         * @request PATCH:/admin/api/nuxeo/identity/user/password
+         * @request PATCH:/admin/api/ucenter/user/password
          */
-        patchAdminnuxeoIdentityUserPassword: (
+        patchAdminucenterUserPassword: (
             query: {
                 userId: string;
                 password: string;
@@ -43356,28 +42996,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/user/password`,
+                path: `/admin/api/ucenter/user/password`,
                 method: "PATCH",
                 query: query,
                 ...params,
             }),
 
         /**
-         * @description Update the status of an import job
+         * No description
          *
-         * @tags ExternalStorageImportJobController
-         * @name PatchAdminimportjobsIdStatus
-         * @summary Update import job status
-         * @request PATCH:/admin/api/importJobs/{id}/status
-         * @deprecated
+         * @tags Password Controller
+         * @name PatchAdminucenterPasswordUpdatePassword
+         * @request PATCH:/admin/api/ucenter/password/update-password
          */
-        patchAdminimportjobsIdStatus: (
-            id: string,
-            data: ExternalStorageImportJobRequestDTO,
-            params: RequestParams = {},
-        ) =>
+        patchAdminucenterPasswordUpdatePassword: (data: UpdatePasswordDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs/${id}/status`,
+                path: `/admin/api/ucenter/password/update-password`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -43385,17 +43019,34 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name PatchAdminucenterPasswordUnlockUserid
+         * @request PATCH:/admin/api/ucenter/password/unlock/{userId}
+         */
+        patchAdminucenterPasswordUnlockUserid: (userId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ucenter/password/unlock/${userId}`,
+                method: "PATCH",
+                ...params,
+            }),
+
+        /**
          * @description Change the status of an external storage (A/D)
          *
          * @tags ExternalStorageController
-         * @name PatchAdminexternalstorageIdStatus
+         * @name PatchAdminext3RdstorageIdUpdateStatus
          * @summary Active/Inactive a external storage
-         * @request PATCH:/admin/api/externalStorage/{id}/status
-         * @deprecated
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/update-status
          */
-        patchAdminexternalstorageIdStatus: (id: string, data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
+        patchAdminext3rdstorageIdUpdateStatus: (
+            id: string,
+            data: ExternalStorageRequestDTO,
+            params: RequestParams = {},
+        ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/status`,
+                path: `/admin/api/ext3rdStorage/${id}/update-status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -43406,19 +43057,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update profile status of a specific external storage, status value=[A/D]
          *
          * @tags ExternalStorageController
-         * @name PatchAdminexternalstorageIdProfilesProfileidStatus
+         * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateStatus
          * @summary Active/Inactive a external profile
-         * @request PATCH:/admin/api/externalStorage/{id}/profiles/{profileId}/status
-         * @deprecated
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-status
          */
-        patchAdminexternalstorageIdProfilesProfileidStatus: (
+        patchAdminext3rdstorageIdProfilesProfileidUpdateStatus: (
             id: string,
             profileId: string,
             data: ExternalProfileDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/${profileId}/status`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/update-status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -43429,19 +43079,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminexternalstorageIdProfilesProfileidProcess
+         * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateProcess
          * @summary Update an setting of existing external profile for a specific external storage
-         * @request PATCH:/admin/api/externalStorage/{id}/profiles/{profileId}/process
-         * @deprecated
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-process
          */
-        patchAdminexternalstorageIdProfilesProfileidProcess: (
+        patchAdminext3rdstorageIdProfilesProfileidUpdateProcess: (
             id: string,
             profileId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/${profileId}/process`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/update-process`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -43452,19 +43101,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminexternalstorageIdProfilesProfileidImport
+         * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateImport
          * @summary Update an import setting of existing external profile for a specific external storage
-         * @request PATCH:/admin/api/externalStorage/{id}/profiles/{profileId}/import
-         * @deprecated
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-import
          */
-        patchAdminexternalstorageIdProfilesProfileidImport: (
+        patchAdminext3rdstorageIdProfilesProfileidUpdateImport: (
             id: string,
             profileId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/${profileId}/import`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/update-import`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -43475,19 +43123,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminexternalstorageIdProfilesProfileidGeneral
+         * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateGeneral
          * @summary Update an general setting of existing external profile for a specific external storage
-         * @request PATCH:/admin/api/externalStorage/{id}/profiles/{profileId}/general
-         * @deprecated
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-general
          */
-        patchAdminexternalstorageIdProfilesProfileidGeneral: (
+        patchAdminext3rdstorageIdProfilesProfileidUpdateGeneral: (
             id: string,
             profileId: string,
             data: ExternalProfileDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/${profileId}/general`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/update-general`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -43498,19 +43145,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminexternalstorageIdProfilesProfileidCapture
+         * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateCapture
          * @summary Update an capture setting of existing external profile for a specific external storage
-         * @request PATCH:/admin/api/externalStorage/{id}/profiles/{profileId}/capture
-         * @deprecated
+         * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-capture
          */
-        patchAdminexternalstorageIdProfilesProfileidCapture: (
+        patchAdminext3rdstorageIdProfilesProfileidUpdateCapture: (
             id: string,
             profileId: string,
             data: Record<string, object>,
             params: RequestParams = {},
         ) =>
             this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/${profileId}/capture`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}/update-capture`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -43521,19 +43167,61 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminexternalstorageProfilesProfileidOutputrecordOutputrecordidStatus
-         * @summary Active/Inactive a external profile output record
-         * @request PATCH:/admin/api/externalStorage/profiles/{profileId}/outputRecord/{outputRecordId}/status
-         * @deprecated
+         * @name PatchAdminext3RdstorageProfilesProfileidUpdateOutputrecordOutputrecordid
+         * @summary Update a external profile output record
+         * @request PATCH:/admin/api/ext3rdStorage/profiles/{profileId}/update-outputRecord/{outputRecordId}
          */
-        patchAdminexternalstorageProfilesProfileidOutputrecordOutputrecordidStatus: (
+        patchAdminext3rdstorageProfilesProfileidUpdateOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            data: Record<string, object>,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/update-outputRecord/${outputRecordId}`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name PatchAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus
+         * @summary Active/Inactive a external profile output record
+         * @request PATCH:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}/update-status
+         */
+        patchAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus: (
             profileId: string,
             outputRecordId: string,
             data: ExternalProfileOutputDTO,
             params: RequestParams = {},
         ) =>
             this.request<ResultObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/profiles/${profileId}/outputRecord/${outputRecordId}/status`,
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}/update-status`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * @description Update the status of an import job
+         *
+         * @tags ExternalStorageImportJobController
+         * @name PatchAdminext3RdstorageImportjobsIdUpdateStatus
+         * @summary Update import job status
+         * @request PATCH:/admin/api/ext3rdStorage/importJobs/{id}/update-status
+         */
+        patchAdminext3rdstorageImportjobsIdUpdateStatus: (
+            id: string,
+            data: ExternalStorageImportJobRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/importJobs/${id}/update-status`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -43597,6 +43285,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         patchAdmindmsSmartFolder: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
             this.request<ResultSmartFolderResponseDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/dms/smart-folder`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags External Share
+         * @name PatchAdmindmsShareSave
+         * @request PATCH:/admin/api/dms/share/save
+         */
+        patchAdmindmsShareSave: (data: ShareSaveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultEasyShareDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/share/save`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -44344,13 +44048,27 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags Password Controller
-         * @name GetAdminpasswordUserStatus
-         * @request GET:/admin/api/password/user-status
+         * @tags Identity
+         * @name GetAdminucenterSendInitPasswordEmailUserid
+         * @request GET:/admin/api/ucenter/send-init-password-email/{userId}
          */
-        getAdminpasswordUserStatus: (params: RequestParams = {}) =>
+        getAdminucenterSendInitPasswordEmailUserid: (userId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ucenter/send-init-password-email/${userId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Password Controller
+         * @name GetAdminucenterPasswordUserStatus
+         * @request GET:/admin/api/ucenter/password/user-status
+         */
+        getAdminucenterPasswordUserStatus: (params: RequestParams = {}) =>
             this.request<ResultUserStatusDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/password/user-status`,
+                path: `/admin/api/ucenter/password/user-status`,
                 method: "GET",
                 ...params,
             }),
@@ -44359,12 +44077,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name GetAdminpasswordHasLockUserid
-         * @request GET:/admin/api/password/has-lock/{userId}
+         * @name GetAdminucenterPasswordHasLockUserid
+         * @request GET:/admin/api/ucenter/password/has-lock/{userId}
          */
-        getAdminpasswordHasLockUserid: (userId: string, params: RequestParams = {}) =>
+        getAdminucenterPasswordHasLockUserid: (userId: string, params: RequestParams = {}) =>
             this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/password/has-lock/${userId}`,
+                path: `/admin/api/ucenter/password/has-lock/${userId}`,
                 method: "GET",
                 ...params,
             }),
@@ -44373,12 +44091,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name GetAdminpasswordConfig
-         * @request GET:/admin/api/password/config
+         * @name GetAdminucenterPasswordConfig
+         * @request GET:/admin/api/ucenter/password/config
          */
-        getAdminpasswordConfig: (params: RequestParams = {}) =>
+        getAdminucenterPasswordConfig: (params: RequestParams = {}) =>
             this.request<ResultPasswordConfigDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/password/config`,
+                path: `/admin/api/ucenter/password/config`,
                 method: "GET",
                 ...params,
             }),
@@ -44387,10 +44105,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name GetAdminpasswordCheckLockUserUserid
-         * @request GET:/admin/api/password/check-lock-user/{userId}
+         * @name GetAdminucenterPasswordCheckLockUserUserid
+         * @request GET:/admin/api/ucenter/password/check-lock-user/{userId}
          */
-        getAdminpasswordCheckLockUserUserid: (
+        getAdminucenterPasswordCheckLockUserUserid: (
             userId: string,
             query?: {
                 skipAddLoginCount?: boolean;
@@ -44398,7 +44116,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             params: RequestParams = {},
         ) =>
             this.request<ResultLockUserDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/password/check-lock-user/${userId}`,
+                path: `/admin/api/ucenter/password/check-lock-user/${userId}`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -44408,26 +44126,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name GetAdminpasswordCheckExpire
-         * @request GET:/admin/api/password/check-expire
+         * @name GetAdminucenterPasswordCheckExpire
+         * @request GET:/admin/api/ucenter/password/check-expire
          */
-        getAdminpasswordCheckExpire: (params: RequestParams = {}) =>
+        getAdminucenterPasswordCheckExpire: (params: RequestParams = {}) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/password/check-expire`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags Identity
-         * @name GetAdminnuxeoIdentitySendInitPasswordEmailUserid
-         * @request GET:/admin/api/nuxeo/identity/send-init-password-email/{userId}
-         */
-        getAdminnuxeoIdentitySendInitPasswordEmailUserid: (userId: string, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/send-init-password-email/${userId}`,
+                path: `/admin/api/ucenter/password/check-expire`,
                 method: "GET",
                 ...params,
             }),
@@ -44548,17 +44252,62 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
+         * @description Retrieve detailed information of a specific external storage
+         *
+         * @tags ExternalStorageController
+         * @name GetAdminext3RdstorageId
+         * @summary Get External Storage Detail
+         * @request GET:/admin/api/ext3rdStorage/{id}
+         */
+        getAdminext3rdstorageId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
          * No description
          *
-         * @tags ExternalStorageImportJobController
-         * @name GetAdminimportjobsPageConditions
-         * @request GET:/admin/api/importJobs/page/conditions
-         * @deprecated
+         * @tags ExternalStorageController
+         * @name DeleteAdminext3RdstorageId
+         * @summary Delete External Storage
+         * @request DELETE:/admin/api/ext3rdStorage/{id}
          */
-        getAdminimportjobsPageConditions: (params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/importJobs/page/conditions`,
+        deleteAdminext3rdstorageId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetAdminext3RdstorageIdProfilesProfileid
+         * @summary Get a external profile in external storage id
+         * @request GET:/admin/api/ext3rdStorage/{id}/profiles/{profileId}
+         */
+        getAdminext3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
+            this.request<ResultExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}`,
                 method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name DeleteAdminext3RdstorageIdProfilesProfileid
+         * @summary Delete a external profile in external storage id
+         * @request DELETE:/admin/api/ext3rdStorage/{id}/profiles/{profileId}
+         */
+        deleteAdminext3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}`,
+                method: "DELETE",
                 ...params,
             }),
 
@@ -44566,14 +44315,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Retrieve all profiles for a specific external storage
          *
          * @tags ExternalStorageController
-         * @name GetAdminexternalstorageIdProfilesList
+         * @name GetAdminext3RdstorageIdProfilesList
          * @summary Get all profile by external storage id
-         * @request GET:/admin/api/externalStorage/{id}/profiles/list
-         * @deprecated
+         * @request GET:/admin/api/ext3rdStorage/{id}/profiles/list
          */
-        getAdminexternalstorageIdProfilesList: (id: string, params: RequestParams = {}) =>
+        getAdminext3rdstorageIdProfilesList: (id: string, params: RequestParams = {}) =>
             this.request<ResultListExternalProfileDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/${id}/profiles/list`,
+                path: `/admin/api/ext3rdStorage/${id}/profiles/list`,
                 method: "GET",
                 ...params,
             }),
@@ -44582,14 +44330,193 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name GetAdminexternalstorageProfilesProfileidOutputrecordList
-         * @summary Retrieve all output settings of specific profile
-         * @request GET:/admin/api/externalStorage/profiles/{profileId}/outputRecord/list
-         * @deprecated
+         * @name GetAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordid
+         * @request GET:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
          */
-        getAdminexternalstorageProfilesProfileidOutputrecordList: (profileId: string, params: RequestParams = {}) =>
+        getAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringObject, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name DeleteAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordid
+         * @request DELETE:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
+         */
+        deleteAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
+            profileId: string,
+            outputRecordId: string,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/${outputRecordId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetAdminext3RdstorageProfilesProfileidOutputrecordList
+         * @summary Retrieve all output settings of specific profile
+         * @request GET:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/list
+         */
+        getAdminext3rdstorageProfilesProfileidOutputrecordList: (profileId: string, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/externalStorage/profiles/${profileId}/outputRecord/list`,
+                path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageController
+         * @name GetAdminext3RdstorageList
+         * @summary Get External Storage Detail List
+         * @request GET:/admin/api/ext3rdStorage/list
+         */
+        getAdminext3rdstorageList: (
+            query: {
+                /** External Storage Request DTO */
+                externalStorageVO: ExternalStorageRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListExternalStorageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * @description Get detailed information of an import job by ID
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetAdminext3RdstorageImportjobsId
+         * @summary Get import job details
+         * @request GET:/admin/api/ext3rdStorage/importJobs/{id}
+         */
+        getAdminext3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/importJobs/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name DeleteAdminext3RdstorageImportjobsId
+         * @summary Delete import job
+         * @request DELETE:/admin/api/ext3rdStorage/importJobs/{id}
+         */
+        deleteAdminext3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/importJobs/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetAdminext3RdstorageImportjobsPageConditions
+         * @request GET:/admin/api/ext3rdStorage/importJobs/page/conditions
+         */
+        getAdminext3rdstorageImportjobsPageConditions: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/importJobs/page/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags ExternalStorageImportJobController
+         * @name GetAdminext3RdstorageImportjobsList
+         * @summary Get all import jobs list
+         * @request GET:/admin/api/ext3rdStorage/importJobs/list
+         */
+        getAdminext3rdstorageImportjobsList: (
+            query: {
+                /** External Storage Import Job Request */
+                requestDTO: ExternalStorageImportJobRequestDTO;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListExternalStorageImportJobDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdStorage/importJobs/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-whats-app-controller
+         * @name GetAdminext3RdmessageWhatsappLanguages
+         * @request GET:/admin/api/ext3rdMessage/whatsapp/languages
+         */
+        getAdminext3rdmessageWhatsappLanguages: (params: RequestParams = {}) =>
+            this.request<ResultListLanguageDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdMessage/whatsapp/languages`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-whats-app-controller
+         * @name GetAdminext3RdmessageWhatsappConnectionStatus
+         * @request GET:/admin/api/ext3rdMessage/whatsapp/connection/status
+         */
+        getAdminext3rdmessageWhatsappConnectionStatus: (params: RequestParams = {}) =>
+            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/ext3rdMessage/whatsapp/connection/status`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-controller
+         * @name GetAdmindsbAzureOcrModels
+         * @request GET:/admin/api/dsb/azure/ocr/models
+         */
+        getAdmindsbAzureOcrModels: (params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dsb/azure/ocr/models`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-controller
+         * @name GetAdmindsbAzureOcrConditions
+         * @request GET:/admin/api/dsb/azure/ocr/conditions
+         */
+        getAdmindsbAzureOcrConditions: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dsb/azure/ocr/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -45562,48 +45489,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         getAdmindocpalIdTemplatesList: (params: RequestParams = {}) =>
             this.request<ResultListIdTemplate, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/docpal/id-templates/list`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name GetAdmindocpalAzureOcrQueryazuresetting
-         * @request GET:/admin/api/docpal/azure/ocr/queryAzureSetting
-         */
-        getAdmindocpalAzureOcrQueryazuresetting: (params: RequestParams = {}) =>
-            this.request<ResultAzureSettingDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/azure/ocr/queryAzureSetting`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name GetAdmindocpalAzureOcrQueryazureocrmodels
-         * @request GET:/admin/api/docpal/azure/ocr/queryAzureOcrModels
-         */
-        getAdmindocpalAzureOcrQueryazureocrmodels: (params: RequestParams = {}) =>
-            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/azure/ocr/queryAzureOcrModels`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name GetAdmindocpalAzureOcrConditions
-         * @request GET:/admin/api/docpal/azure/ocr/conditions
-         */
-        getAdmindocpalAzureOcrConditions: (params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/azure/ocr/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -46606,7 +46491,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request GET:/admin/api/dms/docpal-type/{documentType}/metadata
          */
         getAdmindmsDocpalTypeDocumenttypeMetadata: (documentType: string, data: any, params: RequestParams = {}) =>
-            this.request<ResultDocumentTypeDTO, Result | (ResultObject | Result | ResultString)>({
+            this.request<ResultDocPalTypeDTO, Result | (ResultObject | Result | ResultString)>({
                 path: `/admin/api/dms/docpal-type/${documentType}/metadata`,
                 method: "GET",
                 body: data,
@@ -46633,13 +46518,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name GetAdmindmsDocpalTypeCategories
-         * @summary Obtain all docpal type categories
-         * @request GET:/admin/api/dms/docpal-type/categories
+         * @name GetAdmindmsDocpalTypeCache
+         * @summary Query all metadata information list
+         * @request GET:/admin/api/dms/docpal-type/cache
          */
-        getAdmindmsDocpalTypeCategories: (params: RequestParams = {}) =>
-            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/docpal-type/categories`,
+        getAdmindmsDocpalTypeCache: (params: RequestParams = {}) =>
+            this.request<ResultListMetadataResponseVO, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/docpal-type/cache`,
                 method: "GET",
                 ...params,
             }),
@@ -46648,12 +46533,28 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name GetAdmindmsDocpalTypeCache
-         * @request GET:/admin/api/dms/docpal-type/cache
+         * @name GetAdmindmsDocpalTypeMetadataList
+         * @summary Query all metadata information list
+         * @request GET:/admin/api/dms/docpal-type/metadata/list
          */
-        getAdmindmsDocpalTypeCache: (params: RequestParams = {}) =>
+        getAdmindmsDocpalTypeMetadataList: (params: RequestParams = {}) =>
             this.request<ResultListMetadataResponseVO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/dms/docpal-type/cache`,
+                path: `/admin/api/dms/docpal-type/metadata/list`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDocPalTypeManagementController
+         * @name GetAdmindmsDocpalTypeCategories
+         * @summary Obtain all docpal type categories
+         * @request GET:/admin/api/dms/docpal-type/categories
+         */
+        getAdmindmsDocpalTypeCategories: (params: RequestParams = {}) =>
+            this.request<ResultListString, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/docpal-type/categories`,
                 method: "GET",
                 ...params,
             }),
@@ -48026,34 +47927,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags admin-whats-app-controller
-         * @name GetAdminext3RdmessageWhatsappLanguages
-         * @request GET:/admin/api/Ext3rdMessage/whatsapp/languages
-         */
-        getAdminext3rdmessageWhatsappLanguages: (params: RequestParams = {}) =>
-            this.request<ResultListLanguageDTO, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/Ext3rdMessage/whatsapp/languages`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-whats-app-controller
-         * @name GetAdminext3RdmessageWhatsappConnectionStatus
-         * @request GET:/admin/api/Ext3rdMessage/whatsapp/connection/status
-         */
-        getAdminext3rdmessageWhatsappConnectionStatus: (params: RequestParams = {}) =>
-            this.request<ResultString, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/Ext3rdMessage/whatsapp/connection/status`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags AdminProcessInstanceController
          * @name DeleteAdminworkflowInstanceWithoutValidation
          * @request DELETE:/admin/api/workflow/instance/without/validation
@@ -48238,13 +48111,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags InternalShareController
-         * @name DeleteAdmindocpalInternalshare
-         * @request DELETE:/admin/api/docpal/internalShare
+         * @tags External Share
+         * @name DeleteAdmindmsShare
+         * @request DELETE:/admin/api/dms/share
          */
-        deleteAdmindocpalInternalshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
-            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/docpal/internalShare`,
+        deleteAdmindmsShare: (data: string[], params: RequestParams = {}) =>
+            this.request<Result, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/share`,
                 method: "DELETE",
                 body: data,
                 type: ContentType.Json,
@@ -48309,6 +48182,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 path: `/admin/api/dms/master-table/${id}/fields`,
                 method: "DELETE",
                 query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags InternalShareController
+         * @name DeleteAdmindmsInternalshare
+         * @request DELETE:/admin/api/dms/internalShare
+         */
+        deleteAdmindmsInternalshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
+                path: `/admin/api/dms/internalShare`,
+                method: "DELETE",
+                body: data,
+                type: ContentType.Json,
                 ...params,
             }),
 
@@ -48454,18 +48343,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name GetAdminnuxeoIdentityIscanmodified
+         * @name GetAdminucenterIsCanModified
          * @summary group is can modified ?
-         * @request GET:/admin/api/nuxeo/identity/isCanModified
+         * @request GET:/admin/api/ucenter/is-can-modified
          */
-        getAdminnuxeoIdentityIscanmodified: (
+        getAdminucenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/isCanModified`,
+                path: `/admin/api/ucenter/is-can-modified`,
                 method: "GET",
                 query: query,
                 ...params,
@@ -48475,18 +48364,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PutAdminnuxeoIdentityIscanmodified
+         * @name PutAdminucenterIsCanModified
          * @summary group is can modified ?
-         * @request PUT:/admin/api/nuxeo/identity/isCanModified
+         * @request PUT:/admin/api/ucenter/is-can-modified
          */
-        putAdminnuxeoIdentityIscanmodified: (
+        putAdminucenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/isCanModified`,
+                path: `/admin/api/ucenter/is-can-modified`,
                 method: "PUT",
                 query: query,
                 ...params,
@@ -48496,18 +48385,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminnuxeoIdentityIscanmodified
+         * @name PostAdminucenterIsCanModified
          * @summary group is can modified ?
-         * @request POST:/admin/api/nuxeo/identity/isCanModified
+         * @request POST:/admin/api/ucenter/is-can-modified
          */
-        postAdminnuxeoIdentityIscanmodified: (
+        postAdminucenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/isCanModified`,
+                path: `/admin/api/ucenter/is-can-modified`,
                 method: "POST",
                 query: query,
                 ...params,
@@ -48517,18 +48406,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name DeleteAdminnuxeoIdentityIscanmodified
+         * @name DeleteAdminucenterIsCanModified
          * @summary group is can modified ?
-         * @request DELETE:/admin/api/nuxeo/identity/isCanModified
+         * @request DELETE:/admin/api/ucenter/is-can-modified
          */
-        deleteAdminnuxeoIdentityIscanmodified: (
+        deleteAdminucenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/isCanModified`,
+                path: `/admin/api/ucenter/is-can-modified`,
                 method: "DELETE",
                 query: query,
                 ...params,
@@ -48538,18 +48427,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name OptionsAdminnuxeoIdentityIscanmodified
+         * @name OptionsAdminucenterIsCanModified
          * @summary group is can modified ?
-         * @request OPTIONS:/admin/api/nuxeo/identity/isCanModified
+         * @request OPTIONS:/admin/api/ucenter/is-can-modified
          */
-        optionsAdminnuxeoIdentityIscanmodified: (
+        optionsAdminucenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/isCanModified`,
+                path: `/admin/api/ucenter/is-can-modified`,
                 method: "OPTIONS",
                 query: query,
                 ...params,
@@ -48559,18 +48448,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name HeadAdminnuxeoIdentityIscanmodified
+         * @name HeadAdminucenterIsCanModified
          * @summary group is can modified ?
-         * @request HEAD:/admin/api/nuxeo/identity/isCanModified
+         * @request HEAD:/admin/api/ucenter/is-can-modified
          */
-        headAdminnuxeoIdentityIscanmodified: (
+        headAdminucenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/isCanModified`,
+                path: `/admin/api/ucenter/is-can-modified`,
                 method: "HEAD",
                 query: query,
                 ...params,
@@ -48580,18 +48469,18 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PatchAdminnuxeoIdentityIscanmodified
+         * @name PatchAdminucenterIsCanModified
          * @summary group is can modified ?
-         * @request PATCH:/admin/api/nuxeo/identity/isCanModified
+         * @request PATCH:/admin/api/ucenter/is-can-modified
          */
-        patchAdminnuxeoIdentityIscanmodified: (
+        patchAdminucenterIsCanModified: (
             query: {
                 groupId: string;
             },
             params: RequestParams = {},
         ) =>
             this.request<ResultBoolean, Result | (ResultObject | Result | ResultString)>({
-                path: `/admin/api/nuxeo/identity/isCanModified`,
+                path: `/admin/api/ucenter/is-can-modified`,
                 method: "PATCH",
                 query: query,
                 ...params,

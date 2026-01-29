@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { MenuRouterKey, type NewWorkflowVersionDetailParams, type NewWorkflowVersionListParams } from '#imports'
-import { ElNotification } from 'element-plus'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { saveWorkflowFormToNewVersion } from '~/utils/workflowEditorhelpers'
 
 const { t } = useI18n()
@@ -35,14 +34,17 @@ const lastestVewsion = ref()
 
 async function getWorkflow() {
   loading.value = true
-  const data = await adminApi.api.getWorkflowProcessDefinitionDraftDraftid(id)
-  const blob = await adminApi.api.getWorkflowVersionBpmnxml(
+  const data = await clientApi.admin.getAdmindocpalWorkflowProcessDefinitionDraftDraftid(id)
+  const blob = await clientApi.admin.getAdmindocpalWorkflowVersionBpmnxml(
     { draftId: id, versionNumber: currentVersion },
     {
       format: 'blob'
     }
   )
-  const json = await adminApi.api.getWorkflowVersionJson({ draftId: id, versionNumber: currentVersion }, {})
+  const json = await clientApi.admin.getAdmindocpalWorkflowVersionJson({
+    draftId: id,
+    versionNumber: currentVersion
+  }, {})
   // @ts-ignore
   const file = await blob.text()
   draftDetail.value = data.data
@@ -52,7 +54,7 @@ async function getWorkflow() {
   const xmlJson = bpmnStringToJson(file)
   processKey.value = xmlJson.json.definitions.process.attr_id
 
-  const { data: draftData }: any = await adminApi.api.getWorkflowProcessDefinitionDraftDraftid(id)
+  const { data: draftData }: any = await clientApi.admin.getAdmindocpalWorkflowProcessDefinitionDraftDraftid(id)
   if (!draftData) {
     throw createError('draft not found')
   }
@@ -86,8 +88,7 @@ async function saveDraft() {
   form.append('jsonValue', JSON.stringify(x6Json))
   form.append('file', blob, 'workflow.bpmn.xml')
   form.append('isDraft', true)
-  await adminApi.api.postWorkflowProcessDefinitionSave({ requestDTO: {} }, form as any)
-  // await adminApi.workflowProcessDefinitionController.postUpload({requestDTO:{}},form)
+  await clientApi.admin.postAdmindocpalWorkflowProcessDefinitionSave({ requestDTO: {} }, form as any)
   // 如果是修改了名称，则更新 tab 的名称
   routerProvider?.updateTabName(newName + ` - (${currentVersion})`)
 }
@@ -117,11 +118,11 @@ async function promoteToProduction() {
     const form: any = new FormData()
     form.append('jsonValue', JSON.stringify(x6Json))
     form.append('file', blob, 'workflow.bpmn.xml')
-    const { data: workflowVersionData } = (await adminApi.api.getWorkflowVersion({
+    const { data: workflowVersionData } = (await clientApi.admin.getAdmindocpalWorkflowVersion({
       draftId: id,
       versionNumber: currentVersion
     })) as any
-    const { data } = (await adminApi.api.postWorkflowVersionVersionidDeploy(workflowVersionData.id, { requestDTO: {} }, form)) as any
+    await clientApi.admin.postAdmindocpalWorkflowVersionVersionidDeploy(workflowVersionData.id, { requestDTO: {} }, form).then(r => r.data)
 
     routerProvider?.message?.success(t('dpMsg_success'))
     await getWorkflow()
@@ -143,7 +144,7 @@ async function saveAsNewVersion() {
   form.append('file', blob, 'workflow.bpmn.xml')
   form.append('oldVersion', versionId)
   // save all forms to new version
-  const { data } = (await adminApi.api.postWorkflowVersionNew({ requestDTO: {} }, form)) as any
+  const data: any = await clientApi.admin.postAdmindocpalWorkflowVersionNew({ requestDTO: {} }, form).then(r => r.data)
 
   await saveWorkflowFormToNewVersion(xml, workflowData.value.key, versionId, data.id)
 
@@ -185,6 +186,7 @@ async function importWorkflow(importData: any) {
 }
 
 const WorkflowEditorImportDialogRef = ref()
+
 function openImportDialog() {
   WorkflowEditorImportDialogRef.value.open()
 }
@@ -229,8 +231,12 @@ watch(
         <ElButton id="WorkflowEditor__DetailDead__VersionList" type="primary" @click="openVersionList">
           {{ $t('workflowEditor_versionList') }}
         </ElButton>
-        <ElButton id="WorkflowEditor__DetailDead__ExportWorkflow" type="primary" @click="exportWorkflow">Export Workflow</ElButton>
-        <ElButton id="WorkflowEditor__DetailDead__ExportWorkflow" type="primary" @click="openImportDialog">Import Workflow</ElButton>
+        <ElButton id="WorkflowEditor__DetailDead__ExportWorkflow" type="primary" @click="exportWorkflow">Export
+          Workflow
+        </ElButton>
+        <ElButton id="WorkflowEditor__DetailDead__ExportWorkflow" type="primary" @click="openImportDialog">Import
+          Workflow
+        </ElButton>
         <!-- <el-button v-if="state.detail.publishStatus === 'A' && state.detail.status === 'A'" :loading="state.loading" type="info" @click="handleDeactive()">{{$t('actions.inactive')}}</el-button> -->
         <!-- <el-button v-else-if="state.detail.status === 'A'" :loading="state.loading" type="info" @click="handleActive()">{{$t('actions.active')}}</el-button> -->
         <!-- <el-button :loading="state.loading" type="primary" @click="handleSave(true)">{{$t('button.saveDraft')}}</el-button> -->

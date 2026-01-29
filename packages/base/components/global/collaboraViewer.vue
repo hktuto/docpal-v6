@@ -40,10 +40,9 @@ const emit = defineEmits(['saved'])
 
 async function displayIframe() {
   iframeReady.value = false;
-  const {data} = await clientApi.api.getNuxeoGetofficetokenId(props.docId, {
+  token.value = await clientApi.api.getGetofficetokenId(props.docId, {
     fileType: props.fileType
-  })
-  token.value = data
+  }).then(r => r.data)
   collaboraUrl.value = officeUrl(props.docId)
 
   nextTick(() => {
@@ -84,9 +83,9 @@ function toggleMode() {
 }
 
 const officeUrl = (docId: string) => {
-  const officURL =  'https://office.' + (location.host.includes('localhost') ? "sit-v2.wclsolution.com" : location.host)
-  const WOPISrc = `${officURL}/wopi/files/${docId}${mode.value === 'view' ? "_read_only" : ""}?fileType=${props.fileType.toUpperCase()}&readonly=${mode.value === 'view'}&access_token=${token.value}`
-  return `${officURL}/browser/85ac843/cool.html?lang=${userPreference.value.language.replaceAll('HK', "TW")}&WOPISrc=${encodeURIComponent(WOPISrc)}`;
+  const officeURL =  'https://office.' + (location.host.includes('localhost') ? "sit-v3.wclsolution.com" : location.host)
+  const WOPISrc = `${officeURL}/wopi/files/${docId}${mode.value === 'view' ? "_read_only" : ""}?fileType=${props.fileType.toUpperCase()}&readonly=${mode.value === 'view'}&access_token=${token.value}`
+  return `${officeURL}/browser/85ac843/cool.html?lang=${userPreference.value.language.replaceAll('HK', "TW")}&WOPISrc=${encodeURIComponent(WOPISrc)}`;
 }
 
 function gotMessageFromIframe(e: MessageEvent) {

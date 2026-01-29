@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 
 const props = defineProps<{
   caseList: any
@@ -56,7 +56,7 @@ async function handleCreateCase() {
   console.log('case List', props.caseList)
 
   for (const item of Object.values(props.caseList)) {
-    const data = await clientApi.api.postCaseTypes({
+    const data = await clientApi.admin.postAdmincaseTypes({
       name: item.name,
       caseIdPrefix: item.caseIdPrefix,
       caseIdDigit: item.caseIdDigit,
@@ -66,7 +66,7 @@ async function handleCreateCase() {
     if (!data.id) {
       throw Error(`Create Case error：${item.namesss}`)
     }
-    const caseDetails: any = await adminApi.api.getCaseTypesId(data.id).then(r => r.data)
+    const caseDetails: any = await clientApi.admin.getAdmincaseTypesCasetypeid(data.id).then(r => r.data)
     const versionId = caseDetails.latestVersionId
 
     const caseData = {
@@ -95,10 +95,10 @@ async function updateDesign(caseResult: any, workflowResult: any, masterTableRes
     const blob = new Blob([design.xml], { type: 'text/xml;charset=utf-8' })
     const formData = new FormData()
     formData.append('file', blob, 'ordercase.cmmn.xml')
-    await clientApi.api.patchCaseTypesVersionVersionidSave(design.versionId, {}, formData).then(r => r.data)
+    await clientApi.admin.patchAdmincaseTypesVersionVersionidSave(design.versionId, {}, formData).then(r => r.data)
 
     // update styleJson
-    await clientApi.api.postCaseTypesStylejsonSave({
+    await clientApi.admin.postAdmincaseTypesStylejsonSave({
       caseTypeId: design.caseTypeId,
       styleJson: design.styleJson,
       versionNumber: 'V1'
@@ -124,9 +124,9 @@ async function updateDesign(caseResult: any, workflowResult: any, masterTableRes
         permissions: toPermissions(dashboardItem.permissions)
       }
 
-      const dashboard: any = await clientApi.api.postCaseDashboard(form).then(r => r.data)
+      const dashboard: any = await clientApi.admin.postAdmincaseDashboard(form).then(r => r.data)
 
-      await clientApi.api.postCaseDashboardSaveStyle({
+      await clientApi.admin.postAdmincaseDashboardSaveStyle({
         id: dashboard.id,
         styleJson: dashboardItem.styleJson
       }).then(r => r.data)

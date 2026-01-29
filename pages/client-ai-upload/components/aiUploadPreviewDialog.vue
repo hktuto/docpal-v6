@@ -34,7 +34,7 @@ function handleOpen(row) {
 }
 
 async function init(id) {
-  let docList = await clientApi.api.postNuxeoDocumentQueryuploadfiledetaildtolist({
+  let docList = await clientApi.api.postDmsUploadQueryItems({
     userId: userId.value,
     uploadId: id
   }).then(res => res.data)

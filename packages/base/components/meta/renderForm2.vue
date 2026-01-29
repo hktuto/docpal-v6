@@ -28,7 +28,6 @@
 
 <script lang="ts" setup>
 import { Check, Close } from '@element-plus/icons-vue'
-import { ElMessageBox } from 'element-plus'
 import { clientApi } from 'api'
 import { useMetadata } from './metadata'
 type initMetaFormOptions = {
@@ -264,7 +263,7 @@ async function deleteAiSuggestion(deleteName: string) {
     aiId: state.aiDocId
   }
   try {
-    await clientApi.api.patchNuxeoDocumentUpdateaidocument(params)
+    await clientApi.api.patchDmsDocumentUpdateaidocument(params).then(r => r.data)
     delete state.aiAnalysis[deleteName]
   } catch (error) {}
 }
@@ -275,7 +274,7 @@ function handleApply(formModel: any) {
 // #endregion
 async function GetActiveDocpalTypeWithIsFolderApi(isFolder: boolean) {
   try {
-    const docList: any = await clientApi.api.getTypesActive().then((res) => res.data)
+    const docList: any = await clientApi.api.getDmsDocpalTypeActive().then((res) => res.data)
     return docList
       ?.filter((item) => item.isFolder === isFolder)
       .map((item) => ({

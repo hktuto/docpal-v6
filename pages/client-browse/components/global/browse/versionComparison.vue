@@ -51,7 +51,7 @@ const back = () => {
 async function getPreviewFile(previewFile: any, id: string, version: any) {
   previewFile.loading = true
   try {
-    previewFile.blob = await clientApi.api.postNuxeoDocumentPreview(
+    previewFile.blob = await clientApi.api.postDmsDocumentPreview(
       { idOrPath: id, version },
       {
         format: 'blob',
@@ -65,14 +65,12 @@ async function getPreviewFile(previewFile: any, id: string, version: any) {
 }
 onMounted(async () => {
   // init(id as string);
-  newVersion.value = await clientApi.api.postNuxeoDocument({ idOrPath: props.id }).then((res) => res.data)
+  newVersion.value = await clientApi.api.postDmsDocumentFetch({ idOrPath: props.id }).then((res) => res.data)
   state.title = newVersion.value.name
-  oldVersion.value = await clientApi.api
-    .postNuxeoGetspecificversion({
-      idOrPath: props.id,
-      versionNum: props.oldVersionNum
-    })
-    .then((res) => res.data)
+  oldVersion.value = await clientApi.api.postDmsDocumentVersionRetrieve({
+    idOrPath: props.id,
+    versionNum: props.oldVersionNum
+  }).then((res) => res.data)
   getPreviewFile(state.previewNewFile, newVersion.value.id, newVersion.value.version)
   getPreviewFile(state.previewOldFile, oldVersion.value.id, props.oldVersionNum)
   nextTick(() => {

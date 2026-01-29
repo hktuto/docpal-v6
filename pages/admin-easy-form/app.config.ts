@@ -1,4 +1,3 @@
-import { adminApi } from './../../libraries/api/src/index';
 // create nuxt app config
 import { defineAppConfig } from '#imports'
 

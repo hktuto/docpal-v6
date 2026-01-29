@@ -384,7 +384,7 @@
                 "labelIconPosition": "rear",
                 "labelTooltip": null,
                 "onCreated": "",
-                "onMounted": "const _this = this\nasync function getList() {\n  const data = await $api.post('/nuxeo/identity/users').then(res => res.data.data)\n  return data.map(item => ({\n    value: item.email,\n    label: item.email\n  }))\n  .sort((a,b)=> (a.label.localeCompare(b.label) ))\n  .reduce((prev, current) => {\n    if (!prev.find(item => item.value === current.value)) {\n      prev.push(current);\n    }\n    return prev;\n  }, []);\n}\nasync function init() {\n  const options = await getList()\n  _this.loadOptions(options)\n}\ninit()",
+                "onMounted": "const _this = this\nasync function getList() {\n  const data = await $api.post('/api/ucenter/users').then(res => res.data.data)\n  return data.map(item => ({\n    value: item.email,\n    label: item.email\n  }))\n  .sort((a,b)=> (a.label.localeCompare(b.label) ))\n  .reduce((prev, current) => {\n    if (!prev.find(item => item.value === current.value)) {\n      prev.push(current);\n    }\n    return prev;\n  }, []);\n}\nasync function init() {\n  const options = await getList()\n  _this.loadOptions(options)\n}\ninit()",
                 "onRemoteQuery": "",
                 "onChange": "",
                 "onFocus": "",

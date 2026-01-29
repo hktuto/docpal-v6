@@ -5,67 +5,6 @@ import { useEventBus, EventType, emitBus } from 'eventbus'
 /**
  * Case conversion utilities for API responses
  */
-
-/**
- * @deprecated,
- */
-const ignoreCaseConversion = ['/auth/nuxeo/login', 'api/dms/feature/keycloak-token-verification', '/api/docpal/workflow/variables/'] // which url need to ignore case conversion
-
-/**
- *  @deprecated,  Converts a string from snake_case to camelCase
- */
-function toCamelCase(str: string): string {
-  if (!str) return str
-  return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())
-}
-
-/**
- *  @deprecated,
- * Converts all keys in an object from snake_case to camelCase
- * Handles nested objects and arrays
- */
-function convertKeysToCamelCase(obj: any): any {
-  if (obj === null || obj === undefined) return obj
-  if (typeof obj !== 'object') return obj
-  if (Array.isArray(obj)) {
-    return obj.map((item) => convertKeysToCamelCase(item))
-  }
-
-  const result: any = {}
-  for (const [key, value] of Object.entries(obj)) {
-    const camelKey = toCamelCase(key)
-    result[camelKey] = convertKeysToCamelCase(value)
-  }
-  return result
-}
-
-/**
- *  @deprecated,
- * Automatically detects and converts API response keys to camelCase
- * Only converts if snake_case keys are detected
- */
-function normalizeApiResponse(obj: any): any {
-  if (obj === null || obj === undefined) return obj
-  if (typeof obj !== 'object') return obj
-  if (Array.isArray(obj)) {
-    return obj.map((item) => normalizeApiResponse(item))
-  }
-
-  // Check if the object has any snake_case keys
-  const hasSnakeCaseKeys = Object.keys(obj).some((key) => key.includes('_'))
-
-  if (hasSnakeCaseKeys) {
-    return convertKeysToCamelCase(obj)
-  }
-
-  // If no snake_case keys found, process nested objects but keep current keys
-  const result: any = {}
-  for (const [key, value] of Object.entries(obj)) {
-    result[key] = normalizeApiResponse(value)
-  }
-  return result
-}
-
 function getBaseUrl(baseURL: string) {
   const {
     public: { DASHBOARD_PROXY, CLIENT_PROXY, ADMIN_PROXY, PROXY, OPEN_PROXY }
@@ -135,12 +74,13 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
     return Promise.reject(error)
   }
   console.log('error', error, this)
-  if (error.response.status === 401 && !originalRequest._retry) {
+  const refreshToken = localStorage.getItem('refresh_token')
+  if (error.response.status === 401 && !originalRequest._retry && refreshToken) {
     originalRequest._retry = true
 
     try {
       // 使用 refresh token 获取新的 access token
-      const refreshToken = localStorage.getItem('refresh_token')
+
       localStorage.setItem('access_token', refreshToken as string)
 
       const { data } = await axiosInstance.post(
@@ -179,6 +119,9 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
 
       return Promise.reject(refreshError)
     }
+  } else {
+    // 如果没有 refresh token，则直接退出登录
+    logout()
   }
 
   return Promise.reject(error)

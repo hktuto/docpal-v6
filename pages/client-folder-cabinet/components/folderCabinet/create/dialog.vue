@@ -81,7 +81,7 @@ async function handleSubmit() {
     // getUniqueName has bug, will return same name,
     // we need to implement inline function to check if the name is unique
 
-    // const hasSameName = await clientApi.api.postNuxeoDocumentIsduplicatename({
+    // const hasSameName = await clientApi.api.postDmsDocumentIsduplicatename({
     //   path: state.cabinetTemplate.documentPath,
     //   titles: [fileName]
     // }).then(res => !!res.data.hasDuplicateTitle)

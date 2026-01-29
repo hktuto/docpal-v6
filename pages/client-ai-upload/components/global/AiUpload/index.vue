@@ -97,7 +97,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
         ...extraParams.value
       }
     }
-    const { data: response } = (await clientApi.api.postNuxeoDocumentQueryuploadfiledtopage(pageParams)) as any
+    const response = await clientApi.api.postDmsUploadQuery(pageParams).then(r => r.data)
     return {
       data: {
         entryList: response.content,
@@ -215,11 +215,7 @@ async function handleDelete(id: any) {
     formData.append('userId', userId.value)
     formData.append('uploadId', id)
     console.log('formData', formData, id, userId.value)
-    await clientApi.instance.post(`/nuxeo/document/batchCancel`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
+    await clientApi.api.postDmsUploadCancel({},{ userId: userId.value, uploadId: id }).then(r => r.data)
     reload()
   } catch (error) {
     console.log(error)

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Node } from '@antv/x6'
-import { adminApi } from 'api'
+import { getRoleSelectOption } from '#imports'
 
 const { node } = defineProps<{
   node: Node
@@ -17,23 +17,6 @@ graphProvider?.graph.value?.on('history:undo', () => {
 
 const candidateRoles = ref()
 const allUserRole = ref([])
-
-async function getUserRule() {
-  const data: any = await clientApi.api.postDocpalAclRoleList([{
-    column: 'status',
-    type: 'EQ',
-    values: '1'
-  }]).then((res) => res.data)
-
-  if (!data || data.length === 0) {
-    allUserRole.value = []
-    return
-  }
-
-  allUserRole.value = data.map((item: any) => {
-    return { id: item.id, name: item.name }
-  })
-}
 
 function refreshData() {
   const data = node.getData()
@@ -59,7 +42,7 @@ function candidateRoleChanged(newVal: any) {
 }
 
 onMounted(async () => {
-  await getUserRule()
+  allUserRole.value = await getRoleSelectOption()
 })
 
 watch(() => node, () => {
@@ -78,7 +61,7 @@ watch(() => node, () => {
       <ElFormItem label="Candidate Role">
         <ElSelect v-model="candidateRoles" placeholder="Select Role" :disabled="editorProvider.readonly.value"
                   filterable @change="candidateRoleChanged" clearable multiple>
-          <ElOption v-for="item in allUserRole" :key="item.id" :label="item.name" :value="item.id" />
+          <ElOption v-for="item in allUserRole" :key="item.value" :label="item.label" :value="item.value" />
         </ElSelect>
       </ElFormItem>
     </ElForm>

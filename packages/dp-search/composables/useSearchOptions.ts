@@ -1,4 +1,4 @@
-import { globalApi } from 'api'
+import { clientApi } from 'api'
 import { sortListWithI18n, conditionType, languages, getGroupList, getMetadataOptions } from '../utils/formOptions'
 
 export const useSearchOptions = () => {
@@ -9,10 +9,10 @@ export const useSearchOptions = () => {
     searchOptions.value.languages = sortListWithI18n(languages)
 
     const [docType, users, collections, tags, groupList, metadata] = await Promise.all([
-      globalApi.api.getTypesActive(),
-      globalApi.api.postNuxeoIdentityGetkeycloakallusers(),
-      globalApi.api.getNuxeoCollection(),
-      globalApi.api.postNuxeoTagsGetalltags(),
+      clientApi.api.getDmsDocpalTypeActive(),
+      clientApi.api.postUcenterGetKeycloakAllUsers(),
+      clientApi.api.getDmsCollection(),
+      clientApi.api.getDmsDocumentTagsList(),
       getGroupList(),
       getMetadataOptions()
     ])

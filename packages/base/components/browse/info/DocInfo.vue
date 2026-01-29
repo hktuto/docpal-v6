@@ -12,13 +12,13 @@
         <div class="infoTitle">{{ $t('info_version') }}</div>
         <div class="infoContent"><BrowseInfoVersionPopover v-if="info.id" :doc="info"></BrowseInfoVersionPopover></div>
       </div>
-      <div v-if="!info.isFolder && info.properties && info.properties['file:content'] && info.properties['file:content']['mime-type']" class="infoSection">
+      <div v-if="!info.isFolder && info.properties && info.properties['file_content'] && info.properties['file_content']['mime-type']" class="infoSection">
         <div class="infoTitle">{{ $t('docInfo.fileExtension') }}</div>
-        <div class="infoContent">{{ getFileExtension(info.properties['file:content']['mime-type']) }}</div>
+        <div class="infoContent">{{ getFileExtension(info.properties['file_content']['mime-type']) }}</div>
       </div>
-      <div v-if="info.properties['file:content']" class="infoSection">
+      <div v-if="info.properties['file_content']" class="infoSection">
         <div class="infoTitle">{{ $t('info_size') }}</div>
-        <div class="infoContent">{{ fileSizeCalc(info.properties['file:content'].length) }}</div>
+        <div class="infoContent">{{ fileSizeCalc(info.properties['file_content'].length) }}</div>
       </div>
       <div class="infoSection">
         <div class="infoTitle">{{ $t('info_modified') }}</div>

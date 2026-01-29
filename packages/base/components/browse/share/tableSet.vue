@@ -62,7 +62,7 @@ function handleDblclick(row: any) {
 onMounted(async () => {
   if (!allowFeature('WATERMARK')) {
   } else {
-    const { data } = (await clientApi.api.getWatermarkTemplatesAll()) as any
+    const data = await clientApi.api.getDocpalWatermarkTemplatesAll().then(r => r.data)
     state.watermarkList = data.sort((a, b) => a.name.localeCompare(b.name))
   }
 })

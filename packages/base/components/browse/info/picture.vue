@@ -63,7 +63,7 @@ async function handleDownload(row: any) {
     position: 'bottom-right'
   })
   try {
-    const response = await clientApi.api.getNuxeoDocumentAdditionalFormatDownload(
+    const response = await clientApi.api.getDmsDocumentDocumentidAdditionalFormatsFilecontentidDownload(
       { documentId: props.doc.id, fileContentId: row.content },
       {
         type: 'application/json',
@@ -79,7 +79,8 @@ async function handleDownload(row: any) {
   }
 }
 const getConversionHistory = async () => {
-  const res = (await clientApi.api.getNuxeoDocumentAdditionalFormatDocumentid(props.doc.id).then((res) => res.data)) as any
+  const res = (await clientApi.api.getDmsDocumentDocumentidAdditionalFormats(props.doc.id).then((res) => res.data)) as any
+
   tableList.value = res['picture:views'] || res['vid:transcodedVideos'] || []
   return res
 }

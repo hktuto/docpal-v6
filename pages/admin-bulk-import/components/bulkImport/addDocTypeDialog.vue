@@ -12,7 +12,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import formJson from './addDocTypeForm.vfom.json'
 import { ElMessage } from 'element-plus'
 const routerProvider = inject(MenuRouterKey)
@@ -47,7 +47,7 @@ async function handleSubmit() {
       isFolder: getIsFolder(data.type),
       related: []
     }
-    await adminApi.api.putNuxeoAdminSetting('', metaSettingData)
+    await clientApi.admin.putAdmindmsSettingSystemSystemid('', metaSettingData)
     ElMessage.success(t('tip_createdSuccessMsg', {
       modelName: t('bulkImport_bulkImportForDocumentType'),
       name: data.type
@@ -98,7 +98,7 @@ async function handleOptions(exitList: any) {
 }
 
 onMounted(async () => {
-  const { data }: any = await adminApi.api.getTypesActive()
+  const data: any = await clientApi.api.getDmsDocpalTypeActive().then(r => r.data)
   state.allDocTypeList = data?.sort((a: any, b: any) => (a.name.localeCompare(b.name)))
 })
 defineExpose({ handleOpen })

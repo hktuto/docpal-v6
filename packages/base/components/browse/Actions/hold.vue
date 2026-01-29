@@ -2,7 +2,8 @@
   <div v-if="hold">
     <el-dropdown v-if="doc.isFolder && (!hold.status || hold.status === 'R')" trigger="click">
       <BrowseActionsButton id="shareActionButton" :label="svgContent">
-        <SvgIcon class="hd-lock-img" src="/icons/file/lock.svg" style="--icon-color: var(--app-error-color)" round :content="svgContent"></SvgIcon>
+        <SvgIcon class="hd-lock-img" src="/icons/file/lock.svg" style="--icon-color: var(--app-error-color)" round
+                 :content="svgContent" />
       </BrowseActionsButton>
       <template #dropdown>
         <el-dropdown-menu class="hd-list--menu">
@@ -121,7 +122,7 @@ function handleAdd(holdDetail) {
 
 async function addHold(params, cb?) {
   params.documentId = props.doc.id
-  const res = await clientApi.api.postPolicyDocumentsAdd(params)
+  const res = await clientApi.api.postDmsPolicyHoldDocument(params).then(r => r.data)
   await refreshHold()
   if (cb) cb()
 }
@@ -140,7 +141,7 @@ function handleRemoveHold() {
 
 async function removeHold(params?, cb?) {
   params.id = hold.value.id
-  const res = await clientApi.api.postPolicyDocumentsRemove(params)
+  const res = await clientApi.api.postDmsPolicyHoldDocumentUnbindRequest(params)
   if (res) await refreshHold()
   if (cb) cb()
 }
@@ -154,7 +155,7 @@ function onClickOutside() {
 
 async function handelAudit(approved: boolean) {
   state.loading = true
-  const result = await clientApi.api.patchPolicyDocumentsIdStatusStatus(hold.value.id, approved)
+  const result = await clientApi.api.patchDmsPolicyHoldDocumentHolddocumentidApprovalStatus(hold.value.id, approved)
   if (result) await refreshHold()
   state.dVisible = false
   state.loading = false
@@ -162,10 +163,7 @@ async function handelAudit(approved: boolean) {
 
 // #endregion
 async function refreshHold() {
-  let { data: _permission }: any = await clientApi.api.getNuxeoDocumentAclPermission({
-    docId: props.doc.id,
-    userId: userId
-  })
+  let _permission: any = await clientApi.api.getDmsDocumentDocumentidUserPermissionUserid(props.doc.id, userId).then(r => r.data)
   if (!_permission) _permission = {}
   if (!_permission.hold) _permission.hold = {}
   props.doc.hold = _permission.hold
@@ -176,7 +174,7 @@ async function refreshHold() {
 }
 
 async function getHoldPolicies() {
-  state.holdList = await clientApi.api.getPolicyHolds().then((res) => res.data)
+  state.holdList = await clientApi.api.getDmsPolicyHoldList().then((res: any) => res.data)
 }
 
 onMounted(() => {
@@ -187,10 +185,12 @@ onMounted(() => {
 .el-dropdown {
   color: var(--app-grey-300);
 }
-.hd-unlock-img{
+
+.hd-unlock-img {
   color: var(--app-accent-color);
 }
-.icon-hold{
+
+.icon-hold {
   color: var(--app-error-color);
 }
 </style>

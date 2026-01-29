@@ -85,7 +85,7 @@ async function saveAnnotation(annotation:Map<string, object>) {
         },
         comments
     }
-    await clientApi.api.postNuxeoAnnotation([param])
+    await clientApi.api.postDmsDocumentAnnotation([param])
     //  TODO : show notification
 }
 

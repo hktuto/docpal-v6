@@ -8,8 +8,7 @@ export const useSubscribe = () => {
   // @ts-ignore
   async function getSubscribeList() {
     const userId = useUserId()
-    const { data } = await clientApi.api.getNotificationSubscriberSubscriberFolders(userId.value)
-    subscribeList.value = data
+    subscribeList.value = await clientApi.api.getNotificationSubscriberSubscriberFoldersList(userId.value).then(r => r.data)
   }
 
   function isSubscribe(folderId: string) {
@@ -27,7 +26,7 @@ export const useSubscribe = () => {
 
   async function unSubscribe(folderId: string) {
     const userId = useUserId()
-    await clientApi.api.deleteNotificationSubscriberSubscriberSubscriberIdorpathIdorpath(userId.value, folderId)
+    await clientApi.api.deleteNotificationSubscriberSubscriberIdorpathIdorpath(userId.value, folderId)
 
     await getSubscribeList()
   }

@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import { Splitpanes, Pane } from 'splitpanes'
 import * as mime from 'mime-types'
-import { clientApi } from 'api'
-import { getMimeTypeFromDocument } from '#imports'
 import { EventType, useEventBus } from 'eventbus'
 const props = withDefaults(
   defineProps<{
@@ -61,10 +59,8 @@ async function getDetail() {
     routerProvider?.addToHistory(newItem)
   }
   routerProvider?.updateTabName(docDetail.value.name)
-  
 }
 const isPdf = ref(false)
-
 
 function closePreview({ detail }: any) {
   if (!detail) return
@@ -114,7 +110,6 @@ useEventListener(document, 'closeFilePreview', closePreview)
 
 function switchFile(newFileId: string) {
   routerProvider?.updateProps({ idOrPath: newFileId })
- 
 }
 
 watch(
@@ -162,11 +157,11 @@ useEventListener(window, 'resize', calMinWidth)
                 </ElTooltip>
                 <BrowseDetailFileNamePicker :docId="docDetail.id" :title="docDetail.name" :parentRef="docDetail.parentRef" @itemClick="switchFile" />
                 <el-tag
-                  v-if="docDetail.properties && docDetail.properties['file:content'] && docDetail.properties['file:content']['mime-type']"
+                  v-if="docDetail.properties && docDetail.properties['file_content'] && docDetail.properties['file_content']['mime-type']"
                   class="doc-extension"
                   effect="dark"
                   type="info"
-                  >{{ mime.extension(docDetail.properties['file:content']['mime-type']) }}</el-tag
+                  >{{ mime.extension(docDetail.properties['file_content']['mime-type']) }}</el-tag
                 >
               </div>
             </div>

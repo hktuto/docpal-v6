@@ -3,10 +3,12 @@
     <template #header>
       <div class="flex-x-between">
         <h3>{{ $t('user_info') }}</h3>
-        <div class="flex-x-end" >
+        <div class="flex-x-end">
           <SvgIcon id="UserList__Info__Edit" :content="$t('user_editUser')" src="/icons/edit.svg" @click="handleEdit" />
-          <SvgIcon id="UserList__Info__ChangePassword" icon="ion:key-outline" :content="$t('user_editPassword')" @click="openDialog" />
-          <SvgIcon id="UserList__Info__DeleteUser" :content="$t('user_deleteUser')" src="/icons/delete.svg" @click="handleDelete" />
+          <SvgIcon id="UserList__Info__ChangePassword" icon="ion:key-outline" :content="$t('user_editPassword')"
+                   @click="openDialog" />
+          <SvgIcon id="UserList__Info__DeleteUser" :content="$t('user_deleteUser')" src="/icons/delete.svg"
+                   @click="handleDelete" />
         </div>
       </div>
     </template>
@@ -54,6 +56,7 @@
 import { ElMessageBox } from 'element-plus'
 import { userProviderDetailKey } from '~/util/userProvider'
 import type { UserDTO } from 'api/src/generate/admin'
+import { clientApi } from 'api'
 
 const { t } = useI18n()
 const userProviderDetail = inject(userProviderDetailKey)
@@ -72,7 +75,8 @@ async function handleDelete() {
     })
 
     if (action !== 'confirm') return
-    const res = await userProviderDetail?.BatchDeleteUserApi({ userIds: [props.user.userId] })
+    const res = await clientApi.admin.deleteAdminucenterUser({ userId: props.user.userId }).then(r => r.data)
+    // const res = await userProviderDetail?.BatchDeleteUserApi({ userIds: [props.user.userId] })
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('User') }))
     if (!!res) userProviderDetail?.openUserList()
   } catch (error) {

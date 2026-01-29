@@ -19,20 +19,19 @@ const errorOpen = ref(false)
 const templateList = ref<any[]>([])
 
 async function getTemplateList() {
-  const { data } = (await clientApi.api.getWatermarkTemplatesAll()) as any
+  const data = await clientApi.api.getDocpalWatermarkTemplatesAll().then(r => r.data)
   templateList.value = data.sort((a, b) => a.name.localeCompare(b.name))
 }
 
 async function getWatermarkDetail() {
   // get document detail from route
-  const data = await clientApi.api.postNuxeoDocument({ idOrPath: docId }).then((res) => res.data)
-  doc.value = data
+  doc.value = await clientApi.api.postDmsDocumentFetch({ idOrPath: docId }).then((res) => res.data)
   const mimeType = getMimeTypeFromDocument(doc.value)
   if (!mimeType || (!mimeType.includes('image') && !mimeType.includes('pdf') && !mimeType.includes('video'))) {
     errorOpen.value = true
   }
   // get breadcrumb
-  const list = (await clientApi.api.postNuxeoDocumentBreadcrumb({ idOrPath: doc.value.parentRef }).then((res) => res.data)) || []
+  const list = (await clientApi.api.postDmsDocumentBreadcrumb({ idOrPath: doc.value.parentRef }).then((res) => res.data)) || []
   if (list.length === 0) return
   breadcrumb.value = list.map((item: any) => item.id)
 }
@@ -59,7 +58,7 @@ async function templateChange(command: string) {
 async function confirmChangeTemplate() {
   const temp = await getWatermarkTemplateDetail(selectedTemplateId.value)
   let idTime = new Date().getTime()
-  const newData = {
+  watermarkDetail.value = {
     ...watermarkDetail.value,
     watermarkSettings: temp.watermarkSettings.map((item: any) => {
       delete item.templateId
@@ -68,7 +67,6 @@ async function confirmChangeTemplate() {
       return item
     })
   }
-  watermarkDetail.value = newData
 
   if (temp.type === 'dynamic') watermarkDetail.value.contentType = temp.content
   changeTemplateDialog.value = false
@@ -104,7 +102,7 @@ async function preview() {
   temTemplate.value = await createWatermarkTemplate(update)
   console.log(temTemplate.value)
 
-  previewFile.blob = await clientApi.api.getWatermarkDocumentPreview(
+  previewFile.blob = await clientApi.api.getDocpalWatermarkDocumentPreview(
     {
       watermarkTemplateId: temTemplate.value.id,
       documentId: doc.value.id
@@ -119,10 +117,10 @@ async function preview() {
 }
 
 async function saveNewVersion() {
-  const response = await clientApi.api.postNuxeoDocumentAddWatermark({
+  const response = await clientApi.api.postDmsDocumentWatermark({
     idOrPath: doc.value.id,
     watermarkTemplateId: temTemplate.value.id
-  })
+  }).then(r => r.data)
   previewDialog.value = false
   ElNotification.success(t('msg_successfullyModified') as string)
   cancel()
@@ -162,12 +160,12 @@ async function confimSaveNewFile() {
     const properties = await metaFormRef.value.getData()
     const { path } = await pathFormRef.value.getData()
     const idOrPath = path.pop()
-    const isDuplicate: any = await clientApi.api.postNuxeoDocumentDuplicateName({
+    const isDuplicate: boolean = await clientApi.api.postDmsDocumentNameValidate({
       parentPath: idOrPath,
       name: newFileForm.name
-    }).then((res) => res.data)
+    }).then((res) => res.data.hasDuplicateTitle)
 
-    if (isDuplicate.hasDuplicateTitle) {
+    if (isDuplicate) {
       routerProvider?.message.error(t('dpTip_duplicateError'))
       return
     }
@@ -180,7 +178,7 @@ async function confimSaveNewFile() {
       originDocumentId: doc.value.id
     }
 
-    const newFile = await clientApi.api.postNuxeoDocumentCopyWatermark(params).then(r => r.data)
+    const newFile = await clientApi.api.postDmsDocumentCopyWatermark(params).then(r => r.data)
     const newItem = createDetailPageParams({
       idOrPath: newFile.id,
       docName: newFile.name,

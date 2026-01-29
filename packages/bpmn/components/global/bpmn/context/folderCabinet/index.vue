@@ -23,9 +23,9 @@ const selectedCabinet = ref()
 const form = ref<any[]>([])
 
 async function loopChildren(all: any, item: any, level = 0) {
-  let { data } = await clientApi.api.getTypesMetadataGenerateJsonSchemaDocpaltypename(item.documentType, {
+  let data = await clientApi.api.getDmsDocpalTypeDocpaltypenameSchema(item.documentType, {
     headers: { noThrowError: 'true' }
-  })
+  }).then(r => r.data)
   const displayMata = [
     {
       key: 'folderCabinetId',
@@ -86,7 +86,7 @@ async function getCabinetDetail(id: string) {
   }
   detailLoading.value = true
   try {
-    cabinetDetail.value = await clientApi.api.getDmsCabinetTemplateId(id).then((res) => res.data)
+    cabinetDetail.value = await clientApi.admin.getAdmindmsCabinetTemplateId(id).then((res) => res.data)
   } catch (e) {
     // When the selected “folder cabinet” is deleted, subsequent steps are not executed.
     detailLoading.value = false
@@ -204,7 +204,7 @@ async function setData() {
 
 async function getList() {
   try {
-    cabinetOptions.value = await clientApi.api.getDmsCabinetList().then((res) => res.data)
+    cabinetOptions.value = await clientApi.admin.getAdmindmsCabinetList().then((res) => res.data)
   } catch (e) {
     console.log(e)
   }

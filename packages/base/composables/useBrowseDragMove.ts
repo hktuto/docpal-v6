@@ -30,7 +30,7 @@ export const useBrowseDragMove = (selectedList: any) => {
 
     const {
       data: { hasDuplicateTitle }
-    } = (await clientApi.api.postNuxeoDocumentIsduplicatename({
+    } = (await clientApi.api.postDmsDocumentIsduplicatename({
       path: dropTargetRow.path,
       titles: copyItems.map((item) => item.name)
     })) as any
@@ -55,7 +55,7 @@ export const useBrowseDragMove = (selectedList: any) => {
         position: 'bottom-right'
       })
       try {
-        await clientApi.api.postNuxeoDocumentMove(param)
+        await clientApi.api.postDmsDocumentMove(param).then(r => r.data)
       } finally {
         noti.close()
       }

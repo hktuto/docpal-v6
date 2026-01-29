@@ -171,7 +171,7 @@ async function handleDeleteFile(data: any) {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    await clientApi.api.deleteNuxeoDocumentTrash([{ idOrPath: data.path }])
+    await clientApi.api.deleteDmsDocumentTrashBatch([{ idOrPath: data.path }]).then(r => r.data)
     refresh()
   } catch (error) {
     console.log(error)

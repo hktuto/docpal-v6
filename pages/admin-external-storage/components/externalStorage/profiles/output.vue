@@ -17,8 +17,9 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { ElMessageBox } from 'element-plus'
+
 const props = defineProps<{
   id: string,
   captureSetting: any
@@ -35,10 +36,9 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   id: 'a-externalStorage-profile-output',
   virtualScroll: true,
   api: async (pageParams: any) => {
-    const data = await adminApi.api?.getExternalstorageProfilesProfileidOutputrecordList(props.id, {
-        ...extraParams
-      }).then((res: any) => res.data)
-      return data
+    return await clientApi.admin.getAdminext3rdstorageProfilesProfileidOutputrecordList(props.id, {
+      ...extraParams
+    }).then((res: any) => res.data)
   },
   columns: [
     { field: 'document_type', title: 'docType_documentType' },
@@ -134,11 +134,13 @@ function handleEdit(row: any) {
 
 async function handleActive(row: any, status: string) {
   try {
-    const result = await adminApi.api.patchExternalstorageProfilesProfileidOutputrecordOutputrecordidStatus(props.id, row.id, { status: status }).then((res) => res.data)
+    const result = await clientApi.admin.patchAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus(props.id, row.id, { status: status }).then((res) => res.data)
     if (!!result) {
       row.status = status
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 const DialogRef = ref()
@@ -146,22 +148,27 @@ const DialogRef = ref()
 async function handleOpen() {
   DialogRef.value.handleOpen()
 }
+
 async function handleDuplicate(row: any) {
-  const detail = await adminApi.api.getExternalstorageProfilesProfileidOutputrecordOutputrecordid(props.id, row.id).then((res:any) => res.data)
+  const detail = await clientApi.admin.getAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid(props.id, row.id).then((res: any) => res.data)
   DialogRef.value.handleOpen(detail)
 }
+
 async function handleDelete(row: any) {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    await adminApi.api.deleteExternalstorageProfilesProfileidOutputrecordOutputrecordid(props.id, row.id).then((res) => res.data)
+    await clientApi.admin.deleteAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid(props.id, row.id).then((res) => res.data)
     reload()
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
 }
+
 provide('outputOptioins', outputOptioins)
 watch(() => props.captureSetting, (newVal) => {
   console.log(newVal, 'captureSetting')
-  if(newVal && newVal.documentType?.length > 0) {
+  if (newVal && newVal.documentType?.length > 0) {
     const opts = newVal.documentType.map((item: any) => ({ label: item, value: item }))
     setDocumentTypeOpts(opts)
   }
@@ -171,6 +178,7 @@ watch(() => props.captureSetting, (newVal) => {
 .outputTable-container {
   height: 100%;
 }
+
 .actions {
   width: 100%;
   display: flex;

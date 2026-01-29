@@ -1,14 +1,8 @@
 <template>
-  <el-dialog
-    v-model="state.visible"
-    :title="`${$t('dpDocument_acl_editLocal')} (${state.aclItem.userId})`"
-    :close-on-click-modal="false"
-  >
+  <el-dialog v-model="state.visible" :title="`${$t('dpDocument_acl_editLocal')} (${state.aclItem.userId})`" :close-on-click-modal="false">
     <FormRenderer ref="FormRendererRef" :form-json="formJson" />
     <template #footer>
-      <el-button id="FolderCabinetSetting__Info__LocalPermission__EditTime__Submit" type="primary"
-                 :loading="state.loading"
-                 @click="handleSubmit">
+      <el-button id="FolderCabinetSetting__Info__LocalPermission__EditTime__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
         {{ $t('common_submit') }}
       </el-button>
     </template>
@@ -19,7 +13,7 @@ import { clientApi } from 'api'
 import formJson from './permissionEditTimeDialog.vform.json'
 
 const props = defineProps<{
-  id: string;
+  id: string
 }>()
 const emits = defineEmits(['refresh'])
 const state = reactive({
@@ -42,11 +36,10 @@ async function handleSubmit() {
       params.endDate = data.dateRange[1]
     }
     state.loading = true
-    await clientApi.api.postDmsCabinetTemplatePermission(params)
+    await clientApi.admin.postAdmindmsCabinetTemplatePermission(params)
     state.visible = false
     emits('refresh')
   } catch (error) {
-
   } finally {
     state.loading = false
   }
@@ -55,7 +48,7 @@ async function handleSubmit() {
 async function handleOpen(aclItem: any) {
   state.visible = true
   state.aclItem = aclItem
-  await new Promise(resolve => setTimeout(resolve, 10))
+  await new Promise((resolve) => setTimeout(resolve, 10))
   const params: any = {
     time: !!aclItem.startDate ? 'dateBase' : 'permanent'
   }

@@ -34,7 +34,7 @@ async function deleteSelected() {
   })
   try {
     const params = props.selectedList.map((item: any) => ({ idOrPath: item.id }))
-    await clientApi.api.deleteNuxeoDocumentTrash(params)
+    await clientApi.api.deleteDmsDocumentTrashBatch(params).then(r => r.data)
     emits('success')
     ElNotification({
       title: 'Success',
@@ -59,7 +59,7 @@ async function checkAllShareInternal() {
   return msg ? `<span class="color__danger">${msg} ${t('msg_isShareInternalFile')}, </span>` : ''
 
   async function checkShareInternal(row: any) {
-    const isShareInternal = await clientApi.api.postInternalshareCheckdocumentisinshare({
+    const isShareInternal = await clientApi.api.postDmsInternalshareCheckDocumentIsInShare({
       documentId: row.id
     })
     if (msg) msg += ','

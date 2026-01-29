@@ -68,8 +68,9 @@ function tabChange(tab: string) {
 async function init() {
   state.loading = true
   try {
-    state.tabList = await clientApi.api.getDmsCabinetLoginuserList().then((res) => res.data)
+    state.tabList = await clientApi.api.getDmsCabinetLoginuserList().then((res) => res.data) || []
   } catch (error) {
+    console.log(error)
   }
   state.loading = false
 }
@@ -86,6 +87,7 @@ function handleRowClick(row: any) {
 
 onMounted(async () => {
   await init()
+  console.log(22,state)
   if (!state.activeTab && state.tabList.length > 0) {
     tabChange(state.tabList[0].id)
   }

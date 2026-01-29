@@ -9,7 +9,7 @@ const routerProvider = inject(MenuRouterKey)
 async function addWartermark(){
     let mimeType:any = '';
     if(!doc.properties){
-        const data = await clientApi.api.postNuxeoDocument({idOrPath:doc.id});
+        const data = await clientApi.api.postDmsDocumentFetch({idOrPath:doc.id});
          mimeType = getMimeTypeFromDocument(data)
     }else{
         mimeType = getMimeTypeFromDocument(doc)

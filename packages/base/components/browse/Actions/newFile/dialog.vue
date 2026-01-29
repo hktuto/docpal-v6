@@ -65,15 +65,14 @@ async function handleSubmit() {
     }
     data.metaData = JSON.stringify(metaFormData)
     state.loading = true
-    const {data: newDoc} = await clientApi.api.postNuxeoDocumentOfficeCreate(data)
-    console.log("newDoc", newDoc)
-    const docId = newDoc
+    const docId = await clientApi.api.postDmsDocumentOffice(data).then(r => r.data)
+    console.log("docId", docId)
     if (docId) {
       emitBus(EventType.FILE_NEED_REFRESH, {
         relatedIdOrPath: state.setting.id,
       })
       const newItem = createDetailPageParams({
-        idOrPath: newDoc,
+        idOrPath: docId,
         docName: data.fileName,
         showHeaderAction: true,
       })

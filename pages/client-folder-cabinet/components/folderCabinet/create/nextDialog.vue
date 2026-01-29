@@ -96,8 +96,7 @@ async function handleSubmit() {
         },
         directory
       )
-    return await clientApi.api
-      .postNuxeoDocumentCreatefolders({
+    return await clientApi.api.postDmsDocumentFolder({
         templateId: props.id,
         layoutId: directory.id,
         name,
@@ -135,7 +134,7 @@ async function handleSubmit() {
     const formData: any = new FormData()
     formData.append('files', file.raw)
     formData.append('document', JSON.stringify(document))
-    return await clientApi.api.postNuxeoDocumentCreatedocument(formData).then((res) => res.data)
+    return await clientApi.api.postDmsDocument(formData).then((res) => res.data)
   }
 }
 

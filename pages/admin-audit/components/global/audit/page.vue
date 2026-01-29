@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import formJson from './form.vform.json'
 const tabProvider = inject(TabManagerKey)
 const routerProvider = inject(MenuRouterKey)
@@ -53,7 +53,7 @@ function goClientPath(path: string) {
 
 provide(AuditProviderKey, {
   getListApi: (params: any) => {
-    return adminApi.api.postNuxeoDocumentQueryauditevent({ ...params, ...formData.value })
+    return clientApi.admin.postAdmindmsDocumentQueryauditevent({ ...params, ...formData.value })
   },
   goClientPath
 })

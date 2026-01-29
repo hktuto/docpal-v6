@@ -57,7 +57,7 @@ function handleSearch(item: any) {
   popoverRef.value.hide()
 }
 async function getList() {
-  const {data} = await clientApi.api.getNuxeoSearchQueryNestedSearchLog() as any
+  const data = await clientApi.api.getDmsSearchQueryNestedSearchLog().then(r => r.data)
   // state.searchList = await GetSearchApi()
   state._searchList = [ ...data ]
 }
@@ -65,7 +65,7 @@ async function handleDelete(item: any) {
   try {
     const action = await ElMessageBox.confirm(t('msg_confirmWhetherToDelete'))
     if (action !== "confirm") return
-    await clientApi.api.deleteNuxeoSearchDeleteNestedSearchLogId(item.id)
+    await clientApi.api.deleteDmsSearchDeleteNestedSearchLogId(item.id).then(r => r.data)
     getList()
   } catch (error) {
     console.error(error)

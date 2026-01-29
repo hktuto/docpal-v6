@@ -80,7 +80,7 @@ async function init() {
     const exceptionList = ['SIGN']
     state.systemFieldList = systemFieldList.filter((item: any) => !exceptionList.includes(item.key))
 
-    let { properties }: any = await clientApi.api.getDmsUserProfileSetting().then((res) => res.data)
+    let { properties }: any = await clientApi.admin.getAdmindmsUserProfileSetting().then((res) => res.data)
     if (!properties) {
       return
     }

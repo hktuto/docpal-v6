@@ -45,7 +45,7 @@ async function handleSave() {
     label: recordData.label,
     queryCondition: JSON.stringify(condition)
   }
-  await clientApi.api.postNuxeoSearchSaveNestedSearchLog(params)
+  await clientApi.api.postDmsSearchSaveNestedSearchLog(params)
   setTimeout(() => {
     loading.value = false
     ElMessage.success(t('dpMsg_success'))

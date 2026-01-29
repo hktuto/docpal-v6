@@ -72,15 +72,15 @@ async function pasteItem(doc) {
           }
         ).then(async ({ value }) => {
           if (type === 'copy') {
-            const copyResponse = await clientApi.api.postNuxeoDocumentCopy(param).then(res => res.data)
-            await clientApi.api.patchNuxeoDocument({
+            const copyResponse = await clientApi.api.postDmsDocumentCopy(param).then(res => res.data)
+            await clientApi.api.patchDmsDocument({
               idOrPath: copyResponse.id,
               name: item.newName
             })
             msg = t('common_copySuccess')
           } else {
-            await clientApi.api.postNuxeoDocumentMove(param)
-            await clientApi.api.patchNuxeoDocument({
+            await clientApi.api.postDmsDocumentMove(param).then(r => r.data)
+            await clientApi.api.patchDmsDocument({
               idOrPath: copyItem.id,
               name: item.newName
             })
@@ -94,10 +94,10 @@ async function pasteItem(doc) {
       await Promise.all(promises)
     } else {
       if (type === 'copy') {
-        await clientApi.api.postNuxeoDocumentCopy(param)
+        await clientApi.api.postDmsDocumentCopy(param).then(r => r.data)
         msg = t('common_copySuccess')
       } else {
-        await clientApi.api.postNuxeoDocumentMove(param)
+        await clientApi.api.postDmsDocumentMove(param).then(r => r.data)
         msg = t('common_moveSuccess')
       }
     }

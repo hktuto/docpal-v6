@@ -66,7 +66,7 @@ function hidePopover() {
 }
 
 async function getList() {
-  const res = await clientApi.api.postNuxeoGetversions({ idOrPath: props.doc.id }).then((res) => res.data)
+  const res = await clientApi.api.postDmsDocumentVersionList({ idOrPath: props.doc.id }).then((res) => res.data)
   const result = []
   Object.keys(res).forEach((key) => {
     result.push({ version: key, time: displayTime(res[key]) })

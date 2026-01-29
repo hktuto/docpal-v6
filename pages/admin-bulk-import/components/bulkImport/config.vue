@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useVxeTable } from '#imports'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
+import { ElMessageBox } from 'element-plus'
+import { clientApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const { name } = defineProps<{
   name: string
@@ -21,7 +21,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'admin-bulk-import-config',
   api: async () => {
     try {
-      const { data } = await adminApi.api.getWorkflowQuerydocumenttypeprofile({ documentType: name }) as any
+      const { data } = await clientApi.admin.getAdmindocpalWorkflowQuerydocumenttypeprofileid({ documentType: name }) as any
       console.log('data on config', data)
 
       return data

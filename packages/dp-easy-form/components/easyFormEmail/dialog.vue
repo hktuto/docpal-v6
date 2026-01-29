@@ -247,7 +247,7 @@ function handleSelectChange() {
 // #endregion
 // #endregion
 onMounted(async () => {
-  const { data } = await clientApi.api.postNuxeoIdentityUsers({})
+  const data = await clientApi.api.postUcenterUsers({}).then((res) => res.data)
   const uniqueEmails = Array.from(
     new Map(data.map((item) => [item.email, item])).values()
   )

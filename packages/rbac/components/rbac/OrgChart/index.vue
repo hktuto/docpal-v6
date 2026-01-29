@@ -27,7 +27,7 @@ import { ref, onMounted, provide } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElNotification } from 'element-plus'
 import type { OrgNode } from './X6/types'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { useRBAC } from '../../../composables/useRBAC'
 
 interface Props {
@@ -76,7 +76,7 @@ function findNodeById(nodes: OrgNode[], targetId: string): OrgNode | null {
 
 async function handleDelete(selectedNode: any) {
   try {
-    await adminApi.api.putAclRole({
+    await clientApi.admin.putAdmindocpalAclRole({
       id: selectedNode.value.id,
       status: 3 // status:3-逻辑删除
     })
@@ -104,7 +104,7 @@ async function handleEdit(formData: OrgNode, selectedNodeId: string) {
       throw new Error('Node not found: ' + selectedNodeId)
     }
 
-    await adminApi.api.putAclRole({
+    await clientApi.admin.putAdmindocpalAclRole({
       ...formData,
       id: selectedNodeId
     })
@@ -138,12 +138,12 @@ async function handleAdd(formData: OrgNode, selectedNodeId?: string) {
     }
 
     if (selectedNodeId) {
-      await adminApi.api.postAclRole({
+      await clientApi.admin.postAdmindocpalAclRole({
         ...roleData,
         parentId: selectedNodeId
       })
     } else {
-      await adminApi.api.postAclRole(roleData)
+      await clientApi.admin.postAdmindocpalAclRole(roleData)
     }
 
     await initData()
@@ -164,7 +164,7 @@ async function handleAdd(formData: OrgNode, selectedNodeId?: string) {
 }
 async function setStatus(selectedNode: string, status: number) {
   try {
-    await adminApi.api.putAclRole({
+    await clientApi.admin.putAdmindocpalAclRole({
       id: selectedNode.value.id,
       status: status 
     })

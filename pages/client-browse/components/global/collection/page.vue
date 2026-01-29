@@ -5,7 +5,8 @@
         <el-button id="Collection_CreateNewCollection" type="primary" @click="openAddCollectionDialog">
           {{ t('collections_new') }}
         </el-button>
-        <el-icon :class="['collapse-icon', 'el-icon--right', style.collapse ? 'rotate' : 'revert']" @click="handleCollapse">
+        <el-icon :class="['collapse-icon', 'el-icon--right', style.collapse ? 'rotate' : 'revert']"
+                 @click="handleCollapse">
           <ArrowDownBold />
         </el-icon>
       </div>
@@ -17,7 +18,8 @@
           @click="handleTabClick(item)"
         >
           <span class="ellipsis" :title="item.name">{{ item.name }}</span>
-          <el-icon :id="`Collection__Delete_${item.name}`" class="color__danger__hover cursorPointer" @click.stop="handleDelete(item)">
+          <el-icon :id="`Collection__Delete_${item.name}`" class="color__danger__hover cursorPointer"
+                   @click.stop="handleDelete(item)">
             <Delete />
           </el-icon>
         </div>
@@ -28,17 +30,13 @@
         <template #toolbar_buttons>
           <div class="flex-x-between">
             <div class="title">{{ state.curCollection.name }}</div>
-            <SvgIcon id="Collection__EditCollectionInfo" src="/icons/edit.svg" class="el-icon--right el-icon--left" @click="openEditCollectionDialog" />
+            <SvgIcon id="Collection__EditCollectionInfo" src="/icons/edit.svg" class="el-icon--right el-icon--left"
+                     @click="openEditCollectionDialog" />
           </div>
           <div class="flex-x-end">
             <template v-if="state">
-              <SvgIcon
-                v-if="state.tableData && state.tableData.length > 0"
-                src="/icons/file/share.svg"
-                round
-                :content="t('tip.addToShare')"
-                @click="handleShare"
-              />
+              <SvgIcon v-if="state.tableData && state.tableData.length > 0" src="/icons/file/share.svg"
+                       round :content="t('tip.addToShare')" @click="handleShare" />
             </template>
             <SvgIcon id="shareToQueue" src="/icons/file/share.svg" round></SvgIcon>
           </div>
@@ -46,8 +44,8 @@
       </VxeGrid>
     </div>
 
-    <LazyCollectionAddCollectionDialog ref="addCollectionDialog" @success="handleAddCollection"> </LazyCollectionAddCollectionDialog>
-    <LazyCollectionEditCollectionDialog ref="editCollectionDialog" @refresh="reloadCollection"> </LazyCollectionEditCollectionDialog>
+    <LazyCollectionAddCollectionDialog ref="addCollectionDialog" @success="handleAddCollection" />
+    <LazyCollectionEditCollectionDialog ref="editCollectionDialog" @refresh="reloadCollection" />
   </div>
 </template>
 
@@ -103,7 +101,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     let id = state.curCollection.id
     const {
       data: { entryList }
-    }: any = await clientApi.api.postNuxeoCollectionDocuments({ idOrPath: id })
+    }: any = await clientApi.api.postDmsCollectionDocumentsQuery({ idOrPath: id })
     state.tableData = entryList
     return entryList
   },
@@ -180,7 +178,7 @@ function reloadPage() {
 }
 
 async function getCollectionList() {
-  const { data }: any = await clientApi.api.getNuxeoCollection()
+  const data: any = await clientApi.api.getDmsCollection().then(r => r.data)
   try {
     state.collectionList = data.entryList
     if (state.collectionList.length > 0) {
@@ -189,7 +187,9 @@ async function getCollectionList() {
       handleTabClick(state.collectionList[index])
     }
     reload()
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 function handleAddCollection(data: any) {
@@ -210,7 +210,7 @@ async function handleDelete(row: any) {
       return
     })
     if (action !== 'confirm') return
-    await clientApi.api.deleteNuxeoCollectionDeleteCollectionCollectionid(row.id)
+    await clientApi.api.deleteDmsCollectionCollectionid(row.id).then(r => r.data)
     routerProvider?.message.success(t('collection_deleteSuccessMsg', { name: row.name }))
     reloadPage()
   } catch (error) {
@@ -231,13 +231,14 @@ function handleDocDelete(row: any) {
   }).then(async () => {
     state.loading = true
     try {
-      await clientApi.api.deleteNuxeoCollectionRemove(param)
+      await clientApi.api.postDmsCollectionDocumentsRemove(param).then(r => r.data)
       setTimeout(() => {
         query({})
       }, 1000)
       routerProvider?.message.success(t('collectionFile_deleteSuccessMsg', { name: state.curCollection.name }))
       reload()
-    } catch (error) {}
+    } catch (error) {
+    }
     state.loading = false
   })
 }
@@ -264,7 +265,7 @@ function handleCollapse() {
 const { addToShareList } = useShareStore()
 
 async function handleShare() {
-  const data: any = await clientApi.api.postNuxeoCollectionAlldocuments({ idOrPath: state.curCollection.id }).then((res: any) => res.data.entryList)
+  const data: any = await clientApi.api.postDmsCollectionDocumentsThumbnails({ idOrPath: state.curCollection.id }).then((res: any) => res.data.entryList)
   // TODO 未調試
   addToShareList(data)
 
@@ -320,11 +321,13 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
 }
-.title{
+
+.title {
   font-size: var(--app-font-size-xl);
   font-weight: 600;
   margin-right: var(--app-space-xs);
 }
+
 .collection-container {
   display: grid;
   grid-template-columns: min-content 1fr;

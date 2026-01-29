@@ -2,15 +2,13 @@
   <div class="pageContainer--padding">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="q"
-                          inputPlaceHolder="documentType_metaFilter" />
+        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="q" inputPlaceHolder="documentType_metaFilter" />
         <el-button id="DocumentType__DisplayMeta__AddNewDisplayMeta" type="primary" @click="handleDialogShow()">
           {{ $t('documentType_metaAdd') }}
         </el-button>
       </template>
       <template #display="{ row }">
-        <el-switch v-model="row.display" :loading="row.loading" @click.native.stop
-                   @change="handleDisplayChange(row)"></el-switch>
+        <el-switch v-model="row.display" :loading="row.loading" @click.native.stop @change="handleDisplayChange(row)"></el-switch>
       </template>
       <!-- <template #isRequire="{ row }">
         <el-icon v-if="row.isRequire" style="--color: var(--app-primary-color)"><Select /></el-icon>
@@ -24,7 +22,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -158,9 +156,11 @@ async function handleDelete(row: any) {
       confirmButtonText: t('common_confirmDelete')
     })
     if (action !== 'confirm') return
-    const res = await clientApi.admin.deleteAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, {
-      metadataId: row.id
-    }).then(r => r.data)
+    const res = await clientApi.admin
+      .deleteAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, {
+        metadataId: row.id
+      })
+      .then((r) => r.data)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('tip_SelectedMsg') + t('docType_displayMeta') }))
     reload()
   } catch (error) {
@@ -199,7 +199,7 @@ async function handleMove(row: any, moveIndex: number, isReload: boolean = true)
 async function handleDisplayChange(row: any) {
   try {
     row.loading = true
-    const params = {
+    const data = {
       metadataId: row.id,
       display: row.display,
       metadataPermission: row.metadataPermission || {
@@ -208,7 +208,7 @@ async function handleDisplayChange(row: any) {
         readOnlyPermissions: []
       }
     }
-    await adminApi.api.postDocpaltypeSettingsDocpalTypeV2UpdateMetadataDocpaltypeid(props.id, params)
+    await clientApi.admin.postAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, data)
   } catch (error) {
     row.display = !row.display
     console.error(error)

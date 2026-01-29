@@ -4,9 +4,10 @@
     v-model="state.dialogVisible"
     :close-on-click-modal="false"
     append-to-body>
-    <FormRenderer ref="FormRendererRef" :form-json="formJson"/>
+    <FormRenderer ref="FormRendererRef" :form-json="formJson" />
     <template #footer>
-      <el-button id="Browse__CreateInternalSharing__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
+      <el-button id="Browse__CreateInternalSharing__Submit" type="primary" :loading="state.loading"
+                 @click="handleSubmit">
         {{ $t('common_submit') }}
       </el-button>
     </template>
@@ -14,9 +15,9 @@
 </template>
 
 <script lang="ts" setup>
-import {useEventListener} from '@vueuse/core'
+import { useEventListener } from '@vueuse/core'
 
-import {clientApi} from 'api'
+import { clientApi } from 'api'
 import formJson from './AclForm.json'
 
 const emit = defineEmits(['handleUpdate', 'handleAdd'])
@@ -32,8 +33,8 @@ async function handleSubmit() {
   try {
     const data = await FormRendererRef.value.getFormData()
     if (!data) return
-    state.loading = true;
-    const result = {...data}
+    state.loading = true
+    const result = { ...data }
     if (result.time === 'permanent') {
       delete result.startDate
       delete result.endDate
@@ -44,7 +45,7 @@ async function handleSubmit() {
     delete result.dateRange
     delete result.time
     delete result.ids
-    result.isSendEmail = result.isSendEmail.length > 0 ? true : false
+    result.isSendEmail = result.isSendEmail.length > 0
     result.documentIds = [state.doc.id]
     await createInternalShare(result, handleCloseDialog)
   } catch (error) {
@@ -64,7 +65,7 @@ function handleOpen(docDetail) {
   state.doc = docDetail
   state.dialogVisible = true
   const params = {
-    permission: docDetail.permission || "",
+    permission: docDetail.permission || '',
     ids: []
   }
   nextTick(() => {
@@ -82,7 +83,7 @@ function handleInternalShare(docDetail) {
 
 async function createInternalShare(formData, cb) {
   try {
-    await clientApi.api.postInternalshare(formData)
+    await clientApi.api.postDmsInternalshare(formData).then(r => r.data)
     cb()
   } catch (error) {
     cb(false)

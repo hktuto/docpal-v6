@@ -1,6 +1,6 @@
 <template>
   <div class="pageContainer--padding externalStorage-profileDetail">
-    <el-tabs v-model="activeName" class="dp-tabs--auto" >
+    <el-tabs v-model="activeName" class="dp-tabs--auto">
       <el-tab-pane :label="$t('externalStorage.generate')" name="generate">
         <ExternalStorageProfilesGenerate v-bind="props" :settings="profile" @update="init" />
       </el-tab-pane>
@@ -20,7 +20,8 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
+
 const props = defineProps<{
   id: string,
   storageId: string
@@ -32,18 +33,18 @@ const activeName = ref('output')
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
+
 async function init() {
   try {
     loading.value = true
-    profile.value = await adminApi.api
-      .getExternalstorageIdProfilesProfileid(props.storageId, props.id)
-      .then((res) => res.data)
+    profile.value = await clientApi.admin.getAdminext3rdstorageIdProfilesProfileid(props.storageId, props.id).then((res) => res.data)
   } catch (error) {
     console.error(error)
   } finally {
     loading.value = false
   }
 }
+
 onMounted(() => {
   init()
 })

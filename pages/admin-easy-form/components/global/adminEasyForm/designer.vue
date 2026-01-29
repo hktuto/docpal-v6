@@ -1,13 +1,13 @@
 <template>
   <div v-loading="!state.loadField" class="pageContainer--padding">
-    <FormDesigner
-      v-if="state.loadField"
-      ref="FormDesignerRef"
-      :fieldListApi="state.fieldListApi"
-    >
+    <FormDesigner v-if="state.loadField" ref="FormDesignerRef" :fieldListApi="state.fieldListApi">
       <template #submit>
-        <el-button id="EasyForm__Detail__FormPreview__EditForm__Submit" class="el-button el-button--primary is-link"
-                   :loading="state.submitLoading" @click="handleSubmit">
+        <el-button
+          id="EasyForm__Detail__FormPreview__EditForm__Submit"
+          class="el-button el-button--primary is-link"
+          :loading="state.submitLoading"
+          @click="handleSubmit"
+        >
           {{ $t('submit') }}
         </el-button>
       </template>
@@ -21,7 +21,7 @@ import { clientApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const { id } = defineProps<{
-  id: string;
+  id: string
 }>()
 const state = reactive<State>({
   submitLoading: false,
@@ -39,7 +39,7 @@ async function handleSubmit() {
   }
   try {
     state.submitLoading = true
-    const res = await clientApi.api.postDmsEasyFormSavePreview(param)
+    const res = await clientApi.admin.postAdmindmsEasyFormSavePreview(param)
     if (!!res) routerProvider?.message.success(t('msg_successfullyModified'))
   } catch (error) {
   } finally {
@@ -59,7 +59,7 @@ function handleFiledList(list: any) {
 }
 
 async function getDetail() {
-  state.detail = await clientApi.api.getDmsEasyFormDraftId(id).then(res => res.data)
+  state.detail = await clientApi.admin.getAdmindmsEasyFormDraftId(id).then((res) => res.data)
   if (!state.detail) state.detail = {}
 
   if (!state.detail.previewStyle)

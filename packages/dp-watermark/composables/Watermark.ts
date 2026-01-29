@@ -1,5 +1,5 @@
 import {fabric} from "fabric";
-import { clientApi, globalApi  } from 'api'
+import { clientApi } from 'api'
 export type Watermark = {
   id: number
   order?: number,
@@ -89,15 +89,12 @@ export const useWatermark = () => {
     return type === 'text' || type === 'dynamic';
   }
 
-
   async function createWatermarkTemplate(template: {name:string}) {
-    const { data } = await globalApi.api.postWatermarkTemplates(template) as any
-    return data;
+    return  await clientApi.api.postDocpalWatermarkTemplates(template).then(r =>r.data)
   }
 
   async function removeWatermarkTemplate(id:string) {
-    const { data } = await globalApi.api.deleteWatermarkTemplatesId(id) as any
-    return data;
+    return await clientApi.api.deleteDocpalWatermarkTemplatesId(id).then(r =>r.data)
   }
 
   // async function removeWatermarkApi(id:string) {
@@ -106,15 +103,12 @@ export const useWatermark = () => {
   //   return data;
   // }
   async function getWatermarkTemplateDetail(id:string):Promise<WatermarkTemplateDetail> {
-    const { data } = await globalApi.api.getWatermarkTemplatesId(id) as any
+    return await clientApi.api.getDocpalWatermarkTemplatesId(id).then(r =>r.data)
     // const { data } = await api.get<Response<WatermarkTemplateDetail>>(`/docpal/watermark/templates/${id}`).then(res => res.data);
-    return data
   }
   async function updateWatermarkTemplateDetail(template:WatermarkTemplateDetail) {
-    
-    const { data } = await globalApi.api.patchWatermarkTemplates(template as any) as any
+    return await clientApi.api.patchDocpalWatermarkTemplates(template as any).then(r =>r.data)
     // const { data } = await api.patch<Response<WatermarkTemplateDetail>>(`/docpal/watermark/templates`, template).then(res => res.data);
-    return data
   }
 
   function fontSizeConverter(size, height) {

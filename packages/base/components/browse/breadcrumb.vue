@@ -27,7 +27,7 @@ async function getBreadcrumb() {
   try {
     // if idOrPath === home.secondId, then data = []
     let data = []
-    data = await clientApi.api.postNuxeoDocumentBreadcrumb({ idOrPath: idOrPath.value }).then((res: any) => {
+    data = await clientApi.api.postDmsDocumentBreadcrumb({ idOrPath: idOrPath.value }).then((res: any) => {
       return res.data
     })
     if (props.home) {

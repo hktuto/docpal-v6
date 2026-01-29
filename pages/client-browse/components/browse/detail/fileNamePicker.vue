@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { clientApi } from 'api';
-import { ArrowDown } from '@element-plus/icons-vue'
+
 const { title, parentRef,docId } = defineProps<{
     title: string,
     docId:string,
@@ -8,19 +8,28 @@ const { title, parentRef,docId } = defineProps<{
 }>();
 
 
-
 const emits = defineEmits(['itemClick'])
 
-async function loadData(entry: any[], path?: string, pageNum: number = 0){
-    const {data} = await clientApi.api.postNuxeoDocumentChildrenThumbnailV2({idOrPath: path, pageSize: 1000, pageNum})
-    const list = data.entryList.filter(item => item.isFolder === false && item.source !== 'tempFile').map( e => ({label:e.name, value:e.id}))
-    entry.push(...list)
-    if (data.isNextPageAvailable) {
-        return loadData(entry, path, pageNum + 1)
-    } else {
-        return entry
-    }
+async function loadData(entry: any[], path?: string, pageNum: number = 0) {
+  const data = await clientApi.api.postDmsDocumentChildrenThumbnail({
+    idOrPath: path,
+    pageSize: 1000,
+    pageNum
+  }).then(r => r.data)
+
+  const list = data.entryList.filter(item => item.isFolder === false && item.source !== 'tempFile').map(e => ({
+    label: e.name,
+    value: e.id
+  }))
+
+  entry.push(...list)
+  if (data.isNextPageAvailable) {
+    return loadData(entry, path, pageNum + 1)
+  } else {
+    return entry
+  }
 }
+
 const fileList = ref([])
 
 
@@ -86,7 +95,7 @@ onMounted(async () => {
 
 <style scoped>
 .el-dropdown-link {
-    cursor: pointer;
-    font-size: var(--app-font-size-l);
+  cursor: pointer;
+  font-size: var(--app-font-size-l);
 }
 </style>

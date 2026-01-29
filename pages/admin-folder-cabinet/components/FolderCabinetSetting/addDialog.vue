@@ -17,7 +17,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi, adminApi } from 'api'
+import { clientApi } from 'api'
 import formJson from './addDialog.vform.json'
 import { ElMessage } from 'element-plus'
 
@@ -37,7 +37,7 @@ async function handleSubmit() {
   try {
     const data = await FormRendererRef.value.getFormData()
     if (state.oldName != data.name) {
-      const { data: checkName } = await clientApi.api.postDmsCabinetTemplateDuplicateName({ label: data.label })
+      const checkName = await clientApi.admin.postAdmindmsCabinetTemplateDuplicateName({ label: data.label }).then(r => r.data)
       if (checkName) {
         ElMessage.error(t('common_nameExists'))
         return
@@ -58,20 +58,18 @@ async function handleSubmit() {
     let response
     if (state.isEdit) {
       params.id = state.setting.id
-      const { data: patchData } = await clientApi.api.patchDmsCabinetTemplate({
+      const { data: patchData } = await clientApi.admin.patchAdmindmsCabinetTemplate({
         ...params,
         rootId: data.cabinetRoot.pop()
       })
-
       response = patchData
     } else {
-      const { data: createData } = await clientApi.api.postDmsCabinetTemplate({
+      response = await clientApi.admin.postAdmindmsCabinetTemplate({
         documentType: 'Folder',
         ...params,
         rootId: data.cabinetRoot.pop(),
         status: 'A'
-      })
-      response = createData
+      }).then(r => r.data)
     }
     FormRendererRef.value.vFormRenderRef.resetForm()
     state.visible = false
@@ -128,7 +126,7 @@ function handleOpen(setting: any) {
 
 async function getRootIds(idOrPath: string) {
   try {
-    const data = await adminApi.api.postNuxeoDocumentBreadcrumb({ idOrPath }).then((res) => res.data)
+    const data = await clientApi.admin.postAdmindmsDocumentBreadcrumb({ idOrPath }).then((res) => res.data)
     return data?.map((item) => item.id).filter((item: any) => item !== 'root')
   } catch (error) {
     return []

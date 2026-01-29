@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import formJson from './duplicateDialog.vform.json'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -9,14 +9,12 @@ const props = defineProps<{
   row: any
 }>()
 
-const emits = defineEmits([
-  'refresh'
-])
+const emits = defineEmits(['refresh'])
 
 const state = reactive<{
-  loading: boolean,
-  visible: boolean,
-  row: any,
+  loading: boolean
+  visible: boolean
+  row: any
 }>({
   loading: false,
   visible: false,
@@ -38,13 +36,15 @@ function handleOpen(row: any) {
 async function handleSubmit() {
   try {
     let { name } = await FormRendererRef.value.getFormData()
-    const data = await adminApi.api.postIdTemplates({ name: name }).then(res => res.data)
+    const data = await clientApi.admin.postAdmindocpalIdTemplates({ name: name }).then((res) => res.data)
     state.row.id = data.id
-    await adminApi.api.putIdTemplatesId(data.id, { ...data, ...state.row })
-    routerProvider?.message.success(t('tip_createdSuccessMsg', {
-      modelName: t('adminMenu.uniqueIdGenerator'),
-      name: name
-    }))
+    await clientApi.admin.putAdmindocpalIdTemplatesId(data.id, { ...data, ...state.row })
+    routerProvider?.message.success(
+      t('tip_createdSuccessMsg', {
+        modelName: t('adminMenu.uniqueIdGenerator'),
+        name: name
+      })
+    )
     state.visible = false
     emits('refresh')
   } catch (e) {
@@ -66,6 +66,4 @@ defineExpose({ handleOpen })
   </el-dialog>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

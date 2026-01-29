@@ -6,10 +6,8 @@
         prop="assignee"
         :rules="[{ required: true, message: $t('workflow_ManageReallocateAssignee') + $t('render.hint.fieldRequired'), trigger: 'change' }]"
       >
-        <el-select v-model="form.assignee" filterable clearable :placeholder="t('common_selectedIsRequiredMsg')"
-                   style="width: 100%">
-          <el-option v-for="item in state.userList" :key="item.id" :label="item.userId"
-                     :value="item.userId"></el-option>
+        <el-select v-model="form.assignee" filterable clearable :placeholder="t('common_selectedIsRequiredMsg')" style="width: 100%">
+          <el-option v-for="item in state.userList" :key="item.id" :label="item.userId" :value="item.userId"></el-option>
         </el-select>
       </el-form-item>
     </el-form>
@@ -23,7 +21,7 @@
 
 <script lang="ts" setup>
 import { ElMessage, type FormInstance } from 'element-plus'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 
 const { t } = useI18n()
 const emit = defineEmits(['success'])
@@ -44,7 +42,7 @@ async function handleOpen(row) {
     form.assignee = ''
     form.id = row.id
   }
-  state.userList = await adminApi.api.postNuxeoIdentityUsers({}).then((res) => res.data)
+  state.userList = await clientApi.admin.postAdminucenterUsers({}).then((res) => res.data)
   state.userList = state.userList.filter((item) => item.userId !== row.assignee && item.userId)
 }
 
@@ -67,12 +65,12 @@ async function handleSubmit() {
     if (!valid) return
     if (!form.assignee) return
     if (form.oldAssignee) {
-      const res = await adminApi.api.postWorkflowTaskUnclaim({
+      const res = await clientApi.admin.postAdmindocpalWorkflowTaskUnclaim({
         taskId: form.id
       })
       if (!res) return
     }
-    const res2 = await adminApi.api.postWorkflowTaskClaim({
+    const res2 = await clientApi.admin.postAdmindocpalWorkflowTaskClaim({
       taskId: form.id,
       userId: form.assignee
     })

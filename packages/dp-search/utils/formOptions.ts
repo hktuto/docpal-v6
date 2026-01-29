@@ -119,7 +119,7 @@ export const getMetadataOptions = async () => {
 }
 
 export const getGroupList = async () => {
-  const { data } = (await globalApi.api.postNuxeoIdentityGroups()) as any
+  const data = await clientApi.api.postUcenterGroups().then(r => r.data)
   const optionList = data.map((item: any) => ({
     ...item,
     label: item.name,

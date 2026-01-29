@@ -9,73 +9,76 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ElMessage } from "element-plus";
-import { clientApi } from "api";
-const routerProvider = inject(MenuRouterKey);
-const { t } = useI18n();
+import { clientApi } from 'api'
+
+const routerProvider = inject(MenuRouterKey)
+const { t } = useI18n()
 const {
-  public: { endPoint },
-} = useRuntimeConfig();
-let extraParams: any = {};
+  public: { endPoint }
+} = useRuntimeConfig()
+let extraParams: any = {}
 const {
   tableConfig,
   tableEvent,
   tableRef,
   query,
   reload,
-  cleanSelectedRows,
+  cleanSelectedRows
 } = useVxeTable({
-  id: "d-externalShare",
+  id: 'd-externalShare',
   api: (pageParams: any) => getData(pageParams),
   columns: [
-    { field: "emailList", title: "tableHeader_emailList", fixed: "left" },
-    { field: "documentSize", title: "tableHeader_numberOfFiles" },
+    { field: 'emailList', title: 'tableHeader_emailList', fixed: 'left' },
+    { field: 'documentSize', title: 'tableHeader_numberOfFiles' },
     {
-      field: "expiredDate",
-      title: "search.duration",
+      field: 'expiredDate',
+      title: 'search.duration',
       slots: {
-        default: "duration",
-      },
+        default: 'duration'
+      }
     },
     {
-      field: "expiredDate",
-      title: "tableHeader_dueDate",
+      field: 'expiredDate',
+      title: 'tableHeader_dueDate',
       formatter({ cellValue }: any) {
-        return formatDate(cellValue);
-      },
-    },
+        return formatDate(cellValue)
+      }
+    }
   ],
   dblClickAction: ({ row, column, event }: any) => {
-    handleDblclick(row);
+    handleDblclick(row)
   },
   zoom: false,
-  saveColumnOrder: false,
-});
+  saveColumnOrder: false
+})
+
 async function getData(params: any = {}) {
-  const res = await clientApi.api
-    .postNuxeoSharePage({ page: params.pageNum, size: params.pageSize, ...extraParams })
-    .then((res) => res.data);
+  const res = await clientApi.api.postDmsSharePage({ page: params.pageNum, size: params.pageSize, ...extraParams })
+    .then((res) => res.data)
   return {
     data: {
       entryList: res?.list,
-      totalSize: res?.total,
-    },
-  };
+      totalSize: res?.total
+    }
+  }
 }
-const shareInfoDialogRef = ref();
+
+const shareInfoDialogRef = ref()
 
 function handleDblclick(row: any) {
-  if(!shareInfoDialogRef?.value.handleOpen) return
+  if (!shareInfoDialogRef?.value.handleOpen) return
   try {
-    shareInfoDialogRef.value.handleOpen(row);
+    shareInfoDialogRef.value.handleOpen(row)
   } catch (error: any) {
     console.error(error)
   }
 }
+
 async function handleSubmit(shareInfo: any) {
-  await clientApi.api.patchNuxeoShare(shareInfo);
-  query({});
+  await clientApi.api.patchDmsShareSave(shareInfo)
+  query({})
 }
+
 defineExpose({ query, reload })
 </script>
 <style lang="scss" scoped>
@@ -83,8 +86,10 @@ defineExpose({ query, reload })
   display: flex;
   justify-content: space-between;
 }
+
 .responsive-container {
   width: 70%;
+
   :deep(.el-input) {
     width: 200px;
   }

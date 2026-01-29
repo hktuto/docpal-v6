@@ -1,4 +1,3 @@
-import { adminApi } from 'api';
 // create nuxt app config
 import { defineAppConfig } from '#imports'
 
