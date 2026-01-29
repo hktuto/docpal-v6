@@ -163,6 +163,8 @@ export interface FieldInfo {
   fieldNameAlias: string
   type: number
   isSystem?: boolean
+  /** Field properties (e.g., options for select fields) */
+  properties?: Record<string, any>
 }
 
 /**
@@ -213,5 +215,33 @@ export function generateDefaultListConfig(fields: FieldInfo[]): ListViewConfig {
     })),
     primaryField,
     secondaryField
+  }
+}
+
+/**
+ * Generate a default form view config from table fields
+ * Excludes system fields, formulas, and virtual columns
+ */
+export function generateDefaultFormConfig(fields: FieldInfo[]): FormViewConfig {
+  // Filter out fields not suitable for forms
+  const formFields = fields.filter(f => 
+    !f.isSystem && 
+    f.type !== 6 && // Attachment (handled separately)
+    f.type !== 14 && // MagicLink (relation)
+    f.type !== 16 && // Formula (read-only)
+    f.type !== 15    // VirtualColumn (read-only)
+  )
+
+  const viewFields: ViewFieldConfig[] = formFields.map(f => ({
+    fieldName: f.fieldName,
+    colSpan: 12, // Default to full width for forms
+    required: f.type !== 11 // Checkbox fields not required by default
+  }))
+
+  return {
+    fields: viewFields,
+    layout: 'multi',
+    labelPosition: 'top',
+    labelWidth: 120
   }
 }

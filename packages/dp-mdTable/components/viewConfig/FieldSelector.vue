@@ -22,7 +22,7 @@
         @end="handleDragEnd"
       >
         <template #item="{ element, index }">
-          <div class="field-item">
+          <div class="field-item" :class="{ 'is-hidden': element.hidden }">
             <div class="drag-handle">
               <Icon name="lucide:grip-vertical" size="14" />
             </div>
@@ -33,11 +33,35 @@
             </div>
 
             <div class="field-controls">
+              <!-- Hidden Toggle -->
+              <el-tooltip v-if="showHidden" content="Hidden field" placement="top">
+                <el-button
+                  text
+                  size="small"
+                  :type="element.hidden ? 'warning' : 'default'"
+                  @click="toggleHidden(element)"
+                >
+                  <Icon :name="element.hidden ? 'lucide:eye-off' : 'lucide:eye'" size="14" />
+                </el-button>
+              </el-tooltip>
+
+              <!-- Required Toggle -->
+              <el-tooltip v-if="showRequired" content="Required field" placement="top">
+                <el-button
+                  text
+                  size="small"
+                  :type="element.required ? 'primary' : 'default'"
+                  @click="toggleRequired(element)"
+                >
+                  <Icon name="lucide:asterisk" size="14" />
+                </el-button>
+              </el-tooltip>
+
               <!-- Column Span Selector -->
               <el-select
                 v-model="element.colSpan"
                 size="small"
-                style="width: 80px"
+                style="width: 70px"
                 @change="handleFieldUpdate(element)"
               >
                 <el-option
@@ -171,6 +195,10 @@ const props = defineProps<{
   modelValue: ViewFieldConfig[]
   /** All available fields from the table */
   fields: FieldInfo[]
+  /** Show required toggle for form fields */
+  showRequired?: boolean
+  /** Show hidden toggle */
+  showHidden?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -278,6 +306,18 @@ function openFieldAdvanced(field: ViewFieldConfig) {
   showAdvancedDialog.value = true
 }
 
+// Toggle required state
+function toggleRequired(field: ViewFieldConfig) {
+  field.required = !field.required
+  selectedFields.value = [...selectedFields.value]
+}
+
+// Toggle hidden state
+function toggleHidden(field: ViewFieldConfig) {
+  field.hidden = !field.hidden
+  selectedFields.value = [...selectedFields.value]
+}
+
 // Save field advanced settings
 function saveFieldAdvanced() {
   if (editingField.value) {
@@ -352,6 +392,7 @@ function saveFieldAdvanced() {
   border-radius: var(--el-border-radius-small);
   margin-bottom: var(--app-space-xs);
   transition: all 0.2s;
+  opacity: 1;
 
   &:hover {
     border-color: var(--el-border-color);
@@ -360,6 +401,11 @@ function saveFieldAdvanced() {
 
   &:last-child {
     margin-bottom: 0;
+  }
+
+  &.is-hidden {
+    opacity: 0.6;
+    border-style: dashed;
   }
 }
 
