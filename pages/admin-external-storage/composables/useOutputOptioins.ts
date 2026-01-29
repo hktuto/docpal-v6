@@ -1,4 +1,4 @@
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 
 export const useOutputOptioins = () => {
   const documentTypeOpts = useState('documentTypeOpts', () => [{ label: 'File', value: 'File' }])
@@ -78,7 +78,7 @@ export const useOutputOptioins = () => {
 
   async function getMetaOpts() {
     try {
-      const { data }: any = await adminApi.api.getDocpaltypeSettingsMetadataDocumenttype('GlobalFile')
+      const { data }: any = await clientApi.admin.getAdmindmsDocpalTypeDocumenttypeMetadata('GlobalFile')
       const optionList = data.keywords.map((item: any) => ({
         ...item,
         label: item.name,

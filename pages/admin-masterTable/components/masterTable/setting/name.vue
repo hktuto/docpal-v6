@@ -3,8 +3,7 @@
     <h3 class="title">{{ $t('master.setting.name') }}</h3>
     <div class="description">{{ $t('master.setting.nameDescription') }}</div>
     <el-input v-model="state.name" clearable :maxlength="61" />
-    <el-button id="MasterTable__Tables__Detail__Setting__Name__Save" :loading="state.loading" type="primary"
-               @click="handleSave">
+    <el-button id="MasterTable__Tables__Detail__Setting__Name__Save" :loading="state.loading" type="primary" @click="handleSave">
       {{ $t('common_save') }}
     </el-button>
   </el-card>
@@ -27,10 +26,10 @@ async function handleSave() {
   }
   try {
     state.loading = true
-    const data = await clientApi.api.putDmsMasterTable({
+    await clientApi.admin.putAdmindmsMasterTable({
       id: props.tableId,
       name: state.name
-    })
+    }).then(r => r.data)
     routerProvider?.message.success(t('dpMsg_success'))
   } catch (error) {
     //     routerProvider?.message.error($i18n.t('dpMsg_error'))
@@ -42,7 +41,7 @@ async function handleSave() {
 watch(
   () => props.table,
   () => {
-    if(props.table?.name) {
+    if (props.table?.name) {
       state.name = props.table?.name
     }
   },

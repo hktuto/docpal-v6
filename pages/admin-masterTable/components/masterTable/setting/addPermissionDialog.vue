@@ -2,8 +2,7 @@
   <el-dialog v-model="state.visible" :title="$t('masterTable_settingAddPermission')" :close-on-click-modal="false">
     <FormRenderer ref="FormRendererRef" :form-json="formJson" />
     <template #footer>
-      <el-button id="MasterTable__Tables__Detail__Setting__Permissions__AddPermission__Submit" type="primary"
-                 :loading="state.loading" @click="handleSubmit">
+      <el-button id="MasterTable__Tables__Detail__Setting__Permissions__AddPermission__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
         {{ $t('common_submit') }}
       </el-button>
     </template>
@@ -12,13 +11,7 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
 import formJson from './addPermissionDialog.vform.json'
-import {
-  getGroupsSelectOption,
-  getRoleSelectOption,
-  getUserSelectOption,
-  getPermissionSelectOption,
-  excludeItemSelectList
-} from '#imports'
+import { getGroupsSelectOption, getRoleSelectOption, getUserSelectOption, getPermissionSelectOption, excludeItemSelectList } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
 const props = defineProps<{
@@ -47,8 +40,9 @@ async function handleSubmit() {
       ...data
     }
     state.loading = true
-    await clientApi.api.postDmsMasterTableAclsAdd(params)
-    routerProvider?.message.success(t('tip_createdMsg', {
+    await clientApi.admin.postAdmindmsMasterTableAclsAdd(params).then(r => r.data)
+    routerProvider?.message.success(
+      t('tip_createdMsg', {
         modelName: t('masterTable_permissionForMaster', { name: props.exitList[0]?.masterTableName }),
         name: null
       })

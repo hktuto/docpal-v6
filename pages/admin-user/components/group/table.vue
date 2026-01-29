@@ -7,8 +7,7 @@
         inputKey="userNameOrEmail"
         :inputPlaceHolder="$t('placeHolder.userGroupName')"
       />
-      <el-button id="UserGroupList__AddNewUserGroup" class="el-icon--right button" type="primary"
-                 @click="handleGroupDialogShow()">
+      <el-button id="UserGroupList__AddNewUserGroup" class="el-icon--right button" type="primary" @click="handleGroupDialogShow()">
         {{ $t('user_newGroup') }}
       </el-button>
     </template>
@@ -103,7 +102,7 @@ async function handleDelete(row: any) {
     if (action !== 'confirm') return
     const res = await groupProvider?.DeleteGroupApi({ groupId: row.id })
     if (!!res) {
-      routerProvider?.message.success(t('tip_deleteSuccessMessage',{name: t('dataField.type.group')}))
+      routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('dataField.type.group') }))
       await getGroup()
     }
   } catch (error) {
@@ -129,7 +128,7 @@ function handleFilterFormChange(formModel: any) {
 // #endregion
 async function getGroup() {
   tableConfig.loading = true
-  state.groupList = await clientApi.api.postUcenterGroups().then(r => r.data)
+  state.groupList = await clientApi.admin.postAdminucenterGroups().then((r) => r.data)
   handleFilterFormChange(filterParams)
   tableConfig.loading = false
   return state.groupList

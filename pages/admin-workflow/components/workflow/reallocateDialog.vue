@@ -6,10 +6,8 @@
         prop="assignee"
         :rules="[{ required: true, message: $t('workflow_ManageReallocateAssignee') + $t('render.hint.fieldRequired'), trigger: 'change' }]"
       >
-        <el-select v-model="form.assignee" filterable clearable :placeholder="t('common_selectedIsRequiredMsg')"
-                   style="width: 100%">
-          <el-option v-for="item in state.userList" :key="item.id" :label="item.userId"
-                     :value="item.userId"></el-option>
+        <el-select v-model="form.assignee" filterable clearable :placeholder="t('common_selectedIsRequiredMsg')" style="width: 100%">
+          <el-option v-for="item in state.userList" :key="item.id" :label="item.userId" :value="item.userId"></el-option>
         </el-select>
       </el-form-item>
     </el-form>
@@ -44,7 +42,7 @@ async function handleOpen(row) {
     form.assignee = ''
     form.id = row.id
   }
-  state.userList = await clientApi.api.postUcenterUsers({}).then((res) => res.data)
+  state.userList = await clientApi.admin.postAdminucenterUsers({}).then((res) => res.data)
   state.userList = state.userList.filter((item) => item.userId !== row.assignee && item.userId)
 }
 

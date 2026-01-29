@@ -32,7 +32,7 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-email-layout-template',
-  api: (pageParams: any) => clientApi.api.postDmsTemplateEmailLayoutPage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => clientApi.admin.postAdmindmsTemplateEmailLayoutPage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'name', title: 'emailContentTemplate_layoutName', fixed: 'left' },
     { field: 'createdBy', title: 'emailContentTemplate_layoutCreator' },
@@ -80,14 +80,12 @@ function handleAdd() {
 
 async function handleDeleteTemplate(row) {
   try {
-    const action = await ElMessageBox.confirm(
-      t('tip_deleteMsg', { modelName: t('emailTemplate.layout'), name: row.name }),
-      {
-        confirmButtonClass: 'el-button el-button--warning',
-        confirmButtonText: t('common_confirmDelete')
-      })
+    const action = await ElMessageBox.confirm(t('tip_deleteMsg', { modelName: t('emailTemplate.layout'), name: row.name }), {
+      confirmButtonClass: 'el-button el-button--warning',
+      confirmButtonText: t('common_confirmDelete')
+    })
     if (action !== 'confirm') return
-    await clientApi.api.deleteDmsTemplateEmailLayoutId(row.id)
+    await clientApi.admin.deleteAdmindmsTemplateEmailLayoutId(row.id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: row.name }))
     query({})
   } catch (error) {

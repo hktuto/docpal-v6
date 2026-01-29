@@ -4,14 +4,14 @@ import type { UserDTO } from 'api/src/generate/admin'
 import { userProviderDetailKey } from '~/util/userProvider'
 
 const { id } = defineProps<{
-  id: string;
+  id: string
 }>()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
 const state = reactive<{
-  curUser: UserDTO | null;
+  curUser: UserDTO | null
 }>({
   curUser: null
 })
@@ -34,7 +34,7 @@ function openUserList(openInNewTab: boolean = false) {
 }
 
 async function getUser() {
-  const data: any = await clientApi.admin.getAdmindmsUserUserid(id).then(r => r.data)
+  const data: any = await clientApi.admin.getAdmindmsUserUserid(id).then((r) => r.data)
   if (!data) return
   console.log('user info', data)
   data.status = data.status === 'A' ? 'A' : 'D'
@@ -64,7 +64,7 @@ provide(userProviderDetailKey, {
     return clientApi.admin.postAdminucenterUserBatchAddGroups(params)
   },
   GetGroupListApi: async () => {
-    return await clientApi.api.postUcenterGroups().then(r => r.data)
+    return await clientApi.admin.postAdminucenterGroups().then((r) => r.data)
   },
   getUser,
   openUserList
@@ -76,11 +76,7 @@ onMounted(() => {
 </script>
 <template>
   <div class="userDetailSection" v-if="state.curUser">
-    <UserInfo
-      class="info"
-      :user="state.curUser"
-      @refresh="getUser"
-    ></UserInfo>
+    <UserInfo class="info" :user="state.curUser" @refresh="getUser"></UserInfo>
     <UserGroupTable class="group" :user="state.curUser">group</UserGroupTable>
     <!-- <UserVirtualFolder v-if="state.curUser" class="virtualFolder" :userOrGroup="state.curUser" mode="userAllowList">virtualFolder</UserVirtualFolder> -->
   </div>
@@ -102,7 +98,6 @@ onMounted(() => {
   :deep(.el-card) {
     height: 100%;
     overflow: hidden;
-
   }
 
   :deep(.el-card__header) {

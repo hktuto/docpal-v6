@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { ElMessage } from 'element-plus'
 const { t } = useI18n()
 const dialogVisible = ref(false)
@@ -36,7 +36,7 @@ function reset() {
 
 async function submit() {
   if (newForm.value.name.trim() === '') return
-  const res = await adminApi.api.postMessageTemplateCreate(newForm.value)
+  const res = await clientApi.admin.postAdmindocpalMessageTemplateCreate(newForm.value)
   ElMessage.success(t('tip_createdSuccessMsg', { modelName: t('adminMenu.messageTemplate'), name: null }))
   emits('success', res.data)
   dialogVisible.value = false
@@ -56,12 +56,9 @@ defineExpose({
     </ElForm>
     <template #footer>
       <ElButton id="MessageTemplate__NewTemplate__Reset" @click="reset">{{ $t('common_reset') }}</ElButton>
-      <ElButton id="MessageTemplate__NewTemplate__Submit" type="primary" @click="submit">{{ $t('common_submit') }}
-      </ElButton>
+      <ElButton id="MessageTemplate__NewTemplate__Submit" type="primary" @click="submit">{{ $t('common_submit') }} </ElButton>
     </template>
   </ElDialog>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

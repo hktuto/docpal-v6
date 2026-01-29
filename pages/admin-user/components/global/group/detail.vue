@@ -26,7 +26,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 import { groupProviderDetailKey } from '~/util/userProvider'
 
@@ -96,7 +96,7 @@ provide(groupProviderDetailKey, {
     return clientApi.admin.patchAdminucenterGroup(params)
   },
   getUserListApi: async () => {
-    return  await clientApi.api.postUcenterUsers({}).then((res) => res.data)
+    return await clientApi.admin.postAdminucenterUsers({}).then((res) => res.data)
   }
 })
 watch(

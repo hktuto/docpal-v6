@@ -1,13 +1,8 @@
 <template>
-  <el-dialog
-    v-model="state.visible"
-    :title="$t('folder_cabinetDetailLocalPermissionAdd')"
-    :close-on-click-modal="false"
-  >
+  <el-dialog v-model="state.visible" :title="$t('folder_cabinetDetailLocalPermissionAdd')" :close-on-click-modal="false">
     <FormRenderer ref="FormRendererRef" :form-json="formJson" />
     <template #footer>
-      <el-button id="FolderCabinetSetting__Info__AddLocalPermission__Submit" type="primary" :loading="state.loading"
-                 @click="handleSubmit">
+      <el-button id="FolderCabinetSetting__Info__AddLocalPermission__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
         {{ $t('common_submit') }}
       </el-button>
     </template>
@@ -17,17 +12,12 @@
 import { clientApi } from 'api'
 import formJson from './permissionAddDialog.vform.json'
 import { ElMessage } from 'element-plus'
-import {
-  getUserAndGroupPermissionSelectOption,
-  getUserSelectOption,
-  getGroupsSelectOption,
-  excludeItemSelectList
-} from '#imports'
+import { getUserAndGroupPermissionSelectOption, getUserSelectOption, getGroupsSelectOption, excludeItemSelectList } from '#imports'
 
 const props = defineProps<{
-  id: string;
-  exitList: any;
-  isFolder: string;
+  id: string
+  exitList: any
+  isFolder: string
 }>()
 const { t } = useI18n()
 const emits = defineEmits(['refresh'])
@@ -58,7 +48,7 @@ async function handleSubmit() {
       params.endDate = data.dateRange[1]
     }
     state.loading = true
-    await clientApi.api.postDmsCabinetTemplatePermission(params)
+    await clientApi.admin.postAdmindmsCabinetTemplatePermission(params)
     state.visible = false
     const modelName = props.isFolder === 'folder' ? t('folder_cabinetLocalPermissionOfFolder') : t('folder_cabinetLocalPermissionOfFile')
     ElMessage.success(t('tip_createdMsg', { modelName: modelName, name: null }))
@@ -91,17 +81,11 @@ function handleOptions() {
 
   // TODO 移除下面兩個方法
   function userListFilter() {
-    return state.userList.filter(
-      (allItem: any) =>
-        !props.exitList.some((exitItem: any) => exitItem.userId === allItem.userId)
-    )
+    return state.userList.filter((allItem: any) => !props.exitList.some((exitItem: any) => exitItem.userId === allItem.userId))
   }
 
   function groupListFilter() {
-    return state.groupList.filter(
-      (allItem: any) =>
-        !props.exitList.some((exitItem: any) => exitItem.userId === allItem.id)
-    )
+    return state.groupList.filter((allItem: any) => !props.exitList.some((exitItem: any) => exitItem.userId === allItem.id))
   }
 }
 

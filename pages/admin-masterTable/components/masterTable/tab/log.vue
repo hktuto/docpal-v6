@@ -1,12 +1,7 @@
 <template>
   <VxeGrid ref="tableRef" v-bind="tableConfig">
     <template #toolbar_buttons>
-      <ResponsiveFilter
-        ref="ResponsiveFilterRef"
-        @form-change="handleFilterFormChange"
-        inputKey="name"
-        inputPlaceHolder="masterTable_detailLogFilter"
-      />
+      <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="name" inputPlaceHolder="masterTable_detailLogFilter" />
     </template>
   </VxeGrid>
 </template>
@@ -24,18 +19,20 @@ let extraParams: any = {
 let filtersParams: any = {}
 const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
   id: 'masterTable-log',
-  api: (pageParams: any) => clientApi.api.postDmsMasterTableLogs({ ...pageParams, ...extraParams, ...filtersParams }),
+  api: (pageParams: any) => clientApi.admin.postAdmindmsMasterTableLogs({ ...pageParams, ...extraParams, ...filtersParams }),
   columns: [
     { field: 'docPath', title: 'masterTable_masterName', fixed: 'left' },
     { field: 'principalName', title: 'user_username' },
     {
-      field: 'eventId', title: 'masterTable.eventType',
+      field: 'eventId',
+      title: 'masterTable.eventType',
       formatter({ cellValue }: any) {
         return t('eventId.' + cellValue)
       }
     },
     {
-      field: 'eventDate', title: 'masterTable.eventDate',
+      field: 'eventDate',
+      title: 'masterTable.eventDate',
       formatter({ cellValue }: any) {
         return formatDate(cellValue)
       }
@@ -47,7 +44,7 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
-  const filters: any = await clientApi.api.postDmsMasterTableLogsPageConditions({ ...extraParams }).then(res => res.data)
+  const filters: any = await clientApi.admin.postAdmindmsMasterTableLogsPageConditions({ ...extraParams }).then((res) => res.data)
   let data = filters.filter((item: any) => item.key !== 'orderBy' && item.key !== 'isDesc')
   data?.unshift(
     {
@@ -94,7 +91,6 @@ onMounted(() => {
   getFilter()
 })
 defineExpose({ reload })
-
 </script>
 
 <style lang="scss" scoped>

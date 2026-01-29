@@ -30,14 +30,13 @@ async function sendInvitation(data: any) {
     throw new Error('only non-register user can be invitate')
   }
   try {
-    const response = await clientApi.admin.getAdminucenterSendInitPasswordEmailUserid(data.userId).then(r => r.data)
+    const response = await clientApi.admin.getAdminucenterSendInitPasswordEmailUserid(data.userId).then((r) => r.data)
     console.log('response', response)
     routerProvider?.message.success('Invitation sent successfully')
   } catch (error) {
     // TODO : handle error
     console.error(error)
   }
-
 }
 
 // #region module:
@@ -78,7 +77,7 @@ provide(userProviderKey, {
     return clientApi.admin.postAdminucenterUsersBatchAddGroups(params)
   },
   GetGroupListApi: async () => {
-    return await clientApi.api.postUcenterGroups().then(r => r.data)
+    return await clientApi.api.postAdminucenterGroups().then((r) => r.data)
   },
   sendInvitation,
   openUserDetail
@@ -87,10 +86,7 @@ provide(userProviderKey, {
 
 <template>
   <div class="pageContainer">
-    <UserTable
-      ref="tableRef"
-      @filter-change="handleFilterChange"
-    ></UserTable>
+    <UserTable ref="tableRef" @filter-change="handleFilterChange"/>
   </div>
 </template>
 <style lang="scss" scoped>
