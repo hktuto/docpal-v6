@@ -1,4 +1,15 @@
 <script setup lang="ts">
+import type { TreeItem } from '../../../../composables/useSingleWorkspace'
+
+// Get current menu item from workspace context
+const { workspaceRouteParams, menuState, findItemById } = useSingleWorkspaceContext()
+
+// Get current table menu item
+const currentMenuItem = computed<TreeItem | undefined>(() => {
+  if (!workspaceRouteParams.value.detailId) return undefined
+  return findItemById(menuState.value.items, workspaceRouteParams.value.detailId as string)
+})
+
 // Navigation state
 const activeSection = ref('info')
 
@@ -155,7 +166,11 @@ onMounted(() => {
 
       <!-- Main content - never re-renders on resize -->
       <main class="setting-container">
-        <component :is="sectionComponent" :active-sub-section="activeSection" />
+        <component 
+          :is="sectionComponent" 
+          :active-sub-section="activeSection" 
+          :menu-item="currentMenuItem"
+        />
       </main>
 
       <!-- Backdrop for mobile sidebar -->

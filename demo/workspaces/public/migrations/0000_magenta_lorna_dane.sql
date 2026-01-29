@@ -149,6 +149,16 @@ CREATE TABLE "relation_suggestions" (
 	"updatedAt" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "workspace_permissions" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"itemId" uuid NOT NULL,
+	"userId" uuid NOT NULL,
+	"role" text NOT NULL,
+	"grantedBy" uuid,
+	"createdAt" timestamp DEFAULT now() NOT NULL,
+	"updatedAt" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_rolledBackBy_users_id_fk" FOREIGN KEY ("rolledBackBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_entityId_case_type_id_fk" FOREIGN KEY ("entityId") REFERENCES "public"."case_type"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_caseTableId_case_tables_id_fk" FOREIGN KEY ("caseTableId") REFERENCES "public"."case_tables"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -174,4 +184,8 @@ ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_sourceFi
 ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_targetTableId_case_tables_id_fk" FOREIGN KEY ("targetTableId") REFERENCES "public"."case_tables"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_targetFieldId_case_fields_id_fk" FOREIGN KEY ("targetFieldId") REFERENCES "public"."case_fields"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_createdBy_users_id_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_updatedBy_users_id_fk" FOREIGN KEY ("updatedBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "relation_suggestions" ADD CONSTRAINT "relation_suggestions_updatedBy_users_id_fk" FOREIGN KEY ("updatedBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspace_permissions" ADD CONSTRAINT "workspace_permissions_itemId_case_tree_id_fk" FOREIGN KEY ("itemId") REFERENCES "public"."case_tree"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspace_permissions" ADD CONSTRAINT "workspace_permissions_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspace_permissions" ADD CONSTRAINT "workspace_permissions_grantedBy_users_id_fk" FOREIGN KEY ("grantedBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+CREATE UNIQUE INDEX "unique_user_item_permission" ON "workspace_permissions" USING btree ("itemId","userId");

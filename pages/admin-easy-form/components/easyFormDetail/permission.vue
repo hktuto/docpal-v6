@@ -40,7 +40,7 @@ const form = ref({
 async function handleChange() {
   try {
     state.loading = true
-    if (form.value.permission.length === 0) return
+    if (!form.value?.permission || form.value.permission.length === 0) return
     const groups = state.options[0].options.filter((item: any) => form.value.permission.includes(item.value))
     const roles = state.options[1].options.filter((item: any) => form.value.permission.includes(item.value))
     await adminApi.api.postFormDesignSavePermission({
@@ -60,7 +60,7 @@ const { flatRole } = useRBAC()
 
 async function init() {
   const groupList = await adminApi.api.postNuxeoIdentityGroups().then((res) => res.data)
-  state.options =[
+  state.options = [
     {
       label: t('user_groups'),
       options: groupList.map((item: any) => ({

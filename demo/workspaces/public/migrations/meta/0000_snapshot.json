@@ -1,5 +1,5 @@
 {
-  "id": "a6f8a67a-eaaa-4c34-8f29-347bb933ad8b",
+  "id": "a322ab41-1f3a-4852-8ed9-af8b86645cd3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1253,6 +1253,126 @@
           "tableTo": "users",
           "columnsFrom": [
             "updatedBy"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.workspace_permissions": {
+      "name": "workspace_permissions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "itemId": {
+          "name": "itemId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "grantedBy": {
+          "name": "grantedBy",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "unique_user_item_permission": {
+          "name": "unique_user_item_permission",
+          "columns": [
+            {
+              "expression": "itemId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "userId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "workspace_permissions_itemId_case_tree_id_fk": {
+          "name": "workspace_permissions_itemId_case_tree_id_fk",
+          "tableFrom": "workspace_permissions",
+          "tableTo": "case_tree",
+          "columnsFrom": [
+            "itemId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "workspace_permissions_userId_users_id_fk": {
+          "name": "workspace_permissions_userId_users_id_fk",
+          "tableFrom": "workspace_permissions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "workspace_permissions_grantedBy_users_id_fk": {
+          "name": "workspace_permissions_grantedBy_users_id_fk",
+          "tableFrom": "workspace_permissions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "grantedBy"
           ],
           "columnsTo": [
             "id"

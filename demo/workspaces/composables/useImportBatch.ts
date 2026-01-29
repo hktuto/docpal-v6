@@ -4,6 +4,7 @@ import type { CaseTreeRecord, CaseFieldRecord, FieldDisplayStructure } from '../
 import { ColumnFieldType } from '../utils/tableColumnType'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
+import { usePermission } from './usePermission'
 
 interface ImportField extends Partial<CaseFieldRecord> {
   originalIdx?: number
@@ -1319,6 +1320,15 @@ export function useImportBatch() {
 
         // Save tree item to database
         await saveMenuItemToDb(treeItem)
+
+        // Auto-assign 'manage' permission to creator
+        const { assignCreatorPermission } = usePermission()
+        try {
+          await assignCreatorPermission(treeItem.id as string)
+        } catch (error) {
+          console.error('Failed to assign creator permission:', error)
+          // Don't fail the creation if permission assignment fails
+        }
 
         // Add to local menu state
         if (parentFolderId) {

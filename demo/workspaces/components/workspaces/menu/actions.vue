@@ -3,11 +3,12 @@ import type { TreeItem, CaseTreeItemType } from '../../../composables/useSingleW
 import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspace'
 import { ElMessageBox } from 'element-plus'
 import type { ViewType, ViewSettings } from '../../../utils/db/schema/newTableSchema'
-
+const targetRef = ref()
 const item = ref<TreeItem | null>(null)
 const isAdmin = ref(false)
-const open = (data: {item: TreeItem, isAdmin: boolean}, target?: HTMLElement, highlight?: HTMLElement) => {
-  if(!data.isAdmin) return;
+const open = (data: { item: TreeItem; isAdmin: boolean }, target?: HTMLElement, highlight?: HTMLElement) => {
+  if (!data.isAdmin) return
+  targetRef.value = target
   item.value = data.item
   isAdmin.value = data.isAdmin
   popoverRef.value?.open(target, highlight)
@@ -17,7 +18,7 @@ const menuContext = useSingleWorkspaceContext()
 const popoverRef = ref()
 const importExcelDialogRef = ref()
 const createViewDialogRef = ref()
-
+const permissionPopoverRef = ref()
 
 function close() {
   popoverRef.value?.close()
@@ -26,39 +27,41 @@ function close() {
 }
 
 async function handleEdit() {
-  if(!item.value) return
+  if (!item.value) return
   menuContext.startEdit(item.value?.id)
-  close() 
+  close()
 }
 
 async function handleDelete() {
-  if(!item.value) return
+  if (!item.value) return
   // Customize message based on item type
   let message = `Are you sure you want to delete "${item.value.label}"?`
   let confirmText = 'Delete'
-  
+
   if (item.value?.itemType === 'table') {
     message = `Are you sure you want to delete the table "${item.value.label}"?\n\nThis will permanently delete:\n• The physical database table\n• All fields\n• All data records\n\nThis action cannot be undone.`
     confirmText = 'Delete Table'
   } else if (item.value?.itemType === 'folder' && item.value?.children && item.value?.children.length > 0) {
     message = `Are you sure you want to delete the folder "${item.value.label}" and all its contents?`
   }
-  
+
   ElMessageBox.confirm(message, 'Delete Item', {
     confirmButtonText: confirmText,
     cancelButtonText: 'Cancel',
     type: 'warning',
-    dangerouslyUseHTMLString: true,
-  }).then(async () => {
-    if(!item.value) return
-    await menuContext.deleteItem(item.value.id)
-    close()
-  }).catch(() => {
-    // User cancelled
+    dangerouslyUseHTMLString: true
   })
+    .then(async () => {
+      if (!item.value) return
+      await menuContext.deleteItem(item.value.id)
+      close()
+    })
+    .catch(() => {
+      // User cancelled
+    })
 }
 async function handleEditSetting(type: CaseTreeItemType) {
-  if(!item.value) return
+  if (!item.value) return
   await menuContext.openSetting(item.value?.id || '', type)
   close()
 }
@@ -69,7 +72,7 @@ async function handleAddItem(type: CaseTreeItemType) {
 
   //   return
   // }
-  // 
+  //
 }
 
 function handleImportFromExcel() {
@@ -87,12 +90,7 @@ function handleAddView() {
   createViewDialogRef.value?.open()
 }
 
-async function handleViewCreated(data: {
-  name: string
-  tableId: string
-  viewType: ViewType
-  viewSettings: ViewSettings
-}) {
+async function handleViewCreated(data: { name: string; tableId: string; viewType: ViewType; viewSettings: ViewSettings }) {
   // Call addItem with 'view' type but pass additional data
   const newItem = await menuContext.addItem(item.value?.id || null, 'view', {
     name: data.name,
@@ -100,22 +98,33 @@ async function handleViewCreated(data: {
     viewType: data.viewType,
     viewSettings: data.viewSettings
   })
-  
+
   // Navigate to the new view
   if (newItem) {
     menuContext.navigateToItem(newItem)
   }
 }
 
+// Handle permission action
+function handlePermission(event: MouseEvent) {
+  if (!item.value) return
+
+  // Save item reference before closing
+  const currentItem = item.value
+
+  close()
+  // Open permission popover
+  nextTick(() => {
+    // Pass the saved item data directly to ensure it's available
+    permissionPopoverRef.value?.open(targetRef.value, currentItem)
+  })
+}
+
 defineExpose({ open, close })
 </script>
 
 <template>
-  <UiPopoverDialog
-    ref="popoverRef"
-    placement="bottom-start"
-    :width="180"
-  >
+  <UiPopoverDialog ref="popoverRef" placement="bottom-start" :width="200">
     <div class="item-actions-menu">
       <template v-if="!item">
         <div class="action-item" @click="handleAddItem('folder')">
@@ -145,6 +154,13 @@ defineExpose({ open, close })
           <Icon name="material-symbols:edit-outline" />
           <span>Rename</span>
         </div>
+
+        <!-- Permission Action -->
+        <div class="action-item" @click="handlePermission">
+          <Icon name="material-symbols:shield-outline" />
+          <span>Permissions</span>
+        </div>
+
         <template v-if="item.itemType === 'folder'">
           <div class="action-divider" />
           <div class="action-item" @click="handleAddItem('folder')">
@@ -172,7 +188,7 @@ defineExpose({ open, close })
         <template v-if="item.itemType === 'table'">
           <div class="action-item" @click="handleEditSetting('table')">
             <Icon name="material-symbols:settings-outline" />
-            <span>table settings</span>
+            <span>Table Settings</span>
           </div>
         </template>
         <!-- Delete -->
@@ -182,12 +198,6 @@ defineExpose({ open, close })
           <span>Delete</span>
         </div>
       </template>
-      <!-- Edit -->
-      
-
-      <!-- Add submenu (only for folders) -->
-      
-      
     </div>
   </UiPopoverDialog>
 
@@ -200,10 +210,10 @@ defineExpose({ open, close })
   />
 
   <!-- Create View Dialog -->
-  <WorkspacesDialogsCreateViewDialog
-    ref="createViewDialogRef"
-    @created="handleViewCreated"
-  />
+  <WorkspacesDialogsCreateViewDialog ref="createViewDialogRef" @created="handleViewCreated" />
+
+  <!-- Permission Popover -->
+  <WorkspacesPermissionPopover ref="permissionPopoverRef" :item-id="item?.id || ''" :item-label="item?.label || ''" :item-type="item?.itemType || 'folder'" />
 </template>
 
 <style scoped lang="scss">
@@ -217,7 +227,7 @@ defineExpose({ open, close })
   display: flex;
   align-items: center;
   gap: var(--app-space-s);
-  padding: var(--app-space-xs) ;
+  padding: var(--app-space-xs);
   border-radius: var(--app-border-radius-s);
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -242,4 +252,3 @@ defineExpose({ open, close })
   background: var(--app-border-color);
 }
 </style>
-

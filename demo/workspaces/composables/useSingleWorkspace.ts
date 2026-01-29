@@ -1,7 +1,7 @@
 import type { CaseTypeRecord, CaseTreeRecord, ViewType, ViewSettings } from '../utils/db/schema/newTableSchema'
 import type { CaseTreeItemType } from '../utils/db/schema/newTableSchema'
 import { getCurrentUserId } from './useCurrentUser'
-
+import { usePermission } from './usePermission'
 export type { CaseTreeItemType }
 import { v7 as uuidv7 } from 'uuid'
 
@@ -65,7 +65,7 @@ export function useSingleWorkspaceContext() {
 
 export type WorkspaceRouteParams = {
   detailId: string | null
-  pageType: "setting" | "detail",
+  pageType: 'setting' | 'detail'
   detailType: 'folder' | 'table' | 'view' | 'dashboard' | 'root' | 'record'
   /** For record detail view: the record ID being viewed */
   recordId?: string | null
@@ -113,7 +113,14 @@ export function useSingleWorkspace() {
     const { name, description, icon, id } = newWorkspaceData
     const now = new Date().toISOString()
     const currentUserId = getCurrentUserId()
-    await query(`UPDATE case_type SET name = $1, icon = $2, description = $3, "updatedAt" = $4, "updatedBy" = $5 WHERE id = $6`, [name, icon, description, now, currentUserId, id])
+    await query(`UPDATE case_type SET name = $1, icon = $2, description = $3, "updatedAt" = $4, "updatedBy" = $5 WHERE id = $6`, [
+      name,
+      icon,
+      description,
+      now,
+      currentUserId,
+      id
+    ])
   }
 
   /**
@@ -193,7 +200,18 @@ export function useSingleWorkspace() {
          SET label = $1, slug = $2, description = $3, "itemType" = $4, "itemId" = $5,
              "parentId" = $6, "order" = $7, "updatedAt" = $8, "updatedBy" = $9
          WHERE id = $10`,
-        [item.label, item.slug, item.description || null, item.itemType, item.itemId || null, item.parentId || null, item.order || 0, now, currentUserId, item.id]
+        [
+          item.label,
+          item.slug,
+          item.description || null,
+          item.itemType,
+          item.itemId || null,
+          item.parentId || null,
+          item.order || 0,
+          now,
+          currentUserId,
+          item.id
+        ]
       )
     } else {
       // Insert new item
@@ -319,7 +337,7 @@ export function useSingleWorkspace() {
         // Delete relation suggestions for this table
         // (CASCADE should handle this, but explicit cleanup for clarity)
         await query(
-          `DELETE FROM relation_suggestions 
+          `DELETE FROM relation_suggestions
            WHERE "sourceTableId" = $1 OR "targetTableId" = $1`,
           [item.itemId]
         )
@@ -385,18 +403,15 @@ export function useSingleWorkspace() {
 
       try {
         // Get all fields from the base table to include in the view
-        const tableFields = await query<{ fieldName: string }>(
-          `SELECT "fieldName" FROM case_fields WHERE "tableId" = $1`,
-          [viewData.tableId]
-        )
-        const fieldNames = tableFields.map(f => f.fieldName)
+        const tableFields = await query<{ fieldName: string }>(`SELECT "fieldName" FROM case_fields WHERE "tableId" = $1`, [viewData.tableId])
+        const fieldNames = tableFields.map((f) => f.fieldName)
 
         // Create the view record
         const currentUserId = getCurrentUserId()
         await query(
           `INSERT INTO case_views (
             id, name, description, "viewName", "viewType", "viewSettings",
-            filter, sorting, grouping, "tableId", "isDefault", "entityId", 
+            filter, sorting, grouping, "tableId", "isDefault", "entityId",
             fields, "createdBy", "createdAt", "updatedBy", "updatedAt"
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
           [
@@ -446,6 +461,15 @@ export function useSingleWorkspace() {
     // Save to database
     await saveMenuItemToDb(newItem)
 
+    // Auto-assign 'manage' permission to creator
+    const { assignCreatorPermission } = usePermission()
+    try {
+      await assignCreatorPermission(newItem.id)
+    } catch (error) {
+      console.error('Failed to assign creator permission:', error)
+      // Don't fail the creation if permission assignment fails
+    }
+
     // Update local state
     if (parentId) {
       menuState.value.expandedFolders.add(parentId)
@@ -467,7 +491,7 @@ export function useSingleWorkspace() {
     return newItem
   }
 
-  function navigateToItem(item?: TreeItem, pageType: "setting" | "detail" = "detail") {
+  function navigateToItem(item?: TreeItem, pageType: 'setting' | 'detail' = 'detail') {
     if (!item) {
       workspaceRouteParams.value.detailId = null
       workspaceRouteParams.value.detailType = 'root'
@@ -518,7 +542,7 @@ export function useSingleWorkspace() {
     // Clear record-specific params
     workspaceRouteParams.value.recordId = null
     workspaceRouteParams.value.tableId = null
-    
+
     // Navigate back to table if we have a tableId
     if (tableId) {
       // Find the tree item for this table
@@ -534,14 +558,14 @@ export function useSingleWorkspace() {
         }
         return undefined
       }
-      
+
       const tableItem = findTableTreeItem(menuState.value.items)
       if (tableItem) {
         navigateToItem(tableItem)
         return
       }
     }
-    
+
     // Fallback to root
     workspaceRouteParams.value.detailType = 'root'
     workspaceRouteParams.value.detailId = null

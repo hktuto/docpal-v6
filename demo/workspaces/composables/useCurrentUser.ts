@@ -10,9 +10,9 @@ export interface CurrentUser {
   avatar: string | null
   isSuperAdmin: boolean
 }
-
+const useCurrentUserState = () => useState<CurrentUser | null>('currentUser', () => null)
 // Global state for current user (shared across all components)
-const currentUser = ref<CurrentUser | null>(null)
+// const currentUser = ref<CurrentUser | null>(null)
 const isLoading = ref(false)
 const isInitialized = ref(false)
 let initPromise: Promise<CurrentUser | null> | null = null
@@ -21,6 +21,7 @@ let initPromise: Promise<CurrentUser | null> | null = null
  * Composable for managing the current user in demo mode
  */
 export function useCurrentUser() {
+  const currentUser = useCurrentUserState()
   const { query } = usePglite()
 
   /**
@@ -43,9 +44,9 @@ export function useCurrentUser() {
       try {
         // Get the first user sorted by id (deterministic)
         const users = await query<CurrentUser>(
-          `SELECT id, email, name, avatar, is_super_admin as "isSuperAdmin" 
-           FROM users 
-           ORDER BY id ASC 
+          `SELECT id, email, name, avatar, is_super_admin as "isSuperAdmin"
+           FROM users
+           ORDER BY id ASC
            LIMIT 1`
         )
 
@@ -75,8 +76,8 @@ export function useCurrentUser() {
   async function switchUser(userId: string): Promise<boolean> {
     try {
       const users = await query<CurrentUser>(
-        `SELECT id, email, name, avatar, is_super_admin as "isSuperAdmin" 
-         FROM users 
+        `SELECT id, email, name, avatar, is_super_admin as "isSuperAdmin"
+         FROM users
          WHERE id = $1`,
         [userId]
       )
@@ -100,8 +101,8 @@ export function useCurrentUser() {
   async function getAllUsers(): Promise<CurrentUser[]> {
     try {
       return await query<CurrentUser>(
-        `SELECT id, email, name, avatar, is_super_admin as "isSuperAdmin" 
-         FROM users 
+        `SELECT id, email, name, avatar, is_super_admin as "isSuperAdmin"
+         FROM users
          ORDER BY is_super_admin DESC, name ASC`
       )
     } catch (error) {
@@ -130,7 +131,7 @@ export function useCurrentUser() {
     currentUser: readonly(currentUser),
     isLoading: readonly(isLoading),
     isInitialized: readonly(isInitialized),
-    
+
     // Methods
     initCurrentUser,
     switchUser,
@@ -145,6 +146,7 @@ export function useCurrentUser() {
  * Useful for database operations where you need the user ID
  */
 export function getCurrentUserId(): string | null {
+  const currentUser = useCurrentUserState()
   return currentUser.value?.id ?? null
 }
 
@@ -152,5 +154,6 @@ export function getCurrentUserId(): string | null {
  * Helper to get current user synchronously
  */
 export function getCurrentUser(): CurrentUser | null {
+  const currentUser = useCurrentUserState()
   return currentUser.value
 }
