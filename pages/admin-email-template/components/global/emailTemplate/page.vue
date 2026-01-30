@@ -2,12 +2,7 @@
   <div class="pageContainer--padding">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter
-          ref="ResponsiveFilterRef"
-          inputKey="name"
-          @form-change="handleFilterFormChange"
-          inputPlaceHolder="emailContentTemplate_filter"
-        />
+        <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange" inputPlaceHolder="emailContentTemplate_filter" />
         <div>
           <el-button id="EmailContentTemplate__EditEmailLayout" type="info" @click="handleEditEmailLayout">
             {{ $t('button.editEmailLayout') }}
@@ -37,7 +32,7 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-emailTemplate',
-  api: (pageParams: any) => clientApi.api.postDmsTemplateEmailTemplatePage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => clientApi.api.postAdmindmsTemplateEmailTemplatePage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'label', title: 'emailContentTemplate_name', fixed: 'left' },
     { field: 'subject', title: 'tableHeader_subject' },
@@ -82,7 +77,9 @@ function handleAdd() {
     routeEmailTemplateDetail({
       label: 'new',
       id: 'new'
-    }), false)
+    }),
+    false
+  )
 }
 
 interface Template {
@@ -92,14 +89,12 @@ interface Template {
 
 async function handleDeleteTemplate(row: Template[]) {
   try {
-    const action = await ElMessageBox.confirm(
-      t('tip_deleteMsg', { modelName: t('Email.fields'), name: row.label }),
-      {
-        confirmButtonClass: 'el-button el-button--warning',
-        confirmButtonText: t('common_confirmDelete')
-      })
+    const action = await ElMessageBox.confirm(t('tip_deleteMsg', { modelName: t('Email.fields'), name: row.label }), {
+      confirmButtonClass: 'el-button el-button--warning',
+      confirmButtonText: t('common_confirmDelete')
+    })
     if (action !== 'confirm') return
-    await clientApi.api.deleteDmsTemplateEmailTemplateId(row.id)
+    await clientApi.admin.deleteAdmindmsTemplateEmailTemplateId(row.id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: row.label }))
     query({})
   } catch (error) {

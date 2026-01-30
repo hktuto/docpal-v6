@@ -19,7 +19,7 @@ export const getFromServer = async function(loadUserList: boolean, loadRoleList:
 
   try {
     if (loadUserList) {
-      const user = await clientApi.api.postNuxeoIdentityUsers().then((res: any) => res.data)
+      const user = await clientApi.api.postUcenterUsers().then((res: any) => res.data)
       userList.value = user || []
       if (userList.value.length > 0) {
         options.value.push(
@@ -55,7 +55,7 @@ export const getFromServer = async function(loadUserList: boolean, loadRoleList:
     }
 
     if (loadGroupList) {
-      const group = await clientApi.api.postNuxeoIdentityGroups().then((res) => res.data)
+      const group = await clientApi.api.postUcenterGroups().then((res) => res.data)
       groupList.value = group || []
       if (groupList.value.length > 0 && !!group) {
         options.value.push(
@@ -273,7 +273,7 @@ export const getCachePermissionOptions = async () => {
 }
 
 export const getUserSelectOption = async () => {
-  const list: any = await clientApi.api.postNuxeoIdentityUsers().then((res) => res.data)
+  const list: any = await clientApi.api.postUcenterUsers().then((res) => res.data)
   if (list.length === 0) return []
 
   return list.map((item: any) => ({
@@ -303,7 +303,7 @@ export const getRoleSelectOption = async () => {
 }
 
 export const getGroupsSelectOption = async () => {
-  let list: any = await clientApi.api.postNuxeoIdentityGroups().then((res) => res.data)
+  let list: any = await clientApi.api.postUcenterGroups().then((res) => res.data)
   if (list.length === 0) return []
 
   return list.map((item: any) => ({

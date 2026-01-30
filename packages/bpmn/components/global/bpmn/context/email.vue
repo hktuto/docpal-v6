@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 
 const { node } = defineProps<{
   node: Node
@@ -32,6 +32,7 @@ const allFieldOptions = computed(() => {
   })
 })
 const canUseContractList = ['tos', 'ccs', 'bcc', 'attachmentsFilePath']
+
 function setEmailTemplateId(value: string) {
   const newItem = {
     attr_name: 'notificationType',
@@ -117,7 +118,7 @@ function fieldMappingUpdate(name: string, newVal: string[]) {
 
 async function initForm() {
   if (allEmailTemplates.value.length === 0) {
-    const response = await adminApi.api.getTemplateEmailAll()
+    const response = await clientApi.admin.getAdmindmsTemplateEmailAll()
     allEmailTemplates.value = response.data
   }
   const notificationTypeField = node.data.data.extensionElements['flowable:field'].find((el: any) => el.attr_name === 'notificationType')
@@ -136,23 +137,19 @@ function generateFieldList() {
 }
 
 async function getContactBookFieldList() {
-  const response = await clientApi.api.getDmsContactGroupList().then(r => r.data)
-  contactBookFieldList.value = response.data
+  contactBookFieldList.value = await clientApi.admin.getAdmindmsContactGroupList().then(r => r.data)
 }
+
 onMounted(async () => {
   await getContactBookFieldList()
 })
-watch(
-  () => node,
-  async () => {
-    console.log('watch node from email', node)
-    await initForm()
-  },
-  {
-    immediate: true,
-    deep: true
-  }
-)
+watch(() => node, async () => {
+  console.log('watch node from email', node)
+  await initForm()
+}, {
+  immediate: true,
+  deep: true
+})
 </script>
 
 <template>
@@ -182,10 +179,12 @@ watch(
           @change="(val: any) => fieldMappingUpdate(item.attr_name, item.value)"
         >
           <ElOptionGroup label="Form Fields">
-            <ElOption v-for="item in allFieldOptions" :key="item.value" :label="item.label" :value="item.value"></ElOption>
+            <ElOption v-for="item in allFieldOptions" :key="item.value" :label="item.label"
+                      :value="item.value"></ElOption>
           </ElOptionGroup>
           <ElOptionGroup v-if="canUseContractList.includes(item.attr_name)" :label="$t('adminMenu.contactBook')">
-            <ElOption v-for="item in contactBookFieldList" :key="item.value" :label="item.name" :value="item.id"></ElOption>
+            <ElOption v-for="item in contactBookFieldList" :key="item.value" :label="item.name"
+                      :value="item.id"></ElOption>
           </ElOptionGroup>
         </ElSelect>
       </ElFormItem>

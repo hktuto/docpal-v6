@@ -30,7 +30,7 @@ async function handleSubmit() {
     const data = await FormRendererRef.value.getFormData()
     state.loading = true
     data.permission = 'group_members'
-    const result = await clientApi.api.postDmsEasyForm(data)
+    await clientApi.admin.postAdmindmsEasyForm(data).then(r => r.data)
     ElMessage.success(t('tip_createdMsg', { modelName: t('tip_newMsg') + t('workflow_form'), name: null }))
     state.visible = false
     emits('refresh')

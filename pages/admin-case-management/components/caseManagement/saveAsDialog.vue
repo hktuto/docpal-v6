@@ -28,7 +28,7 @@ let versionList: any[] = []
 
 async function getVersionList() {
   // get version list
-  const response = await clientApi.api.postCaseTypesVersionPage({
+  const response = await clientApi.admin.postAdmincaseTypesVersionPage({
     pageNum: 0,
     pageSize: 1000,
     caseTypeId: data.id || data.draftId
@@ -68,7 +68,7 @@ async function save() {
       versionId: versionId
     }
 
-    const copyRes: any = await clientApi.api.postCaseTypesIdCopy(data.id, params).then((res) => res.data)
+    const copyRes: any = await clientApi.admin.postAdmincaseTypesIdCopy(data.id, params).then((res) => res.data)
     // get case detail
 
     const blob = (await clientApi.api.getCaseTypesIdDownloadXml(
@@ -88,7 +88,7 @@ async function save() {
     // const allFrom = await xmlRef.value.getAllForm()
     for (let i = 0; i < humanTasks.length; i++) {
       const task = humanTasks[i] as any
-      const response = await clientApi.api.getDmsFormPropertiesQuery({
+      const response = await clientApi.admin.getAdmindmsFormPropertiesQuery({
         processKey: data.name,
         userTaskId: task.attr_id,
         versionId: versionId
@@ -100,7 +100,7 @@ async function save() {
           versionId: copyRes?.latestVersionId
         }
         params.jsonValue = response[0].jsonValue
-        await clientApi.api.postDmsFormPropertiesSave(params).then(r => r.data)
+        await clientApi.admin.postAdmindmsFormPropertiesSave(params).then(r => r.data)
       }
     }
     // TODO : copy form data

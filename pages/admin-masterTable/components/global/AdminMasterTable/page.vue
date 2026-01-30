@@ -40,16 +40,16 @@ function handleLogFilterChange(formModel: any) {
 }
 provide(MasterTableProviderKey, {
   GetMasterTablesPageApi: (params: any) => {
-    return clientApi.api.postDmsMasterTablePage({ ...params, ...state.tableFilter })
+    return clientApi.admin.postAdmindmsMasterTablePage({ ...params, ...state.tableFilter })
   },
   DeleteMasterTablesApi: (params: any) => {
-    return clientApi.api.deleteDmsMasterTableId(params)
+    return clientApi.admin.deleteAdmindmsMasterTableId(params)
   },
   GetMasterTablesPageConditionApi: (params: any) => {
-    return clientApi.api.getDmsMasterTablePageConditions(params)
+    return clientApi.admin.getAdmindmsMasterTablePageConditions(params)
   },
   UpdateMasterTableApi: (params: any) => {
-    return clientApi.api.putDmsMasterTable(params)
+    return clientApi.admin.putAdmindmsMasterTable(params)
   },
   openDetail,
   openNew

@@ -86,7 +86,7 @@ function handleClear() {
 async function handleSave() {
   try {
     state.saveLoading = true
-    await clientApi.api.postCaseDashboardSaveStyle({
+    await clientApi.admin.postAdmincaseDashboardSaveStyle({
       id: props.id,
       styleJson: JSON.stringify(state.layout)
     }).then(r => r.data)
@@ -101,7 +101,7 @@ const versionId = ref()
 
 async function init() {
   try {
-    const data = await clientApi.api.getCaseDashboardId(props.id).then(r => r.data)
+    const data = await clientApi.admin.getAdmincaseDashboardId(props.id).then(r => r.data)
     versionId.value = data.cmmnVersionId
     state.detail = data
     name.value = data.label

@@ -3,10 +3,12 @@
     <template #header>
       <div class="flex-x-between">
         <h3>{{ $t('user_info') }}</h3>
-        <div class="flex-x-end" >
+        <div class="flex-x-end">
           <SvgIcon id="UserList__Info__Edit" :content="$t('user_editUser')" src="/icons/edit.svg" @click="handleEdit" />
-          <SvgIcon id="UserList__Info__ChangePassword" icon="ion:key-outline" :content="$t('user_editPassword')" @click="openDialog" />
-          <SvgIcon id="UserList__Info__DeleteUser" :content="$t('user_deleteUser')" src="/icons/delete.svg" @click="handleDelete" />
+          <SvgIcon id="UserList__Info__ChangePassword" icon="ion:key-outline" :content="$t('user_editPassword')"
+                   @click="openDialog" />
+          <SvgIcon id="UserList__Info__DeleteUser" :content="$t('user_deleteUser')" src="/icons/delete.svg"
+                   @click="handleDelete" />
         </div>
       </div>
     </template>

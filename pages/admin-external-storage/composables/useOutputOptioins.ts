@@ -1,4 +1,4 @@
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 
 export const useOutputOptioins = () => {
   const documentTypeOpts = useState('documentTypeOpts', () => [{ label: 'File', value: 'File' }])
@@ -62,10 +62,11 @@ export const useOutputOptioins = () => {
     { label: 'Capture_date(mm)', value: 'capture_date(mm)' },
     { label: 'Capture_date(yyyy-mm-dd)', value: 'capture_date(yyyy-mm-dd)' }
   ])
+
   // @ts-ignore
   async function initExternalStorageProfileOpts() {
     try {
-      const data = await adminApi.api.getExternalstorage({} as any).then((res: any) => res.data)
+      const data = await clientApi.admin.getAdminext3rdstorageList({} as any).then((res: any) => res.data)
       externalStorageProfileOpts.value = data.map((item: any) => ({
         label: item.name,
         value: item.id
@@ -74,9 +75,10 @@ export const useOutputOptioins = () => {
       console.error(error)
     }
   }
+
   async function getMetaOpts() {
     try {
-      const { data }: any = await adminApi.api.getDocpaltypeSettingsMetadataDocumenttype('GlobalFile')
+      const { data }: any = await clientApi.admin.getAdmindmsDocpalTypeDocumenttypeMetadata('GlobalFile')
       const optionList = data.keywords.map((item: any) => ({
         ...item,
         label: item.name,
@@ -87,16 +89,19 @@ export const useOutputOptioins = () => {
       console.error(error)
     }
   }
+
   function setDocumentTypeOpts(opts: any) {
     documentTypeOpts.value = [{ label: 'File', value: 'File' }, ...opts]
   }
+
   async function initWorkflowOpts() {
-    const data = await adminApi.api.getFormDesignProcessDefinitions().then((res: any) => res.data)
+    const data = await clientApi.admin.getAdmindmsEasyFormProcessDefinitions().then((res: any) => res.data)
     workflowOpts.value = data.map((item: any) => ({
       label: item.label,
       value: item.key
     }))
   }
+
   onMounted(async () => {
     initExternalStorageProfileOpts()
     // getMetaOpts()

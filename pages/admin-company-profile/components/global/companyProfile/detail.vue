@@ -16,7 +16,7 @@ async function handleSave() {
     const data = await FormRendererRef.value.getFormData()
     data.status = data.status ? 'A' : 'D'
     loading.value = true
-    const result = await clientApi.api.putDmsCompanyprofilesCompanyid(props.id, data).then(r => r.data)
+    const result = await clientApi.admin.putAdmindmsCompanyprofilesCompanyid(props.id, data).then(r => r.data)
     if (result) routerProvider?.message.success(t('dpMsg_success'))
   } catch (error: any) {
     console.error(error)
@@ -28,7 +28,7 @@ async function handleSave() {
 async function init() {
   try {
     loading.value = true
-    const data: any = await clientApi.api.getDmsCompanyprofilesCompanyid(props.id).then((res) => res.data)
+    const data: any = await clientApi.admin.getAdmindmsCompanyprofilesCompanyid(props.id).then((res) => res.data)
     setTimeout(() => {
       FormRendererRef.value.vFormRenderRef.setFormData({ ...data, status: data.status === 'A' })
     })

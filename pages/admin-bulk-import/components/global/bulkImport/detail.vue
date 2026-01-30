@@ -6,7 +6,7 @@ const { documentType } = defineProps<{
 }>()
 
 onMounted(async() => {
-    const {data:metaSettingData} = await clientApi.api.getDmsSettingSystem("");
+    const {data:metaSettingData} = await clientApi.admin.getAdmindmsSettingSystem('');
     if(metaSettingData && metaSettingData[documentType]) {
         docTypeData.value = {
             ...metaSettingData[documentType],

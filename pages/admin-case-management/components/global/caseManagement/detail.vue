@@ -7,7 +7,7 @@ const props = defineProps<{
   name: string,
   currentVersion: string,
 }>()
-const {caseTypeId, name, currentVersion} = toRefs(props)
+const { caseTypeId, name, currentVersion } = toRefs(props)
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -48,7 +48,7 @@ function handleUpdate() {
 
 async function promoteToProduction() {
   buttonLoading.value = true
-  const {data} = await clientApi.api.postCaseTypesVersionVersionidActive(props.caseTypeId)
+  await clientApi.admin.postAdmincaseTypesVersionVersionidActive(props.caseTypeId).then(r => r.data)
   routerProvider?.message.success(t('dpMsg_success'))
   await init()
   buttonLoading.value = false
@@ -58,7 +58,7 @@ async function saveAsNewVersion() {
   // console.log("props",props);
 
   buttonLoading.value = true
-  const {data} = await clientApi.api.postCaseTypesVersionVersionidNew(props.caseTypeId)
+  const data = await clientApi.admin.postAdmincaseTypesVersionVersionidNew(props.caseTypeId).then(r => r.data)
   //TODO : get all form in case and save as to new version
   // Step 1 : get all form in case
   const allFrom = await xmlRef.value.getAllForm()
@@ -67,7 +67,7 @@ async function saveAsNewVersion() {
     const params = form.params
     params.versionId = data?.id
     params.jsonValue = JSON.stringify(form.form)
-    await clientApi.api.postDmsFormPropertiesSave(params)
+    await clientApi.admin.postAdmindmsFormPropertiesSave(params).then(r => r.data)
   }
 
   routerProvider?.updateProps({
@@ -108,16 +108,15 @@ const production = ref(false)
 
 async function init() {
   loading.value = true
-  const {data} = await clientApi.api.getCaseTypesVersionVersionid(props.caseTypeId) as any
-  const {data: removeCaseTypeInfo} = await clientApi.api.getCaseTypesCasetypeid(data.caseTypeId) as any
-
-  caseTypeInfo.value = removeCaseTypeInfo
+  const data: any = await clientApi.admin.getAdmincaseTypesVersionVersionid(props.caseTypeId).then(r => r.data)
+  caseTypeInfo.value = await clientApi.admin.getAdmincaseTypesCasetypeid(data.caseTypeId).then(r => r.data) as any
   caseInfo.value = data
   production.value = caseInfo.value.production
   // TODO : no way to get case name in version, use another api to get, and update tab name
   loading.value = false
   routerProvider?.updateTabName(props.name + ` - (${props.currentVersion})`)
 }
+
 // test pull
 defineOptions({
   name: 'CaseManagementDetailDead'
@@ -168,8 +167,8 @@ provide(CaseManagementDetailProviderKey, {
                                         @save="handleSave" />
     <CaseManagementDetailPermission ref="permissionRef" :node="caseData.caseNode" @save="handleSave" />
     <!-- <CmmnDetailPermission :node="caseData.caseNode"/>  -->
-    <CaseManagementDetailXml ref="xmlRef" v-bind="props" @getCase="getCase" @update="handleUpdate"/>
-    <CaseManagementDetailDashboard :caseDetail="caseTypeInfo" :caseDetailId="caseInfo.caseTypeId" v-bind="props"/>
+    <CaseManagementDetailXml ref="xmlRef" v-bind="props" @getCase="getCase" @update="handleUpdate" />
+    <CaseManagementDetailDashboard :caseDetail="caseTypeInfo" :caseDetailId="caseInfo.caseTypeId" v-bind="props" />
 
   </div>
 </template>

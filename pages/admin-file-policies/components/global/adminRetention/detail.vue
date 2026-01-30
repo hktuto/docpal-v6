@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 import formJson from '../../retention/addDialog.vform.json'
 
 const routerProvider = inject(MenuRouterKey)
@@ -26,10 +26,12 @@ async function handleSubmit() {
     }
     state.loading = true
     await clientApi.admin.putAdmindmsPolicyRetention(params)
-    routerProvider?.message.success(t('tip_updateSuccessMsg', {
-      modelName: t('filePolicies_RetentionPolicy'),
-      name: null
-    }))
+    routerProvider?.message.success(
+      t('tip_updateSuccessMsg', {
+        modelName: t('filePolicies_RetentionPolicy'),
+        name: null
+      })
+    )
     emits('update')
   } catch (error) {
     init()
@@ -61,7 +63,7 @@ async function init() {
     if (!setting) setting = {}
     setTimeout(async () => {
       state.setting = setting
-      state.setting.actionType = setting?.actionType === 'D' ? true : false
+      state.setting.actionType = setting?.actionType === 'D'
       await FormRendererRef.value.vFormRenderRef.setFormData({ ...state.setting })
     })
   } catch (error) {
@@ -90,8 +92,7 @@ onMounted(async () => {
       </div>
       <div>
         <!-- <el-button type="danger" @click="handleDelete">{{$t('common_delete')}}</el-button> -->
-        <el-button :loading="state.loading" id="RetentionPolicySetting__EditRetentionPolicy__Submit" utton
-                   type="primary" @click="handleSubmit">
+        <el-button :loading="state.loading" id="RetentionPolicySetting__EditRetentionPolicy__Submit" utton type="primary" @click="handleSubmit">
           {{ $t('common_submit') }}
         </el-button>
       </div>

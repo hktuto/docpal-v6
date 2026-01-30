@@ -1,7 +1,8 @@
 <template>
   <el-card>
     <h3 class="title">{{ $t('easyForm.formInfomation') }}</h3>
-    <EasyFormDraggable v-if="detail.information"
+    <EasyFormDraggable
+      v-if="detail.information"
       :list="detail.information"
       :dragHeader="dragHeader"
       :showDrag="false"
@@ -21,15 +22,14 @@ const dragHeader = [
 ]
 
 async function handleSave() {
-  const information = props.detail.information.map(item => ({
+  const information = props.detail.information.map((item) => ({
     name: item.name,
     type: item.type
   }))
-  await clientApi.api.postDmsEasyFormSaveInformation({
+  await clientApi.admin.postAdmindmsEasyFormSaveInformation({
     information,
     id: props.detail.id
   })
 }
-
 </script>
 <style lang="scss" scoped></style>

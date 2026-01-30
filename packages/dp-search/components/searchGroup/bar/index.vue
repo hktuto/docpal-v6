@@ -103,7 +103,7 @@ async function handleSave(data: any) {
     label: data.label,
     queryCondition: JSON.stringify(condition)
   }
-  await clientApi.api.postNuxeoSearchSaveNestedSearchLog(params)
+  await clientApi.api.postDmsSearchSaveNestedSearchLog(params)
   ElMessage.success(t('dpMsg_success'))
   updateSaveRecord()
 }

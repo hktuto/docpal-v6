@@ -116,6 +116,7 @@ const refreshLoading = ref(false)
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
+  // TODO：缺少新的API
   const data: any = await clientApi.api.getPolicyRetentionsDocumentPageConditions().then((res) => res.data)
   const foundItem = data.find((item: any) => item.key === 'retentionPolicyIds')
   if (foundItem.options.length > 0) {
@@ -165,7 +166,7 @@ async function handleRefresh() {
   reload()
 }
 
-async function handleApprove(state: any, row: any) {
+async function handleApprove(state: boolean, row: any) {
   try {
     let msg = t('msg_confirmWhetherToExecuteCommand')
     const command = state ? t('workflow_startAdhocWorkflow_approve') : t('workflow_startAdhocWorkflow_reject')
@@ -206,8 +207,6 @@ async function handleEvent(event: any, row: any) {
 onMounted(() => {
   getFilter()
   getEvents()
-  // clientApi.api.getPolicyRetentionsPolicyidScanDocument(414105); // 手动扫描
-  // clientApi.api.getPolicyRetentionsPolicyidScanExpired(414105); // 手动完成
 })
 </script>
 

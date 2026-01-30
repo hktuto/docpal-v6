@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
-import { adminApi } from 'api'
+import { getGroupsSelectOption } from '#imports'
 
 const { node } = defineProps<{
   node: Node
@@ -33,15 +33,6 @@ function candidateGroupChanged(newVal: string) {
   console.log('candidateGroupChanged', data)
 }
 
-async function getUserGroup() {
-  const data = await adminApi.api.postNuxeoIdentityGroups()
-  if (data.data) {
-    allUserGroup.value = data.data.sort((a: any, b: any) => a.name.localeCompare(b.name))
-  } else {
-    allUserGroup.value = []
-  }
-}
-
 function setUpListener() {
   graphProvider?.graph.value?.on('history:undo', () => {
     refreshData()
@@ -60,7 +51,7 @@ function refreshData() {
 }
 
 onMounted(async () => {
-  await getUserGroup()
+  allUserGroup.value = await getGroupsSelectOption().sort((a: any, b: any) => a.label.localeCompare(b.label))
   refreshData()
   setUpListener()
 })

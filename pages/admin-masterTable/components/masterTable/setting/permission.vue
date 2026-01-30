@@ -64,10 +64,10 @@ function handleAdd() {
 async function handlePermissionChange(boo: boolean, permission: string, row: any) {
   row.loading = true
   try {
-    await clientApi.api.postDmsMasterTableAclsRemove({
+    await clientApi.admin.postAdmindmsMasterTableAclsRemove({
       ...row,
       [permission]: boo
-    })
+    }).then(r => r.data)
   } catch (error) {
   } finally {
     await new Promise((resolve) => setTimeout(resolve, 10))

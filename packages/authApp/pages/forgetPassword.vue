@@ -20,7 +20,8 @@
               >
                 <el-input v-model="form.userId" type="text" @keyup.enter.native="handleSubmit" />
               </el-form-item>
-              <el-button class="fullSize" type="primary" size="large" :block="true" @click="handleSubmit" :loading="loading">
+              <el-button class="fullSize" type="primary" size="large" :block="true" @click="handleSubmit"
+                         :loading="loading">
                 {{ $t('dpButtom_confirm') }}
               </el-button>
             </template>
@@ -71,11 +72,12 @@ async function handleSubmit() {
 
   loading.value = true
   try {
-    const { data } = await clientApi.api.postNuxeoUserForgetpassword({ userId: form.value.userId })
-    if (data) status.value = 'submitted'
+    const data = await clientApi.api.postUcenterPasswordForgetPassword({ userId: form.value.userId }).then(r => r.data)
+    if (!!data) status.value = 'submitted'
     ElMessage.success(t('dpMsg_success'))
     returnLogin()
-  } catch (error) {}
+  } catch (error) {
+  }
   loading.value = false
 }
 

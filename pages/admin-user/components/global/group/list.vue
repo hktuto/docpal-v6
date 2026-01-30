@@ -1,40 +1,39 @@
 <script lang="ts" setup>
-import { adminApi } from "api";
-import { groupProviderKey } from "~/util/userProvider";
-const routerProvider = inject(MenuRouterKey);
+import { clientApi } from 'api'
+import { groupProviderKey } from '~/util/userProvider'
+const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
-  throw new Error("MenuRouterKey is not provided");
+  throw new Error('MenuRouterKey is not provided')
 }
 function openGroupDetail(data: any, openInNewTab = false) {
   // TODO: open detail page
   const newItem: any = {
-    id: "group-detail-" + new Date().getTime(),
-    name: "group-detail-" + data.id,
-    icon: "lucide:user",
+    id: 'group-detail-' + new Date().getTime(),
+    name: 'group-detail-' + data.id,
+    icon: 'lucide:user',
     label: data.name,
-    component: "LazyGroupDetail",
+    component: 'LazyGroupDetail',
     props: {
       id: data.id,
       name: data.name,
-      isCanModified: data.isCanModified,
-    },
-  };
-  routerProvider?.navigateTo({ ...newItem }, openInNewTab);
+      isCanModified: data.isCanModified
+    }
+  }
+  routerProvider?.navigateTo({ ...newItem }, openInNewTab)
 }
 
 provide(groupProviderKey, {
   openGroupDetail,
   GetGroupListApi: async () => {
-    const res = await adminApi.api.postNuxeoIdentityGroups();
-    return res.data;
+    return await clientApi.admin.postAdminucenterGroups().then((r) => r.data)
   },
   DeleteGroupApi: (params: any) => {
-    return adminApi.api.deleteNuxeoIdentityGroup(params);
+    return clientApi.admin.deleteAdminucenterGroup(params)
   },
   CreateGroupApi: (params: any) => {
-    return adminApi.api.postNuxeoIdentityGroup(params);
-  },
-});
+    return clientApi.admin.postAdminucenterGroup(params)
+  }
+})
 </script>
 
 <template>

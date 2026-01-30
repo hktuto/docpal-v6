@@ -1,93 +1,91 @@
 <script lang="ts" setup>
-import { adminApi } from "api";
-import { userProviderKey } from "~/util/userProvider";
-const routerProvider = inject(MenuRouterKey);
+import { clientApi } from 'api'
+import { userProviderKey } from '~/util/userProvider'
+
+const routerProvider = inject(MenuRouterKey)
 
 if (!routerProvider) {
-  throw new Error("MenuRouterKey is not provided");
+  throw new Error('MenuRouterKey is not provided')
 }
+
 function openUserDetail(data: any, openInNewTab = false) {
   // TODO: open detail page
   const newItem: any = {
     menuKey: routerProvider?.menuSymbol,
-    id: "user-detail-" + new Date().getTime(),
-    name: "user-detail-" + data.id,
-    icon: "lucide:user",
+    id: 'user-detail-' + new Date().getTime(),
+    name: 'user-detail-' + data.id,
+    icon: 'lucide:user',
     label: data.username,
-    component: "LazyAdminUserDetail",
+    component: 'LazyAdminUserDetail',
     props: {
-      id: data.userId,
-    },
-  };
-  routerProvider?.navigateTo({ ...newItem }, openInNewTab);
+      id: data.userId
+    }
+  }
+  routerProvider?.navigateTo({ ...newItem }, openInNewTab)
 }
 
-async function sendInvitation(data:any) {
+async function sendInvitation(data: any) {
   console.log('sendInvitation', data)
-  if(!data.registered) {
+  if (!data.registered) {
     throw new Error('only non-register user can be invitate')
   }
-  try{
-    const response = await adminApi.api.getNuxeoIdentitySendInitPasswordEmailUserid(data.userId)
+  try {
+    const response = await clientApi.admin.getAdminucenterSendInitPasswordEmailUserid(data.userId).then((r) => r.data)
     console.log('response', response)
     routerProvider?.message.success('Invitation sent successfully')
-  }catch(error){
+  } catch (error) {
     // TODO : handle error
     console.error(error)
   }
-
 }
 
 // #region module:
-let userTableFilter = {};
-const tableRef = ref();
+let userTableFilter = {}
+const tableRef = ref()
+
 function handleFilterChange(filter: any) {
-  userTableFilter = { ...filter };
-  tableRef?.value?.reload();
+  userTableFilter = { ...filter }
+  tableRef?.value?.reload()
 }
+
 // #endregion
 provide(userProviderKey, {
   getAllUsersApi: async (params: any) => {
-    const res: any = await adminApi.api.postNuxeoIdentityGetallusers({
+    const res: any = await clientApi.admin.postAdminucenterGetAllUsers({
       ...params,
-      ...userTableFilter,
-    });
-    const { conditions, page } = res.data;
-    tableRef?.value.getFilter(conditions, userTableFilter);
-    return { data: page };
+      ...userTableFilter
+    })
+    const { conditions, page } = res.data
+    tableRef?.value.getFilter(conditions, userTableFilter)
+    return { data: page }
   },
   SetUserStatusApi: (params: any) => {
-    return adminApi.api.putNuxeoUserStatus(params);
+    return clientApi.api.putUcenterStatus(params)
   },
   BatchActiveUserApi: (params: any) => {
-    return adminApi.api.postNuxeoUserBatchActive(params);
+    return clientApi.api.postUcenterBatchActive(params)
   },
   BatchDeleteUserApi: (params: any) => {
-    return adminApi.api.postNuxeoIdentityUsersBatchDelete(params);
+    return clientApi.admin.postAdminucenterUsersBatchDelete(params)
   },
   getAllUserAndActiveCountApi: async () => {
-    const res = await adminApi.api.postNuxeoIdentityGetlicenseusernumandactivecount();
-    return res.data;
+    const res = await clientApi.admin.postAdminucenterGetLicenseUserNumAndActiveCount()
+    return res.data
   },
-
   BatchUsersToGroupsApi: (params: any) => {
-    return adminApi.api.postNuxeoIdentityUsersBatchAddGroups(params);
+    return clientApi.admin.postAdminucenterUsersBatchAddGroups(params)
   },
   GetGroupListApi: async () => {
-    const res = await adminApi.api.postNuxeoIdentityGroups();
-    return res.data;
+    return await clientApi.admin.postAdminucenterGroups().then((r) => r.data)
   },
   sendInvitation,
-  openUserDetail,
-});
+  openUserDetail
+})
 </script>
 
 <template>
   <div class="pageContainer">
-    <UserTable
-      ref="tableRef"
-      @filter-change="handleFilterChange"
-    ></UserTable>
+    <UserTable ref="tableRef" @filter-change="handleFilterChange"/>
   </div>
 </template>
 <style lang="scss" scoped>

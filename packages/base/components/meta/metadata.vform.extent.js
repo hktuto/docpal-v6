@@ -18,7 +18,7 @@ async function getOptions() {
   }
 }
 async function getUserList() {
-  const data = await $api.post('/nuxeo/identity/users', {}).then((res) => res.data.data)
+  const data = await $api.post('/api/ucenter/users', {}).then((res) => res.data.data)
   return data.reduce((prev, item) => {
     if (item.userId)
       prev.push({
@@ -30,7 +30,7 @@ async function getUserList() {
   }, [])
 }
 async function getGroupList() {
-  const data = await $api.post('/nuxeo/identity/groups', {}).then((res) => res.data.data)
+  const data = await $api.post('/api/ucenter/groups', {}).then((res) => res.data.data)
   return data.reduce((prev, item) => {
     if (item.id)
       prev.push({
@@ -43,7 +43,7 @@ async function getGroupList() {
 }
 async function getRoleList() {
   try {
-    const data = await $api.get('/docpal/acl/role/root').then((res) => res.data.data)
+    const data = await $api.get('/api/docpal/acl/role/root').then((res) => res.data.data)
     const roleList = data ? makeFlapRoleList([data]) : []
     return roleList.map((item) => ({
       label: item.name,

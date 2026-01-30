@@ -22,7 +22,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 import { routeExternalStorageProfileDetailPage } from '../../../util/routerHelper'
 
@@ -39,8 +39,7 @@ let extraParams: any = {
 }
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-external-storage-detail',
-  // api: (pageParams: any) => adminApi.api.getExternalstorageIdProfilesList(props.id, { ...pageParams, ...extraParams }),
-  api: (pageParams: any) => adminApi.api.postExternalstorageIdProfilesPage(props.id, { ...pageParams, ...extraParams }),
+  api: (pageParams: any) => clientApi.admin.postAdminext3rdstorageIdProfilesPage(props.id, { ...pageParams, ...extraParams }),
   columns: [
     { field: 'name', title: 'dpTable.name', fixed: 'left' },
     { field: 'profile_type', title: 'docType_type' },
@@ -148,10 +147,8 @@ function handleDblclick(row: any) {
 
 async function handleActive(row: any, status: string) {
   try {
-    const result = await adminApi.api.patchExternalstorageIdProfilesProfileidStatus(props.id, row.id, { status: status }).then((res) => res.data)
-    if (!!result) {
-      row.status = status
-    }
+    await clientApi.admin.patchAdminext3rdstorageIdProfilesProfileidUpdateStatus(props.id, row.id, { status: status }).then((res) => res.data)
+    reload()
   } catch (error) {
     console.log(error)
   }
@@ -179,7 +176,7 @@ async function handleDelete(row: any) {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    await adminApi.api.deleteExternalstorageIdProfilesProfileid(props.id, row.id)
+    await clientApi.admin.deleteAdminext3rdstorageIdProfilesProfileid(props.id, row.id)
     reload()
   } catch (error) {
     console.log(error)
@@ -215,7 +212,7 @@ function getFilter() {
 }
 
 async function getDetail() {
-  detail.value = await adminApi.api.getExternalstorageId(props.id).then((res: any) => res.data)
+  detail.value = await clientApi.admin.getAdminext3rdstorageId(props.id).then((res: any) => res.data)
 }
 
 onMounted(() => {

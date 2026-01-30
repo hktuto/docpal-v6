@@ -89,7 +89,7 @@ async function handleDisabled(row: any) {
     if (action !== 'confirm') return
     const param = []
     param.push(row.shareID)
-    await clientApi.api.deleteDmsShare(param)
+    await clientApi.api.deleteDmsShare(param).then(r => r.data)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('externalSharing_sharingRequest') }))
     query()
   } catch (error) {

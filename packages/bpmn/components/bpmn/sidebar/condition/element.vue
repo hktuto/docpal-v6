@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api';
+import { clientApi } from 'api';
 import { ElFormItem } from 'element-plus';
 import {CONDITION_PROVIDER} from '#imports'
 const {element} = defineProps<{
@@ -111,7 +111,7 @@ const castColumnLoading = ref(false)
 const selectedCaseTableOption = ref<any[]>([])
 async function caseTableChange(caseTableId:string) {
     castColumnLoading.value = true
-    const data = await adminApi.api.getCaseTablesId(caseTableId);
+    const data = await clientApi.admin.getAdmincaseTablesId(caseTableId);
     console.log("caseTableChange", data)
     if(data.data && data.data.fields){
         selectedCaseTableOption.value = data.data.fields

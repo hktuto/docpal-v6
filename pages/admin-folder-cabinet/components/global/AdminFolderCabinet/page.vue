@@ -118,7 +118,7 @@ async function handleDelete(row: any) {
       confirmButtonText: t('common_confirmDelete')
     })
     if (action !== 'confirm') return
-    const result = await clientApi.api.deleteDmsCabinetId(row.id).then((res) => res.data)
+    await clientApi.admin.deleteAdmindmsCabinetId(row.id).then((res) => res.data)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('tip_SelectedMsg') + t('menus_folderCabinet') }))
     query()
   } catch (error) {}

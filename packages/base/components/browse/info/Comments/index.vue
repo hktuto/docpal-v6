@@ -87,7 +87,7 @@ async function handleCommentsGet() {
 }
 
 async function getUserList() {
-  const userList = await clientApi.api.postNuxeoIdentityUsers().then((res) => res.data)
+  const userList = await clientApi.api.postUcenterUsers({}).then((res) => res.data)
   state.userList = userList
     .sort((a, b) => a.username.localeCompare(b.username))
     .map((item) => {

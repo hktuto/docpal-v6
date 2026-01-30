@@ -2,12 +2,7 @@
   <div class="pageContainer--padding">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter
-          ref="ResponsiveFilterRef"
-          @form-change="handleFilterFormChange"
-          inputKey="name"
-          inputPlaceHolder="doc_typeSmartFolderFilter"
-        />
+        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="name" inputPlaceHolder="doc_typeSmartFolderFilter" />
         <el-button id="SmartFolderSetting__CreateNewSmartFolder" type="primary" @click="handleCreate()">
           {{ $t('doc_typeSmartFolderCreateFolder') }}
         </el-button>
@@ -35,7 +30,7 @@ const state = reactive<any>({})
 const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   id: 'a-smartFolder',
   api: async (pageParams: any) => {
-    return await clientApi.api.postDmsSmartFolderPage({
+    return await clientApi.admin.postAdmindmsSmartFolderPage({
       ...pageParams,
       ...extraParams
     })
@@ -102,15 +97,13 @@ function handleCreate(setting?: any) {
 
 async function handleDelete(id: string) {
   try {
-    const action = await ElMessageBox.confirm(`${t('doc_typeSmartFolderDeletedMsg')}`,
-      {
-        confirmButtonClass: 'el-button el-button--warning',
-        dangerouslyUseHTMLString: true,
-        confirmButtonText: t('common_confirmDelete')
-      }
-    )
+    const action = await ElMessageBox.confirm(`${t('doc_typeSmartFolderDeletedMsg')}`, {
+      confirmButtonClass: 'el-button el-button--warning',
+      dangerouslyUseHTMLString: true,
+      confirmButtonText: t('common_confirmDelete')
+    })
     if (action !== 'confirm') return
-    await clientApi.api.deleteDmsSmartFolderId(id)
+    await clientApi.admin.deleteAdmindmsSmartFolderId(id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('file_smartFolder') }))
     query()
   } catch (error) {
@@ -126,7 +119,7 @@ function handleFilterFormChange(formModel: any) {
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
-  const filters = await clientApi.api.getDmsSmartFolderPageConditions().then((res) => {
+  const filters = await clientApi.admin.getAdmindmsSmartFolderPageConditions().then((res) => {
     return res.data
   })
   ResponsiveFilterRef.value.init(filters)

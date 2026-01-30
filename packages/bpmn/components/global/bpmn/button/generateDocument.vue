@@ -41,7 +41,7 @@ async function generateNewTemplatePreview(templateId: string, map: any) {
 
   try {
     // try to get template detail 
-    const { data: templateDetail } = await clientApi.api.getNuxeoTemplateTemplateid(templateId)
+    const templateDetail = await clientApi.api.getDmsTemplateEmailTemplateId(templateId).then(r => r.data)
 
     if (!templateDetail) {
       return

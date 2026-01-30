@@ -20,7 +20,7 @@ const state = reactive<{
 async function getData() {
   state.loading = true
   try {
-    state.setting = await clientApi.api.getDmsCabinetTemplateId(id).then((res) => res.data)
+    state.setting = await clientApi.admin.getAdmindmsCabinetTemplateId(id).then((res) => res.data)
     state.setting.folder = true
   } catch (error) {
   } finally {
@@ -57,7 +57,7 @@ async function handleDeleteChild(setting: any) {
       duration: 0,
       position: 'bottom-right'
     })
-    await clientApi.api.deleteDmsCabinetId(setting.id)
+    await clientApi.admin.deleteAdmindmsCabinetId(setting.id)
     await getData()
     ElNotification({
       title: 'Success',
@@ -94,10 +94,8 @@ onUnmounted(() => {
 </script>
 <template>
   <div class="pageContainer--padding main">
-    <FolderCabinetSettingTree v-if="state.setting" :data="state.setting" :id="state.currentRow?.id"
-                              @current-change="handleCurrentChange" />
-    <FolderCabinetSettingDetail ref="detailRef" :tree="state.setting" :data="state.currentRow"
-                                :isRoot="state.currentRow?.id === id" @update="getData" />
+    <FolderCabinetSettingTree v-if="state.setting" :data="state.setting" :id="state.currentRow?.id" @current-change="handleCurrentChange" />
+    <FolderCabinetSettingDetail ref="detailRef" :tree="state.setting" :data="state.currentRow" :isRoot="state.currentRow?.id === id" @update="getData" />
     <FolderCabinetSettingAddChildDialog ref="FolderCabinetAddChildDialogRef" @update="getData" />
   </div>
 </template>

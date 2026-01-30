@@ -19,7 +19,6 @@
 
 <script lang="ts" setup>
 import { clientApi } from 'api'
-import { ElMessage, ElMessageBox } from 'element-plus'
 
 const routerProvider = inject(MenuRouterKey)
 const route = useRoute()

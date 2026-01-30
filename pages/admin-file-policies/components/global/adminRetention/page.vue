@@ -33,7 +33,7 @@
 <script lang="ts" setup>
 import { CloseBold, Select } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 import { routeRetentionDetail } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -162,13 +162,13 @@ function handleDblclick(row: any) {
 
 async function handleActive(row: any, isActive: 'A' | 'D') {
   try {
-    // TODO：Admin與client的接口是否可以共用
     const result = await clientApi.admin.patchAdmindmsPolicyHoldHoldpolicyidStatusStatus(row.id, isActive).then((res) => res.data)
     if (!!result) {
       row.status = isActive
       routerProvider?.message.success(t('dpMsg_success'))
     }
   } catch (error) {
+    console.log(error)
   }
 }
 

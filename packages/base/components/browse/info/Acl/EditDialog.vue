@@ -45,7 +45,7 @@ async function handleSubmit() {
     delete result.dateRange
     delete result.time
     delete result.ids
-    result.isSendEmail = result.isSendEmail.length > 0 ? true : false
+    result.isSendEmail = result.isSendEmail.length > 0
     result.documentIds = [state.doc.id]
     await createInternalShare(result, handleCloseDialog)
   } catch (error) {

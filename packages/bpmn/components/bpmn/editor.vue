@@ -5,7 +5,7 @@ import { Selection } from '@antv/x6-plugin-selection'
 import { Dnd } from '@antv/x6-plugin-dnd'
 import { History } from '@antv/x6-plugin-history'
 import { graphToBpmnJson } from '~/utils/bpmnConverter'
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 import { bpmnElement } from '~/utils/bpmnElement'
 
 import { ElMessage } from 'element-plus'
@@ -185,7 +185,7 @@ function itemDrop(item: any, ev: any) {
 
 async function formSubmit() {
   const json = FormDesignRef.value.getFormJson()
-  await clientApi.api.postDmsFormPropertiesSave({
+  await clientApi.admin.postAdmindmsFormPropertiesSave({
     processKey: props.processKey,
     userTaskId: selectedStep.value.id,
     jsonValue: JSON.stringify(json),
@@ -195,7 +195,7 @@ async function formSubmit() {
 }
 
 async function getFormByNode(node: Node) {
-  const response = await clientApi.api.getDmsFormPropertiesQuery({
+  const response = await clientApi.admin.getAdmindmsFormPropertiesQuery({
     processKey: props.processKey,
     userTaskId: node.data.id,
     versionId: props.currentVersionId
@@ -210,7 +210,7 @@ async function getFormByNode(node: Node) {
 
 async function saveFormByNode(node: Node, json: any) {
   const id = node.data.type === 'endEvent' ? 'end' : node.id
-  return await clientApi.api.postDmsFormPropertiesSave({
+  return await clientApi.admin.postAdmindmsFormPropertiesSave({
     processKey: props.processKey,
     userTaskId: id,
     jsonValue: JSON.stringify(json),
@@ -222,7 +222,7 @@ const formRenderVisible = ref(false)
 const fromRenderRef = ref()
 async function previewForm(node: Node) {
   const id = node.data.type === 'endEvent' ? 'end' : node.id
-  const response = await clientApi.api.getDmsFormPropertiesQuery({
+  const response = await clientApi.admin.getAdmindmsFormPropertiesQuery({
     processKey: props.processKey,
     userTaskId: id,
     versionId: props.currentVersionId
@@ -262,7 +262,7 @@ async function openForm(node: Node) {
       return
     }
     const id = node.data ? node.data.id : node.id === 'end' ? 'complete' : node.id
-    const response = await clientApi.api.getDmsFormPropertiesQuery({
+    const response = await clientApi.admin.getAdmindmsFormPropertiesQuery({
       processKey: props.processKey,
       userTaskId: id,
       versionId: props.currentVersionId
@@ -356,7 +356,7 @@ async function importWorkflow(importData:ExportWorkflowResult) {
   const version = props.currentVersionId
   const processKey = props.processKey
   allForms.forEach(async (form) => {
-    const res = await clientApi.api.postDmsFormPropertiesSave({
+    const res = await clientApi.admin.postAdmindmsFormPropertiesSave({
       processKey: processKey,
       userTaskId: form.formId,
       jsonValue: form.json,

@@ -55,7 +55,7 @@ const rules = ref<any>({})
 async function getPasswordPolicy() {
   let config: any = {}
   try {
-    config = await clientApi.api.getPasswordConfig().then((res) => res.data)
+    config = await clientApi.api.getUcenterPasswordConfig().then((res) => res.data)
   } catch (e) {
     console.error(e)
   }
@@ -70,7 +70,7 @@ async function getPasswordPolicy() {
 async function onSubmit() {
   try {
     await formRef.value.validate()
-    const res = await clientApi.api.postPasswordInitPassword({
+    const res = await clientApi.api.postUcenterPasswordInitPassword({
       password: form.newPassword
     }).then((res) => res.data)
     if (!!res) {

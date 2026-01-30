@@ -32,9 +32,9 @@ provide(BulkImportListProviderKey, {
       { data: documentTypeProfileList },
       { data: metaMappingList }
     ]: any = await Promise.all([
-      clientApi.api.getDmsSettingSystem(''),
-      adminApi.api.getWorkflowQuerydocumenttypeprofile(),
-      adminApi.api.getWorkflowQuerymetadatamapping()
+      clientApi.admin.getAdmindmsSettingSystem(''),
+      clientApi.admin.getAdmindocpalWorkflowQuerydocumenttypeprofile(),
+      clientApi.admin.getAdmindocpalWorkflowQuerymetadatamapping()
     ])
     allMetaSetting.value = metaSettingData
     console.log('response', metaSettingData, documentTypeProfileList, metaMappingList)

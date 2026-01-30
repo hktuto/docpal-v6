@@ -103,7 +103,7 @@ async function handleEdit(data: any) {
   editData.value = data
   visible.value = true
   fileChange.value = false
-  const file = await clientApi.api.getDmsCompanyprofilesCompanyidChopsCompanychopidFile(props.companyId as string, data.id, {
+  const file = await clientApi.admin.getAdmindmsCompanyprofilesCompanyidChopsCompanychopidFile(props.companyId as string, data.id, {
     format: 'blob'
   })
 
@@ -157,12 +157,12 @@ async function onSave() {
       if (fileChange.value) {
         formData.append('file', form.value.file)
       }
-      await clientApi.api.putDmsCompanyprofilesCompanyidChopsCompanychopid(props.companyId as string, editData.value.id, {} as any, formData as any).then(r => r.data)
+      await clientApi.admin.putAdmindmsCompanyprofilesCompanyidChopsCompanychopid(props.companyId as string, editData.value.id, formData as any, { format: 'blob' }).then(r => r.data)
       ElMessage.success('Updated successfully')
     } else {
       // 添加模式
       formData.append('file', form.value.file)
-      await clientApi.api.postDmsCompanyprofilesCompanyidChops(props.companyId as string, {} as any, formData as any).then(r => r.data)
+      await clientApi.admin.postAdmindmsCompanyprofilesCompanyidChops(props.companyId as string, formData, { format: 'blob' }).then(r => r.data)
       ElMessage.success('Created successfully')
     }
 

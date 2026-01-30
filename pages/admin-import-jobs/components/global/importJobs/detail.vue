@@ -14,9 +14,9 @@
       <el-form-item label="File Name" required>
         <el-input v-model="job.fileName" disabled />
       </el-form-item>
-<!--      <el-form-item label="Source Folder">-->
-<!--        <el-input v-model="job.source" disabled />-->
-<!--      </el-form-item>-->
+      <el-form-item label="Source Folder">
+        <el-input v-model="job.source" disabled />
+      </el-form-item>
       <!--      <el-form-item label="Destination Folder">-->
       <!--        <el-input v-model="job.fileName" disabled />-->
       <!--      </el-form-item>-->
@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
@@ -62,7 +62,7 @@ async function init(id: string) {
   }
 
   try {
-    job.value = await adminApi.api.getImportjobsId(id).then((res: any) => res.data)
+    job.value = await clientApi.admin.getAdminext3rdstorageImportjobsId(id).then((res: any) => res.data)
   } catch (error) {
     job.value = {
       activityLog: []
@@ -74,7 +74,7 @@ async function handleChangeQueueOrder() {
   if (!job.value.id) {
     return
   }
-  await adminApi.api.putImportjobsId(job.value.id, job.value).then(r => r.data)
+  await clientApi.admin.putAdminext3rdstorageImportjobsIdUpdate(job.value.id, job.value).then(r => r.data)
   routerProvider?.message.success(t('tip_updateSuccessMsg', { modelName: null, name: null }))
 }
 

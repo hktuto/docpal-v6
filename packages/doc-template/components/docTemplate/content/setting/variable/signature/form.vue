@@ -18,7 +18,7 @@ const modelValue = defineModel<SignatureSetting>('modelValue', {
 const companyOptions = ref<any[]>([])
 
 async function getCompanyList() {
-  const data = await clientApi.api.postDmsCompanyprofilesPage({
+  const data = await clientApi.admin.postAdmindocpalAclRoleList({
     pageNum: 0,
     pageSize: 100
   }).then(r => r.data)

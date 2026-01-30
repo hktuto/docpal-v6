@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 import type { Node } from '@antv/x6'
 import { QuestionFilled } from '@element-plus/icons-vue'
 import { JsonSchemaToJsonData } from 'docpal-document-editor/src/client'

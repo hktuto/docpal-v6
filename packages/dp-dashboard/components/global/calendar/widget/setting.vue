@@ -18,7 +18,7 @@ const {
 const userFiterOptions = ref([])
 
 async function getOptions() {
-  const user = await clientApi.api.postNuxeoIdentityUsers({}).then(res => res.data)
+  const user =  await clientApi.api.postUcenterUsers({}).then((res) => res.data)
   userFiterOptions.value = user.map(item => {
     return {
       label: item.username,

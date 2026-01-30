@@ -1,4 +1,4 @@
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 
 export async function saveWorkflowFormToNewVersion(xml: string, processKey: string, oldVersion: string, newVersion: string) {
   if (!xml) {
@@ -18,8 +18,8 @@ export async function getBpmnRuleAndSave(oldVersion: string, newVersion: string)
   const newVersions = newVersion.split(':')
   const newVersionNum = newVersions[0]
   try {
-    const rule: any = await adminApi.api
-      .getValidationRulesVersiondraftid(oldVersion, {
+    const rule: any = await clientApi.admin
+      .getAdmindocpalValidationRulesVersiondraftid(oldVersion, {
         headers: {
           noThrowError: 'true'
         }
@@ -32,7 +32,7 @@ export async function getBpmnRuleAndSave(oldVersion: string, newVersion: string)
       draftId,
       validationRules: rule?.validationRules || []
     }
-    await adminApi.api.postValidationRules(params)
+    await clientApi.admin.postAdmindocpalValidationRules(params)
   } catch (error) {
     console.log('error', error)
   }
@@ -71,7 +71,7 @@ export async function getAllFormFromXML(xml: string, processKey: string, version
     })
   }
   // allFormsID.forEach(async(formId) => {
-  //     const response = await adminApi.api.getRelationQuery({
+  //     const response = await clientApi.admin.getRelationQuery({
   //         processKey: processKey,
   //         userTaskId: formId,
   //         versionId: version

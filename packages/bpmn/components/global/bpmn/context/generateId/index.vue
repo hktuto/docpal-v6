@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 
 const { node } = defineProps<{
   node: Node
@@ -34,7 +34,7 @@ const info = ref('')
 const variables = ref<any[]>([])
 
 async function getGenerateIdTemplateList() {
-  const data: any = await adminApi.api.getIdTemplatesList().then(r => r.data)
+  const data: any = await clientApi.admin.getAdmindocpalIdTemplatesList().then(r => r.data)
   generateIdTemplateList.value = data.map((item: any) => ({
     label: item.name,
     value: item.id,

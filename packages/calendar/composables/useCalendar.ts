@@ -1,4 +1,4 @@
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 import { onMounted } from 'vue'
 import { viewName } from '../utils/calendarHelper'
 
@@ -177,10 +177,7 @@ export const useCalendarStore = () => {
       data.location = categories.location.value.map((item: any) => item.id).join(',')
     }
 
-    // const appPlatform = useAppPlatform()
-    // const api = appPlatform.value === 'admin' ? adminApi : clientApi
-    // TODO 該接口只有admin端有，client不存在
-    const workflow: any = await adminApi.api.getWorkflowVersionKeyProcessdefinitionkey(data.processKey).then((r) => r.data)
+    const workflow: any = await clientApi.admin.getAdmindocpalWorkflowVersionKeyProcessdefinitionkey(data.processKey).then((r) => r.data)
     if (!workflow) {
       throw new Error('workflow is empty')
     }
@@ -215,7 +212,7 @@ export const useCalendarStore = () => {
     }
 
     try {
-      await clientApi.api.postWorkflowProcessStart(form, { async: false }).then((res) => res.data)
+      await clientApi.api.postDocpalWorkflowProcessStart(form, { async: false }).then((res) => res.data)
     } catch (e) {
       console.error(e)
     }

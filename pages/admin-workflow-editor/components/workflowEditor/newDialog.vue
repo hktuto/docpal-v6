@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const emits = defineEmits(['created'])
@@ -57,7 +57,7 @@ async function handleSubmit() {
   form.append('file', blob, 'workflow.bpmn.xml')
   form.append('isDraft', true)
   try {
-    const data = await adminApi.api.postWorkflowProcessDefinitionUpload({ requestDTO: {} }, form).then((res) => res.data)
+    const data = await clientApi.admin.postAdmindocpalWorkflowProcessDefinitionUpload({ requestDTO: {} }, form).then((res) => res.data)
     state.form = {
       template: 'Blank',
       name: ''
@@ -87,7 +87,7 @@ async function handleSubmit() {
         }
       ]
     }
-    await adminApi.api.postValidationRules(params).then(r => r.data)
+    await clientApi.admin.postAdmindocpalValidationRules(params).then(r => r.data)
 
     state.visible = false
     emits('created', data)

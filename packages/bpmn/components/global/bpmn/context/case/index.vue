@@ -38,7 +38,7 @@ const caseList = ref()
 const caseOptionList = ref([])
 
 async function getCaseLise() {
-  const data: any = await clientApi.api.getCaseTypes({ deployed: true }).then((r: any) => r.data)
+  const data: any = await clientApi.admin.getAdmincaseTypes({ deployed: true }).then((r: any) => r.data)
   caseList.value = data.map((item: any) => {
     return {
       id: item.id,
@@ -82,7 +82,7 @@ async function init() {
 async function getCaseOption() {
   loading.value = true
   try {
-    const caseData: any = await clientApi.api.getCaseTypesIdStarttask(form.value.attr_caseTypeId).then((r) => r.data)
+    const caseData: any = await clientApi.admin.getAdmincaseTypesIdStarttask(form.value.attr_caseTypeId).then((r) => r.data)
 
     if (caseData.length == 0) {
       caseOptionList.value = []

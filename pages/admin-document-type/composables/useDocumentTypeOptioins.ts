@@ -1,4 +1,5 @@
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
+import { getGroupsSelectOption } from '#imports'
 
 export const masterTableOpts = useState('masterTableOpts', () => [])
 export const metadataOpts = useState('metadataOpts', () => [])
@@ -6,7 +7,8 @@ export const userRulesOpts = useState<any>('userRulesOpts', () => [])
 export const categoryOpts = useState('categoryOpts', () => [])
 export async function initMasterTableOpts() {
   if (masterTableOpts.value.length > 0) return masterTableOpts.value
-  const data = await clientApi.api.postDmsMasterTablePage({
+  const data = await clientApi.admin
+    .postAdmindmsMasterTablePage({
       pageSize: 10000,
       pageNum: 0
     })
@@ -25,30 +27,23 @@ export async function initCategoryOpts() {
 }
 export async function getMasterTableDisplayOpts(masterTableId: string) {
   // if(masterTableOpts.value.length > 0) return masterTableOpts.value
-  const data = await clientApi.api.getDmsMasterTableId(masterTableId).then((res: any) => res.data)
+  const data = await clientApi.admin.getAdmindmsMasterTableId(masterTableId).then((res: any) => res.data)
   return data.fields.map((item: any) => ({ label: item.columnName, value: item.columnName }))
 }
 const { flatRole } = useRBAC()
 export async function initUserRulesOpts() {
   // @ts-ignore
   const t = window.$t
-  async function getGroupList() {
-    try {
-      return await adminApi.api.postNuxeoIdentityGroups({}).then((res) => res.data)
-    } catch (error) {
-      console.error(error)
-      return []
-    }
-  }
+
   async function getUserList() {
     try {
-      return await adminApi.api.postNuxeoIdentityGetkeycloakallusers({}).then((res) => res.data)
+      return await clientApi.admin.postAdminucenterGetKeycloakAllUsers({}).then((res) => res.data)
     } catch (error) {
       console.error(error)
       return []
     }
   }
-  const groupList: any = await getGroupList()
+
   const userList: any = await getUserList()
   userRulesOpts.value = [
     {
@@ -69,12 +64,7 @@ export async function initUserRulesOpts() {
       value: 'userGroup',
       type: 'select',
       selectConfig: {
-        options: groupList
-          .map((item: any) => ({
-            label: item.name,
-            value: item.id
-          }))
-          .sort((a: any, b: any) => a.label.localeCompare(b.label))
+        options: await getGroupsSelectOption().sort((a: any, b: any) => a.label.localeCompare(b.label))
       }
     },
     {

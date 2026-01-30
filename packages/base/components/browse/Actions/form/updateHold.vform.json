@@ -263,7 +263,7 @@
                                 "labelIconPosition": "rear",
                                 "labelTooltip": null,
                                 "onCreated": "",
-                                "onMounted": "// const _this = this\n// const removeApprovalId = this.getWidgetRef('removeApprovalId')\n// $api.post('/nuxeo/identity/users', {}).then(res => {\n//   res = res.data.data\n//   const result = []\n//   res.forEach(item => {\n//     if(item.username || item.userId) {\n//       result.push({\n//         label: item.userId || item.username,\n//         value: item.userId || item.username\n//       })\n//     }\n//   })\n//   result.sort((a, b) => a.label.localeCompare(b.label))\n//   _this.loadOptions(result)\n//   removeApprovalId.loadOptions(result)\n// }).catch(err => {\n// })",
+                                "onMounted": "// const _this = this\n// const removeApprovalId = this.getWidgetRef('removeApprovalId')\n// $api.post('/api/ucenter/users', {}).then(res => {\n//   res = res.data.data\n//   const result = []\n//   res.forEach(item => {\n//     if(item.username || item.userId) {\n//       result.push({\n//         label: item.userId || item.username,\n//         value: item.userId || item.username\n//       })\n//     }\n//   })\n//   result.sort((a, b) => a.label.localeCompare(b.label))\n//   _this.loadOptions(result)\n//   removeApprovalId.loadOptions(result)\n// }).catch(err => {\n// })",
                                 "onRemoteQuery": "",
                                 "onChange": "",
                                 "onFocus": "",

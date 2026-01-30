@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { clientApi } from 'api'
-import { useEditor } from "~/composables/useEditorjs";
+import { useEditor } from '~/composables/useEditorjs'
 
 const { t } = useI18n()
 const props = defineProps<{
@@ -48,7 +48,7 @@ async function send() {
       body.variables[key] = body.variables[key].replace(/(?:\r\n|\r|\n)/g, '<br/>')
     }
   })
-  const res = await clientApi.api.postDmsTemplateEmailSend(body)
+  const res = await clientApi.admin.postAdmindmsTemplateEmailSend(body).then(r => r.data)
 }
 
 function addRow(key: string) {

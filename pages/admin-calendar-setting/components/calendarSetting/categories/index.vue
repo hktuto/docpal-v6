@@ -11,7 +11,7 @@ const detailDialogRef = ref()
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'calendarSetting_categories',
   api: (pageParams: any) => {
-    return clientApi.api.getDmsCalendarsEventSettings({ eventCalendarSetting: {} }).then(r => r.data)
+    return clientApi.admin.getAdmindmsCalendarsEventSettings({ eventCalendarSetting: {} })
   },
   virtualScroll: true,
   pageSize: 5,
@@ -112,7 +112,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
         code: 'delete',
         name: 'delete',
         action: async ({ row }: any) => {
-          await clientApi.api.deleteDmsMasterTableIdRecord(setting.value.category.master_table, { recordId: row.id }, {})
+          await clientApi.admin.deleteAdmindmsMasterTableIdRecord(setting.value.category.master_table, { recordId: row.id }, {})
           routerProvider?.message.success(t('tip_deleteSuccessMsg', {
             modelName: null,
             name: row.name

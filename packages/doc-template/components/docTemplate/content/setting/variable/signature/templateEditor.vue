@@ -20,7 +20,7 @@ const templateVariableOption = [
 const companyChopList = ref<any[]>([])
 
 async function getCompanyChopList(companyId: string) {
-  companyChopList.value = await clientApi.api.getDmsCompanyprofilesCompanyidChops(companyId, {
+  companyChopList.value = await clientApi.admin.getAdmindmsCompanyprofilesCompanyidChops(companyId, {
     requestDTO: {
       pageNum: 1,
       pageSize: 1000,

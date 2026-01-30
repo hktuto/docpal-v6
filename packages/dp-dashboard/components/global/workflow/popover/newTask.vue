@@ -89,7 +89,7 @@ function tabChangeHandler() {
 }
 
 async function getAvailableWorkflow() {
-  state.availableWorkflow = await clientApi.api.postWorkflowProcessList({}).then(res => res.data)
+  state.availableWorkflow = await clientApi.api.postDsbWorkflowProcessList({}).then(res => res.data)
 }
 
 async function workflowClickHandler(item: any) {

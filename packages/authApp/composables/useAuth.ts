@@ -143,7 +143,7 @@ async function checkPassword() {
   //   firstLoginForceResetPassword: true
   // }
   try {
-    const { data } = await clientApi.api.getPasswordUserStatus()
+    const data = await clientApi.api.getUcenterPasswordUserStatus().then(r => r.data)
     console.log(data)
     if (data?.firstLoginForceResetPassword || data?.accountExpire) {
       const router = useRouter()
@@ -301,6 +301,9 @@ async function getUser() {
   const userId = useUserId()
   const userRole = useUserRole()
   const data: any = await clientApi.api.getDmsUserGetapplication().then(r => r.data)
+  if(!data){
+    throw new Error('Get Application Is Null')
+  }
   userId.value = data.userId
   userRole.value = data.aclUserDetail?.roleId
   localStorage.setItem('docpal-user', JSON.stringify(data))

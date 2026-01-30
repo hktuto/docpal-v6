@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { ResponsiveFilter } from '#components'
 
 interface UserGroup {
@@ -107,11 +107,10 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       })
     }
 
-    const res = await adminApi.api.postAclRolePage({
+    return await clientApi.admin.postAdmindocpalAclRolePage({
       ...params,
       conditions: [...defaultCondition]
     })
-    return res
   },
   bodyActions: [
     [
@@ -127,7 +126,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
         name: t('actions.active'),
         action: async ({ row }: { row: UserGroup }) => {
           try {
-            await adminApi.api.putAclRole({
+            await clientApi.admin.putAdmindocpalAclRole({
               id: String(row.id),
               name: row.name,
               status: 1,
@@ -144,7 +143,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
         name: t('actions.inactive'),
         action: async ({ row }: { row: UserGroup }) => {
           try {
-            await adminApi.api.putAclRole({
+            await clientApi.admin.putAdmindocpalAclRole({
               id: String(row.id),
               name: row.name,
               status: 3,

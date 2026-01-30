@@ -1,7 +1,4 @@
-import { adminApi } from './../../libraries/api/src/index';
 // create nuxt app config
-
-
 export default defineAppConfig({
   menu:{
     "admin-watermark":{

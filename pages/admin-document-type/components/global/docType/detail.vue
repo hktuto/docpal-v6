@@ -2,8 +2,7 @@
   <div class="pageContainer--padding" backPath="/documentType">
     <div class="metaSetting-container">
       <div class="meta-setting-info">
-        <BrowseItemIcon style="--icon-size: 80px" class="meta-setting-info-icon el-icon--left"
-                        :documentBasicType="state.docTypeDetail.dataType" />
+        <BrowseItemIcon style="--icon-size: 80px" class="meta-setting-info-icon el-icon--left" :documentBasicType="state.docTypeDetail.dataType" />
         <el-form label-position="top" class="meta-setting-info-form">
           <el-form-item :label="$t('search.type')">
             <el-input
@@ -14,15 +13,20 @@
             ></el-input>
           </el-form-item>
           <el-form-item :label="$t('docType.category')">
-            <el-select :loading="categoryLoading" v-model="state.form.category" :disabled="state.loading" filterable
-                       @change="handleSubmit('category')">
-              <el-option v-for="item in categoryOpts" :key="item.value" :label="item.label"
-                         :value="item.value"></el-option>
+            <el-select :loading="categoryLoading" v-model="state.form.category" :disabled="state.loading" filterable @change="handleSubmit('category')">
+              <el-option v-for="item in categoryOpts" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item :label="$t('dpTable_permission')">
-            <el-select v-model="state.form.permission" placeholder="Select" multiple filterable clearable
-                       @blur="handleSubmit('permission')" :disabled="state.loading">
+            <el-select
+              v-model="state.form.permission"
+              placeholder="Select"
+              multiple
+              filterable
+              clearable
+              @blur="handleSubmit('permission')"
+              :disabled="state.loading"
+            >
               <el-option-group v-for="group in permissionOptions" :key="group.label" :label="$t(group.label)">
                 <el-option v-for="item in group.options" :key="item.value" :label="item.label" :value="item.value" />
               </el-option-group>
@@ -53,7 +57,7 @@
 </template>
 
 <script lang="ts" setup>
-import { adminApi, clientApi } from 'api'
+import { clientApi } from 'api'
 import { useDebounceFn } from '@vueuse/core'
 import { initCategoryOpts, categoryOpts } from '@/composables/useDocumentTypeOptioins'
 import { convertPermissionObjectByPermissions, convertPermissionsByPermissionObject, getPermissionSelectOption } from '#imports'
@@ -142,7 +146,7 @@ async function handleSubmit(attr: string) {
       const i18nValue = attr === 'isFolder' ? (state.form.isFolder ? 'Yes' : 'No') : state.form[attr]
       tip = attr === 'permission' ? `[${i18nMap[attr]}]` : `[${i18nMap[attr]}:${i18nValue}]`
     }
-    await adminApi.api.postDocpaltypeSettingsDocpalTypeV2Update(params).then(res => res.data)
+    await clientApi.admin.postAdmindmsDocpalTypeUpdate(params).then((res) => res.data)
     state.docTypeDetail[attr] = params[attr]
     routerProvider?.message.success(t('dpMsg_success', { tip }))
   } catch (error) {

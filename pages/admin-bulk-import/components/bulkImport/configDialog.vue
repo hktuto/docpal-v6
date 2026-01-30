@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { adminApi,clientApi } from 'api'
+import { clientApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const tableColumns = {
@@ -75,7 +75,7 @@ async function handleCheckNameOrTitle(rule: any, value: any, callback: any) {
   if (value === '') {
     callback(new Error(t('render.hint.fieldRequired') as string))
   } else {
-    const res = await adminApi.api.postWorkflowChecknameortitle({ nameOrTitle: value })
+    const res = await clientApi.admin.postAdmindocpalWorkflowChecknameortitle({ nameOrTitle: value })
     if (Number(res.code) === 500) {
       callback(new Error(res.message))
     }
@@ -96,7 +96,7 @@ async function handleSubmit() {
       rootPath: configData.rootPath.pop()
     }
     if (state.profileID) params.profileID = state.profileID
-    const res = await adminApi.api.postWorkflowSavedocumenttypeprofile(params)
+    const res = await clientApi.admin.postAdmindocpalWorkflowSavedocumenttypeprofile(params)
     if (!res.result) {
       ElMessage.error(res.message)
       return

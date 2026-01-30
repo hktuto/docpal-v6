@@ -4,7 +4,7 @@ import { clientApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const { id } = defineProps<{
-  id: string;
+  id: string
 }>()
 const editInfoOpened = ref(false)
 const testEmailOpened = ref(false)
@@ -28,7 +28,6 @@ const layoutHtml = computed(() => {
 let data: any = ref(null)
 
 async function handleInit() {
-
   // TODO : if id is new , create new dummy data
   if (!id || id === 'new') {
     ready.value = true
@@ -43,7 +42,7 @@ async function handleInit() {
       emailTemplateVariable: ''
     }
   }
-  const res = await clientApi.api.getDmsTemplateEmailTemplateId(id).then((res) => res.data)
+  const res = await clientApi.admin.getAdmindmsTemplateEmailTemplateId(id).then((res) => res.data)
   // loop template body and get all variables
   // const body = res?.body;
   await getTemplateLayout(res?.emailLayoutId)
@@ -61,10 +60,12 @@ async function handleInit() {
  * @param templateId
  */
 async function getTemplateLayout(templateId?: any) {
-  const res: any = await clientApi.api.postDmsTemplateEmailLayoutPage({
-    pageNum: 0,
-    pageSize: 1000
-  }).then((res) => res.data)
+  const res: any = await clientApi.admin
+    .postAdmindmsTemplateEmailLayoutPage({
+      pageNum: 0,
+      pageSize: 1000
+    })
+    .then((res) => res.data)
   layouts.value = res?.entryList
   const layoutId = layouts.value.length > 0 ? layouts.value[0].id : ''
   selectedLayout.value = templateId || layoutId
@@ -91,7 +92,6 @@ function handleClose() {
 async function save() {
   const { html, json, variable } = await editorEl.value.getData()
   try {
-
     // if id is new , create new
     // check form valid
     if (id === 'new') {
@@ -104,15 +104,17 @@ async function save() {
         return
       }
       // }
-      const result = await clientApi.api.postDmsTemplateEmailTemplate({
-        ...data.value,
-        // TODO : send html to body
-        // url encode html
-        body: html,
-        emailLayoutId: selectedLayout.value,
-        emailTemplateJson: JSON.stringify(json),
-        emailTemplateVariable: JSON.stringify(variable)
-      }).then(res => res.data)
+      const result = await clientApi.admin
+        .postAdmindmsTemplateEmailTemplate({
+          ...data.value,
+          // TODO : send html to body
+          // url encode html
+          body: html,
+          emailLayoutId: selectedLayout.value,
+          emailTemplateJson: JSON.stringify(json),
+          emailTemplateVariable: JSON.stringify(variable)
+        })
+        .then((res) => res.data)
       if (result?.id) {
         routerProvider?.updateProps({
           label: result.id,
@@ -128,8 +130,7 @@ async function save() {
 
     // update new variable
     // test save json to backend
-    await clientApi.api.putDmsTemplateEmailTemplate
-    ({
+    await clientApi.admin.putAdmindmsTemplateEmailTemplate({
       id: id,
       ...data.value,
       // TODO : send html to body
@@ -139,10 +140,12 @@ async function save() {
       emailTemplateJson: JSON.stringify(json),
       emailTemplateVariable: JSON.stringify(variable)
     })
-    routerProvider?.message.success(t('tip_updateMsg', {
-      modelName: null,
-      name: data.value.label
-    }))
+    routerProvider?.message.success(
+      t('tip_updateMsg', {
+        modelName: null,
+        name: data.value.label
+      })
+    )
     editInfoOpened.value = false
   } catch (error) {
     console.error(error)
@@ -182,8 +185,7 @@ onMounted(async () => {
         <ElSelect type="primary" v-model="selectedLayout">
           <ElOption v-for="item in layouts" :key="item.id" :label="item.name" :value="item.id"></ElOption>
         </ElSelect>
-        <ElButton id="EmailContentTemplate__Detail__SendTest" type="primary" size="small"
-                  @click="testEmailOpened = true">
+        <ElButton id="EmailContentTemplate__Detail__SendTest" type="primary" size="small" @click="testEmailOpened = true">
           {{ $t('email_send_test') }}
         </ElButton>
         <ElButton id="EmailContentTemplate__Detail__Save" type="primary" size="small" @click="save">
@@ -216,7 +218,15 @@ onMounted(async () => {
     <ElDialog v-model="testEmailOpened" append-to-body destroy-on-close>
       <EditorjsTestDialog ref="testEmailDialog" v-if="data" :data="data" :id="id" :variables="variables" />
       <template #footer>
-        <ElButton type="primary" @click="() => {sendTest();testEmailOpened = false;}">
+        <ElButton
+          type="primary"
+          @click="
+            () => {
+              sendTest()
+              testEmailOpened = false
+            }
+          "
+        >
           {{ $t('email_send_test') }}
         </ElButton>
       </template>
@@ -277,7 +287,7 @@ onMounted(async () => {
 }
 
 .emailTemplateContainer {
-  height: 100%
+  height: 100%;
 }
 
 .responsiveSizeEditorContainer {

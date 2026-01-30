@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { clientApi } from 'api'
 import { AzureProviderKey } from '~/utils/azureProvider'
 import type { AzureSettingDTO } from 'api/src/generate/admin'
 const tabProvider = inject(TabManagerKey)
@@ -38,11 +38,11 @@ function goClientPath(path: string) {
   window.open(protocol + '//' + host + '/browse?path=' + path, '_blank')
 }
 async function GetAzureSetting() {
-  const res = await adminApi.api.getAzureOcrQueryazuresetting()
+  const res = await clientApi.admin.getAdmindsbAzureOcrSetting()
   return res.data
 }
 async function GetOCRConditions() {
-  const res = await adminApi.api.getAzureOcrConditions()
+  const res = await clientApi.admin.getAdmindsbAzureOcrConditions()
   return res.data
 }
 const logTableRef = ref()
@@ -52,19 +52,19 @@ function handleFilterFormChange(formData: any) {
 }
 provide(AzureProviderKey, {
   UpdateAzureApiKeyApi: (params: any) => {
-    return adminApi.api.putAzureOcrUpdateapisetting(params)
+    return clientApi.admin.putAdmindsbAzureOcrSettingApiKey(params)
   },
   UpdateAzureOcrSettingApi: (params: any) => {
-    return adminApi.api.putAzureOcrUpdateocrsetting(params)
+    return clientApi.admin.getAdmindsbAzureOcrSetting(params)
   },
   CreateAzureOcrMappingApi: (params: any) => {
-    return adminApi.api.postAzureOcrCreateocrprofilemapping(params)
+    return clientApi.admin.postAdmindsbAzureOcrProfileMapping(params)
   },
   UpdateAzureOcrMappingApi: (params: any) => {
-    return adminApi.api.putAzureOcrUpdateocrprofilemapping(params)
+    return clientApi.admin.putAdmindsbAzureOcrProfileMapping(params)
   },
   GetAzureOcrModelsApi: (params: any) => {
-    return adminApi.api.getAzureOcrQueryazureocrmodels(params)
+    return clientApi.admin.getAdmindsbAzureOcrModels(params)
   },
   GetOCRTransactionLogApi: (params: any) => {
     const filter: any = filterFormdata
@@ -73,7 +73,7 @@ provide(AzureProviderKey, {
         if (filter[key]) params[key] = filter[key]
       })
     }
-    return adminApi.api.postAzureOcrQueryocrtransactionlogs(params)
+    return clientApi.admin.postAdmindsbAzureOcrTransactionLogs(params)
   },
   goClientPath
 })

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ArrowDown } from '@element-plus/icons-vue'
-import { adminApi } from 'api'
+import { adminApi, clientApi } from 'api'
 
 const props = defineProps<{
   document: any
@@ -249,7 +249,7 @@ const { flatRole } = useRBAC()
 async function getTargetOptions() {
   async function getGroupList() {
     try {
-      return await adminApi.api.postNuxeoIdentityGroups({}).then((res) => res.data)
+      return await clientApi.api.postUcenterGroups().then(r => r.data)
     } catch (error) {
       console.error(error)
       return []
@@ -258,7 +258,7 @@ async function getTargetOptions() {
 
   async function getUserList() {
     try {
-      return await adminApi.api.postNuxeoIdentityGetkeycloakallusers({}).then((res) => res.data)
+      return await clientApi.admin.postAdminucenterGetKeycloakAllUsers({}).then((res) => res.data)
     } catch (error) {
       console.error(error)
       return []

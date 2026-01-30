@@ -66,9 +66,9 @@ async function handleSubmit() {
     }
 
     if (!state.isEdit) {
-      await clientApi.api.postCaseDashboard(form)
+      await clientApi.admin.postAdmincaseDashboard(form)
     } else {
-      await clientApi.api.putCaseDashboard({
+      await clientApi.admin.putAdmincaseDashboard({
         ...form,
         id: state.id
       })

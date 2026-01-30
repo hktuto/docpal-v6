@@ -18,7 +18,7 @@
 </template>
 <script lang="ts" setup>
 import { Graph, Node } from "@antv/x6";
-import { adminApi } from "api";
+import { clientApi } from 'api'
 const props = defineProps<{
   graph: Graph;
   node: Node;
@@ -49,7 +49,7 @@ async function getCaseInformation(graph) {
    { label: "Creator",
     value: "${creator}",}
   ]
-  const group = await adminApi.api.postNuxeoIdentityGroups({}).then(res => res.data)
+  const group = await clientApi.api.postUcenterGroups().then(r => r.data)
   console.log("group", group)
   defaultOption.push(...group.map((item) => ({
     label: item.name,
