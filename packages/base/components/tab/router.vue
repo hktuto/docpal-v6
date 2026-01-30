@@ -72,6 +72,7 @@ function navigateTo(param: RouterParams, openInNewTab: boolean = false, ignoreEx
     id: tab.value.id,
     initized: true
   }
+  console.log('navigateTo', tab.value)
   if (errorBoundary.value) {
     errorBoundary.value?.clearError()
   }
@@ -319,7 +320,7 @@ onUnmounted(() => {
         <Suspense>
           <template v-if="!tab.handleError">
             <NuxtErrorBoundary ref="errorBoundary" @error="handleErr">
-              renderComponent: {{ renderComponent }} tab.component : {{ tab.component }}<br />
+              renderComponent: {{ renderComponent }} tab : {{ tab }}<br />
               <component v-if="renderComponent" :is="tab.component" :tab="tab" v-bind="tab.props" />
               <template #error="{ error, clearError }">
                 <div class="errorBoundaryContainer">
@@ -340,6 +341,7 @@ onUnmounted(() => {
             </NuxtErrorBoundary>
           </template>
           <template v-else>
+            tab.component : {{ tab.component }}<br />
             <component v-if="renderComponent" :is="tab.component" :tab="tab" v-bind="tab.props" />
           </template>
           <template #fallback>
