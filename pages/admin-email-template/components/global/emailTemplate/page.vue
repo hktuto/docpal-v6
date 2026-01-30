@@ -112,7 +112,7 @@ function handleFilterFormChange(formModel: any) {
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
-  const layouts = await adminApi.api.getDmsTemplateEmailLayoutAll().then((res) => res.data)
+  const layouts = await clientApi.admin.getAdmindmsTemplateEmailLayoutAll().then((res) => res.data)
   const filters = [
     {
       key: 'orderBy',

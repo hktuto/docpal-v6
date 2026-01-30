@@ -57,7 +57,7 @@ async function handleSubmit() {
   form.append('file', blob, 'workflow.bpmn.xml')
   form.append('isDraft', true)
   try {
-    const data = await clientApi.admin.postAdmindocpalWorkflowProcessDefinitionUpload({ requestDTO: {} }, form).then((res) => res.data)
+    const data = await clientApi.admin.postAdmindocpalWorkflowProcessDefinitionUpload(form).then((res) => res.data)
     state.form = {
       template: 'Blank',
       name: ''
@@ -140,8 +140,8 @@ defineExpose({ handleOpen })
     </el-form>
     <template #footer>
       <el-button id="WorkflowEditor__CreateNewWorkflow__Submit" type="primary" :loading="state.loading"
-                 @click="handleSubmit"
-      >{{ $t('common_submit') }}
+                 @click="handleSubmit">
+        {{ $t('common_submit') }}
       </el-button>
     </template>
   </el-dialog>
