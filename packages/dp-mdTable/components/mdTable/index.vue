@@ -191,6 +191,12 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     // 阻止默认行为
     event.preventDefault()
     rightClickCellPopoverRef.value.open($event.target, { row, column })
+  },
+  'checkbox-all': ({ checked }: any) => {
+    const { fullData } = gridRef.value?.getTableData()
+    fullData.forEach((row: any) => {
+      row.checked = checked
+    })
   }
 }))
 
