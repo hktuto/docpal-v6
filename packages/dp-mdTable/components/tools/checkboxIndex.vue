@@ -61,7 +61,9 @@ const handleCheckboxChange = (row) => {
 
 .custom-checkbox-cell:hover .row-checkbox,
 .custom-checkbox-cell.is-checked .row-checkbox,
-.custom-checkbox-cell:hover .expand-icon{
+.custom-checkbox-cell:hover .expand-icon,
+.row--hover .expand-icon,
+.row--hover .row-checkbox{
   opacity: 1;
   pointer-events: auto;
   cursor: pointer;
