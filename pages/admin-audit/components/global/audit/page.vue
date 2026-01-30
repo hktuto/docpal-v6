@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './form.vform.json'
+
 const tabProvider = inject(TabManagerKey)
 const routerProvider = inject(MenuRouterKey)
 if (!tabProvider || !routerProvider) {
@@ -20,7 +21,7 @@ const FormRendererRef = ref()
 
 const formData = ref<any>({})
 function handleFormChange(data: any) {
-  const extraParams = Object.keys(data.formModel).reduce((prev: any, key) => {
+  formData.value = Object.keys(data.formModel).reduce((prev: any, key) => {
     console.log(key, data.formModel[key])
     if (key === 'auditTemplate' && data.formModel[key]) {
       if (data.formModel[key][0]) prev.eventCategory = data.formModel[key][0]
@@ -35,7 +36,6 @@ function handleFormChange(data: any) {
     } else if (data.formModel[key]) prev[key] = data.formModel[key]
     return prev
   }, {})
-  formData.value = extraParams
   console.log(formData.value)
   reload()
   // handlePaginationChange(1)
@@ -53,7 +53,7 @@ function goClientPath(path: string) {
 
 provide(AuditProviderKey, {
   getListApi: (params: any) => {
-    return clientApi.admin.postAdmindmsDocumentQueryauditevent({ ...params, ...formData.value })
+    return newAdminApi.postAdmindmsDocumentQueryauditevent({ ...params, ...formData.value })
   },
   goClientPath
 })

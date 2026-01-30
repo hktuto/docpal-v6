@@ -3,7 +3,7 @@
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
         <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange" inputPlaceHolder="tableHeader_name" />
-        <el-button id="Dashboard__CreateNewDashboard" type="primary" @click="handleCreate">
+        <el-button id="User__ContactBook__Add" type="primary" @click="handleCreate">
           {{ $t('button.add') }}
         </el-button>
       </template>
@@ -48,7 +48,8 @@ const bodyActions = {
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'contactBook',
   api: (pageParams: any) => {
-    return clientApi.api.postDmsContactGroupPage({ ...pageParams, ...extraParams })
+    // return clientApi.api.postDmsContactGroupPage({ ...pageParams, ...extraParams })
+    return []
   },
   columns: [
     { field: 'name', title: 'tableHeader_name', fixed: 'left' },

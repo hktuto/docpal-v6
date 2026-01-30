@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElDialog } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './copy.vform.json'
 
 const opened = ref(false)
@@ -28,7 +28,7 @@ let versionList: any[] = []
 
 async function getVersionList() {
   // get version list
-  const response = await clientApi.admin.postAdmincaseTypesVersionPage({
+  const response = await newAdminApi.postAdmincaseTypesVersionPage({
     pageNum: 0,
     pageSize: 1000,
     caseTypeId: data.id || data.draftId
@@ -68,10 +68,10 @@ async function save() {
       versionId: versionId
     }
 
-    const copyRes: any = await clientApi.admin.postAdmincaseTypesIdCopy(data.id, params).then((res) => res.data)
+    const copyRes: any = await newAdminApi.postAdmincaseTypesIdCopy(data.id, params).then((res) => res.data)
     // get case detail
 
-    const blob = (await clientApi.api.getCaseTypesIdDownloadXml(
+    const blob = (await newAdminApi.getAdmincaseTypesIdDownloadXml(
       data.id,
       { versionNumber: formData.copyVersion },
       {
@@ -82,13 +82,13 @@ async function save() {
     const v = cmmnToJson(cmmnString)
     const humanTasks = v.definitions.case.casePlanModel.humanTask || []
 
-    // const {data} = await clientApi.api.postCaseTypesVersionVersionidNew(props.caseTypeId)
+    // const data = await newAdminApi.postAdmincaseTypesVersionVersionidNew(props.caseTypeId).then(r => r.data)
     //TODO : get all form in case and save as to new version
     // Step 1 : get all form in case
     // const allFrom = await xmlRef.value.getAllForm()
     for (let i = 0; i < humanTasks.length; i++) {
       const task = humanTasks[i] as any
-      const response = await clientApi.admin.getAdmindmsFormPropertiesQuery({
+      const response = await newAdminApi.getAdmindmsFormPropertiesQuery({
         processKey: data.name,
         userTaskId: task.attr_id,
         versionId: versionId
@@ -100,7 +100,7 @@ async function save() {
           versionId: copyRes?.latestVersionId
         }
         params.jsonValue = response[0].jsonValue
-        await clientApi.admin.postAdmindmsFormPropertiesSave(params).then(r => r.data)
+        await newAdminApi.postAdmindmsFormPropertiesSave(params).then(r => r.data)
       }
     }
     // TODO : copy form data

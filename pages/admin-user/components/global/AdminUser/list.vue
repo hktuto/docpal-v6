@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi, newAdminApi } from 'api'
 import { userProviderKey } from '~/util/userProvider'
 
 const routerProvider = inject(MenuRouterKey)
@@ -30,7 +30,7 @@ async function sendInvitation(data: any) {
     throw new Error('only non-register user can be invitate')
   }
   try {
-    const response = await clientApi.admin.getAdminucenterSendInitPasswordEmailUserid(data.userId).then((r) => r.data)
+    const response = await newAdminApi.getAdminucenterSendInitPasswordEmailUserid(data.userId).then((r) => r.data)
     console.log('response', response)
     routerProvider?.message.success('Invitation sent successfully')
   } catch (error) {
@@ -51,7 +51,7 @@ function handleFilterChange(filter: any) {
 // #endregion
 provide(userProviderKey, {
   getAllUsersApi: async (params: any) => {
-    const res: any = await clientApi.admin.postAdminucenterGetAllUsers({
+    const res: any = await newAdminApi.postAdminucenterGetAllUsers({
       ...params,
       ...userTableFilter
     })
@@ -60,23 +60,23 @@ provide(userProviderKey, {
     return { data: page }
   },
   SetUserStatusApi: (params: any) => {
-    return clientApi.api.putUcenterStatus(params)
+    return newClientApi.putUcenterStatus(params)
   },
   BatchActiveUserApi: (params: any) => {
-    return clientApi.api.postUcenterBatchActive(params)
+    return newClientApi.postUcenterBatchActive(params)
   },
   BatchDeleteUserApi: (params: any) => {
-    return clientApi.admin.postAdminucenterUsersBatchDelete(params)
+    return newAdminApi.postAdminucenterUsersBatchDelete(params)
   },
   getAllUserAndActiveCountApi: async () => {
-    const res = await clientApi.admin.postAdminucenterGetLicenseUserNumAndActiveCount()
+    const res = await newAdminApi.postAdminucenterGetLicenseUserNumAndActiveCount()
     return res.data
   },
   BatchUsersToGroupsApi: (params: any) => {
-    return clientApi.admin.postAdminucenterUsersBatchAddGroups(params)
+    return newAdminApi.postAdminucenterUsersBatchAddGroups(params)
   },
   GetGroupListApi: async () => {
-    return await clientApi.admin.postAdminucenterGroups().then((r) => r.data)
+    return await newAdminApi.postAdminucenterGroups().then((r) => r.data)
   },
   sendInvitation,
   openUserDetail
@@ -85,7 +85,7 @@ provide(userProviderKey, {
 
 <template>
   <div class="pageContainer">
-    <UserTable ref="tableRef" @filter-change="handleFilterChange"/>
+    <UserTable ref="tableRef" @filter-change="handleFilterChange" />
   </div>
 </template>
 <style lang="scss" scoped>

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
+
 const props = defineProps<{
   id: string
   expandedItems: any[]
@@ -15,11 +16,12 @@ let extraParams = {
   isDesc: 'asc'
 }
 let isFilter = false
+
 async function getChildApi(id: string = 'root') {
-  return clientApi.admin.postAdmindocpalAclDocumentList({
-      documentId: id,
-      ...extraParams
-    })
+  return newAdminApi.postAdmindocpalAclDocumentList({
+    documentId: id,
+    ...extraParams
+  })
     .then((res: any) => res.data)
 }
 
@@ -36,7 +38,9 @@ function recursiveLoadChild(checkList: any[] = [], treeData: any[], result: any[
   })
   return result
 }
+
 const tableDialogRef = ref<any>(null)
+
 function dblClickHandler(row: any) {
   if (!row.isFolder) {
     tableDialogRef.value.open({ ...row })
@@ -149,13 +153,13 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
     ]
   ],
   permissionMethod: ({
-    options,
-    code,
-    column,
-    row,
-    rowIndex,
-    additionalData
-  }: any): {
+                       options,
+                       code,
+                       column,
+                       row,
+                       rowIndex,
+                       additionalData
+                     }: any): {
     visible: boolean
     disabled: boolean
   } => {
@@ -228,6 +232,7 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
 })
 
 const ResponsiveFilterRef = ref()
+
 function handleFilterFormChange(formData: any) {
   extraParams = formData
   isFilter = true
@@ -236,26 +241,30 @@ function handleFilterFormChange(formData: any) {
     isFilter = false
   }, 2000)
 }
+
 let treeDataCopy = []
 
 const { flatRole } = useRBAC()
+
 async function getFilter() {
   async function getGroupList() {
     try {
-      return await clientApi.api.postUcenterGroups().then(r => r.data)
+      return await newAdminApi.postAdminucenterGroups().then(r => r.data)
     } catch (error) {
       console.error(error)
       return []
     }
   }
+
   async function getUserList() {
     try {
-      return await clientApi.admin.postAdminucenterGetKeycloakAllUsers({}).then((res) => res.data)
+      return await newAdminApi.postAdminucenterGetKeycloakAllUsers({}).then((res) => res.data)
     } catch (error) {
       console.error(error)
       return []
     }
   }
+
   const userList = await getUserList()
   const groupList = await getGroupList()
   const filterSetting = [
@@ -309,11 +318,13 @@ async function getFilter() {
   ]
   ResponsiveFilterRef.value.init(filterSetting)
 }
+
 function getTable() {
   const tableData = tableRef.value.getData()
   const row = tableData.find((item: any) => item.id === '77f07980-3d28-11f0-b669-c5677da71c82')
   tableRef.value.toggleTreeExpand(row)
 }
+
 onMounted(() => {
   getFilter()
 })
@@ -335,10 +346,10 @@ watch(
     <template #toolbar_buttons>
       <div class="action_list_container">
 
-     
-      <!-- <el-button type="primary" @click="getTable()">Clear</el-button> -->
-      <ResourceDocumentBreadcrumb :id="id" @idChange="emits('idChange', $event)" />
-      <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" />
+
+        <!-- <el-button type="primary" @click="getTable()">Clear</el-button> -->
+        <ResourceDocumentBreadcrumb :id="id" @idChange="emits('idChange', $event)" />
+        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" />
       </div>
     </template>
   </VxeGrid>
@@ -354,11 +365,13 @@ watch(
   display: grid;
   grid-template-rows: min-content 1fr;
 }
+
 .vxe-grid {
   :deep(.browseFileIcon) {
     width: calc(var(--app-space-m) * 1.5);
     height: calc(var(--app-space-m) * 1.5);
   }
+
   :deep(.browseNameCell) {
     display: flex;
     align-items: center;
@@ -367,16 +380,18 @@ watch(
   }
 }
 
-.action_list_container{
+.action_list_container {
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
   gap: var(--app-space-s);
-  .breadcrumbContainer{
+
+  .breadcrumbContainer {
     flex: 1 0 auto;
   }
-  .responsive-container{
+
+  .responsive-container {
     flex: 0 0 auto;
     border-left: 1px solid var(--app-grey-800);
   }

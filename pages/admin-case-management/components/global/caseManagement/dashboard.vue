@@ -35,7 +35,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApis } from 'api'
 import dayjs from 'dayjs'
 
 const { t } = useI18n()
@@ -86,7 +86,7 @@ function handleClear() {
 async function handleSave() {
   try {
     state.saveLoading = true
-    await clientApi.admin.postAdmincaseDashboardSaveStyle({
+    await newAdminApi.postAdmincaseDashboardSaveStyle({
       id: props.id,
       styleJson: JSON.stringify(state.layout)
     }).then(r => r.data)
@@ -101,7 +101,7 @@ const versionId = ref()
 
 async function init() {
   try {
-    const data = await clientApi.admin.getAdmincaseDashboardId(props.id).then(r => r.data)
+    const data = await newAdminApi.getAdmincaseDashboardId(props.id).then(r => r.data)
     versionId.value = data.cmmnVersionId
     state.detail = data
     name.value = data.label

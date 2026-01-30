@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { clientApi } from 'api';
+import { newAdminApi } from 'api';
 const docTypeData = ref()
 const { documentType } = defineProps<{
     documentType: string
 }>()
 
 onMounted(async() => {
-    const {data:metaSettingData} = await clientApi.admin.getAdmindmsSettingSystem('');
+    const {data:metaSettingData} = await newAdminApi.getAdmindmsSettingSystem('');
     if(metaSettingData && metaSettingData[documentType]) {
         docTypeData.value = {
             ...metaSettingData[documentType],

@@ -16,7 +16,6 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 import { groupProviderKey } from '~/util/userProvider'
 
@@ -128,7 +127,7 @@ function handleFilterFormChange(formModel: any) {
 // #endregion
 async function getGroup() {
   tableConfig.loading = true
-  state.groupList = await clientApi.admin.postAdminucenterGroups().then((r) => r.data)
+  state.groupList = await groupProvider?.GetGroupListApi()
   handleFilterFormChange(filterParams)
   tableConfig.loading = false
   return state.groupList

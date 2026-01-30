@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const tableColumns = {
@@ -48,7 +48,7 @@ const state = reactive({
       const { level, value } = node
       const idOrPath = level == 0 ? '/' : value
       setTimeout(async () => {
-        let res = await clientApi.admin.postAdmindmsDocumentChildrenThumbnail({
+        let res = await newAdminApi.postAdmindmsDocumentChildrenThumbnail({
           idOrPath,
           pageSize: 100000
         }).then(res => res.data) as any
@@ -75,7 +75,7 @@ async function handleCheckNameOrTitle(rule: any, value: any, callback: any) {
   if (value === '') {
     callback(new Error(t('render.hint.fieldRequired') as string))
   } else {
-    const res = await clientApi.admin.postAdmindocpalWorkflowChecknameortitle({ nameOrTitle: value })
+    const res = await newAdminApi.postAdmindocpalWorkflowChecknameortitle({ nameOrTitle: value })
     if (Number(res.code) === 500) {
       callback(new Error(res.message))
     }
@@ -96,7 +96,7 @@ async function handleSubmit() {
       rootPath: configData.rootPath.pop()
     }
     if (state.profileID) params.profileID = state.profileID
-    const res = await clientApi.admin.postAdmindocpalWorkflowSavedocumenttypeprofile(params)
+    const res = await newAdminApi.postAdmindocpalWorkflowSavedocumenttypeprofile(params)
     if (!res.result) {
       ElMessage.error(res.message)
       return
@@ -165,7 +165,7 @@ async function revertData(profile: any) {
   state.profileID = profile.profileID
   formData.profileName = profile.profileName
   try {
-    const data: any = await clientApi.admin.postAdmindmsDocumentBreadcrumb(profile.rootPath).then(r => r.data)
+    const data: any = await newAdminApi.postAdmindmsDocumentBreadcrumb(profile.rootPath).then(r => r.data)
     formData.rootPath = data.reduce((prev: any, item: any) => {
       prev.push(item.path)
       return prev

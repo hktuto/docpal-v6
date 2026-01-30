@@ -12,7 +12,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './new.vform.json'
 const { t } = useI18n()
 const emits = defineEmits([
@@ -30,7 +30,7 @@ async function handleSubmit() {
   try {
     const data = await FormRendererRef.value.getFormData()
     state.visible = false
-    const res = await clientApi.admin.getAdmincaseTypes(data).then(res => res.data)
+    const res = await newAdminApi.getAdmincaseTypes(data).then(res => res.data)
     ElMessage.success(t('tip_createdMsg', {
       modelName: null,
       name: data.name

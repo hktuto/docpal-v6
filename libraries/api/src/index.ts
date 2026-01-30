@@ -7,11 +7,23 @@ let clientBaseURL = '/'
 let publicBaseURL = '/public-api/report/v1/api'
 let templateBaseURL = '/open-api/template'
 
+export const newClientApi = new Standard({
+  baseURL: clientBaseURL,
+  timeout: 50000
+}).api
+
+export const newAdminApi = new Standard({
+  baseURL: clientBaseURL,
+  timeout: 50000
+}).admin
+
+export const globalApi = window.location.pathname.includes('admin') ? newAdminApi : newClientApi
+
 export const clientApi = new Standard({
   baseURL: clientBaseURL,
   timeout: 50000
 })
-export const restApi = {}
+
 export const adminApi = new Admin({
   baseURL: clientBaseURL,
   timeout: 50000
@@ -26,7 +38,7 @@ export const templateApi = new Template({
   baseURL: templateBaseURL,
   timeout: 50000
 })
-export const globalApi = window.location.pathname.includes('admin') ? adminApi : clientApi
+
 // if node env mode is dev set proxy
 export function PostgREST_Decorate(params: any) {
   const strArr = params.reduce((prev: any, item: any) => {
@@ -59,7 +71,7 @@ export function PostgREST_Decorate(params: any) {
         prev.push(`${item.key}=in.(${values})`)
         break
       case 'cs':
-        const jsonValue = JSON.stringify(item.value)  
+        const jsonValue = JSON.stringify(item.value)
         prev.push(`${item.key}=cs.${jsonValue}`)
         break
       default:

@@ -30,7 +30,7 @@
   </el-card>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 
 const caseDetailProvider = inject(CaseManagementDetailProviderKey)
@@ -69,7 +69,7 @@ async function handleBlur(e) {
 
     // const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToSave')}`)
     // if(action !== 'confirm') throw new Error("");
-    await clientApi.admin.putAdmincaseTypes({
+    await newAdminApi.putAdmincaseTypes({
       ...props.detail,
       name: value
     }).then(r => r.data)

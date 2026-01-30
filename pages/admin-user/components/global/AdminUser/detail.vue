@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi, newAdminApi } from 'api'
 import type { UserDTO } from 'api/src/generate/admin'
 import { userProviderDetailKey } from '~/util/userProvider'
 
@@ -34,7 +34,7 @@ function openUserList(openInNewTab: boolean = false) {
 }
 
 async function getUser() {
-  const data: any = await clientApi.admin.getAdminucenterUserUserid(id).then((r) => r.data)
+  const data: any = await newAdminApi.getAdminucenterUserUserid(id).then((r) => r.data)
   if (!data) return
   console.log('user info', data)
   data.status = data.status === 'A' ? 'A' : 'D'
@@ -43,28 +43,28 @@ async function getUser() {
 
 provide(userProviderDetailKey, {
   SetUserStatusApi: (params: any) => {
-    return clientApi.api.putUcenterStatus(params)
+    return newClientApi.putUcenterStatus(params)
   },
   BatchActiveUserApi: (params: any) => {
-    return clientApi.api.postUcenterBatchActive(params)
+    return newClientApi.postUcenterBatchActive(params)
   },
   BatchDeleteUserApi: (params: any) => {
-    return clientApi.admin.postAdminucenterUsersBatchDelete(params)
+    return newAdminApi.postAdminucenterUsersBatchDelete(params)
   },
   PatchUserPasswordApi: (params: any) => {
-    return clientApi.admin.patchAdminucenterUserPassword(params)
+    return newAdminApi.patchAdminucenterUserPassword(params)
   },
   MemberGroupGetApi: (params: any) => {
-    return clientApi.admin.postAdminucenterMemberGroup(params)
+    return newAdminApi.postAdminucenterMemberGroup(params)
   },
   BatchUserRemoveGroupsApi: (params: any) => {
-    return clientApi.admin.postAdminucenterUserBatchRemoveGroups(params)
+    return newAdminApi.postAdminucenterUserBatchRemoveGroups(params)
   },
   BatchUserAddGroupsApi: (params: any) => {
-    return clientApi.admin.postAdminucenterUserBatchAddGroups(params)
+    return newAdminApi.postAdminucenterUserBatchAddGroups(params)
   },
   GetGroupListApi: async () => {
-    return await clientApi.admin.postAdminucenterGroups().then((r) => r.data)
+    return await newAdminApi.postAdminucenterGroups().then((r) => r.data)
   },
   getUser,
   openUserList

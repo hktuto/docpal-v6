@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElColorPicker, ElDialog } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 
@@ -40,7 +40,7 @@ async function generateDefWorkflow(name: string) {
     categories: ['business_processes', 'system_processes']
   }
 
-  const { entryList } = await clientApi.admin.postDocpalWorkflowProcessDefinitionDraftPage(params).then((r) => r.data)
+  const { entryList } = await newAdminApi.postAdmindocpalWorkflowProcessDefinitionDraftPage(params).then((r) => r.data)
 
   const eventActions: any = {
     'Def Calendar Event By Create': 'Create',
@@ -220,13 +220,13 @@ async function submit() {
 
   try {
     if (isEdit.value) {
-      const result = await clientApi.api.putDmsCalendarsEventSettingId(currentData.value.id, currentData.value).then(r => r.data)
+      const result = await newAdminApi.putAdmindmsCalendarsEventSettingId(currentData.value.id, currentData.value).then(r => r.data)
       routerProvider?.message.success(t('tip_updateSuccessMsg', { modelName: null, name: currentData.value.name }))
     } else {
       // TODO use def value
       defWorkflow.value = await generateDefWorkflow(currentData.value.name)
       currentData.value.flows = defWorkflow.value
-      const result = await clientApi.api.postDmsCalendarsEventSetting(currentData.value).then(r => r.data)
+      const result = await newAdminApi.postAdmindmsCalendarsEventSetting(currentData.value).then(r => r.data)
       routerProvider?.message.success(t('tip_createdSuccessMsg', { modelName: null, name: currentData.value.name }))
     }
   } catch (e) {
@@ -239,7 +239,7 @@ async function submit() {
 async function handleJumpWorkflow(workflowKey: string) {
   if (!workflowKey) return
 
-  const data = await clientApi.admin.getAdminworkflowDefinitionVersionKeyProcessdefinitionkey(workflowKey).then((r) => r.data)
+  const data = await newAdminApi.getAdminworkflowDefinitionVersionKeyProcessdefinitionkey(workflowKey).then((r) => r.data)
   if (!data) return
 
   const params: NewWorkflowVersionDetailParams = {

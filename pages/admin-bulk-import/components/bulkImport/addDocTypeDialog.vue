@@ -12,9 +12,10 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi, newAdminApi } from 'api'
 import formJson from './addDocTypeForm.vfom.json'
 import { ElMessage } from 'element-plus'
+
 const routerProvider = inject(MenuRouterKey)
 const { metaSettingData } = defineProps<{
   metaSettingData: any
@@ -47,7 +48,7 @@ async function handleSubmit() {
       isFolder: getIsFolder(data.type),
       related: []
     }
-    await clientApi.admin.putAdmindmsSettingSystemSystemid('', metaSettingData)
+    await newAdminApi.putAdmindmsSettingSystemSystemid('', metaSettingData)
     ElMessage.success(t('tip_createdSuccessMsg', {
       modelName: t('bulkImport_bulkImportForDocumentType'),
       name: data.type
@@ -98,7 +99,7 @@ async function handleOptions(exitList: any) {
 }
 
 onMounted(async () => {
-  const data: any = await clientApi.api.getDmsDocpalTypeActive().then(r => r.data)
+  const data: any = await newClientApi.getDmsDocpalTypeActive().then(r => r.data)
   state.allDocTypeList = data?.sort((a: any, b: any) => (a.name.localeCompare(b.name)))
 })
 defineExpose({ handleOpen })
