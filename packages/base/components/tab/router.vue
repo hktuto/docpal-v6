@@ -313,6 +313,7 @@ onUnmounted(() => {
       <div class="label">{{ t(tab.label) }} {{ tab.initized }}</div>
     </Teleport>
     <template v-if="tab.initized">
+      renderComponent_0: {{ renderComponent }} tab : {{ tab }}<br />
       <Transition>
         <Suspense>
           <template v-if="!tab.handleError">
