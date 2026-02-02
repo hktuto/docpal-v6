@@ -314,12 +314,10 @@ onUnmounted(() => {
     </Teleport>
     <template v-if="tab.initized">
       renderComponent_0: {{ renderComponent }} tab : {{ tab }}<br />
-      <component v-if="renderComponent" :is="tab.component" :tab="tab" v-bind="tab.props" />
       <Transition>
         <Suspense>
           <NuxtErrorBoundary ref="errorBoundary" @error="handleErr">
-            renderComponent: {{ renderComponent }} tab : {{ tab }}<br />
-            <component v-if="renderComponent" :is="tab.component" :tab="tab" v-bind="tab.props" />
+            <component :is="tab.component" :tab="tab" v-bind="tab.props" />
             <template #error="{ error, clearError }">
               <div class="errorBoundaryContainer">
                 <div class="messageContainer">
