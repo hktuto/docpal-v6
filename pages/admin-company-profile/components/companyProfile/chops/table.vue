@@ -19,7 +19,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 
 const props = defineProps<{
@@ -34,7 +34,7 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-company-profile-chops',
-  api: (pageParams: any) => clientApi.admin.postAdmindmsCompanyprofilesCompanyidChopsPage(props.id, {
+  api: (pageParams: any) => newAdminApi.postAdmindmsCompanyprofilesCompanyidChopsPage(props.id, {
     ...pageParams, ...extraParams
   }),
   columns: [
@@ -139,7 +139,7 @@ function handleEdit(row: any) {
 
 async function handleActive(row: any, status: string) {
   try {
-    const result = await clientApi.admin.putAdmindmsCompanyprofilesCompanyidChopsCompanychopidStatus(props.id, row.id, { status: status }).then((res) => res.data)
+    const result = await newAdminApi.putAdmindmsCompanyprofilesCompanyidChopsCompanychopidStatus(props.id, row.id, { status: status }).then((res) => res.data)
     if (!!result) {
       row.status = status
     }
@@ -163,7 +163,7 @@ async function handleDelete(row: any) {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    await clientApi.admin.deleteAdmindmsCompanyprofilesCompanyidChopsCompanychopid(props.id, row.id).then((res) => res.data)
+    await newAdminApi.deleteAdmindmsCompanyprofilesCompanyidChopsCompanychopid(props.id, row.id).then((res) => res.data)
     reload()
   } catch (error) {
     console.log(error)

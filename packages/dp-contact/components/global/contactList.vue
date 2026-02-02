@@ -10,8 +10,8 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { clientApi } from 'api'
-import { routeContactList } from '~/utils/routerHelper'
+import { newClientApi } from 'api'
+
 const tableColumnRender = reactive({
   name: 'TableColumnRender'
 })
@@ -34,7 +34,10 @@ async function init(isInitTable = true) {
   try {
     loading.value = true
     initLoading.value = true
-    const res: any = await clientApi.api.getDmsContactGroupId(props.id).then((res) => res.data)
+    const res: any = await newClientApi.getDmsContactGroupId(props.id).then((res) => res.data)
+    if (!res) {
+      return
+    }
     detail.value = res
     if (!res.hasPermissions) res.hasPermissions = ['Read']
     await permissionHelper.getPermission(res.hasPermissions)
@@ -65,7 +68,7 @@ async function handleFormChange({ fieldName, newValue, oldValue, formModel }: an
   //   attributes: detail.value.attributes,
   //   status: detail.value.status
   // }
-  // await clientApi.api.putDmsContactGroupId(props.id, params).then(r => r.data)
+  // await newClientApi.putDmsContactGroupId(props.id, params).then(r => r.data)
 
   // TODO: delete
   if (fieldName === 'name') {
@@ -91,7 +94,7 @@ async function updateDetail({ fieldName, newValue, oldValue }: any) {
       attributes: detail.value.attributes,
       status: detail.value.status
     }
-    await clientApi.api.putDmsContactGroupId(props.id, params).then(r => r.data)
+    await newClientApi.putDmsContactGroupId(props.id, params).then(r => r.data)
   } catch (error) {
     console.log(error)
     await resetPermission(fieldName, oldValue)
@@ -111,7 +114,7 @@ async function contactAddPermission({ fieldName, newValue, oldValue }: any) {
       value: segments.slice(1).join('_'),
       name: capitalizeFirstLetter(fieldName)
     }
-    await clientApi.api.postDmsContactGroupIdPermission(props.id, params)
+    await newClientApi.postDmsContactGroupIdPermission(props.id, params)
     ElMessage.success(t('dpMsg_success'))
   } catch (error) {
     console.log(error)
@@ -139,7 +142,7 @@ async function contactRemovePermission({ fieldName, newValue, oldValue }: any) {
       value: segments.slice(1).join('_'),
       name: capitalizeFirstLetter(fieldName)
     }
-    await clientApi.api.patchDmsContactGroupIdPermission(props.id, params).then(r => r.data)
+    await newClientApi.patchDmsContactGroupIdPermission(props.id, params).then(r => r.data)
     ElMessage.success(t('dpMsg_success'))
   } catch (error) {
     await resetPermission(fieldName, oldValue)

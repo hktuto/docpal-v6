@@ -1,4 +1,4 @@
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 interface PermissionOption {
   id: string;
@@ -19,7 +19,7 @@ export const getFromServer = async function(loadUserList: boolean, loadRoleList:
 
   try {
     if (loadUserList) {
-      const user = await clientApi.api.postUcenterUsers().then((res: any) => res.data)
+      const user = await newClientApi.postUcenterUsers().then((res: any) => res.data)
       userList.value = user || []
       if (userList.value.length > 0) {
         options.value.push(
@@ -35,7 +35,7 @@ export const getFromServer = async function(loadUserList: boolean, loadRoleList:
     }
 
     if (loadRoleList) {
-      const role = await clientApi.api.postDocpalAclRoleList([{
+      const role = await newClientApi.postDocpalAclRoleList([{
         column: 'status',
         type: 'EQ',
         values: '1'
@@ -55,7 +55,7 @@ export const getFromServer = async function(loadUserList: boolean, loadRoleList:
     }
 
     if (loadGroupList) {
-      const group = await clientApi.api.postUcenterGroups().then((res) => res.data)
+      const group = await newClientApi.postUcenterGroups().then((res) => res.data)
       groupList.value = group || []
       if (groupList.value.length > 0 && !!group) {
         options.value.push(
@@ -199,7 +199,7 @@ export const convertSelectOptions = (permissions: any) => {
     const type = item.dataType
     switch (type) {
       case 'user':
-        permission.push(`user_${item.value}`)()
+        permission.push(`user_${item.value}`)
         break
       case 'role':
         permission.push(`role_${item.value}`)
@@ -273,7 +273,7 @@ export const getCachePermissionOptions = async () => {
 }
 
 export const getUserSelectOption = async () => {
-  const list: any = await clientApi.api.postUcenterUsers().then((res) => res.data)
+  const list: any = await newClientApi.postUcenterUsers().then((res) => res.data)
   if (list.length === 0) return []
 
   return list.map((item: any) => ({
@@ -285,7 +285,7 @@ export const getUserSelectOption = async () => {
 
 export const getRoleSelectOption = async () => {
   try {
-    const list: any = await clientApi.api.postDocpalAclRoleList([{
+    const list: any = await newClientApi.postDocpalAclRoleList([{
       column: 'status',
       type: 'EQ',
       values: '1'
@@ -303,7 +303,7 @@ export const getRoleSelectOption = async () => {
 }
 
 export const getGroupsSelectOption = async () => {
-  let list: any = await clientApi.api.postUcenterGroups().then((res) => res.data)
+  let list: any = await newClientApi.postUcenterGroups().then((res) => res.data)
   if (list.length === 0) return []
 
   return list.map((item: any) => ({

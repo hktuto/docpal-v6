@@ -2,7 +2,8 @@
   <div class="pageContainer--padding">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange" inputPlaceHolder="tableHeader_name" />
+        <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange"
+                          inputPlaceHolder="tableHeader_name" />
         <el-button id="User__ContactBook__Add" type="primary" @click="handleCreate">
           {{ $t('button.add') }}
         </el-button>
@@ -17,8 +18,9 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { routeContactList } from '~/utils/routerHelper'
+
 const { getPermission, isDelete, isManage } = useContactPermissionHelper()
 const platform = useAppPlatform()
 const userId = useUserId()
@@ -48,8 +50,7 @@ const bodyActions = {
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'contactBook',
   api: (pageParams: any) => {
-    // return clientApi.api.postDmsContactGroupPage({ ...pageParams, ...extraParams })
-    return []
+    return newClientApi.postDmsContactGroupPage({ ...pageParams, ...extraParams })
   },
   columns: [
     { field: 'name', title: 'tableHeader_name', fixed: 'left' },
@@ -145,11 +146,13 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     handleDblclick(row)
   }
 })
+
 async function getRowPermission(row: any) {
-  const data = await clientApi.api.getDmsContactGroupIdUserUseridPermission(row.id, userId.value).then(r => r.data)
+  const data = await newClientApi.getDmsContactGroupIdUserUseridPermission(row.id, userId.value).then(r => r.data)
   await getPermission(data)
   return isDelete.value || isManage.value
 }
+
 function formatPermission(permissions: any, key: string = 'Read') {
   if (!permissions[key] || permissions[key].length === 0) return '-'
   return permissions[key].reduce((prev: any, item: any, index: number) => {
@@ -158,6 +161,7 @@ function formatPermission(permissions: any, key: string = 'Read') {
     return prev
   }, '')
 }
+
 const ContactBookDialogRef = ref()
 
 function handleDblclick(row: any) {
@@ -168,7 +172,7 @@ async function deleteItem(row: any) {
   try {
     const action = await ElMessageBox.confirm(t('msg_confirmWhetherToDelete'))
     if (action !== 'confirm') return
-    await clientApi.api.deleteDmsContactGroupId(row.id)
+    await newClientApi.deleteDmsContactGroupId(row.id)
     routerProvider?.message.success(
       t('tip_deleteSuccessMsg', {
         modelName: t('contactBook.title'),
@@ -239,6 +243,7 @@ onMounted(() => {
 
 .responsive-container {
   width: 70%;
+
   :deep(.el-input) {
     width: 200px;
   }
