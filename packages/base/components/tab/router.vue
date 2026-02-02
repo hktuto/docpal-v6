@@ -314,34 +314,32 @@ onUnmounted(() => {
     </Teleport>
     <template v-if="tab.initized">
       renderComponent_0: {{ renderComponent }} tab : {{ tab }}<br />
-      <Transition>
-        <Suspense>
-          <NuxtErrorBoundary ref="errorBoundary" @error="handleErr">
-            <component :is="tab.component" :tab="tab" v-bind="tab.props" />
-            <template #error="{ error, clearError }">
-              <div class="errorBoundaryContainer">
-                <div class="messageContainer">
-                  <h3 class="errorTitle">ERROR : {{ $t(tab.label) }}</h3>
-                  <pre>
-                       {{ error }}
-                    </pre
-                  >
-                  <pre>
-                      {{ tab }}
-                    </pre
-                  >
-                  <el-button :icon="Refresh" @click="clearError">
-                    {{ $t('common_refresh') }}
-                  </el-button>
-                </div>
+      <Suspense>
+        <NuxtErrorBoundary ref="errorBoundary" @error="handleErr">
+          <component :is="tab.component" :tab="tab" v-bind="tab.props" />
+          <template #error="{ error, clearError }">
+            <div class="errorBoundaryContainer">
+              <div class="messageContainer">
+                <h3 class="errorTitle">ERROR : {{ $t(tab.label) }}</h3>
+                <pre>
+                     {{ error }}
+                  </pre
+                >
+                <pre>
+                    {{ tab }}
+                  </pre
+                >
+                <el-button :icon="Refresh" @click="clearError">
+                  {{ $t('common_refresh') }}
+                </el-button>
               </div>
-            </template>
-          </NuxtErrorBoundary>
-          <template #fallback>
-            <LoadingBgInline />
+            </div>
           </template>
-        </Suspense>
-      </Transition>
+        </NuxtErrorBoundary>
+        <template #fallback>
+          <LoadingBgInline />
+        </template>
+      </Suspense>
     </template>
   </div>
 </template>
