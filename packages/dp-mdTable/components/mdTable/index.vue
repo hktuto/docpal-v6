@@ -52,13 +52,7 @@
             <el-icon><Plus /></el-icon>
           </slot>
         </div>
-        <MdTableAddColumnPopover
-          ref="addColumnPopoverRef"
-          :existing-fields="existingFields"
-          placement="left-start"
-          popper-class="add-popover-content"
-          @submit="addColumn"
-        />
+        <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" @submit="addColumn" />
       </div>
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" @headerClick="handleHeaderClick" />
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />

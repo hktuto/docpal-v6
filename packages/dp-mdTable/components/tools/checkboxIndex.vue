@@ -12,7 +12,6 @@
 const props = defineProps<{
   seq: number
   row: any
-  rowIndex: number
   props: any
 }>()
 const { gridRef } = useMDTableInject()
@@ -48,7 +47,7 @@ const handleCheckboxChange = (row) => {
   opacity: 0;
   transition: opacity 0.3s;
 }
-.expand-icon{
+.expand-icon {
   position: absolute;
   left: 0px;
   top: 50%;
@@ -63,7 +62,7 @@ const handleCheckboxChange = (row) => {
 .custom-checkbox-cell.is-checked .row-checkbox,
 .custom-checkbox-cell:hover .expand-icon,
 .row--hover .expand-icon,
-.row--hover .row-checkbox{
+.row--hover .row-checkbox {
   opacity: 1;
   pointer-events: auto;
   cursor: pointer;
