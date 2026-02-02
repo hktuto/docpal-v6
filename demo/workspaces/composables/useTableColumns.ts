@@ -52,11 +52,7 @@ export function useTableColumns(options: UseTableColumnsOptions) {
    */
   function fieldToColumnConfig(field: CaseFieldRecord, index?: number): ColumnConfig {
     let width = Math.max(field.fieldNameAlias.length * 13, 100) + 20
-    let isAgg = false
-    if (columnGroupRules.value.length > 0 && (index !== undefined || index !== null) && index === 0) {
-      isAgg = true
-      width = 300
-    }
+
 
     const headerAlign = field.displayStructure?.type === 2 ? 'right' : 'left'
     // Build properties from displayStructure.properties
@@ -228,7 +224,9 @@ export function useTableColumns(options: UseTableColumnsOptions) {
 
       return result
     }, [])
-
+    if (columnGroupRules.value.length > 0 ) {
+      columnsData[1].width = 300
+    }
     columns.value = columnsData
     return columnsData
   }
@@ -872,7 +870,9 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     getTableCardConfig,
     getRecordById
   } as ColumnContext)
-
+  watch(columnGroupRules, () => {
+    getAllColumns()
+  })
   return {
     columns,
     addColumnPopoverRef,
