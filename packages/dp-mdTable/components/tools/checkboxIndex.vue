@@ -12,7 +12,6 @@
 const props = defineProps<{
   seq: number
   row: any
-  rowIndex: number
   props: any
 }>()
 const { gridRef } = useMDTableInject()
@@ -68,7 +67,7 @@ const isIndeterminate = computed(() => {
   opacity: 0;
   transition: opacity 0.3s;
 }
-.expand-icon{
+.expand-icon {
   position: absolute;
   left: 0px;
   top: 50%;
