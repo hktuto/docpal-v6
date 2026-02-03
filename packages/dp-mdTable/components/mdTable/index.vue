@@ -60,6 +60,8 @@
           @submit="addColumn"
         />
       </div>
+      <MdFormPopover ref="MdFormPopoverRef" />
+
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" @headerClick="handleHeaderClick" />
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
       <RecordCardDialog ref="recordCardDialogRef" />
@@ -194,8 +196,17 @@ const gridEvents = computed<VxeGridListeners>(() => ({
   },
   'checkbox-all': ({ checked }: any) => {
     const { fullData } = gridRef.value?.getTableData()
-    fullData.forEach((row: any) => {
+    console.log('checkbox-all', checked, fullData)
+    const setChecked = (row: any) => {
+      if(row.children && row.children.length > 0) {
+        row.children.forEach((child: any) => {
+          setChecked(child)
+        })
+      }
       row.checked = checked
+    }
+    fullData.forEach((row: any) => {
+      setChecked(row)
     })
   }
 }))
@@ -245,9 +256,11 @@ const handleAddRow = () => {
 }
 
 // Handle expand click from checkbox column
+const MdFormPopoverRef = ref()
 const handleExpandClick = (row: any) => {
   const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
   emit('expand-click', { row, rowIndex })
+  MdFormPopoverRef.value.open(row, 'preview')
 }
 
 // 处理添加列

@@ -13,9 +13,9 @@ export enum ColumnFieldType {
   Rating = 12, // 评分
   User = 13, // 成员
   Relation = 14, // 关联
-  // MagicLookUp = 15,    // 神奇引用/查找
+  MagicLookUp = 15,    // 神奇引用/查找
   Formula = 16, // 智能公式 number only
-  Aggregation = 15, // sum, avg ,min, max of multiple related records ( all line item total amount in a quotation )
+  // Aggregation = 15, // sum, avg ,min, max of multiple related records ( all line item total amount in a quotation )
   // Currency = 17,       // 货币
   // Percent = 18,        // 百分比
   Text = 19, // 标题/单行文本

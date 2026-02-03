@@ -253,7 +253,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         showStatus: false,
         ...((editConfig as any) || {}),
         beforeEditMethod: ({ row, column }: any) => {
-          return row.isAggregate !== true && column.type !== 'checkbox'
+          return row.isAggregate !== true && ['Checkbox', 'MagicLookUp','Rating'].includes(column.type)
         }
       }
     }
