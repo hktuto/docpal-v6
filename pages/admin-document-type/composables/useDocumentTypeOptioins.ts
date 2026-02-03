@@ -1,4 +1,4 @@
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { getGroupsSelectOption } from '#imports'
 
 export const masterTableOpts = useState('masterTableOpts', () => [])
@@ -7,8 +7,7 @@ export const userRulesOpts = useState<any>('userRulesOpts', () => [])
 export const categoryOpts = useState('categoryOpts', () => [])
 export async function initMasterTableOpts() {
   if (masterTableOpts.value.length > 0) return masterTableOpts.value
-  const data = await clientApi.admin
-    .postAdmindmsMasterTablePage({
+  const data = await newAdminApi.postAdmindmsMasterTablePage({
       pageSize: 10000,
       pageNum: 0
     })
@@ -17,17 +16,17 @@ export async function initMasterTableOpts() {
 }
 export async function initMetadataOpts() {
   // if (metadataOpts.value.length > 0) return metadataOpts.value
-  const data = await clientApi.admin.getAdmindmsDocpalTypeCache().then((res: any) => res.data)
+  const data = await newAdminApi.getAdmindmsDocpalTypeCache().then((res: any) => res.data)
   metadataOpts.value = data.map((item: any) => ({ label: item.name, value: item.id }))
 }
 export async function initCategoryOpts() {
   if (categoryOpts.value.length > 0) return categoryOpts.value
-  const data = await clientApi.admin.getAdmindmsDocpalTypeCategories().then((res: any) => res.data)
+  const data = await newAdminApi.getAdmindmsDocpalTypeCategories().then((res: any) => res.data)
   categoryOpts.value = data.map((item: any) => ({ label: item, value: item }))
 }
 export async function getMasterTableDisplayOpts(masterTableId: string) {
   // if(masterTableOpts.value.length > 0) return masterTableOpts.value
-  const data = await clientApi.admin.getAdmindmsMasterTableId(masterTableId).then((res: any) => res.data)
+  const data = await newAdminApi.getAdmindmsMasterTableId(masterTableId).then((res: any) => res.data)
   return data.fields.map((item: any) => ({ label: item.columnName, value: item.columnName }))
 }
 const { flatRole } = useRBAC()
@@ -37,7 +36,7 @@ export async function initUserRulesOpts() {
 
   async function getUserList() {
     try {
-      return await clientApi.admin.postAdminucenterGetKeycloakAllUsers({}).then((res) => res.data)
+      return await newAdminApi.postAdminucenterGetKeycloakAllUsers({}).then((res) => res.data)
     } catch (error) {
       console.error(error)
       return []

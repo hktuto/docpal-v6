@@ -108,7 +108,7 @@
 </template>
 <script lang="ts" setup>
 import { InfoFilled } from '@element-plus/icons-vue'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const emits = defineEmits([
   'refresh'
@@ -135,10 +135,10 @@ async function handleSubmit() {
     switch (state.title) {
       case 'addNewDAM':
       case 'addNewConvertion':
-        await clientApi.api.postDmsDamSettings(data)
+        await newClientApi.postDmsDamSettings(data)
         break
       case 'editNewConvertion':
-        await clientApi.api.putDmsDamSettings(data)
+        await newClientApi.putDmsDamSettings(data)
     }
 
     emits('refresh')
@@ -202,7 +202,7 @@ function handleActionChange(clearAction: boolean = true) {
 
 const handleTypeListGet = async () => {
   state.typeList = []
-  const data = await clientApi.api.getDmsDamSettingsFormats().then(r => r.data)
+  const data = await newClientApi.getDmsDamSettingsFormats().then(r => r.data)
   if (!data) return
   Object.keys(data).forEach(key => {
     state.typeList.push({ name: key, targetList: data[key] })

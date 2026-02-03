@@ -73,7 +73,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage, type FormInstance } from 'element-plus'
 import { initMetadataOpts, metadataOpts } from '@/composables/useDocumentTypeOptioins'
 
@@ -114,13 +114,12 @@ const formRules = reactive({
 // Available metadata options
 const availableMetadata = computed(() => {
   if (!state.metadataList) state.metadataList = []
-  const data = metadataOpts.value.map((item: any) => {
+  return metadataOpts.value.map((item: any) => {
     return {
       ...item,
       disabled: state.metadataList.some((item2: any) => item2.id === item.value)
     }
   })
-  return data
 })
 
 async function handleSubmit(addMore: boolean = false) {
@@ -134,13 +133,13 @@ async function handleSubmit(addMore: boolean = false) {
     state.loading = true
     // Add or update metadata
     if (state.isEdit) {
-      await clientApi.admin.putAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, formData)
+      await newAdminApi.putAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, formData)
       routerProvider?.message.success(t('tip_updateMsg', {
         modelName: t('tip_SelectedMsg') + t('docType_displayMeta'),
         name: null
       }))
     } else {
-      await clientApi.admin.postAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, formData).then(r => r.data)
+      await newAdminApi.postAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, formData).then(r => r.data)
       ElMessage.success(t('common_addSuccess'))
     }
     const newMetadata = JSON.parse(JSON.stringify(formData))

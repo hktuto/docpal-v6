@@ -1,9 +1,11 @@
 <template>
-  <el-dialog v-model="state.visible" :title="state.title" class="scroll-dialog" append-to-body :close-on-click-modal="false">
+  <el-dialog v-model="state.visible" :title="state.title" class="scroll-dialog" append-to-body
+             :close-on-click-modal="false">
     <FormRenderer ref="FormRendererRef" :form-json="formJson" />
     <template #footer>
       <div class="footer-grid">
-        <el-button id="SmartFolderSetting__CreateNewSmartFolder__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
+        <el-button id="SmartFolderSetting__CreateNewSmartFolder__Submit" type="primary" :loading="state.loading"
+                   @click="handleSubmit">
           {{ $t('common_submit') }}
         </el-button>
       </div>
@@ -11,7 +13,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './infoDialog.vform.json'
 import { ElMessage } from 'element-plus'
 import { convertPermissionsByPermissionObject, getUserAndGroupPermissionSelectOption } from '#imports'
@@ -39,12 +41,10 @@ async function handleSubmit() {
       bind: data.permission.join(',')
     }
     let msg
-    const res = await clientApi.admin
-      .patchAdmindmsSmartFolder({
-        ...state.setting,
-        ..._data
-      })
-      .then((r) => r.data)
+    const res = await newAdminApi.patchAdmindmsSmartFolder({
+      ...state.setting,
+      ..._data
+    }).then((r) => r.data)
 
     if (Object.keys(state.setting).length === 0) {
       msg = t('tip_createdMsg', { modelName: t('tip_newMsg') + t('file_smartFolder'), name: null })

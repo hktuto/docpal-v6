@@ -176,6 +176,9 @@ export const convertPermissionsByPermissionObject = (permissions: {
  * @param permissionOptionList <PermissionOption[]>
  */
 export const excludeItemSelectList = (permission: any, permissionOptionList: PermissionOption[]) => {
+  if (!permission.exitList) {
+    return permissionOptionList
+  }
   const userIdsToRemove = new Set(permission.exitList.map((item: any) => item.userId))
   return permissionOptionList.reduce((acc: any[], allItem: any) => {
     const newOptions = allItem.options.filter((option: any) => {

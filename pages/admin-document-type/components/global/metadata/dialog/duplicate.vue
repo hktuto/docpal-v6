@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage, type FormInstance } from 'element-plus'
 import {
   METADATA_OPTIONS,
@@ -146,7 +146,7 @@ async function handleDuplicate() {
       }
 
       // step 3 check if the name is already exists
-      const nameExists = await clientApi.admin.postAdmindmsMetadataPage({
+      const nameExists = await newAdminApi.postAdmindmsMetadataPage({
         metadataName: formData.value.name,
         pageNum: 0,
         pageSize: 1
@@ -157,7 +157,7 @@ async function handleDuplicate() {
         return
       }
       // step 4 create the duplicated metadata
-      const result = await clientApi.admin.postAdmindmsMetadataDuplicate(formData.value).then((res) => res.data)
+      const result = await newAdminApi.postAdmindmsMetadataDuplicate(formData.value).then((res) => res.data)
       if (result) {
         ElMessage.success(t('metadata.duplicate_success'))
         close()

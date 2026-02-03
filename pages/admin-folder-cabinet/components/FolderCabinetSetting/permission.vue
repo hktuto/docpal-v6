@@ -40,7 +40,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 
 const { t } = useI18n()
@@ -57,7 +57,7 @@ async function handlePermissionChange(open: boolean, permission: string, row: an
     row.loading = true
     let res: any
     if (!open && permission === 'print')
-      res = await clientApi.admin.deleteAdmindmsCabinetTemplatePermission(
+      res = await newAdminApi.deleteAdmindmsCabinetTemplatePermission(
         {
           id: props.id,
           userId: row.userId,
@@ -73,7 +73,7 @@ async function handlePermissionChange(open: boolean, permission: string, row: an
         permission: 'Print',
         id: props.id
       }
-      res = await clientApi.admin.postAdmindmsCabinetTemplatePermission(_data)
+      res = await newAdminApi.postAdmindmsCabinetTemplatePermission(_data)
     } else {
       const _permission = permissionRevert(open, permission)
       if (!_permission) {
@@ -90,7 +90,7 @@ async function handlePermissionChange(open: boolean, permission: string, row: an
         }
         if (row.startDate) _data.startDate = row.startDate
         if (row.endDate) _data.endDate = row.endDate
-        await clientApi.admin.postAdmindmsCabinetTemplatePermission(_data)
+        await newAdminApi.postAdmindmsCabinetTemplatePermission(_data)
       }
     }
     if (res && res.errorCode) throw new Error(res.message || 'error')
@@ -137,7 +137,7 @@ async function removeLocalAcl(row: any) {
       confirmButtonText: t('common_confirmRemove')
     })
     if (action !== 'confirm') throw new Error('cancel')
-    await clientApi.admin.deleteAdmindmsCabinetTemplatePermission({ id: props.id, userId: row.userId }, {})
+    await newAdminApi.deleteAdmindmsCabinetTemplatePermission({ id: props.id, userId: row.userId }, {})
     routerProvider?.message.success(t('folder_cabinetDetailLocalPermissionRemoveSuccessMsg'))
     emits('refresh')
   } catch (error) {

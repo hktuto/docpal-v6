@@ -22,7 +22,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -122,7 +122,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 
 async function getList() {
   if (!isFilter.value) {
-    const data: any = await clientApi.admin.postAdmindmsDocpalTypeMetadata({ docpalTypeName: props.documentType }).then((res) => res.data)
+    const data: any = await newAdminApi.postAdmindmsDocpalTypeMetadata({ docpalTypeName: props.documentType }).then((res) => res.data)
     tableData = data.metadataList.map((item: any) => ({
       ...item,
       display: !!item.display
@@ -156,7 +156,7 @@ async function handleDelete(row: any) {
       confirmButtonText: t('common_confirmDelete')
     })
     if (action !== 'confirm') return
-    const res = await clientApi.admin
+    const res = await newAdminApi
       .deleteAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, {
         metadataId: row.id
       })
@@ -182,7 +182,7 @@ function handleFilterFormChange(formModel: any) {
 
 async function handleMove(row: any, moveIndex: number, isReload: boolean = true) {
   try {
-    await clientApi.admin.postAdmindmsDocpalTypeMetadataSort({
+    await newAdminApi.postAdmindmsDocpalTypeMetadataSort({
       docpalTypeId: props.id,
       metadataId: row.id,
       moveIndex
@@ -208,7 +208,7 @@ async function handleDisplayChange(row: any) {
         readOnlyPermissions: []
       }
     }
-    await clientApi.admin.postAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, data)
+    await newAdminApi.postAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, data)
   } catch (error) {
     row.display = !row.display
     console.error(error)

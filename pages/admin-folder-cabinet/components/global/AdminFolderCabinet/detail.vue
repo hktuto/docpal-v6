@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Loading } from '@element-plus/icons-vue'
 import { ElMessageBox, ElNotification } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const { t } = useI18n()
 const { id } = defineProps<{
@@ -20,7 +20,7 @@ const state = reactive<{
 async function getData() {
   state.loading = true
   try {
-    state.setting = await clientApi.admin.getAdmindmsCabinetTemplateId(id).then((res) => res.data)
+    state.setting = await newAdminApi.getAdmindmsCabinetTemplateId(id).then((res) => res.data)
     state.setting.folder = true
   } catch (error) {
   } finally {
@@ -57,7 +57,7 @@ async function handleDeleteChild(setting: any) {
       duration: 0,
       position: 'bottom-right'
     })
-    await clientApi.admin.deleteAdmindmsCabinetId(setting.id)
+    await newAdminApi.deleteAdmindmsCabinetId(setting.id)
     await getData()
     ElNotification({
       title: 'Success',

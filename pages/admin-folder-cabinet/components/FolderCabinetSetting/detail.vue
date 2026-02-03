@@ -72,7 +72,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 import formJson from './detail.vform.json'
 import { routeFolderCabinetPage } from '~/utils/routerHelper'
@@ -217,7 +217,7 @@ async function handleSave() {
 
     if (props.isRoot) {
       if (state.setting.label != data.label) {
-        const { data: checkName } = await clientApi.admin.postAdmindmsCabinetTemplateDuplicateName({ label: data.label })
+        const { data: checkName } = await newAdminApi.postAdmindmsCabinetTemplateDuplicateName({ label: data.label })
         if (checkName) {
           routerProvider?.message.error(t('common_nameExists'))
           return
@@ -272,7 +272,7 @@ async function handleSave() {
     if (metadataDefault) params.metadataValue = JSON.stringify(metadataDefault)
 
     state.loading = true
-    await clientApi.admin.patchAdmindmsCabinetTemplate(params)
+    await newAdminApi.patchAdmindmsCabinetTemplate(params)
     routerProvider?.message.success(t('tip_updateMsg', { modelName: t('folder_folderCabinetDetails'), name: null }))
     emits('update')
     WorkflowDialogRef.value.handleCheck()
@@ -321,7 +321,7 @@ async function handleDelete() {
       }
     )
     if (action !== 'confirm') return
-    await clientApi.admin.deleteAdmindmsCabinetId(state.setting.id)
+    await newAdminApi.deleteAdmindmsCabinetId(state.setting.id)
     if (props.isRoot) {
       routerProvider?.navigateTo(routeFolderCabinetPage(), false)
       routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: msg }))

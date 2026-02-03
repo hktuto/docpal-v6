@@ -9,7 +9,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './permissionEditTimeDialog.vform.json'
 
 const props = defineProps<{
@@ -36,7 +36,7 @@ async function handleSubmit() {
       params.endDate = data.dateRange[1]
     }
     state.loading = true
-    await clientApi.admin.postAdmindmsCabinetTemplatePermission(params)
+    await newAdminApi.postAdmindmsCabinetTemplatePermission(params)
     state.visible = false
     emits('refresh')
   } catch (error) {

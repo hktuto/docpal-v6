@@ -57,7 +57,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { useDebounceFn } from '@vueuse/core'
 import { initCategoryOpts, categoryOpts } from '@/composables/useDocumentTypeOptioins'
 import { convertPermissionObjectByPermissions, convertPermissionsByPermissionObject, getPermissionSelectOption } from '#imports'
@@ -146,7 +146,7 @@ async function handleSubmit(attr: string) {
       const i18nValue = attr === 'isFolder' ? (state.form.isFolder ? 'Yes' : 'No') : state.form[attr]
       tip = attr === 'permission' ? `[${i18nMap[attr]}]` : `[${i18nMap[attr]}:${i18nValue}]`
     }
-    await clientApi.admin.postAdmindmsDocpalTypeUpdate(params).then((res) => res.data)
+    await newAdminApi.postAdmindmsDocpalTypeUpdate(params).then((res) => res.data)
     state.docTypeDetail[attr] = params[attr]
     routerProvider?.message.success(t('dpMsg_success', { tip }))
   } catch (error) {

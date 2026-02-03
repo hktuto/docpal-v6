@@ -27,7 +27,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElLoading } from 'element-plus'
 import { routeDocDetail } from '~/utils/routerHelper'
 
@@ -41,7 +41,7 @@ const state = reactive<any>({})
 const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   id: 'docTypeManage',
   api: async (pageParams: any) => {
-    return await clientApi.admin.postAdmindmsDocpalTypePage({
+    return await newAdminApi.postAdmindmsDocpalTypePage({
       ...pageParams,
       ...extraParams
     })
@@ -158,11 +158,10 @@ function handleDuplicate(row: any) {
 }
 
 async function handleActive(row: any, isActive: boolean) {
-  const result = await clientApi.admin.patchAdmindmsDocpalTypeActive({
+  const result = await newAdminApi.patchAdmindmsDocpalTypeActive({
     name: row.name,
     enable: isActive
-  })
-    .then((res) => res.data)
+  }).then((res) => res.data)
   if (!!result) {
     row.active = isActive ? 'Active' : 'Inactive'
   }
@@ -185,7 +184,7 @@ function handleFilterFormChange(formModel: any) {
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
-  const filters = await clientApi.admin.getAdmindmsDocpalTypePageConditions().then((res) => res.data)
+  const filters = await newAdminApi.getAdmindmsDocpalTypePageConditions().then((res) => res.data)
   ResponsiveFilterRef.value?.init([
     ...filters,
     {
@@ -227,7 +226,7 @@ async function handleExport() {
     text: t('metadata.export_loading'),
     background: 'rgba(0, 0, 0, 0.7)'
   })
-  const result = await clientApi.admin.postAdmindmsDocpalTypeExportCvs({
+  const result = await newAdminApi.postAdmindmsDocpalTypeExportCvs({
     pageNum: 0,
     pageSize: 1000
   }, {
