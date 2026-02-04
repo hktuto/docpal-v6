@@ -310,10 +310,9 @@ onUnmounted(() => {
       <Icon :name="tab.icon" />
     </Teleport>
     <Teleport v-if="tab.label" defer :to="`#${isFullscreen ? 'fullscreen-' : ''}tab-header-${tab.parent}-${tab.id} > .label`">
-      <div class="label">{{ t(tab.label) }} {{ tab.initized }}</div>
+      <div class="label">{{ t(tab.label) }}}</div>
     </Teleport>
     <template v-if="tab.initized">
-      renderComponent_0: {{ renderComponent }} tab : {{ tab }}<br />
       <NuxtErrorBoundary ref="errorBoundary" @error="handleErr">
         <component :is="tab.component" :tab="tab" v-bind="tab.props" />
         <template #error="{ error, clearError }">
