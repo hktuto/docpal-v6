@@ -31,7 +31,6 @@ const COLUMN_TYPES = {
 export const VirtualColumnView = ({ options, params }: ViewRenderFunctionParams<string>) => {
   const { row, column } = params
   const props = options?.props as VirtualColumnOptions | undefined
-  
   // Get the display field name from properties or parse from column field
   const sourceRelationField = props?.sourceRelationField || column.field.split('.')[0]
   const displayFieldName = props?.displayFieldName || column.field.split('.')[1]

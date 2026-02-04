@@ -1,5 +1,5 @@
 <template>
-  <ElFormItem :prop="column.field" :required="column.required">
+  <ElFormItem :prop="column.field" :required="column.required" :rules="rules">
     <template #label>
       <span>{{ column.title }} </span>
     </template>
@@ -11,5 +11,6 @@
 const props = defineProps<{
   formData: any
   column: any
+  rules: any[]
 }>()
 </script>

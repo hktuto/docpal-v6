@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ElForm :model="formData" label-position="top">
+    <ElForm ref="formRef" :model="formData" label-position="top">
       <div v-for="column in columns" :key="column.field">
         <component v-if="mode === 'edit' || !systemFieldsTypes.includes(column.type)" :is="getComponent(column.type)" :form-data="formData" :column="column" />
       </div>
@@ -25,12 +25,13 @@ const componentMap = {
   'MultiSelect': resolveComponent('LazyMdFormFieldMultiSelect'),
   'Rating': resolveComponent('LazyMdFormFieldRating'),
   'URL': resolveComponent('LazyMdFormFieldURL'),
-  'Email': resolveComponent('LazyMdFormFieldEmail'),
-  'Phone': resolveComponent('LazyMdFormFieldPhone'),
+  'Email': resolveComponent('LazyMdFormFieldText'),
+  'Phone': resolveComponent('LazyMdFormFieldText'),
   'Checkbox': resolveComponent('LazyMdFormFieldCheckbox'),
   'Member': resolveComponent('LazyMdFormFieldMember'),
   'MagicLink': resolveComponent('LazyMdFormFieldMagicLink'),
   'VirtualColumn': resolveComponent('LazyMdFormFieldVirtualColumn'),
+  'Relation': resolveComponent('LazyMdFormFieldRelation'),
   // 'Formula': resolveComponent('LazyMdFormFieldFormula'),
   // 'CreatedTime': resolveComponent('LazyMdFormFieldCreatedTime'),
   // 'LastModifiedTime': resolveComponent('LazyMdFormFieldLastModifiedTime'),
@@ -43,6 +44,19 @@ const getComponent = (type: string) => {
   const s_type = ColumnFieldType[type]
   return componentMap[s_type] || resolveComponent('LazyMdFormFieldDisabled')
 }
+
+const formRef = ref()
+const getFormData = async () => {
+  const valid = await formRef.value.validate()
+  if(!valid) {
+    console.error('formData is not valid')
+    return false
+  }
+  return formRef.value.getFormData()
+}
+defineExpose({
+  getFormData
+})
 </script>
 
 <style scoped lang="scss">

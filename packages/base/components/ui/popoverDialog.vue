@@ -811,6 +811,7 @@ defineExpose({
       :close-on-click-modal="closeOnClickModal"
       :show-close="showClose"
       append-to-body
+      class="scroll-dialog"
       @open="emit('open')"
       @close="emit('close')"
       @opened="emit('opened')"

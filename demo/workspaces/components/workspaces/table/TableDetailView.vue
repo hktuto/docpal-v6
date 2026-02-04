@@ -404,9 +404,10 @@ async function handleAuditRollback() {
  */
 function handleExpandClick(params: { row: any; rowIndex: number }) {
   const { row } = params
-  if (row?.id && props.dataTableId) {
-    navigateToRecord(props.dataTableId, row.id)
-  }
+  console.log('handleExpandClick', row)
+  // if (row?.id && props.dataTableId) {
+  //   navigateToRecord(props.dataTableId, row.id)
+  // }
 }
 
 /**
