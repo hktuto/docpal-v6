@@ -32,9 +32,9 @@ provide(BulkImportListProviderKey, {
       { data: documentTypeProfileList },
       { data: metaMappingList }
     ]: any = await Promise.all([
-      newAdminApi.getAdmindmsSettingSystem(''),
-      newAdminApi.getAdmindocpalWorkflowQuerydocumenttypeprofile(),
-      newAdminApi.getAdmindocpalWorkflowQuerymetadatamapping()
+      newAdminApi.getDmsSettingSystem(''),
+      newAdminApi.getDocpalWorkflowQuerydocumenttypeprofile(),
+      newAdminApi.getDocpalWorkflowQuerymetadatamapping()
     ])
     allMetaSetting.value = metaSettingData
     console.log('response', metaSettingData, documentTypeProfileList, metaMappingList)
@@ -82,7 +82,7 @@ provide(BulkImportListProviderKey, {
 
       const newMetaList = { ...allMetaSetting.value }
       delete newMetaList[row.documentType]
-      await newAdminApi.putAdmindmsSettingSystemSystemid('', newMetaList)
+      await newAdminApi.putDmsSettingSystemSystemid('', newMetaList)
       routerProvider?.message.success(t('tip_deleteSuccessMsg', {
         modelName: t('bulkImport_bulkImportForDocumentType'),
         name: row.documentType

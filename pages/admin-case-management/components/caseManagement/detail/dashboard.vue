@@ -57,7 +57,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
           totalSize: 0
         }
       }
-    return await newAdminApi.postAdmincaseDashboardPage({ ...params, ...state.extraParams })
+    return await newAdminApi.postCaseDashboardPage({ ...params, ...state.extraParams })
   },
   defaultSort: [
     {
@@ -176,7 +176,7 @@ async function handleDelete(row) {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
     state.loading = true
-    await newAdminApi.deleteAdmincaseDashboardId(row.id).then(r => r.data)
+    await newAdminApi.deleteCaseDashboardId(row.id).then(r => r.data)
     reload()
     // await deleteCaseDashboardApi(row.id)
   } catch (error) {

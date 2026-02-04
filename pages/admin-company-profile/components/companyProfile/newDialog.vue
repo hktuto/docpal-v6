@@ -33,7 +33,7 @@ async function handleSubmit() {
     const data = await FormRendererRef.value.getFormData()
     data.status = data.status ? 'A' : 'D'
     state.loading = true
-    await newAdminApi.postAdmindmsCompanyprofiles(data).then(r => r.data)
+    await newAdminApi.postDmsCompanyprofiles(data).then(r => r.data)
     ElMessage.success(t('tip_createdSuccessMsg', { modelName: t('companyProfile.name'), name: null }))
     state.visible = false
     emits('refresh')

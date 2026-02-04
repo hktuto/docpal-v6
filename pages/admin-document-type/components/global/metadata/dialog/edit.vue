@@ -137,7 +137,7 @@ async function handleUpdate() {
           return
         }
       }
-      await newAdminApi.patchAdmindmsMetadata(formData.value).then((res) => res.data)
+      await newAdminApi.patchDmsMetadata(formData.value).then((res) => res.data)
 
       ElMessage.success(t('tip_updateMsg', { modelName: null, name: formData.value.name }))
       close()

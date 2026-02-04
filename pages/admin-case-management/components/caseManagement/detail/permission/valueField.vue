@@ -167,7 +167,7 @@ async function getMasterTableOptions(masterTableId: string, displayField: string
   }
   // displayField: displayField
   try {
-    const record: any = await newAdminApi.postAdmindmsMasterTableRecordPageNonpermission(params).then((res) => res.data)
+    const record: any = await newAdminApi.postDmsMasterTableRecordPageNonpermission(params).then((res) => res.data)
     state.recordOptions = record.map((item: any) => ({
       label: item[displayField],
       value: item[displayField]
@@ -179,7 +179,7 @@ async function getMasterTableOptions(masterTableId: string, displayField: string
 
 async function getUserGroupOptions() {
   if (state.userOptions.length > 0) return
-  const userData: any = await newAdminApi.postAdminucenterGetKeycloakAllUsers({}).then((res) => res.data)
+  const userData: any = await newAdminApi.postUcenterGetKeycloakAllUsers({}).then((res) => res.data)
   const userList = userData.map((item: any) => ({
     value: item.userId || item.username,
     label: item.username || item.userId

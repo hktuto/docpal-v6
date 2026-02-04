@@ -34,7 +34,7 @@ async function save() {
   //     'Content-Type': 'multipart/form-data'
   //   }
   // })
-  await newAdminApi.patchAdmincaseTypesVersionVersionidSave(props.caseTypeId, { file: bslob }, {}, { format: 'blob' })
+  await newAdminApi.patchCaseTypesVersionVersionidSave(props.caseTypeId, { file: bslob }, {}, { format: 'blob' })
 
   updateCaseInfo()
 }
@@ -47,7 +47,7 @@ async function getAllForm() {
     const element = nodes[i]
     const nodeData = element.getData()
     if (nodeData.type === 'humanTask') {
-      const response = await newAdminApi.getAdmindmsFormPropertiesQuery({
+      const response = await newAdminApi.getDmsFormPropertiesQuery({
         processKey,
         userTaskId: nodeData.data.attr_id,
         versionId: props.caseTypeId
@@ -78,10 +78,10 @@ function xmlStringToFile(xmlString, fileName) {
 
 async function init() {
   console.log('xml init')
-  const blob = await newAdminApi.getAdmincaseTypesIdDownloadXml(caseDetailProvider?.caseInfo.value.caseTypeId, { versionNumber: props.currentVersion }, {
+  const blob = await newAdminApi.getCaseTypesIdDownloadXml(caseDetailProvider?.caseInfo.value.caseTypeId, { versionNumber: props.currentVersion }, {
     format: 'blob'
   }) as any
-  let { data: styleJson } = await newAdminApi.getAdmincaseTypesIdStylejson(caseDetailProvider?.caseInfo.value.caseTypeId, { versionNumber: props.currentVersion })
+  let { data: styleJson } = await newAdminApi.getCaseTypesIdStylejson(caseDetailProvider?.caseInfo.value.caseTypeId, { versionNumber: props.currentVersion })
   styleJson = styleJson ? JSON.parse(styleJson) : null
   const cmmnString = await blob.text()
   state.cmmn = editorEl.value.init(cmmnString, styleJson)

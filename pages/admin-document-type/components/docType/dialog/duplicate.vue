@@ -35,7 +35,7 @@ async function handleSubmit() {
       // category: state.setting.category,
       // isFolder: state.setting.isFolder === 'false' ? false : true,
     }
-    await newAdminApi.postAdmindmsDocpalTypeDuplicate(params).then(r => r.data)
+    await newAdminApi.postDmsDocpalTypeDuplicate(params).then(r => r.data)
     ElMessage.success(t('metadata.duplicate_success', { name: data.name }))
     emits('refresh')
     state.visible = false

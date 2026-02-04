@@ -23,7 +23,7 @@ if (!routerProvider) {
 
 async function getCaseData() {
   console.log('getCaseData')
-  const data: any = await newAdminApi.getAdmincaseTypesVersionVersionid(props.versionId).then(r => r.data)
+  const data: any = await newAdminApi.getCaseTypesVersionVersionid(props.versionId).then(r => r.data)
   readOnly.value = data.production
   production.value = data.production
   caseInfo.value = data
@@ -43,7 +43,7 @@ async function getCaseData() {
 // }
 
 // async function loadXml() {
-//   const blob = await newAdminApi.getAdmincaseTypesIdDownloadXml(props.caseTypeId, {versionNumber: props?.currentVersion}, {
+//   const blob = await newAdminApi.getCaseTypesIdDownloadXml(props.caseTypeId, {versionNumber: props?.currentVersion}, {
 //     format: 'blob'
 //   }) as any
 //   const cmmnString = await blob.text()
@@ -51,9 +51,9 @@ async function getCaseData() {
 // }
 
 async function loadJsonAndXml() {
-  let styleJson: any = await newAdminApi.getAdmincaseTypesIdStylejson(props.caseTypeId, { versionNumber: props?.currentVersion }).then(r => r.data)
+  let styleJson: any = await newAdminApi.getCaseTypesIdStylejson(props.caseTypeId, { versionNumber: props?.currentVersion }).then(r => r.data)
   styleJson = styleJson ? JSON.parse(styleJson) : null
-  const blob = await newAdminApi.getAdmincaseTypesIdDownloadXml(props.caseTypeId, { versionNumber: props?.currentVersion }, {
+  const blob = await newAdminApi.getCaseTypesIdDownloadXml(props.caseTypeId, { versionNumber: props?.currentVersion }, {
     format: 'blob'
   }) as any
   const cmmnString = await blob.text()
@@ -79,8 +79,8 @@ async function handleSave() {
     //     'Content-Type': 'multipart/form-data'
     //   }
     // })
-    await newAdminApi.patchAdmincaseTypesVersionVersionidSave(props.versionId, { file: blob }, {}, { format: 'blob' })
-    await newAdminApi.postAdmincaseTypesStylejsonSave(
+    await newAdminApi.patchCaseTypesVersionVersionidSave(props.versionId, { file: blob }, {}, { format: 'blob' })
+    await newAdminApi.postCaseTypesStylejsonSave(
       {
         caseTypeId: props.caseTypeId,
         versionNumber: props.currentVersion,
@@ -131,7 +131,7 @@ function openVersionList() {
 async function saveAsNewVersion() {
   try {
     console.log('saveAsNewVersion', props)
-    const data = await newAdminApi.postAdmincaseTypesVersionVersionidNew(props.versionId).then(r = r.data)
+    const data = await newAdminApi.postCaseTypesVersionVersionidNew(props.versionId).then(r = r.data)
     // console.log("data", data)
     // get all form in case and save as to new version
     const allNodes = editorEl.value.graph.getNodes()
@@ -142,7 +142,7 @@ async function saveAsNewVersion() {
       const nodeData = node.getData()
       if (nodeData.type === 'humanTask') {
         console.log('is human task', nodeData)
-        const response = await newAdminApi.getAdmindmsFormPropertiesQuery({
+        const response = await newAdminApi.getDmsFormPropertiesQuery({
           processKey,
           userTaskId: nodeData.data.attr_id,
           versionId: props.versionId
@@ -155,7 +155,7 @@ async function saveAsNewVersion() {
             versionId: data.id,
             jsonValue: response.data[0].jsonValue
           }
-          await newAdminApi.postAdmindmsFormPropertiesSave(params)
+          await newAdminApi.postDmsFormPropertiesSave(params)
         }
       }
     }
@@ -178,7 +178,7 @@ async function saveAsNewVersion() {
 }
 
 async function promoteToProduction() {
-  await newAdminApi.postAdmincaseTypesVersionVersionidActive(props.versionId).then(r => r.data)
+  await newAdminApi.postCaseTypesVersionVersionidActive(props.versionId).then(r => r.data)
   routerProvider?.message.success(t('dpMsg_success'))
   await getCaseData()
   await init()

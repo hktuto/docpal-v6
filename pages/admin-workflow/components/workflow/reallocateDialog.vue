@@ -6,8 +6,9 @@
         prop="assignee"
         :rules="[{ required: true, message: $t('workflow_ManageReallocateAssignee') + $t('render.hint.fieldRequired'), trigger: 'change' }]"
       >
-        <el-select v-model="form.assignee" filterable clearable :placeholder="t('common_selectedIsRequiredMsg')" style="width: 100%">
-          <el-option v-for="item in state.userList" :key="item.id" :label="item.userId" :value="item.userId"></el-option>
+        <el-select v-model="form.assignee" filterable clearable :placeholder="t('common_selectedIsRequiredMsg')"
+                   style="width: 100%">
+          <el-option v-for="item in userList" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
     </el-form>
@@ -21,17 +22,15 @@
 
 <script lang="ts" setup>
 import { ElMessage, type FormInstance } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
+import { getUserSelectOption } from '#imports'
 
 const { t } = useI18n()
 const emit = defineEmits(['success'])
-const state = reactive({
-  userList: []
-})
-// #region module: dialog
+const userList = ref([])
 const dialogVisible = ref(false)
 
-async function handleOpen(row) {
+async function handleOpen(row: any) {
   dialogVisible.value = true
   if (row.assignee) {
     form.oldAssignee = row.assignee
@@ -42,12 +41,10 @@ async function handleOpen(row) {
     form.assignee = ''
     form.id = row.id
   }
-  state.userList = await clientApi.admin.postAdminucenterUsers({}).then((res) => res.data)
-  state.userList = state.userList.filter((item) => item.userId !== row.assignee && item.userId)
+  const list = await getUserSelectOption()
+  userList.value = list.filter((item: any) => item.value !== row.assignee)
 }
 
-// #endregion
-// #region module: form
 const formRef = ref<FormInstance>()
 const form = reactive({
   oldAssignee: '',
@@ -56,32 +53,26 @@ const form = reactive({
 })
 
 async function handleSubmit() {
-  if (form.oldAssignee && form.oldAssignee === form.assignee) {
-    dialogVisible.value = false
-    return
-  }
   try {
     const valid = await formRef.value.validate((valid, fields) => valid)
     if (!valid) return
     if (!form.assignee) return
     if (form.oldAssignee) {
-      const res = await clientApi.admin.postAdmindocpalWorkflowTaskUnclaim({
+      await newAdminApi.postDocpalWorkflowTaskUnclaim({
         taskId: form.id
       })
-      if (!res) return
     }
-    const res2 = await clientApi.admin.postAdmindocpalWorkflowTaskClaim({
+    await newAdminApi.postDocpalWorkflowTaskClaim({
       taskId: form.id,
       userId: form.assignee
     })
-    if (!res2) return
 
     ElMessage.success(t('workflow_ManageReallocateAssigneeSuccessMsg'))
     emit('success')
-    dialogVisible.value = false
   } catch (error) {
     console.log(error)
   } finally {
+    dialogVisible.value = false
   }
 }
 

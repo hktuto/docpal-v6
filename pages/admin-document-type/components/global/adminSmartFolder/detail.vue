@@ -18,7 +18,7 @@ const tableRef = ref()
 async function handleInit() {
   try {
     state.loading = true
-    state.setting = await newAdminApi.getAdmindmsSmartFolderId(id).then((res) => res.data)
+    state.setting = await newAdminApi.getDmsSmartFolderId(id).then((res) => res.data)
     if (!!state.setting.json_value) {
       state.setting.json = JSON.parse(state.setting.json_value)
       tableRef.value.initBar(state.setting.json)
@@ -78,7 +78,7 @@ async function handleSave() {
   try {
     state.loading = true
     const data = await filterRef.value.getData()
-    const res = await newAdminApi.patchAdmindmsSmartFolder({
+    const res = await newAdminApi.patchDmsSmartFolder({
       ...state.setting,
       json_value: JSON.stringify(data)
     }).then((res) => res.data)

@@ -41,7 +41,7 @@ async function handleSubmit() {
       bind: data.permission.join(',')
     }
     let msg
-    const res = await newAdminApi.patchAdmindmsSmartFolder({
+    const res = await newAdminApi.patchDmsSmartFolder({
       ...state.setting,
       ..._data
     }).then((r) => r.data)

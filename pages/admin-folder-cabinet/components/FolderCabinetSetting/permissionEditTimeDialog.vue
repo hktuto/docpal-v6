@@ -36,7 +36,7 @@ async function handleSubmit() {
       params.endDate = data.dateRange[1]
     }
     state.loading = true
-    await newAdminApi.postAdmindmsCabinetTemplatePermission(params)
+    await newAdminApi.postDmsCabinetTemplatePermission(params)
     state.visible = false
     emits('refresh')
   } catch (error) {

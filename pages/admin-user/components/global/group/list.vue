@@ -25,13 +25,13 @@ function openGroupDetail(data: any, openInNewTab = false) {
 provide(groupProviderKey, {
   openGroupDetail,
   GetGroupListApi: async () => {
-    return await newAdminApi.postAdminucenterGroups().then((r) => r.data)
+    return await newAdminApi.postUcenterGroups().then((r) => r.data)
   },
   DeleteGroupApi: (params: any) => {
-    return newAdminApi.deleteAdminucenterGroup(params)
+    return newAdminApi.deleteUcenterGroup(params)
   },
   CreateGroupApi: (params: any) => {
-    return newAdminApi.postAdminucenterGroup(params)
+    return newAdminApi.postUcenterGroup(params)
   }
 })
 </script>

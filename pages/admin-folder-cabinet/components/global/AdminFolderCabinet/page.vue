@@ -37,7 +37,7 @@ function handleUpdateOrCreate({ edit, response }: any) {
 
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-folder-cabinet',
-  api: (pageParams: any) => newAdminApi.postAdmindmsCabinetTemplatePage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newAdminApi.postDmsCabinetTemplatePage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'label', title: 'folderCabinet.name', fixed: 'left' },
     {
@@ -118,7 +118,7 @@ async function handleDelete(row: any) {
       confirmButtonText: t('common_confirmDelete')
     })
     if (action !== 'confirm') return
-    await newAdminApi.deleteAdmindmsCabinetId(row.id).then((res) => res.data)
+    await newAdminApi.deleteDmsCabinetId(row.id).then((res) => res.data)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('tip_SelectedMsg') + t('menus_folderCabinet') }))
     query()
   } catch (error) {}

@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import { ElMessageBox } from 'element-plus'
 import type { DashboardWidgetSetting, DashboardWidget } from '#imports'
 import { dashboardWidgetSetting, getNormalizeSetting, getWidgetSetting, getDashboardWidgetByType } from '#imports'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const { id } = defineProps<{
   id: number
@@ -54,7 +54,7 @@ async function handleClear() {
 async function handleSave() {
   try {
     state.saveLoading = true
-    await clientApi.admin.putAdmindocpalPersonalDashboardUpdate({
+    await newAdminApi.putDocpalPersonalDashboardUpdate({
       ...state.info,
       styleJson: JSON.stringify(state.layout)
     })
@@ -72,7 +72,7 @@ function handleEdit() {
 }
 
 async function getInfo() {
-  state.info = await clientApi.admin.getAdmindocpalPersonalDashboardId(id).then((res) => res.data)
+  state.info = await newAdminApi.getDocpalPersonalDashboardId(id).then((res) => res.data)
   if (!state.info || !state.info.styleJson) {
     return
   }
@@ -160,7 +160,10 @@ onMounted(() => {
         <span class="template-title"> {{ state.info.name }} </span>
         <Icon id="WorkPanel__Detail__Edit" name="material-symbols:edit-square" class="normal cursor-pointer" @click="handleEdit"></Icon>
       </div>
-      <el-button v-if="state.layout.length > 0" type="danger" size="small" @click="handleClear">{{ $t('common_clear') }}</el-button>
+      <!-- <el-button id="WorkPanel__Detail__Save" size="small" @click="handleSave">{{ t('common_save') }}</el-button> -->
+      <el-button id="WorkPanel__Detail__Clear" v-if="state.layout.length > 0" type="danger" size="small" @click="handleClear">
+        {{ $t('common_clear') }}
+      </el-button>
     </div>
     <div class="template-main-container">
       <DashboardDetail

@@ -122,7 +122,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 
 async function getList() {
   if (!isFilter.value) {
-    const data: any = await newAdminApi.postAdmindmsDocpalTypeMetadata({ docpalTypeName: props.documentType }).then((res) => res.data)
+    const data: any = await newAdminApi.postDmsDocpalTypeMetadata({ docpalTypeName: props.documentType }).then((res) => res.data)
     tableData = data.metadataList.map((item: any) => ({
       ...item,
       display: !!item.display
@@ -157,7 +157,7 @@ async function handleDelete(row: any) {
     })
     if (action !== 'confirm') return
     const res = await newAdminApi
-      .deleteAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, {
+      .deleteDmsDocpalTypeDocpaltypeidMetadata(props.id, {
         metadataId: row.id
       })
       .then((r) => r.data)
@@ -182,7 +182,7 @@ function handleFilterFormChange(formModel: any) {
 
 async function handleMove(row: any, moveIndex: number, isReload: boolean = true) {
   try {
-    await newAdminApi.postAdmindmsDocpalTypeMetadataSort({
+    await newAdminApi.postDmsDocpalTypeMetadataSort({
       docpalTypeId: props.id,
       metadataId: row.id,
       moveIndex
@@ -208,7 +208,7 @@ async function handleDisplayChange(row: any) {
         readOnlyPermissions: []
       }
     }
-    await newAdminApi.postAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, data)
+    await newAdminApi.postDmsDocpalTypeDocpaltypeidMetadata(props.id, data)
   } catch (error) {
     row.display = !row.display
     console.error(error)

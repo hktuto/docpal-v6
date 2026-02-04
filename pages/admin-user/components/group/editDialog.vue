@@ -37,7 +37,7 @@ async function handleSubmit() {
       state.visible = false
       return
     }
-    const groupList: any = await newAdminApi.postAdminucenterGroups().then((r) => r.data)
+    const groupList: any = await newAdminApi.postUcenterGroups().then((r) => r.data)
     // check group name exist
     if (groupList.some((g: any) => g.name === data.groupName)) {
       ElMessage.error(t('user_userGroupsIsExistsMsg'))

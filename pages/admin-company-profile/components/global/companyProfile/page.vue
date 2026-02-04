@@ -32,7 +32,7 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-company-profile',
-  api: (pageParams: any) => newAdminApi.postAdmindmsCompanyprofilesPage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newAdminApi.postDmsCompanyprofilesPage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'name', title: 'companyProfile.name', fixed: 'left' },
     {
@@ -135,7 +135,7 @@ function handleDblclick(row: any) {
 
 async function handleActive(row: any, status: string) {
   try {
-    const result = await newAdminApi.patchAdmindmsCompanyprofilesCompanyidStatus(row.id, { status: status }).then((res) => res.data)
+    const result = await newAdminApi.patchDmsCompanyprofilesCompanyidStatus(row.id, { status: status }).then((res) => res.data)
     if (!!result) {
       row.status = status
       routerProvider?.message.success(t('tip_updateSuccessMsg', { modelName: null, name: row.name }))
@@ -162,7 +162,7 @@ async function handleDelete(row: any) {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    let result = await newAdminApi.deleteAdmindmsCompanyprofilesCompanyid(row.id).then((res) => res.data)
+    let result = await newAdminApi.deleteDmsCompanyprofilesCompanyid(row.id).then((res) => res.data)
     if (result) routerProvider?.message.success(t('tip_deleteSuccessMsg', {
       modelName: t('adminMenu.companyProfile'),
       name: row.name

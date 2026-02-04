@@ -69,7 +69,7 @@ async function handleBlur(e) {
 
     // const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToSave')}`)
     // if(action !== 'confirm') throw new Error("");
-    await newAdminApi.putAdmincaseTypes({
+    await newAdminApi.putCaseTypes({
       ...props.detail,
       name: value
     }).then(r => r.data)

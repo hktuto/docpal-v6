@@ -44,7 +44,7 @@ async function handleSubmit() {
         [data.metaData]: data.label
       }
     }
-    await newAdminApi.postAdmindocpalWorkflowSavemetadatamapping({ documentType: [param] })
+    await newAdminApi.postDocpalWorkflowSavemetadatamapping({ documentType: [param] })
     ElMessage.success(t('bulkImport_displayMetaSuccessMsg', { name: data.metaData }))
     state.visible = false
     FormRendererRef.value.vFormRenderRef.resetForm()
@@ -88,7 +88,7 @@ async function handleOptions(exitList: any) {
 }
 
 onMounted(async () => {
-  state.globalSchemaList = await newAdminApi.getAdmindmsDocpalTypeDocumenttypeMetadata('GlobalFile').then(res => res.data?.keywords) as any
+  state.globalSchemaList = await newAdminApi.getDmsDocpalTypeDocumenttypeMetadata('GlobalFile').then(res => res.data?.keywords) as any
 })
 defineExpose({ handleOpen })
 </script>

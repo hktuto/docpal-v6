@@ -21,7 +21,6 @@ export const newClientApi = clientApi.api
 
 export const newAdminApi = clientApi.admin
 
-// TODO：Some method names cannot be shared because they contain the Admin field
 export const globalApi = window.location.pathname.includes('admin') ? newAdminApi : newClientApi
 
 export const publicApi = new Public({

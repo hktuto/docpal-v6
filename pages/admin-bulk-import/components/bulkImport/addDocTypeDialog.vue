@@ -48,7 +48,7 @@ async function handleSubmit() {
       isFolder: getIsFolder(data.type),
       related: []
     }
-    await newAdminApi.putAdmindmsSettingSystemSystemid('', metaSettingData)
+    await newAdminApi.putDmsSettingSystemSystemid('', metaSettingData)
     ElMessage.success(t('tip_createdSuccessMsg', {
       modelName: t('bulkImport_bulkImportForDocumentType'),
       name: data.type

@@ -21,7 +21,7 @@ async function handleCreateEmailTemplate() {
 
   for (const item of Object.values(props.emailTemplateList)) {
     try {
-      const res = await newAdminApi.postAdmindmsTemplateEmailTemplate({
+      const res = await newAdminApi.postDmsTemplateEmailTemplate({
         label: item.label,
         subject: item.subject,
         body: item.body,

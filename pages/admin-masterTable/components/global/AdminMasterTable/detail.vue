@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElNotification } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import type { MasterTableResponseDTO } from 'api/src/generate/admin'
 import { getIgnoreSchemas } from '~/utils/masterTableProvider'
 import { onMounted } from 'vue'
@@ -41,7 +41,7 @@ function handleClick(tab: any) {
 const MasterTableTabRecordsRef = ref()
 
 async function init() {
-  const detail = await clientApi.admin.getAdmindmsMasterTableId(id).then(r => r.data)
+  const detail = await newAdminApi.getDmsMasterTableId(id).then(r => r.data)
   state.masterTable = detail
 
   MasterTableTabRecordsRef.value.initTableColumns(detail?.fields)
@@ -50,7 +50,7 @@ async function init() {
 async function handleTemplateDownload() {
   try {
     state.templateLoading = true
-    const res = await clientApi.admin.getAdmindmsMasterTableIdRecordTemplate(
+    const res = await newAdminApi.getDmsMasterTableIdRecordTemplate(
       id,
       {},
       {
@@ -85,7 +85,7 @@ async function handleFile(event: any) {
   formData.append('file', event.target.files[0])
   formData.append('id', id)
 
-  const data: any = await clientApi.admin.postAdmindmsMasterTableRecordImportFile(formData, formData).then((res) => res.data)
+  const data: any = await newAdminApi.postDmsMasterTableRecordImportFile(formData, formData).then((res) => res.data)
   if (data?.failureNumber > 0) downloadFailList()
   event.target.value = ''
   handleRefresh()
@@ -102,7 +102,7 @@ async function downloadFailList() {
     duration: 0,
     type: 'warning'
   })
-  const res = await clientApi.admin.getAdmindmsMasterTableDownloadFailure(
+  const res = await newAdminApi.getDmsMasterTableDownloadFailure(
     { id },
     {
       format: 'blob',
@@ -115,7 +115,7 @@ async function downloadFailList() {
 async function handleExport() {
   try {
     state.exportLoading = true
-    const res = await clientApi.admin.postAdmindmsMasterTableIdRecordExport(
+    const res = await newAdminApi.postDmsMasterTableIdRecordExport(
       id,
       {},
       {

@@ -18,7 +18,7 @@ async function handleCreateIdGenerator() {
   for (const idTemplateItem of Object.values(props.idGeneratorList)) {
     let data
     try {
-      data = await newAdminApi.getAdmindocpalIdTemplates({
+      data = await newAdminApi.getDocpalIdTemplates({
         name: idTemplateItem.name
       }).then(res => res.data)
       idList.value.push({
@@ -43,7 +43,7 @@ async function handleCreateIdGenerator() {
       startNumber: idTemplateItem.startNumber
     }
     try {
-      await newAdminApi.putAdmindocpalIdTemplatesId(data.id, form).then(res => res.data)
+      await newAdminApi.putDocpalIdTemplatesId(data.id, form).then(res => res.data)
     } catch (e) {
       list.push(idTemplateItem.name)
     }

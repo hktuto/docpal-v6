@@ -41,7 +41,7 @@ const { t } = useI18n()
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'admin-bulk-import-meta',
   api: async (params: any) => {
-    const data = await newAdminApi.getAdmindocpalWorkflowQuerymetadatamapping({ name }).then(res => res.data || []).catch((err) => ([])) as any
+    const data = await newAdminApi.getDocpalWorkflowQuerymetadatamapping({ name }).then(res => res.data || []).catch((err) => ([])) as any
 
     state.metaMapping = { ...data[0] }
     state.metaMapping.metaDataMapper = data[0].metaDataMapper ? JSON.parse(data[0].metaDataMapper) : {}
@@ -97,7 +97,7 @@ async function handleDelete(row: any) {
         metaDataMapper: { ...state.metaMapping.metaDataMapper }
       }
       delete _metaMapping.metaDataMapper[row.metaData]
-      await newAdminApi.postAdmindocpalWorkflowSavemetadatamapping({
+      await newAdminApi.postDocpalWorkflowSavemetadatamapping({
         documentType: [_metaMapping]
       })
       reload()

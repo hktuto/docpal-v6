@@ -30,7 +30,7 @@ const state = reactive<any>({})
 const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   id: 'a-smartFolder',
   api: async (pageParams: any) => {
-    return await newAdminApi.postAdmindmsSmartFolderPage({
+    return await newAdminApi.postDmsSmartFolderPage({
       ...pageParams,
       ...extraParams
     })
@@ -103,7 +103,7 @@ async function handleDelete(id: string) {
       confirmButtonText: t('common_confirmDelete')
     })
     if (action !== 'confirm') return
-    await newAdminApi.deleteAdmindmsSmartFolderId(id)
+    await newAdminApi.deleteDmsSmartFolderId(id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('file_smartFolder') }))
     query()
   } catch (error) {
@@ -119,7 +119,7 @@ function handleFilterFormChange(formModel: any) {
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
-  const filters = await newAdminApi.getAdmindmsSmartFolderPageConditions().then(res => res.data)
+  const filters = await newAdminApi.getDmsSmartFolderPageConditions().then(res => res.data)
   ResponsiveFilterRef.value.init(filters)
 }
 

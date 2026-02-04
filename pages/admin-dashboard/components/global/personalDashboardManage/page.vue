@@ -2,8 +2,7 @@
   <div class="pageContainer--padding">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange"
-                          inputPlaceHolder="workPanel_filter" />
+        <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange" inputPlaceHolder="workPanel_filter" />
         <el-button id="WorkPanel__CreateNewWorkPanel" type="primary" @click="handleCreate">
           {{ $t('workPanel_create') }}
         </el-button>
@@ -14,13 +13,12 @@
       </template>
     </VxeGrid>
     <PersonalDashboardDialog ref="DashboardDialogRef" @refresh="query({})" @add="handleDblclick" />
-    <PersonalDashboardDuplicateDialog ref="PersonalDashboardDuplicateDialogRef" @refresh="query({})"
-                                      @add="handleDblclick" />
+    <PersonalDashboardDuplicateDialog ref="PersonalDashboardDuplicateDialogRef" @refresh="query({})" @add="handleDblclick" />
   </div>
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { routePersonalDashboardDetail } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -29,7 +27,7 @@ let extraParams: any = {}
 const PersonalDashboardDuplicateDialogRef = ref()
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'personalDashboardManage',
-  api: (pageParams: any) => clientApi.admin.postAdmindocpalPersonalDashboard({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newAdminApi.postDocpalPersonalDashboard({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'name', title: 'workPanel_name', fixed: 'left' },
     { field: 'groupId', title: 'workPanel_accessUserGroup' },
@@ -106,7 +104,7 @@ async function deleteItem(row) {
       confirmButtonText: t('common_confirmDelete')
     })
     if (action !== 'confirm') return
-    await adminApi.api.deletePersonalDashboardId(row.id)
+    await newAdminApi.deleteDocpalPersonalDashboardId(row.id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: row.name }))
     query({})
   } catch (error) {

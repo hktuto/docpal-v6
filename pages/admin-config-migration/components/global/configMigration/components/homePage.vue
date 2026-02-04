@@ -18,7 +18,7 @@ async function handleCreateHomePage() {
 
   for (const item of Object.values(props.homePageList)) {
     try {
-      const data = await newAdminApi.postAdmindocpalPersonalDashboardSave({
+      const data = await newAdminApi.postDocpalPersonalDashboardSave({
         name: item.name,
         groupId: item.groupId,
         styleJson: item.styleJson

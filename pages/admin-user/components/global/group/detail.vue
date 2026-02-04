@@ -48,7 +48,7 @@ async function handleDelete() {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    const res = await newAdminApi.deleteAdminucenterGroup({ groupId: id })
+    const res = await newAdminApi.deleteUcenterGroup({ groupId: id })
     if (!!res) openGroupList()
   } catch (error) {
     console.log(error)
@@ -81,22 +81,22 @@ function handleEditRefresh(group: any) {
 
 provide(groupProviderDetailKey, {
   DeleteGroupApi: (params: any) => {
-    return newAdminApi.deleteAdminucenterGroup(params)
+    return newAdminApi.deleteUcenterGroup(params)
   },
   GetMemberListApi: (params: any) => {
-    return newAdminApi.postAdminucenterMember(params)
+    return newAdminApi.postUcenterMember(params)
   },
   BatchGroupRemoveUsersApi: (params: any) => {
-    return newAdminApi.postAdminucenterGroupBatchRemoveUsers(params)
+    return newAdminApi.postUcenterGroupBatchRemoveUsers(params)
   },
   BatchGroupAddUsersApi: (params: any) => {
-    return newAdminApi.postAdminucenterGroupBatchAddUsers(params)
+    return newAdminApi.postUcenterGroupBatchAddUsers(params)
   },
   PatchGroupApi: (params: any) => {
-    return newAdminApi.patchAdminucenterGroup(params)
+    return newAdminApi.patchUcenterGroup(params)
   },
   getUserListApi: async () => {
-    return await newAdminApi.postAdminucenterUsers({}).then((res) => res.data)
+    return await newAdminApi.postUcenterUsers({}).then((res) => res.data)
   }
 })
 watch(

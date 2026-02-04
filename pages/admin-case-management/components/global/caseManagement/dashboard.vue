@@ -35,7 +35,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { newAdminApis } from 'api'
+import { newAdminApi } from 'api'
 import dayjs from 'dayjs'
 
 const { t } = useI18n()
@@ -86,10 +86,10 @@ function handleClear() {
 async function handleSave() {
   try {
     state.saveLoading = true
-    await newAdminApi.postAdmincaseDashboardSaveStyle({
-      id: props.id,
-      styleJson: JSON.stringify(state.layout)
-    }).then(r => r.data)
+    await newAdminApi.postCaseDashboardSaveStyle({
+        id: props.id,
+        styleJson: JSON.stringify(state.layout)
+      }).then((r) => r.data)
     routerProvider?.message.success(t('dpMsg_success'))
   } catch (error) {
   } finally {
@@ -101,7 +101,7 @@ const versionId = ref()
 
 async function init() {
   try {
-    const data = await newAdminApi.getAdmincaseDashboardId(props.id).then(r => r.data)
+    const data = await newAdminApi.getCaseDashboardId(props.id).then((r) => r.data)
     versionId.value = data.cmmnVersionId
     state.detail = data
     name.value = data.label
