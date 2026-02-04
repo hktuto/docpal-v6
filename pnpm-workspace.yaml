@@ -7,13 +7,18 @@ packages:
   - demo/*
 
 ignoredBuiltDependencies:
+  - '@parcel/watcher'
   - core-js
+  - es5-ext
   - esbuild
   - fsevents
   - highlight.js
+  - vue-demi
 
 onlyBuiltDependencies:
+  - '@vue-office/excel'
+  - canvas
+  - electron
+  - electron-winstaller
   - puppeteer
   - v-code-diff
-  - electron
-  - '@vue-office/excel'
