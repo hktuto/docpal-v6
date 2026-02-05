@@ -52,9 +52,10 @@
             <el-icon><Plus /></el-icon>
           </slot>
         </div>
+        
         <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" @submit="addColumn" />
       </div>
-      <MdFormPopover ref="MdFormPopoverRef" />
+      <MdFormPopover ref="MdFormPopoverRef" @submit="handleAddRowSubmit"/>
 
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" @headerClick="handleHeaderClick" />
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
@@ -100,7 +101,8 @@ const emit = defineEmits<{
   'column-add': [column: ColumnConfig]
   'save-view': []
   import: []
-  'add-row': []
+  'add-row': [],
+  'add-row-submit': [data: any]
 }>()
 
 // 引用
@@ -246,15 +248,18 @@ const handleImport = () => {
 }
 
 const handleAddRow = () => {
-  emit('add-row')
+  MdFormPopoverRef.value.open({})
 }
-
+const handleAddRowSubmit = (data: any) => {
+  console.log('handleAddRowSubmit', data)
+  // emit('add-row-submit', data)
+}
 // Handle expand click from checkbox column
 const MdFormPopoverRef = ref()
 const handleExpandClick = (row: any) => {
   const rowIndex = tableData.value.findIndex((r: any) => r.id === row.id)
   emit('expand-click', { row, rowIndex })
-  MdFormPopoverRef.value.open(row, 'preview')
+  MdFormPopoverRef.value.open(row, 'edit')
 }
 
 // 处理添加列

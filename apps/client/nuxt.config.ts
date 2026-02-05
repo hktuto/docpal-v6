@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 require('events').EventEmitter.defaultMaxListeners = 50;
-
+import { resolve } from 'path'
 export default defineNuxtConfig({
     compatibilityDate: '2024-04-03',
     devtools: {enabled: true},
@@ -96,5 +96,7 @@ export default defineNuxtConfig({
             }
         }
     },
-
+    alias: {
+      '@packages': resolve(__dirname, '../../packages'),
+    }
 })

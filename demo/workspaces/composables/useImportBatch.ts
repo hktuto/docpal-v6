@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx'
 import { v7 as uuidv7 } from 'uuid'
 import type { CaseTreeRecord, CaseFieldRecord, FieldDisplayStructure } from '../utils/db/schema/newTableSchema'
-import { ColumnFieldType } from '../utils/tableColumnType'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
 import { usePermission } from './usePermission'

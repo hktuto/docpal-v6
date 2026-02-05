@@ -1,6 +1,6 @@
 import { text, timestamp, uuid, pgTable, integer, jsonb, boolean } from 'drizzle-orm/pg-core'
 import { users } from './user'
-import type { ColumnFieldType } from '../../tableColumnType'
+import type { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { view } from 'drizzle-orm/sqlite-core'
 
 // =============================================================================

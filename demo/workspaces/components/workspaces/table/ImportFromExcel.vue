@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as XLSX from 'xlsx'
 import type { CaseFieldRecord, FieldDisplayStructure } from '../../../utils/db/schema/newTableSchema'
-import { ColumnFieldType } from '../../../utils/tableColumnType'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { v7 as uuidv7 } from 'uuid'
 
 interface ImportResult {

@@ -267,7 +267,7 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
 
     // Ensure current user is initialized
     await initCurrentUser()
-
+    
     // Add createdBy and updatedBy
     const currentUserId = getCurrentUserId()
     const rowWithUser = {

@@ -11,28 +11,27 @@
     <el-form
       ref="formRef"
       :model="formData"
-      :rules="formRules"
       :label-position="config.labelPosition"
       :label-width="config.labelPosition === 'left' ? `${config.labelWidth}px` : undefined"
       class="dynamic-form"
       @submit.prevent
     >
-      <div class="form-fields-grid">
+      <div class="form-fields-grid">aaa
         <template v-for="field in visibleFields" :key="field.fieldName">
           <div class="form-field-wrapper" :style="getFieldStyle(field)">
-            <el-form-item :label="getFieldLabel(field)" :prop="field.fieldName" :required="isFieldRequired(field)" class="dynamic-form-item">
+            <el-form-item :label="getFieldLabel(field)" :prop="field.fieldName"  class="dynamic-form-item">
               <!-- Text Input -->
-              <template v-if="getFieldType(field.fieldName) === ColumnFieldType.Text">
+              <template v-if="getFieldType(field.fieldName) === ColumnFieldType.Text">aa
                 <el-input v-model="formData[field.fieldName]" :placeholder="getFieldPlaceholder(field.fieldName)" clearable />
               </template>
 
               <!-- Multi-line Text -->
-              <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.MultiText">
+              <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.MultiText">bb
                 <el-input v-model="formData[field.fieldName]" type="textarea" :rows="3" :placeholder="getFieldPlaceholder(field.fieldName)" />
               </template>
 
               <!-- Number -->
-              <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.Number">
+              <template v-else-if="getFieldType(field.fieldName) === ColumnFieldType.Number">cc
                 <el-input-number v-model="formData[field.fieldName]" :placeholder="getFieldPlaceholder(field.fieldName)" style="width: 100%" />
               </template>
 

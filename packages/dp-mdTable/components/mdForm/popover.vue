@@ -17,6 +17,7 @@ const data = ref({
   formData: {},
   mode: 'edit',
 })
+const emits = defineEmits(['submit'])
 const resetForm = () => {
   console.log('resetForm')
 }
@@ -24,9 +25,12 @@ function handleCancel() {
   visible.value = false
 }
 const formRef = ref()
-function handleSubmit() {
-  const formData = formRef.value.getFormData()
+async function handleSubmit() {
+  const formData = await formRef.value.getFormData()
+  if(!formData) return
+  visible.value = false
   console.log('formData', formData)
+  emits('submit', formData)
 }
 const open = (row: any, mode: 'default' | 'edit' = 'default') => {
   data.value.formData = row

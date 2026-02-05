@@ -4,7 +4,7 @@ import type {
   CaseFieldRecord,
   FieldDisplayStructure 
 } from '../utils/db/schema/newTableSchema'
-import { ColumnFieldType } from '../utils/tableColumnType'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import { getCurrentUserId } from './useCurrentUser'
 
 /**

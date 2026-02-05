@@ -1,7 +1,7 @@
 import { pgTable, uuid, text, timestamp, jsonb, integer, boolean, unique } from "drizzle-orm/pg-core"
 import { workspaces } from "./workspaces"
 import { users } from "./user"
-import type { ColumnFieldType, ColumnConfig } from "../../tableColumnType"
+import type { ColumnFieldType, ColumnConfig } from '@packages/dp-mdTable/types/column-types'
 
 
 /**

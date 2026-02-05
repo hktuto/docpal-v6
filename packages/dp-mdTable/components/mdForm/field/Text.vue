@@ -1,6 +1,6 @@
 <template>
   <MdFormItem v-bind="props" :rules="rules">
-    <ElInput v-model="formData[column.field]" :placeholder="column.placeholder" clearable />
+    <ElInput v-if="formData && column.field" v-model="formData[column.field]" :placeholder="column.placeholder" clearable />
   </MdFormItem>
 </template>
 

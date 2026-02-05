@@ -1,7 +1,7 @@
 // utils/mdTable-view-config.ts
 // Type definitions for customizable record views (Form, Card, Detail, List)
 // Moved from packages/dp-mdTable/types for Nuxt auto-import support
-// Note: ColumnFieldType values are from ~/utils/tableColumnType
+// Note: ColumnFieldType values are from @packages/dp-mdTable/types/column-types
 
 /**
  * Advanced customization options for views and fields

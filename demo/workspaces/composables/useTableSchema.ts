@@ -1,4 +1,4 @@
-import { ColumnFieldType } from '../utils/tableColumnType'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import type {
   CaseTableRecord,
   CaseFieldRecord,
