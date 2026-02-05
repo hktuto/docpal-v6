@@ -131,7 +131,7 @@ defineExpose({
         <ElSelect v-model="selectedField" multiple allow-create filterable default-first-option @change="taskAddField">
           <ElOption v-for="item in bpmnGlobalRules" :key="item.id" :label="item.name" :value="item.id" />
         </ElSelect>
-        <ElButton type="primary" @click="openNewFieldDialog">Add Field</ElButton>
+        <ElButton id="Workflow__EditField__AddField" type="primary" @click="openNewFieldDialog">Add Field</ElButton>
       </div>
       <ElDivider />
       <el-alert show-icon :title="$t('bpmn.globalRuleTip')" type="info" />

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const { node } = defineProps<{
   node: Node
@@ -56,11 +56,10 @@ function refreshData() {
   } else {
     template_name.value = ''
   }
-
 }
 
 async function searchTemplte(keyword: string = '') {
-  const data = await clientApi.admin.postAdmindocpalMessageTemplateList({
+  const data = await newAdminApi.postDocpalMessageTemplateList({
     name: keyword,
     pageSize: 1000,
     pageNum: 0
@@ -73,7 +72,7 @@ async function template_nameChanged(newVal: string) {
   const data = node.getData()
   const detailItem = allTemplate.value.find((item: any) => item.templateName === newVal)
   // get template detail by template_name
-  const templateDetail = await clientApi.admin.getAdmindocpalMessageTemplateDetailsId(detailItem.id).then(r => r.data)
+  const templateDetail = await newAdminApi.getDocpalMessageTemplateDetailsId(detailItem.id).then(r => r.data)
   console.log('templateDetail', templateDetail)
   const allVariableInTemplate = [
     ...templateDetail.template.headerParameters || [],

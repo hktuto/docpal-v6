@@ -172,7 +172,8 @@ provide(CaseManagementListProviderKey, {
             inputKey="name"
             inputPlaceHolder="caseManagement_filter"
           />
-          <el-button id="CaseManagement__CreateNewCaseTemplate" type="primary" @click="openNewCaseDialog" @refresh="reload">
+          <el-button id="CaseManagement__CreateNewCaseTemplate" type="primary" @click="openNewCaseDialog"
+                     @refresh="reload">
             {{ $t('caseManagement_create') }}
           </el-button>
         </div>

@@ -16,7 +16,7 @@
   <TemplateAddStep2Dialog ref="TemplateAddStep2DialogRef" />
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { MenuRouterKey } from '#imports'
 import { ExtensionMap } from '~/utils/documentTemplateHelper'
 import formJson from './templateAddStep1.vform.json'
@@ -41,7 +41,7 @@ async function handleSubmit() {
     if (!formData) return
     state.loading = true
     if (state.isEdit) {
-      await clientApi.admin.putAdmindmsTemplateDocument({
+      await newAdminApi.putDmsTemplateDocument({
         name: formData.name,
         description: formData.description,
         id: state.setting.id,
@@ -56,7 +56,7 @@ async function handleSubmit() {
       params.append('name', formData.name)
       params.append('fileType', formData.type)
       params.append('description', formData.description)
-      const data: any = await clientApi.admin.postAdmindmsTemplateDocument({ requestDTO: {} }, params as any).then(r => r.data)
+      const data: any = await newAdminApi.postDmsTemplateDocument(params).then(r => r.data)
       routerProvider?.message.success(t('tip_createdMsg', {
         modelName: t('tip_newMsg') + t('adminMenu.template'),
         name: null

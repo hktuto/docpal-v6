@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import type { Node } from '@antv/x6'
 import { ElMessage } from 'element-plus'
 
@@ -49,7 +49,7 @@ function setUpListener() {
 const allMasterTables = ref([])
 
 async function getMasterTableList() {
-  const data = await clientApi.admin.postAdmindmsMasterTablePage({ pageSize: 100 }).then(r => r.data)
+  const data = await newAdminApi.postDmsMasterTablePage({ pageSize: 100 }).then(r => r.data)
   allMasterTables.value = data.entryList.map((item) => ({
     id: item.id,
     name: item.name
@@ -78,7 +78,11 @@ async function refreshData() {
   }
 
   if (form.value.attr_masterTableId) {
-    const data = await clientApi.admin.getAdmindmsMasterTableId(form.value.attr_masterTableId).then(r => r.data)
+    const data: any = await newAdminApi.getDmsMasterTableId(form.value.attr_masterTableId).then(r => r.data)
+    if (!data) {
+      allColumnInMasterTable.value = []
+      return
+    }
     allColumnInMasterTable.value = data.fields
   }
 }
@@ -89,7 +93,11 @@ const allColumnInMasterTable = ref([])
 async function masterTableIdChange(newId) {
   if (newId) {
     // get all columns from master table
-    const data = await clientApi.admin.getAdmindmsMasterTableId(newId).then(r => r.data)
+    const data = await newAdminApi.getDmsMasterTableId(newId).then(r => r.data)
+    if (!data) {
+      masterTableFields.value = []
+      return
+    }
     masterTableFields.value = data.fields
     const fields = [...data.fields].filter((item) => !ignoreList.includes(item.columnName))
     form.value.field = fields.map((column) => {
@@ -106,7 +114,7 @@ async function masterTableIdChange(newId) {
 }
 
 async function getMasterTableFields() {
-  const data = await clientApi.admin.getAdmindmsMasterTableId(form.value.attr_masterTableId).then(r => r.data)
+  const data = await newAdminApi.getDmsMasterTableId(form.value.attr_masterTableId).then(r => r.data)
   masterTableFields.value = data.fields
   return data
 }

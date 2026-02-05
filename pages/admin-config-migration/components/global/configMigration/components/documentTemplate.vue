@@ -27,7 +27,7 @@ async function handleCreateDocumentTemplate() {
       const blob = new Blob([jsonData], { type: 'application/json; charset=utf-8' })
       const file = new File([blob], fileName, { type: 'application/json' })
 
-      const data: any = await newAdminApi.postDmsTemplateDocument({}, {
+      const data: any = await newAdminApi.postDmsTemplateDocument({
         name: item.name,
         file: file,
         fileType: item.fileType,

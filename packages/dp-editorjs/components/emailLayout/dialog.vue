@@ -22,7 +22,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { globalApi } from 'api'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import formJson from './dialog.vform.json'
 
@@ -46,10 +46,10 @@ async function handleSubmit() {
     let msg
     if (state.edit) {
       data.id = state.setting.id
-      await clientApi.api.putDmsTemplateEmailLayout(data)
+      await globalApi.putDmsTemplateEmailLayout(data)
       msg = t('tip_updateMsg', { modelName: null, name: data.name })
     } else {
-      await clientApi.api.postDmsTemplateEmailLayout(data)
+      await globalApi.postDmsTemplateEmailLayout(data)
       msg = t('tip_createdMsg', { modelName: null, name: data.name })
     }
     ElMessage.success(msg)

@@ -45,13 +45,12 @@ function setUpListener() {
 function refreshData() {
   // get candidateGroup
   const data = node.getData()
-
   candidateGroup.value = data.data['attr_flowable:candidateGroups'] || ''
-
 }
 
 onMounted(async () => {
-  allUserGroup.value = await getGroupsSelectOption().sort((a: any, b: any) => a.label.localeCompare(b.label))
+  const list = await getGroupsSelectOption()
+  allUserGroup.value = list.sort((a: any, b: any) => a.label.localeCompare(b.label))
   refreshData()
   setUpListener()
 })
@@ -64,7 +63,7 @@ onMounted(async () => {
       <ElFormItem label="Start Candidate Group">
         <ElSelect v-model="candidateGroup" placeholder="Select Group" :disabled="editorProvider.readonly.value"
                   filterable clearable @change="candidateGroupChanged">
-          <ElOption v-for="item in allUserGroup" :key="item.id" :label="item.name" :value="item.id" />
+          <ElOption v-for="item in allUserGroup" :key="item.value" :label="item.label" :value="item.value" />
         </ElSelect>
       </ElFormItem>
     </ElForm>

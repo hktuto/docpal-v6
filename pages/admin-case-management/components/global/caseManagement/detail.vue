@@ -21,7 +21,6 @@ const caseInfo = ref<any>()
 const xmlRef = ref()
 
 function handleSave() {
-
   xmlRef.value.save()
 }
 

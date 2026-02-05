@@ -184,7 +184,8 @@ async function getUserGroupOptions() {
     value: item.userId || item.username,
     label: item.username || item.userId
   }))
-  const groups = await getGroupsSelectOption().sort((a: any, b: any) => a.label.localeCompare(b.label))
+  let groups = await getGroupsSelectOption()
+  groups = groups.sort((a: any, b: any) => a.label.localeCompare(b.label))
 
   state.userOptions = [
     {

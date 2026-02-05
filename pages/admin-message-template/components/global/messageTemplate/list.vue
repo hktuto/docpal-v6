@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { MessageTemplateProviderKey, newMessageTemplateDetailPageRoute, newMessageTemplateTemplatePageRoute } from '~/utils/messageTemplateHelper'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 
 const { t } = useI18n()
@@ -24,7 +24,7 @@ function handleFilterFormChange(formModel: any) {
 }
 
 provide(MessageTemplateProviderKey, {
-  getListApi: (params: any) => clientApi.admin.postAdmindocpalMessageTemplateList(params),
+  getListApi: (params: any) => newAdminApi.postDocpalMessageTemplateList(params),
   openDetail: (row: any) => {
     const tabItem = newMessageTemplateDetailPageRoute(row)
     routerProvider?.navigateTo(tabItem)
@@ -46,7 +46,7 @@ provide(MessageTemplateProviderKey, {
         confirmButtonText: t('common_confirmDelete')
       })
       if (action !== 'confirm') return
-      await clientApi.admin.deleteAdmindocpalMessageTemplateId(row.id)
+      await newAdminApi.deleteDocpalMessageTemplateId(row.id)
       routerProvider?.message.success(t('vxe.grid.delSuccess'))
       itemReload()
     } catch (error) {

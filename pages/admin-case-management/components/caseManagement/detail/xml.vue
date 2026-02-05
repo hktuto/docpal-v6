@@ -29,13 +29,7 @@ async function save() {
   const bslob = xmlStringToFile(data.xml, 'ordercase.cmmn.xml')
   const formData = new FormData()
   formData.append('file', bslob)
-  // await clientApi.instance.patch(`/admin/api/case/types/version/${props.caseTypeId}/save`, formData, {
-  //   headers: {
-  //     'Content-Type': 'multipart/form-data'
-  //   }
-  // })
-  await newAdminApi.patchCaseTypesVersionVersionidSave(props.caseTypeId, { file: bslob }, {}, { format: 'blob' })
-
+  await newAdminApi.patchCaseTypesVersionVersionidSave(props.caseTypeId, { file: bslob })
   updateCaseInfo()
 }
 
@@ -99,7 +93,6 @@ function updateCaseInfo() {
     // getCaseInformation
     if (!state.caseNode) {
       throw new Error('caseNode is null')
-      return
     }
     state.caseInformation = getExtentionProperties(state.caseNode.data.data.casePlanModel, 'docpal:form')
     emits('getCase', state)
@@ -107,8 +100,6 @@ function updateCaseInfo() {
 }
 
 function handleEdit() {
-  //
-
   const newItm = newCaseManagementEditor(
     caseDetailProvider?.caseInfo.value.caseTypeId,
     props.name,
