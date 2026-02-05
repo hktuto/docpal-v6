@@ -74,7 +74,7 @@ async function handleSubmit() {
 }
 
 function handleOpen(row: any) {
-  state.isEdit = !!row ? true : false
+  state.isEdit = !!row
   state.visible = true
   setTimeout(async () => {
     // FormRendererRef.value.vFormRenderRef.setFormJson(formJson)

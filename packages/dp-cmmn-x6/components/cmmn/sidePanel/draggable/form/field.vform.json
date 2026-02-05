@@ -138,56 +138,7 @@
                 "automaticDropdown": false,
                 "multiple": false,
                 "multipleLimit": 0,
-                "optionItems": [
-                  {
-                    "label": "User Group",
-                    "value": "user_group"
-                  },
-                  {
-                    "label": "String",
-                    "value": "string"
-                  },
-                  {
-                    "label": "Short Text",
-                    "value": "short_text"
-                  },
-                  {
-                    "label": "Integer",
-                    "value": "number"
-                  },
-                  {
-                    "label": "Database",
-                    "value": "master_table"
-                  },
-                  {
-                    "label": "Long Text",
-                    "value": "longText"
-                  },
-                  {
-                    "label": "Json",
-                    "value": "json"
-                  },
-                  {
-                    "label": "Folder Cabinet ID",
-                    "value": "folder_cabinet_id"
-                  },
-                  {
-                    "label": "Float",
-                    "value": "float"
-                  },
-                  {
-                    "label": "Document",
-                    "value": "document"
-                  },
-                  {
-                    "label": "Date",
-                    "value": "date"
-                  },
-                  {
-                    "label": "True/False",
-                    "value": "boolean"
-                  }
-                ],
+                "optionItems": [],
                 "required": true,
                 "requiredHint": "",
                 "validation": "",
@@ -323,7 +274,7 @@
                 "onCreated": "",
                 "onMounted": "const _this = this\ngetMasterTable()\nasync function getMasterTable() {\n  const data = await $api.post('/api/dms/master-table/page', {pageSize: 10000,pageNum: 0}).then(res => res = res.data.data.entryList)\n  const reponse = data.map(item => ({\n    value: item.id,\n    label: item.name\n  }))\n  _this.loadOptions(reponse)\n}",
                 "onRemoteQuery": "",
-                "onChange": "const displayField = this.getWidgetRef('displayField')\n// if(this.getWidgetRef('ready').getValue()) {\n//   displayField.setValue('')\n// }\nif(!value) return\n\nconst _this = this\ngetMasterTableDetail()\nasync function getMasterTableDetail() {\n  const data = await $api.get(`/dms/master-tables/${value}`).then(res => res = res.data.data.fields)\n  const reponse = data.map(item => ({\n    value: item.columnName,\n    label: item.columnName\n  }))\n  displayField.loadOptions(reponse)\n}",
+                "onChange": "const displayField = this.getWidgetRef('displayField')\n// if(this.getWidgetRef('ready').getValue()) {\n//   displayField.setValue('')\n// }\nif(!value) return\n\nconst _this = this\ngetMasterTableDetail()\nasync function getMasterTableDetail() {\n  const data = await $api.get(`/api/dms/master-tables/${value}`).then(res => res = res.data.data.fields)\n  const reponse = data.map(item => ({\n    value: item.columnName,\n    label: item.columnName\n  }))\n  displayField.loadOptions(reponse)\n}",
                 "onFocus": "",
                 "onBlur": "",
                 "onValidate": ""
@@ -526,9 +477,9 @@
     "onFormMounted": "",
     "onFormDataChange": "",
     "dhList": [],
+    "onFormValidate": "",
     "saveRemoteOptions": "never",
     "labelFormUniqueName": true,
-    "onFormValidate": "",
     "dataSources": []
   }
 }

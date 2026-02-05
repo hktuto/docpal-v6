@@ -87,9 +87,9 @@ async function handleSave() {
   try {
     state.saveLoading = true
     await newAdminApi.postCaseDashboardSaveStyle({
-        id: props.id,
-        styleJson: JSON.stringify(state.layout)
-      }).then((r) => r.data)
+      id: props.id,
+      styleJson: JSON.stringify(state.layout)
+    }).then((r) => r.data)
     routerProvider?.message.success(t('dpMsg_success'))
   } catch (error) {
   } finally {

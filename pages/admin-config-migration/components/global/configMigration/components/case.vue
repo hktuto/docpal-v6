@@ -95,7 +95,7 @@ async function updateDesign(caseResult: any, workflowResult: any, masterTableRes
     const blob = new Blob([design.xml], { type: 'text/xml;charset=utf-8' })
     const formData = new FormData()
     formData.append('file', blob, 'ordercase.cmmn.xml')
-    await newAdminApi.patchCaseTypesVersionVersionidSave(design.versionId, {}, formData).then(r => r.data)
+    await newAdminApi.patchCaseTypesVersionVersionidSave(design.versionId, formData)
 
     // update styleJson
     await newAdminApi.postCaseTypesStylejsonSave({

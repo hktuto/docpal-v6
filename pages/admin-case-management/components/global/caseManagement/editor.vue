@@ -73,13 +73,7 @@ async function handleSave() {
 
     const formData = new FormData()
     formData.append('file', blob)
-    // TODO : method are not correct in swagger, tem use instance.
-    // await clientApi.instance.patch(`admin/api/case/types/version/${props.versionId}/save`, formData, {
-    //   headers: {
-    //     'Content-Type': 'multipart/form-data'
-    //   }
-    // })
-    await newAdminApi.patchCaseTypesVersionVersionidSave(props.versionId, { file: blob }, {}, { format: 'blob' })
+    await newAdminApi.patchCaseTypesVersionVersionidSave(props.versionId, { file: blob })
     await newAdminApi.postCaseTypesStylejsonSave(
       {
         caseTypeId: props.caseTypeId,
