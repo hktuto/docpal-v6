@@ -20,6 +20,32 @@ export interface UseTableDataProviderOptions {
   enableAuditLog?: boolean
 }
 
+export interface QueryTableByNameOptions {
+  /** Search keyword for filtering rows */
+  keyword?: string
+  /** Fields to search in (defaults to all text fields if not specified) */
+  searchFields?: string[]
+  /** Page number (1-based) */
+  pageNum?: number
+  /** Page size */
+  pageSize?: number
+  /** Sort field */
+  sortBy?: string
+  /** Sort order */
+  sortOrder?: 'asc' | 'desc'
+}
+
+export interface QueryTableByNameResult {
+  /** Query result rows */
+  rows: any[]
+  /** Total count of matching rows */
+  total: number
+  /** Current page number */
+  pageNum: number
+  /** Page size */
+  pageSize: number
+}
+
 export function useTableDataProvider(options: UseTableDataProviderOptions) {
   const {
     physicalTableName,
@@ -39,13 +65,13 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
   const error = ref<Error | null>(null)
   const tableData = ref<any[]>([])
   const queryParams = ref<any>({})
-  
+
   // Current user management
   const { initCurrentUser, getCurrentUserId } = useCurrentUser()
-  
+
   // Audit logging
   const { logInsert, logUpdate, logDelete, logBulkInsert, logBulkUpdate } = useAuditLog()
-  
+
   // State to track which group index is the current group
   const groupListIndex = ref<number>(0)
 
@@ -58,16 +84,11 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
     if (data.length === 0) return
 
     // Get all relation fields that have displayFieldNames
-    const relationFields = fields.value.filter(
-      (f) => f.businessType === 'relation' && f.relationTableId && f.displayFieldNames?.length
-    )
+    const relationFields = fields.value.filter((f) => f.businessType === 'relation' && f.relationTableId && f.displayFieldNames?.length)
 
     for (const field of relationFields) {
       // Get the target table info
-      const targetTableData = await query<CaseTableRecord>(
-        `SELECT * FROM case_tables WHERE id = $1`,
-        [field.relationTableId]
-      )
+      const targetTableData = await query<CaseTableRecord>(`SELECT * FROM case_tables WHERE id = $1`, [field.relationTableId])
       if (targetTableData.length === 0) continue
 
       const targetTable = targetTableData[0]
@@ -92,10 +113,9 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
 
       // Fetch all display fields in one query
       const selectFields = ['id', ...displayFieldNames.map((f) => `"${f}"`)].join(', ')
-      const relatedRecords = await query<Record<string, any>>(
-        `SELECT ${selectFields} FROM "${targetTable.tableName}" WHERE id = ANY($1)`,
-        [Array.from(relationIds)]
-      )
+      const relatedRecords = await query<Record<string, any>>(`SELECT ${selectFields} FROM "${targetTable.tableName}" WHERE id = ANY($1)`, [
+        Array.from(relationIds)
+      ])
 
       // Build lookup maps for each display field
       const displayMaps = new Map<string, Map<string, any>>()
@@ -131,18 +151,13 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
   /**
    * Query table data with optional filter
    */
-  async function queryTableData(filter: Record<string, any> = {}): Promise<any[]> {
+  async function queryCurrentTableData(filter: Record<string, any> = {}): Promise<any[]> {
     if (!physicalTableName.value || !currentView.value) {
       throw new Error('physicalTableName and currentView are required')
     }
 
     // Build SELECT query using helper
-    const { sql, queryValues } = buildSelectQuery(
-      physicalTableName.value,
-      filter,
-      columnFilterRules.value as FilterRule[],
-      columnSortRules.value as SortRule[]
-    )
+    const { sql, queryValues } = buildSelectQuery(physicalTableName.value, filter, columnFilterRules.value as FilterRule[], columnSortRules.value as SortRule[])
 
     const data = await query(sql, queryValues)
 
@@ -159,7 +174,7 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
     if (!columnGroupRules.value || columnGroupRules.value.length === 0 || groupListIndex.value >= columnGroupRules.value.length) {
       // No more aggregates to process - return actual row data
       const filterData: Record<string, any> = params.row?.__filter_data || {}
-      return await queryTableData(filterData)
+      return await queryCurrentTableData(filterData)
     }
 
     const nextAggregate = columnGroupRules.value[groupListIndex.value]
@@ -169,10 +184,7 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
   /**
    * Get grouped data for aggregation
    */
-  async function getGroupApi(
-    params: any = {},
-    aggregate: { id: string; field: string; order: string }
-  ): Promise<any[]> {
+  async function getGroupApi(params: any = {}, aggregate: { id: string; field: string; order: string }): Promise<any[]> {
     const latestGroupFilter: Record<string, any> = params.row?.__filter_data || {}
 
     if (!physicalTableName.value || !currentView.value) {
@@ -234,7 +246,7 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
     if (!physicalTableName.value || !currentView.value) {
       throw new Error('physicalTableName and currentView are required')
     }
-    
+
     loading.value = true
     try {
       if (aggregate && aggregate?.length > 0) {
@@ -242,7 +254,7 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
         return await getGroupApi(params, aggregate[0])
       }
 
-      const data = await queryTableData()
+      const data = await queryCurrentTableData()
       tableData.value = data
       return JSON.parse(JSON.stringify(data))
     } finally {
@@ -267,7 +279,7 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
 
     // Ensure current user is initialized
     await initCurrentUser()
-    
+
     // Add createdBy and updatedBy
     const currentUserId = getCurrentUserId()
     const rowWithUser = {
@@ -286,42 +298,32 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
     const newRow = data[0]
 
     // Auto-resolve relations for new row using stored lookup config
-    const relationFields = fields.value.filter(
-      (f) => f.businessType === 'relation' && f.lookupColumnName && f.lookupFieldId && f.relationTableId
-    )
+    const relationFields = fields.value.filter((f) => f.businessType === 'relation' && f.lookupColumnName && f.lookupFieldId && f.relationTableId)
 
     for (const relField of relationFields) {
       const sourceValue = row[relField.lookupColumnName!]
       if (!sourceValue) continue
 
-      const targetTableData = await query<CaseTableRecord>(
-        `SELECT * FROM case_tables WHERE id = $1`,
-        [relField.relationTableId]
-      )
+      const targetTableData = await query<CaseTableRecord>(`SELECT * FROM case_tables WHERE id = $1`, [relField.relationTableId])
       if (targetTableData.length === 0) continue
 
       const targetTable = targetTableData[0]
 
-      const targetFieldData = await query<CaseFieldRecord>(
-        `SELECT * FROM case_fields WHERE id = $1`,
-        [relField.lookupFieldId]
-      )
+      const targetFieldData = await query<CaseFieldRecord>(`SELECT * FROM case_fields WHERE id = $1`, [relField.lookupFieldId])
       if (targetFieldData.length === 0) continue
 
       const targetField = targetFieldData[0]
 
-      const matches = await query<{ id: string }>(
-        `SELECT id FROM "${targetTable.tableName}" WHERE "${targetField.fieldName}" = $1`,
-        [sourceValue]
-      )
+      const matches = await query<{ id: string }>(`SELECT id FROM "${targetTable.tableName}" WHERE "${targetField.fieldName}" = $1`, [sourceValue])
 
       if (matches.length > 0) {
         const uniqueIds = [...new Set(matches.map((m) => m.id))]
         const currentUserId = getCurrentUserId()
-        await query(
-          `UPDATE "${physicalTableName.value}" SET "${relField.fieldName}" = $1, "updatedBy" = $3, "updatedAt" = NOW() WHERE id = $2`,
-          [uniqueIds, newRow.id, currentUserId]
-        )
+        await query(`UPDATE "${physicalTableName.value}" SET "${relField.fieldName}" = $1, "updatedBy" = $3, "updatedAt" = NOW() WHERE id = $2`, [
+          uniqueIds,
+          newRow.id,
+          currentUserId
+        ])
         newRow[relField.fieldName] = uniqueIds
       }
     }
@@ -371,10 +373,7 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
       // Get old values for audit logging
       let oldValues: Record<string, any> | null = null
       if (enableAuditLog) {
-        const oldData = await query<Record<string, any>>(
-          `SELECT * FROM "${physicalTableName.value}" WHERE id = $1`,
-          [row.id]
-        )
+        const oldData = await query<Record<string, any>>(`SELECT * FROM "${physicalTableName.value}" WHERE id = $1`, [row.id])
         if (oldData.length > 0) {
           oldValues = oldData[0]
         }
@@ -431,11 +430,8 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
     // Get old values for audit logging before deleting
     let deletedRecords: Array<{ id: string; data: Record<string, any> }> = []
     if (enableAuditLog) {
-      const oldData = await query<Record<string, any>>(
-        `SELECT * FROM "${physicalTableName.value}" WHERE id = ANY($1)`,
-        [idArray]
-      )
-      deletedRecords = oldData.map(row => ({ id: row.id, data: row }))
+      const oldData = await query<Record<string, any>>(`SELECT * FROM "${physicalTableName.value}" WHERE id = ANY($1)`, [idArray])
+      deletedRecords = oldData.map((row) => ({ id: row.id, data: row }))
     }
 
     // Perform the delete
@@ -452,16 +448,20 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
             caseTableId: tableId?.value
           })
         } else {
-          await logBulkUpdate(physicalTableName.value, deletedRecords.map(r => ({
-            id: r.id,
-            oldData: r.data,
-            newData: {}
-          })), {
-            tableType: 'dynamic',
-            entityId: entityId?.value,
-            caseTableId: tableId?.value,
-            description: `Deleted ${deletedRecords.length} records from ${physicalTableName.value}`
-          })
+          await logBulkUpdate(
+            physicalTableName.value,
+            deletedRecords.map((r) => ({
+              id: r.id,
+              oldData: r.data,
+              newData: {}
+            })),
+            {
+              tableType: 'dynamic',
+              entityId: entityId?.value,
+              caseTableId: tableId?.value,
+              description: `Deleted ${deletedRecords.length} records from ${physicalTableName.value}`
+            }
+          )
         }
       } catch (auditError) {
         console.warn('[Audit] Failed to log delete:', auditError)
@@ -554,6 +554,122 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
     return result
   }
 
+  /**
+   * Query any table by name with keyword search and pagination
+   * Used for relation field selection (e.g., choosing related records)
+   * @param tableName - The physical table name to query
+   * @param options - Query options including keyword search and pagination
+   * @returns Query result with rows and total count
+   */
+  async function queryTableByName(
+    tableName: string,
+    options: QueryTableByNameOptions = {}
+  ): Promise<QueryTableByNameResult> {
+    const {
+      keyword = '',
+      searchFields = [],
+      pageNum = 1,
+      pageSize = 50,
+      sortBy = 'id',
+      sortOrder = 'asc'
+    } = options
+
+    // Validate table name to prevent SQL injection
+    // Only allow alphanumeric, underscore, and hyphen
+    if (!/^[a-zA-Z0-9_-]+$/.test(tableName)) {
+      throw new Error(`Invalid table name: ${tableName}`)
+    }
+
+    // Get the table info to find searchable fields
+    const tableData = await query<CaseTableRecord>(`SELECT * FROM case_tables WHERE "tableName" = $1`, [tableName])
+    if (tableData.length === 0) {
+      throw new Error(`Table not found: ${tableName}`)
+    }
+
+    const targetTable = tableData[0]
+
+    // Get fields for this table to determine searchable fields
+    const fieldsData = await query<CaseFieldRecord>(
+      `SELECT * FROM case_fields WHERE "tableId" = $1`,
+      [targetTable.id]
+    )
+
+    // Determine which fields to search
+    let fieldsToSearch: string[] = []
+    if (searchFields.length > 0) {
+      // Use provided search fields
+      fieldsToSearch = searchFields.filter(field => 
+        fieldsData.some(f => f.fieldName === field)
+      )
+    } else {
+      // Default: search in all text-based fields
+      fieldsToSearch = fieldsData
+        .filter(f => {
+          const businessType = f.businessType
+          return ['text', 'number', 'email', 'url', 'phone'].includes(businessType)
+        })
+        .map(f => f.fieldName)
+    }
+
+    // Build WHERE clause for keyword search
+    const whereConditions: string[] = []
+    const queryValues: any[] = []
+    let paramIndex = 1
+
+    if (keyword && keyword.trim() && fieldsToSearch.length > 0) {
+      const keywords = keyword
+        .trim()
+        .split(/\s+/)
+        .filter((k) => k.length > 0)
+
+      if (keywords.length > 0) {
+        // For each keyword, create OR conditions across all search fields
+        const keywordClauses = keywords.map((kw) => {
+          const keyConditions = fieldsToSearch.map((field) => {
+            // Cast to text for searching to handle different field types
+            const clause = `CAST("${field}" AS TEXT) ILIKE $${paramIndex}`
+            queryValues.push(`%${kw}%`)
+            paramIndex++
+            return clause
+          })
+          return `(${keyConditions.join(' OR ')})`
+        })
+
+        whereConditions.push(`(${keywordClauses.join(' AND ')})`)
+      }
+    }
+
+    // Build WHERE clause
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : ''
+
+    // Build ORDER BY clause
+    const orderDirection = sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
+    const orderByClause = `"${sortBy}" ${orderDirection}`
+
+    // Calculate offset
+    const offset = (Math.max(1, pageNum) - 1) * pageSize
+
+    // Build count query
+    const countSql = `SELECT COUNT(*)::int as total FROM "${tableName}" ${whereClause}`
+
+    // Build data query with pagination
+    const dataSql = `SELECT * FROM "${tableName}" ${whereClause} ORDER BY ${orderByClause} LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+
+    // Execute count query
+    const countResult = await query<{ total: number }>(countSql, queryValues)
+    const total = countResult[0]?.total || 0
+
+    // Execute data query with pagination params
+    const rows = await query(dataSql, [...queryValues, pageSize, offset])
+
+    return {
+      rows,
+      total,
+      pageNum,
+      pageSize
+    }
+  }
+
   // Provide TableDataContext using dp-mdTable's key
   provide(TableDataContextKey, {
     tableData,
@@ -566,7 +682,8 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
     addRow,
     updateRow,
     deleteRow,
-    upsertRows
+    upsertRows,
+    queryTableByName
   } as TableDataContext)
 
   return {
@@ -580,6 +697,7 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
     addRow,
     updateRow,
     deleteRow,
-    upsertRows
+    upsertRows,
+    queryTableByName
   }
 }

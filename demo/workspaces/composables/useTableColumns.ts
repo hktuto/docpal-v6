@@ -1,6 +1,6 @@
 import type { CaseFieldRecord, CaseViewRecord, CaseTableRecord, FieldDisplayStructure } from '../utils/db/schema/newTableSchema'
 import { ColumnContextKey, type ColumnContext, type ColumnConfig } from '#imports'
-import type { OrdersParam } from '@nicepkg/dp-mdTable/composables/useColumns'
+import type { OrdersParam, QueryRelatedTableOptions, QueryRelatedTableResult } from '@nicepkg/dp-mdTable/composables/useColumns'
 import { ensurePlainArray } from './useTableFields'
 
 export interface UseTableColumnsOptions {
@@ -845,6 +845,103 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     return fields.value.filter((f) => f.businessType === 'relation')
   }
 
+  /**
+   * Query related table data for relation field editing
+   * Uses the queryTableByName method from useTableDataProvider
+   */
+  async function queryRelatedTable(
+    targetTableId: string,
+    options: QueryRelatedTableOptions = {}
+  ): Promise<QueryRelatedTableResult> {
+    // Get the target table info to find the physical table name
+    const tableInfo = await getTableInfo(targetTableId)
+    if (!tableInfo?.tableName) {
+      throw new Error(`Table not found for ID: ${targetTableId}`)
+    }
+
+    // Build search fields from the target table's fields
+    let searchFields = options.searchFields
+    if (!searchFields || searchFields.length === 0) {
+      const targetFields = await getFieldsForTable(targetTableId)
+      // Default: search in text-based fields
+      searchFields = targetFields
+        .filter(f => ['text', 'number', 'email', 'url', 'phone'].includes(f.businessType))
+        .map(f => f.fieldName)
+    }
+
+    // Build the query
+    const {
+      keyword = '',
+      pageNum = 1,
+      pageSize = 50,
+      sortBy = 'id',
+      sortOrder = 'asc'
+    } = options
+
+    // Validate table name to prevent SQL injection
+    if (!/^[a-zA-Z0-9_-]+$/.test(tableInfo.tableName)) {
+      throw new Error(`Invalid table name: ${tableInfo.tableName}`)
+    }
+
+    // Build WHERE clause for keyword search
+    const whereConditions: string[] = []
+    const queryValues: any[] = []
+    let paramIndex = 1
+
+    if (keyword && keyword.trim() && searchFields.length > 0) {
+      const keywords = keyword
+        .trim()
+        .split(/\s+/)
+        .filter((k) => k.length > 0)
+
+      if (keywords.length > 0) {
+        // For each keyword, create OR conditions across all search fields
+        const keywordClauses = keywords.map((kw) => {
+          const keyConditions = searchFields!.map((field) => {
+            // Cast to text for searching to handle different field types
+            const clause = `CAST("${field}" AS TEXT) ILIKE $${paramIndex}`
+            queryValues.push(`%${kw}%`)
+            paramIndex++
+            return clause
+          })
+          return `(${keyConditions.join(' OR ')})`
+        })
+
+        whereConditions.push(`(${keywordClauses.join(' AND ')})`)
+      }
+    }
+
+    // Build WHERE clause
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : ''
+
+    // Build ORDER BY clause
+    const orderDirection = sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
+    const orderByClause = `"${sortBy}" ${orderDirection}`
+
+    // Calculate offset
+    const offset = (Math.max(1, pageNum) - 1) * pageSize
+
+    // Build count query
+    const countSql = `SELECT COUNT(*)::int as total FROM "${tableInfo.tableName}" ${whereClause}`
+
+    // Build data query with pagination
+    const dataSql = `SELECT * FROM "${tableInfo.tableName}" ${whereClause} ORDER BY ${orderByClause} LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+
+    // Execute count query
+    const countResult = await query<{ total: number }>(countSql, queryValues)
+    const total = countResult[0]?.total || 0
+
+    // Execute data query with pagination params
+    const rows = await query(dataSql, [...queryValues, pageSize, offset])
+
+    return {
+      rows,
+      total,
+      pageNum,
+      pageSize
+    }
+  }
+
   // Provide ColumnContext
   provide(ColumnContextKey, {
     getColumn,
@@ -868,7 +965,9 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     entityId,
     // Record card preview helpers
     getTableCardConfig,
-    getRecordById
+    getRecordById,
+    // Query related table data for relation field editing
+    queryRelatedTable
   } as ColumnContext)
   watch(columnGroupRules, () => {
     getAllColumns()
@@ -893,6 +992,8 @@ export function useTableColumns(options: UseTableColumnsOptions) {
     createVirtualColumnConfig,
     // Record card preview helpers
     getTableCardConfig,
-    getRecordById
+    getRecordById,
+    // Query related table data for relation field editing
+    queryRelatedTable
   }
 }

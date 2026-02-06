@@ -7,6 +7,22 @@ export type OrdersParam = {
   oldColumn: VxeTableDefines.ColumnInfo
   dragPos: 'left' | 'right'
 }
+export interface QueryRelatedTableOptions {
+  keyword?: string
+  searchFields?: string[]
+  pageNum?: number
+  pageSize?: number
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+}
+
+export interface QueryRelatedTableResult {
+  rows: any[]
+  total: number
+  pageNum: number
+  pageSize: number
+}
+
 export interface ColumnContext {
   getColumn: (field: string) => ColumnConfig | undefined
   getAllColumns: () => Promise<ColumnConfig[]>
@@ -31,6 +47,8 @@ export interface ColumnContext {
   // Record card preview helpers
   getTableCardConfig?: (tableId: string) => Promise<any | null>
   getRecordById?: (tableId: string, recordId: string) => Promise<Record<string, any> | null>
+  // Query related table data for relation field editing
+  queryRelatedTable?: (tableId: string, options?: QueryRelatedTableOptions) => Promise<QueryRelatedTableResult>
 }
 
 export const ColumnContextKey: InjectionKey<ColumnContext> = Symbol('ColumnContextKey')
