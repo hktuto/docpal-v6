@@ -1,6 +1,7 @@
 // renderers/separate-components.ts
-import { h } from 'vue'
+import { h, ref, nextTick } from 'vue'
 import type { VNode } from 'vue'
+import { useMDTableInject } from '../composables/useMDTable'
 import { ElRate, ElInput } from 'element-plus'
 import { EditPen } from '@element-plus/icons-vue'
 import type { RenderComponentConfig, ViewRenderFunctionParams } from '../types/column-types'
@@ -12,7 +13,7 @@ import { DateTimeView, DateTimeEdit } from './components/DateTime/view'
 import { EmailView, EmailEdit } from './components/email/view'
 import { MultiTextView, MultiTextEdit } from './components/MultiText/view'
 import { TextView, TextEdit } from './components/text/view'
-import { UserView, UserEdit } from './components/user/view'
+import { UserView } from './components/user/view'
 import { RelationView, RelationEdit } from './components/relation/view'
 import { VirtualColumnView, VirtualColumnEdit } from './components/VirtualColumn/view'
 import { FormulaView } from './components/formula'
@@ -201,7 +202,27 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
       render: (params: any) => TreeNode(params, UserView)
     },
     edit: {
-      render: UserEdit
+      render({ options, params }: ViewRenderFunctionParams<string>): VNode {
+        const { row, column } = params
+        const { getUserList, userList } = useMDTableInject()
+        return h(SelectEdit, {
+          options: userList,
+          multiple: true,
+          collapseTags: true,
+          filterable: true,
+          modelValue: row[column.field],
+          mode: 'noTag',
+          popperClass: 'vxe-table--ignore-clear', // 加这个类名，让 table 不會 outside click 改變
+          'onUpdate:modelValue': (value: any) => {
+            row[column.field] = value
+          },
+          onVnodeMounted: () => {
+            nextTick(() => {
+              getUserList()
+            })
+          }
+        })
+      }
     }
   },
   Formula: {

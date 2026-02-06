@@ -2,7 +2,7 @@
 import { provide, inject, ref, type Ref } from 'vue'
 import type { VxeGridInstance } from 'vxe-table'
 import { useUpdateStatus } from './useUpdateStatus'
-
+import { clientApi } from 'api'
 export interface mdTable {
   columns: any
   addColumn: any
@@ -12,7 +12,9 @@ export interface mdTable {
   gridRef: Ref<VxeGridInstance | undefined>
   getOptionsFromTableData: (column: any) => any[]
   clearCheckboxRow: () => void,
-  updateRow: (row: any) => void
+  updateRow: (row: any) => void,
+  getUserList: () => Promise<any[]>,
+  userList: Ref<any[]>
 }
 export const MdTableContextKey: InjectionKey<mdTable> = Symbol('MdTableContextKey')
 export function useMDTable(props: any) {
@@ -77,6 +79,31 @@ export function useMDTable(props: any) {
     // TODO: add api to update row data
     console.log('updateRow', row)
   }
+
+  const userList = ref<any[]>([])
+  let lastLoadTime = 0
+  async function getUserList() {
+    if (userList.value.length > 0 && lastLoadTime > Date.now() - 1000 * 30) {
+      return userList.value
+    }
+    try {
+      const data: any = await clientApi.api.postNuxeoIdentityUsers()
+      userList.value = data.data.map((item: any) => ({
+        label: item.username,
+        id: item.userId
+      }))
+      console.log('userList', userList.value)
+      lastLoadTime = Date.now()
+      return userList.value
+    } catch (error) {
+      console.error('getUserList error', error)
+      userList.value = []
+      return []
+    } finally {
+      lastLoadTime = Date.now()
+    }
+  }
+
   function getOptionsFromTableData(column: any) {
     const options = new Set()
     tableData.value.forEach((row: any) => {
@@ -98,6 +125,8 @@ export function useMDTable(props: any) {
     clearCheckboxRow,
     // helper functions
     getOptionsFromTableData,
+    getUserList,
+    userList,
     updateRow
   })
 
