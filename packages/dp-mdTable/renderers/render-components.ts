@@ -177,20 +177,17 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
       render: (params: any) => TreeNode(params, UserView)
     }
   },
-  MagicLink: {
+  Relation: {
     edit: {
       render({ options, params }: ViewRenderFunctionParams<string>): VNode {
         const { $table, row, column } = params
         const relationOptions = options?.props || {}
-        
+
         // Get the base relation field name (without display field suffix)
-        const baseRelationFieldName = column.field.includes('.') 
-          ? column.field.split('.')[0] 
-          : column.field
-        
+        const baseRelationFieldName = column.field.includes('.') ? column.field.split('.')[0] : column.field
+
         // Get current value from the base relation field (UUID array)
         const currentValue = row[baseRelationFieldName] || []
-        
         return h(RelationEditVue, {
           modelValue: currentValue,
           relationTableId: relationOptions.relationTableId,
@@ -200,7 +197,7 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
           'onUpdate:modelValue': (value: string[]) => {
             // Update the base relation field with the selected UUIDs
             row[baseRelationFieldName] = value
-            
+
             // Also update the display values for the view
             // This will be fetched when the data is refreshed
           }
