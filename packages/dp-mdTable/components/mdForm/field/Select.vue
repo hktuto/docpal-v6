@@ -17,6 +17,7 @@
   </MdFormItem>
 </template>
 <script setup lang="ts">
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 const props = defineProps<{
   formData: any
   column: any
