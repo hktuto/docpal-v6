@@ -39,19 +39,10 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { v7 as uuidv7 } from 'uuid'
 import { defineAsyncComponent } from 'vue'
 import { getColumnFieldOptions } from './columnBasic'
-
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import type { ColumnConfig } from '@packages/dp-mdTable/types/column-types'
 // MagicLink (Relation) type constant
 const RELATION_TYPE = 14
-interface ColumnConfig {
-  field: string
-  title: string
-  type?: ColumnFieldType
-  visible?: boolean
-  sortable?: boolean
-  filterable?: boolean
-  editRender?: any
-  [key: string]: any
-}
 
 interface Props {
   virtualRef?: HTMLElement | (() => HTMLElement)
@@ -191,15 +182,11 @@ const handleSubmit = async () => {
       // Type changed - warn user about potential data loss
       if (oldType !== newType) {
         try {
-          await ElMessageBox.confirm(
-            'Changing column type may cause data loss. Do you want to continue?',
-            'Warning',
-            {
-              type: 'warning',
-              confirmButtonText: 'Continue',
-              cancelButtonText: 'Cancel'
-            }
-          )
+          await ElMessageBox.confirm('Changing column type may cause data loss. Do you want to continue?', 'Warning', {
+            type: 'warning',
+            confirmButtonText: 'Continue',
+            cancelButtonText: 'Cancel'
+          })
         } catch {
           // User cancelled
           return
