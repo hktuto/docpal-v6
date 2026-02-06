@@ -92,14 +92,16 @@
       <h4>{{ t('uniQueIdGenerator_setting') }}</h4>
       <h5 v-if="state.example.prefix.length > 0">{{ t('uniQueIdGenerator_prefix') }}</h5>
       <div v-for="(item, index) in state.example.prefix">
-        <el-form-item v-if="item.type == 'variable'" :label="handleLabel(item.type, item.expression)" label-position="top">
+        <el-form-item v-if="item.type == 'variable'" :label="handleLabel(item.type, item.expression)"
+                      label-position="top">
           <el-input v-model="item.value" :formatter="(value: string) => handleExampleData(item.type, value)" />
         </el-form-item>
       </div>
       <h5 v-if="state.example.suffix.length > 0">{{ t('uniQueIdGenerator_suffix') }}</h5>
       <div v-for="(item, index) in state.example.suffix">
-        <el-form-item v-if="item.type == 'variable'" :label="handleLabel(item.type, item.expression)" label-position="top">
-          <el-input v-model="item.value" :formatter="(value: string) => handleExampleData(item.type, value)"> </el-input>
+        <el-form-item v-if="item.type == 'variable'" :label="handleLabel(item.type, item.expression)"
+                      label-position="top">
+          <el-input v-model="item.value" :formatter="(value: string) => handleExampleData(item.type, value)"></el-input>
         </el-form-item>
       </div>
       <el-divider />
@@ -136,7 +138,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from '../../uniqueIdGenerator/addTagForm.vform.json'
 import editDateTagForm from '../../uniqueIdGenerator/editDateTagForm.vform.json'
 import editStringTagForm from '../../uniqueIdGenerator/editStringTagForm.vform.json'
@@ -227,7 +229,7 @@ async function handleGenerateId() {
   try {
     state.example.idDigit = state.form.idDigit
     state.example.startNumber = state.form.startNumber
-    state.uniqueId = await clientApi.admin.postAdmindocpalIdTemplatesValidate(state.example).then((res) => res.data)
+    state.uniqueId = await newAdminApi.postDocpalIdTemplatesValidate(state.example).then((res) => res.data)
   } catch (e) {
     console.log(e)
   }
@@ -268,7 +270,7 @@ function handleVariable(status: boolean, setting: boolean) {
  */
 async function handleEditVariable(status: boolean, value: string, index: number) {
   state.loading = false
-  let item
+  let item: any
   if (status) {
     item = state.form.prefix[index]
   } else {
@@ -469,7 +471,7 @@ async function handleSubmit() {
       return
     }
 
-    await clientApi.admin.putAdmindocpalIdTemplatesId(id, state.form)
+    await newAdminApi.putDocpalIdTemplatesId(id, state.form)
     routerProvider?.message.success(
       t('tip_updateSuccessMsg', {
         modelName: t('adminMenu.uniqueIdGenerator'),
@@ -486,7 +488,7 @@ async function handleSubmit() {
 
 async function init() {
   state.uniqueId = ''
-  state.form = await clientApi.admin.getAdmindocpalIdTemplatesId(id).then((res) => res.data)
+  state.form = await newAdminApi.getDocpalIdTemplatesId(id).then((res) => res.data)
   state.example = deepCopy(state.form)
   setTag(true, state.form.prefix)
   setTag(false, state.form.suffix)

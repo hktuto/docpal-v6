@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const props = defineProps<{
   userGroupList: any[]
@@ -19,7 +19,7 @@ async function handleCreateUserGroup() {
       groupName: group.name
     }
     try {
-      const newVar = await clientApi.admin.postAdminucenterGroup(params).then(r => r.data)
+      const newVar = await newAdminApi.postUcenterGroup(params).then(r => r.data)
       userGroupList.value.push({
         oldId: group.id,
         newId: newVar.id

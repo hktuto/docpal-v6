@@ -72,7 +72,7 @@ export async function getAllFormFromXML(xml: string, processKey: string, version
     })
   }
   // allFormsID.forEach(async(formId) => {
-  //     const response = await clientApi.admin.getRelationQuery({
+  //     const response = await newAdminApi.getRelationQuery({
   //         processKey: processKey,
   //         userTaskId: formId,
   //         versionId: version

@@ -19,7 +19,7 @@
 <script lang="ts" setup>
 import { userProviderDetailKey } from '~/util/userProvider'
 import { ElMessage } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -142,7 +142,7 @@ async function handleSubmit() {
 }
 
 async function getPasswordPolicy() {
-  const response = await clientApi.admin.getAdminucenterPasswordConfig().then(r => r.data)
+  const response = await newAdminApi.getUcenterPasswordConfig().then(r => r.data)
   if (!response) {
     routerProvider?.message.error(t('Password policy rules not found'))
     state.visible = false

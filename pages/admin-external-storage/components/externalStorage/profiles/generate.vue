@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import formJson from './generate.vform.json'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const { t } = useI18n()
@@ -26,7 +26,7 @@ async function handleSave() {
         start_number: isNaN(Number(data.start_number)) ? 1 : Number(data.start_number)
       }
     }
-    await clientApi.admin.patchAdminext3rdstorageIdProfilesProfileidUpdateGeneral(props.storageId, props.id, params).then(r => r.data)
+    await newAdminApi.patchExt3rdstorageIdProfilesProfileidUpdateGeneral(props.storageId, props.id, params).then(r => r.data)
     ElMessage.success(t('dpMsg_success'))
     emits('update')
   } catch (error: any) {

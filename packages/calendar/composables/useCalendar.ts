@@ -1,4 +1,4 @@
-import { clientApi } from 'api'
+import { newAdminApi, newClientApi } from 'api'
 import { onMounted } from 'vue'
 import { viewName } from '../utils/calendarHelper'
 
@@ -75,14 +75,14 @@ export const useCalendarStore = () => {
   })
 
   async function getCalendarMasterTable() {
-    return await clientApi.api.getDmsCalendarsSettingTables().then(r => r.data)
+    return await newClientApi.getDmsCalendarsSettingTables().then(r => r.data)
   }
 
   const categoriesOption = useCalenarCategories()
   const calendarViewerCategories = useCalendarViewerCategories()
 
   async function getCategories() {
-    const data = await clientApi.api.postDmsMasterTableRecords({
+    const data = await newClientApi.postDmsMasterTableRecords({
       id: setting.value.category.master_table
     }).then(res => res.data) as any
 
@@ -92,7 +92,7 @@ export const useCalendarStore = () => {
   const locationsOption = useCalenarLocation()
 
   async function getLocations() {
-    const data = await clientApi.api.postDmsMasterTableRecords({
+    const data = await newClientApi.postDmsMasterTableRecords({
       id: setting.value.location.master_table
     }).then(res => res.data) as any
     locationsOption.value = (data || []).filter(i => i.status).sort((a, b) => a.name.localeCompare(b.name))
@@ -100,7 +100,7 @@ export const useCalendarStore = () => {
 
   async function getCalendarsSetting() {
     const masterTable = await getCalendarMasterTable()
-    const data = await clientApi.api.getDmsCalendarsSetting().then(r => r.data)
+    const data = await newClientApi.getDmsCalendarsSetting().then(r => r.data)
     const { public: { platform } } = useRuntimeConfig()
 
     setting.value = {
@@ -132,7 +132,7 @@ export const useCalendarStore = () => {
   }
 
   async function getFormJson(processKey: string, versionId: string) {
-    const response: any = await clientApi.api.getDmsFormPropertiesQuery({
+    const response: any = await newClientApi.getDmsFormPropertiesQuery({
       userTaskId: 'start',
       processKey,
       versionId
@@ -177,7 +177,7 @@ export const useCalendarStore = () => {
       data.location = categories.location.value.map((item: any) => item.id).join(',')
     }
 
-    const workflow: any = await clientApi.admin.getAdmindocpalWorkflowVersionKeyProcessdefinitionkey(data.processKey).then((r) => r.data)
+    const workflow: any = await newAdminApi.getDocpalWorkflowVersionKeyProcessdefinitionkey(data.processKey).then((r) => r.data)
     if (!workflow) {
       throw new Error('workflow is empty')
     }
@@ -212,7 +212,7 @@ export const useCalendarStore = () => {
     }
 
     try {
-      await clientApi.api.postDocpalWorkflowProcessStart(form, { async: false }).then((res) => res.data)
+      await newClientApi.postDocpalWorkflowProcessStart(form, { async: false }).then((res) => res.data)
     } catch (e) {
       console.error(e)
     }

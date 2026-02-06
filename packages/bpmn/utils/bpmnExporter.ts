@@ -1,4 +1,4 @@
-import { clientApi } from "api"
+import { newClientApi, newAdminApi } from "api"
 
 type FormExportData = {
   processKey: string,
@@ -19,7 +19,7 @@ type WorkflowExportData = {
 const useAllWorkflowList = () => useState<any[]>('all-workflow-list', () => [])
 async function getAllWorkflowList() {
   const allWorkflowList = useAllWorkflowList()
-  const res = await clientApi.api.postDsbWorkflowProcessList({ pageNum: 0, pageSize: 1000 })
+  const res = await newClientApi.postDsbWorkflowProcessList({ pageNum: 0, pageSize: 1000 })
   if(!res.data || !res.data.length) {
     throw new Error('Failed to get all workflow list')
   }
@@ -55,13 +55,13 @@ export async function getWorkflowExportData(workflowKey:string) {
     console.log("try to get workflow export data", selectedWorkflowData)
   
     // get workflow bpmn and styleJson
-    const blob = await clientApi.admin.getAdmindocpalWorkflowVersionBpmnxml(
+    const blob = await newAdminApi.getDocpalWorkflowVersionBpmnxml(
       { draftId: selectedWorkflowData.draftId, versionNumber: selectedWorkflowData.versionNumber },
       {
         format: 'blob'
       }
     )
-    const json = await clientApi.admin.getAdmindocpalWorkflowVersionJson({ draftId: selectedWorkflowData.draftId, versionNumber: selectedWorkflowData.versionNumber }, {})
+    const json = await newAdminApi.getDocpalWorkflowVersionJson({ draftId: selectedWorkflowData.draftId, versionNumber: selectedWorkflowData.versionNumber }, {})
     // @ts-ignore
     const file = await blob.text()
     const xmlJson = bpmnStringToJson(file)
@@ -72,7 +72,7 @@ export async function getWorkflowExportData(workflowKey:string) {
     console.log("allForms", allForms)
     result.form = allForms
     // get field List
-    const fieldData:any = await clientApi.admin.getAdmindocpalValidationRulesVersiondraftid(selectedWorkflowData.versionId).then(r => r.data)
+    const fieldData:any = await newAdminApi.getDocpalValidationRulesVersiondraftid(selectedWorkflowData.versionId).then(r => r.data)
     console.log("fieldData", fieldData)
     result.fields = fieldData.validationRules
     // get all services task from xmlJson

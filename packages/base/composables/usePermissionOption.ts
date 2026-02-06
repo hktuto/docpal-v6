@@ -13,7 +13,7 @@ const roleList = ref<any[]>([])
 const groupList = ref<any[]>([])
 export const usePermissionOption = () => useState<PermissionOption[]>('permission', () => ([]))
 
-export const getFromServer = async function(loadUserList: boolean, loadRoleList: boolean, loadGroupList: boolean) {
+export const getFromServer = async function(loadUserList: boolean = true, loadRoleList: boolean = true, loadGroupList: boolean = true) {
   const options = usePermissionOption()
   options.value = []
 

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import formJson from './capture.vform.json'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const { t } = useI18n()
@@ -26,7 +26,7 @@ async function handleSave() {
       params.confirm_user = data.confirm_user.filter((item: any) => !item.includes('group&&&&'))
       params.confirm_group = data.confirm_user.filter((item: any) => item.includes('group&&&&')).map((item: any) => item.replace('group&&&&', ''))
     }
-    await clientApi.admin.patchAdminext3rdstorageIdProfilesProfileidUpdateCapture(props.storageId, props.id, params).then(r => r.data)
+    await newAdminApi.patchExt3rdstorageIdProfilesProfileidUpdateCapture(props.storageId, props.id, params).then(r => r.data)
     ElMessage.success(t('dpMsg_success'))
     emits('update')
   } catch (error: any) {

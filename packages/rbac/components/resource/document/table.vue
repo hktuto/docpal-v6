@@ -345,8 +345,6 @@ watch(
   <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
     <template #toolbar_buttons>
       <div class="action_list_container">
-
-
         <!-- <el-button type="primary" @click="getTable()">Clear</el-button> -->
         <ResourceDocumentBreadcrumb :id="id" @idChange="emits('idChange', $event)" />
         <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" />

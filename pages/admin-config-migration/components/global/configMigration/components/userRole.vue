@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const props = defineProps<{
   userRoleList: any[]
@@ -20,7 +20,7 @@ async function handleCreateUserRole() {
       type: role.status
     }
     try {
-      const newVar = await clientApi.admin.postAdmindocpalAclRole(params).then(r => r.data)
+      const newVar = await newAdminApi.postDocpalAclRole(params).then(r => r.data)
       userRoleList.value.push({
         oldId: role.id,
         newId: newVar.id

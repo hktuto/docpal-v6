@@ -68,10 +68,13 @@ async function generateDefWorkflow(name: string) {
 
 async function init() {
   permissionOptions.value = await getPermissionSelectOption()
-
-  userOptions.value = permissionOptions.value[0].options
-  roleOptions.value = permissionOptions.value[1].options
-  groupOptions.value = permissionOptions.value[2].options
+  try {
+    userOptions.value = permissionOptions.value[0].options
+    roleOptions.value = permissionOptions.value[1].options
+    groupOptions.value = permissionOptions.value[2].options
+  } catch (e) {
+    console.log(e)
+  }
   locationsOptions.value = locationsOption.value.map((item: any) => ({
     id: item.id,
     name: item.name

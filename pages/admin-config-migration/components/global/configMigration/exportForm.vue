@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { getGroupsSelectOption } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
@@ -45,7 +45,7 @@ const exportData = ref<any>({
 const loading = ref(false)
 
 async function getHomePageList() {
-  const res = await clientApi.admin.postAdmindocpalPersonalDashboard({ pageNum: 0, pageSize: 1000 })
+  const res = await newAdminApi.postDocpalPersonalDashboard({ pageNum: 0, pageSize: 1000 })
   homePageList.value = res.data?.entryList || []
 }
 
@@ -61,7 +61,7 @@ async function getListData() {
 }
 
 async function getCaseList() {
-  const res = await clientApi.admin.postAdmincaseTypesPage({ pageNum: 0, pageSize: 1000 })
+  const res = await newAdminApi.postCaseTypesPage({ pageNum: 0, pageSize: 1000 })
   caseList.value = res.data?.entryList.filter((item: any) => item.productionVersion) || []
 }
 
@@ -70,12 +70,12 @@ async function getUserGroupList() {
 }
 
 async function getWorkflowList() {
-  const res = await clientApi.api.postDsbWorkflowProcessList({ pageNum: 0, pageSize: 1000 })
+  const res = await newAdminApi.postDsbWorkflowProcessList({ pageNum: 0, pageSize: 1000 })
   workflowList.value = res.data || []
 }
 
 async function handleExportEmailTemplate(emailTemplateId: string) {
-  const emailTemplateDetail = await clientApi.admin.getAdmindmsTemplateEmailTemplateId(emailTemplateId)
+  const emailTemplateDetail = await newAdminApi.getDmsTemplateEmailTemplateId(emailTemplateId)
   exportData.value.emailTemplate[emailTemplateId] = emailTemplateDetail.data
 }
 
@@ -132,8 +132,8 @@ async function handleWorkflowExport(workflowKey: string) {
 }
 
 async function handleMasterTableExport(masterTableId: string) {
-  const { data: masterTableDetail } = await clientApi.admin.getAdmindmsMasterTableId(masterTableId)
-  const aclsData = await clientApi.admin.getAdmindmsMasterTableIdAcls(masterTableId) as any
+  const { data: masterTableDetail } = await newAdminApi.getDmsMasterTableId(masterTableId)
+  const aclsData = await newAdminApi.getDmsMasterTableIdAcls(masterTableId) as any
   // loop acls data and remove user permission
   if (!aclsData || !aclsData?.data) {
     return
@@ -149,15 +149,15 @@ async function handleMasterTableExport(masterTableId: string) {
 }
 
 async function handleIdGeneratorExport(idGeneratorId: string) {
-  exportData.value.idGenerator[idGeneratorId] = await clientApi.admin.getAdmindocpalIdTemplatesId(idGeneratorId).then(res => res.data)
+  exportData.value.idGenerator[idGeneratorId] = await newAdminApi.getDocpalIdTemplatesId(idGeneratorId).then(res => res.data)
 }
 
 async function handleDocumentTemplateExport(documentTemplateId: string) {
-  const templateData = await clientApi.admin.getAdmindmsTemplateDocumentId(documentTemplateId).then(r => r.data)
+  const templateData = await newAdminApi.getDmsTemplateDocumentId(documentTemplateId).then(r => r.data)
   if (!templateData) {
     return
   }
-  const fileBlob = await clientApi.admin.postAdmindmsDocumentPreview({ idOrPath: templateData.documentId }, {
+  const fileBlob = await newAdminApi.postDmsDocumentPreview({ idOrPath: templateData.documentId }, {
     format: 'blob'
   })
   // check if fileBlob is a json
@@ -177,7 +177,7 @@ async function handleDocumentTemplateExport(documentTemplateId: string) {
 }
 
 async function handleFolderCabinetExport(folderCabinetId: string) {
-  const folderCabinetDetail = await clientApi.admin.getAdmindmsCabinetTemplateId(folderCabinetId).then(r => r.data)
+  const folderCabinetDetail = await newAdminApi.getDmsCabinetTemplateId(folderCabinetId).then(r => r.data)
   exportData.value.folderCabinet[folderCabinetId] = folderCabinetDetail
   const userGroups = folderCabinetDetail?.binds?.filter((bind: any) => bind.type === 'group') || []
   userGroups.forEach((bind: any) => {

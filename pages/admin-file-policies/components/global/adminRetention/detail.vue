@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from '../../retention/addDialog.vform.json'
 
 const routerProvider = inject(MenuRouterKey)
@@ -25,7 +25,7 @@ async function handleSubmit() {
       status: state.setting.status
     }
     state.loading = true
-    await clientApi.admin.putAdmindmsPolicyRetention(params)
+    await newAdminApi.putDmsPolicyRetention(params)
     routerProvider?.message.success(
       t('tip_updateSuccessMsg', {
         modelName: t('filePolicies_RetentionPolicy'),
@@ -44,7 +44,7 @@ async function handleSetStatus(isActive: 'A' | 'D') {
   if (!state.setting.id) return
   try {
     state.activeLoading = true
-    const result = await clientApi.admin.patchAdmindmsPolicyHoldHoldpolicyidStatusStatus(id, isActive).then((res) => res.data)
+    const result = await newAdminApi.patchDmsPolicyHoldHoldpolicyidStatusStatus(id, isActive).then((res) => res.data)
     if (!!result) {
       state.setting.status = isActive
       routerProvider?.message.success(t('dpMsg_success'))
@@ -59,7 +59,7 @@ async function handleSetStatus(isActive: 'A' | 'D') {
 async function init() {
   try {
     state.loading = true
-    let setting = await clientApi.admin.getAdmindmsPolicyRetentionRetentionpolicyid(id).then((res) => res.data)
+    let setting = await newAdminApi.getDmsPolicyRetentionRetentionpolicyid(id).then((res) => res.data)
     if (!setting) setting = {}
     setTimeout(async () => {
       state.setting = setting

@@ -40,7 +40,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { globalApi } from 'api'
 
 const emits = defineEmits(['email-update'])
 const routerProvider = inject(MenuRouterKey)
@@ -73,7 +73,7 @@ const {
           totalSize: 0
         }
       }
-    return clientApi.api.postDmsEasyFormEmailLogPage({
+    return globalApi.postDmsEasyFormEmailLogPage({
       ...pageParams,
       ...extraParams,
       ...filterParams

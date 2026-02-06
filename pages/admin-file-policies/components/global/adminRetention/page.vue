@@ -33,7 +33,7 @@
 <script lang="ts" setup>
 import { CloseBold, Select } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { routeRetentionDetail } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -44,7 +44,7 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-retention',
-  api: (pageParams: any) => clientApi.admin.postAdmindmsPolicyRetentionListQuery({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newAdminApi.postDmsPolicyRetentionListQuery({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'policyName', title: 'hp.policyName', fixed: 'left' },
     {
@@ -162,7 +162,7 @@ function handleDblclick(row: any) {
 
 async function handleActive(row: any, isActive: 'A' | 'D') {
   try {
-    const result = await clientApi.admin.patchAdmindmsPolicyHoldHoldpolicyidStatusStatus(row.id, isActive).then((res) => res.data)
+    const result = await newAdminApi.patchDmsPolicyHoldHoldpolicyidStatusStatus(row.id, isActive).then((res) => res.data)
     if (!!result) {
       row.status = isActive
       routerProvider?.message.success(t('dpMsg_success'))
@@ -183,7 +183,7 @@ async function deleteItem(id: number) {
       return
     })
     if (action !== 'confirm') return
-    await clientApi.admin.deleteAdmindmsPolicyRetentionRetentionpolicyid(id).then(r => r.data)
+    await newAdminApi.deleteDmsPolicyRetentionRetentionpolicyid(id).then(r => r.data)
     query({})
     routerProvider?.message.success(t('tip_deleteSuccessMessage', {
       modelName: t('filePolicies_RetentionPolicy'),
@@ -206,7 +206,7 @@ function handleAdd() {
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
-  let data: any = await clientApi.admin.getAdmindmsPolicyRetentionListConditions().then((res) => res.data)
+  let data: any = await newAdminApi.getDmsPolicyRetentionListConditions().then((res) => res.data)
   data.forEach((item: any) => {
     if (item.label === 'Approval') {
       item.label = t('role.approver')

@@ -21,7 +21,7 @@
 
 <script lang="ts" setup>
 import { useVxeTable } from '#imports'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const { t } = useI18n()
 const logKey = 'ROOT'
@@ -29,7 +29,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'admin-log-manage',
   saveColumnOrder: false,
   api: async (params: any) => {
-    const data = await clientApi.admin.getAdmindocpalManagementLoggers().then(r => r.data) as any
+    const data = await newAdminApi.getDocpalManagementLoggers().then(r => r.data) as any
     console.log('api', data)
     return Object.keys(data).reduce((prev, key) => {
       prev.push({
@@ -55,7 +55,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 async function handleLevelChange(level: any, row: any) {
   row.loading = true
   try {
-    await adminApi.api.postManagementLoggers({
+    await newAdminApi.postDocpalManagementLoggers({
       service: row.service,
       level
     })

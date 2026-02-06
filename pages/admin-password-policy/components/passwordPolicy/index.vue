@@ -110,7 +110,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 
@@ -136,9 +136,8 @@ const form = ref({
 // 加载密码策略配置
 async function init() {
   try {
-
     loading.value = true
-    const data = await clientApi.admin.getAdminucenterPasswordConfig().then(r => r.data)
+    const data = await newAdminApi.getUcenterPasswordConfig().then(r => r.data)
     if (!!data) {
       const policyData = data
       // 更新表单数据
@@ -185,7 +184,7 @@ async function handleSave() {
     }
 
     // 调用API保存配置
-    await clientApi.admin.postAdminucenterPasswordSaveConfig(policyData)
+    await newAdminApi.postUcenterPasswordSaveConfig(policyData)
 
     ElMessage.success(t('passwordPolicy.saveSuccess'))
   } catch (error) {

@@ -7,7 +7,7 @@
   </VxeGrid>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 let extraParams: any = {}
 const {
@@ -20,7 +20,7 @@ const {
 } = useVxeTable({
   id: 'whapps-log',
   api: async (pageParams: any) => {
-    return await clientApi.admin.postAdminext3rdmessageWhatsappLogsQuery({ ...pageParams }, extraParams)
+    return await newAdminApi.postExt3rdmessageWhatsappLogsQuery({ ...pageParams }, extraParams)
   },
   columns: [
     {
