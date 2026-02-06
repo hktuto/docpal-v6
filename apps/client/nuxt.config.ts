@@ -10,6 +10,8 @@ export default defineNuxtConfig({
     '../../packages/icon',
     '../../packages/authApp',
     '../../packages/rbac',
+    '../../packages/workflow',
+    '../../packages/bpmn',
     // "../../pages/client-browse",
     // "../../pages/client-search",
     // "../../pages/client-master-table",
@@ -62,7 +64,7 @@ export default defineNuxtConfig({
     // "../../pages/admin-share",
     // '../../pages/admin-rbac',
     '../../pages/admin-password-policy',
-    '../../pages/admin-company-profile'
+    '../../pages/admin-company-profile',
     // '../../pages/admin-external-storage',
     // '../../pages/admin-import-jobs',
 
@@ -71,6 +73,7 @@ export default defineNuxtConfig({
     // '../../pages/public-upload',
     // '../../pages/public-easy-form',
     // '../../packages/dp-contact',
+    '../../packages/dp-scan'
 
     // demo packages
   ],

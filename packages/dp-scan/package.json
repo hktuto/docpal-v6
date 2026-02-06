@@ -1,0 +1,19 @@
+{
+  "name": "dp-scan",
+  "version": "1.0.0",
+  "description": "QR Code scanning and recognition package",
+  "private": true,
+  "main": "./utils/index.ts",
+  "files": [
+    "/utils/*",
+    "/components/*"
+  ],
+  "scripts": {},
+  "keywords": ["qr-code", "scan", "barcode"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@zxing/library": "^0.21.3",
+    "pdfjs-dist": "^3.11.174"
+  }
+}

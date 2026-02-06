@@ -74,8 +74,7 @@ export const enum DASHBOARD_TYPE {
   workflow = 'workflow',
   case = 'case',
   azure = 'azure',
-  default = 'default',
-
+  default = 'default'
 }
 export type DashboardWidgetSetting = {
   x?: number
@@ -463,7 +462,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
       displayColumns: []
     }
   },
-  ...CaseStatisticsWidgetSetting,
+  // ...CaseStatisticsWidgetSetting,
   CalendarWidget: {
     divided: true,
     type: DASHBOARD_TYPE.default,
@@ -495,15 +494,15 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     }
   }
 }
-export function getDashboardWidgetByType(settingMap: { [key in string]: DashboardWidgetSetting }):{ [key in string]: DashboardWidgetSetting[] } {
+export function getDashboardWidgetByType(settingMap: { [key in string]: DashboardWidgetSetting }): { [key in string]: DashboardWidgetSetting[] } {
   const DashboardWidgetResult: { [key in string]: DashboardWidgetSetting[] } = {
-    default: [] 
+    default: []
   }
-  
+
   Object.keys(settingMap).forEach((key) => {
     const item = settingMap[key]
     if (item.type) {
-      if(!DashboardWidgetResult[item.type]) {
+      if (!DashboardWidgetResult[item.type]) {
         DashboardWidgetResult[item.type] = []
       }
       DashboardWidgetResult[item.type].push(item)
@@ -565,6 +564,6 @@ export const widgetComponent = {
   PersonalCaseSingle: PersonalCaseSingle,
   CalendarWidget: CalendarWidget,
 
-  Browse: Browse,
-  ...CaseStatisticsWidgetComponent,
+  Browse: Browse
+  // ...CaseStatisticsWidgetComponent
 }

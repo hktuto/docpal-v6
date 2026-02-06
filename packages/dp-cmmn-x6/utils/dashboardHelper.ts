@@ -16,7 +16,7 @@ import { CaseStatisticsWidgetSetting, CaseStatisticsWidgetComponent } from './da
 import type { CaseStatisticsWidget as CaseStatisticsWidgetType } from './dashboardCaseStatistics'
 
 export type CmmnDashboardWidget =
-  CaseStatisticsWidgetType
+  | CaseStatisticsWidgetType
   | 'Action'
   | 'BasicInfo'
   | 'Process'
@@ -209,12 +209,16 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     h: 1,
     component: 'Stage',
     setting: {
-      label: "Stage",
-      selectedField: "",
-      steps:[],
+      label: 'Stage',
+      selectedField: '',
+      steps: []
     }
-  },
-  ...CaseStatisticsWidgetSetting
+  }
+}
+if (CaseStatisticsWidgetSetting) {
+  Object.keys(CaseStatisticsWidgetSetting).forEach((key) => {
+    CmmnDashboardWidgetSetting[key as CaseStatisticsWidgetType] = CaseStatisticsWidgetSetting[key as CaseStatisticsWidgetType]
+  })
 }
 
 export function getCmmnWidgetSetting(widget: CmmnDashboardWidget) {
