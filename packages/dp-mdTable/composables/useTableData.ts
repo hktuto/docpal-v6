@@ -71,6 +71,29 @@ export interface TableDataContext {
     lookupColumns: string[],
     updateStrategy?: 'all' | 'non_empty'
   ) => Promise<{ inserted: number; updated: number; errors: { row: number; message: string }[] }>
+  /**
+   * Query any table by name with keyword search and pagination
+   * Used for relation field selection (e.g., choosing related records)
+   * @param tableName - The physical table name to query
+   * @param options - Query options including keyword search and pagination
+   * @returns Query result with rows and total count
+   */
+  queryTableByName?: (
+    tableName: string,
+    options?: {
+      keyword?: string
+      searchFields?: string[]
+      pageNum?: number
+      pageSize?: number
+      sortBy?: string
+      sortOrder?: 'asc' | 'desc'
+    }
+  ) => Promise<{
+    rows: any[]
+    total: number
+    pageNum: number
+    pageSize: number
+  }>
 }
 
 export const TableDataContextKey: InjectionKey<TableDataContext> = Symbol('TableDataContextKey')

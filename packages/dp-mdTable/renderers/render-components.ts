@@ -14,6 +14,7 @@ import { MultiTextView, MultiTextEdit } from './components/MultiText/view'
 import { TextView, TextEdit } from './components/text/view'
 import { UserView, UserEdit } from './components/user/view'
 import { RelationView, RelationEdit } from './components/relation/view'
+import RelationEditVue from './components/relation/edit.vue'
 import { VirtualColumnView, VirtualColumnEdit } from './components/VirtualColumn/view'
 import { FormulaView } from './components/formula'
 import { CheckboxView } from './components/checkbox'
@@ -178,7 +179,33 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   },
   MagicLink: {
     edit: {
-      render: RelationEdit
+      render({ options, params }: ViewRenderFunctionParams<string>): VNode {
+        const { $table, row, column } = params
+        const relationOptions = options?.props || {}
+        
+        // Get the base relation field name (without display field suffix)
+        const baseRelationFieldName = column.field.includes('.') 
+          ? column.field.split('.')[0] 
+          : column.field
+        
+        // Get current value from the base relation field (UUID array)
+        const currentValue = row[baseRelationFieldName] || []
+        
+        return h(RelationEditVue, {
+          modelValue: currentValue,
+          relationTableId: relationOptions.relationTableId,
+          displayField: relationOptions.displayField || relationOptions.displayFieldNames?.[0] || 'id',
+          multiple: true,
+          placeholder: 'Select related records...',
+          'onUpdate:modelValue': (value: string[]) => {
+            // Update the base relation field with the selected UUIDs
+            row[baseRelationFieldName] = value
+            
+            // Also update the display values for the view
+            // This will be fetched when the data is refreshed
+          }
+        })
+      }
     },
     view: {
       render: (params: any) => TreeNode(params, RelationView)

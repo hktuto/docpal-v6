@@ -415,6 +415,7 @@ export const useTableView = () => {
     addRow: dataComposable.addRow,
     updateRow: dataComposable.updateRow,
     deleteRow: dataComposable.deleteRow,
+    queryTableByName: dataComposable.queryTableByName,
 
     // Fields (from fieldComposable)
     fields: fieldComposable.fields,
