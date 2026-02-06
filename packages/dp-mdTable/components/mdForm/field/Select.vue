@@ -29,6 +29,10 @@ function getOptionLabel(id: string) {
   return props.column.properties.options.find((option: any) => option.id === id)?.label
 }
 function handleClose(id: string) {
-  props.formData[props.column.field] = props.formData[props.column.field].filter((item: any) => item !== id)
+  if(props.column.type === ColumnFieldType.MultiSelect) {
+    props.formData[props.column.field] = props.formData[props.column.field].filter((item: any) => item !== id)
+  } else {
+    props.formData[props.column.field] = ''
+  }
 }
 </script>

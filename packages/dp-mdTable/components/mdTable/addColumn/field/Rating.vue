@@ -6,8 +6,8 @@
     <el-form-item label="是否允许半星">
       <el-switch v-model="formData.allowHalf" />
     </el-form-item>
-    <el-form-item label="Default Value">
-      <el-rate v-model="formData.defaultValue" :max="formData.max" :allow-half="formData.allowHalf" />
+    <el-form-item v-if="formData.max" label="Default Value">
+      <el-rate v-model="formData.defaultValue" :max="Number(formData.max)" :allow-half="formData.allowHalf" />
     </el-form-item>
   </div>
 </template>

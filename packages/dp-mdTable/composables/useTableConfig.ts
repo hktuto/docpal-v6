@@ -247,7 +247,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     // 如果显式传递了 editConfig 或者有列配置了 editRender，则启用编辑功能
     if (!!editConfig || hasEditRender) {
       const systemFieldsTypes = [ ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy ]
-      const disabledFields = [ ...systemFieldsTypes, ColumnFieldType.VirtualColumn, ColumnFieldType.Formula ]
+      const disabledFields = [ ...systemFieldsTypes, ColumnFieldType.VirtualColumn, ColumnFieldType.Formula, ColumnFieldType.Checkbox, ColumnFieldType.Rating]
       options.editConfig = {
         trigger: 'dblclick',
         mode: 'cell',

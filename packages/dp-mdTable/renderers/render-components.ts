@@ -12,10 +12,11 @@ import { DateTimeView, DateTimeEdit } from './components/DateTime/view'
 import { EmailView, EmailEdit } from './components/email/view'
 import { MultiTextView, MultiTextEdit } from './components/MultiText/view'
 import { TextView, TextEdit } from './components/text/view'
-import { UserView } from './components/user/view'
+import { UserView, UserEdit } from './components/user/view'
 import { RelationView, RelationEdit } from './components/relation/view'
 import { VirtualColumnView, VirtualColumnEdit } from './components/VirtualColumn/view'
 import { FormulaView } from './components/formula'
+import { CheckboxView } from './components/checkbox'
 import { TreeNode } from './components/treeNode'
 // 分离模式组件配置
 export const MDTableComponents: Record<string, RenderComponentConfig> = {
@@ -195,14 +196,22 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
       render: VirtualColumnEdit
     }
   },
-  Member: {
-    both: {
+  User: {
+    view: {
       render: (params: any) => TreeNode(params, UserView)
+    },
+    edit: {
+      render: UserEdit
     }
   },
   Formula: {
     both: {
       render: (params: any) => TreeNode(params, FormulaView)
+    }
+  },
+  Checkbox: {
+    both: {
+      render: (params: any) => TreeNode(params, CheckboxView)
     }
   }
 } as const

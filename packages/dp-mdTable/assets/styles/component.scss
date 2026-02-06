@@ -24,6 +24,9 @@
   position: relative;
   cursor: default;
 }
+.checkbox-view-icon--active {
+  color: var(--el-color-primary);
+}
 .table-tag {
   padding: var(--app-space-xs) var(--app-space-s);
   border-radius: var(--app-border-radius-m);
