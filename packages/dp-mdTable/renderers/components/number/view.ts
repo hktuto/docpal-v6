@@ -6,7 +6,7 @@ export const NumberView = ({ options, params }: ViewRenderFunctionParams<number>
   const numberOptions = options?.props
   const value = row[column.field]
   if (isNaN(value)) {
-    return h('span', 'no a valid number')
+    return !!value ? h('span', 'no a valid number') : ''
   }
   const precision = numberOptions?.precision || 0
   let formattedValue = Number(value).toFixed(precision)

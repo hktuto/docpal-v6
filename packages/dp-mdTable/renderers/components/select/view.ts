@@ -5,7 +5,7 @@ export const renderSelectView = ({ options, params }: ViewRenderFunctionParams<s
   const { options: selectOptions } = options?.props
   
   if(!selectOptions || !row[column.field]) {
-    return h('span', 'error, on options in column config')
+    return !!row[column.field] ? h('span', 'error, on options in column config') : ''
   }
   const selectedOption = selectOptions.find((option: any) => option.id === row[column.field])
   return h('div', {
@@ -19,7 +19,7 @@ export const renderMultipleSelectView = ({ options, params }: ViewRenderFunction
   const { options: selectOptions } = options?.props
   
   if(!selectOptions || !row[column.field] || !Array.isArray(row[column.field])) {
-    return h('span', 'error, on options in column config')
+    return !!row[column.field] ? h('span', 'error, on options in column config') : ''
   }
   const selectedOptions = row[column.field].map((id: string) => selectOptions.find((option: any) => option.id === id))
   return h('div', {

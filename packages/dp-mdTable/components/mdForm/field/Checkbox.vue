@@ -14,7 +14,6 @@ const props = defineProps<{
 }>()
 const handleClick = () => {
   props.formData[props.column.field] = !props.formData[props.column.field]
-  console.log('formData', props.formData)
 }
 </script>
 <style lang="scss" scoped>
