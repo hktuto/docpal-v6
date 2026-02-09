@@ -48,7 +48,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { TabManagerKey } from '#imports'
 
 const tabProvider = inject(TabManagerKey)
@@ -80,7 +80,7 @@ async function getList() {
   if (props.type !== 'Unread') param.type = props.type
   try {
     state.loading = true
-    const res: any = await clientApi.api.postNotificationList({ ...param, ...pageParams.value }).then(r => r.data)
+    const res: any = await newClientApi.postNotificationList({ ...param, ...pageParams.value }).then(r => r.data)
     res.entryList.map((item: any) => {
       try {
         if (typeof item.content === 'string') {
@@ -107,7 +107,7 @@ async function getList() {
 async function handleDismiss(item: any) {
   try {
     item.loading = true
-    await clientApi.api.putNotificationIdStatusStatus(item.id, 'READED')
+    await newClientApi.putNotificationIdUpdateStatusStatus(item.id, 'READED')
     const index = state.list.findIndex((lItem: any) => lItem.id === item.id)
     state.list.splice(index, 1)
     emits('unreadCountChange', item)

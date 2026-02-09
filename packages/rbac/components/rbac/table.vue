@@ -338,7 +338,7 @@ function handleAddRole() {
       <template #toolbar_buttons>
         <div class="tableActions">
           <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="q" />
-          <ElButton type="primary" @click="handleAddRole">{{ t('common_add') }}</ElButton>
+          <ElButton id="Role__Table__Add" type="primary" @click="handleAddRole">{{ t('common_add') }}</ElButton>
         </div>
       </template>
     </vxe-grid>

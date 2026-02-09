@@ -7,7 +7,6 @@
 
 <script lang="ts" setup>
 const userRole: string = useUserRole().value
-// const userRole: string = 'safsf'
 </script>
 
 <style lang="scss" scoped>
