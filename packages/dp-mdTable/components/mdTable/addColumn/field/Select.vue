@@ -51,6 +51,7 @@ import { ref, watch, inject, nextTick, computed, onMounted } from 'vue'
 import { Delete, Plus, Close } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
 import { ElMessageBox } from 'element-plus'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 const props = defineProps<{
   formData: any
   column: any

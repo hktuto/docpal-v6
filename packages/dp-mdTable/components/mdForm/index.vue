@@ -28,8 +28,7 @@ const componentMap = {
   Phone: resolveComponent('LazyMdFormFieldText'),
   Checkbox: resolveComponent('LazyMdFormFieldCheckbox'),
   Member: resolveComponent('LazyMdFormFieldMember'),
-  MagicLink: resolveComponent('LazyMdFormFieldMagicLink'),
-  VirtualColumn: resolveComponent('LazyMdFormFieldVirtualColumn'),
+  // VirtualColumn: resolveComponent('LazyMdFormFieldVirtualColumn'),
   Relation: resolveComponent('LazyMdFormFieldRelation'),
   // 'Formula': resolveComponent('LazyMdFormFieldFormula'),
   // 'CreatedTime': resolveComponent('LazyMdFormFieldCreatedTime'),
@@ -42,7 +41,6 @@ const componentMap = {
 }
 const getComponent = (type: string) => {
   const s_type = ColumnFieldType[type]
-  console.log(type, s_type)
   return componentMap[s_type] || resolveComponent('LazyMdFormFieldDisabled')
 }
 

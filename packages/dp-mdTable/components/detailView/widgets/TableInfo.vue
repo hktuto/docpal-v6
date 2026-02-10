@@ -59,6 +59,7 @@ import { computed, ref } from 'vue'
 import type { TableInfoWidgetSetting } from '../../../utils/detailWidgetHelper'
 import type { FieldInfo } from '../../../types/view-config'
 import { ColumnFieldType } from '../../../types/column-types'
+import { formatFieldValueByType } from '@packages/dp-mdTable/utils/fieldValueFormat'
 import TableInfoSetting from './TableInfoSetting.vue'
 
 const props = defineProps<{
@@ -113,47 +114,8 @@ function getFieldValue(fieldName: string): any {
   return props.record?.[fieldName]
 }
 
-// Format field value for display
 function formatFieldValue(field: FieldInfo): string {
-  const value = getFieldValue(field.fieldName)
-  
-  if (value === null || value === undefined) return '-'
-  
-  switch (field.type) {
-    case ColumnFieldType.DateTime:
-      try {
-        return new Date(value).toLocaleDateString()
-      } catch {
-        return String(value)
-      }
-    
-    case ColumnFieldType.Checkbox:
-      return value ? '✓' : '✗'
-    
-    case ColumnFieldType.Rating:
-      const rating = Number(value) || 0
-      return '★'.repeat(rating) + '☆'.repeat(5 - rating)
-    
-    case ColumnFieldType.Number:
-    case ColumnFieldType.Currency:
-      return new Intl.NumberFormat().format(Number(value))
-    
-    case ColumnFieldType.Percent:
-      return `${(Number(value) * 100).toFixed(0)}%`
-    
-    case ColumnFieldType.MultiSelect:
-      if (Array.isArray(value)) return value.join(', ')
-      return String(value)
-    
-    case ColumnFieldType.Member:
-      if (typeof value === 'object' && value?.name) return value.name
-      return String(value)
-    
-    default:
-      if (Array.isArray(value)) return value.join(', ')
-      if (typeof value === 'object') return JSON.stringify(value)
-      return String(value)
-  }
+  return formatFieldValueByType(getFieldValue(field.fieldName), field)
 }
 
 // Get field style based on layout

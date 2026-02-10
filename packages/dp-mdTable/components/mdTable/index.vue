@@ -76,6 +76,7 @@ import Toolbar from './Toolbar.vue'
 import VirtualColumnDialog from './addColumn/VirtualColumnDialog.vue'
 import RecordCardDialog from './RecordCardDialog.vue'
 import { onClickOutside } from '@vueuse/core'
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 // 导入并注册自定义渲染器（必须在组件加载时执行）
 const slots = useSlots()
 

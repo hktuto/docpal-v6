@@ -12,16 +12,8 @@
           {{ getOptionLabel(optId) }}
         </el-tag>
       </template>
-      <template v-else #label>
-        <el-tag
-          :key="formData[column.field]"
-          :color="getOptionColor(formData[column.field])"
-          effect="dark"
-          closable
-          @close="handleClose(formData[column.field])"
-        >
-          {{ getOptionLabel(formData[column.field]) }}
-        </el-tag>
+      <template v-else #label="{ label, value }">
+        <el-tag :color="getOptionColor(formData[column.field])" effect="dark">{{ getOptionLabel(formData[column.field]) }}</el-tag>
       </template>
     </el-select>
   </MdFormItem>
