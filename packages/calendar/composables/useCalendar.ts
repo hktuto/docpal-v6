@@ -133,9 +133,11 @@ export const useCalendarStore = () => {
 
   async function getFormJson(processKey: string, versionId: string) {
     const response: any = await newClientApi.getDmsFormPropertiesQuery({
-      userTaskId: 'start',
-      processKey,
-      versionId
+      relation:{
+        userTaskId: 'start',
+        processKey,
+        versionId
+      }
     }).then((res: any) => res.data)
     if (!response[0] || (response[0] && !response[0].jsonValue)) return {}
     return JSON.parse(response[0].jsonValue)

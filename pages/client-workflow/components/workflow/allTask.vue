@@ -24,7 +24,7 @@
 </template>
 <script lang="ts" setup>
 import formJson from './uncomplete.vform.json'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -44,12 +44,13 @@ const {
   cleanSelectedRows
 } = useVxeTable({
   id: 'all_task',
-  api: (pageParams: any) =>
-    clientApi.api.postWorkflowTasksUser({ ...pageParams, ...extraParams, candidateOrAssigned: userId }),
+  api: (pageParams: any) => newClientApi.postDocpalWorkflowTasksUser({
+    ...pageParams, ...extraParams,
+    candidateOrAssigned: userId
+  }),
   columns: [
     { field: 'taskInstance.businessKey', title: 'workflow_jobName', fixed: 'left' },
     { field: 'taskInstance.processDefinitionName', title: 'workflow_workflowName' },
-
     {
       field: 'name',
       title: 'workflow_taskName'
@@ -97,7 +98,7 @@ function handleDblclick(row: any) {
 }
 
 async function claimTask(row: any) {
-  await clientApi.api.postWorkflowTaskClaim({
+  await newClientApi.postWorkflowTaskClaim({
     taskId: row.id,
     userId
   })
@@ -105,12 +106,11 @@ async function claimTask(row: any) {
 }
 
 function handleFormChange(data: any) {
-  const params = Object.keys(data.formModel).reduce((prev: any, key: string) => {
+  extraParams = Object.keys(data.formModel).reduce((prev: any, key: string) => {
     if (data.formModel[key] && data.formModel[key].length > 0)
       prev[key] = data.formModel[key]
     return prev
   }, {})
-  extraParams = params
   reload()
 }
 
@@ -144,7 +144,7 @@ function getFilter() {
         { label: 'workflow_createDate', value: 'createDate' },
         { label: 'workflow_taskName', value: 'name' },
         { label: 'workflow_startUser', value: 'taskInstance.startUserId' },
-        { label: 'workflow_workflowName', value: 'taskInstance.processDefinitionName' },
+        { label: 'workflow_workflowName', value: 'taskInstance.processDefinitionName' }
       ]
     },
     {
@@ -168,7 +168,7 @@ onMounted(() => {
 defineExpose({ getDownloadParams })
 </script>
 <style lang="scss" scoped>
-:deep(.el-input){
+:deep(.el-input) {
   width: 200px;
 }
 </style>

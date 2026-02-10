@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const { t } = useI18n()
@@ -15,16 +15,17 @@ const isWorkflowForm = ref(false)
 const primaryForm = ref<any>()
 const routerProvider = inject(MenuRouterKey)
 const isFullScreen = ref(false)
+
 async function handleOpen(id: string, caseDetail: any) {
   try {
     state.id = id
-    const { data: startForm } = await clientApi.api.getCaseInstanceCasetypeidStarttask(id)
-    if(!startForm) {
+    const startForm = await newClientApi.getCaseInstanceCasetypeidStarttask(id).then(r => r.data)
+    if (!startForm) {
       throw new Error('no data')
     }
     // get cmmn xml
     primaryForm.value = startForm
-    const form = await clientApi.api.getDmsFormPropertiesQuery({
+    const form = await newClientApi.getDmsFormPropertiesQuery({
       processKey: caseDetail.caseDefinitionKey,
       userTaskId: startForm[0].key,
       versionId: caseDetail.productionVersionId
@@ -86,7 +87,7 @@ async function handleSubmit() {
     } else {
       data = await MasterTableVariableFormRef.value.getData(true)
     }
-    const startResponse = await clientApi.api.postCaseInstanceStart({
+    const startResponse = await newClientApi.postCaseInstanceStart({
       caseTypeId: state.id,
       parameters: data
     }).then(res => res.data)
@@ -107,8 +108,6 @@ async function handleSubmit() {
   state.loading = false
 }
 
-
-
 const props = withDefaults(defineProps<{
   ignoreList?: string[],
   label?: string,
@@ -120,12 +119,12 @@ defineExpose({ handleOpen })
 </script>
 
 <template>
-  <el-dialog 
-    v-model="state.visible" :title="label || state.title" 
-    class="scroll-dialog big" 
+  <el-dialog
+    v-model="state.visible" :title="label || state.title"
+    class="scroll-dialog big"
     append-to-body
     :fullscreen="isFullScreen"
-    :close-on-click-modal="false" 
+    :close-on-click-modal="false"
     @close="isFullScreen = false"
     destroy-on-close>
     <template #header>
@@ -147,7 +146,7 @@ defineExpose({ handleOpen })
 </template>
 
 <style scoped lang="scss">
-.float-right{
+.float-right {
   width: 100%;
   display: flex;
   justify-content: flex-end;

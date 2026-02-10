@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { Plus } from '@element-plus/icons-vue'
 
 const opened = ref(false)
@@ -23,7 +23,7 @@ function ensureUserId(): string {
 const signatureCanvasRef = ref<any>(null)
 
 async function getUserSignature() {
-  const signature = await clientApi.api.getDmsUserprofileUseridSignature(ensureUserId(), {
+  const signature = await newClientApi.getDmsUserprofileUseridSignature(ensureUserId(), {
     format: 'blob', headers: {
       'noThrowError': true
     }
@@ -47,7 +47,7 @@ async function getUserSignature() {
 }
 
 async function getCompanyChop(chopId: string) {
-  const signature = await clientApi.api.getDmsCompanyprofilesChopsCompanychopidFile(chopId, {
+  const signature = await newClientApi.getDmsCompanyprofilesChopsCompanychopidFile(chopId, {
     format: 'blob', headers: {
       'noThrowError': true
     }
@@ -103,9 +103,9 @@ async function handleSubmitSignature(signature: string) {
 
   // TODO: swagger APi 文檔需要移除 query 參數
   if (!userSignature || !userSignature.img) {
-    await clientApi.api.postDmsUserprofileUseridSignature(ensureUserId(), {} as any, form as any)
+    await newClientApi.postDmsUserprofileUseridSignature(ensureUserId(), {} as any, form as any)
   } else {
-    await clientApi.api.putDmsUserprofileUseridSignature(ensureUserId(), {} as any, form as any)
+    await newClientApi.putDmsUserprofileUseridSignature(ensureUserId(), {} as any, form as any)
   }
   // step 1 save user signature, and call open again to draw new signature
   // signaturePreview.value.push(signature)
@@ -129,11 +129,9 @@ function confirmApplySignature() {
   close()
 }
 
-
 function toTitleCase(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
-
 
 const canDrawNewSignature = computed(() => {
   return props.signatureSetting.signatureVariableSetting.value.type === 'personal' || props.signatureSetting.signatureVariableSetting.value.type === 'both'

@@ -143,8 +143,8 @@ export interface UserDTO {
     userLevel?: string;
     /** Registered */
     registered?: string;
-    kcUserId?: string;
     userName?: string;
+    kcUserId?: string;
 }
 
 /** User detail data transfer object */
@@ -282,12 +282,12 @@ export interface ContactGroupRequestDTO {
     attributes?: ContactAttribute[];
     operator?: string;
     verifyReadPermission?: boolean;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -642,12 +642,12 @@ export interface TableDataRequestDTO {
     filters?: Record<string, any>;
     /** Select fields (JSON object) */
     select?: Record<string, any>;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Master Table ID */
     master_table_id?: string;
@@ -726,12 +726,12 @@ export interface TableRequestDTO {
     fields?: Record<string, any>;
     /** Filters for list query (optional) */
     filters?: Record<string, any>;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** URL name (unique per entity_id) */
     url_name?: string;
@@ -1052,12 +1052,12 @@ export interface CaseTypeRequestDTO {
     status?: string;
     /** Metadata (JSON) */
     metadata?: Record<string, any>;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Case schema definition (JSON) */
     case_schema?: Record<string, any>;
@@ -1205,12 +1205,12 @@ export interface PersonalDashboardRequestDTO {
     name?: string;
     groupId?: string;
     styleJson?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -1709,12 +1709,12 @@ export interface MTRecordRequestDTO {
     in?: Record<string, any>;
     /** Relation Record */
     relationRecords?: MTRecordDTO[];
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -1892,12 +1892,12 @@ export interface CompanyChopRequestDTO {
     status?: string;
     /** @format binary */
     file?: File;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2083,12 +2083,12 @@ export interface CmmnDashboardRequestDTO {
     status?: string;
     /** Where Condition */
     where?: Record<string, any>;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2333,12 +2333,12 @@ export interface DocumentTemplateRequestDTO {
     fileTypes?: string[];
     createdBys?: string[];
     variables?: Record<string, any>;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2447,12 +2447,12 @@ export interface RetentionPolicyRequestDTO {
     approvalIds?: string[];
     /** the list of retention policy id */
     ids?: string[];
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2522,8 +2522,8 @@ export interface HoldPolicy {
     createdDate?: string;
     /** @format date-time */
     modifiedDate?: string;
-    removeAuto?: boolean;
     holdAuto?: boolean;
+    removeAuto?: boolean;
     holdReasonReq?: boolean;
     removeReasonReq?: boolean;
 }
@@ -3010,11 +3010,11 @@ export interface DocumentDTO {
     comeFrom?: string;
     drivePreviewLink?: string;
     originalPath?: string;
-    fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
-    fileContentExtension?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentMimeType?: string;
@@ -3404,12 +3404,12 @@ export interface QueryWorkflowJobRequest {
     isDesc?: boolean;
     state?: string;
     businessKey?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -3624,12 +3624,12 @@ export interface ProcessVersionRequestDTO {
     name?: string;
     publishStatus?: string;
     operator?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -3742,12 +3742,12 @@ export interface ProcessDefinitionRequestDTO {
     publishStatus?: string;
     /** Process categories */
     categories?: string[];
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -4374,10 +4374,10 @@ export interface SubNotificationRequest {
 }
 
 export interface PageNotificationRecord {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -4393,11 +4393,11 @@ export interface PageNotificationRecord {
 }
 
 export interface PageableObject {
-    paged?: boolean;
-    /** @format int32 */
-    pageSize?: number;
     /** @format int32 */
     pageNumber?: number;
+    /** @format int32 */
+    pageSize?: number;
+    paged?: boolean;
     unpaged?: boolean;
     /** @format int64 */
     offset?: number;
@@ -4436,12 +4436,12 @@ export interface QueryNotificationRequestDTO {
     readStatus?: string;
     type?: string;
     action?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -4501,20 +4501,20 @@ export interface QueryFileOverviewRequestDTO {
     userId?: string;
     fileUploadStatus?: string[];
     fileName?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
 export interface PageUploadBatchDTO {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -4745,12 +4745,12 @@ export interface ExternalProfileRequestDTO {
     name?: string;
     /** Status of the external storage profile (ACTIVE, INACTIVE, etc.) */
     status?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** External storage ID that this external storage profile belongs to */
     external_storage_id?: string;
@@ -4814,12 +4814,12 @@ export interface ExternalStorageRequestDTO {
     status?: string;
     /** Authentication credentials for the storage */
     credentials?: Record<string, any>;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Type of connection (e.g., S3, FTP, SFTP, etc.) */
     connection_type?: string;
@@ -4867,12 +4867,12 @@ export interface ExternalStorageImportJobRequestDTO {
     startDate?: string;
     /** End date for filtering */
     endDate?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5099,12 +5099,12 @@ export interface WorkflowJobRequestDTO {
     dateFilter?: WorkflowDateFilterDTO;
     variables?: JSONObject;
     workflowNames?: string[];
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5227,12 +5227,12 @@ export interface UserDashboardRequestDTO {
     status?: string;
     /** The User ID */
     userId?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5300,12 +5300,12 @@ export interface PluginRequestDTO {
     createdBy?: string;
     /** The record status (A,D,P.R) */
     status?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5412,12 +5412,12 @@ export interface OcrTransactionLogRequestDTO {
      * @format date-time
      */
     endDate?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5635,10 +5635,10 @@ export interface ResultWMKTemplateRequestDTO {
 }
 
 export interface PageWatermarkSettingsTemplate {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -5765,12 +5765,12 @@ export interface IdTemplateRequestDTO {
     id?: string;
     /** Name */
     name?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6074,12 +6074,12 @@ export interface CmmnProcessRequestDTO {
     candidateOrAssigned?: string;
     category?: string;
     workflow?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6597,12 +6597,12 @@ export interface EmailTemplateRequestDTO {
     /** Email Layout ID List */
     emailLayoutIds?: number[];
     name?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6678,12 +6678,12 @@ export interface EmailLayoutRequestDTO {
     createdBy?: string;
     /** Email Layout Modified By */
     modifiedBy?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6805,12 +6805,12 @@ export interface SmartFolderRequestDTO {
     bind?: string;
     json_value?: string;
     userGroupIds?: string[];
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6884,9 +6884,9 @@ export interface EasyShareDocumentDetails {
     readOnly?: boolean;
     watermarkData?: WatermarkData;
     createdBy?: string;
-    originFilePath?: string;
-    watermarkTemplateId?: string;
     conversionId?: string;
+    watermarkTemplateId?: string;
+    originFilePath?: string;
     watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
@@ -7137,9 +7137,9 @@ export interface SearchDocumentVO {
     version?: Record<string, any>;
     id?: string;
     properties?: Record<string, any>;
-    ocr?: boolean;
-    updateChildName?: boolean;
     folder?: boolean;
+    updateChildName?: boolean;
+    ocr?: boolean;
     be_index?: boolean;
     create_by?: string;
     /** @format date-time */
@@ -7203,12 +7203,12 @@ export interface RetentionPolicyDocumentRequestDTO {
     applyBy?: string;
     /** The Retention Policy Document Status List */
     states?: string[];
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7316,12 +7316,12 @@ export interface HoldDocumentRequestDTO {
     documentName?: string;
     /** Document path */
     documentPath?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7433,12 +7433,12 @@ export interface MasterTableRequestDTO {
     data?: Record<string, any>[];
     /** Where Condition */
     where?: Record<string, any>;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7457,10 +7457,10 @@ export interface MasterTableResponseDTO {
     fields?: MTColumnInfo[];
     userId?: string;
     aces?: string;
+    enable?: boolean;
     create?: boolean;
     edit?: boolean;
     read?: boolean;
-    enable?: boolean;
 }
 
 export interface ResultMasterTableResponseDTO {
@@ -7527,12 +7527,12 @@ export interface MTAuditLogRequestDTO {
     creators?: string[];
     /** Master Table Logs Principal Name list */
     eventCategory?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7604,10 +7604,10 @@ export interface MTPermissionDTO {
     userId?: string;
     userName?: string;
     userType?: string;
+    enable?: boolean;
     create?: boolean;
     edit?: boolean;
     read?: boolean;
-    enable?: boolean;
 }
 
 export interface InternalShareQueryDTO {
@@ -7938,8 +7938,8 @@ export interface DocumentRequestDTO {
     watermarkTemplateId?: string;
     version?: string;
     needMetadata?: boolean;
-    title?: string;
     fileName?: string;
+    title?: string;
 }
 
 /** Document (Request) */
@@ -8017,12 +8017,12 @@ export interface ContactRequestDTO {
     status?: string;
     customData?: Record<string, any>;
     operator?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8067,12 +8067,12 @@ export interface CaseInstanceRequestDTO {
     planItemInstanceIds?: string[];
     /** PlanItem Definition Type list */
     planItemDefinitionTypes?: string[];
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8166,12 +8166,12 @@ export interface FormDesignRequestDTO {
     notEquals?: Record<string, any>;
     /** Where Condition (Equal) */
     equals?: Record<string, any>;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8269,12 +8269,12 @@ export interface EasyFormResultRequestDTO {
     name?: string;
     /** Form Design Form Result List */
     formResult?: EasyFormResult;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8350,12 +8350,12 @@ export interface EasyFormEmailQueryRequestDTO {
     subject?: string;
     easyFormId?: string;
     status?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8449,8 +8449,8 @@ export interface WatermarkDocumentRequestDTO {
     needMetadata?: boolean;
     /** Origin Document Id */
     originDocumentId?: string;
-    title?: string;
     fileName?: string;
+    title?: string;
 }
 
 /** Versioning (Request) */
@@ -8493,12 +8493,12 @@ export interface TrashRequestDTO {
     isDesc?: boolean;
     /** Name */
     name?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8752,11 +8752,11 @@ export interface DocumentResponseDTO {
     isCollectionMember?: boolean;
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
-    fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
-    fileContentExtension?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentMimeType?: string;
@@ -9006,12 +9006,12 @@ export interface CompanyRequestDTO {
     website?: string;
     /** Contact Address */
     address?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9120,12 +9120,12 @@ export interface BasePageRequest {
     orderBy?: string;
     /** The sort ASC or DESC */
     isDesc?: boolean;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9271,12 +9271,12 @@ export interface FolderCabinetRequestDTO {
     systemReminderConfig?: FCNotificationConfig;
     summaryReportEmail?: FCNotificationConfig;
     delayEmail?: FCNotificationConfig;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9521,12 +9521,12 @@ export interface DocFolderCabinetRequestDTO {
     emailReminder?: FCReminder;
     nuxeoSortSql?: string;
     jpasortOrderStr?: SortObject;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9580,8 +9580,8 @@ export interface DFCRequestDTO {
     emailReport?: FCReminder;
     /** Email Reminder */
     emailReminder?: FCReminder;
-    title?: string;
     fileName?: string;
+    title?: string;
 }
 
 export interface DFCNotificationConfig {
@@ -9829,12 +9829,12 @@ export interface CmmnVersionRequestDTO {
     versionNumber?: string;
     /** The style json */
     styleJson?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9908,12 +9908,12 @@ export interface CaseTableRequestDTO {
     c?: Record<string, any>;
     /** User */
     operator?: UserDTO;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10116,12 +10116,12 @@ export interface PlanItemInstanceRequestDTO {
     workflowVariables?: Record<string, any>;
     /** Execute Action */
     action?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10404,10 +10404,10 @@ export interface BusinessResultRecord {
 }
 
 export interface PageBusinessResultRecord {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -10621,12 +10621,12 @@ export interface MessageTemplateRequestDTO {
     usages?: string;
     createdBy?: string;
     modifiedBy?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10927,12 +10927,12 @@ export interface HoldPolicyRequestDTO {
     policyName?: string;
     /** HoldPolicy status */
     status?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10978,12 +10978,12 @@ export interface QueryMetadataRequestDTO {
     isDesc?: boolean;
     metadataName?: string;
     docpalTypeName?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -11055,12 +11055,12 @@ export interface MetadataRequestDTO {
     group?: string;
     dataType?: string;
     status?: string;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -11184,12 +11184,12 @@ export interface DocPalTypeRequestDTO {
     categories?: string[];
     createBys?: string[];
     metadataFieldMap?: Record<string, any>;
-    sortOrModifiedDate?: SortObject;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    orderByValue?: string;
     desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -11497,10 +11497,10 @@ export interface ResultListProcessDefinitionDraft {
 }
 
 export interface PageSearchHistory {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;

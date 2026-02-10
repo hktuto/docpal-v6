@@ -60,9 +60,11 @@ async function editForm(){
     // formDialog.value.handleOpen(state.data)
     // console.log("editForm", caseId.value, node.value.data.data.attr_id, caseProvider.versionId.value)
     const response = await clientApi.api.getDmsFormPropertiesQuery({
+      relation:{
         processKey: caseId.value,
         userTaskId: node.value.data.data.attr_id,
         versionId: caseProvider.versionId.value
+      }
     });
     if(!response || !response.data){
         throw createError('Server Error');

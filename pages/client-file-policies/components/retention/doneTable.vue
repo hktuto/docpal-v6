@@ -10,7 +10,7 @@
   </VxeGrid>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { MenuRouterKey } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
@@ -26,7 +26,7 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
   id: 'c-retention-done',
   api: async (pageParams: any) => {
     // TODO 缺少新APi
-    return clientApi.api.postPolicyRetentionsDocumentPage({
+    return newClientApi.postPolicyRetentionsDocumentPage({
       ...doneParams,
       ...pageParams,
       ...extraParams
@@ -83,7 +83,7 @@ const ResponsiveFilterRef = ref()
 
 async function getFilter() {
   // TODO 缺少新APi
-  const data = await clientApi.api.getPolicyRetentionsDocumentPageConditions().then((res) => res.data)
+  const data = await newClientApi.getPolicyRetentionsDocumentPageConditions().then((res) => res.data)
   const foundItem = data.find(item => item.key === 'retentionPolicyIds')
   if (foundItem.options.length > 0) {
     foundItem.options.sort((a, b) => a.label.localeCompare(b.label))
