@@ -175,7 +175,7 @@ export const useBpmnRule = ({
       draftId,
       validationRules: bpmnGlobalRules.value
     }
-    await newAdminApi.putDocpalValidationRulesVersiondraftid(versionDraftId, params)
+    await newAdminApi.putDocpalValidationRulesVersiondraftid(versionDraftId, params).then(r => r.data)
     let isChanged = false
     nodes.forEach((node: any) => {
       if (node.data?.data?.extensionElements?.['flowable:formProperty']) {

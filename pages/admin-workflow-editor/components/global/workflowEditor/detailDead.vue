@@ -87,7 +87,7 @@ async function saveDraft() {
   form.append('jsonValue', JSON.stringify(x6Json))
   form.append('file', blob, 'workflow.bpmn.xml')
   form.append('isDraft', true)
-  await newAdminApi.postDocpalWorkflowProcessDefinitionSave(form, { format: 'blob' })
+  await newAdminApi.postDocpalWorkflowProcessDefinitionSave(form, { format: 'blob' }).then(r => r.data)
   // 如果是修改了名称，则更新 tab 的名称
   routerProvider?.updateTabName(newName + ` - (${currentVersion})`)
 }

@@ -17,9 +17,9 @@ const candidateGroup = ref<string>('')
 
 function candidateGroupChanged(newVal: string) {
   const data = node.getData()
-  const group = allUserGroup.value.find((item) => item.id === newVal)
+  const group = allUserGroup.value.find((item) => item.value === newVal)
   if (group) {
-    data.data['attr_flowable:candidateGroups'] = group.id
+    data.data['attr_flowable:candidateGroups'] = group.value
   } else {
     delete data.data['attr_flowable:candidateGroups']
   }
@@ -43,14 +43,15 @@ function setUpListener() {
 }
 
 function refreshData() {
-  // get candidateGroup
   const data = node.getData()
   candidateGroup.value = data.data['attr_flowable:candidateGroups'] || ''
 }
 
 onMounted(async () => {
-  const list = await getGroupsSelectOption()
-  allUserGroup.value = list.sort((a: any, b: any) => a.label.localeCompare(b.label))
+  if (!allUserGroup.value || allUserGroup.value.length == 0) {
+    const list = await getGroupsSelectOption()
+    allUserGroup.value = list.sort((a: any, b: any) => a.label.localeCompare(b.label))
+  }
   refreshData()
   setUpListener()
 })
