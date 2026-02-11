@@ -88,7 +88,6 @@ const titleDisplay = computed(() => {
 })
 
 function getFieldInfo(fieldName: string): FieldInfo | undefined {
-  console.log('getFieldInfo(fieldName)', props.fields.find((f) => f.fieldName === fieldName))
   return props.fields.find((f) => f.fieldName === fieldName)
 }
 

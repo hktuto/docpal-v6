@@ -1,170 +1,111 @@
 <script setup lang="ts">
-import { ElSelect, ElOption } from 'element-plus'
-import { useColumnsContext } from '../../../composables/useColumns'
-
-interface RelationOption {
-  id: string
-  label: string
-  raw: any
-}
-
-const props = defineProps<{
-  modelValue: string[] | string | null
-  relationTableId: string
-  displayField: string
-  multiple?: boolean
-  placeholder?: string
-}>()
+import { useMDTableInject } from '../../../composables/useMDTable'
+import { Plus } from '@element-plus/icons-vue'
+const props = withDefaults(
+  defineProps<{
+    modelValue: string[] | string | null
+    relationTableId: string
+    displayField: string
+    multiple?: boolean
+    placeholder?: string
+    tableLabel?: string
+    row: any
+    column: any
+  }>(),
+  { tableLabel: '关联表' }
+)
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string[] | string | null): void
 }>()
 
-// Get the column context to access queryRelatedTable
-const { queryRelatedTable } = useColumnsContext()
+const { updateRow } = useMDTableInject()
 
-// Loading state
-const loading = ref(false)
-
-// Options for the dropdown
-const options = ref<RelationOption[]>([])
-
-// Search query
-const searchQuery = ref('')
-
-// Pagination
-const pageNum = ref(1)
-const pageSize = ref(50)
-const hasMore = ref(true)
-
-// Selected values (normalized to array)
-const selectedValues = computed({
-  get: () => {
-    if (!props.modelValue) return props.multiple !== false ? [] : ''
-    return props.modelValue
-  },
-  set: (value) => {
-    emit('update:modelValue', value)
-  }
+const currentValue = computed(() => {
+  const v = props.modelValue
+  return Array.isArray(v) ? v : v != null ? [v] : []
 })
 
-// Fetch options from the related table
-async function fetchOptions(keyword: string = '', reset: boolean = true) {
-  if (!queryRelatedTable || !props.relationTableId) {
-    console.warn('queryRelatedTable not available or relationTableId not provided')
-    return
-  }
+const relationPickerRef = ref<InstanceType<typeof MdFormFieldRelationPicker>>()
 
-  if (reset) {
-    pageNum.value = 1
-    options.value = []
-    hasMore.value = true
-  }
+/** 当前选中 ID 对应的关联展示字段值，用于批量显示 */
+const displayValues = computed(() => {
+  const ids = currentValue.value
+  if (!ids.length) return []
+  const displayKey = props.column.field.includes('.') ? props.column.field : `${props.column.field}.${props.displayField}`
+  const fromRow = props.row[displayKey]
+  if (Array.isArray(fromRow) && fromRow.length === ids.length) return fromRow
+  const map = relationPickerRef.value?.selectedRecordsMap
+  if (map && props.displayField) return ids.map((id: string) => map[id]?.[props.displayField] ?? id)
+  return ids
+})
 
-  if (!hasMore.value && !reset) return
+function handleAdd() {
+  console.log('handleAdd', props.row, props.column)
+}
 
-  loading.value = true
-  try {
-    const result = await queryRelatedTable(props.relationTableId, {
-      keyword,
-      pageNum: pageNum.value,
-      pageSize: pageSize.value,
-      sortBy: props.displayField || 'id',
-      sortOrder: 'asc'
-    })
+function handleUpdate(value: string[] | string | null) {
+  const ids = Array.isArray(value) ? value : value != null ? [value] : []
+  const { row, column, displayField } = props
 
-    const newOptions = result.rows.map((row: any) => ({
-      id: row.id,
-      label: row[props.displayField] || row.id,
-      raw: row
-    }))
+  row[column.field] = ids
 
-    if (reset) {
-      options.value = newOptions
+  if (displayField) {
+    const displayKey = column.field.includes('.') ? column.field : `${column.field}.${displayField}`
+    const recordsMap = relationPickerRef.value?.selectedRecordsMap
+    if (recordsMap) {
+      const vals = ids.map((id: string) => recordsMap[id]?.[displayField] ?? id)
+      row[displayKey] = vals
     } else {
-      // Merge with existing options, avoiding duplicates
-      const existingIds = new Set(options.value.map(o => o.id))
-      const uniqueNewOptions = newOptions.filter((o: RelationOption) => !existingIds.has(o.id))
-      options.value.push(...uniqueNewOptions)
+      row[displayKey] = ids.length ? ids : undefined
     }
-
-    hasMore.value = newOptions.length === pageSize.value
-  } catch (error) {
-    console.error('Error fetching relation options:', error)
-  } finally {
-    loading.value = false
   }
-}
 
-// Handle search input
-const debouncedSearch = useDebounceFn((keyword: string) => {
-  fetchOptions(keyword, true)
-}, 300)
-
-function handleSearch(keyword: string) {
-  searchQuery.value = keyword
-  debouncedSearch(keyword)
-}
-
-// Handle scroll to bottom (infinite scroll)
-function handleScroll(e: Event) {
-  const target = e.target as HTMLElement
-  const scrollBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - 20
-  
-  if (scrollBottom && !loading.value && hasMore.value) {
-    pageNum.value++
-    fetchOptions(searchQuery.value, false)
-  }
-}
-
-// Initial fetch
-onMounted(() => {
-  fetchOptions('', true)
-})
-
-// Get option label by ID for display
-function getOptionLabel(id: string): string {
-  const option = options.value.find(o => o.id === id)
-  return option?.label || id
+  updateRow(row)
+  emit('update:modelValue', value)
 }
 </script>
 
 <template>
-  <ElSelect
-    v-model="selectedValues"
-    :multiple="multiple !== false"
-    :placeholder="placeholder || 'Select...'"
-    :loading="loading"
-    filterable
-    remote
-    :remote-method="handleSearch"
-    class="vxe-cell-absolute mdTable-input-radius mdTable-height-edit"
-    popper-class="vxe-table--ignore-clear relation-select-dropdown"
-    @visible-change="(visible: boolean) => visible && fetchOptions(searchQuery, true)"
-  >
-    <ElOption
-      v-for="option in options"
-      :key="option.id"
-      :label="option.label"
-      :value="option.id"
-    />
-    <template #empty>
-      <div v-if="loading" class="relation-select-loading">
-        Loading...
-      </div>
-      <div v-else class="relation-select-empty">
-        No results found
-      </div>
-    </template>
-  </ElSelect>
+  <div class="relation-edit">
+    <MdFormFieldRelationPicker
+      v-if="relationTableId"
+      ref="relationPickerRef"
+      mode=""
+      :relation-table-id="relationTableId"
+      :display-field="displayField"
+      :multiple="multiple"
+      :placeholder="placeholder"
+      :table-label="tableLabel"
+      :model-value="currentValue"
+      @update:modelValue="handleUpdate"
+    >
+      <template #title>
+        <el-icon @click="handleAdd"><Plus /></el-icon>
+      </template>
+    </MdFormFieldRelationPicker>
+    <div v-if="displayValues && displayValues.length" class="relation-tags">
+      <el-tag v-for="(label, index) in displayValues" :key="currentValue[index]" size="small">{{ label }}</el-tag>
+    </div>
+    <!-- {{ displayRecords }} -->
+  </div>
 </template>
 
 <style scoped>
-.relation-select-loading,
-.relation-select-empty {
-  padding: 8px 0;
-  text-align: center;
-  color: var(--el-text-color-secondary);
-  font-size: 14px;
+.relation-edit {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  
+}
+.relation-tags {
+  display: flex;
+  gap: 4px;
+}
+.relation-add-trigger {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
 }
 </style>

@@ -19,6 +19,7 @@ import RelationEditVue from './components/relation/edit.vue'
 import { VirtualColumnView, VirtualColumnEdit } from './components/VirtualColumn/view'
 import { FormulaView } from './components/formula'
 import { CheckboxView } from './components/checkbox'
+import { DocumentView } from './components/document'
 import { TreeNode } from './components/treeNode'
 // 分离模式组件配置
 export const MDTableComponents: Record<string, RenderComponentConfig> = {
@@ -184,23 +185,13 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
         const { $table, row, column } = params
         const relationOptions = options?.props || {}
 
-        // Get the base relation field name (without display field suffix)
-        const baseRelationFieldName = column.field.includes('.') ? column.field.split('.')[0] : column.field
-
-        // Get current value from the base relation field (UUID array)
-        const currentValue = row[baseRelationFieldName] || []
         return h(RelationEditVue, {
-          modelValue: currentValue,
-          relationTableId: relationOptions.relationTableId,
-          displayField: relationOptions.displayField || relationOptions.displayFieldNames?.[0] || 'id',
-          multiple: true,
-          placeholder: 'Select related records...',
-          'onUpdate:modelValue': (value: string[]) => {
-            // Update the base relation field with the selected UUIDs
-            row[baseRelationFieldName] = value
-
-            // Also update the display values for the view
-            // This will be fetched when the data is refreshed
+          ...relationOptions,
+          row: row,
+          column: column,
+          modelValue: row[column.field],
+          'onUpdate:modelValue': (value: string[] | string | null) => {
+            row[column.field] = value
           }
         })
       }
@@ -257,6 +248,11 @@ export const MDTableComponents: Record<string, RenderComponentConfig> = {
   Checkbox: {
     both: {
       render: (params: any) => TreeNode(params, CheckboxView)
+    }
+  },
+  Document: {
+    both: {
+      render: (params: any) => TreeNode(params, DocumentView)
     }
   }
 } as const

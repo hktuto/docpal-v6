@@ -212,7 +212,14 @@ function toggleRecord(id: string) {
 }
 
 function handleConfirmAdd() {
-  emit('update:modelValue', [...pendingSelection.value])
+  const ids = [...pendingSelection.value]
+  const fromList = optionsList.value.filter((r: any) => ids.includes(r.id))
+  if (fromList.length) {
+    const next = { ...selectedRecordsMap.value }
+    fromList.forEach((r: any) => { next[r.id] = r })
+    selectedRecordsMap.value = next
+  }
+  emit('update:modelValue', ids)
   popoverVisible.value = false
 }
 
@@ -274,6 +281,10 @@ watch(
     immediate: true
   }
 )
+defineExpose({
+  displayRecords: displayList,
+  selectedRecordsMap
+})
 </script>
 
 <style lang="scss" scoped>
