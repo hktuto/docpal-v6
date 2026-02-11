@@ -90,7 +90,7 @@ function tabChangeHandler() {
 }
 
 async function getAvailableWorkflow() {
-  state.availableWorkflow = await newClientApi.postDsbWorkflowProcessList({}).then(res => res.data) as any || []
+  state.availableWorkflow = await newClientApi.postDocpalWorkflowProcessList().then(res => res.data) as any || []
 }
 
 async function workflowClickHandler(item: any) {
@@ -124,10 +124,9 @@ async function workflowClickHandler(item: any) {
     }
   }
 
-
   // @ts-ignore
   state.selectedWorkflow = deepCopy(item)
-  initForm(item.key, item.versionId)
+  await initForm(item.key, item.versionId)
   state.loading = false
   // createWorkflowForm.value = await workflowStore.getFromProperties(item.key)
 
@@ -138,7 +137,6 @@ async function workflowClickHandler(item: any) {
   // const formJson = await handleTaskFormJsonGet(selectedWorkflow.value)
   // VformRenderRef.value.setFormDataAndJson(formJson, formData, createWorkflowForm.value)
 }
-
 
 // #region module: vform
 // @ts-ignore
