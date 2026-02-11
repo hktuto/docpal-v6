@@ -12,16 +12,16 @@
       <template #default>
         <div class="relation-picker-dropdown">
           <div class="dropdown-header">
-            <span class="dropdown-title">关联表「{{ tableLabel }}」的记录</span>
+            <span class="dropdown-title">{{ $t('mdTable.relationPicker.recordsOfTable', { tableLabel: displayTableLabel }) }}</span>
           </div>
           <div class="dropdown-search">
-            <ElInput v-model="searchKeyword" placeholder="搜索你想关联的记录" clearable class="search-input" @input="handleSearchInput">
+            <ElInput v-model="searchKeyword" :placeholder="$t('mdTable.relationPicker.searchPlaceholder')" clearable class="search-input" @input="handleSearchInput">
               <template #prefix>
                 <Icon name="lucide:search" size="16" />
               </template>
             </ElInput>
             <div class="filter-row">
-              <span class="filter-label">只看已选记录</span>
+              <span class="filter-label">{{ $t('mdTable.relationPicker.onlySelected') }}</span>
               <ElSwitch v-model="onlySelected" />
             </div>
           </div>
@@ -29,12 +29,12 @@
             <div v-for="row in displayList" :key="row.id" class="record-card-item" :class="{ selected: pendingSet.has(row.id) }" @click="toggleRecord(row.id)">
               <MdFormFieldRelationCard :config="cardConfig || defaultCardConfig" :fields="targetFields" :sample-data="row" />
             </div>
-            <div v-if="displayList.length === 0 && !listLoading" class="list-empty">暂无记录</div>
+            <div v-if="displayList.length === 0 && !listLoading" class="list-empty">{{ $t('mdTable.relationPicker.noRecords') }}</div>
           </div>
           <div class="dropdown-footer">
             <ElButton type="primary" class="add-btn" @click="handleConfirmAdd">
               <Icon name="lucide:plus" size="16" />
-              添加记录
+              {{ $t('mdTable.relationPicker.addRecords') }}
             </ElButton>
           </div>
         </div>
@@ -43,7 +43,7 @@
         <slot name="title">
           <div class="relation-add-trigger">
             <Icon name="lucide:plus" />
-            <div style="height: 1rem">从「{{ tableLabel }}」添加关联记录</div>
+            <div style="height: 1rem">{{ $t('mdTable.relationPicker.addFromTable', { tableLabel: displayTableLabel }) }}</div>
           </div>
         </slot>
       </template>
@@ -65,7 +65,7 @@
         </template>
         <div v-else class="selected-card-loading">
           <el-icon class="is-loading"><Loading /></el-icon>
-          <span>加载中...</span>
+          <span>{{ $t('mdTable.relationPicker.loading') }}</span>
         </div>
       </div>
     </div>
@@ -88,7 +88,7 @@ const props = withDefaults(
     mode: 'card' | ''
   }>(),
   {
-    tableLabel: '关联表',
+    tableLabel: '',
     mode: 'card'
   }
 )
@@ -97,7 +97,10 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: string[]): void
 }>()
 
+const { t } = useI18n()
 const { queryRelatedTable, getTableCardConfig, getFieldsForTable, getRecordById } = useColumnsContext()
+
+const displayTableLabel = computed(() => props.tableLabel || t('mdTable.relationPicker.defaultTableLabel'))
 
 const popoverVisible = ref(false)
 const searchKeyword = ref('')

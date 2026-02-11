@@ -8,7 +8,7 @@
       :table-label="tableLabel"
       @update:model-value="handleUpdate"
     />
-    <span v-else class="relation-no-config">请先配置关联表</span>
+    <span v-else class="relation-no-config">{{ $t('mdTable.relationPicker.configRequired') }}</span>
   </MdFormItem>
 </template>
 
@@ -20,7 +20,8 @@ const props = defineProps<{
 const availableRecords = ref<any[]>([])
 const { queryRelatedTable, getFieldsForTable } = useColumnsContext()
 const relationTableId = computed(() => props.column?.properties?.relationTableId ?? '')
-const tableLabel = computed(() => props.column?.properties?.relationTableName ?? props.column?.title ?? '关联表')
+const { t } = useI18n()
+const tableLabel = computed(() => props.column?.properties?.relationTableName ?? props.column?.title ?? t('mdTable.relationPicker.defaultTableLabel'))
 const currentValue = computed(() => {
   const v = props.formData?.[props.column?.field]
   return Array.isArray(v) ? v : v != null ? [v] : []

@@ -5,7 +5,7 @@
       type="button"
       class="relation-card-remove"
       tabindex="0"
-      aria-label="移除该关联"
+      :aria-label="$t('mdTable.relationCard.removeRelation')"
       @click="handleRemove"
       @keydown.enter="handleRemove"
     >
@@ -54,6 +54,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { CardViewConfig, FieldInfo } from '@packages/dp-mdTable/types/view-config'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 import {
@@ -79,12 +80,13 @@ const emit = defineEmits<{
   (e: 'remove'): void
 }>()
 
+const { t } = useI18n()
 const recordData = computed(() => props.sampleData || {})
 
 const titleDisplay = computed(() => {
   if (!props.config.titleField) return ''
   const v = recordData.value[props.config.titleField]
-  return v != null && v !== '' ? String(v) : '未命名'
+  return v != null && v !== '' ? String(v) : t('mdTable.relationCard.unnamed')
 })
 
 function getFieldInfo(fieldName: string): FieldInfo | undefined {

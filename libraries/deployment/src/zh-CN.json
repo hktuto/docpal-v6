@@ -2284,6 +2284,21 @@
     },
     "deleteRow": "删除这行",
     "deleteSelectedRow": "删除这{count}行",
+    "relationCard": {
+      "removeRelation": "移除该关联",
+      "unnamed": "未命名"
+    },
+    "relationPicker": {
+      "configRequired": "请先配置关联表",
+      "defaultTableLabel": "关联表",
+      "recordsOfTable": "关联表「{tableLabel}」的记录",
+      "searchPlaceholder": "搜索你想关联的记录",
+      "onlySelected": "只看已选记录",
+      "noRecords": "暂无记录",
+      "addRecords": "添加记录",
+      "addFromTable": "从「{tableLabel}」添加关联记录",
+      "loading": "加载中..."
+    },
     "formulaEditor": {
       "category": {
         "date": "日期函数",

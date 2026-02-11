@@ -2285,6 +2285,21 @@
     },
     "deleteRow": "Delete this line",
     "deleteSelectedRow": "Delete these {count} lines",
+    "relationCard": {
+      "removeRelation": "Remove this relation",
+      "unnamed": "Unnamed"
+    },
+    "relationPicker": {
+      "configRequired": "Please configure the relation table first",
+      "defaultTableLabel": "Relation table",
+      "recordsOfTable": "Records of \"{tableLabel}\"",
+      "searchPlaceholder": "Search records to link",
+      "onlySelected": "Selected only",
+      "noRecords": "No records",
+      "addRecords": "Add records",
+      "addFromTable": "Add related records from \"{tableLabel}\"",
+      "loading": "Loading..."
+    },
     "formulaEditor": {
       "category": {
         "date": "Date Functions",

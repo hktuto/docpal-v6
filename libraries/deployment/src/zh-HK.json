@@ -2282,6 +2282,21 @@
     },
     "deleteRow": "删除这行",
     "deleteSelectedRow": "刪除這{count}行",
+    "relationCard": {
+      "removeRelation": "移除該關聯",
+      "unnamed": "未命名"
+    },
+    "relationPicker": {
+      "configRequired": "請先配置關聯表",
+      "defaultTableLabel": "關聯表",
+      "recordsOfTable": "關聯表「{tableLabel}」的記錄",
+      "searchPlaceholder": "搜尋你想關聯的記錄",
+      "onlySelected": "只看已選記錄",
+      "noRecords": "暫無記錄",
+      "addRecords": "添加記錄",
+      "addFromTable": "從「{tableLabel}」添加關聯記錄",
+      "loading": "載入中..."
+    },
     "formulaEditor": {
       "category": {
         "date": "日期函數",
