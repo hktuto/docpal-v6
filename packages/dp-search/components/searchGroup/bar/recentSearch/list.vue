@@ -88,7 +88,7 @@ async function getList() {
   try {
     pageParams.pageNum++
     state.loading = true
-    const res: any = await newClientApi.getV1SearchHistory(pageParams).then(r => r.data)
+    const res: any = await newClientApi.postDmsSearchHistory(pageParams).then(r => r.data)
     state.list.push(...res.entryList)
     state.scrollNoMore = state.list.length >= res.totalSize
   } catch (error) {
