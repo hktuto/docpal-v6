@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { Search } from '@element-plus/icons-vue'
 import { conditionDecorators } from '~/utils/searchFormHelper'
 
@@ -16,15 +16,14 @@ const state = reactive<any>({
 const { t } = useI18n()
 
 async function getList() {
-  const data: any = await clientApi.api.getDmsSearchQueryNestedSearchLog().then(r => r.data)
+  const data: any = await newClientApi.getDmsSearchQueryNestedSearchLog().then(r => r.data)
   // state.searchList = await GetSearchApi()
   state.records = [...data]
-
   state._records = [...state.records]
 }
 
 async function getSystemRecords() {
-  const data: any = await clientApi.api.getDmsSmartFolder().then(r => r.data)
+  const data: any = await newClientApi.getDmsSmartFolder().then(r => r.data)
   state.systemRecords = data.map((item: any) => ({
     label: item.name,
     queryCondition: item.json_value
@@ -58,10 +57,10 @@ async function handleDelete(row: any) {
   try {
     const action = await ElMessageBox.confirm(t('msg_confirmWhetherToDelete'))
     if (action !== 'confirm') return
-    await clientApi.api.deleteDmsSearchDeleteNestedSearchLogId(row.id).then(r => r.data)
-    getList()
+    await newClientApi.deleteDmsSearchDeleteNestedSearchLogId(row.id).then(r => r.data)
+    await getList()
   } catch (error) {
-
+    console.log(error)
   }
 }
 
@@ -80,10 +79,12 @@ function handleSearch() {
 onDeactivated(() => {
   state.input = ''
 })
+
 onMounted(() => {
   getSystemRecords()
   getList()
 })
+
 defineExpose({ getList })
 </script>
 <template>
@@ -105,22 +106,13 @@ defineExpose({ getList })
       ></SvgIcon>
     </div>
     <div class="search-bar-record__list">
-      <div
-        v-for="key in ['records', 'systemRecords']"
-        style="margin-bottom: var(--app-space-s)"
-      >
+      <div v-for="key in ['records', 'systemRecords']" style="margin-bottom: var(--app-space-s)">
         <div class="search-bar-record__list__title">{{ $t(`dpSearch.${key}`) }}</div>
-        <div
-          v-for="item in state[key]"
-          class="search-bar-record__list__item flex-x-between"
-          @dblclick="handleDblclick(item)"
-        >
+        <div v-for="item in state[key]" class="search-bar-record__list__item flex-x-between"
+             @dblclick="handleDblclick(item)">
           {{ item.label }}
-          <div
-            v-if="key === 'records'"
-            class="flex-x-between"
-            style="--icon-color: var(--app-grey-400); --icon-size: 14px"
-          >
+          <div v-if="key === 'records'" class="flex-x-between"
+               style="--icon-color: var(--app-grey-400); --icon-size: 14px">
             <SvgIcon
               :id="`Search__Save__Edit__${item.id}`"
               src="/icons/edit.svg"
@@ -137,10 +129,7 @@ defineExpose({ getList })
         </div>
       </div>
     </div>
-    <SearchGroupBarRecordAddDialog
-      ref="addRef"
-      @save="(data: any) => emits('save', data)"
-    ></SearchGroupBarRecordAddDialog>
+    <SearchGroupBarRecordAddDialog ref="addRef" @save="(data: any) => emits('save', data)" />
   </div>
 </template>
 <style lang="scss" scoped>

@@ -216,11 +216,9 @@ function formDataGet(propList = []) {
 
 async function formJsonGet(userTaskId: string, processKey: string, versionId: string) {
   const response: any = await newClientApi.getDmsFormPropertiesQuery({
-    relation:{
-      userTaskId,
-      processKey,
-      versionId
-    }
+    userTaskId,
+    processKey,
+    versionId
   }).then(res => res.data)
   if (!response[0] ||
     response[0] && !response[0].jsonValue) return {}

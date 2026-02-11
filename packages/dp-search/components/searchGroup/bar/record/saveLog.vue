@@ -26,7 +26,7 @@
 import { Search } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 import { conditionDecorators } from '~/utils/searchFormHelper'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const { t } = useI18n()
 const state = reactive<any>({
@@ -41,8 +41,7 @@ function hidePopover () {
 }
 function handleChange(value: string) {
   state._searchList = state.searchList.filter((item: any) => {
-    return (!item.label ||
-            item.label.toLowerCase().includes(value.toLowerCase()))
+    return (!item.label || item.label.toLowerCase().includes(value.toLowerCase()))
   })
 }
 const addRef = ref()
@@ -57,7 +56,7 @@ function handleSearch(item: any) {
   popoverRef.value.hide()
 }
 async function getList() {
-  const data = await clientApi.api.getDmsSearchQueryNestedSearchLog().then(r => r.data)
+  const data = await newClientApi.getDmsSearchQueryNestedSearchLog().then(r => r.data)
   // state.searchList = await GetSearchApi()
   state._searchList = [ ...data ]
 }
@@ -65,8 +64,8 @@ async function handleDelete(item: any) {
   try {
     const action = await ElMessageBox.confirm(t('msg_confirmWhetherToDelete'))
     if (action !== "confirm") return
-    await clientApi.api.deleteDmsSearchDeleteNestedSearchLogId(item.id).then(r => r.data)
-    getList()
+    await newClientApi.deleteDmsSearchDeleteNestedSearchLogId(item.id).then(r => r.data)
+    await getList()
   } catch (error) {
     console.error(error)
   }

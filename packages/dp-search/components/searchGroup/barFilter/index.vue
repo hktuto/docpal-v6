@@ -28,8 +28,6 @@
 </div>
 </template>
 <script lang="ts" setup>
-import { globalApi } from 'api'
-
 import type { searchGroup, searchGroupQuery, searchGroupQQ } from '~/typing/search'
 import { getUniqueId } from '../../../utils/searchFormHelper'
 import { conditionType, getMetadataOptions, languages, mimeTypes, getGroupList, sizes, sortListWithI18n } from '~/utils/formOptions'
@@ -47,9 +45,9 @@ const filters = ref<searchGroup>({
 const BarFilterRef = ref<any>({})
 async function getData () {
   const pList: any = []
-  filters.value.query.forEach(async(item: searchGroupQuery) => {
+  for (const item of filters.value.query) {
     pList.push(getFiltersData(item))
-  })
+  }
   const params = {
     condition: filters.value.condition,
     docId: filters.value.docId,
