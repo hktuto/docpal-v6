@@ -92,6 +92,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     _columns.unshift({
       type: 'checkbox',
       width: 60,
+      fixed: 'left',
       slots: {
         checkbox: 'checkboxIndex'
       },
