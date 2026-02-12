@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const emits = defineEmits(['success'])
@@ -97,7 +97,7 @@ async function handleSubmit() {
       idOrPath: state.setting.documentPath + '/' + state.setting.previewName,
       type: state.setting.documentType
     }
-    const duplicateResult: any = await clientApi.api.postDmsDocumentIsduplicatename({
+    const duplicateResult: any = await newClientApi.postDmsDocumentIsduplicatename({
       path: state.setting.documentPath,
       titles: [state.setting.previewName]
     }).then((res: any) => res.data)
@@ -123,7 +123,7 @@ async function handleSubmit() {
     inputFile.dfcId = state.setting.id
     formData.append('files', file)
     formData.append('document', JSON.stringify(inputFile))
-    const res = await clientApi.api.postDmsDocument(formData).then(r => r.data)
+    const res = await newClientApi.postDmsDocument(formData).then(r => r.data)
     emits('success', inputFile)
     state.dialogOpened = false
   } catch (error) {
@@ -139,7 +139,7 @@ async function handleReplace(inputFile: any, file: any) {
   formData.append('document', JSON.stringify(inputFile))
   state.loading = true
   try {
-    const res = await clientApi.api.patchDmsDocumentContent(formData, formData).then(r => r.data)
+    const res = await newClientApi.patchDmsDocumentContent(formData, formData).then(r => r.data)
     state.dialogOpened = false
     emits('success', inputFile)
   } catch (error) {
