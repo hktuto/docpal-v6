@@ -231,6 +231,19 @@ export const numberFunctions: FunctionItem[] = [
  */
 export const dateFunctions: FunctionItem[] = [
   {
+    name: 'FORMAT_DATE',
+    description: '返回当前日期。',
+    usage: 'FORMAT_DATE(date, format)',
+    params: [
+      { name: 'date', description: '日期值' },
+      { name: 'format', description: '格式字符串' }
+    ],
+    example: 'FORMAT_DATE(TODAY(), "YYYY-MM-DD") 返回当前日期，例如 2024-01-15',
+    func: (...args: any[]) => {
+      return dayjs(args[0]).format(args[1])
+    }
+  },
+  {
     name: 'TODAY',
     description: '返回当前日期。',
     usage: 'TODAY()',
