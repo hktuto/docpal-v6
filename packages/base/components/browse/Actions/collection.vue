@@ -17,7 +17,7 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
 import formJson from './form/addToCollection.vform.json'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const props = defineProps<{
   selectedList?: any,
@@ -51,7 +51,7 @@ async function handleSubmit(collection) {
       documents: props.selectedList.map(item => ({ idOrPath: item.id })),
       collection
     }
-    await clientApi.api.postDmsCollectionDocuments(param).then(r => r.data)
+    await newClientApi.postDmsCollectionDocuments(param).then(r => r.data)
     state.dialogOpened = false
     ElMessage.success($i18n.t('dpMsg_success'))
     emits('clearSelected')
@@ -64,7 +64,7 @@ async function handleSubmit(collection) {
 const allCollectionList = ref([])
 
 onMounted(async () => {
-  const list = await clientApi.api.getDmsCollectionList().then(r => r.data) || []
+  const list = await newClientApi.getDmsCollectionList().then(r => r.data) || []
 
   allCollectionList.value = list.map(item => {
     return { value: item.id, label: item.name }

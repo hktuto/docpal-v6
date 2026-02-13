@@ -1,9 +1,7 @@
 import { newAdminApi } from 'api'
-import { getGroupsSelectOption } from '#imports'
 
 export const masterTableOpts = useState('masterTableOpts', () => [])
 export const metadataOpts = useState('metadataOpts', () => [])
-export const userRulesOpts = useState<any>('userRulesOpts', () => [])
 export const categoryOpts = useState('categoryOpts', () => [])
 
 export async function initMasterTableOpts() {
@@ -32,61 +30,4 @@ export async function getMasterTableDisplayOpts(masterTableId: string) {
   // if(masterTableOpts.value.length > 0) return masterTableOpts.value
   const data = await newAdminApi.getDmsMasterTableId(masterTableId).then((res: any) => res.data)
   return data.fields.map((item: any) => ({ label: item.columnName, value: item.columnName }))
-}
-
-const { flatRole } = useRBAC()
-
-export async function initUserRulesOpts() {
-  // @ts-ignore
-  const t = window.$t
-
-  async function getUserList() {
-    try {
-      return await newAdminApi.postUcenterGetKeycloakAllUsers({}).then((res) => res.data)
-    } catch (error) {
-      console.error(error)
-      return []
-    }
-  }
-
-  const userList: any = await getUserList()
-  userRulesOpts.value = [
-    {
-      label: t('user_role'),
-      value: 'userRole', // 1=User, 3=Group, 2=Role
-      type: 'select',
-      selectConfig: {
-        options: flatRole.value
-          .map((item: any) => ({
-            label: item.name,
-            value: item.id
-          }))
-          .sort((a: any, b: any) => a.label.localeCompare(b.label))
-      }
-    },
-    {
-      label: t('user_UserGroup'),
-      value: 'userGroup',
-      type: 'select',
-      selectConfig: {
-        options: async () => {
-          const list = await getGroupsSelectOption()
-          return list.sort((a: any, b: any) => a.label.localeCompare(b.label))
-        }
-      }
-    },
-    {
-      label: t('User'),
-      value: 'user',
-      type: 'select',
-      selectConfig: {
-        options: userList
-          .map((item: any) => ({
-            label: item.username,
-            value: item.userId
-          }))
-          .sort((a: any, b: any) => a.label.localeCompare(b.label))
-      }
-    }
-  ]
 }

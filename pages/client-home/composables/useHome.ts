@@ -1,4 +1,5 @@
 import { newClientApi } from 'api'
+import { useUserPreference } from '#imports'
 
 export const useHomeList = () => useState<any[]>('homeList', () => [])
 export const useCurrentHome = () => useState<any>('currentHome', () => null)
@@ -10,10 +11,11 @@ export const useHomePage = () => {
   const currentHome = useCurrentHome()
   const loading = ref(false)
   const preference = useUserPreference()
+
   async function getHomeList(force: boolean = false) {
-    if(homeList.value.length > 0 && !force) return
+    if (homeList.value.length > 0 && !force) return
     loading.value = true
-    try{
+    try {
       let personal: any = await newClientApi.getDocpalPersonalLanding().then((res) => res.data)
       let dashboardList: any = await newClientApi.getDocpalPersonalLandingDashboardList().then((res: any) => res.data)
       if (!personal) personal = {}
@@ -22,22 +24,23 @@ export const useHomePage = () => {
       personal.name = 'PERSONAL'
       homeList.value = [personal, ...dashboardList]
       const storageHomeList = preference.value.userStoreHome
-      if(storageHomeList && storageHomeList !== 'PERSONAL') {
+      if (storageHomeList && storageHomeList !== 'PERSONAL') {
         const detail = dashboardList.find((item: any) => item.id.toString() === storageHomeList.toString())
-        if(detail) {
+        if (detail) {
           await checkoutDashboard(detail)
-        }else{
+        } else {
           await checkoutDashboard(personal)
         }
-      }else{
+      } else {
         await checkoutDashboard(personal)
       }
     } catch (error) {
       console.error(error)
     } finally {
-    loading.value = false
+      loading.value = false
     }
   }
+
   async function checkoutDashboard(detail: any) {
     loading.value = true
     currentHome.value = deepCopy(detail)
@@ -48,7 +51,7 @@ export const useHomePage = () => {
       } else {
         dashboardDetail = await newClientApi.getDocpalPersonalLandingDashboardId(detail.id).then((res: any) => res.data)
       }
-    
+
       const styleJson = JSON.parse(dashboardDetail.styleJson)
       currentHome.value.layout = Array.isArray(styleJson) ? styleJson : []
     } catch (error) {
@@ -61,11 +64,10 @@ export const useHomePage = () => {
   }
 
   onMounted(async () => {
-
-    // getHomeList()
+    getHomeList()
     // routerProvider?.refeshActions.value.push(getDashboardList)
   })
-  
+
   return {
     homeList,
     currentHome,

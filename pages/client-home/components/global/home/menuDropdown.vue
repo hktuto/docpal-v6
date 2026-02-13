@@ -1,23 +1,24 @@
 <script setup lang="ts">
 const { homeList, currentHome, checkoutDashboard } = useHomePage()
 const tabProvider = inject(TabManagerKey)
-if(!tabProvider) {
-    throw createError('tab manger not found on menu')
+if (!tabProvider) {
+  throw createError('tab manger not found on menu')
 }
 const emit = defineEmits(['selected'])
-async function handleSelect(e:Event, item: any) {
+
+async function handleSelect(e: Event, item: any) {
   e.stopPropagation()
-  await checkoutDashboard(item);
+  await checkoutDashboard(item)
   tabProvider?.openInCurrentTab({
-    id:'client-work-panel',
-    name : 'client-work-panel',
-    label: "adminMenu.workPanel",
+    id: 'client-work-panel',
+    name: 'client-work-panel',
+    label: 'adminMenu.workPanel',
     icon: 'material-symbols:home',
-    hoverIcon : 'material-symbols:home',
-    component: "LazyHomePage",
-    feature: "DASHBOARD",
-    handleError:true,
-    props:{},
+    hoverIcon: 'material-symbols:home',
+    component: 'LazyHomePage',
+    feature: 'DASHBOARD',
+    handleError: true,
+    props: {}
   }, false)
   emit('selected')
 }
@@ -25,15 +26,15 @@ async function handleSelect(e:Event, item: any) {
 
 <template>
   <div class="dashboardList">
-    <div :class="{ 'dashboardItem': true, 'selected': currentHome.id === item.id }" v-for="item in homeList" :key="item.id" @click="(e) => handleSelect(e, item)">
+    <div :class="{ 'dashboardItem': true, 'selected': currentHome.id === item.id }" v-for="item in homeList"
+         :key="item.id" @click="(e) => handleSelect(e, item)">
       <span class="label">{{ item.name }}</span>
-
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.dashboardList{
+.dashboardList {
   width: 100%;
   display: flex;
   flex-flow: column nowrap;
@@ -41,7 +42,8 @@ async function handleSelect(e:Event, item: any) {
   align-items: flex-start;
   gap: var(--app-space-xs);
 }
-.dashboardItem{
+
+.dashboardItem {
   cursor: pointer;
   width: 100%;
   line-height: 1;
@@ -53,18 +55,22 @@ async function handleSelect(e:Event, item: any) {
   align-items: center;
   gap: var(--app-space-xs);
   color: var(--app-grey-200);
-  .label{
+
+  .label {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
   transition: all 0.2s ease-in-out;
-  &.selected{
+
+  &.selected {
     background: var(--app-primary-color) !important;
     color: var(--app-paper) !important;
     box-shadow: var(--app-shadow-s);
   }
-  &:hover{
+
+  &:hover {
     box-shadow: var(--app-shadow-s);
     background: var(--app-primary-alpha-30);
   }

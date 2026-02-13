@@ -49,8 +49,7 @@ function refreshData() {
 
 onMounted(async () => {
   if (!allUserGroup.value || allUserGroup.value.length == 0) {
-    const list = await getGroupsSelectOption()
-    allUserGroup.value = list.sort((a: any, b: any) => a.label.localeCompare(b.label))
+    allUserGroup.value = await getGroupsSelectOption()
   }
   refreshData()
   setUpListener()

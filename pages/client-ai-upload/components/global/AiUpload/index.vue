@@ -216,7 +216,7 @@ async function handleDelete(id: any) {
     formData.append('userId', userId.value)
     formData.append('uploadId', id)
     console.log('formData', formData, id, userId.value)
-    await newClientApi.postDmsUploadCancel({}, { userId: userId.value, uploadId: id }).then(r => r.data)
+    await newClientApi.postDmsUploadCancel({ userId: userId.value, uploadId: id }).then(r => r.data)
     reload()
   } catch (error) {
     console.log(error)

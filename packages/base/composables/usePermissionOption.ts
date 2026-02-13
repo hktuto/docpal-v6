@@ -8,10 +8,19 @@ interface PermissionOption {
   options: any[];
 }
 
+interface BaseOption {
+  value: string,
+  label: string,
+  email?: string
+}
+
 const userList = ref<any[]>([])
 const roleList = ref<any[]>([])
 const groupList = ref<any[]>([])
 export const usePermissionOption = () => useState<PermissionOption[]>('permission', () => ([]))
+export const useUserPermissionOption = () => useState<BaseOption[]>('userPermission', () => ([]))
+export const useRolePermissionOption = () => useState<BaseOption[]>('rolePermission', () => ([]))
+export const useGroupsPermissionOption = () => useState<BaseOption[]>('groupsPermission', () => ([]))
 
 export const getFromServer = async function(loadUserList: boolean = true, loadRoleList: boolean = true, loadGroupList: boolean = true) {
   const options = usePermissionOption()
@@ -19,8 +28,7 @@ export const getFromServer = async function(loadUserList: boolean = true, loadRo
 
   try {
     if (loadUserList) {
-      const user = await newClientApi.postUcenterUsers().then((res: any) => res.data)
-      userList.value = user || []
+      const user = await getUserSelectOption()
       if (userList.value.length > 0) {
         options.value.push(
           {
@@ -28,19 +36,14 @@ export const getFromServer = async function(loadUserList: boolean = true, loadRo
             label: $t('user_users'),
             value: 1,
             type: 'select',
-            options: user.map((item: any) => item)
+            options: user
           }
         )
       }
     }
 
     if (loadRoleList) {
-      const role = await newClientApi.postDocpalAclRoleList([{
-        column: 'status',
-        type: 'EQ',
-        values: '1'
-      }]).then((res: any) => res.data)
-      roleList.value = role || []
+      const role = await getRoleSelectOption()
       if (roleList.value.length > 0) {
         options.value.push(
           {
@@ -48,15 +51,14 @@ export const getFromServer = async function(loadUserList: boolean = true, loadRo
             label: $t('user_role'),
             value: 2,
             type: 'select',
-            options: role.map((item: any) => item)
+            options: role
           }
         )
       }
     }
 
     if (loadGroupList) {
-      const group = await newClientApi.postUcenterGroups().then((res) => res.data)
-      groupList.value = group || []
+      const group = await getGroupsSelectOption()
       if (groupList.value.length > 0 && !!group) {
         options.value.push(
           {
@@ -64,7 +66,7 @@ export const getFromServer = async function(loadUserList: boolean = true, loadRo
             label: $t('user_groups'),
             value: 3,
             type: 'select',
-            options: group.map((item: any) => item)
+            options: group
           }
         )
       }
@@ -216,39 +218,68 @@ export const convertSelectOptions = (permissions: any) => {
 }
 
 // User Select Option
-export const getUserPermissionSelectOption = async () => {
-  const options = usePermissionOption()
-  if (options.value.length === 0) {
-    await getFromServer(true, false, false)
-  }
+export const getUserSelectOption = async (refresh?: boolean = false) => {
+  const options = useUserPermissionOption()
+  if (options.value.length === 0 || refresh) {
+    try {
+      const list: any = await newClientApi.postUcenterUsers().then((res) => res.data)
+      if (list.length === 0) return []
 
-  return userList.value.map((item: any) => {
-    const name = item.name || item.userName || item.username || ''
-    return { label: name, value: item.userId, email: item.email, userId: item.userId }
-  })
+      options.value = list.map((item: any) => ({
+        value: item.userId,
+        label: item.username,
+        email: item.email
+      })).sort((a: any, b: any) => a.label.localeCompare(b.label))
+    } catch (e) {
+      console.log(e)
+      return []
+    }
+  }
+  return options.value
 }
 
 // Role Select Option
-export const getRolePermissionSelectOption = async () => {
-  const options = usePermissionOption()
-  if (options.value.length === 0) {
-    await getFromServer(false, true, false)
-  }
+export const getRoleSelectOption = async (refresh?: boolean = false) => {
+  const options = useRolePermissionOption()
+  if (options.value.length === 0 || refresh) {
+    try {
+      const list: any = await newClientApi.postDocpalAclRoleList([{
+        column: 'status',
+        type: 'EQ',
+        values: '1'
+      }]).then((res: any) => res.data)
+      if (list.length === 0) return []
 
-  return roleList.value.map((item: any) => {
-    return { label: item.name, value: item.id }
-  })
+      options.value = list.map((item: any) => ({
+        value: item.id,
+        label: item.name
+      })).sort((a: any, b: any) => a.label.localeCompare(b.label))
+    } catch (e) {
+      console.log(e)
+      return []
+    }
+  }
+  return options.value
 }
 
 // Group Select Option
-export const getGroupPermissionSelectOption = async () => {
-  const options = usePermissionOption()
-  if (options.value.length === 0) {
-    await getFromServer(false, false, true)
+export const getGroupsSelectOption = async (refresh?: boolean = false) => {
+  const options = useGroupsPermissionOption()
+  if (options.value.length === 0 || refresh) {
+    try {
+      let list: any = await newClientApi.postUcenterGroups().then((res) => res.data)
+      if (list.length === 0) return []
+
+      options.value = list.map((item: any) => ({
+        value: item.id,
+        label: item.name
+      })).sort((a: any, b: any) => a.label.localeCompare(b.label))
+    } catch (e) {
+      console.log(e)
+      return []
+    }
   }
-  return groupList.value.map((item: any) => {
-    return { label: item.name, value: item.id }
-  })
+  return options.value
 }
 
 export const getPermissionPairOption = async () => {
@@ -262,55 +293,5 @@ export const getPermissionPairOption = async () => {
       const name = option.name || option.userName || option.username || ''
       return { value: option.id, label: name }
     })
-  }))
-}
-
-export const getCachePermissionOptions = async () => {
-  const options = usePermissionOption()
-  if (options.value.length > 0) {
-    return options.value
-  } else {
-    await getFromServer(true, true, true)
-    return options.value
-  }
-}
-
-export const getUserSelectOption = async () => {
-  const list: any = await newClientApi.postUcenterUsers().then((res) => res.data)
-  if (list.length === 0) return []
-
-  return list.map((item: any) => ({
-    value: item.userId,
-    label: item.username,
-    email: item.email
-  }))
-}
-
-export const getRoleSelectOption = async () => {
-  try {
-    const list: any = await newClientApi.postDocpalAclRoleList([{
-      column: 'status',
-      type: 'EQ',
-      values: '1'
-    }]).then((res: any) => res.data)
-    if (list.length === 0) return []
-
-    return list.map((item: any) => ({
-      value: item.id,
-      label: item.name
-    }))
-  } catch (e) {
-    console.log(e)
-    return []
-  }
-}
-
-export const getGroupsSelectOption = async () => {
-  let list: any = await newClientApi.postUcenterGroups().then((res) => res.data)
-  if (list.length === 0) return []
-
-  return list.map((item: any) => ({
-    value: item.id,
-    label: item.name
   }))
 }

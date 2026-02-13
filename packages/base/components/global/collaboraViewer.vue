@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {useEventListener} from '@vueuse/core';
 
-import {clientApi} from 'api'
+import {newClientApi} from 'api'
 import {nextTick, ref, toRefs} from 'vue';
 
 const userPreference = useUserPreference()
@@ -40,7 +40,7 @@ const emit = defineEmits(['saved'])
 
 async function displayIframe() {
   iframeReady.value = false;
-  token.value = await clientApi.api.getGetofficetokenId(props.docId, {
+  token.value = await newClientApi.getGetofficetokenId(props.docId, {
     fileType: props.fileType
   }).then(r => r.data)
   collaboraUrl.value = officeUrl(props.docId)

@@ -121,12 +121,17 @@ async function onResourceAttributeChange(rule: any, attrValue: string, isInit: b
   }
 }
 function getDocumentTypes() {
-  return adminApi.api.getNuxeoTypes().then((res) => {
-    return res.data.map((item: any) => ({
-      label: item.name,
-      value: item.name
-    }))
-  })
+  // TODO: 未更換
+  try {
+    return adminApi.api.getNuxeoTypes().then((res) => {
+      return res.data.map((item: any) => ({
+        label: item.name,
+        value: item.name
+      }))
+    })
+  } catch (e) {
+    console.log('getDocumentTypes', e)
+  }
 }
 async function getSelectOptions(selectConfig: any) {
   if (selectConfig.type === 'user') {

@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const props = defineProps<{
   doc: any,
@@ -43,7 +43,7 @@ function handleUpdate(handleType?: String) {
 async function handleRestore() {
   loading.value = true
   try {
-    await clientApi.api.postDmsDocumentVersionRestore({
+    await newClientApi.postDmsDocumentVersionRestore({
       idOrPath: props.doc.id,
       versionNum: props.doc.version
     }).then(res => res.data)

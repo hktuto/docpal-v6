@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const {public:{OFFICE_END_POINT}} = useRuntimeConfig()
 const userPreference = useUserPreference()
 
@@ -29,7 +29,7 @@ const state = reactive({
     dialogOpened: false
 })
 async function goOffice(){
-  const token = await clientApi.api.getGetofficetokenId(props.doc.id,{
+  const token = await newClientApi.getGetofficetokenId(props.doc.id,{
     fileType:'NUXEO'
   }).then(r => r.data)
     state.dialogOpened = true

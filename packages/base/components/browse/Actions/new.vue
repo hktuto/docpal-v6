@@ -23,8 +23,6 @@
 </template>
 
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
-
 const props = defineProps<{
     doc?: any
 }>()
