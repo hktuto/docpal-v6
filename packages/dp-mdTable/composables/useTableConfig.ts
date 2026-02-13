@@ -271,8 +271,8 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
   })
   function loadData(pageParams: any) {
     const gb: any = (options?.groupBy as any)?.value
-
-    return apiMethod(pageParams, gb.length > 0 ? gb : null)
+    const groupByList = Array.isArray(gb) && gb.length > 0 ? gb : null
+    return apiMethod(pageParams, groupByList)
   }
   async function treeLoadData(params: any) {
     try {

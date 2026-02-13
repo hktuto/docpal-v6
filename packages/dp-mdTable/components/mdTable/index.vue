@@ -69,14 +69,15 @@
 import type { VxeGridProps, VxeGridListeners, VxeGridInstance } from 'vxe-table'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import { useTableData } from '../../composables/useTableData'
 import { useTableConfig } from '../../composables/useTableConfig'
-import { ColumnContextKey } from '../../composables/useColumns'
 import Toolbar from './Toolbar.vue'
 import VirtualColumnDialog from './addColumn/VirtualColumnDialog.vue'
 import RecordCardDialog from './RecordCardDialog.vue'
 import { onClickOutside } from '@vueuse/core'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import type { ColumnConfig } from '../../composables/useColumns'
+import type { SortRule } from '../tools/sort/configPopover.vue'
+import { createFieldId } from '../../utils/mdTableHelper'
 // 导入并注册自定义渲染器（必须在组件加载时执行）
 const slots = useSlots()
 
@@ -187,9 +188,8 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     saveColumnOrder({ newColumn, oldColumn, dragPos })
   },
   'cell-menu': ({ row, column, $event }: any) => {
-    // 阻止默认行为
-    event.preventDefault()
-    rightClickCellPopoverRef.value.open($event.target, { row, column })
+    $event?.preventDefault()
+    rightClickCellPopoverRef.value?.open($event?.target, { row, column })
   },
   'checkbox-all': ({ checked }: any) => {
     const { fullData } = gridRef.value?.getTableData()
