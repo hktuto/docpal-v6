@@ -11,26 +11,50 @@
         clearable
         style="width: 100%"
       />
-      <ElInput v-else v-model="formData[column.field]" :disabled="true" :placeholder="column.placeholder" clearable />
+      <ElInput
+        v-else-if="column.type === ColumnFieldType.Formula"
+        :model-value="formulaDisplayValue"
+        type="text"
+        disabled
+        readonly
+        :placeholder="formulaPlaceholder"
+        :title="formulaTitle"
+      />
+      <ElInput v-else v-model="formData[column.field]" :disabled="true" clearable />
     </template>
   </MdFormItem>
 </template>
 
 <script setup lang="ts">
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { evalFormula } from '@packages/dp-mdTable/components/tools/formulaEditor/formulaHelper'
+
 const props = defineProps<{
   formData: any
   column: any
 }>()
+
 const displayFormat = computed(() => {
   const properties = props.column.properties ?? {}
-  console.log(properties)
-  // if(properties.includeTime) {
-  //   return properties.dateTimeFormat + ' ' + properties.timezone
-  // } else {
-  //   return properties.dateFormat
-  // }
   return 'YYYY-MM-DD'
+})
+
+/** Formula 列根据 returnType 格式化的显示值（空值显示为 '-'） */
+const formulaDisplayValue = computed(() => {
+  const formula = props.column?.properties?.formula ?? props.column?.properties?.expression ?? ''
+  return evalFormula(formula, props.formData)
+})
+
+const formulaPlaceholder = '-'
+
+/** 公式列 tooltip：说明不可编辑，若有公式表达式则一并展示 */
+const formulaTitle = computed(() => {
+  const formulaExpr = props.column?.properties?.formula ?? props.column?.properties?.expression ?? ''
+  const base = '该单元格由公式计算，不可编辑。'
+  if (formulaExpr) {
+    return `${base} 公式：${formulaExpr}`
+  }
+  return base
 })
 </script>
 

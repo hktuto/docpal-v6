@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useMDTableInject } from '../../../composables/useMDTable'
 import { Plus } from '@element-plus/icons-vue'
+import { ColumnFieldType } from '../../../types/column-types'
+
 const props = withDefaults(
   defineProps<{
     modelValue: string[] | string | null
@@ -19,7 +21,7 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: string[] | string | null): void
 }>()
 
-const { updateRow } = useMDTableInject()
+const { updateRow, columns } = useMDTableInject()
 
 const currentValue = computed(() => {
   const v = props.modelValue
@@ -31,7 +33,7 @@ const relationPickerRef = ref<InstanceType<typeof MdFormFieldRelationPicker>>()
 /** 当前选中 ID 对应的关联展示字段值，用于批量显示 */
 const displayValues = computed(() => {
   const ids = currentValue.value
-  if (!ids.length) return []
+  if (!ids.length || !props.displayField || !props.column?.field) return []
   const displayKey = props.column.field.includes('.') ? props.column.field : `${props.column.field}.${props.displayField}`
   const fromRow = props.row[displayKey]
   if (Array.isArray(fromRow) && fromRow.length === ids.length) return fromRow
@@ -44,21 +46,49 @@ function handleAdd() {
   console.log('handleAdd', props.row, props.column)
 }
 
+/**
+ * 查找与当前 relation 共享同一关联表的 VirtualColumn 列
+ * VirtualColumn 的 sourceRelationField 与 relation 的 field 一致时，关联表相同
+ */
+function getVirtualColumnsForRelation(relationFieldName: string) {
+  const cols = columns?.value ?? []
+  return cols.filter((col: any) => {
+    if (col.type !== ColumnFieldType.VirtualColumn) return false
+    const sourceRelationField = col.properties?.sourceRelationField ?? col.field?.split('.')[0]
+    return sourceRelationField === relationFieldName
+  })
+}
+
 function handleUpdate(value: string[] | string | null) {
   const ids = Array.isArray(value) ? value : value != null ? [value] : []
   const { row, column, displayField } = props
+  const relationFieldName = column.field.includes('.') ? column.field.split('.')[0] : column.field
 
   row[column.field] = ids
 
+  const recordsMap = relationPickerRef.value?.selectedRecordsMap
+
+  // 更新 relation 自身的 displayField
   if (displayField) {
     const displayKey = column.field.includes('.') ? column.field : `${column.field}.${displayField}`
-    const recordsMap = relationPickerRef.value?.selectedRecordsMap
     if (recordsMap) {
       const vals = ids.map((id: string) => recordsMap[id]?.[displayField] ?? id)
       row[displayKey] = vals
     } else {
       row[displayKey] = ids.length ? ids : undefined
     }
+  }
+
+  // 同步更新与当前 relation 共享同一关联表的 VirtualColumn 数据
+  const virtualColumns = getVirtualColumnsForRelation(relationFieldName)
+  if (virtualColumns.length && recordsMap) {
+    virtualColumns.forEach((vc: any) => {
+      const displayFieldName = vc.properties?.displayFieldName ?? vc.field?.split('.')[1]
+      if (!displayFieldName) return
+      const dataKey = `${relationFieldName}.${displayFieldName}`
+      const vals = ids.map((id: string) => recordsMap[id]?.[displayFieldName] ?? id)
+      row[dataKey] = ids.length ? vals : undefined
+    })
   }
 
   updateRow(row)

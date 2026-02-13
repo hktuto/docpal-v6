@@ -3,6 +3,7 @@
     >
     <MdFormFieldRelationPicker
       v-if="relationTableId"
+      ref="pickerRef"
       :model-value="currentValue"
       :relation-table-id="relationTableId"
       :table-label="tableLabel"
@@ -13,12 +14,17 @@
 </template>
 
 <script setup lang="ts">
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+
 const props = defineProps<{
   formData: any
   column: any
 }>()
+
+const pickerRef = ref<InstanceType<typeof MdFormFieldRelationPicker>>()
 const availableRecords = ref<any[]>([])
 const { queryRelatedTable, getFieldsForTable } = useColumnsContext()
+const { columns } = useMDTableInject()
 const relationTableId = computed(() => props.column?.properties?.relationTableId ?? '')
 const { t } = useI18n()
 const tableLabel = computed(() => props.column?.properties?.relationTableName ?? props.column?.title ?? t('mdTable.relationPicker.defaultTableLabel'))
@@ -27,9 +33,36 @@ const currentValue = computed(() => {
   return Array.isArray(v) ? v : v != null ? [v] : []
 })
 
+/**
+ * 查找与当前 relation 共享同一关联表的 VirtualColumn 列
+ */
+function getVirtualColumnsForRelation(relationFieldName: string) {
+  const cols = columns?.value ?? []
+  return cols.filter((col: any) => {
+    if (col.type !== ColumnFieldType.VirtualColumn) return false
+    const sourceRelationField = col.properties?.sourceRelationField ?? col.field?.split('.')[0]
+    return sourceRelationField === relationFieldName
+  })
+}
+
 function handleUpdate(value: string[]) {
-  if (props.formData && props.column?.field != null) {
-    props.formData[props.column.field] = value
+  if (!props.formData || props.column?.field == null) return
+
+  const relationFieldName = props.column.field.includes('.') ? props.column.field.split('.')[0] : props.column.field
+  props.formData[props.column.field] = value
+
+  // 同步更新与当前 relation 共享同一关联表的 VirtualColumn 数据
+  const virtualColumns = getVirtualColumnsForRelation(relationFieldName)
+  if (virtualColumns.length > 0) {
+    const recordsMap = pickerRef.value?.selectedRecordsMap?.value ?? pickerRef.value?.selectedRecordsMap ?? {}
+    const ids = Array.isArray(value) ? value : value != null ? [value] : []
+    virtualColumns.forEach((vc: any) => {
+      const displayFieldName = vc.properties?.displayFieldName ?? vc.field?.split('.')[1]
+      if (!displayFieldName) return
+      const dataKey = `${relationFieldName}.${displayFieldName}`
+      const vals = ids.map((id: string) => recordsMap[id]?.[displayFieldName] ?? id)
+      props.formData[dataKey] = ids.length ? vals : undefined
+    })
   }
 }
 
