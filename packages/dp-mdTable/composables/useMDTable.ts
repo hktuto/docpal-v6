@@ -76,8 +76,7 @@ export function useMDTable(props: any) {
     }
   }
   function updateRow(row: any) {
-    // TODO: add api to update row data
-    console.log('updateRow', row)
+    updateTableRow(Array.isArray(row) ? row : [row])
   }
 
   const userList = ref<any[]>([])

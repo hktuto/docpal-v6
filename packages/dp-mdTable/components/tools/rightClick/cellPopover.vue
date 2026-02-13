@@ -41,7 +41,7 @@ function open(target: HTMLElement, { row, column }: any) {
               confirmButtonText: t('common_confirmDelete'),
               dangerouslyUseHTMLString: true
             })
-            await deleteRow(selectedRows.value.map((item:any) => item.id))
+            await deleteRow(selectedRows.value.map((item: any) => String(item.id)))
             gridRef.value?.remove(selectedRows.value)
           } catch (error) {
             console.error(error)
@@ -63,7 +63,7 @@ function open(target: HTMLElement, { row, column }: any) {
               confirmButtonText: t('common_confirmDelete'),
               dangerouslyUseHTMLString: true
             })
-            await deleteRow(row.id)
+            await deleteRow(String(row.id))
             gridRef.value?.remove(row)
           } catch (error) {
             console.error(error)

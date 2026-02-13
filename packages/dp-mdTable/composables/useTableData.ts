@@ -1,5 +1,5 @@
 // composables/useTableData.ts
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, provide, inject, type Ref, type InjectionKey } from 'vue'
 import { clientApi } from 'api'
 // import { createGroupTree } from '../utils/treeDataHelper'
 export interface UseTableDataOptions {
@@ -162,24 +162,31 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
   }
 
   /**
-   * 更新行数据
+   * 更新行数据：根据每行的 id 在 tableData/rawData 中查找并合并更新
+   * @param rows - 要更新的行（可含部分字段），至少需包含 id
    */
   const updateRow = (rows: any[]) => {
-    // if (index >= 0 && index < tableData.value.length) {
-    //   tableData.value[index] = { ...tableData.value[index], ...row }
-    //   rawData.value[index] = { ...rawData.value[index], ...row }
-    // }
+    const list = Array.isArray(rows) ? rows : [rows]
+    list.forEach((row) => {
+      if (row?.id == null) return
+      const idStr = String(row.id)
+      const idx = tableData.value.findIndex((item) => item != null && String(item.id) === idStr)
+      if (idx !== -1) {
+        tableData.value[idx] = { ...tableData.value[idx], ...row }
+        rawData.value[idx] = { ...rawData.value[idx], ...row }
+      }
+    })
   }
 
   /**
-   * 删除行数据
+   * 删除行数据：与接口对齐，支持 string | string[]，内部统一转为数组后按 id 删除
+   * @param ids - 行 id，支持单个或数组
    */
-  const deleteRow = (id: number) => {
-    const index = tableData.value.findIndex((item) => item.id === id)
-    if (index !== -1) {
-      tableData.value.splice(index, 1)
-      rawData.value.splice(index, 1)
-    }
+  const deleteRow = (ids: string | string[]) => {
+    const idList = Array.isArray(ids) ? ids.map(String) : [String(ids)]
+    const idSet = new Set(idList)
+    tableData.value = tableData.value.filter((item) => item?.id == null || !idSet.has(String(item.id)))
+    rawData.value = rawData.value.filter((item) => item?.id == null || !idSet.has(String(item.id)))
   }
 
   // 监听 tableName 变化，自动重新加载数据
