@@ -1,61 +1,43 @@
 # AGENTS.md - DocPal v4 Agent Guide
 
-## Project Overview
-DocPal v4 is a document management platform with 4 core foundations and modular add-ons.
+## Critical Rules (MUST FOLLOW)
 
-## Documentation Structure
+### 1. Documentation Rule
+**ALL documentation MUST go in the Obsidian vault (`/docs/`).**
 
-All project documentation lives in `/docs/`:
+- ✅ Use existing docs structure
+- ✅ Update module/feature/task files in `/docs/`
+- ❌ NEVER create new markdown files outside `/docs/`
+- ❌ NEVER create README files, notes, or docs in code folders
 
-```
-docs/
-├── 00-meta/           # Dashboard, overview
-├── 00-templates/      # Feature and task templates
-├── 01-modules/        # All modules (cores + add-ons + deprecated)
-├── 02-features/       # Individual feature specs
-├── 03-tasks/          # Development tasks
-└── 04-journal/        # Daily development logs
-```
+**If you need to document something that doesn't fit the Obsidian structure → ASK first.**
 
-## Module Organization
+### 2. Obsidian Writing Guidelines
+When writing in `/docs/`:
 
-**4 Core Platforms** (Foundation):
-- CORE-001: Auth
-- CORE-002: DMS
-- CORE-003: Workflow
-- CORE-004: Dynamic Database
+- Use `[[Wiki Links]]` to connect related documents
+- Follow existing metadata format in module files
+- Use templates from `00-templates/` for new features/tasks
+- Keep daily notes in `04-journal/` with date prefix: `YYYY-MM-DD - Description.md`
 
-**Add-ons** (Depend on cores):
-- ADD-001 to ADD-014
+### 3. Failure Stop Rule
+**If the same feature/bug fix fails 2 times → STOP and ASK.**
 
-**Deprecated**:
-- Case Management (deprecated) - merged to Dynamic DB
-- MS PlugIn (deprecated) - replaced by Desktop App
+- First failure: Try alternate approach
+- Second failure: Stop, document what you tried in `04-journal/`, ask for help
+- Do not attempt a third time without discussion
 
-## Module Metadata Format
+### 4. Module Dependency Rule
+Before working on add-ons, check their `depend-on` metadata.
 
-Every module file includes:
-```yaml
-- type: core | add-on
-- depend-on: CORE-xxx, CORE-yyy (for add-ons)
-- status: stable | in-dev | planned
-- price-tier: business | premium | enterprise | included
-```
+If core dependency is not stable → focus on core first or ask.
 
-## Before Working on This Project
+## Quick Start
 
 1. Read `docs/00-meta/Dashboard.md` for current status
-2. Check module dependencies before proposing changes
-3. Update module status when completing work
-4. Use `[[Wiki Links]]` to connect related documents
-
-## Naming Conventions
-
-- Cores: `CORE-XXX - Name.md`
-- Add-ons: `ADD-XXX - Name.md`
-- Features: `FEAT-XXX.X - Name.md`
-- Tasks: `TASK-XXX.X.X - Name.md`
-- Deprecated: `Name (deprecated).md`
+2. Read `docs/00-meta/Documentation Guide.md` for structure & naming rules
+3. Check module dependencies before proposing changes
+4. Update module status when completing work
 
 ## Git Workflow
 
