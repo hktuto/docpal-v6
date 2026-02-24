@@ -1,19 +1,23 @@
 <script lang="ts" setup>
 import { ref, nextTick } from 'vue'
 import { readQRCode, type QRCodeResult } from '../utils/qrCodeReader'
-import { loadPDF, renderPDFPageToCanvas, getPDFPagesInfo, isPDFFile, isImageFile, type PDFPageInfo, type PDFDocument } from '../utils/pdfToImage'
+import { loadPDF, renderPDFPageToCanvas, getPDFPagesInfo, isPDFFile, isImageFile, type PDFPageInfo } from '../utils/pdfToImage'
 
 // File upload
 const fileInput = ref<HTMLInputElement | null>(null)
 const uploadedFile = ref<File | null>(null)
 const uploadedImageUrl = ref<string>('')
 
-// PDF handling
+// PDF handling - Note: pdfDocument is NOT stored in a ref to avoid breaking pdfjs
+let pdfDocument: any = null
 const isPDF = ref(false)
-const pdfDocument = ref<PDFDocument | null>(null)
 const pdfPages = ref<PDFPageInfo[]>([])
+const pdfThumbnails = ref<Map<number, string>>(new Map())
 const selectedPage = ref(1)
 const showPageSelector = ref(false)
+const isConvertingPDF = ref(false)
+const isGeneratingThumbnails = ref(false)
+const pdfScale = ref(2) // Default scale for PDF to image conversion
 
 // Crop dialog
 const showCropDialog = ref(false)
@@ -26,12 +30,22 @@ const isDragging = ref(false)
 const startX = ref(0)
 const startY = ref(0)
 const cropRect = ref({ x: 0, y: 0, width: 0, height: 0 })
-const scale = ref(1) // Scale factor between displayed image and original
+const scale = ref(1)
+const zoomLevel = ref(1)
+const minZoom = 0.5
+const maxZoom = 3
+const isMovingCrop = ref(false)
+const moveStartX = ref(0)
+const moveStartY = ref(0)
+const cropStartX = ref(0)
+const cropStartY = ref(0)
 
 // Result
 const scanResult = ref<QRCodeResult | null>(null)
 const scanError = ref<string>('')
 const isScanning = ref(false)
+const scannedImageUrl = ref<string>('')
+const croppedImageUrl = ref<string>('')
 const isLoading = ref(false)
 
 // Trigger file input
@@ -49,17 +63,23 @@ async function handleFileUpload(event: Event) {
   // Reset previous state
   resetState()
   uploadedFile.value = file
+  isLoading.value = true
 
-  // Check file type
-  if (isPDFFile(file)) {
-    isPDF.value = true
-    await handlePDFUpload(file)
-  } else if (isImageFile(file)) {
-    isPDF.value = false
-    await handleImageUpload(file)
-  } else {
-    scanError.value = 'Unsupported file type. Please upload a PDF or image file.'
-    return
+  try {
+    // Check file type
+    if (isPDFFile(file)) {
+      isPDF.value = true
+      await handlePDFUpload(file)
+    } else if (isImageFile(file)) {
+      isPDF.value = false
+      await handleImageUpload(file)
+    } else {
+      scanError.value = 'Unsupported file type. Please upload a PDF or image file.'
+    }
+  } catch (error) {
+    scanError.value = 'Failed to load file: ' + (error as Error).message
+  } finally {
+    isLoading.value = false
   }
 
   // Reset file input
@@ -68,24 +88,53 @@ async function handleFileUpload(event: Event) {
 
 // Handle PDF upload
 async function handlePDFUpload(file: File) {
-  isLoading.value = true
-
   try {
-    pdfDocument.value = await loadPDF(file)
-    pdfPages.value = await getPDFPagesInfo(pdfDocument.value)
+    // Load PDF - store in regular variable, NOT in ref
+    const pdf = await loadPDF(file)
+    pdfDocument = pdf.doc
+    pdfPages.value = await getPDFPagesInfo(pdf)
 
     if (pdfPages.value.length > 1) {
       // Show page selector if multiple pages
       showPageSelector.value = true
+      // Generate thumbnails
+      generateThumbnails()
     } else {
       // Auto-select first page if only one page
       selectedPage.value = 1
-      await loadPDFPage(1)
+      await convertPDFPage(1)
     }
   } catch (error) {
     scanError.value = 'Failed to load PDF: ' + (error as Error).message
+    console.error(error)
+  }
+}
+
+// Generate thumbnails for all pages
+async function generateThumbnails() {
+  if (!pdfDocument) return
+
+  isGeneratingThumbnails.value = true
+  pdfThumbnails.value = new Map()
+
+  try {
+    // Generate thumbnails for first 10 pages (to avoid too much processing)
+    const pagesToProcess = Math.min(pdfPages.value.length, 10)
+
+    for (let i = 1; i <= pagesToProcess; i++) {
+      try {
+        const canvas = await renderPDFPageToCanvas(pdfDocument, i, {
+          scale: 0.3, // Small scale for thumbnail
+          maxWidth: 150,
+          maxHeight: 200
+        })
+        pdfThumbnails.value.set(i, canvas.toDataURL('image/png'))
+      } catch (e) {
+        console.error(`Failed to generate thumbnail for page ${i}:`, e)
+      }
+    }
   } finally {
-    isLoading.value = false
+    isGeneratingThumbnails.value = false
   }
 }
 
@@ -103,18 +152,18 @@ async function handleImageUpload(file: File) {
   reader.readAsDataURL(file)
 }
 
-// Load specific PDF page
-async function loadPDFPage(pageNumber: number) {
-  if (!pdfDocument.value) return
+// Convert PDF page to image
+async function convertPDFPage(pageNumber: number) {
+  if (!pdfDocument) return
 
-  isLoading.value = true
+  isConvertingPDF.value = true
   showPageSelector.value = false
 
   try {
-    const canvas = await renderPDFPageToCanvas(pdfDocument.value, pageNumber, {
-      scale: 2, // Higher resolution for better QR scanning
-      maxWidth: 1200,
-      maxHeight: 1200
+    const canvas = await renderPDFPageToCanvas(pdfDocument, pageNumber, {
+      scale: pdfScale.value,
+      maxWidth: 2000,
+      maxHeight: 2000
     })
 
     uploadedImageUrl.value = canvas.toDataURL('image/png')
@@ -124,10 +173,17 @@ async function loadPDFPage(pageNumber: number) {
       loadImageForCrop()
     })
   } catch (error) {
-    scanError.value = 'Failed to render PDF page: ' + (error as Error).message
+    scanError.value = 'Failed to convert PDF page: ' + (error as Error).message
+    console.error(error)
   } finally {
-    isLoading.value = false
+    isConvertingPDF.value = false
   }
+}
+
+// Select page from thumbnail
+async function selectPageFromThumbnail(pageNumber: number) {
+  selectedPage.value = pageNumber
+  await convertPDFPage(pageNumber)
 }
 
 // Load image on canvas for cropping
@@ -160,6 +216,11 @@ function loadImageForCrop() {
       scale.value = 1
     }
 
+    // Store base dimensions for zoom
+    baseWidth.value = width
+    baseHeight.value = height
+    zoomLevel.value = 1
+
     canvas.width = width
     canvas.height = height
 
@@ -174,9 +235,30 @@ function onMouseDown(event: MouseEvent) {
   if (!canvasRef.value) return
 
   const rect = canvasRef.value.getBoundingClientRect()
+  const x = (event.clientX - rect.left) / zoomLevel.value
+  const y = (event.clientY - rect.top) / zoomLevel.value
+  
+  // Check if clicking inside existing crop rectangle to move it
+  if (cropRect.value.width > 0) {
+    if (
+      x >= cropRect.value.x &&
+      x <= cropRect.value.x + cropRect.value.width &&
+      y >= cropRect.value.y &&
+      y <= cropRect.value.y + cropRect.value.height
+    ) {
+      isMovingCrop.value = true
+      moveStartX.value = event.clientX
+      moveStartY.value = event.clientY
+      cropStartX.value = cropRect.value.x
+      cropStartY.value = cropRect.value.y
+      return
+    }
+  }
+  
+  // Start new crop selection
   isDragging.value = true
-  startX.value = event.clientX - rect.left
-  startY.value = event.clientY - rect.top
+  startX.value = x
+  startY.value = y
 
   cropRect.value = {
     x: startX.value,
@@ -187,11 +269,35 @@ function onMouseDown(event: MouseEvent) {
 }
 
 function onMouseMove(event: MouseEvent) {
-  if (!isDragging.value || !canvasRef.value) return
+  if (!canvasRef.value) return
+  
+  if (isMovingCrop.value) {
+    // Move existing crop
+    const deltaX = (event.clientX - moveStartX.value) / zoomLevel.value
+    const deltaY = (event.clientY - moveStartY.value) / zoomLevel.value
+    
+    let newX = cropStartX.value + deltaX
+    let newY = cropStartY.value + deltaY
+    
+    // Constrain to canvas bounds (using base dimensions)
+    newX = Math.max(0, Math.min(newX, baseWidth.value - cropRect.value.width))
+    newY = Math.max(0, Math.min(newY, baseHeight.value - cropRect.value.height))
+    
+    cropRect.value = {
+      ...cropRect.value,
+      x: newX,
+      y: newY
+    }
+    
+    applyZoom()
+    return
+  }
+  
+  if (!isDragging.value) return
 
   const rect = canvasRef.value.getBoundingClientRect()
-  const currentX = event.clientX - rect.left
-  const currentY = event.clientY - rect.top
+  const currentX = (event.clientX - rect.left) / zoomLevel.value
+  const currentY = (event.clientY - rect.top) / zoomLevel.value
 
   cropRect.value = {
     x: Math.min(startX.value, currentX),
@@ -200,35 +306,215 @@ function onMouseMove(event: MouseEvent) {
     height: Math.abs(currentY - startY.value)
   }
 
-  drawCanvasWithSelection()
+  applyZoom()
 }
 
 function onMouseUp() {
   isDragging.value = false
+  isMovingCrop.value = false
 }
 
-// Draw canvas with selection rectangle
-function drawCanvasWithSelection() {
-  if (!canvasRef.value || !originalImage.value) return
+// Store base dimensions for zoom calculations
+const baseWidth = ref(0)
+const baseHeight = ref(0)
 
+// Zoom functions
+function zoomIn() {
+  if (zoomLevel.value < maxZoom) {
+    zoomLevel.value = Math.min(zoomLevel.value + 0.25, maxZoom)
+    applyZoom()
+  }
+}
+
+function zoomOut() {
+  if (zoomLevel.value > minZoom) {
+    zoomLevel.value = Math.max(zoomLevel.value - 0.25, minZoom)
+    applyZoom()
+  }
+}
+
+function resetZoom() {
+  zoomLevel.value = 1
+  applyZoom()
+}
+
+function applyZoom() {
+  if (!canvasRef.value || !originalImage.value) return
+  
   const canvas = canvasRef.value
   const ctx = canvas.getContext('2d')
   if (!ctx) return
-
-  // Redraw image
-  ctx.drawImage(originalImage.value, 0, 0, canvas.width, canvas.height)
-
-  // Draw selection rectangle
+  
+  // Calculate new dimensions based on zoom level
+  const newWidth = baseWidth.value * zoomLevel.value
+  const newHeight = baseHeight.value * zoomLevel.value
+  
+  // Resize canvas
+  canvas.width = newWidth
+  canvas.height = newHeight
+  
+  // Draw image at new size
+  ctx.drawImage(originalImage.value, 0, 0, newWidth, newHeight)
+  
+  // Redraw crop rectangle if exists
   if (cropRect.value.width > 0 && cropRect.value.height > 0) {
-    ctx.strokeStyle = '#409eff'
-    ctx.lineWidth = 2
-    ctx.setLineDash([5, 5])
-    ctx.strokeRect(cropRect.value.x, cropRect.value.y, cropRect.value.width, cropRect.value.height)
-
-    // Fill with semi-transparent overlay
-    ctx.fillStyle = 'rgba(64, 158, 255, 0.2)'
-    ctx.fillRect(cropRect.value.x, cropRect.value.y, cropRect.value.width, cropRect.value.height)
+    // Scale crop rectangle coordinates
+    const scaledRect = {
+      x: cropRect.value.x * zoomLevel.value,
+      y: cropRect.value.y * zoomLevel.value,
+      width: cropRect.value.width * zoomLevel.value,
+      height: cropRect.value.height * zoomLevel.value
+    }
+    drawCropRectangleScaled(scaledRect)
   }
+}
+
+function drawCropRectangleScaled(scaledRect: { x: number; y: number; width: number; height: number }) {
+  if (!canvasRef.value) return
+  
+  const canvas = canvasRef.value
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  
+  // Draw selection rectangle
+  ctx.strokeStyle = '#409eff'
+  ctx.lineWidth = 2
+  ctx.setLineDash([5, 5])
+  ctx.strokeRect(scaledRect.x, scaledRect.y, scaledRect.width, scaledRect.height)
+  
+  // Fill with semi-transparent overlay
+  ctx.fillStyle = 'rgba(64, 158, 255, 0.2)'
+  ctx.fillRect(scaledRect.x, scaledRect.y, scaledRect.width, scaledRect.height)
+  
+  // Draw resize handles
+  const handleSize = 8
+  ctx.fillStyle = '#409eff'
+  ctx.setLineDash([])
+  
+  // Corner handles
+  const corners = [
+    { x: scaledRect.x, y: scaledRect.y },
+    { x: scaledRect.x + scaledRect.width, y: scaledRect.y },
+    { x: scaledRect.x, y: scaledRect.y + scaledRect.height },
+    { x: scaledRect.x + scaledRect.width, y: scaledRect.y + scaledRect.height }
+  ]
+  
+  corners.forEach(corner => {
+    ctx.fillRect(corner.x - handleSize / 2, corner.y - handleSize / 2, handleSize, handleSize)
+  })
+}
+
+// Move crop rectangle
+function startMoveCrop(event: MouseEvent) {
+  if (!canvasRef.value || cropRect.value.width === 0) return
+  
+  const rect = canvasRef.value.getBoundingClientRect()
+  const x = (event.clientX - rect.left) / zoomLevel.value
+  const y = (event.clientY - rect.top) / zoomLevel.value
+  
+  // Check if clicking inside crop rectangle
+  if (
+    x >= cropRect.value.x &&
+    x <= cropRect.value.x + cropRect.value.width &&
+    y >= cropRect.value.y &&
+    y <= cropRect.value.y + cropRect.value.height
+  ) {
+    isMovingCrop.value = true
+    moveStartX.value = event.clientX
+    moveStartY.value = event.clientY
+    cropStartX.value = cropRect.value.x
+    cropStartY.value = cropRect.value.y
+    event.preventDefault()
+  }
+}
+
+function moveCrop(event: MouseEvent) {
+  if (!isMovingCrop.value || !canvasRef.value) return
+  
+  const rect = canvasRef.value.getBoundingClientRect()
+  const canvas = canvasRef.value
+  
+  // Calculate movement delta
+  const deltaX = (event.clientX - moveStartX.value) / zoomLevel.value
+  const deltaY = (event.clientY - moveStartY.value) / zoomLevel.value
+  
+  // Calculate new position
+  let newX = cropStartX.value + deltaX
+  let newY = cropStartY.value + deltaY
+  
+  // Constrain to canvas bounds
+  newX = Math.max(0, Math.min(newX, canvas.width / zoomLevel.value - cropRect.value.width))
+  newY = Math.max(0, Math.min(newY, canvas.height / zoomLevel.value - cropRect.value.height))
+  
+  cropRect.value = {
+    ...cropRect.value,
+    x: newX,
+    y: newY
+  }
+  
+  applyZoom()
+}
+
+// Draw crop rectangle
+function drawCropRectangle() {
+  if (!canvasRef.value) return
+  
+  const canvas = canvasRef.value
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  
+  // Draw selection rectangle
+  ctx.strokeStyle = '#409eff'
+  ctx.lineWidth = 2 / zoomLevel.value
+  ctx.setLineDash([5 / zoomLevel.value, 5 / zoomLevel.value])
+  ctx.strokeRect(
+    cropRect.value.x * zoomLevel.value,
+    cropRect.value.y * zoomLevel.value,
+    cropRect.value.width * zoomLevel.value,
+    cropRect.value.height * zoomLevel.value
+  )
+  
+  // Fill with semi-transparent overlay
+  ctx.fillStyle = 'rgba(64, 158, 255, 0.2)'
+  ctx.fillRect(
+    cropRect.value.x * zoomLevel.value,
+    cropRect.value.y * zoomLevel.value,
+    cropRect.value.width * zoomLevel.value,
+    cropRect.value.height * zoomLevel.value
+  )
+  
+  // Draw resize handles
+  const handleSize = 8 / zoomLevel.value
+  ctx.fillStyle = '#409eff'
+  ctx.setLineDash([])
+  
+  // Corner handles
+  const corners = [
+    { x: cropRect.value.x, y: cropRect.value.y },
+    { x: cropRect.value.x + cropRect.value.width, y: cropRect.value.y },
+    { x: cropRect.value.x, y: cropRect.value.y + cropRect.value.height },
+    { x: cropRect.value.x + cropRect.value.width, y: cropRect.value.y + cropRect.value.height }
+  ]
+  
+  corners.forEach(corner => {
+    ctx.fillRect(
+      corner.x * zoomLevel.value - handleSize / 2,
+      corner.y * zoomLevel.value - handleSize / 2,
+      handleSize,
+      handleSize
+    )
+  })
+}
+
+// Clear crop selection
+function clearCrop() {
+  cropRect.value = { x: 0, y: 0, width: 0, height: 0 }
+  applyZoom()
+}
+
+// Draw canvas with selection rectangle (legacy function, now uses applyZoom)
+function drawCanvasWithSelection() {
+  applyZoom()
 }
 
 // Perform crop and scan
@@ -262,6 +548,10 @@ async function cropAndScan() {
   if (!cropCtx) return
 
   cropCtx.drawImage(originalImage.value, originalX, originalY, originalWidth, originalHeight, 0, 0, originalWidth, originalHeight)
+
+  // Save images for display
+  croppedImageUrl.value = cropCanvas.toDataURL('image/png')
+  scannedImageUrl.value = uploadedImageUrl.value
 
   // Scan QR code
   isScanning.value = true
@@ -299,10 +589,13 @@ function cancelCrop() {
 function resetTest() {
   uploadedFile.value = null
   uploadedImageUrl.value = ''
-  originalImage.value = null
-  pdfDocument.value = null
+  scannedImageUrl.value = ''
+  croppedImageUrl.value = ''
+  pdfDocument = null
   pdfPages.value = []
+  pdfThumbnails.value = new Map()
   selectedPage.value = 1
+  pdfScale.value = 2
   isPDF.value = false
   scanResult.value = null
   scanError.value = ''
@@ -313,21 +606,19 @@ function resetTest() {
 // Reset state helper
 function resetState() {
   uploadedImageUrl.value = ''
+  scannedImageUrl.value = ''
+  croppedImageUrl.value = ''
   originalImage.value = null
-  pdfDocument.value = null
+  pdfDocument = null
   pdfPages.value = []
+  pdfThumbnails.value = new Map()
   selectedPage.value = 1
+  pdfScale.value = 2
   isPDF.value = false
   scanResult.value = null
   scanError.value = ''
   cropRect.value = { x: 0, y: 0, width: 0, height: 0 }
   showPageSelector.value = false
-}
-
-// Change page in page selector
-async function onPageChange(pageNumber: number) {
-  selectedPage.value = pageNumber
-  await loadPDFPage(pageNumber)
 }
 </script>
 
@@ -349,6 +640,22 @@ async function onPageChange(pageNumber: number) {
 
     <!-- Result Section -->
     <div v-else class="result-section">
+      <!-- Scanned Images -->
+      <div class="scanned-images">
+        <div class="image-preview">
+          <h4>Original Image</h4>
+          <div class="image-container">
+            <img :src="scannedImageUrl" alt="Scanned Image" />
+          </div>
+        </div>
+        <div class="image-preview">
+          <h4>Cropped Area</h4>
+          <div class="image-container">
+            <img :src="croppedImageUrl" alt="Cropped Image" />
+          </div>
+        </div>
+      </div>
+
       <div v-if="scanResult" class="success-result">
         <el-result icon="success" title="QR Code Found!">
           <template #sub-title>
@@ -371,24 +678,62 @@ async function onPageChange(pageNumber: number) {
     <!-- Hidden canvas for cropping -->
     <canvas ref="cropCanvasRef" style="display: none"></canvas>
 
-    <!-- Page Selector Dialog (for PDFs with multiple pages) -->
-    <el-dialog v-model="showPageSelector" title="Select PDF Page" width="500px" :close-on-click-modal="false" :show-close="false">
+    <!-- Page Selector Dialog with Thumbnails -->
+    <el-dialog v-model="showPageSelector" title="Select PDF Page" width="800px" :close-on-click-modal="false" :show-close="false">
       <div class="page-selector-content">
-        <p class="page-selector-hint">This PDF has {{ pdfPages.length }} pages. Please select a page to scan:</p>
+        <p class="page-selector-hint">This PDF has {{ pdfPages.length }} pages. Click on a thumbnail to select a page:</p>
 
-        <el-select v-model="selectedPage" placeholder="Select page" size="large" style="width: 200px" @change="onPageChange">
-          <el-option
+        <div v-if="isGeneratingThumbnails" class="thumbnails-loading">
+          <el-icon class="loading-icon"><Loading /></el-icon>
+          <span>Generating thumbnails...</span>
+        </div>
+
+        <div class="thumbnails-grid">
+          <div
             v-for="page in pdfPages"
             :key="page.pageNumber"
-            :label="`Page ${page.pageNumber} (${Math.round(page.width)} x ${Math.round(page.height)})`"
-            :value="page.pageNumber"
+            class="thumbnail-item"
+            :class="{ selected: selectedPage === page.pageNumber }"
+            @click="selectedPage = page.pageNumber"
+          >
+            <div class="thumbnail-image">
+              <img v-if="pdfThumbnails.get(page.pageNumber)" :src="pdfThumbnails.get(page.pageNumber)" :alt="`Page ${page.pageNumber}`" />
+              <div v-else class="thumbnail-placeholder">
+                <span>Page {{ page.pageNumber }}</span>
+              </div>
+            </div>
+            <div class="thumbnail-label">Page {{ page.pageNumber }}</div>
+            <div v-if="selectedPage === page.pageNumber" class="selected-indicator">
+              <el-icon><Check /></el-icon>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scale Control -->
+        <div class="scale-control">
+          <span class="scale-label">Image Quality:</span>
+          <el-slider
+            v-model="pdfScale"
+            :min="1"
+            :max="4"
+            :step="0.5"
+            :marks="{ 1: 'Low', 2: 'Normal', 3: 'High', 4: 'Ultra' }"
+            show-stops
           />
-        </el-select>
+          <span class="scale-value">{{ pdfScale }}x ({{ Math.round(pdfScale * 72) }} DPI)</span>
+        </div>
+
+        <div class="page-selector-actions">
+          <span class="selected-info">Selected: Page {{ selectedPage }}</span>
+        </div>
       </div>
 
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="cancelCrop">Cancel</el-button>
+          <el-button type="primary" :loading="isConvertingPDF" @click="convertPDFPage(selectedPage)">
+            {{ isConvertingPDF ? 'Converting...' : 'Select Page' }}
+          </el-button>
         </div>
       </template>
     </el-dialog>
@@ -397,29 +742,58 @@ async function onPageChange(pageNumber: number) {
     <el-dialog
       v-model="showCropDialog"
       :title="isPDF ? `Crop Image - Page ${selectedPage}` : 'Crop Image'"
-      width="700px"
+      width="800px"
       :close-on-click-modal="false"
       :show-close="false"
     >
       <div class="crop-dialog-content">
         <p class="crop-hint">
-          Drag to select the area containing the QR code, or click "Scan Full Image" to scan the entire image.
+          Drag to select the area containing the QR code. Use zoom controls for precision. Click and drag the selection to move it.
           <span v-if="isPDF" class="pdf-notice"> <br />You can go back and select a different page if needed. </span>
         </p>
 
-        <div class="canvas-container">
-          <canvas ref="canvasRef" class="crop-canvas" @mousedown="onMouseDown" @mousemove="onMouseMove" @mouseup="onMouseUp" @mouseleave="onMouseUp"></canvas>
+        <!-- Zoom Controls -->
+        <div class="zoom-controls">
+          <el-button-group>
+            <el-button @click="zoomOut" :disabled="zoomLevel <= minZoom">
+              <Icon name="lucide:zoom-out" />
+            </el-button>
+            <el-button disabled class="zoom-level">
+              {{ Math.round(zoomLevel * 100) }}%
+            </el-button>
+            <el-button @click="zoomIn" :disabled="zoomLevel >= maxZoom">
+              <Icon name="lucide:zoom-in" />
+            </el-button>
+            <el-button @click="resetZoom">
+              <Icon name="lucide:rotate-ccw" />
+            </el-button>
+          </el-button-group>
+          
+          <el-button 
+            v-if="cropRect.width > 0" 
+            type="danger" 
+            size="small" 
+            @click="clearCrop"
+          >
+            Clear Selection
+          </el-button>
         </div>
 
-        <!-- Page navigation for PDF -->
-        <div v-if="isPDF && pdfPages.length > 1" class="page-navigation">
-          <el-pagination
-            v-model:current-page="selectedPage"
-            :total="pdfPages.length"
-            :page-size="1"
-            layout="prev, pager, next"
-            @current-change="onPageChange"
-          />
+        <!-- Crop Info -->
+        <div v-if="cropRect.width > 0" class="crop-info">
+          <span>Selection: {{ Math.round(cropRect.width) }} x {{ Math.round(cropRect.height) }} px</span>
+          <span>Position: {{ Math.round(cropRect.x) }}, {{ Math.round(cropRect.y) }}</span>
+        </div>
+
+        <div class="canvas-container">
+          <canvas 
+            ref="canvasRef" 
+            class="crop-canvas" 
+            @mousedown="onMouseDown" 
+            @mousemove="onMouseMove" 
+            @mouseup="onMouseUp" 
+            @mouseleave="onMouseUp"
+          ></canvas>
         </div>
       </div>
 
@@ -486,10 +860,48 @@ h1 {
   color: #606266;
 }
 
+.scanned-images {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.image-preview {
+  flex: 1;
+  min-width: 250px;
+  max-width: 350px;
+}
+
+.image-preview h4 {
+  margin: 0 0 12px 0;
+  color: #606266;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.image-container {
+  border: 1px solid #dcdfe6;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f5f7fa;
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-container img {
+  max-width: 100%;
+  max-height: 250px;
+  object-fit: contain;
+  display: block;
+}
+
 .page-selector-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 20px;
 }
 
@@ -497,6 +909,140 @@ h1 {
   color: #606266;
   font-size: 14px;
   text-align: center;
+  margin: 0;
+}
+
+.thumbnails-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #606266;
+  padding: 20px;
+}
+
+.loading-icon {
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.thumbnails-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.thumbnail-item {
+  position: relative;
+  cursor: pointer;
+  border: 2px solid #dcdfe6;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s;
+  background: #fff;
+}
+
+.thumbnail-item:hover {
+  border-color: #409eff;
+  box-shadow: 0 2px 12px rgba(64, 158, 255, 0.2);
+}
+
+.thumbnail-item.selected {
+  border-color: #409eff;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.3);
+}
+
+.thumbnail-image {
+  width: 100%;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f7fa;
+  overflow: hidden;
+}
+
+.thumbnail-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.thumbnail-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #909399;
+  font-size: 14px;
+}
+
+.thumbnail-label {
+  text-align: center;
+  padding: 8px;
+  font-size: 12px;
+  color: #606266;
+  background: #f5f7fa;
+  border-top: 1px solid #ebeef5;
+}
+
+.selected-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  background: #409eff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+}
+
+.page-selector-actions {
+  text-align: center;
+  padding-top: 10px;
+  border-top: 1px solid #ebeef5;
+}
+
+.selected-info {
+  color: #409eff;
+  font-weight: 500;
+}
+
+.scale-control {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+  background: #f5f7fa;
+  border-radius: 8px;
+}
+
+.scale-label {
+  font-weight: 500;
+  color: #606266;
+}
+
+.scale-value {
+  text-align: center;
+  color: #409eff;
+  font-weight: 500;
+  font-size: 14px;
 }
 
 .crop-dialog-content {
@@ -517,21 +1063,41 @@ h1 {
   font-size: 12px;
 }
 
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.zoom-level {
+  min-width: 70px;
+  font-weight: 500;
+}
+
+.crop-info {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 12px;
+  padding: 8px 16px;
+  background: #f5f7fa;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #606266;
+}
+
 .canvas-container {
   border: 1px solid #dcdfe6;
   border-radius: 4px;
-  overflow: hidden;
+  overflow: auto;
+  max-width: 100%;
+  max-height: 500px;
   background-color: #f5f7fa;
 }
 
 .crop-canvas {
   display: block;
   cursor: crosshair;
-  max-width: 100%;
-}
-
-.page-navigation {
-  margin-top: 16px;
 }
 
 .dialog-footer {

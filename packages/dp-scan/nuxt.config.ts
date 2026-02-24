@@ -6,8 +6,7 @@ export default defineNuxtConfig({
   extends: [],
   vite: {
     optimizeDeps: {
-      // Exclude pdfjs-dist from optimization (it has worker files)
-      exclude: []
+      exclude: ['pdfjs-dist']
     }
   }
 })
