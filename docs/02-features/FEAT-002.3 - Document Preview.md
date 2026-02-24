@@ -3,7 +3,7 @@ type: feature
 module: "[[CORE-002 - DMS]]"
 feature-id: DMS-003
 depends-on:
-  - "[[CORE-002_DMS-001_Document Browse]]"
+  - "[[FEAT-002.1 - Document Browse]]"
 status: stable
 ---
 
@@ -167,6 +167,6 @@ const getViewerComponent = (mimeType, extension) => {
 - Watermark overlay for sensitive docs
 
 ### Related Features
-- [[CORE-002_DMS-001_Document Browse]] - Preview triggered from browse
-- [[CORE-002_DMS-008_Watermark Integration]] - Watermark overlays
-- [[CORE-002_DMS-005_Version Control]] - Version comparison preview
+- [[FEAT-002.1 - Document Browse]] - Preview triggered from browse
+- [[FEAT-002.8 - Watermark Integration]] - Watermark overlays
+- [[FEAT-002.5 - Version Control]] - Version comparison preview

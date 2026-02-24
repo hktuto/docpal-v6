@@ -20,9 +20,9 @@ Requires all 3 cores: Auth for identity, DMS for documents, Workflow for approva
 
 | Feature | Description | ID |
 |---------|-------------|-----|
-| PDF Signature | Core library for PDF signature design and application | [[ADD-002_ESIGN-001_PDF Signature\|ESIGN-001]] |
-| Signature Capture | Canvas-based signature capture component | [[ADD-002_ESIGN-002_Signature Capture\|ESIGN-002]] |
-| Signature Workflow | BPMN workflow integration for signature tasks | [[ADD-002_ESIGN-003_Signature Workflow\|ESIGN-003]] |
+| PDF Signature | Core library for PDF signature design and application | [[FEAT-101.1 - PDF Signature|FEAT-101.1]] |
+| Signature Capture | Canvas-based signature capture component | [[FEAT-101.2 - Signature Capture|FEAT-101.2]] |
+| Signature Workflow | BPMN workflow integration for signature tasks | [[FEAT-101.3 - Signature Workflow|FEAT-101.3]] |
 
 ## Status Notes
 - ✅ **IMPLEMENTED** - E-signature functionality is complete

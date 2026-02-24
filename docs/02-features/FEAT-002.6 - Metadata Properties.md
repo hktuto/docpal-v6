@@ -3,8 +3,8 @@ type: feature
 module: "[[CORE-002 - DMS]]"
 feature-id: DMS-006
 depends-on:
-  - "[[CORE-002_DMS-001_Document Browse]]"
-  - "[[CORE-002_DMS-002_File Upload]]"
+  - "[[FEAT-002.1 - Document Browse]]"
+  - "[[FEAT-002.2 - File Upload]]"
 status: stable
 ---
 
@@ -169,6 +169,6 @@ pages/admin-document-type/  # Document type administration (complete module)
 - Custom validators via plugin
 
 ### Related Features
-- [[CORE-002_DMS-002_File Upload]] - Metadata during upload
-- [[CORE-002_DMS-007_Search]] - Metadata indexed for search
-- [[CORE-002_DMS-001_Document Browse]] - Metadata shown in info panel
+- [[FEAT-002.2 - File Upload]] - Metadata during upload
+- [[FEAT-002.7 - Search]] - Metadata indexed for search
+- [[FEAT-002.1 - Document Browse]] - Metadata shown in info panel

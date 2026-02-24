@@ -19,7 +19,7 @@ DMS for document lifecycle, Workflow for policy automation.
 
 | Feature | Description | ID |
 |---------|-------------|-----|
-| Retention Policies | Legal hold and compliance retention rules | [[ADD-009_RETENTION-001_Retention Policies\|RETENTION-001]] |
+| Retention Policies | Legal hold and compliance retention rules | [[FEAT-104.1 - Retention Policies|FEAT-104.1]] |
 
 ## Status Notes
 - ✅ **IMPLEMENTED** - Retention policies complete

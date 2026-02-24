@@ -17,7 +17,7 @@ Captures events from all cores for security and compliance.
 
 | Feature | Description | ID |
 |---------|-------------|-----|
-| Audit Log | Compliance-grade audit logging and reporting | [[ADD-014_AUDIT-001_Audit Log\|AUDIT-001]] |
+| Audit Log | Compliance-grade audit logging and reporting | [[FEAT-106.1 - Audit Log|FEAT-106.1]] |
 
 ## Status Notes
 - ✅ **IMPLEMENTED** - Audit logging complete

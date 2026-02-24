@@ -81,6 +81,6 @@ Workflow Rules provides a flexible system for defining and enforcing validation 
 - **Context**: `packages/bpmn/components/global/bpmn/context/info/`
 
 ## Related Features
-- [[CORE-003_WORKFLOW-001_BPMN Designer]] - Rule configuration
-- [[CORE-003_WORKFLOW-004_Form Renderer]] - Form validation
-- [[CORE-003_WORKFLOW-002_Workflow Engine]] - Rule evaluation
+- [[FEAT-003.1 - BPMN Designer]] - Rule configuration
+- [[FEAT-003.4 - Form Renderer]] - Form validation
+- [[FEAT-003.2 - Workflow Engine]] - Rule evaluation

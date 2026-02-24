@@ -4,10 +4,10 @@ module: "[[CORE-001 - Auth]]"
 status: stable
 feature-id: AUTH-004
 depends-on:
-  - "[[CORE-001_AUTH-001_Authentication]]"
+  - "[[FEAT-001.1 - Authentication]]"
 ---
 
-# CORE-001_AUTH-004: Session Management
+# FEAT-001.4: Session Management
 
 ## Overview
 JWT session lifecycle management with automatic token refresh, idle timeout detection, and multi-device handling.
@@ -102,7 +102,7 @@ Login → Active → Idle Warning → Timeout → Logout
 - Background tabs still tracked
 
 ## Related Features
-- [[CORE-001_AUTH-001_Authentication]]
+- [[FEAT-001.1 - Authentication]]
 
 ## Completion Checklist
 - [x] Auto token refresh

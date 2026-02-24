@@ -6,7 +6,7 @@ feature-id: AUTH-001
 depends-on: []
 ---
 
-# AUTH-001: Authentication (Login/Logout)
+# FEAT-001.1: Authentication (Login/Logout)
 
 ## Overview
 JWT-based authentication system with login, logout, and password reset flows. Replaces legacy Keycloak SSO.
@@ -91,9 +91,9 @@ These pages bypass auth check:
 - Role checks (isAdmin/isSuperAdmin) from token claims
 
 ## Related Features
-- [[AUTH-002 - RBAC & Permissions]]
-- [[AUTH-003 - Password Policy]]
-- [[AUTH-004 - Session Management]]
+- [[FEAT-001.2 - RBAC]]
+- [[FEAT-001.3 - Password Policy]]
+- [[FEAT-001.4 - Session Management]]
 
 ## Completion Checklist
 - [x] Login page with form validation

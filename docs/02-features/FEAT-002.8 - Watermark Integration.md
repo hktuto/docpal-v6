@@ -3,8 +3,8 @@ type: feature
 module: "[[CORE-002 - DMS]]"
 feature-id: DMS-008
 depends-on:
-  - "[[CORE-002_DMS-003_Document Preview]]"
-  - "[[CORE-002_DMS-004_Document Actions]]"
+  - "[[FEAT-002.3 - Document Preview]]"
+  - "[[FEAT-002.4 - Document Actions]]"
 status: stable
 ---
 
@@ -188,6 +188,6 @@ const shouldApplyWatermark = (doc, action, user) => {
 - Caching: Watermarked versions cached briefly
 
 ### Related Features
-- [[CORE-002_DMS-004_Document Actions]] - Watermark action in downloads
-- [[CORE-002_DMS-003_Document Preview]] - Watermark in preview mode
-- [[CORE-002_DMS-006_Metadata Properties]] - Classification drives watermark rules
+- [[FEAT-002.4 - Document Actions]] - Watermark action in downloads
+- [[FEAT-002.3 - Document Preview]] - Watermark in preview mode
+- [[FEAT-002.6 - Metadata Properties]] - Classification drives watermark rules

@@ -157,5 +157,5 @@ Organizations using CMMN should plan migration to BPMN-based workflows:
 5. **Phased Rollout**: Migrate cases gradually
 
 ## Related Features
-- [[CORE-003_WORKFLOW-001_BPMN Designer]] - Recommended replacement
-- [[CORE-003_WORKFLOW-002_Workflow Engine]] - Process execution
+- [[FEAT-003.1 - BPMN Designer]] - Recommended replacement
+- [[FEAT-003.2 - Workflow Engine]] - Process execution

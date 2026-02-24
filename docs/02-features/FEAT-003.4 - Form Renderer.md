@@ -120,6 +120,6 @@ The Form Renderer provides dynamic form capabilities for workflow tasks, allowin
 - **Super Admin**: `pages/super-workflow-form/`
 
 ## Related Features
-- [[CORE-003_WORKFLOW-001_BPMN Designer]] - Form binding in designer
-- [[CORE-003_WORKFLOW-002_Workflow Engine]] - Form data processing
-- [[CORE-003_WORKFLOW-003_Task Management]] - Task form display
+- [[FEAT-003.1 - BPMN Designer]] - Form binding in designer
+- [[FEAT-003.2 - Workflow Engine]] - Form data processing
+- [[FEAT-003.3 - Task Management]] - Task form display

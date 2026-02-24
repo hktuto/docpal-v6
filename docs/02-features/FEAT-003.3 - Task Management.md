@@ -122,7 +122,7 @@ Task Management provides comprehensive interfaces for end-users to interact with
 - **Dashboard**: `packages/dp-dashboard/components/global/`
 
 ## Related Features
-- [[CORE-003_WORKFLOW-001_BPMN Designer]] - Workflow definitions
-- [[CORE-003_WORKFLOW-002_Workflow Engine]] - Process execution
-- [[CORE-003_WORKFLOW-004_Form Renderer]] - Task forms
-- [[CORE-003_WORKFLOW-005_Process History]] - Task history
+- [[FEAT-003.1 - BPMN Designer]] - Workflow definitions
+- [[FEAT-003.2 - Workflow Engine]] - Process execution
+- [[FEAT-003.4 - Form Renderer]] - Task forms
+- [[FEAT-003.5 - Process History]] - Task history

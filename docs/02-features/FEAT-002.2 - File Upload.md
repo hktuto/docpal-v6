@@ -3,7 +3,7 @@ type: feature
 module: "[[CORE-002 - DMS]]"
 feature-id: DMS-002
 depends-on:
-  - "[[CORE-002_DMS-001_Document Browse]]"
+  - "[[FEAT-002.1 - Document Browse]]"
 status: stable
 ---
 
@@ -165,6 +165,6 @@ PAUSED   FAILED (retry)   EXTRACTING   ARCHIVED
 - Rate limiting: 100 uploads/hour per user
 
 ### Related Features
-- [[CORE-002_DMS-001_Document Browse]] - Upload target folders
-- [[CORE-002_DMS-006_Metadata Properties]] - Metadata forms
-- [[CORE-002_DMS-005_Version Control]] - Replace creates versions
+- [[FEAT-002.1 - Document Browse]] - Upload target folders
+- [[FEAT-002.6 - Metadata Properties]] - Metadata forms
+- [[FEAT-002.5 - Version Control]] - Replace creates versions

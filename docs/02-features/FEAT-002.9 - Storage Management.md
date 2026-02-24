@@ -3,8 +3,8 @@ type: feature
 module: "[[CORE-002 - DMS]]"
 feature-id: DMS-009
 depends-on:
-  - "[[CORE-002_DMS-001_Document Browse]]"
-  - "[[CORE-002_DMS-002_File Upload]]"
+  - "[[FEAT-002.1 - Document Browse]]"
+  - "[[FEAT-002.2 - File Upload]]"
 status: stable
 ---
 
@@ -198,6 +198,6 @@ const selectBackend = (file, context) => {
 - Point-in-time recovery available
 
 ### Related Features
-- [[CORE-002_DMS-002_File Upload]] - Upload triggers storage routing
-- [[CORE-002_DMS-001_Document Browse]] - Archived status shown in browse
-- [[CORE-002_DMS-004_Document Actions]] - Delete frees storage quota
+- [[FEAT-002.2 - File Upload]] - Upload triggers storage routing
+- [[FEAT-002.1 - Document Browse]] - Archived status shown in browse
+- [[FEAT-002.4 - Document Actions]] - Delete frees storage quota

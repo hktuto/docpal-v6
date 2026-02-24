@@ -3,8 +3,8 @@ type: feature
 module: "[[CORE-002 - DMS]]"
 feature-id: DMS-005
 depends-on:
-  - "[[CORE-002_DMS-001_Document Browse]]"
-  - "[[CORE-002_DMS-003_Document Preview]]"
+  - "[[FEAT-002.1 - Document Browse]]"
+  - "[[FEAT-002.3 - Document Preview]]"
 status: stable
 ---
 
@@ -139,6 +139,6 @@ Current implementation: Full copy for simplicity, with compression
 | Text | ✓ | ✓ | ✓ |
 
 ### Related Features
-- [[CORE-002_DMS-002_File Upload]] - Replace creates new version
-- [[CORE-002_DMS-004_Document Actions]] - Checkout/checkin versioning
-- [[CORE-002_DMS-003_Document Preview]] - Preview any version
+- [[FEAT-002.2 - File Upload]] - Replace creates new version
+- [[FEAT-002.4 - Document Actions]] - Checkout/checkin versioning
+- [[FEAT-002.3 - Document Preview]] - Preview any version

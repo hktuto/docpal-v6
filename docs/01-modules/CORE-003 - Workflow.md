@@ -25,13 +25,13 @@ Automated approval flows, state transitions, triggers, and business process rout
 
 | Feature | ID | Description | Status |
 |---------|-----|-------------|--------|
-| [[CORE-003_WORKFLOW-001_BPMN Designer\|BPMN Designer]] | WORKFLOW-001 | Visual BPMN 2.0 workflow designer using AntV X6 | Active |
-| [[CORE-003_WORKFLOW-002_Workflow Engine\|Workflow Engine]] | WORKFLOW-002 | Core workflow execution engine | Active |
-| [[CORE-003_WORKFLOW-003_Task Management\|Task Management]] | WORKFLOW-003 | User task interfaces and management | Active |
-| [[CORE-003_WORKFLOW-004_Form Renderer\|Form Renderer]] | WORKFLOW-004 | Dynamic form rendering for workflow tasks | Active |
-| [[CORE-003_WORKFLOW-005_Process History\|Process History]] | WORKFLOW-005 | Process tracking and audit logs | Active |
-| [[CORE-003_WORKFLOW-006_Workflow Rules\|Workflow Rules]] | WORKFLOW-006 | Validation and business rules | Active |
-| [[CORE-003_WORKFLOW-007_CMMN Case Management\|CMMN Case Management]] | WORKFLOW-007 | Case Management (CMMN) | Deprecated |
+| [[FEAT-003.1 - BPMN Designer|BPMN Designer]] | WORKFLOW-001 | Visual BPMN 2.0 workflow designer using AntV X6 | Active |
+| [[FEAT-003.2 - Workflow Engine|Workflow Engine]] | WORKFLOW-002 | Core workflow execution engine | Active |
+| [[FEAT-003.3 - Task Management|Task Management]] | WORKFLOW-003 | User task interfaces and management | Active |
+| [[FEAT-003.4 - Form Renderer|Form Renderer]] | WORKFLOW-004 | Dynamic form rendering for workflow tasks | Active |
+| [[FEAT-003.5 - Process History|Process History]] | WORKFLOW-005 | Process tracking and audit logs | Active |
+| [[FEAT-003.6 - Workflow Rules|Workflow Rules]] | WORKFLOW-006 | Validation and business rules | Active |
+| [[FEAT-003.7 - CMMN Case Management|CMMN Case Management]] | WORKFLOW-007 | Case Management (CMMN) | Deprecated |
 
 ## File Locations
 - **Workflow Package**: `packages/workflow/`

@@ -83,7 +83,7 @@ The Workflow Engine is the runtime component responsible for executing BPMN work
 - Database persistence layer
 
 ## Related Features
-- [[CORE-003_WORKFLOW-001_BPMN Designer]] - Visual workflow design
-- [[CORE-003_WORKFLOW-003_Task Management]] - User task interfaces
-- [[CORE-003_WORKFLOW-004_Form Renderer]] - Form rendering
-- [[CORE-003_WORKFLOW-005_Process History]] - Historic data
+- [[FEAT-003.1 - BPMN Designer]] - Visual workflow design
+- [[FEAT-003.3 - Task Management]] - User task interfaces
+- [[FEAT-003.4 - Form Renderer]] - Form rendering
+- [[FEAT-003.5 - Process History]] - Historic data

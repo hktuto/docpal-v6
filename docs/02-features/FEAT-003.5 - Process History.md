@@ -90,6 +90,6 @@ Process History captures and stores the complete execution trail of workflow ins
 - **Task Components**: `pages/client-workflow/components/workflow/`
 
 ## Related Features
-- [[CORE-003_WORKFLOW-001_BPMN Designer]] - History viewer integration
-- [[CORE-003_WORKFLOW-002_Workflow Engine]] - History data generation
-- [[CORE-003_WORKFLOW-003_Task Management]] - Task activity display
+- [[FEAT-003.1 - BPMN Designer]] - History viewer integration
+- [[FEAT-003.2 - Workflow Engine]] - History data generation
+- [[FEAT-003.3 - Task Management]] - Task activity display

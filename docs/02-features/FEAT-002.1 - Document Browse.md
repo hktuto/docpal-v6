@@ -122,6 +122,6 @@ packages/base/composables/
 | Enter | Open folder/preview file |
 
 ### Related Features
-- [[CORE-002_DMS-002_File Upload]] - Upload drops handled in browse
-- [[CORE-002_DMS-004_Document Actions]] - Context menu actions
-- [[CORE-002_DMS-007_Search]] - In-table search integration
+- [[FEAT-002.2 - File Upload]] - Upload drops handled in browse
+- [[FEAT-002.4 - Document Actions]] - Context menu actions
+- [[FEAT-002.7 - Search]] - In-table search integration

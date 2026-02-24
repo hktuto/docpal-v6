@@ -4,10 +4,10 @@ module: "[[CORE-001 - Auth]]"
 status: stable
 feature-id: AUTH-002
 depends-on:
-  - "[[CORE-001_AUTH-001_Authentication]]"
+  - "[[FEAT-001.1 - Authentication]]"
 ---
 
-# CORE-001_AUTH-002: RBAC & Permissions
+# FEAT-001.2: RBAC
 
 ## Overview
 Role-Based Access Control (RBAC) system with org chart hierarchy, user groups, and document-level permissions.
@@ -85,8 +85,8 @@ CEO
 > *To be added: Permission dialog screenshot*
 
 ## Related Features
-- [[CORE-001_AUTH-001_Authentication]]
-- [[CORE-002_DMS-001_Document Browse]] (document permissions)
+- [[FEAT-001.1 - Authentication]]
+- [[FEAT-002.1 - Document Browse]] (document permissions)
 
 ## Technical Notes
 

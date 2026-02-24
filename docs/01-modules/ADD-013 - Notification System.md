@@ -17,7 +17,7 @@ Receives events from all cores, delivers to users via email/push/in-app.
 
 | Feature | Description | ID |
 |---------|-------------|-----|
-| Notification Engine | Multi-channel notification delivery system | [[ADD-013_NOTIFY-001_Notification Engine\|NOTIFY-001]] |
+| Notification Engine | Multi-channel notification delivery system | [[FEAT-105.1 - Notification Engine|FEAT-105.1]] |
 
 ## Status Notes
 - ✅ **IMPLEMENTED** - Notification system complete

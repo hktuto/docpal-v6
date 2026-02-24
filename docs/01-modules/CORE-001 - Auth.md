@@ -31,11 +31,11 @@ User authentication, profile management, and permission frameworks (RBAC).
 
 | Feature | Status | Description |
 |---------|--------|-------------|
-| [[CORE-001_AUTH-001_Authentication]] | stable | Login/logout, JWT tokens, password reset |
-| [[CORE-001_AUTH-002_RBAC]] | stable | Role-based access, org chart, permissions |
-| [[CORE-001_AUTH-003_Password Policy]] | stable | Password rules, expiration, lockout |
-| [[CORE-001_AUTH-004_Session Management]] | stable | Token refresh, session timeout |
-| [[CORE-001_AUTH-005_External Portal]] | stable | Guest accounts, public access |
+| [[FEAT-001.1 - Authentication]] | stable | Login/logout, JWT tokens, password reset |
+| [[FEAT-001.2 - RBAC]] | stable | Role-based access, org chart, permissions |
+| [[FEAT-001.3 - Password Policy]] | stable | Password rules, expiration, lockout |
+| [[FEAT-001.4 - Session Management]] | stable | Token refresh, session timeout |
+| [[FEAT-001.5 - External Portal]] | stable | Guest accounts, public access |
 
 ## Technical Scope
 - ~~SSO (Keycloak)~~ **LEGACY - Removed**
@@ -62,9 +62,9 @@ User authentication, profile management, and permission frameworks (RBAC).
 ## Quick Links
 
 ### User Flows
-- Login → [[CORE-001_AUTH-001_Authentication#Login Flow]]
-- Permission Check → [[CORE-001_AUTH-002_RBAC#Permission Assignment Flow]]
-- Password Change → [[CORE-001_AUTH-003_Password Policy#Password Change Flow]]
+- Login → [[FEAT-001.1 - Authentication#Login Flow]]
+- Permission Check → [[FEAT-001.2 - RBAC#Permission Assignment Flow]]
+- Password Change → [[FEAT-001.3 - Password Policy#Password Change Flow]]
 
 ### Admin Pages
 - Password Policy: `/admin/password-policy`

@@ -3,8 +3,8 @@ type: feature
 module: "[[CORE-002 - DMS]]"
 feature-id: DMS-004
 depends-on:
-  - "[[CORE-002_DMS-001_Document Browse]]"
-  - "[[CORE-002_DMS-003_Document Preview]]"
+  - "[[FEAT-002.1 - Document Browse]]"
+  - "[[FEAT-002.3 - Document Preview]]"
 status: stable
 ---
 
@@ -199,6 +199,6 @@ CHECKOUT AVAILABLE → LOCKED (by user) → EDITED LOCALLY
 - Notification on completion
 
 ### Related Features
-- [[CORE-002_DMS-001_Document Browse]] - Actions triggered from browse
-- [[CORE-002_DMS-005_Version Control]] - Checkin creates version
-- [[CORE-002_DMS-008_Watermark Integration]] - Download applies watermark
+- [[FEAT-002.1 - Document Browse]] - Actions triggered from browse
+- [[FEAT-002.5 - Version Control]] - Checkin creates version
+- [[FEAT-002.8 - Watermark Integration]] - Download applies watermark

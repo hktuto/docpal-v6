@@ -4,11 +4,11 @@ module: "[[CORE-001 - Auth]]"
 status: stable
 feature-id: AUTH-005
 depends-on:
-  - "[[CORE-001_AUTH-001_Authentication]]"
-  - "[[CORE-002_DMS]]"
+  - "[[FEAT-001.1 - Authentication]]"
+  - "[[CORE-002 - DMS]]"
 ---
 
-# CORE-001_AUTH-005: External Portal (Guest Access)
+# FEAT-001.5: External Portal (Guest Access)
 
 ## Overview
 Guest access portal allowing external users (clients, vendors) to view shared documents and submit forms without full system accounts.
@@ -108,9 +108,9 @@ Guest access portal allowing external users (clients, vendors) to view shared do
 ```
 
 ## Related Features
-- [[CORE-001_AUTH-001_Authentication]]
-- [[CORE-002_DMS-003_Document Preview]] (share preview)
-- [[CORE-003_WORKFLOW-001_Forms]] (public forms)
+- [[FEAT-001.1 - Authentication]]
+- [[FEAT-002.3 - Document Preview]] (share preview)
+- [[FEAT-003.4 - Form Renderer]] (public forms)
 
 ## Completion Checklist
 - [x] Public share page

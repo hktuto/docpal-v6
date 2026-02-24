@@ -18,9 +18,9 @@ Template storage in DMS, document generation with data binding.
 
 | Feature | Description | ID |
 |---------|-------------|-----|
-| Document Templates | Tiptap-based document editing with variable support | [[ADD-006_TEMPLATE-001_Document Templates\|TEMPLATE-001]] |
-| Document Editor | Document editor libraries with pagination extension | [[ADD-006_TEMPLATE-002_Document Editor\|TEMPLATE-002]] |
-| Email Templates | EditorJS-based email templates with layout management | [[ADD-006_TEMPLATE-003_Email Templates\|TEMPLATE-003]] |
+| Document Templates | Tiptap-based document editing with variable support | [[FEAT-102.1 - Document Templates|FEAT-102.1]] |
+| Document Editor | Document editor libraries with pagination extension | [[FEAT-102.2 - Document Editor|FEAT-102.2]] |
+| Email Templates | EditorJS-based email templates with layout management | [[FEAT-102.3 - Email Templates|FEAT-102.3]] |
 
 ## Status Notes
 - ✅ **IMPLEMENTED** - Both document and email templates complete

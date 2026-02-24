@@ -123,7 +123,7 @@ The BPMN Designer provides a comprehensive visual interface for designing busine
 - **Process Replay**: Visual replay of process execution
 
 ## Related Features
-- [[CORE-003_WORKFLOW-002_Workflow Engine]] - Process execution
-- [[CORE-003_WORKFLOW-004_Form Renderer]] - Form rendering for tasks
-- [[CORE-003_WORKFLOW-006_Workflow Rules]] - Validation rules
-- [[CORE-003_WORKFLOW-005_Process History]] - Process history tracking
+- [[FEAT-003.2 - Workflow Engine]] - Process execution
+- [[FEAT-003.4 - Form Renderer]] - Form rendering for tasks
+- [[FEAT-003.6 - Workflow Rules]] - Validation rules
+- [[FEAT-003.5 - Process History]] - Process history tracking

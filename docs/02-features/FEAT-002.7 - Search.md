@@ -3,8 +3,8 @@ type: feature
 module: "[[CORE-002 - DMS]]"
 feature-id: DMS-007
 depends-on:
-  - "[[CORE-002_DMS-001_Document Browse]]"
-  - "[[CORE-002_DMS-006_Metadata Properties]]"
+  - "[[FEAT-002.1 - Document Browse]]"
+  - "[[FEAT-002.6 - Metadata Properties]]"
 status: stable
 ---
 
@@ -199,6 +199,6 @@ User Query → Query Parser → Search Engine → Result Formatter → UI
 - Index refresh: Near real-time
 
 ### Related Features
-- [[CORE-002_DMS-001_Document Browse]] - Search results use browse table
-- [[CORE-002_DMS-006_Metadata Properties]] - Metadata fields searchable
-- [[CORE-002_DMS-003_Document Preview]] - Preview from search results
+- [[FEAT-002.1 - Document Browse]] - Search results use browse table
+- [[FEAT-002.6 - Metadata Properties]] - Metadata fields searchable
+- [[FEAT-002.3 - Document Preview]] - Preview from search results

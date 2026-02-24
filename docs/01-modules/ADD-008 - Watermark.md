@@ -18,7 +18,7 @@ Applied during DMS document preview/download.
 
 | Feature | Description | ID |
 |---------|-------------|-----|
-| Watermark Engine | Dynamic watermarking with user/IP tracking | [[ADD-008_WATERMARK-001_Watermark Engine\|WATERMARK-001]] |
+| Watermark Engine | Dynamic watermarking with user/IP tracking | [[FEAT-103.1 - Watermark Engine|FEAT-103.1]] |
 
 ## Status Notes
 - ✅ **IMPLEMENTED** - Watermark functionality complete

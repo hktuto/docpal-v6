@@ -4,10 +4,10 @@ module: "[[CORE-001 - Auth]]"
 status: stable
 feature-id: AUTH-003
 depends-on:
-  - "[[CORE-001_AUTH-001_Authentication]]"
+  - "[[FEAT-001.1 - Authentication]]"
 ---
 
-# CORE-001_AUTH-003: Password Policy
+# FEAT-001.3: Password Policy
 
 ## Overview
 Configurable password policy enforcement with rules for length, complexity, expiration, and history.
@@ -95,7 +95,7 @@ Configurable password policy enforcement with rules for length, complexity, expi
 - Admin can manually unlock accounts
 
 ## Related Features
-- [[CORE-001_AUTH-001_Authentication]]
+- [[FEAT-001.1 - Authentication]]
 
 ## Completion Checklist
 - [x] Policy configuration UI

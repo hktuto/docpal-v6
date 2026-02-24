@@ -17,15 +17,15 @@ The DMS module provides foundational document management capabilities across 9 f
 
 | Feature | ID | Description |
 |---------|-----|-------------|
-| [[CORE-002_DMS-001_Document Browse\|Document Browse]] | DMS-001 | Folder tree, file listing, breadcrumbs, drag-drop navigation |
-| [[CORE-002_DMS-002_File Upload\|File Upload]] | DMS-002 | Drag-drop, bulk upload, AI-assisted upload, public upload |
-| [[CORE-002_DMS-003_Document Preview\|Document Preview]] | DMS-003 | PDF, Office, images, text, video preview with specialized viewers |
-| [[CORE-002_DMS-004_Document Actions\|Document Actions]] | DMS-004 | Share, delete, rename, move, copy, download, checkout/hold |
-| [[CORE-002_DMS-005_Version Control\|Version Control]] | DMS-005 | Version history, comparison, restoration |
-| [[CORE-002_DMS-006_Metadata Properties\|Metadata Properties]] | DMS-006 | Custom fields, document types, properties editing |
-| [[CORE-002_DMS-007_Search\|Search]] | DMS-007 | Full-text search, filters, saved searches, smart folders |
-| [[CORE-002_DMS-008_Watermark Integration\|Watermark Integration]] | DMS-008 | Text/image watermarks for security and branding |
-| [[CORE-002_DMS-009_Storage Management\|Storage Management]] | DMS-009 | Storage backends, quotas, retention, archival |
+| [[FEAT-002.1 - Document Browse|Document Browse]] | DMS-001 | Folder tree, file listing, breadcrumbs, drag-drop navigation |
+| [[FEAT-002.2 - File Upload|File Upload]] | DMS-002 | Drag-drop, bulk upload, AI-assisted upload, public upload |
+| [[FEAT-002.3 - Document Preview|Document Preview]] | DMS-003 | PDF, Office, images, text, video preview with specialized viewers |
+| [[FEAT-002.4 - Document Actions|Document Actions]] | DMS-004 | Share, delete, rename, move, copy, download, checkout/hold |
+| [[FEAT-002.5 - Version Control|Version Control]] | DMS-005 | Version history, comparison, restoration |
+| [[FEAT-002.6 - Metadata Properties|Metadata Properties]] | DMS-006 | Custom fields, document types, properties editing |
+| [[FEAT-002.7 - Search|Search]] | DMS-007 | Full-text search, filters, saved searches, smart folders |
+| [[FEAT-002.8 - Watermark Integration|Watermark Integration]] | DMS-008 | Text/image watermarks for security and branding |
+| [[FEAT-002.9 - Storage Management|Storage Management]] | DMS-009 | Storage backends, quotas, retention, archival |
 
 ## Module Dependencies
 
