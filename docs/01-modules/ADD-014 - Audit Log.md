@@ -13,17 +13,11 @@ Compliance-grade audit logging for all system activities.
 ## Technical Scope
 Captures events from all cores for security and compliance.
 
-## Implementation
+## Features
 
-### File Locations
-- **Admin Audit Pages**: `pages/admin-audit/`
-
-### Key Components
-- Audit event capture
-- Log storage and retrieval
-- Compliance reporting
-- Audit trail viewer
-- Filterable audit logs
+| Feature | Description | ID |
+|---------|-------------|-----|
+| Audit Log | Compliance-grade audit logging and reporting | [[ADD-014_AUDIT-001_Audit Log\|AUDIT-001]] |
 
 ## Status Notes
 - ✅ **IMPLEMENTED** - Audit logging complete
