@@ -1,10 +1,13 @@
-# ADD-012: Desktop App
+---
+type: add-on
+depend-on:
+  - "[[CORE-001 - Auth]]"
+  - "[[CORE-002 - DMS]]"
+status: stable
+price-tier: business
+---
 
-## Metadata
-- **type**: add-on
-- **depend-on**: CORE-001 (Auth), CORE-002 (DMS)
-- **status**: planned
-- **price-tier**: business
+# ADD-012: Desktop App
 
 ## Marketing Description
 Desktop sync client for offline access and automatic synchronization.

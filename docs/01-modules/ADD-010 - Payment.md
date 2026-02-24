@@ -1,10 +1,13 @@
-# ADD-010: Payment
+---
+type: add-on
+depend-on:
+  - "[[CORE-001 - Auth]]"
+  - "[[CORE-003 - Workflow]]"
+status: planned
+price-tier: enterprise
+---
 
-## Metadata
-- **type**: add-on
-- **depend-on**: CORE-001 (Auth), CORE-003 (Workflow)
-- **status**: planned
-- **price-tier**: enterprise
+# ADD-010: Payment
 
 ## Marketing Description
 Billing workflows and subscription management.

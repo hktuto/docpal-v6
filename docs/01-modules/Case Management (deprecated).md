@@ -1,3 +1,9 @@
+---
+type: deprecated
+status: deprecated
+replacement: "[[CORE-004 - Dynamic Database]]"
+---
+
 # Case Management / CMMN (DEPRECATED)
 
 ## Status

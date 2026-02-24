@@ -1,10 +1,13 @@
-# ADD-005: Importer Service
+---
+type: add-on
+depend-on:
+  - "[[CORE-002 - DMS]]"
+  - "[[CORE-004 - Dynamic Database]]"
+status: planned
+price-tier: business
+---
 
-## Metadata
-- **type**: add-on
-- **depend-on**: CORE-002 (DMS), CORE-004 (Dynamic Database)
-- **status**: planned
-- **price-tier**: business
+# ADD-005: Importer Service
 
 ## Marketing Description
 Bulk document import with metadata extraction and migration tools.

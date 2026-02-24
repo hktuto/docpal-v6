@@ -1,10 +1,12 @@
-# ADD-007: Advanced Viewer
+---
+type: add-on
+depend-on:
+  - "[[CORE-002 - DMS]]"
+status: planned
+price-tier: premium
+---
 
-## Metadata
-- **type**: add-on
-- **depend-on**: CORE-002 (DMS)
-- **status**: planned
-- **price-tier**: premium
+# ADD-007: Advanced Viewer
 
 ## Marketing Description
 Specialized viewers for CAD, AI files, and other advanced formats.

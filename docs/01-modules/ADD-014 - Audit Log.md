@@ -1,10 +1,11 @@
-# ADD-014: Audit Log
+---
+type: add-on
+depend-on: "All cores"
+status: stable
+price-tier: included
+---
 
-## Metadata
-type:: add-on
-depend-on:: All cores
-status:: stable
-price-tier:: included
+# ADD-014: Audit Log
 
 ## Marketing Description
 Compliance-grade audit logging for all system activities.

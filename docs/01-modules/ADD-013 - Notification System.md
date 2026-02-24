@@ -1,10 +1,11 @@
-# ADD-013: Notification System
+---
+type: add-on
+depend-on: "All cores"
+status: stable
+price-tier: included
+---
 
-## Metadata
-type:: add-on
-depend-on:: All cores
-status:: stable
-price-tier:: included
+# ADD-013: Notification System
 
 ## Marketing Description
 Cross-cutting notification system for all modules.

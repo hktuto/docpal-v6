@@ -1,10 +1,13 @@
-# ADD-009: Retention
+---
+type: add-on
+depend-on:
+  - "[[CORE-002 - DMS]]"
+  - "[[CORE-003 - Workflow]]"
+status: stable
+price-tier: enterprise
+---
 
-## Metadata
-type:: add-on
-depend-on:: [[CORE-002 - DMS]], [[CORE-003 - Workflow]]
-status:: stable
-price-tier:: enterprise
+# ADD-009: Retention
 
 ## Marketing Description
 Legal hold, auto-expiry policies, and compliance retention rules.

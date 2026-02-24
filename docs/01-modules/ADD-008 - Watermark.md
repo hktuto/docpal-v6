@@ -1,10 +1,12 @@
-# ADD-008: Watermark
+---
+type: add-on
+depend-on:
+  - "[[CORE-002 - DMS]]"
+status: stable
+price-tier: business
+---
 
-## Metadata
-type:: add-on
-depend-on:: [[CORE-002 - DMS]]
-status:: stable
-price-tier:: business
+# ADD-008: Watermark
 
 ## Marketing Description
 Dynamic watermarking for document security and traceability.

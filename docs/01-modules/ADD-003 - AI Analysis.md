@@ -1,9 +1,10 @@
-# ADD-003: AI Analysis
+---
+type: add-on
+status: deprecated
+price-tier: premium
+---
 
-## Metadata
-type:: add-on
-status:: deprecated
-price-tier:: premium
+# ADD-003: AI Analysis
 
 ## Marketing Description
 ~~AI-powered document parsing and structured data extraction.~~

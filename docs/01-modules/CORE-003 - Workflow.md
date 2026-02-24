@@ -1,10 +1,14 @@
-# CORE-003: Workflow (Process Automation)
+---
+type: core
+depend-on: "*(none - this is a foundation)*"
+status: needs-revamp
+required-by:
+  - "[[ADD-002 - E-signature]]"
+  - "[[ADD-009 - Retention]]"
+  - "[[ADD-010 - Payment]]"
+---
 
-## Metadata
-type:: core
-depend-on:: *(none - this is a foundation)*
-status:: needs-revamp
-required-by:: E-signature, Retention, Payment
+# CORE-003: Workflow (Process Automation)
 
 ## Marketing Description
 Automated approval flows, state transitions, triggers, and business process routing.

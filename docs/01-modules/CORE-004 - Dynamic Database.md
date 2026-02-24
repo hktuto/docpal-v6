@@ -1,10 +1,16 @@
-# CORE-004: Dynamic Database
+---
+type: core
+depend-on: "*(none - this is a foundation)*"
+status: in-development
+required-by:
+  - "[[ADD-001 - Calendar & Timesheet]]"
+  - "[[ADD-003 - AI Analysis]]"
+  - "[[ADD-005 - Importer Service]]"
+  - "[[ADD-006 - Templates]]"
+  - "[[Case Management (deprecated)]]"
+---
 
-## Metadata
-- **type**: core
-- **depend-on**: *(none - this is a foundation)*
-- **status**: in-development
-- **required-by**: Calendar, AI Analysis, Importer, Templates, Case Management
+# CORE-004: Dynamic Database
 
 ## Marketing Description
 Structured data tables with flexible schemas, views, relations, and query capabilities.

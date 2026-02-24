@@ -1,10 +1,13 @@
-# ADD-004: External Portal
+---
+type: add-on
+depend-on:
+  - "[[CORE-001 - Auth]]"
+  - "[[CORE-002 - DMS]]"
+status: stable
+price-tier: business
+---
 
-## Metadata
-type:: add-on
-depend-on:: [[CORE-001 - Auth]], [[CORE-002 - DMS]]
-status:: stable
-price-tier:: business
+# ADD-004: External Portal
 
 ## Marketing Description
 Guest access portal for clients and vendors to view shared documents.

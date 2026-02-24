@@ -1,10 +1,11 @@
-# CORE-002: DMS (Document Management System)
+---
+type: core
+depend-on: "*(none - this is a foundation)*"
+status: stable
+required-by: "Most add-ons"
+---
 
-## Metadata
-- **type**: core
-- **depend-on**: *(none - this is a foundation)*
-- **status**: in-development
-- **required-by**: Most add-ons
+# CORE-002: DMS (Document Management System)
 
 ## Marketing Description
 Complete document lifecycle: upload, browse, preview, convert, share, and storage management.

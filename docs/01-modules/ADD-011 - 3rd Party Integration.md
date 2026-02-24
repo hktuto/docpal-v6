@@ -1,10 +1,15 @@
-# ADD-011: 3rd Party Integration
+---
+type: add-on
+depend-on:
+  - "[[CORE-001 - Auth]]"
+  - "[[CORE-002 - DMS]]"
+  - "[[CORE-003 - Workflow]]"
+  - "[[CORE-004 - Dynamic Database]]"
+status: planned
+price-tier: enterprise
+---
 
-## Metadata
-- **type**: add-on
-- **depend-on**: CORE-001 (Auth), CORE-002 (DMS), CORE-003 (Workflow), CORE-004 (Dynamic Database)
-- **status**: planned
-- **price-tier**: enterprise
+# ADD-011: 3rd Party Integration
 
 ## Marketing Description
 API webhooks, connectors, and integrations with external systems.

@@ -1,10 +1,12 @@
-# ADD-001: Calendar & Timesheet
+---
+type: add-on
+depend-on:
+  - "[[CORE-004 - Dynamic Database]]"
+status: stable
+price-tier: business
+---
 
-## Metadata
-- **type**: add-on
-- **depend-on**: CORE-004 (Dynamic Database)
-- **status**: planned
-- **price-tier**: business
+# ADD-001: Calendar & Timesheet
 
 ## Marketing Description
 Calendar views and timesheet tracking for document deadlines, events, and time logging.

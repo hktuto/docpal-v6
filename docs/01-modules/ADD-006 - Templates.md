@@ -1,10 +1,12 @@
-# ADD-006: Templates
+---
+type: add-on
+depend-on:
+  - "[[CORE-002 - DMS]]"
+status: stable
+price-tier: business
+---
 
-## Metadata
-type:: add-on
-depend-on:: [[CORE-002 - DMS]]
-status:: stable
-price-tier:: business
+# ADD-006: Templates
 
 ## Marketing Description
 Document and email templates with data-driven generation.

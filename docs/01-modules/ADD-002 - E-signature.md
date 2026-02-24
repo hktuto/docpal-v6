@@ -1,10 +1,14 @@
-# ADD-002: E-signature
+---
+type: add-on
+depend-on:
+  - "[[CORE-001 - Auth]]"
+  - "[[CORE-002 - DMS]]"
+  - "[[CORE-003 - Workflow]]"
+status: stable
+price-tier: business
+---
 
-## Metadata
-type:: add-on
-depend-on:: [[CORE-001 - Auth]], [[CORE-002 - DMS]], [[CORE-003 - Workflow]]
-status:: stable
-price-tier:: business
+# ADD-002: E-signature
 
 ## Marketing Description
 Digital signature integration with identity verification and approval workflows.

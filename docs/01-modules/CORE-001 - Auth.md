@@ -1,10 +1,11 @@
-# CORE-001: Auth (Identity & Access)
+---
+type: core
+depend-on: "*(none - this is a foundation)*"
+status: stable
+required-by: "All other modules"
+---
 
-## Metadata
-type:: core
-depend-on:: *(none - this is a foundation)*
-status:: stable
-required-by:: All other modules
+# CORE-001: Auth (Identity & Access)
 
 ## Marketing Description
 User authentication, profile management, and permission frameworks (RBAC).
