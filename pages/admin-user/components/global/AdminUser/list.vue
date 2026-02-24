@@ -72,6 +72,9 @@ provide(userProviderKey, {
     const res = await newAdminApi.postUcenterGetLicenseUserNumAndActiveCount()
     return res.data
   },
+  BatchUserAddGroupsApi: (params: any) => {
+    return newAdminApi.postUcenterUserBatchAddGroups(params)
+  },
   BatchUsersToGroupsApi: (params: any) => {
     return newAdminApi.postUcenterUsersBatchAddGroups(params)
   },
