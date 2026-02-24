@@ -1,22 +1,26 @@
 # ADD-003: AI Analysis
 
 ## Metadata
-- **type**: add-on
-- **depend-on**: CORE-002 (DMS), CORE-004 (Dynamic Database)
-- **status**: planned
-- **price-tier**: premium
+type:: add-on
+status:: deprecated
+price-tier:: premium
 
 ## Marketing Description
-AI-powered document parsing and structured data extraction.
+~~AI-powered document parsing and structured data extraction.~~
 
-## Technical Notes
-Uses DMS for document access, extracts data into Dynamic DB tables.
+## Status
+**DEPRECATED** - New AI concept pending rethink
 
-## Blocked By
-- [[CORE-002 - DMS]]
-- [[CORE-004 - Dynamic Database]]
+## History
+- Originally planned as document parsing into Dynamic DB tables
+- **Current Status**: Concept under reconsideration
+- **Future**: New AI feature ideas being evaluated
 
-## Completion Checklist
-- [ ] AI parsing engine
-- [ ] Extraction templates
-- [ ] Data mapping to tables
+## Notes
+- Previous implementation plan abandoned
+- Awaiting new product direction for AI features
+- May be replaced with different AI approach
+
+## Related
+- Replacement concept: TBD
+- Timeline: Pending product decision
