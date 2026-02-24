@@ -11,7 +11,6 @@ export const useRBAC = (roleId?: string) => {
   async function getRoleTree() {
     loading.value = true
     try {
-      console.log(22,roleId)
       if (roleId) {
         // const roleIdArray = Array.isArray(roleIds) ? roleIds : [roleIds]
         // normalize roleIds to array

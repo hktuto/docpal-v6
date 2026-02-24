@@ -255,7 +255,6 @@ const getGraphValue = computed(() => {
 })
 
 async function openForm(node: Node) {
-  console.log(222,node)
   try {
     const formProperty = node.data?.data?.extensionElements?.['flowable:formProperty']
     if(!formProperty && node.id !== 'end') {

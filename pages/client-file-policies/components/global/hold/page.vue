@@ -111,7 +111,6 @@ function handleFilterFormChange(formModel: any) {
 
 // #endregion
 function handleDblclick(row: any) {
-  console.log(22)
   routerProvider?.navigateTo(routeHoldPageFolder(row), false)
 }
 

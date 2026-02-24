@@ -83,7 +83,6 @@ const props = defineProps<{
   doc?: any
 }>()
 const hold = computed(() => {
-  console.log(22,props.doc)
   return props.doc?.holdDocument ? props.doc.holdDocument : {}
 })
 const state = reactive<any>({

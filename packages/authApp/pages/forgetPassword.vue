@@ -95,7 +95,7 @@ function returnLogin() {
 
 function login() {
   router.push({
-    path: '/'
+    path: '/login'
   })
 }
 

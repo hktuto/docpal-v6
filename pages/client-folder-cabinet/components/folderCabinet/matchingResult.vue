@@ -93,7 +93,6 @@ async function init(docItem: any, templateId: string) {
       state.treeData = data.children
     } else {
       state.treeData = []
-      console.log(22222)
       state.cabinetTemplate = await newClientApi.getDmsCabinetTemplateId(templateId).then((res) => res.data)
     }
   } catch (error) {

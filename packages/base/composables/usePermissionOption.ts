@@ -14,9 +14,6 @@ interface BaseOption {
   email?: string
 }
 
-const userList = ref<any[]>([])
-const roleList = ref<any[]>([])
-const groupList = ref<any[]>([])
 export const usePermissionOption = () => useState<PermissionOption[]>('permission', () => ([]))
 export const useUserPermissionOption = () => useState<BaseOption[]>('userPermission', () => ([]))
 export const useRolePermissionOption = () => useState<BaseOption[]>('rolePermission', () => ([]))
@@ -25,11 +22,10 @@ export const useGroupsPermissionOption = () => useState<BaseOption[]>('groupsPer
 export const getFromServer = async function(loadUserList: boolean = true, loadRoleList: boolean = true, loadGroupList: boolean = true) {
   const options = usePermissionOption()
   options.value = []
-
   try {
     if (loadUserList) {
-      const user = await getUserSelectOption()
-      if (userList.value.length > 0) {
+      const user = await getUserSelectOption(false)
+      if (user.length > 0) {
         options.value.push(
           {
             id: 'user',
@@ -43,8 +39,8 @@ export const getFromServer = async function(loadUserList: boolean = true, loadRo
     }
 
     if (loadRoleList) {
-      const role = await getRoleSelectOption()
-      if (roleList.value.length > 0) {
+      const role = await getRoleSelectOption(false)
+      if (role.length > 0) {
         options.value.push(
           {
             id: 'role',
@@ -58,8 +54,8 @@ export const getFromServer = async function(loadUserList: boolean = true, loadRo
     }
 
     if (loadGroupList) {
-      const group = await getGroupsSelectOption()
-      if (groupList.value.length > 0 && !!group) {
+      const group = await getGroupsSelectOption(false)
+      if (group.length > 0) {
         options.value.push(
           {
             id: 'group',
@@ -74,6 +70,7 @@ export const getFromServer = async function(loadUserList: boolean = true, loadRo
   } catch (e) {
     console.log(e)
   }
+  console.log('options.value', options.value)
   return options.value
 }
 
@@ -117,11 +114,10 @@ function convertId(options: any) {
   return options.map((item: any) => ({
     ...item,
     options: item.options.map((option: any) => {
-      const name = option.name || option.userName || option.username || ''
-      let id = option.id
+      let id = option.value
       switch (item.id) {
         case 'user':
-          id = `user_${option.userId}`
+          id = `user_${id}`
           break
         case 'role':
           id = `role_${id}`
@@ -130,7 +126,7 @@ function convertId(options: any) {
           id = `group_${id}`
           break
       }
-      return { value: id, label: name }
+      return { value: id, label: option.label }
     })
   }))
 }
@@ -218,7 +214,7 @@ export const convertSelectOptions = (permissions: any) => {
 }
 
 // User Select Option
-export const getUserSelectOption = async (refresh?: boolean = false) => {
+export const getUserSelectOption = async (refresh?: boolean) => {
   const options = useUserPermissionOption()
   if (options.value.length === 0 || refresh) {
     try {
@@ -226,8 +222,9 @@ export const getUserSelectOption = async (refresh?: boolean = false) => {
       if (list.length === 0) return []
 
       options.value = list.map((item: any) => ({
+        id: item.userId,
         value: item.userId,
-        label: item.username,
+        label: item.username || item.userName || item.name || '',
         email: item.email
       })).sort((a: any, b: any) => a.label.localeCompare(b.label))
     } catch (e) {
@@ -239,7 +236,7 @@ export const getUserSelectOption = async (refresh?: boolean = false) => {
 }
 
 // Role Select Option
-export const getRoleSelectOption = async (refresh?: boolean = false) => {
+export const getRoleSelectOption = async (refresh?: boolean) => {
   const options = useRolePermissionOption()
   if (options.value.length === 0 || refresh) {
     try {
@@ -251,6 +248,7 @@ export const getRoleSelectOption = async (refresh?: boolean = false) => {
       if (list.length === 0) return []
 
       options.value = list.map((item: any) => ({
+        id: item.id,
         value: item.id,
         label: item.name
       })).sort((a: any, b: any) => a.label.localeCompare(b.label))
@@ -263,7 +261,7 @@ export const getRoleSelectOption = async (refresh?: boolean = false) => {
 }
 
 // Group Select Option
-export const getGroupsSelectOption = async (refresh?: boolean = false) => {
+export const getGroupsSelectOption = async (refresh?: boolean) => {
   const options = useGroupsPermissionOption()
   if (options.value.length === 0 || refresh) {
     try {
@@ -271,6 +269,7 @@ export const getGroupsSelectOption = async (refresh?: boolean = false) => {
       if (list.length === 0) return []
 
       options.value = list.map((item: any) => ({
+        id: item.id,
         value: item.id,
         label: item.name
       })).sort((a: any, b: any) => a.label.localeCompare(b.label))
