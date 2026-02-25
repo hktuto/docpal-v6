@@ -1,17 +1,9 @@
 import {defineNuxtPlugin} from '#imports'
-import {clientApi, adminApi, publicApi} from 'api'
+import {clientApi, adminApi} from 'api'
 import {requestSuccessHelper, requestErrorHelper, responseSuccessHelper, responseErrorHelper} from '../utils/axiosResponseHelper'
 
 export default defineNuxtPlugin(async () => {
     // set refresh token to clientApi and adminApi
-    publicApi.instance.interceptors.request.use(
-        (config) => requestSuccessHelper(config, publicApi.instance),
-        (error) => requestErrorHelper(error, publicApi.instance)
-    )
-    publicApi.instance.interceptors.response.use(
-        (config) => responseSuccessHelper(config, publicApi.instance),
-        (error) => responseErrorHelper(error, publicApi.instance)
-    )
     clientApi.instance.interceptors.request.use(
         (config) => requestSuccessHelper(config, clientApi.instance),
         (error) => requestErrorHelper(error, clientApi.instance)

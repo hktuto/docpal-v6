@@ -5,7 +5,8 @@
 </template>
 
 <script lang="ts" setup>
-import { publicApi } from 'api'
+import { newClientApi } from 'api'
+
 const { t } = useI18n()
 
 const props = withDefaults(
@@ -49,6 +50,7 @@ const { chartRef, cardRef, settingRef, resize, handleInitCard } = useDashboardCa
     return resultOptions
   }
 })
+
 // #region module: set
 function initStyle() {
   const pHeight = cardRef.value.offsetHeight
@@ -56,18 +58,18 @@ function initStyle() {
   // 需要扣除 .el-card 的 padding
   chartRef.value.style = `height: ${pHeight}px; width: ${pWidth - 20}px`
 }
+
 // #endregion
 const GetCoCountSizeApi = async (params: any, creator?: string) => {
   if (creator) {
-    return await publicApi.api
-      .postDashboardNewfilesofspecifyusersizebydtypebymonthlycumulation({
-        ...params,
-        creator
-      })
-      .then((res) => res.data)
+    return await newClientApi.postDsbNewFilesUserSizeDtypeMonthlyCumulation({
+      ...params,
+      creator
+    }).then((res) => res.data)
   }
-  return await publicApi.api.postDashboardNewfilesofuserssizebydtypebymonthlycumulation(params).then((res) => res.data)
+  return await newClientApi.postDsbNewFilesUsersSizeDtypeMonthlyCumulation(params).then((res) => res.data)
 }
+
 async function getData(documentType: string) {
   const resultData: any = {
     data: [],
@@ -92,11 +94,12 @@ async function getData(documentType: string) {
       return prev
     }, [])
   } catch (error) {
-    throw new Error(error);
+    throw new Error(error)
   } finally {
     return resultData
   }
 }
+
 // #endregion
 
 defineExpose({
