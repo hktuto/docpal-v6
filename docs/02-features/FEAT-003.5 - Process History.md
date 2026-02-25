@@ -23,8 +23,8 @@ Process History captures and stores the complete execution trail of workflow ins
 | Audit Log Config | `packages/bpmn/components/global/bpmn/context/auditLog/index.vue` | Audit log configuration |
 
 ### Task Activity
-| Component | Path | Description |
-|-----------|------|-------------|
+| Component     | Path                                                            | Description             |
+| ------------- | --------------------------------------------------------------- | ----------------------- |
 | Activity Feed | `pages/client-workflow/components/workflow/Detail/activity.vue` | Activity feed for tasks |
 
 ### Audit Log Components
