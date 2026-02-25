@@ -1,7 +1,6 @@
 <script lang="tsx" setup>
 import { useDebounceFn, useMagicKeys } from '@vueuse/core'
 import { emitBus, EventType, useEventBus } from 'eventbus'
-import { ElMessageBox } from 'element-plus'
 import { useSqliteTable, documentColumn, documentIndex, apiToColumn, columnToApi } from '#imports'
 import type { DocumentColumnData, DocumentApiData } from '#imports'
 
@@ -474,6 +473,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     }
     Object.keys(permissionCodes).forEach((key) => {
       const code = permissionCodes[key]
+      console.log(123,code)
       if (row.comeFrom === 'google_drive') {
         result[key] = {
           visible: false,

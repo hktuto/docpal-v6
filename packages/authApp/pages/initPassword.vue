@@ -96,7 +96,6 @@ function parseJwt(token: string) {
 }
 const route = useRoute()
 
-
 const id = ref('')
 onMounted(async () => {
   const token = route.query.token
@@ -111,7 +110,7 @@ onMounted(async () => {
     window.location.href = '/'
     return
   }
- 
+
   id.value = decodedToken.userId
   // get user detail from decodedToken
   await getPasswordPolicy()
