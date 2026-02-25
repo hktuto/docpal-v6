@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { useDebounceFn } from '@vueuse/core'
 import { ElLoading, ElMessage, ElMessageBox } from 'element-plus'
 
@@ -42,7 +42,7 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   id: 'metadataList',
   api: async (params: any) => {
-    return await clientApi.admin.postAdmindmsMetadataPage({
+    return await newAdminApi.postDmsMetadataPage({
       ...params,
       ...extraParams
     })
@@ -118,12 +118,10 @@ async function handleExport() {
     text: t('metadata.export_loading'),
     background: 'rgba(0, 0, 0, 0.7)'
   })
-  console.log('export')
-  const result = await clientApi.admin.postAdmindmsMetadataExportMetadataCvs(
+  const result = await newAdminApi.postDmsMetadataExportMetadataCvs(
     { pageNum: 0, pageSize: 1000 },
     { format: 'blob', timeout: 0 }
   )
-  console.log('result', result)
   downloadBlob(result, 'metadata.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
   exportLoading.close()
 }
@@ -167,7 +165,7 @@ const handleRemove = async (row: any) => {
     console.log('action', action)
     if (action !== 'confirm') return
 
-    const result = await clientApi.admin.deleteAdmindmsMetadataMetadataid(row.id)
+    const result = await newAdminApi.deleteDmsMetadataMetadataid(row.id)
     if (result) {
       ElMessage.success(t('tip_deleteSuccessMessage'))
       reload()

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const props = defineProps<{
   workflowList: any[]
@@ -69,7 +69,7 @@ async function handleCreateWorkflow(caseResult: any, masterTableResult: any, doc
     form.append('jsonValue', formJson)
     form.append('file', blob, 'workflow.bpmn.xml')
     form.append('isDraft', true)
-    const data = await clientApi.admin.postAdmindocpalWorkflowProcessDefinitionUpload({ requestDTO: {} }, form).then((res) => res.data)
+    const data = await newAdminApi.postDocpalWorkflowProcessDefinitionUpload({ requestDTO: {} }, form).then((res) => res.data)
     console.log('data', item.styleJson.data)
     if (!data || !data?.latestVersionId) {
       return
@@ -85,11 +85,11 @@ async function handleCreateWorkflow(caseResult: any, masterTableResult: any, doc
       draftId: draftId,
       validationRules: item.fields
     }
-    await clientApi.admin.postAdmindocpalValidationRules(params)
+    await newAdminApi.postDocpalValidationRules(params)
 
     // update e-form
     for (const formItem of item.form) {
-      await clientApi.admin.postAdmindmsFormPropertiesSave({
+      await newAdminApi.postDmsFormPropertiesSave({
         userTaskId: formItem.formId,
         processKey: nameToId,
         versionId: data?.latestVersionId,

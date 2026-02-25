@@ -126,7 +126,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const props = defineProps({
   storageId: String,
@@ -326,9 +326,9 @@ async function save() {
       _params.workflow_mapping = WorkflowVariableMappingRef.value.getData()
     }
     if (isEdit.value) {
-      await clientApi.admin.patchAdminext3rdstorageProfilesProfileidUpdateOutputrecordOutputrecordid(props.id as string, setting.value.id, _params).then(r => r.data)
+      await newAdminApi.patchExt3rdstorageProfilesProfileidUpdateOutputrecordOutputrecordid(props.id as string, setting.value.id, _params).then(r => r.data)
     } else {
-      await clientApi.admin.postAdminext3rdstorageProfilesProfileidOutputrecord(props.id as string, _params).then(r => r.data)
+      await newAdminApi.postExt3rdstorageProfilesProfileidOutputrecord(props.id as string, _params).then(r => r.data)
     }
     emits('refresh')
     dialogVisible.value = false

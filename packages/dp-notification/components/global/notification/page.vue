@@ -23,7 +23,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { TabManagerKey } from '#imports'
 
 const tabProvider = inject(TabManagerKey)
@@ -36,7 +36,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   id: 'c-share',
   api: async (pageParams: any) => {
     cleanSelectedRows()
-    return await clientApi.api.postNotificationList({
+    return await newClientApi.postNotificationList({
       ...pageParams,
       ...extraParams
     })
@@ -162,7 +162,7 @@ async function handleDismissSelected(row?: any) {
   let ids: number[] = []
   if (!!row) ids = [row.id]
   else ids = state.selectList.map((item: any) => item.id)
-  await clientApi.api.putNotificationDissmissByIds({ ids }).then(r => r.data)
+  await newClientApi.putNotificationDissmissByIds({ ids }).then(r => r.data)
   reload()
   if (!!row && row.readStatus === 'READED') return
   updateNotificationUnreadCount()
@@ -172,7 +172,7 @@ async function handleDeleteSelected(row?: any) {
   let ids: number[] = []
   if (!!row) ids = [row.id]
   else ids = state.selectList.map((item: any) => item.id)
-  await clientApi.api.deleteNotification({ ids })
+  await newClientApi.deleteNotification({ ids })
   reload()
   if (!!row && row.readStatus === 'READED') return
   updateNotificationUnreadCount()
@@ -189,7 +189,7 @@ async function handleDisabled(row: any) {
     if (action !== 'confirm') return
     const param: any = []
     param.push(row.shareID)
-    await clientApi.api.deleteDmsShare(param).then(r => r.data)
+    await newClientApi.deleteDmsShare(param).then(r => r.data)
     query({})
   } catch (error) {
     console.log(error)
@@ -202,7 +202,7 @@ const ResponsiveFilterRef = ref()
 async function initCondition() {
   let defaultFilters: any = []
   try {
-    defaultFilters = await clientApi.api.getNotificationQueryNotificationFilter().then((res) => res.data)
+    defaultFilters = await newClientApi.getNotificationQueryNotificationFilter().then((res) => res.data)
   } catch (error) {}
   const filters = [
     {

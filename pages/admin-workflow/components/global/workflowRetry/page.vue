@@ -17,12 +17,11 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const { t } = useI18n()
 let extraParams: any = {}
 const retryStatues = ['error', 'fail', 'start error']
-const state = reactive<any>({})
 const {
   tableConfig,
   tableEvent,
@@ -32,7 +31,7 @@ const {
 } = useVxeTable({
   id: 'a-workflow-retry',
   api: async (pageParams: any) => {
-    return await clientApi.admin.postAdmindocpalWorkflowQueryWorkflowRetryPage({ ...pageParams, ...extraParams })
+    return await newAdminApi.postDocpalWorkflowQueryWorkflowRetryPage({ ...pageParams, ...extraParams })
   },
   columns: [
     { field: 'businessKey', title: 'workflow_taskName', fixed: 'left' },
@@ -79,12 +78,11 @@ const {
 
 async function handleRetry(id: number) {
   try {
-    await clientApi.admin.postAdmindocpalWorkflowRetryFailWorkflow({ id })
+    await newAdminApi.postDocpalWorkflowRetryFailWorkflow({ id })
     query({})
   } catch (error: any) {
   }
 }
-
 
 function handleFilterFormChange(formModel: any) {
   if (!formModel.isDesc) formModel.isDesc = true

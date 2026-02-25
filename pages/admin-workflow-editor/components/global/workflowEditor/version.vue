@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElNotification } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { newWorkflowEditorDetail } from '~/utils/workflowEditorMenu'
 import type { PermissionMethodParams } from 'base/composables/useVxeTable'
 
@@ -20,7 +20,7 @@ const { t } = useI18n()
 const tableRef = ref()
 
 async function getWorkflowDetail() {
-  const draftData: any = await clientApi.admin.getAdmindocpalWorkflowProcessDefinitionDraftDraftid(draftId).then(r => r.data)
+  const draftData: any = await newAdminApi.getDocpalWorkflowProcessDefinitionDraftDraftid(draftId).then(r => r.data)
   workflowData.value = draftData
   routerProvider?.updateTabName(draftData.name + '- versions list')
 }
@@ -39,13 +39,13 @@ function editHandler(row: any, openInNewTab = false) {
 }
 
 async function promoteToProductionHandler(row: any) {
-  const blob = await clientApi.admin.getAdmindocpalWorkflowVersionBpmnxml(
+  const blob = await newAdminApi.getDocpalWorkflowVersionBpmnxml(
     { draftId: row.draftId, versionNumber: row.versionNumber },
     {
       format: 'blob'
     }
   )
-  let json = await clientApi.admin.getAdmindocpalWorkflowVersionJson({
+  let json = await newAdminApi.getDocpalWorkflowVersionJson({
     draftId: row.draftId,
     versionNumber: row.versionNumber
   }, {}).then(r => r.data)
@@ -56,7 +56,7 @@ async function promoteToProductionHandler(row: any) {
   form.append('file', blob, 'workflow.bpmn.xml')
   form.append('jsonValue', json || '')
 
-  await clientApi.admin.postAdmindocpalWorkflowVersionVersionidDeploy(row.id, { requestDTO: {} }, form).then(r => r.data)
+  await newAdminApi.postDocpalWorkflowVersionVersionidDeploy(row.id, { requestDTO: {} }, form).then(r => r.data)
   // await saveWorkflowFormToNewVersion(xml, workflowData.value.key, row.versionNumber, data.latestVersion)
   ElNotification.success(t('dpMsg_success'))
 
@@ -65,13 +65,13 @@ async function promoteToProductionHandler(row: any) {
 
 async function saveAsNewVersionHandler(row: any) {
   // get xml from workflow
-  const blob = await clientApi.admin.getAdmindocpalWorkflowVersionBpmnxml(
+  const blob = await newAdminApi.getDocpalWorkflowVersionBpmnxml(
     { draftId: row.draftId, versionNumber: row.versionNumber },
     {
       format: 'blob'
     }
   )
-  let json = await clientApi.admin.getAdmindocpalWorkflowVersionJson({
+  let json = await newAdminApi.getDocpalWorkflowVersionJson({
     draftId: row.draftId,
     versionNumber: row.versionNumber
   }, {}).then(r => r.data)
@@ -82,7 +82,7 @@ async function saveAsNewVersionHandler(row: any) {
   form.append('draftId', row.draftId)
   form.append('oldVersion', row.id)
   const xml = await blob.text()
-  const data: any = await clientApi.admin.postAdmindocpalWorkflowVersionNew({ requestDTO: {} }, form).then(r => r.data)
+  const data: any = await newAdminApi.postDocpalWorkflowVersionNew({ requestDTO: {} }, form).then(r => r.data)
   if (!data) {
     return
   }
@@ -128,7 +128,7 @@ onMounted(async () => {
 })
 
 provide(WorkflowEditorVersionListProviderKey, {
-  getListApi: clientApi.admin.postAdmindocpalWorkflowVersionPage,
+  getListApi: newAdminApi.postDocpalWorkflowVersionPage,
   editHandler,
   actionPermission,
   saveAsNewVersionHandler,

@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -39,7 +39,7 @@ async function handleSubmit() {
   }
   try {
     state.submitLoading = true
-    const res = await clientApi.admin.postAdmindmsEasyFormSavePreview(param)
+    const res = await newAdminApi.postDmsEasyFormSavePreview(param)
     if (!!res) routerProvider?.message.success(t('msg_successfullyModified'))
   } catch (error) {
   } finally {
@@ -59,7 +59,7 @@ function handleFiledList(list: any) {
 }
 
 async function getDetail() {
-  state.detail = await clientApi.admin.getAdmindmsEasyFormDraftId(id).then((res) => res.data)
+  state.detail = await newAdminApi.getDmsEasyFormDraftId(id).then((res) => res.data)
   if (!state.detail) state.detail = {}
 
   if (!state.detail.previewStyle)

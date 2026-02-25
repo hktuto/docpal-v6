@@ -1,19 +1,21 @@
 <template>
   <el-dialog v-model="state.visible" :title="$t('user_addUsersToUserGroup')" :close-on-click-modal="false">
-    <FormRenderer ref="FormRendererRef" :form-json="formJson"/>
+    <FormRenderer ref="FormRendererRef" :form-json="formJson" />
     <template #footer>
-      <el-button id="UserGroupList__Info__AddUsersToUserGroup__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
+      <el-button id="UserGroupList__Info__AddUsersToUserGroup__Submit" type="primary" :loading="state.loading"
+                 @click="handleSubmit">
         {{ $t('common_submit') }}
       </el-button>
     </template>
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import {groupProviderDetailKey} from '~/util/userProvider';
+import { groupProviderDetailKey } from '~/util/userProvider'
 import formJson from './addUserDialog.vform.json'
-import type {UserDTO, GroupDTO} from 'api/src/generate/admin'
+import type { UserDTO, GroupDTO } from 'api/src/generate/admin'
 import { ElMessage } from 'element-plus'
-const {t} = useI18n()
+
+const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
 const groupProviderDetail = inject(groupProviderDetailKey)
 const props = defineProps<{
@@ -45,7 +47,7 @@ async function handleSubmit() {
     setTimeout(() => {
       state.visible = false
     }, 300)
-    ElMessage.success(t('user_addUserGroupSuccessMsg'));
+    ElMessage.success(t('user_addUserGroupSuccessMsg'))
 
     FormRendererRef.value.vFormRenderRef.resetForm()
     emits('refresh')
@@ -63,28 +65,32 @@ function handleOpen(exitList: UserDTO[]) {
 }
 
 async function handleOptions(exitList: UserDTO[]) {
-  console.log(exitList)
-  if (!state.userList || state.userList.length === 0) state.userList = await groupProviderDetail?.getUserListApi()
-  const idRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('id')
+  try {
+    console.log(exitList)
+    if (!state.userList || state.userList.length === 0) state.userList = await groupProviderDetail?.getUserListApi()
+    const idRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('id')
 
-  const options = userListFilter()
+    const options = userListFilter()
 
-  idRef.loadOptions(options)
+    idRef.loadOptions(options)
 
-  function userListFilter() {
-    return state.userList.reduce((prev: any[], item: UserDTO & any) => {
-      const index = exitList.findIndex(exitItem => exitItem.userId === item.userId)
-      if (index === -1 && item.userId) {
-        item.value = item.userId
-        item.label = item.username
-        prev.push(item)
-      }
-      return prev
-    }, []);
+    function userListFilter() {
+      return state.userList.reduce((prev: any[], item: UserDTO & any) => {
+        const index = exitList.findIndex(exitItem => exitItem.userId === item.userId)
+        if (index === -1 && item.userId) {
+          item.value = item.userId
+          item.label = item.username
+          prev.push(item)
+        }
+        return prev
+      }, [])
+    }
+  } catch (e) {
+    console.log(e)
   }
 }
 
-defineExpose({handleOpen})
+defineExpose({ handleOpen })
 </script>
 <style lang="scss" scoped>
 

@@ -87,7 +87,7 @@
   </el-select-v2>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { getGroupsSelectOption } from '#imports'
 
 const props = defineProps(['config', 'value'])
@@ -167,7 +167,7 @@ async function getMasterTableOptions(masterTableId: string, displayField: string
   }
   // displayField: displayField
   try {
-    const record: any = await clientApi.admin.postAdmindmsMasterTableRecordPageNonpermission(params).then((res) => res.data)
+    const record: any = await newAdminApi.postDmsMasterTableRecordPageNonpermission(params).then((res) => res.data)
     state.recordOptions = record.map((item: any) => ({
       label: item[displayField],
       value: item[displayField]
@@ -179,12 +179,12 @@ async function getMasterTableOptions(masterTableId: string, displayField: string
 
 async function getUserGroupOptions() {
   if (state.userOptions.length > 0) return
-  const userData: any = await clientApi.admin.postAdminucenterGetKeycloakAllUsers({}).then((res) => res.data)
+  const userData: any = await newAdminApi.postUcenterGetKeycloakAllUsers({}).then((res) => res.data)
   const userList = userData.map((item: any) => ({
     value: item.userId || item.username,
     label: item.username || item.userId
   }))
-  const groups = await getGroupsSelectOption().sort((a: any, b: any) => a.label.localeCompare(b.label))
+  const groups = await getGroupsSelectOption()
 
   state.userOptions = [
     {

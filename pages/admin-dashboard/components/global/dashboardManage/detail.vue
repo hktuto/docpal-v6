@@ -6,7 +6,7 @@ import { publicApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { id } = defineProps<{
-  id: number;
+  id: number
 }>()
 const { t } = useI18n()
 const state = reactive({
@@ -43,10 +43,9 @@ function handleDelete(i: string) {
 }
 
 async function handleSave() {
-
   try {
     state.saveLoading = true
-    await publicApi.api.putUserDashboard({
+    await publicApi.api.putDocpalUserDashboard({
       ...state.info,
       styleJson: JSON.stringify(state.layout)
     })
@@ -64,7 +63,7 @@ function handleEdit() {
 }
 
 async function getInfo() {
-  state.info = await publicApi.api.getUserDashboardId(id).then(res => res.data)
+  state.info = await publicApi.api.getDocpalUserDashboardId(id).then((res) => res.data)
   if (!state.info || !state.info.styleJson) return
   const temLayout = JSON.parse(state.info.styleJson)
   if (Array.isArray(temLayout)) {
@@ -99,10 +98,7 @@ onMounted(() => {
               <template v-for="(item, key) in dashboardWidgetSetting" :key="key">
                 <!-- || item.feature === 'personal' -->
                 <el-dropdown-item
-                  v-if="
-                    (!item.feature || checkLicenseFeatures(item.feature)) &&
-                    item.type !== 'personal'
-                  "
+                  v-if="(!item.feature || checkLicenseFeatures(item.feature)) && item.type !== 'personal'"
                   :command="key"
                   :divided="item.divided"
                 >
@@ -113,12 +109,8 @@ onMounted(() => {
           </template>
         </el-dropdown>
 
-        <el-button
-          id="Dashboard__EditDashboardContent__Save"
-          class="el-icon--right"
-          type="primary"
-          :loading="state.saveLoading"
-          @click="handleSave"
+        <el-button id="Dashboard__EditDashboardContent__Save" class="el-icon--right" type="primary"
+                   :loading="state.saveLoading" @click="handleSave"
         >{{ $t('common_save') }}
         </el-button>
       </div>

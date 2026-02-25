@@ -1,4 +1,4 @@
-import { adminApi, clientApi } from 'api'
+import { newClientApi, newAdminApi } from 'api'
 
 
 type UserGroupList = {
@@ -71,9 +71,9 @@ type MasterTableExportData = {
   fields: any[],
   acls: [
     {
-      create:boolean,
-      edit:boolean,
-      read:boolean,
+      create: boolean,
+      edit: boolean,
+      read: boolean,
       enable: boolean,
       masterTableId: string,
       userId: string,
@@ -82,7 +82,7 @@ type MasterTableExportData = {
 }
 
 type ExportCaseInfo = {
-  userGroupList : UserGroupList[],
+  userGroupList: UserGroupList[],
   userRoleList: UserRoleList[]
   cases: CaseExportData[]
   workflow: WorkflowExportData[]
@@ -97,8 +97,8 @@ const useAllWorkflowList = () => useState<any[]>('all-workflow-list', () => [])
 
 async function getAllCaseList() {
   const allCaseList = useAllCaseList()
-  const res = await clientApi.api.postCaseTypesPage({ pageNum: 0, pageSize: 1000 })
-  if(!res.data || !res.data.entryList) {
+  const res = await newAdminApi.postCaseTypesPage({ pageNum: 0, pageSize: 1000 })
+  if (!res.data || !res.data.entryList) {
     throw new Error('Failed to get all case list')
   }
   allCaseList.value = res.data?.entryList.filter((item: any) => item.productionVersion) || []
@@ -107,79 +107,84 @@ async function getAllCaseList() {
 
 async function getAllWorkflowList() {
   const allWorkflowList = useAllWorkflowList()
-  const res = await adminApi.api.postWorkflowProcessList({ pageNum: 0, pageSize: 1000 })
-  if(!res.data || !res.data.length) {
+  const res = await newClientApi.postDsbWorkflowProcessList({ pageNum: 0, pageSize: 1000 })
+  if (!res.data || !res.data.length) {
     throw new Error('Failed to get all workflow list')
   }
   allWorkflowList.value = res.data || []
 }
+
 export async function getCaseExportData(caseId: string) {
   const allCaseList = useAllCaseList()
   const allWorkflowList = useAllWorkflowList()
-  if(allWorkflowList.value.length === 0) {
+  if (allWorkflowList.value.length === 0) {
     await getAllWorkflowList()
   }
   let result = {
-    id: caseId,
-  } as CaseExportData;
-  if(allCaseList.value.length === 0) {
+    id: caseId
+  } as CaseExportData
+  if (allCaseList.value.length === 0) {
     await getAllCaseList()
   }
   const selectedCaseData = allCaseList.value.find((item) => item.id === caseId)
-  if(!selectedCaseData) {
+  if (!selectedCaseData) {
     throw new Error('Case not found')
   }
   result.id = selectedCaseData.id
   result.name = selectedCaseData.name
 
-  const caseDetails = await adminApi.api.getCaseTypesId(selectedCaseData.id).then(r=>r.data)
+  const caseDetails = await newAdminApi.getCaseTypesCasetypeid(selectedCaseData.id).then(r => r.data)
   result.caseIdDigit = caseDetails.caseIdDigit
   result.caseIdPrefix = caseDetails.caseIdPrefix
   result.startNumber = caseDetails.startNumber
 
-  let caseStyleJson = await clientApi.api.getCaseTypesIdStylejson(selectedCaseData.id, {versionNumber: selectedCaseData?.latestVersion}).then(r => r.data)
+  let caseStyleJson = await newAdminApi.getCaseTypesIdStylejson(selectedCaseData.id, { versionNumber: selectedCaseData?.latestVersion }).then(r => r.data)
   caseStyleJson = caseStyleJson ? JSON.parse(caseStyleJson) : null
-  const blob = await clientApi.api.getCaseTypesIdDownloadXml(selectedCaseData.id, {versionNumber: selectedCaseData?.latestVersion}, {
+  const blob = await newAdminApi.geCaseTypesIdDownloadXml(selectedCaseData.id, { versionNumber: selectedCaseData?.latestVersion }, {
     format: 'blob'
   }) as any
   const cmmnString = await blob.text()
   result.xml = cmmnString
   result.styleJson = caseStyleJson
-  const caseDashboard = await clientApi.api.postCaseDashboardPage({caseTypeId: selectedCaseData.id, pageNum: 0, pageSize: 1000})
+  const caseDashboard = await newAdminApi.postCaseDashboardPage({
+    caseTypeId: selectedCaseData.id,
+    pageNum: 0,
+    pageSize: 1000
+  })
   result.dashboard = (caseDashboard.data?.entryList || [])
 
   // get case form
   let relatedWorkflowList: any[] = []
-  if(caseStyleJson) {
+  if (caseStyleJson) {
     const steps = caseStyleJson?.cells?.reduce((prev: any, item: any) => {
-      if(item.data.type === 'humanTask') {
+      if (item.data.type === 'humanTask') {
         prev.humanTask.push(item.data)
-      } else if(item.data.type === 'processTask') {
+      } else if (item.data.type === 'processTask') {
         prev.processTask.push(item.data)
       }
       return prev
     }, {
       humanTask: [],
-      processTask: [],
+      processTask: []
     })
 
-    for(let i = 0; i < steps.processTask.length; i++) {
+    for (let i = 0; i < steps.processTask.length; i++) {
       const item = steps.processTask[i]
       const caseId = item.data.processRefExpression.__cdata
-      if(caseId){
+      if (caseId) {
         relatedWorkflowList.push(caseId)
       }
     }
-    for(let i=0; i < steps.humanTask.length; i++) {
+    for (let i = 0; i < steps.humanTask.length; i++) {
       const item = steps.humanTask[i]
-      console.log("try to get form", item)
-      if(!item.data.attr_id) continue;
-      const form = await clientApi.api.getDmsFormPropertiesQuery({
+      console.log('try to get form', item)
+      if (!item.data.attr_id) continue
+      const form = await newAdminApi.getDmsFormPropertiesQuery({
         processKey: selectedCaseData.name,
         userTaskId: item.data.attr_id,
         versionId: selectedCaseData?.latestVersion
       })
-      if(form && form.data && form.data.length > 0 && form.data[0].jsonValue) {
+      if (form && form.data && form.data.length > 0 && form.data[0].jsonValue) {
         result.form.push({
           processKey: selectedCaseData.name,
           userTaskId: item.attr_id,

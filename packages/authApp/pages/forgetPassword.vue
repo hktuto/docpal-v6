@@ -27,7 +27,7 @@
             </template>
           </el-form>
         </template>
-        <el-button class="intro" @click="login" text>
+        <el-button class="intro" @click="login" link>
           {{ $t('login') }}
         </el-button>
         <div v-if="state.time > 0">
@@ -95,7 +95,7 @@ function returnLogin() {
 
 function login() {
   router.push({
-    path: '/'
+    path: '/login'
   })
 }
 

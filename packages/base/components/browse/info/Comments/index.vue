@@ -5,7 +5,7 @@
  */
 import anime from 'animejs'
 import { useEventListener } from '@vueuse/core'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const props = defineProps<{
   doc: any
@@ -26,7 +26,7 @@ const userId = useUserId()
 const route = useRoute()
 
 async function handleAddComment(text, cb) {
-  const res = await clientApi.api.postDmsDocumentComments({
+  const res = await newClientApi.postDmsDocumentComments({
     text,
     documentIdOrPath: props.doc.id
   }).then((res) => res.data)
@@ -38,20 +38,15 @@ async function handleAddComment(text, cb) {
 
 async function handleReply(params: any, cb) {
   params.documentIdOrPath = props.doc.id
-  const res = await clientApi.api.postDmsDocumentComments(params).then((res) => res.data)
-  console.log(res)
-
+  const res = await newClientApi.postDmsDocumentComments(params).then((res) => res.data)
   if (!res) return
   console.log('reply', params.parentId)
-
   const resData = await getCommentList({ documentIdOrPath: props.doc.id, parentId: params.parentId })
-  console.log('??????????')
-
   cb(resData)
 }
 
 async function handleReplyDelete(item, parentItem) {
-  const res = await clientApi.api.deleteDmsDocumentComments({ commentId: item.id }).then((res) => res.data)
+  const res = await newClientApi.deleteDmsDocumentComments({ commentId: item.id }).then((res) => res.data)
   if (!res) return
   if (!parentItem) {
     // handleCommentsGet()
@@ -87,16 +82,7 @@ async function handleCommentsGet() {
 }
 
 async function getUserList() {
-  const userList = await clientApi.api.postUcenterUsers({}).then((res) => res.data)
-  state.userList = userList
-    .sort((a, b) => a.username.localeCompare(b.username))
-    .map((item) => {
-      const fullName = item.firstName || item.lastName ? item.firstName + ' ' + item.lastName : item.userName
-      return {
-        label: fullName,
-        value: item.userId
-      }
-    })
+  state.userList = await getUserSelectOption()
   state.userListWithoutMe = state.userList.filter((item) => item.value !== userId.value)
 }
 
@@ -109,7 +95,7 @@ function getUserName(_userId: string) {
 }
 
 async function getCommentList(params) {
-  const data: any = await clientApi.api.postDmsDocumentCommentsList(params).then((res) => res.data)
+  const data: any = await newClientApi.postDmsDocumentCommentsList(params).then((res) => res.data)
   const regex = /@\{([^}]+)\}/g
   try {
     data.forEach((item) => {

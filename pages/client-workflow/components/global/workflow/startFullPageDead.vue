@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { MenuRouterKey } from '#imports'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const { userTaskId, processKey, versionId } = defineProps<{
   userTaskId: string,
@@ -23,7 +23,7 @@ function formDataGet(propList: any = []) {
 }
 
 async function formJsonGet(userTaskId: string, processKey: string, versionId: string) {
-  const response: any = await clientApi.api.getDmsFormPropertiesQuery({
+  const response: any = await newClientApi.getDmsFormPropertiesQuery({
     userTaskId,
     processKey,
     versionId
@@ -34,10 +34,10 @@ async function formJsonGet(userTaskId: string, processKey: string, versionId: st
 }
 
 async function init() {
-  const props = await clientApi.api.postWorkflowProperties({ processKey }).then(res => res.data)
+  const props = await newClientApi.postDocpalWorkflowProperties({ processKey }).then(res => res.data)
   const formData = formDataGet(props)
   const formJson = await formJsonGet('start', processKey, versionId)
-  const xml = await clientApi.api.getWorkflowVersionVersionidBpmnxml(versionId)
+  const xml = await newClientApi.getDocpalWorkflowVersionVersionidBpmnxml(versionId)
   handleAdditionalSetting(xml, {}, formData)
 
   nextTick(() => {
@@ -98,7 +98,7 @@ async function handleSubmit() {
       }, {})
     }
     console.log('form', form)
-    await clientApi.api.postWorkflowProcessStart(form).then(res => res.data)
+    await newClientApi.postDocpalWorkflowProcessStart(form).then(res => res.data)
 
     routerProvider?.message.success('Workflow created')
     cancel()
@@ -118,8 +118,7 @@ async function addtionalSubmit(formData: any) {
       return newObj
     }, {})
   }
-  await clientApi.api.postWorkflowProcessStart(form).then(res => res.data)
-
+  await newClientApi.postDocpalWorkflowProcessStart(form).then(res => res.data)
   routerProvider?.message.success('Workflow created')
   cancel()
 }

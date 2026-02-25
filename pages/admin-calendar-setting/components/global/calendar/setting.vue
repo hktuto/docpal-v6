@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElFormItem, ElSwitch } from 'element-plus'
 import { useDebounceFn } from '@vueuse/core'
 
@@ -13,7 +13,7 @@ const { setting, getCalendarsSetting, calendarViewOptions, weekDayOptions } = us
 const loading = ref(false)
 
 const saveSetting = useDebounceFn(async () => {
-  await clientApi.admin.postAdmindmsCalendarsSetting(setting.value).then(r => r.data)
+  await newAdminApi.postDmsCalendarsSetting(setting.value).then(r => r.data)
   routerProvider?.message.success(t('dpMsg_success'))
 }, 500)
 

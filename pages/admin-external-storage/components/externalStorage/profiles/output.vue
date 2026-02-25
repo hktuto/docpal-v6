@@ -17,7 +17,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 
 const props = defineProps<{
@@ -36,7 +36,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   id: 'a-externalStorage-profile-output',
   virtualScroll: true,
   api: async (pageParams: any) => {
-    return await clientApi.admin.getAdminext3rdstorageProfilesProfileidOutputrecordList(props.id, {
+    return await newAdminApi.getExt3rdstorageProfilesProfileidOutputrecordList(props.id, {
       ...extraParams
     }).then((res: any) => res.data)
   },
@@ -134,7 +134,7 @@ function handleEdit(row: any) {
 
 async function handleActive(row: any, status: string) {
   try {
-    const result = await clientApi.admin.patchAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus(props.id, row.id, { status: status }).then((res) => res.data)
+    const result = await newAdminApi.patchExt3rdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus(props.id, row.id, { status: status }).then((res) => res.data)
     if (!!result) {
       row.status = status
     }
@@ -150,7 +150,7 @@ async function handleOpen() {
 }
 
 async function handleDuplicate(row: any) {
-  const detail = await clientApi.admin.getAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid(props.id, row.id).then((res: any) => res.data)
+  const detail = await newAdminApi.getExt3rdstorageProfilesProfileidOutputrecordOutputrecordid(props.id, row.id).then((res: any) => res.data)
   DialogRef.value.handleOpen(detail)
 }
 
@@ -158,7 +158,7 @@ async function handleDelete(row: any) {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    await clientApi.admin.deleteAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid(props.id, row.id).then((res) => res.data)
+    await newAdminApi.deleteExt3rdstorageProfilesProfileidOutputrecordOutputrecordid(props.id, row.id).then((res) => res.data)
     reload()
   } catch (error) {
     console.log(error)

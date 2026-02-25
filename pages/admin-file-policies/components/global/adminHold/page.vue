@@ -22,14 +22,14 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-hold',
-  api: (pageParams: any) => clientApi.admin.postAdmindmsPolicyHoldListQuery({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newAdminApi.postDmsPolicyHoldListQuery({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'policyName', title: 'holdPolicy_name', fixed: 'left' },
     { field: 'createdBy', title: 'holdPolicy_creator' },
@@ -125,7 +125,7 @@ function handleDblclick(row) {
 
 async function handleActive(row: any, isActive: 'A' | 'D') {
   try {
-    const result = await clientApi.admin.patchAdmindmsPolicyHoldHoldpolicyidStatusStatus(row.id, isActive).then((res) => res.data)
+    const result = await newAdminApi.patchDmsPolicyHoldHoldpolicyidStatusStatus(row.id, isActive).then((res) => res.data)
     if (!!result) {
       row.status = isActive
       routerProvider?.message.success(t('dpMsg_success'))
@@ -147,7 +147,7 @@ async function deleteItem(id: string) {
       return
     })
     if (action !== 'confirm') return
-    await clientApi.admin.deleteAdmindmsPolicyHoldHoldpolicyid(id)
+    await newAdminApi.deleteDmsPolicyHoldHoldpolicyid(id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('workflow_holdPolicy') }))
     query()
   } catch (error) {

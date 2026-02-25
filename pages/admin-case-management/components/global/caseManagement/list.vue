@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { CaseManagementListProviderKey, MenuRouterKey } from '#imports'
 import { CaseManagementNewDialog, CaseManagementSaveAsDialog, ResponsiveFilter } from '#components'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { newCaseManagementDetail } from '~/utils/caseManagementHelper'
 import tableComponent from '../../caseManagement/list/table.vue'
 
@@ -148,7 +148,7 @@ provide(CaseManagementListProviderKey, {
       isDesc: params.isDesc,
       filters
     })
-    return clientApi.admin.postAdmincaseTypesPage(params)
+    return newAdminApi.postCaseTypesPage(params)
   },
   updatePageParams,
   openLatestVersion,
@@ -172,7 +172,8 @@ provide(CaseManagementListProviderKey, {
             inputKey="name"
             inputPlaceHolder="caseManagement_filter"
           />
-          <el-button id="CaseManagement__CreateNewCaseTemplate" type="primary" @click="openNewCaseDialog" @refresh="reload">
+          <el-button id="CaseManagement__CreateNewCaseTemplate" type="primary" @click="openNewCaseDialog"
+                     @refresh="reload">
             {{ $t('caseManagement_create') }}
           </el-button>
         </div>

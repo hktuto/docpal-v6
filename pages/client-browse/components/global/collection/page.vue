@@ -14,7 +14,7 @@
         <div
           v-for="item in state.collectionList"
           :key="item.id"
-          :class="['collection-item', 'cursorPointer', { current: state.curCollection.id === item.id }]"
+          :class="['collection-item', 'cursorPointer']"
           @click="handleTabClick(item)"
         >
           <span class="ellipsis" :title="item.name">{{ item.name }}</span>
@@ -28,29 +28,28 @@
     <div class="collection-main">
       <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
         <template #toolbar_buttons>
-          <div class="flex-x-between">
+          <div v-if="state.curCollection" class="flex-x-between">
             <div class="title">{{ state.curCollection.name }}</div>
-            <SvgIcon id="Collection__EditCollectionInfo" src="/icons/edit.svg" class="el-icon--right el-icon--left"
+            <SvgIcon id="Collection__EditCollectionInfo" src="/icons/edit.svg"
+                     class="el-icon--right el-icon--left"
+                     :content="t('collections_edit')"
                      @click="openEditCollectionDialog" />
           </div>
           <div class="flex-x-end">
             <template v-if="state">
               <SvgIcon v-if="state.tableData && state.tableData.length > 0" src="/icons/file/share.svg"
-                       round :content="t('tip.addToShare')" @click="handleShare" />
+                       :content="t('tip.addToShare')" @click="handleShare" />
             </template>
-            <SvgIcon id="shareToQueue" src="/icons/file/share.svg" round></SvgIcon>
           </div>
         </template>
       </VxeGrid>
     </div>
-
-    <LazyCollectionAddCollectionDialog ref="addCollectionDialog" @success="handleAddCollection" />
-    <LazyCollectionEditCollectionDialog ref="editCollectionDialog" @refresh="reloadCollection" />
+    <LazyCollectionDialog ref="collectionDialog" @success="handleAddCollection" @refresh="reloadCollection" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import anime from 'animejs'
 import { ElMessageBox } from 'element-plus'
 import { createBrowseListPageParams, createDetailPageParams } from '~/utils/browseMenuHelper'
@@ -97,11 +96,10 @@ const state = reactive<TableState>({
 
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'clientCollectionsList',
-  api: async (pageParams: any) => {
+  api: async () => {
     let id = state.curCollection.id
-    const {
-      data: { entryList }
-    }: any = await clientApi.api.postDmsCollectionDocumentsQuery({ idOrPath: id })
+    if (!id || id == '') return
+    const { entryList }: any = await newClientApi.postDmsCollectionDocumentsQuery({ idOrPath: id }).then(r => r.data)
     state.tableData = entryList
     return entryList
   },
@@ -178,7 +176,7 @@ function reloadPage() {
 }
 
 async function getCollectionList() {
-  const data: any = await clientApi.api.getDmsCollection().then(r => r.data)
+  const data: any = await newClientApi.getDmsCollection().then(r => r.data)
   try {
     state.collectionList = data.entryList
     if (state.collectionList.length > 0) {
@@ -210,8 +208,11 @@ async function handleDelete(row: any) {
       return
     })
     if (action !== 'confirm') return
-    await clientApi.api.deleteDmsCollectionCollectionid(row.id).then(r => r.data)
+    await newClientApi.deleteDmsCollectionCollectionid(row.id).then(r => r.data)
     routerProvider?.message.success(t('collection_deleteSuccessMsg', { name: row.name }))
+    if (row.name === state.curCollection.name) {
+      state.curCollection = undefined
+    }
     reloadPage()
   } catch (error) {
     console.log(error)
@@ -231,27 +232,27 @@ function handleDocDelete(row: any) {
   }).then(async () => {
     state.loading = true
     try {
-      await clientApi.api.postDmsCollectionDocumentsRemove(param).then(r => r.data)
+      await newClientApi.postDmsCollectionDocumentsRemove(param).then(r => r.data)
       setTimeout(() => {
         query({})
       }, 1000)
       routerProvider?.message.success(t('collectionFile_deleteSuccessMsg', { name: state.curCollection.name }))
       reload()
     } catch (error) {
+      console.log(error)
     }
     state.loading = false
   })
 }
 
-const addCollectionDialog = ref()
-const editCollectionDialog = ref()
+const collectionDialog = ref()
 
 function openAddCollectionDialog() {
-  addCollectionDialog.value.handleOpen()
+  collectionDialog.value.handleOpen()
 }
 
 function openEditCollectionDialog() {
-  editCollectionDialog.value.handleOpen(state.curCollection)
+  collectionDialog.value.handleOpen(state.curCollection)
 }
 
 const style = reactive({
@@ -265,9 +266,8 @@ function handleCollapse() {
 const { addToShareList } = useShareStore()
 
 async function handleShare() {
-  const data: any = await clientApi.api.postDmsCollectionDocumentsThumbnails({ idOrPath: state.curCollection.id }).then((res: any) => res.data.entryList)
-  // TODO 未調試
-  addToShareList(data)
+  const entryList  = await newClientApi.postDmsCollectionDocumentsThumbnails({ idOrPath: state.curCollection.id }).then((res: any) => res.data.entryList)
+  addToShareList(entryList)
 
   nextTick(() => {
     const shareDraggableButton = document.getElementById('share-draggable-button')
@@ -290,12 +290,11 @@ async function handleShare() {
   })
 }
 
-function reloadCollection() {
-  let data = editCollectionDialog.value.getData()
-  state.curCollection.name = data.name
-  state.collectionList.find((item) => {
-    if (item.id === data.id) {
-      item.name = data.name
+function reloadCollection(row: any) {
+  state.curCollection.name = row.name
+  state.collectionList.find((item: any) => {
+    if (item.id === row.id) {
+      item.name = row.name
     }
   })
   reload()

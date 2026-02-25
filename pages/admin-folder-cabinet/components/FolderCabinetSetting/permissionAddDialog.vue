@@ -9,7 +9,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './permissionAddDialog.vform.json'
 import { ElMessage } from 'element-plus'
 import { getUserAndGroupPermissionSelectOption, getUserSelectOption, getGroupsSelectOption, excludeItemSelectList } from '#imports'
@@ -48,7 +48,7 @@ async function handleSubmit() {
       params.endDate = data.dateRange[1]
     }
     state.loading = true
-    await clientApi.admin.postAdmindmsCabinetTemplatePermission(params)
+    await newAdminApi.postDmsCabinetTemplatePermission(params)
     state.visible = false
     const modelName = props.isFolder === 'folder' ? t('folder_cabinetLocalPermissionOfFolder') : t('folder_cabinetLocalPermissionOfFile')
     ElMessage.success(t('tip_createdMsg', { modelName: modelName, name: null }))
@@ -69,7 +69,6 @@ function handleOpen() {
 
 function handleOptions() {
   const userIdRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('userId')
-  // TODO 需要檢查 props.exitList 的數據
   excludeItemSelectList(props.exitList, permissionList.value)
 
   // TODO 移除該數據加載

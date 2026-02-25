@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { CaseManagementVersionTable } from '#components'
 import { ElNotification } from 'element-plus'
 
@@ -22,7 +22,7 @@ const { pageNum, pageSize, orderBy, isDesc } = toRefs(props)
 const caseData = ref()
 
 async function getCaseData() {
-  caseData.value = await clientApi.admin.getAdmincaseTypesCasetypeid(props.caseTypeId).then(r => r.data)
+  caseData.value = await newAdminApi.getCaseTypesCasetypeid(props.caseTypeId).then(r => r.data)
   console.log(caseData.value)
 }
 
@@ -43,10 +43,10 @@ function getAllHumanTask(json: any, result: any[]) {
 
 async function saveAsNewVersion(data: any) {
   // TODO : save as case logic
-  const dataData = await clientApi.admin.postAdmincaseTypesVersionVersionidNew(data.id).then(res => res.data)
+  const dataData = await newAdminApi.postCaseTypesVersionVersionidNew(data.id).then(res => res.data)
   // get all form in case and save as to new version
   // download xml
-  const xml = await clientApi.admin.getAdmincaseTypesIdDownloadXml(props.caseTypeId, { versionNumber: data.versionNumber }, {
+  const xml = await newAdminApi.getCaseTypesIdDownloadXml(props.caseTypeId, { versionNumber: data.versionNumber }, {
     format: 'blob'
   })
   const xmlString = await xml.text()
@@ -61,12 +61,12 @@ async function saveAsNewVersion(data: any) {
       userTaskId: item.attr_id,
       versionId: data.id
     }
-    const response = await clientApi.admin.getAdmindmsFormPropertiesQuery(params)
+    const response = await newAdminApi.getDmsFormPropertiesQuery(params)
     if (response && response.data && response.data.length > 0 && response.data[0].jsonValue) {
       const json = response.data[0].jsonValue
       params.jsonValue = json
       params.versionId = dataData.id
-      await clientApi.admin.postAdmindmsFormPropertiesSave(params)
+      await newAdminApi.postDmsFormPropertiesSave(params)
     }
   }
   tableRef.value?.reload()
@@ -74,7 +74,7 @@ async function saveAsNewVersion(data: any) {
 }
 
 async function promoteVersion(row: any) {
-  await clientApi.admin.postAdmincaseTypesVersionVersionidActive(row.id).then(r => r.data)
+  await newAdminApi.postCaseTypesVersionVersionidActive(row.id).then(r => r.data)
   routerProvider?.message.success(t('dpMsg_success'))
   await init()
 }
@@ -119,7 +119,7 @@ provide(CaseManagementVersionProviderKey, {
       isDesc: params.isDesc
     })
     console.log('get version table')
-    return clientApi.admin.postAdmincaseTypesVersionPage({ ...params, caseTypeId: props.caseTypeId })
+    return newAdminApi.postCaseTypesVersionPage({ ...params, caseTypeId: props.caseTypeId })
   },
   actionPermission,
   saveAsNewVersion,

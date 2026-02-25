@@ -12,7 +12,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const props = defineProps<{
   id: string
@@ -29,7 +29,7 @@ function handleOpen() {
 
 async function handleCheck() {
   try {
-    const res = await clientApi.admin.getAdmindmsCabinetIdUseWorkflow(props.id).then((res) => res.data)
+    const res = await newAdminApi.getDmsCabinetIdUseWorkflow(props.id).then((res) => res.data)
     if (!!res) state.list = res
   } catch (error) {
   } finally {

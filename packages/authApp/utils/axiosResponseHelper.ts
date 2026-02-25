@@ -107,7 +107,7 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
     } catch (refreshError: any) {
       console.log('refresh error', refreshError)
       // 如果 refresh token 也过期了，则清除所有存储的 token，并导航到登录页面
-      if (refreshError.response?.status === 403) {
+      if (refreshError.response?.status === 403 || refreshError.response?.status === 500) {
         console.log('token expired, clear token and redirect to login page')
         localStorage.removeItem('access_token')
         localStorage.removeItem('refresh_token')

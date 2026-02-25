@@ -70,21 +70,20 @@
       <SvgIcon class="hd-unlock-img" src="/icons/file/unlock.svg" round :content="svgContent"
                @click="handleRemoveHold"></SvgIcon>
     </BrowseActionsButton>
-
     <BrowseActionsHoldAddDialog ref="BrowseActionsHoldAddDialogRef" @submit="addHold" @remove="removeHold" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ClickOutside as vClickOutside } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const status = ref('D')
 const props = defineProps<{
   doc?: any
 }>()
 const hold = computed(() => {
-  return props.doc?.hold ? props.doc.hold : {}
+  return props.doc?.holdDocument ? props.doc.holdDocument : {}
 })
 const state = reactive<any>({
   holdList: [],
@@ -92,7 +91,7 @@ const state = reactive<any>({
   loading: false
 })
 const emits = defineEmits(['success'])
-
+const { t } = useI18n()
 const svgContent = computed(() => {
   switch (hold.value.status) {
     case 'A':
@@ -122,7 +121,7 @@ function handleAdd(holdDetail) {
 
 async function addHold(params, cb?) {
   params.documentId = props.doc.id
-  const res = await clientApi.api.postDmsPolicyHoldDocument(params).then(r => r.data)
+  const res = await newClientApi.postDmsPolicyHoldDocument(params).then(r => r.data)
   await refreshHold()
   if (cb) cb()
 }
@@ -133,7 +132,6 @@ function handleRemoveHold() {
   const holdDetail = state.holdList.find((item) => item.id === hold.value.policyHoldId)
   if (!holdDetail) return
   holdDetail.operation = 'REMOVE'
-  holdDetail.isRemoveReasonReq = holdDetail.isRemoveReasonReq
   holdDetail.approvedBy = holdDetail.removeApprovalId
   if (!holdDetail.isRemoveAuto) BrowseActionsHoldAddDialogRef.value.handleOpen(holdDetail)
   else removeHold({})
@@ -141,7 +139,7 @@ function handleRemoveHold() {
 
 async function removeHold(params?, cb?) {
   params.id = hold.value.id
-  const res = await clientApi.api.postDmsPolicyHoldDocumentUnbindRequest(params)
+  const res = await newClientApi.postDmsPolicyHoldDocumentUnbindRequest(params)
   if (res) await refreshHold()
   if (cb) cb()
 }
@@ -155,7 +153,7 @@ function onClickOutside() {
 
 async function handelAudit(approved: boolean) {
   state.loading = true
-  const result = await clientApi.api.patchDmsPolicyHoldDocumentHolddocumentidApprovalStatus(hold.value.id, approved)
+  const result = await newClientApi.patchDmsPolicyHoldDocumentHolddocumentidApprovalStatus(hold.value.id, approved)
   if (result) await refreshHold()
   state.dVisible = false
   state.loading = false
@@ -163,7 +161,7 @@ async function handelAudit(approved: boolean) {
 
 // #endregion
 async function refreshHold() {
-  let _permission: any = await clientApi.api.getDmsDocumentDocumentidUserPermissionUserid(props.doc.id, userId).then(r => r.data)
+  let _permission: any = await newClientApi.getDmsDocumentDocumentidUserPermissionUserid(props.doc.id, userId).then(r => r.data)
   if (!_permission) _permission = {}
   if (!_permission.hold) _permission.hold = {}
   props.doc.hold = _permission.hold
@@ -174,7 +172,7 @@ async function refreshHold() {
 }
 
 async function getHoldPolicies() {
-  state.holdList = await clientApi.api.getDmsPolicyHoldList().then((res: any) => res.data)
+  state.holdList = await newClientApi.getDmsPolicyHoldList().then((res: any) => res.data)
 }
 
 onMounted(() => {

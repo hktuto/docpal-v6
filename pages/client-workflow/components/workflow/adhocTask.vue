@@ -22,8 +22,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import formJson from './uncomplete.vform.json'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import dayjs from 'dayjs'
 import { ArrowDown } from '@element-plus/icons-vue'
 const routerProvider = inject(MenuRouterKey)
@@ -42,12 +41,11 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   id: 'adHocPage',
   api: async (pageParams: any) => {
     handleTableChange()
-    return await clientApi.api.postWorkflowQueryadhocapprovalpage({ ...pageParams, ...extraParams })
+    return await newClientApi.postDocpalWorkflowQueryadhocapprovalpage({ ...pageParams, ...extraParams })
   },
   columns: [
     { field: 'businessKey', title: 'table_name', fixed: 'left' },
     { field: 'processDefinitionName', title: 'workflow_workflowName' },
-
     {
       field: 'startTime',
       title: 'workflow_createDate',
@@ -130,7 +128,6 @@ function handleTableChange() {
         },
         { field: 'user_approver_id', title: 'role.approvers' },
       ]
-      
       break
     case 'completed':
       extraParams = {

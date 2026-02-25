@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const props = defineProps<{
   homePageList: any[]
@@ -18,7 +18,7 @@ async function handleCreateHomePage() {
 
   for (const item of Object.values(props.homePageList)) {
     try {
-      const data = await clientApi.admin.postAdmindocpalPersonalDashboardSave({
+      const data = await newAdminApi.postDocpalPersonalDashboardSave({
         name: item.name,
         groupId: item.groupId,
         styleJson: item.styleJson

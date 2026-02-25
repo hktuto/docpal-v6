@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const detail = ref<WatermarkTemplateDetail | null>(null)
 const { getWatermarkTemplateDetail, removeWatermarkTemplate, list, updateWatermarkTemplateDetail } = useWatermark()
@@ -32,16 +32,18 @@ const { t } = useI18n()
 const loading = ref(false)
 
 async function getList(dummy: boolean = false) {
-  const data = await clientApi.admin.getAdmindocpalWatermarkTemplatesAll().then(r => r.data) || []
+  const data = await newAdminApi.getDocpalWatermarkTemplatesAll().then((r) => r.data) || []
   list.value = data.sort((a, b) => a.name.localeCompare(b.name))
 }
 
 async function deleteItem(id: string) {
   await removeWatermarkTemplate(id)
-  routerProvider?.message.success(t('tip_deleteSuccessMessage', {
-    modelName: t('tip_SelectedMsg') + t('watermark.watermark'),
-    name: null
-  }))
+  routerProvider?.message.success(
+    t('tip_deleteSuccessMessage', {
+      modelName: t('tip_SelectedMsg') + t('watermark.watermark'),
+      name: null
+    })
+  )
   await getList()
   if (list.value.length > 0) {
     routerProvider?.updateProps({
@@ -73,10 +75,12 @@ async function save() {
   const data = await watermarkDetail.value.save()
   if (!data) return
   await updateWatermarkTemplateDetail(data.update)
-  routerProvider?.message.success(t('tip_updateMsg', {
-    modelName: t('watermark.watermark'),
-    name: null
-  }))
+  routerProvider?.message.success(
+    t('tip_updateMsg', {
+      modelName: t('watermark.watermark'),
+      name: null
+    })
+  )
   setTimeout(() => {
     loading.value = false
   }, 100)
@@ -90,7 +94,6 @@ onMounted(async () => {
     getDetail(list.value[0].id)
   }
 })
-
 </script>
 <style lang="scss">
 textarea[data-fabric-hiddentextarea] {

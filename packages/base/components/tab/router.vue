@@ -23,21 +23,19 @@ const { t } = useI18n()
 const history = ref<RouterParams[]>([])
 const forwardHistory = ref<RouterParams[]>([])
 
-
 const isFullscreen = computed(() => {
   if (!tabManager.fullscreenItem.value) return false
   return tabManager.fullscreenItem.value?.id === tab.value.id
 })
 
-
-const refeshActions = ref<{fn: Function, params: any[]}[]>([])
+const refeshActions = ref<{ fn: Function; params: any[] }[]>([])
 
 async function handleRefresh() {
   try {
-    if(refeshActions.value.length === 0) return;
-    refeshActions.value.forEach(item => {
-      if(item && typeof item.fn === 'function') {
-        console.log("handleRefresh", item.fn ,item.params)
+    if (refeshActions.value.length === 0) return
+    refeshActions.value.forEach((item) => {
+      if (item && typeof item.fn === 'function') {
+        console.log('handleRefresh', item.fn, item.params)
         item.fn(...item.params)
       }
     })
@@ -47,7 +45,7 @@ async function handleRefresh() {
 }
 
 function navigateTo(param: RouterParams, openInNewTab: boolean = false, ignoreExist: boolean = false) {
-  if(appNeedUpdate.value) {
+  if (appNeedUpdate.value) {
     window.location.reload()
     return
   }
@@ -56,7 +54,7 @@ function navigateTo(param: RouterParams, openInNewTab: boolean = false, ignoreEx
     return
   }
   if (!ignoreExist) {
-    const existingTab = allComponents.value.find(item => item.name === param.name)
+    const existingTab = allComponents.value.find((item) => item.name === param.name)
     if (existingTab) {
       tabManager?.openTab(param)
       return
@@ -74,7 +72,8 @@ function navigateTo(param: RouterParams, openInNewTab: boolean = false, ignoreEx
     id: tab.value.id,
     initized: true
   }
-  if(errorBoundary.value) {
+  console.log('navigateTo', tab.value)
+  if (errorBoundary.value) {
     errorBoundary.value?.clearError()
   }
   panelRouteUpdate(tab.value.parent, lastId, tab.value)
@@ -92,7 +91,7 @@ function addToHistory(param: RouterParams) {
 }
 
 function back(fallback?: any) {
-  if(appNeedUpdate.value) {
+  if (appNeedUpdate.value) {
     window.location.reload()
     return
   }
@@ -119,7 +118,7 @@ function back(fallback?: any) {
     if (forwardHistory.value.length > historyLimit) {
       forwardHistory.value.shift()
     }
-    if(errorBoundary.value) {
+    if (errorBoundary.value) {
       errorBoundary.value?.clearError()
     }
     tab.value = {
@@ -128,13 +127,13 @@ function back(fallback?: any) {
       id: tab.value.id,
       initized: true
     }
-    
+
     panelRouteUpdate(tab.value.parent, lastId, tab.value)
   }
 }
 
 function forward() {
-  if(appNeedUpdate.value) {
+  if (appNeedUpdate.value) {
     window.location.reload()
     return
   }
@@ -157,7 +156,7 @@ function forward() {
       id: tab.value.id,
       initized: true
     }
-    if(errorBoundary.value) {
+    if (errorBoundary.value) {
       errorBoundary.value?.clearError()
     }
     panelRouteUpdate(tab.value.parent, lastId, tab.value)
@@ -167,18 +166,16 @@ function forward() {
 function updateProps(newProps: any) {
   tab.value.props = { ...tab.value.props, ...newProps }
   panelRouteUpdate(tab.value.parent, tab.value.id, tab.value)
-  
 }
 
 function updateTabName(newName: string) {
   tab.value.label = newName
   // add tab name to allComponents
-  allComponents.value.forEach(item => {
+  allComponents.value.forEach((item) => {
     if (item.id === tab.value.id) {
       item.label = newName
     }
   })
-
 }
 
 function retryError() {
@@ -207,34 +204,42 @@ function createMessage(type: string, ...args: any[]) {
 
 function createNotification(type: string, ...args: any[]) {
   if (args.length === 1 && typeof args[0] === 'string') {
-    ElNotification({
-      type,
-      message: args[0]
-    } as any, {
-      appendTo: routerContainer.value
-    } as any)
+    ElNotification(
+      {
+        type,
+        message: args[0]
+      } as any,
+      {
+        appendTo: routerContainer.value
+      } as any
+    )
   } else {
-    ElNotification({
-      type,
-      ...args
-    } as any, {
-      appendTo: routerContainer.value
-    } as any)
+    ElNotification(
+      {
+        type,
+        ...args
+      } as any,
+      {
+        appendTo: routerContainer.value
+      } as any
+    )
   }
 }
 
+watch(
+  () => [layout, hightLightPanel],
+  () => {
+    const currentPanel = layout.value.find((lay) => lay.id === hightLightPanel.value)
 
-watch(() => [layout, hightLightPanel], () => {
-  const currentPanel = layout.value.find(lay => lay.id === hightLightPanel.value)
-
-  if (!currentPanel) return
-  if (currentPanel.id === tab.value.parent && currentPanel.tabs[currentPanel.showingTabIndex].id === tab.value.id) {
-    handleRefresh()
+    if (!currentPanel) return
+    if (currentPanel.id === tab.value.parent && currentPanel.tabs[currentPanel.showingTabIndex].id === tab.value.id) {
+      handleRefresh()
+    }
+  },
+  {
+    deep: true
   }
-}, {
-  deep: true
-})
-
+)
 
 provide(MenuRouterKey, {
   navigateTo,
@@ -267,13 +272,13 @@ const renderComponent = ref(true)
 function reloadComponent() {
   // componentKey.value++
   // try to find a way to refresh component
-  renderComponent.value = false;
+  renderComponent.value = false
   nextTick(() => {
-    renderComponent.value = true;
+    renderComponent.value = true
   })
 }
 
-function handleErr(err){
+function handleErr(err) {
   console.trace(err)
 }
 
@@ -290,67 +295,46 @@ onUnmounted(() => {
   history.value = []
   forwardHistory.value = []
 })
-
 </script>
 
 <template>
-
   <div :class="['routerContainer', [tab.name]]">
     <Teleport :to="historyClass" defer>
       <div class="historyContainer">
-        <Icon name="lucide:chevron-left" :class="{historyBtn:true, active: history.length !== 0}"
-              @click="() => back()" />
-        <Icon name="lucide:chevron-right" :class="{historyBtn:true, active: forwardHistory.length !== 0}"
-              @click="() => forward()" />
-        <Icon name="lucide:refresh-ccw" :class="{historyBtn:true, active: true}" @click="reloadComponent" />
+        <Icon name="lucide:chevron-left" :class="{ historyBtn: true, active: history.length !== 0 }" @click="() => back()" />
+        <Icon name="lucide:chevron-right" :class="{ historyBtn: true, active: forwardHistory.length !== 0 }" @click="() => forward()" />
+        <Icon name="lucide:refresh-ccw" :class="{ historyBtn: true, active: true }" @click="reloadComponent" />
       </div>
     </Teleport>
-    <Teleport v-if="tab.icon" defer
-              :to="`#${isFullscreen? 'fullscreen-':''}tab-header-${tab.parent}-${tab.id} > .icon`">
-
+    <Teleport v-if="tab.icon" defer :to="`#${isFullscreen ? 'fullscreen-' : ''}tab-header-${tab.parent}-${tab.id} > .icon`">
       <Icon :name="tab.icon" />
     </Teleport>
-    <Teleport v-if="tab.label" defer
-              :to="`#${isFullscreen? 'fullscreen-':''}tab-header-${tab.parent}-${tab.id} > .label`">
-      <div class="label">
-        {{ t(tab.label) }}
-      </div>
+    <Teleport v-if="tab.label" defer :to="`#${isFullscreen ? 'fullscreen-' : ''}tab-header-${tab.parent}-${tab.id} > .label`">
+      <div class="label">{{ t(tab.label) }}</div>
     </Teleport>
-
     <template v-if="tab.initized">
-      <Transition>
-          <Suspense>
-            <template v-if="!tab.handleError" >
-            <NuxtErrorBoundary ref="errorBoundary" @error="handleErr">
-              <component v-if="renderComponent" :is="tab.component" :tab="tab" v-bind="tab.props" />
-              <template #error="{ error, clearError }">
-                <div class="errorBoundaryContainer">
-                  <div class="messageContainer">
-                    <h3 class="errorTitle">ERROR : {{ $t(tab.label) }}</h3>
-                    <pre>
-                       {{ error }}
-                    </pre>
-                    <pre>
-                      {{ tab }}
-                    </pre>
-                    <el-button :icon="Refresh" @click="clearError">
-                      {{ $t('common_refresh') }}
-                    </el-button>
-                  </div>
-                </div>
-              </template>
-            </NuxtErrorBoundary>
-            </template>
-            <template v-else>
-              <component v-if="renderComponent"  :is="tab.component" :tab="tab" v-bind="tab.props" />
-            </template>
-            <template #fallback>
-              <LoadingBgInline />
-            </template>
-          </Suspense>
-      </Transition>
+      <NuxtErrorBoundary ref="errorBoundary" @error="handleErr">
+        <component :is="tab.component" :tab="tab" v-bind="tab.props" />
+        <template #error="{ error, clearError }">
+          <div class="errorBoundaryContainer">
+            <div class="messageContainer">
+              <h3 class="errorTitle">ERROR : {{ $t(tab.label) }}</h3>
+              <pre>
+                   {{ error }}
+                </pre
+              >
+              <pre>
+                  {{ tab }}
+                </pre
+              >
+              <el-button :icon="Refresh" @click="clearError">
+                {{ $t('common_refresh') }}
+              </el-button>
+            </div>
+          </div>
+        </template>
+      </NuxtErrorBoundary>
     </template>
-    
   </div>
 </template>
 

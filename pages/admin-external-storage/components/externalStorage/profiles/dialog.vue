@@ -10,7 +10,7 @@
     <FormRenderer ref="FormRendererRef" :form-json="formJson"></FormRenderer>
     <template #footer>
       <div class="footer-grid">
-        <el-button id="submit" type="primary" :loading="state.loading" @click="handleSubmit">
+        <el-button id="ExternalStorage__Detail__Create__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
           {{ $t('common_submit') }}
         </el-button>
       </div>
@@ -19,7 +19,7 @@
 </template>
 <script lang="ts" setup>
 import formJson from './dialog.vform.json'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const props = defineProps(['id'])
@@ -38,7 +38,7 @@ async function handleSubmit() {
   try {
     const data = await FormRendererRef.value.getFormData()
     state.loading = true
-    await clientApi.admin.postAdminext3rdstorageIdProfiles(props.id, data).then(r => r.data)
+    await newAdminApi.postExt3rdstorageIdProfiles(props.id, data).then(r => r.data)
     ElMessage.success(t('dpMsg_success'))
     state.visible = false
     await new Promise(resolve => setTimeout(resolve, 500))

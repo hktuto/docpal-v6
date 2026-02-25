@@ -22,7 +22,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -32,7 +32,7 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-email-layout-template',
-  api: (pageParams: any) => clientApi.admin.postAdmindmsTemplateEmailLayoutPage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newAdminApi.postDmsTemplateEmailLayoutPage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'name', title: 'emailContentTemplate_layoutName', fixed: 'left' },
     { field: 'createdBy', title: 'emailContentTemplate_layoutCreator' },
@@ -85,7 +85,7 @@ async function handleDeleteTemplate(row) {
       confirmButtonText: t('common_confirmDelete')
     })
     if (action !== 'confirm') return
-    await clientApi.admin.deleteAdmindmsTemplateEmailLayoutId(row.id)
+    await newAdminApi.deleteDmsTemplateEmailLayoutId(row.id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: row.name }))
     query({})
   } catch (error) {

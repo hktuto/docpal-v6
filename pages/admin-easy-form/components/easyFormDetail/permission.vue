@@ -22,7 +22,7 @@
   </el-card>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import {
   convertPermissionObjectByPermissions,
   convertPermissionsByPermissionObject,
@@ -46,10 +46,10 @@ async function handleChange() {
   try {
     state.loading = true
     if (form.value.permission.length === 0) return
-    await clientApi.admin.postAdmindmsEasyFormSavePermission({
+    await newAdminApi.postDmsEasyFormSavePermission({
       id: props.detail.id,
       permissions: convertPermissionObjectByPermissions(form.value.permission)
-    })
+    }).then(r => r.data)
     routerProvider?.message.success(t('dpMsg_success'))
   } catch (error) {
   } finally {
@@ -63,13 +63,12 @@ async function init() {
 
 onMounted(() => init())
 watch(() => props.detail, (newValue, oldValue) => {
-    if (!!oldValue && oldValue.permission === newValue.permission) return
-    if (!!newValue.permissions) {
-      form.value.permission = convertPermissionsByPermissionObject(newValue.permissions)
-    }
-  }, {
-    immediate: true
+  if (!!oldValue && oldValue.permission === newValue.permission) return
+  if (!!newValue.permissions) {
+    form.value.permission = convertPermissionsByPermissionObject(newValue.permissions)
   }
-)
+}, {
+  immediate: true
+})
 </script>
 <style lang="scss" scoped></style>

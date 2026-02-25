@@ -20,7 +20,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const props = defineProps<{
   id: string,
@@ -37,7 +37,7 @@ if (!routerProvider) {
 async function init() {
   try {
     loading.value = true
-    profile.value = await clientApi.admin.getAdminext3rdstorageIdProfilesProfileid(props.storageId, props.id).then((res) => res.data)
+    profile.value = await newAdminApi.getExt3rdstorageIdProfilesProfileid(props.storageId, props.id).then((res) => res.data)
   } catch (error) {
     console.error(error)
   } finally {

@@ -17,7 +17,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './addDialog.vform.json'
 import { ElMessage } from 'element-plus'
 
@@ -37,7 +37,7 @@ async function handleSubmit() {
   try {
     const data = await FormRendererRef.value.getFormData()
     if (state.oldName != data.name) {
-      const checkName = await clientApi.admin.postAdmindmsCabinetTemplateDuplicateName({ label: data.label }).then(r => r.data)
+      const checkName = await newAdminApi.postDmsCabinetTemplateDuplicateName({ label: data.label }).then(r => r.data)
       if (checkName) {
         ElMessage.error(t('common_nameExists'))
         return
@@ -58,13 +58,13 @@ async function handleSubmit() {
     let response
     if (state.isEdit) {
       params.id = state.setting.id
-      const { data: patchData } = await clientApi.admin.patchAdmindmsCabinetTemplate({
+      const { data: patchData } = await newAdminApi.patchDmsCabinetTemplate({
         ...params,
         rootId: data.cabinetRoot.pop()
       })
       response = patchData
     } else {
-      response = await clientApi.admin.postAdmindmsCabinetTemplate({
+      response = await newAdminApi.postDmsCabinetTemplate({
         documentType: 'Folder',
         ...params,
         rootId: data.cabinetRoot.pop(),
@@ -126,7 +126,7 @@ function handleOpen(setting: any) {
 
 async function getRootIds(idOrPath: string) {
   try {
-    const data = await clientApi.admin.postAdmindmsDocumentBreadcrumb({ idOrPath }).then((res) => res.data)
+    const data = await newAdminApi.postDmsDocumentBreadcrumb({ idOrPath }).then((res) => res.data)
     return data?.map((item) => item.id).filter((item: any) => item !== 'root')
   } catch (error) {
     return []

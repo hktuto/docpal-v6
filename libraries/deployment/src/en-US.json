@@ -2012,7 +2012,7 @@
     "path": "Path",
     "platform": "Platform",
     "port": "Port",
-    "process": "process",
+    "process": "Process",
     "processingFolder": "Processing Folder",
     "profile": {
       "sourcePath": "Source Path"

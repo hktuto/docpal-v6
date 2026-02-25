@@ -12,7 +12,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 import formJson from './duplicate.vform.json'
 
@@ -35,7 +35,7 @@ async function handleSubmit() {
       // category: state.setting.category,
       // isFolder: state.setting.isFolder === 'false' ? false : true,
     }
-    await clientApi.admin.postAdmindmsDocpalTypeDuplicate(params).then(r => r.data)
+    await newAdminApi.postDmsDocpalTypeDuplicate(params).then(r => r.data)
     ElMessage.success(t('metadata.duplicate_success', { name: data.name }))
     emits('refresh')
     state.visible = false

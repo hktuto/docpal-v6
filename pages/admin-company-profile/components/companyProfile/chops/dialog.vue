@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 import {
   getUserAndRolePermissionSelectOption,
@@ -103,7 +103,7 @@ async function handleEdit(data: any) {
   editData.value = data
   visible.value = true
   fileChange.value = false
-  const file = await clientApi.admin.getAdmindmsCompanyprofilesCompanyidChopsCompanychopidFile(props.companyId as string, data.id, {
+  const file = await newAdminApi.getDmsCompanyprofilesCompanyidChopsCompanychopidFile(props.companyId as string, data.id, {
     format: 'blob'
   })
 
@@ -157,12 +157,12 @@ async function onSave() {
       if (fileChange.value) {
         formData.append('file', form.value.file)
       }
-      await clientApi.admin.getAdmindmsCompanyprofilesCompanyidChopsCompanychopid(props.companyId as string, editData.value.id, {} as any, formData as any).then(r => r.data)
+      await newAdminApi.putDmsCompanyprofilesCompanyidChopsCompanychopid(props.companyId as string, editData.value.id, formData as any, { format: 'blob' }).then(r => r.data)
       ElMessage.success('Updated successfully')
     } else {
       // 添加模式
       formData.append('file', form.value.file)
-      await clientApi.admin.getAdmindmsCompanyprofilesCompanyidChops(props.companyId as string, {} as any, formData as any).then(r => r.data)
+      await newAdminApi.postDmsCompanyprofilesCompanyidChops(props.companyId as string, formData, { format: 'blob' }).then(r => r.data)
       ElMessage.success('Created successfully')
     }
 

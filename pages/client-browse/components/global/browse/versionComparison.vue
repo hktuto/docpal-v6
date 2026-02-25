@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const props = defineProps<{
   id: string
   oldVersionNum: string
@@ -51,7 +51,7 @@ const back = () => {
 async function getPreviewFile(previewFile: any, id: string, version: any) {
   previewFile.loading = true
   try {
-    previewFile.blob = await clientApi.api.postDmsDocumentPreview(
+    previewFile.blob = await newClientApi.postDmsDocumentPreview(
       { idOrPath: id, version },
       {
         format: 'blob',
@@ -65,9 +65,9 @@ async function getPreviewFile(previewFile: any, id: string, version: any) {
 }
 onMounted(async () => {
   // init(id as string);
-  newVersion.value = await clientApi.api.postDmsDocumentFetch({ idOrPath: props.id }).then((res) => res.data)
+  newVersion.value = await newClientApi.postDmsDocumentFetch({ idOrPath: props.id }).then((res) => res.data)
   state.title = newVersion.value.name
-  oldVersion.value = await clientApi.api.postDmsDocumentVersionRetrieve({
+  oldVersion.value = await newClientApi.postDmsDocumentVersionRetrieve({
     idOrPath: props.id,
     versionNum: props.oldVersionNum
   }).then((res) => res.data)

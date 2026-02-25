@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { CaseManagementDetailProviderKey } from '#imports'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const props = defineProps<{
   caseTypeId: string,
@@ -21,7 +21,6 @@ const caseInfo = ref<any>()
 const xmlRef = ref()
 
 function handleSave() {
-
   xmlRef.value.save()
 }
 
@@ -48,7 +47,7 @@ function handleUpdate() {
 
 async function promoteToProduction() {
   buttonLoading.value = true
-  await clientApi.admin.postAdmincaseTypesVersionVersionidActive(props.caseTypeId).then(r => r.data)
+  await newAdminApi.postCaseTypesVersionVersionidActive(props.caseTypeId).then(r => r.data)
   routerProvider?.message.success(t('dpMsg_success'))
   await init()
   buttonLoading.value = false
@@ -58,7 +57,7 @@ async function saveAsNewVersion() {
   // console.log("props",props);
 
   buttonLoading.value = true
-  const data = await clientApi.admin.postAdmincaseTypesVersionVersionidNew(props.caseTypeId).then(r => r.data)
+  const data = await newAdminApi.postCaseTypesVersionVersionidNew(props.caseTypeId).then(r => r.data)
   //TODO : get all form in case and save as to new version
   // Step 1 : get all form in case
   const allFrom = await xmlRef.value.getAllForm()
@@ -67,7 +66,7 @@ async function saveAsNewVersion() {
     const params = form.params
     params.versionId = data?.id
     params.jsonValue = JSON.stringify(form.form)
-    await clientApi.admin.postAdmindmsFormPropertiesSave(params).then(r => r.data)
+    await newAdminApi.postDmsFormPropertiesSave(params).then(r => r.data)
   }
 
   routerProvider?.updateProps({
@@ -108,8 +107,8 @@ const production = ref(false)
 
 async function init() {
   loading.value = true
-  const data: any = await clientApi.admin.getAdmincaseTypesVersionVersionid(props.caseTypeId).then(r => r.data)
-  caseTypeInfo.value = await clientApi.admin.getAdmincaseTypesCasetypeid(data.caseTypeId).then(r => r.data) as any
+  const data: any = await newAdminApi.getCaseTypesVersionVersionid(props.caseTypeId).then(r => r.data)
+  caseTypeInfo.value = await newAdminApi.getCaseTypesCasetypeid(data.caseTypeId).then(r => r.data) as any
   caseInfo.value = data
   production.value = caseInfo.value.production
   // TODO : no way to get case name in version, use another api to get, and update tab name

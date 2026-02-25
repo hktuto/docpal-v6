@@ -392,8 +392,7 @@ function getConditionList(fieldId: string) {
 }
 
 async function getGroup() {
-  const list = await getGroupsSelectOption()
-  state.groupList = list.sort((a: any, b: any) => a.label.localeCompare(b.label))
+  state.groupList = await getGroupsSelectOption()
 }
 
 async function getRole() {

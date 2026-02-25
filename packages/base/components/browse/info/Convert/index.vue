@@ -33,9 +33,9 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { Loading } from '@element-plus/icons-vue'
-import { ElNotification, ElMessage } from 'element-plus'
+import { ElNotification, } from 'element-plus'
 import dayjs from 'dayjs'
 const props = defineProps<{
   doc: any
@@ -59,7 +59,7 @@ async function handleDownload(row) {
     position: 'bottom-right'
   })
   try {
-    const response = (await clientApi.api.postDmsConversionFormatDownload([row.documentPath], {
+    const response = (await newClientApi.postDmsConversionFormatDownload([row.documentPath], {
       format: 'blob'
     })) as any
     const blobStream = new Blob([response], { type: 'application/octet-stream' })
@@ -74,7 +74,7 @@ async function handleDownload(row) {
 const handleGetConversionHistory = async () => {
   refreshLoading.value = true
   timeStamp.value = new Date()
-  tableList.value = (await clientApi.api.getDmsConversionList({ idOrPath: props.doc.id }).then((res) => res.data)) as any
+  tableList.value = (await newClientApi.getDmsConversionList({ idOrPath: props.doc.id }).then((res) => res.data)) as any
   setTimeout(() => {
     refreshLoading.value = false
   }, 300)

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Download } from '@element-plus/icons-vue'
 import { ElNotification } from 'element-plus'
-import { clientApi, templateApi } from 'api'
+import { newAdminApi, templateApi } from 'api'
 import InitWordEditCheckingDialog from '~/components/template/initWordEditCheckingDialog.vue'
 import { getJsonConfig, variablesSchema } from 'docpal-document-editor/src/client'
 import cloneDeep from 'lodash/cloneDeep'
@@ -48,14 +48,14 @@ const wordEditCheckingDialogRef = ref()
 const templateViewerRef = ref()
 
 async function getInfo() {
-  state.info = await clientApi.admin.getAdmindmsTemplateDocumentId(id).then(r => r.data)
+  state.info = await newAdminApi.getDmsTemplateDocumentId(id).then(r => r.data)
 }
 
 async function getPreviewFile() {
   console.log('getPreviewFile', state.info.documentId)
   state.previewFile.loading = true
   try {
-    state.previewFile.blob = await clientApi.admin.postAdmindmsDocumentPreview({ idOrPath: state.info.documentId }, {
+    state.previewFile.blob = await newAdminApi.postDmsDocumentPreview({ idOrPath: state.info.documentId }, {
       format: 'blob',
       timeout: 0,
       headers: {
@@ -72,7 +72,7 @@ async function getVariables() {
   console.log('getVariables', id)
   try {
     // const date = new Date().valueOf()
-    const res = await clientApi.admin.getAdmindmsTemplateDocumentRefreshId(id).then(r => r.data)
+    const res = await newAdminApi.getDmsTemplateDocumentRefreshId(id).then(r => r.data)
     if (!res.templateVariable) return
     const templateVariable = [...new Set(JSON.parse(res.templateVariable))]
     state.variables = []
@@ -119,6 +119,9 @@ async function handleTest(fileType: string) {
   try {
     let blob
     if (state.info.fileType === 'Word') {
+      if (!jsonData.value) {
+        return
+      }
       const data = getJsonConfig(jsonData.value, documentOptions.value, exportVariables.value)
       const deepData = cloneDeep(data)
       deepData.variables.push({
@@ -141,7 +144,7 @@ async function handleTest(fileType: string) {
     } else {
       const data = await templateVariablesRendererRef.value.getData(state.fileType)
       if (!data) return
-      blob = await clientApi.admin.postAdmindmsTemplateDocumentGenerateFile({
+      blob = await newAdminApi.postDmsTemplateDocumentGenerateFile({
         id: state.info.id,
         variables: data
       }, {
@@ -220,10 +223,13 @@ async function handleSaveWord() {
     const form = new FormData()
     form.append('file', file)
     form.append('id', id)
-    await clientApi.admin.putAdmindmsTemplateDocumentUpload({ requestDTO: {} }, form as any)
+    await newAdminApi.putDmsTemplateDocumentUpload(form)
 
     const schema = variablesSchema(variables.value)
-    await clientApi.admin.patchAdmindmsTemplateDocumentUpdatetemplatevariable({ id: id, templateVariable: JSON.stringify(schema) })
+    await newAdminApi.patchDmsTemplateDocumentUpdatetemplatevariable({
+      id: id,
+      templateVariable: JSON.stringify(schema)
+    })
     state.oldVariables = JSON.parse(JSON.stringify(variables.value))
     routerProvider?.message.success(t('tip_updateSuccessMsg', { modelName: null, name: state.info.name }))
   } catch (e) {
@@ -262,7 +268,7 @@ async function updateVariables(newData: any) {
 }
 
 async function getWordJsonFile() {
-  const blob = await clientApi.admin.postAdmindmsDocumentPreview({ idOrPath: state.info.documentId }, {
+  const blob = await newAdminApi.postDmsDocumentPreview({ idOrPath: state.info.documentId }, {
     format: 'blob'
   })
 

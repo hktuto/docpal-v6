@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { AzureProviderKey } from '~/utils/azureProvider'
 import type { AzureSettingDTO } from 'api/src/generate/admin'
 const tabProvider = inject(TabManagerKey)
@@ -38,11 +38,11 @@ function goClientPath(path: string) {
   window.open(protocol + '//' + host + '/browse?path=' + path, '_blank')
 }
 async function GetAzureSetting() {
-  const res = await clientApi.admin.getAdmindsbAzureOcrSetting()
+  const res = await newAdminApi.getDsbAzureOcrSetting()
   return res.data
 }
 async function GetOCRConditions() {
-  const res = await clientApi.admin.getAdmindsbAzureOcrConditions()
+  const res = await newAdminApi.getDsbAzureOcrConditions()
   return res.data
 }
 const logTableRef = ref()
@@ -52,19 +52,19 @@ function handleFilterFormChange(formData: any) {
 }
 provide(AzureProviderKey, {
   UpdateAzureApiKeyApi: (params: any) => {
-    return clientApi.admin.putAdmindsbAzureOcrSettingApiKey(params)
+    return newAdminApi.putDsbAzureOcrSettingApiKey(params)
   },
   UpdateAzureOcrSettingApi: (params: any) => {
-    return clientApi.admin.getAdmindsbAzureOcrSetting(params)
+    return newAdminApi.getDsbAzureOcrSetting(params)
   },
   CreateAzureOcrMappingApi: (params: any) => {
-    return clientApi.admin.postAdmindsbAzureOcrProfileMapping(params)
+    return newAdminApi.postDsbAzureOcrProfileMapping(params)
   },
   UpdateAzureOcrMappingApi: (params: any) => {
-    return clientApi.admin.putAdmindsbAzureOcrProfileMapping(params)
+    return newAdminApi.putDsbAzureOcrProfileMapping(params)
   },
   GetAzureOcrModelsApi: (params: any) => {
-    return clientApi.admin.getAdmindsbAzureOcrModels(params)
+    return newAdminApi.getDsbAzureOcrModels(params)
   },
   GetOCRTransactionLogApi: (params: any) => {
     const filter: any = filterFormdata
@@ -73,7 +73,7 @@ provide(AzureProviderKey, {
         if (filter[key]) params[key] = filter[key]
       })
     }
-    return clientApi.admin.postAdmindsbAzureOcrTransactionLogs(params)
+    return newAdminApi.postDsbAzureOcrTransactionLogs(params)
   },
   goClientPath
 })

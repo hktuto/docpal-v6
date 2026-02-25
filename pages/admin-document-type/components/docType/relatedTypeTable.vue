@@ -13,7 +13,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const props = defineProps<{
@@ -74,7 +74,7 @@ async function handleDelete(row: any) {
       confirmButtonText: t('common_confirmDelete')
     })
     if (action !== 'confirm') return
-    await clientApi.admin.deleteDocpaltypeSettingsRelatedId(row.id).then(r => r.data)
+    await newAdminApi.deleteDocpaltypeSettingsRelatedId(row.id).then(r => r.data)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('tip_SelectedMsg') + t('docType_relatedDocument') }))
     await getList()
   } catch (error) {

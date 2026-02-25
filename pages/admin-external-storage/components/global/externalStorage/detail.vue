@@ -22,7 +22,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 import { routeExternalStorageProfileDetailPage } from '../../../util/routerHelper'
 
@@ -39,7 +39,7 @@ let extraParams: any = {
 }
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-external-storage-detail',
-  api: (pageParams: any) => clientApi.admin.postAdminext3rdstorageIdProfilesPage(props.id, { ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newAdminApi.postExt3rdstorageIdProfilesPage(props.id, { ...pageParams, ...extraParams }),
   columns: [
     { field: 'name', title: 'dpTable.name', fixed: 'left' },
     { field: 'profile_type', title: 'docType_type' },
@@ -147,7 +147,7 @@ function handleDblclick(row: any) {
 
 async function handleActive(row: any, status: string) {
   try {
-    await clientApi.admin.patchAdminext3rdstorageIdProfilesProfileidUpdateStatus(props.id, row.id, { status: status }).then((res) => res.data)
+    await newAdminApi.patchExt3rdstorageIdProfilesProfileidUpdateStatus(props.id, row.id, { status: status }).then((res) => res.data)
     reload()
   } catch (error) {
     console.log(error)
@@ -176,7 +176,7 @@ async function handleDelete(row: any) {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    await clientApi.admin.deleteAdminext3rdstorageIdProfilesProfileid(props.id, row.id)
+    await newAdminApi.deleteExt3rdstorageIdProfilesProfileid(props.id, row.id)
     reload()
   } catch (error) {
     console.log(error)
@@ -212,7 +212,7 @@ function getFilter() {
 }
 
 async function getDetail() {
-  detail.value = await clientApi.admin.getAdminext3rdstorageId(props.id).then((res: any) => res.data)
+  detail.value = await newAdminApi.getExt3rdstorageId(props.id).then((res: any) => res.data)
 }
 
 onMounted(() => {

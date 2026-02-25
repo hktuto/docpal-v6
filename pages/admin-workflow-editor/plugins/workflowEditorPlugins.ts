@@ -1,5 +1,5 @@
 import { defineNuxtPlugin } from '#app'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 export default defineNuxtPlugin((nuxtApp) => {
   // @ts-ignore
@@ -16,7 +16,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         icon: 'dp-icon:flow-outline',
         visibleFn: async (keyword: string) => {
           // get list in ssession storage
-          const { data } = (await clientApi.admin.postAdmindocpalWorkflowProcessDefinitionDraftPage({
+          const { data } = (await newAdminApi.postDocpalWorkflowProcessDefinitionDraftPage({
             name: keyword,
             pageNum: 0,
             pageSize: 10

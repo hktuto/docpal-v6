@@ -25,7 +25,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { routeShareOtherPageFolder } from '~/utils/routerHelper'
 import { MenuRouterKey } from '#imports'
 
@@ -42,8 +42,7 @@ const {
   cleanSelectedRows
 } = useVxeTable({
   id: 'internal-other',
-  api: (pageParams: any) =>
-    clientApi.api.postDmsInternalshareOthers({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newClientApi.postDmsInternalshareOthers({ ...pageParams, ...extraParams }),
   columns: [
     {
       field: 'documentNames',
@@ -185,7 +184,7 @@ const {
       //   code: 'docWatermark',
       //   name: 'filePopover_watermark',
       //   action: async ({ row }: any) => {
-      //     const detail = await clientApi.api
+      //     const detail = await newClientApi
       //       .postDmsDocumentFetch({ idOrPath: row.documentIds })
       //       .then((res) => res.data)
       //     const ev = new CustomEvent('docWatermark', { detail: detail })
@@ -318,10 +317,6 @@ const {
           !row.isFolder && AllowTo({ feature: 'ReadWrite', permission: additionalData }),
         disabled: false
       }
-    }
-    return {
-      visible: false,
-      disabled: false
     }
   },
   dblClickAction: ({ row, column, event }: any) => {

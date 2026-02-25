@@ -13,7 +13,6 @@ const templateUrl = process.env.OPEN_PROXY || setting.TEMPLATE_URL
 
 const endpoint = [
     {name: 'newClient', url:`${clientUrl}/v3/api-docs`, className:"Standard"},
-    {name: 'public', url:`${publicUrl}/v3/api-docs`, className:"Public"},
     {name: 'template', url:`${templateUrl}/docs/swagger.json`, className:"Template"},
 ]
 
@@ -31,12 +30,11 @@ async function generate(){
             }
         }
 
-        
         await Promise.all(
-            endpoint.map( 
+            endpoint.map(
                 point => {
                     let finalRoute:Record<string, any> = {}
-                    
+
                     generateApi({
                         name: point.name + '.ts',
                         output: path.resolve(process.cwd(), "./src/generate"),
@@ -66,14 +64,18 @@ async function generate(){
                                 return routeNameInfo
                             },
                             onFormatRouteName: (routeInfo, templateRouteName) => {
-                                // console.log(routeInfo);
-                                const paths = routeInfo.route.replace('/api/','').split('/');
+                                // console.log("routeInfo: ",routeInfo);
+                                const paths = routeInfo.route
+                                  .replace('/admin/','/')
+                                  .replace('/api/','')
+                                  .split('/');
                                 if(paths[paths.length -1] === '') {
                                     paths[paths.length -1] = 'deprecate'
                                 }
-                                const ignoreList = ['api'];
+
+                                const ignoreList = ['api','admin'];
                                 const allPath = paths.reduce((all, curr, index) => {
-                                    if(ignoreList.includes(curr)) return all
+                                  if(ignoreList.includes(curr)) return all
                                     // if curr contain "${}", replace it
                                     if(curr.includes('${')) {
                                         const newPath = curr.replace('${', '').replace('}', '')
@@ -81,18 +83,17 @@ async function generate(){
                                     all.push(curr)
                                     return all
                                 },[])
-                               
+
                                 let newName = routeInfo.method + toPascalCase(allPath.join('-'))
                                 if(finalRoute[newName]) {
                                     newName += finalRoute[newName].length
                                 }
-                                finalRoute[newName] = {
+                                finalRoute[`${routeInfo.method}_${newName}`] = {
                                     name: newName,
                                     method: routeInfo.method,
                                     route: routeInfo.route,
                                     moduleName: routeInfo.moduleName,
                                 }
-
                                 // if(!finalRoute[routeInfo.moduleName]){
                                 //     finalRoute[routeInfo.moduleName]= {}
                                 // }
@@ -103,11 +104,9 @@ async function generate(){
                                 //     newName += finalRoute[routeInfo.moduleName][oldName].length
                                 // }
                                 // finalRoute[routeInfo.moduleName][oldName].push(routeInfo.method +" : " + newName + " : " + routeInfo.route)
-                                
                                 return newName
                             }
                         }
-                        
                     }
                     ).then(() => {
                         // fs.writeFile( path.join(__dirname,`/generate/${point.name}.json`), JSON.stringify(finalRoute),{}, () => {
@@ -117,7 +116,6 @@ async function generate(){
                 }
             )
         )
-        
     }catch(error) {
         console.log(error)
     }

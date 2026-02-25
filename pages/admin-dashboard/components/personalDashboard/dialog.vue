@@ -12,7 +12,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './dialog.vform.json'
 import { ElMessage } from 'element-plus'
 
@@ -35,8 +35,7 @@ async function handleSubmit() {
       groupId: data.groupId.join(',')
     }
     if (state.edit) {
-      await clientApi.admin
-        .putAdmindocpalPersonalDashboardUpdate({
+      await newAdminApi.putDocpalPersonalDashboardUpdate({
           ...state.setting,
           ..._data
         })
@@ -49,8 +48,7 @@ async function handleSubmit() {
       )
       emits('refresh')
     } else {
-      const res = await clientApi.admin
-        .postAdmindocpalPersonalDashboardSave({
+      const res = await newAdminApi.postDocpalPersonalDashboardSave({
           ..._data,
           styleJson: '{}'
         })

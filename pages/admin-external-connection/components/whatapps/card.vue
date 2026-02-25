@@ -53,7 +53,7 @@
   </el-card>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -79,7 +79,7 @@ async function handleSwitchChange(val) {
   // state.setting.whatsAppSetting.whatsAppSwitch = val
   try {
     state.switchLoading = true
-    const res = await clientApi.admin.putAdminext3rdmessageWhatsappSettings({
+    const res = await newAdminApi.putExt3rdmessageWhatsappSettings({
       whatsAppSwitch: val,
       accessToken: state.setting.whatsAppSetting.accessToken,
       phoneNum: form.value.phoneNum,
@@ -104,7 +104,7 @@ async function handleSave(val) {
       console.error(e)
       return
     }
-    const res = await clientApi.admin.putAdminext3rdmessageWhatsappSettings({
+    const res = await newAdminApi.putExt3rdmessageWhatsappSettings({
       whatsAppSwitch: state.setting.whatsAppSetting.whatsAppSwitch,
       accessToken: form.value.accessToken,
       phoneNum: form.value.phoneNum,
@@ -122,7 +122,7 @@ async function handleSave(val) {
 async function handleTestConnection() {
   try {
     state.testLoading = true
-    const res = await clientApi.admin.getAdminext3rdmessageWhatsappConnectionStatus().then(res => res.data)
+    const res = await newAdminApi.getExt3rdmessageWhatsappConnectionStatus().then(res => res.data)
     if (res === 'Online') {
       routerProvider?.message.success(res)
     } else {
@@ -136,7 +136,7 @@ async function handleTestConnection() {
 }
 
 onMounted(async () => {
-  state.setting = await clientApi.admin.postAdminext3rdmessageWhatsappOverview({}).then(res => res.data)
+  state.setting = await newAdminApi.postExt3rdmessageWhatsappOverview({}).then(res => res.data)
   form.value.accessToken = state.setting.whatsAppSetting.accessToken
   form.value.phoneNum = state.setting.whatsAppSetting.phoneNum || ''
   form.value.accountNum = state.setting.whatsAppSetting.accountNum || ''

@@ -1,4 +1,4 @@
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const mockRules = [
   {
@@ -37,12 +37,11 @@ export const useBpmnRule = ({
 
   async function getBpmnRules() {
     try {
-      const rule = await clientApi.admin.getAdmindocpalValidationRulesVersiondraftid(versionDraftId, {
+      const rule = await newAdminApi.getDocpalValidationRulesVersiondraftid(versionDraftId, {
         headers: {
           noThrowError: 'true'
         }
-      })
-        .then((res) => res.data)
+      }).then((res) => res.data)
       if (!rule || !rule.validationRules) {
         isNew = true
         bpmnGlobalRules.value = []
@@ -66,7 +65,7 @@ export const useBpmnRule = ({
         draftId,
         validationRules: bpmnGlobalRules.value
       }
-      const res = await clientApi.admin.postAdmindocpalValidationRules(params)
+      const res = await newAdminApi.postDocpalValidationRules(params)
       isNew = false
     } catch (error) {
       console.log('error', error)
@@ -92,7 +91,7 @@ export const useBpmnRule = ({
         draftId,
         validationRules: bpmnGlobalRules.value
       }
-      const res = await clientApi.admin.putAdmindocpalValidationRulesVersiondraftid(versionDraftId, params)
+      const res = await newAdminApi.putDocpalValidationRulesVersiondraftid(versionDraftId, params)
       if (rules.length > 1) {
         return
       }
@@ -142,7 +141,8 @@ export const useBpmnRule = ({
       delete rule.validationRule.name
       return rule
     })
-    console.log(formatRules)
+    // TODO: 從 Form 的 ruleAdd 方法創建新的Rules，isNew狀態沒有被更新，一直都是false。而調用時 nodes也沒有傳遞進來
+    console.log(formatRules, isNew)
     if (isNew) {
       await addBpmnRule(formatRules)
     } else {
@@ -175,7 +175,7 @@ export const useBpmnRule = ({
       draftId,
       validationRules: bpmnGlobalRules.value
     }
-    await clientApi.admin.putAdmindocpalValidationRulesVersiondraftid(versionDraftId, params)
+    await newAdminApi.putDocpalValidationRulesVersiondraftid(versionDraftId, params).then(r => r.data)
     let isChanged = false
     nodes.forEach((node: any) => {
       if (node.data?.data?.extensionElements?.['flowable:formProperty']) {

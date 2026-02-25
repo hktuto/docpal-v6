@@ -2,8 +2,9 @@
   <div class="pageContainer--padding">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange" inputPlaceHolder="emailContentTemplate_filter" />
-        <div>
+        <div class="actions">
+          <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange"
+                            inputPlaceHolder="emailContentTemplate_filter" />
           <el-button id="EmailContentTemplate__EditEmailLayout" type="info" @click="handleEditEmailLayout">
             {{ $t('button.editEmailLayout') }}
           </el-button>
@@ -21,7 +22,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { routeEmailTemplateDetail, routeLayoutTemplatePage } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -32,7 +33,7 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-emailTemplate',
-  api: (pageParams: any) => clientApi.api.postAdmindmsTemplateEmailTemplatePage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newAdminApi.postDmsTemplateEmailTemplatePage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'label', title: 'emailContentTemplate_name', fixed: 'left' },
     { field: 'subject', title: 'tableHeader_subject' },
@@ -94,7 +95,7 @@ async function handleDeleteTemplate(row: Template[]) {
       confirmButtonText: t('common_confirmDelete')
     })
     if (action !== 'confirm') return
-    await clientApi.admin.deleteAdmindmsTemplateEmailTemplateId(row.id)
+    await newAdminApi.deleteDmsTemplateEmailTemplateId(row.id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: row.label }))
     query({})
   } catch (error) {
@@ -112,7 +113,7 @@ function handleFilterFormChange(formModel: any) {
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
-  const layouts = await adminApi.api.getDmsTemplateEmailLayoutAll().then((res) => res.data)
+  const layouts = await newAdminApi.getDmsTemplateEmailLayoutAll().then((res) => res.data)
   const filters = [
     {
       key: 'orderBy',
@@ -159,6 +160,16 @@ onMounted(() => {
 })
 </script>
 <style lang="scss" scoped>
+.actions {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  gap: var(--app-space-xs);
+  align-items: center;
+  justify-content: flex-start;
+  --icon-size: var(--app-font-size-m);
+}
+
 :deep(.el-input) {
   width: 200px;
 }

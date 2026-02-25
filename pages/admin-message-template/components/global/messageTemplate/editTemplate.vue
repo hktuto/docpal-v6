@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ElNotification } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const { id } = defineProps<{
   id: number
@@ -15,7 +14,7 @@ const detailData = ref()
 
 async function getData() {
   loading.value = true
-  detailData.value = await clientApi.admin.getAdmindocpalMessageTemplateDetailsId(id).then((r) => r.data)
+  detailData.value = await newAdminApi.getDocpalMessageTemplateDetailsId(id).then((r) => r.data)
   console.log('detailData', detailData.value)
   loading.value = false
 }
@@ -23,15 +22,8 @@ async function getData() {
 const languageOptions = ref<any[]>([])
 
 async function getLanguageOptions() {
-  const data = await clientApi.admin.getAdminext3rdmessageWhatsappLanguages().then((r) => r.data)
+  const data = await newAdminApi.getExt3rdmessageWhatsappLanguages().then((r) => r.data)
   languageOptions.value = data.data
-}
-
-async function saveTemplate() {
-  const template = detailData.value.template
-  await clientApi.admin.postAdmindocpalMessageTemplateEdit(template)
-  ElNotification.success('Success')
-  await getData()
 }
 
 async function init() {
@@ -43,7 +35,7 @@ async function saveData() {
   try {
     const params = detailData.value.template
     params.recordId = id
-    await clientApi.admin.postAdmindocpalMessageTemplateEdit(params).then((r) => r.data)
+    await newAdminApi.postDocpalMessageTemplateEdit(params).then((r) => r.data)
     routerProvider?.message.success(
       t('tip_updateSuccessMsg', {
         modelName: t('adminMenu.messageTemplate'),

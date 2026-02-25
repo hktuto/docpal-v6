@@ -11,7 +11,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { userProviderKey } from '~/util/userProvider'
 import formJson from './dialog.vform.json'
 import { ElMessage } from 'element-plus'
@@ -36,12 +36,12 @@ async function handleSubmit() {
       return
     }
     state.loading = true
-    await clientApi.admin.postAdminucenterUser(data).then(r => r.data)
+    await newAdminApi.postUcenterUser(data).then(r => r.data)
     if (data.groupList.length > 0) {
-      await clientApi.admin.postAdminucenterUserBatchAddGroups({
+      await userProvider?.BatchUserAddGroupsApi({
         userId: data.userId,
         groupIds: data.groupList
-      }).then(r => r.data)
+      })
     }
     ElMessage.success(t('tip_createdMsg', { modelName: t('User') }))
     emits('refresh')

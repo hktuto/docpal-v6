@@ -13,7 +13,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { routeHoldPageFolder } from '../../../utils/routerHelper.ts'
 import { MenuRouterKey } from '#imports'
 
@@ -23,7 +23,7 @@ const { t } = useI18n()
 const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
   id: 'c-hold',
   api: async (pageParams: any) => {
-    return clientApi.api.postDmsPolicyHoldDocumentListQuery({ ...pageParams, ...extraParams })
+    return newClientApi.postDmsPolicyHoldDocumentListQuery({ ...pageParams, ...extraParams })
   },
   columns: [
     {
@@ -69,7 +69,7 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
-  const data: any = await clientApi.api.getDmsPolicyHoldDocumentListConditions().then((res) => res.data)
+  const data: any = await newClientApi.getDmsPolicyHoldDocumentListConditions().then((res) => res.data)
   data.forEach((item: any) => {
     if (item.options && item.options.length > 0) {
       item.options.sort((a: any, b: any) => a.value.toString().localeCompare(b.value.toString()))

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Pane, Splitpanes } from 'splitpanes'
 
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { EventType, useEventBus, emitBus } from 'eventbus'
 import { actions, ActionsFilter } from '~/../base/utils/browseActions'
 
@@ -162,7 +162,7 @@ watch(
 
 provide(BrowseListProviderKey, {
   getchildApi: (pageParams: any) => {
-    return clientApi.api.postDmsDocumentChildrenThumbnail(pageParams)
+    return newClientApi.postDmsDocumentChildrenThumbnail(pageParams)
   },
   idOrPath: currentIdOrPath,
   docDetail,

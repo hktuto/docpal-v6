@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { InternalShareProviderKey } from '#imports'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { provide } from 'vue'
 import InternalShareListTable from '../../InternalShare/list/table.vue'
 import { ElMessageBox } from 'element-plus'
@@ -85,7 +85,7 @@ async function deleteAction(row: any) {
     })
     if (action !== 'confirm') return
     // param.push(...row.detailIds.split(','))
-    await clientApi.admin.deleteAdmindmsInternalshare({ internalShareId: row.internalShareId })
+    await newAdminApi.deleteDmsInternalshare({ internalShareId: row.internalShareId })
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('tip_SelectedMsg') +  t('share_internalShareLink') }))
     tableRef.value?.reload()
     return
@@ -107,7 +107,7 @@ async function getListApi(params: any) {
     pageSize: params.pageSize,
     filters: filter
   })
-  return clientApi.admin.postAdmindmsInternalsharePage(params)
+  return newAdminApi.postDmsInternalsharePage(params)
 }
 provide(InternalShareProviderKey, {
   getListApi,

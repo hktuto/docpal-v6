@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi, newAdminApi } from 'api'
 import type { UserDTO } from 'api/src/generate/admin'
 import { userProviderDetailKey } from '~/util/userProvider'
 
@@ -34,7 +34,7 @@ function openUserList(openInNewTab: boolean = false) {
 }
 
 async function getUser() {
-  const data: any = await clientApi.admin.getAdmindmsUserUserid(id).then((r) => r.data)
+  const data: any = await newAdminApi.getUcenterUserUserid(id).then((r) => r.data)
   if (!data) return
   console.log('user info', data)
   data.status = data.status === 'A' ? 'A' : 'D'
@@ -43,28 +43,28 @@ async function getUser() {
 
 provide(userProviderDetailKey, {
   SetUserStatusApi: (params: any) => {
-    return clientApi.api.putUcenterStatus(params)
+    return newClientApi.putUcenterStatus(params)
   },
   BatchActiveUserApi: (params: any) => {
-    return clientApi.api.postUcenterBatchActive(params)
+    return newClientApi.postUcenterBatchActive(params)
   },
   BatchDeleteUserApi: (params: any) => {
-    return clientApi.admin.postAdminucenterUsersBatchDelete(params)
+    return newAdminApi.postUcenterUsersBatchDelete(params)
   },
   PatchUserPasswordApi: (params: any) => {
-    return clientApi.admin.patchAdminucenterUserPassword(params)
+    return newAdminApi.patchUcenterUserPassword(params)
   },
   MemberGroupGetApi: (params: any) => {
-    return clientApi.admin.postAdminucenterMemberGroup(params)
+    return newAdminApi.postUcenterMemberGroup(params)
   },
   BatchUserRemoveGroupsApi: (params: any) => {
-    return clientApi.admin.postAdminucenterUserBatchRemoveGroups(params)
+    return newAdminApi.postUcenterUserBatchRemoveGroups(params)
   },
   BatchUserAddGroupsApi: (params: any) => {
-    return clientApi.admin.postAdminucenterUserBatchAddGroups(params)
+    return newAdminApi.postUcenterUserBatchAddGroups(params)
   },
   GetGroupListApi: async () => {
-    return await clientApi.admin.postAdminucenterGroups().then((r) => r.data)
+    return await newAdminApi.postUcenterGroups().then((r) => r.data)
   },
   getUser,
   openUserList
@@ -78,7 +78,6 @@ onMounted(() => {
   <div class="userDetailSection" v-if="state.curUser">
     <UserInfo class="info" :user="state.curUser" @refresh="getUser"></UserInfo>
     <UserGroupTable class="group" :user="state.curUser">group</UserGroupTable>
-    <!-- <UserVirtualFolder v-if="state.curUser" class="virtualFolder" :userOrGroup="state.curUser" mode="userAllowList">virtualFolder</UserVirtualFolder> -->
   </div>
 </template>
 <style lang="scss" scoped>

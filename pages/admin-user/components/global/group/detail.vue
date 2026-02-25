@@ -26,7 +26,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 import { groupProviderDetailKey } from '~/util/userProvider'
 
@@ -48,7 +48,7 @@ async function handleDelete() {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    const res = await clientApi.admin.deleteAdminucenterGroup({ groupId: id })
+    const res = await newAdminApi.deleteUcenterGroup({ groupId: id })
     if (!!res) openGroupList()
   } catch (error) {
     console.log(error)
@@ -81,22 +81,22 @@ function handleEditRefresh(group: any) {
 
 provide(groupProviderDetailKey, {
   DeleteGroupApi: (params: any) => {
-    return clientApi.admin.deleteAdminucenterGroup(params)
+    return newAdminApi.deleteUcenterGroup(params)
   },
   GetMemberListApi: (params: any) => {
-    return clientApi.admin.postAdminucenterMember(params)
+    return newAdminApi.postUcenterMember(params)
   },
   BatchGroupRemoveUsersApi: (params: any) => {
-    return clientApi.admin.postAdminucenterGroupBatchRemoveUsers(params)
+    return newAdminApi.postUcenterGroupBatchRemoveUsers(params)
   },
   BatchGroupAddUsersApi: (params: any) => {
-    return clientApi.admin.postAdminucenterGroupBatchAddUsers(params)
+    return newAdminApi.postUcenterGroupBatchAddUsers(params)
   },
   PatchGroupApi: (params: any) => {
-    return clientApi.admin.patchAdminucenterGroup(params)
+    return newAdminApi.patchUcenterGroup(params)
   },
   getUserListApi: async () => {
-    return await clientApi.admin.postAdminucenterUsers({}).then((res) => res.data)
+    return await newAdminApi.postUcenterUsers({}).then((res) => res.data)
   }
 })
 watch(

@@ -12,7 +12,7 @@
   </el-card>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const props = defineProps(['detail'])
@@ -31,7 +31,7 @@ async function handleChange(value: string) {
   try {
     if (value === props.detail.name) return
     form.value.name = value
-    await clientApi.admin.patchAdmindmsEasyFormName({
+    await newAdminApi.patchDmsEasyFormName({
       id: props.detail.id,
       name: value
     })
@@ -48,7 +48,7 @@ async function handleChange(value: string) {
 async function handlePublish() {
   try {
     state.publishLoading = true
-    await clientApi.admin.postAdmindmsEasyFormPublish({ id: props.detail.id }).then(r => r.data)
+    await newAdminApi.postDmsEasyFormPublish({ id: props.detail.id }).then(r => r.data)
     routerProvider?.message.success(t('dpMsg_success'))
     emits('refresh')
   } catch (error) {

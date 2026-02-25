@@ -78,7 +78,7 @@
 </template>
 <script lang="ts" setup>
 import draggable from 'vuedraggable'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const emits = defineEmits(['refresh', 'delete'])
 const { t } = useI18n()
 const caseProvider: any = inject(CaseManagementDashboardKey)
@@ -123,7 +123,7 @@ async function handleSubmit() {
   }
 }
 async function initOptions() {
-  const { data } = await clientApi.api.getDmsMasterTable({
+  const { data } = await newClientApi.getDmsMasterTable({
     data: {
       type: 'all'
     }
@@ -138,7 +138,7 @@ async function initOptions() {
 async function getCaseFields() {
   const versionId = caseProvider.versionId?.value || null``
   if (versionId) {
-    const data = await clientApi.api.getCaseDashboardVersionVersionidPrimaryform(versionId).then(r =>r.data)
+    const data = await newClientApi.getCaseDashboardVersionVersionidPrimaryform(versionId).then(r =>r.data)
     state.caseFields = data.fields
       .map((item: any) => ({
         value: item.id,
@@ -153,7 +153,7 @@ async function handleMasterTableChange(value: string, isInit: boolean = false) {
     state.setting.masterTableName = curItem.label
     state.setting.title = curItem.label
   }
-  const { data } = await clientApi.api.getDmsMasterTableId(value)
+  const { data } = await newClientApi.getDmsMasterTableId(value)
   state.masterTableFields = data.fields
     .map((item: any) => ({
       ...item,

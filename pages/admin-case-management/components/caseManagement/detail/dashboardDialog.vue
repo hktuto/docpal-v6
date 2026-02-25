@@ -29,7 +29,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import {
   getRoleAndGroupPermissionSelectOption,
   convertPermissionObjectByPermissions,
@@ -66,9 +66,9 @@ async function handleSubmit() {
     }
 
     if (!state.isEdit) {
-      await clientApi.admin.postAdmincaseDashboard(form)
+      await newAdminApi.postCaseDashboard(form)
     } else {
-      await clientApi.admin.putAdmincaseDashboard({
+      await newAdminApi.putCaseDashboard({
         ...form,
         id: state.id
       })

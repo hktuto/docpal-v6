@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { onMounted } from 'vue'
+
 const routerProvider = inject(MenuRouterKey)
 const { id } = defineProps<{
   id: string
@@ -17,7 +18,7 @@ const tableRef = ref()
 async function handleInit() {
   try {
     state.loading = true
-    state.setting = await clientApi.admin.getAdmindmsSmartFolderId(id).then((res) => res.data)
+    state.setting = await newAdminApi.getDmsSmartFolderId(id).then((res) => res.data)
     if (!!state.setting.json_value) {
       state.setting.json = JSON.parse(state.setting.json_value)
       tableRef.value.initBar(state.setting.json)
@@ -77,18 +78,17 @@ async function handleSave() {
   try {
     state.loading = true
     const data = await filterRef.value.getData()
-    const res = await clientApi.admin
-      .patchAdmindmsSmartFolder({
-        ...state.setting,
-        json_value: JSON.stringify(data)
-      })
-      .then((res) => res.data)
+    const res = await newAdminApi.patchDmsSmartFolder({
+      ...state.setting,
+      json_value: JSON.stringify(data)
+    }).then((res) => res.data)
     routerProvider?.message.success(t('dpMsg_success'))
   } catch (error) {
   } finally {
     state.loading = false
   }
 }
+
 const { searchOptions, searchOptionsLoading } = useSearchOptions()
 provide('searchOptions', searchOptions)
 provide('searchOptionsLoading', searchOptionsLoading)
@@ -109,7 +109,8 @@ onMounted(() => {
         <el-button id="SmartFolderSetting__Info__ClearFilter" type="info" @click="handleClear">
           {{ $t('button.clearFilter') }}
         </el-button>
-        <el-button id="SmartFolderSetting__Info__Test" class="test-button" type="info" :loading="state.testLoading" @click="handleTest">
+        <el-button id="SmartFolderSetting__Info__Test" class="test-button" type="info" :loading="state.testLoading"
+                   @click="handleTest">
           {{ $t('button.test') }}
         </el-button>
       </div>
@@ -123,7 +124,6 @@ onMounted(() => {
         {{ $t('dpTool_save') }}
       </el-button>
     </div>
-
     <div class="smartFolder-right-main" style="height: 100%; overflow: hidden">
       <SearchGroupTable ref="tableRef" :tableId="id">
         <template #toolbar_buttons>

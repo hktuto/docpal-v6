@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import formJson from './setting.vform.json'
 import Cards from './cards.vue'
 import { formSlotOrderDisplayColumns } from '../../../../../packages/dp-dashboard/components/formSlot/displayColumn/reorderColumn'
@@ -38,7 +38,7 @@ const { settingRef, cardRef, refresh, loading } = useDashboardCard({
 
 async function getMasterTableDetail(id: string) {
   try {
-    return  await clientApi.api.getDmsMasterTableId(id).then((res) => res.data)
+    return  await newClientApi.getDmsMasterTableId(id).then((res) => res.data)
   } catch (error) {
     console.log('get cast type error', error)
     return {}

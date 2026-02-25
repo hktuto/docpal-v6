@@ -13,8 +13,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import {} from '@element-plus/icons-vue'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const emits = defineEmits([
   'refresh'
@@ -34,7 +33,7 @@ function handleOpen(row) {
 }
 
 async function init(id) {
-  let docList = await clientApi.api.postDmsUploadQueryItems({
+  let docList = await newClientApi.postDmsUploadQueryItems({
     userId: userId.value,
     uploadId: id
   }).then(res => res.data)

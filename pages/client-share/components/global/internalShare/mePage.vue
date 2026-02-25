@@ -25,7 +25,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { routeShareMePageFolder } from '~/utils/routerHelper'
 import { MenuRouterKey } from '#imports'
 
@@ -42,8 +42,7 @@ const {
   cleanSelectedRows
 } = useVxeTable({
   id: 'internal-me',
-  api: (pageParams: any) =>
-    clientApi.api.postDmsInternalshareMe({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newClientApi.postDmsInternalshareMe({ ...pageParams, ...extraParams }),
   columns: [
     {
       field: 'documentNames',
@@ -177,8 +176,7 @@ const {
         code: 'docWatermark',
         name: 'filePopover_watermark',
         action: async ({ row }: any) => {
-          const detail = await clientApi.api.postDmsDocumentFetch({ idOrPath: row.documentIds })
-            .then((res) => res.data)
+          const detail = await newClientApi.postDmsDocumentFetch({ idOrPath: row.documentIds }).then((res) => res.data)
           const ev = new CustomEvent('docWatermark', { detail: detail })
           document.dispatchEvent(ev)
         }
@@ -363,7 +361,7 @@ function getFilter() {
         { label: 'tableHeader_shareBy', value: 'createdUserId' },
         { label: 'tableHeader_shareDate', value: 'createdDate' },
         { label: 'shareWithMe_endDate', value: 'expiredDate' },
-        { label: 'shareWithMe_startDate', value: 'startDate' },
+        { label: 'shareWithMe_startDate', value: 'startDate' }
       ]
     },
     {

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const emits = defineEmits(['created'])
@@ -57,7 +57,7 @@ async function handleSubmit() {
   form.append('file', blob, 'workflow.bpmn.xml')
   form.append('isDraft', true)
   try {
-    const data = await clientApi.admin.postAdmindocpalWorkflowProcessDefinitionUpload({ requestDTO: {} }, form).then((res) => res.data)
+    const data = await newAdminApi.postDocpalWorkflowProcessDefinitionUpload(form).then((res) => res.data)
     state.form = {
       template: 'Blank',
       name: ''
@@ -87,7 +87,7 @@ async function handleSubmit() {
         }
       ]
     }
-    await clientApi.admin.postAdmindocpalValidationRules(params).then(r => r.data)
+    await newAdminApi.postDocpalValidationRules(params).then(r => r.data)
 
     state.visible = false
     emits('created', data)
@@ -140,8 +140,8 @@ defineExpose({ handleOpen })
     </el-form>
     <template #footer>
       <el-button id="WorkflowEditor__CreateNewWorkflow__Submit" type="primary" :loading="state.loading"
-                 @click="handleSubmit"
-      >{{ $t('common_submit') }}
+                 @click="handleSubmit">
+        {{ $t('common_submit') }}
       </el-button>
     </template>
   </el-dialog>

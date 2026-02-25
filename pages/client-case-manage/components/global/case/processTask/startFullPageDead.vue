@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const { caseInstanceId, actionStepId, backItem } = defineProps<{
   caseInstanceId: string
@@ -26,15 +26,15 @@ async function setUpForm() {
   try {
     loading.value = true
     // get action item detail from case instance
-    const stepDetail = (await clientApi.api.postCaseDashboardInstanceActionPreRequisite({ id: actionStepId }).then((res) => res.data)) as any
+    const stepDetail = (await newClientApi.postCaseDashboardInstanceActionPreRequisite({ id: actionStepId }).then((res) => res.data)) as any
 
     // get latest case detail
-    const caseData = (await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(caseInstanceId).then((res) => res.data)) as any
+    const caseData = (await newClientApi.getCaseDashboardInstanceCaseidPrimaryformData(caseInstanceId).then((res) => res.data)) as any
     primaryForm.value = caseData.rows
     inParameters.value = stepDetail.inParameters as { [key: string]: string }
 
     // get form xml
-    const xml = await clientApi.api.getWorkflowVersionVersionidBpmnxml(stepDetail.processDefinitionVersionId)
+    const xml = await newClientApi.getDocpalWorkflowVersionVersionidBpmnxml(stepDetail.processDefinitionVersionId)
     // get form data
     formData.value = Object.keys(inParameters.value).reduce((prev: any, key) => {
       const valueItem = caseData.rows.find((c) => c.id === key)
@@ -49,7 +49,7 @@ async function setUpForm() {
     formData.value.case_id = caseInstanceId
 
     // get form json with lateset versiion
-    formJson.value = await clientApi.api.getDmsFormPropertiesQuery({
+    formJson.value = await newClientApi.getDmsFormPropertiesQuery({
         userTaskId: 'start',
         processKey: stepDetail.processDefinitionKey,
         versionId: stepDetail.processDefinitionVersionId
@@ -128,7 +128,7 @@ async function handleSubmit() {
       }
     })
 
-    await clientApi.api.postCaseInstanceProcessStart({
+    await newClientApi.postCaseInstanceProcessStart({
       id: actionStepId,
       workflowVariables: data,
       variables
@@ -150,7 +150,7 @@ async function additionSubmit(formData: any) {
   if (!formData.user_creator_id) {
     formData.user_creator_id = useUserId().value
   }
-  const res = await clientApi.api.postCaseInstanceProcessStart({
+  const res = await newClientApi.postCaseInstanceProcessStart({
     id: actionStepId,
     workflowVariables: formData,
     variables

@@ -4,7 +4,7 @@ import { ArrowDown } from '@element-plus/icons-vue'
 import type { DashboardWidgetSetting } from '../../../../../packages/dp-dashboard/utils/dashboardWidgetHelper'
 import { CmmnWidgetComponent } from '../../../../../packages/dp-cmmn-x6/utils/dashboardHelper'
 import { onMounted } from 'vue'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { MenuRouterKey } from '#imports'
 import dayjs from 'dayjs'
 
@@ -30,7 +30,7 @@ const showDateWidget = computed(() => {
 })
 async function getDashboardList() {
   try {
-    state.dashboardList = await clientApi.api.getCaseDashboardVersionCmmnversionidPermission(versionId.value).then((res) => res.data)
+    state.dashboardList = await newClientApi.getCaseDashboardVersionCmmnversionidPermission(versionId.value).then((res) => res.data)
     const dashboardId = sessionStorage.getItem('case-dashboard-id')
     let index = state.dashboardList.findIndex((item) => item.id === dashboardId)
     if (!index || index < 0) index = 0
@@ -63,7 +63,7 @@ async function getLayout(layoutId: string, row: any) {
       return
     }
     sessionStorage.setItem('case-dashboard-id', layoutId)
-    const detail = await clientApi.api.getCaseDashboardId(layoutId).then((res) => res.data)
+    const detail = await newClientApi.getCaseDashboardId(layoutId).then((res) => res.data)
     if (!detail?.styleJson) throw new Error('')
     state.layout = JSON.parse(detail?.styleJson)
     row.layout = state.layout

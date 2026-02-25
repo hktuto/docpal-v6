@@ -75,60 +75,7 @@
         "automaticDropdown": false,
         "multiple": false,
         "multipleLimit": 0,
-        "optionItems": [
-          {
-            "value": "varchar:4000",
-            "label": "字符串",
-            "key": "string",
-            "unique": false
-          },
-          {
-            "value": "varchar:255",
-            "label": "短文本",
-            "key": "short_text",
-            "unique": true
-          },
-          {
-            "value": "bigint",
-            "label": "整数",
-            "key": "number",
-            "unique": true
-          },
-          {
-            "value": "clob",
-            "label": "长文本",
-            "key": "longText",
-            "unique": false
-          },
-          {
-            "value": "json",
-            "label": "Json",
-            "key": "json",
-            "unique": false
-          },
-          {
-            "value": "decimal",
-            "label": "浮点数",
-            "key": "float",
-            "unique": false
-          },
-          {
-            "value": "timestamp",
-            "label": "日期",
-            "key": "date",
-            "unique": false
-          },
-          {
-            "value": "boolean",
-            "label": "是否",
-            "key": "boolean",
-            "unique": false
-          },
-          {
-            "value": "relation",
-            "label": "关系数据"
-          }
-        ],
+        "optionItems": [],
         "required": false,
         "requiredHint": "",
         "validation": "",
@@ -137,7 +84,7 @@
         "labelIconClass": null,
         "labelIconPosition": "rear",
         "labelTooltip": null,
-        "onCreated": "const _this = this\nasync function getDocTypeList() {\n  const masterTableDataTypeList = await $api.get('/dms/master-table/dataType/mapping', {}).then(res => res.data.data)\n  const data = masterTableDataTypeList.map(item => ({\n    ...item, label: $t(`marsterTable.type.${item.value}`)\n  }))\n  data.push({\n    value: 'relation',label:  $t(`marsterTable.type.relation`)\n  })\n  return data\n}\nasync function init() {\n  const options = await getDocTypeList()\n  _this.loadOptions(options)\n}\ninit()",
+        "onCreated": "const _this = this\nasync function getDocTypeList() {\n  const masterTableDataTypeList = await $api.get('/api/dms/master-table/dataType/mapping', {}).then(res => res.data.data)\n  const data = masterTableDataTypeList.map(item => ({\n    ...item, label: $t(`marsterTable.type.${item.value}`)\n  }))\n  data.push({\n    value: 'relation',label:  $t(`marsterTable.type.relation`)\n  })\n  return data\n}\nasync function init() {\n  const options = await getDocTypeList()\n  _this.loadOptions(options)\n}\ninit()",
         "onMounted": "",
         "onRemoteQuery": "",
         "onChange": "const _this = this\nconst relationField = [\n  { key: 'relationTable', require: true },\n  { key: 'relationField', require: true },\n  { key: 'displayField', require: true },\n  { key: 'divider' }\n]\nconst otherField = [\n  // { key: 'defaultValue', require: false },\n  // { key: 'regex', require: false },\n  // { key: 'regexWarning', require: false },\n]\n// bigint\n// relation\nif(value === 'relation') {\n  handleDisplay(true, relationField)\n  handleDisplay(false, otherField)\n} else {\n  handleDisplay(true, otherField)\n  handleDisplay(false, relationField)\n}\n\nfunction handleDisplay(display, fields) {\n  fields.forEach(item => {\n    try {\n      const ref = _this.getWidgetRef(item.key)\n      console.log(ref, display, item)\n      ref.setHidden(!display)\n      if(item.require || item.require === false) ref.setRequired(item.require)\n    } catch {}\n  })\n}",
@@ -342,33 +289,7 @@
         "automaticDropdown": false,
         "multiple": false,
         "multipleLimit": 0,
-        "optionItems": [
-          {
-            "label": "test",
-            "id": "0c09c0e1-d39a-4044-ac88-b7f9a3d297c8",
-            "value": "test"
-          },
-          {
-            "label": "brand",
-            "id": "681a8d7d-639a-4277-908f-ab25435904e2",
-            "value": "brand"
-          },
-          {
-            "label": "region",
-            "id": "9134da2a-fceb-449d-9f8b-ece574cdbb1a",
-            "value": "region"
-          },
-          {
-            "label": "Event Categories",
-            "id": "event_categories",
-            "value": "Event Categories"
-          },
-          {
-            "label": "Event Location",
-            "id": "event_location",
-            "value": "Event Location"
-          }
-        ],
+        "optionItems": [],
         "required": false,
         "requiredHint": "",
         "validation": "",
@@ -377,10 +298,10 @@
         "labelIconClass": null,
         "labelIconPosition": "rear",
         "labelTooltip": null,
-        "onCreated": "const _this = this\nasync function getOptions() {\n  const options = await $api.get('/dms/master-table').then(res => res.data.data)\n  return options.map((item) => ({\n    label: item.name,\n    id: item.id,\n    value: item.name\n  }))\n}\nasync function init() {\n  const options = await getOptions()\n  _this.loadOptions(options)\n}\ninit()",
+        "onCreated": "const _this = this\nasync function getOptions() {\n  const options = await $api.get('/admin/api/dms/master-table').then(res => res.data.data)\n  return options.map((item) => ({\n    label: item.name,\n    id: item.id,\n    value: item.name\n  }))\n}\nasync function init() {\n  const options = await getOptions()\n  _this.loadOptions(options)\n}\ninit()",
         "onMounted": "",
         "onRemoteQuery": "",
-        "onChange": "// /api/dms/master-tables/{id}\n// relationField\n// displayField\n// sean需求2024/3/14 16:30 ：取消ignoreList,displayField取消filter\nconst _this = this\nconst ignoreList = ['created_date', 'created_by','modified_date', 'modified_by']\nasync function getOptions() {\n  try {\n    const optionItems = _this.getOptionItems()\n    const optionItem = optionItems.find(item => item.value === value)\n    const options = await $api.get(`/dms/master-tables/${optionItem.id}`).then(res => res.data.data.fields)\n    return options.reduce((prev, item) => {\n      if(\n          item.dataType !== 'Relation' ||\n          item.columnName === 'id') {\n        const _item = {\n          label: item.columnName,\n          value: item.columnName,\n          unique: item.unique\n        }\n        prev.push(_item)\n      }\n      return prev\n    }, [])\n  }\n  catch {\n    return []\n  }\n}\nasync function init() {\n  const options = await getOptions()\n  try{\n    const relationFieldRef = _this.getWidgetRef('relationField')\n    const displayFieldRef = _this.getWidgetRef('displayField')\n    relationFieldRef.loadOptions(options.filter(item => item.unique || item.label === 'id'))\n    displayFieldRef.loadOptions(options)\n  }\n  catch{}\n}\ninit()",
+        "onChange": "// /admin/api/dms/master-table/{id}\n// relationField\n// displayField\n// sean需求2024/3/14 16:30 ：取消ignoreList,displayField取消filter\nconst _this = this\nconst ignoreList = ['created_date', 'created_by','modified_date', 'modified_by']\nasync function getOptions() {\n  try {\n    const optionItems = _this.getOptionItems()\n    const optionItem = optionItems.find(item => item.value === value)\n    const options = await $api.get(`/admin/api/dms/master-table/${optionItem.id}`).then(res => res.data.data.fields)\n    return options.reduce((prev, item) => {\n      if(\n          item.dataType !== 'Relation' ||\n          item.columnName === 'id') {\n        const _item = {\n          label: item.columnName,\n          value: item.columnName,\n          unique: item.unique\n        }\n        prev.push(_item)\n      }\n      return prev\n    }, [])\n  }\n  catch {\n    return []\n  }\n}\nasync function init() {\n  const options = await getOptions()\n  try{\n    const relationFieldRef = _this.getWidgetRef('relationField')\n    const displayFieldRef = _this.getWidgetRef('displayField')\n    relationFieldRef.loadOptions(options.filter(item => item.unique || item.label === 'id'))\n    displayFieldRef.loadOptions(options)\n  }\n  catch{}\n}\ninit()",
         "onFocus": "",
         "onBlur": "",
         "onValidate": ""
@@ -504,9 +425,9 @@
     "onFormMounted": "",
     "onFormDataChange": "",
     "dhList": [],
+    "onFormValidate": "",
     "saveRemoteOptions": "never",
     "labelFormUniqueName": true,
-    "onFormValidate": "",
     "dataSources": []
   }
 }

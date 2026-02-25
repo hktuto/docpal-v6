@@ -1,34 +1,30 @@
-import { clientApi } from "api";
+import { newClientApi } from 'api'
 import type { OrgNode } from '../components/rbac/OrgChart/X6/types'
+
 const useRoleTree = () => useState<OrgNode[]>('role-tree', () => ([]))
 const useFlatRole = () => useState<any[]>('flat-role', () => ([]))
 export const useRBAC = (roleId?: string) => {
-
-
   const loading = ref(false)
   const roleTree = useRoleTree()
   const flatRole = useFlatRole()
 
-
   async function getRoleTree() {
     loading.value = true
-    try{
-      if(roleId) {
+    try {
+      if (roleId) {
         // const roleIdArray = Array.isArray(roleIds) ? roleIds : [roleIds]
         // normalize roleIds to array
-        const data: any = await clientApi.api.getDocpalAclRoleHierarchyRoleid(roleId)
-        .then((res: any) => res.data) as OrgNode[]
+        const data: any = await newClientApi.getDocpalAclRoleHierarchyRoleid(roleId).then((res: any) => res.data) as OrgNode[]
         roleTree.value = data.children || []
         console.log(roleTree)
-      }else{
-        const data = await clientApi.api.getDocpalAclRoleRoot()
-        .then((res: any) => res.data) as OrgNode
+      } else {
+        const data = await newClientApi.getDocpalAclRoleRoot().then((res: any) => res.data) as OrgNode
         roleTree.value = data ? [data] : []
       }
       flatRole.value = makeFlapRoleList([...roleTree.value])
-    }catch(error){
+    } catch (error) {
       console.error(error)
-    }finally{
+    } finally {
       loading.value = false
     }
   }
@@ -42,8 +38,9 @@ export const useRBAC = (roleId?: string) => {
     })
     return roleList
   }
+
   onMounted(async () => {
-    if(roleTree.value.length === 0) {
+    if (roleTree.value.length === 0) {
       await getRoleTree()
     }
   })
@@ -53,10 +50,9 @@ export const useRBAC = (roleId?: string) => {
     flatRole,
     loading
   }
-
 }
 
-function flatMap (arr: any[])  {
+function flatMap(arr: any[]) {
   return arr.reduce((acc, item) => {
     acc.push(item.label)
     if (item.child) {
@@ -66,116 +62,114 @@ function flatMap (arr: any[])  {
   }, [])
 }
 
-
 export const seedUser = async () => {
   const roles = useRoleList()
   const users = useUserList()
   // create flat roles
   const roleList = flatMap(roles.value)
   // get user from fake api
-  const userList = await fetch('https://jsonplaceholder.typicode.com/users',{
+  const userList = await fetch('https://jsonplaceholder.typicode.com/users', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
     }
   }).then(res => res.json())
-  
+
   const roleLength = roleList.length
-  users.value = userList.map((user) =>{
+  users.value = userList.map((user) => {
     const role = roleList[Math.floor(Math.random() * roleLength)]
     return {
       username: user.username,
-      firstName : user.name.split(' ')[0],
-      lastName : user.name.split(' ')[1],
+      firstName: user.name.split(' ')[0],
+      lastName: user.name.split(' ')[1],
       email: user.email,
-      role: role,
+      role: role
     }
   }) as User[]
 }
 
-
 export const seedRole = () => {
   const roles = useRoleList()
-  const roleList: Role[] = [
+  roles.value = [
     {
-      label: "CEO",
+      label: 'CEO',
       child: [
         {
-          label: "Managing Director",
-          child:[
+          label: 'Managing Director',
+          child: [
             {
-              label: "Advisor",
-              child:[]
+              label: 'Advisor',
+              child: []
             },
             {
-              label: "Assistant MD",
-              child:[
+              label: 'Assistant MD',
+              child: [
                 {
-                  label:"Marketing Director",
-                  child:[
+                  label: 'Marketing Director',
+                  child: [
                     {
-                      label: "Marketing Manager",
-                      child:[
+                      label: 'Marketing Manager',
+                      child: [
                         {
-                          label: "Marketing Analyst",
-                          child:[]
+                          label: 'Marketing Analyst',
+                          child: []
                         },
                         {
-                          label: "Marketing Planner",
-                          child:[]
+                          label: 'Marketing Planner',
+                          child: []
                         },
                         {
                           label: 'clerk',
-                          child:[]
+                          child: []
                         }
                       ]
                     }
                   ]
                 },
                 {
-                  label:"Finance Director",
-                  child:[
+                  label: 'Finance Director',
+                  child: [
                     {
-                      label: "Manager",
-                      child:[
+                      label: 'Manager',
+                      child: [
                         {
-                          label: "Analyst",
-                          child:[]
+                          label: 'Analyst',
+                          child: []
                         },
                         {
-                          label: "Planner",
-                          child:[]
+                          label: 'Planner',
+                          child: []
                         },
                         {
-                          label:'clerk',
-                          child:[]
+                          label: 'clerk',
+                          child: []
                         }
                       ]
                     }
                   ]
                 },
                 {
-                  label:"HR Director",
-                  child:[
+                  label: 'HR Director',
+                  child: [
                     {
-                      label: "Manager",
-                      child:[
+                      label: 'Manager',
+                      child: [
                         {
-                          label: "Talent Acquisitio",
-                          child:[]
+                          label: 'Talent Acquisitio',
+                          child: []
                         },
                         {
-                          label: "Compensation & Benefits",
-                          child:[]
+                          label: 'Compensation & Benefits',
+                          child: []
                         },
                         {
-                          label:'Operatior',
-                          child:[]
+                          label: 'Operatior',
+                          child: []
                         }
                       ]
                     }
                   ]
-                },
+                }
               ]
             }
           ]
@@ -183,5 +177,4 @@ export const seedRole = () => {
       ]
     }
   ]
-  roles.value = roleList
 }

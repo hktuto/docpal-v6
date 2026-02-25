@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { groupProviderKey } from '~/util/userProvider'
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -25,13 +25,13 @@ function openGroupDetail(data: any, openInNewTab = false) {
 provide(groupProviderKey, {
   openGroupDetail,
   GetGroupListApi: async () => {
-    return await clientApi.admin.postAdminucenterGroups().then((r) => r.data)
+    return await newAdminApi.postUcenterGroups().then((r) => r.data)
   },
   DeleteGroupApi: (params: any) => {
-    return clientApi.admin.deleteAdminucenterGroup(params)
+    return newAdminApi.deleteUcenterGroup(params)
   },
   CreateGroupApi: (params: any) => {
-    return clientApi.admin.postAdminucenterGroup(params)
+    return newAdminApi.postUcenterGroup(params)
   }
 })
 </script>

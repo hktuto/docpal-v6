@@ -22,7 +22,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import {clientApi} from 'api'
+import { newClientApi } from 'api'
 
 const emits = defineEmits([
   'update'
@@ -45,7 +45,7 @@ async function handleConfirm() {
     return
   }
   const d = {
-    idOrPath: state.doc.id,
+    idOrPath: state.doc.id
     // languages: form.value.languages
   }
   const formData = new FormData()
@@ -54,7 +54,7 @@ async function handleConfirm() {
   formData.append('openAiAnalyzeMetadata', form.value.openAiAnalyzeMetadata)
   state.loading = true
   try {
-    await clientApi.api.patchDmsDocumentContent({}, formData).then(r => r.data)
+    await newClientApi.patchDmsDocumentContent(formData).then(r => r.data)
     state.visible = false
     form.value = {
       fileList: [],
@@ -73,7 +73,7 @@ function handleOpen(doc) {
   state.doc = doc
 }
 
-defineExpose({handleOpen})
+defineExpose({ handleOpen })
 </script>
 <style lang="scss">
 .replace-dialog {

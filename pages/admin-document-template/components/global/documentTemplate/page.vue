@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { provide, ref, toRefs } from 'vue'
 import { DocumentTemplateListTable } from '#components'
-import { clientApi } from 'api'
+import { newAdminApi, newClientApi } from 'api'
 import { DocumentTemplateProviderKey } from '~/utils/documentTemplateHelper'
 import { ElMessageBox, ElNotification } from 'element-plus'
 import { Download } from '@element-plus/icons-vue'
@@ -88,7 +88,7 @@ function officeUrl(docId: string, token: string) {
 }
 
 async function handleEdit(row: any) {
-  const token = await clientApi.api.getGetofficetokenId(row.documentId, { fileType: 'NUXEO' }).then(r => r.data)
+  const token = await newClientApi.getGetofficetokenId(row.documentId, { fileType: 'NUXEO' }).then(r => r.data)
   const baseUrl = officeUrl(row.documentId, token)
   window.open(baseUrl, '_blank')
 }
@@ -107,7 +107,7 @@ async function handleDelete(row: any) {
       confirmButtonText: t('common_confirmDelete')
     })
     if (action !== 'confirm') return
-    await clientApi.admin.deleteAdmindmsTemplateDocumentId(row.id)
+    await newAdminApi.deleteDmsTemplateDocumentId(row.id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('adminMenu.template') }))
 
     tableRef.value?.reload()
@@ -129,7 +129,7 @@ async function handleDownload(row: any) {
     position: 'bottom-right'
   })
   try {
-    const blob = await clientApi.admin.postAdmindmsDocumentDownload(
+    const blob = await newAdminApi.postDmsDocumentDownload(
       { idOrPath: row.documentId },
       {
         format: 'blob',
@@ -163,7 +163,7 @@ provide(DocumentTemplateProviderKey, {
       isDesc: params.isDesc,
       filters
     })
-    return clientApi.admin.postAdmindmsTemplateDocumentPage(params)
+    return newAdminApi.postDmsTemplateDocumentPage(params)
   },
   dblClickHandle: (row: any) => {
     const item = createNewDocumentTemplateDetail(row, true)

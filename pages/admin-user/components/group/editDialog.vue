@@ -11,7 +11,7 @@
 <script lang="ts" setup>
 import { groupProviderDetailKey } from '~/util/userProvider'
 import formJson from './editDialog.vform.json'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -37,7 +37,7 @@ async function handleSubmit() {
       state.visible = false
       return
     }
-    const groupList: any = await clientApi.admin.postAdminucenterGroups().then((r) => r.data)
+    const groupList: any = await newAdminApi.postUcenterGroups().then((r) => r.data)
     // check group name exist
     if (groupList.some((g: any) => g.name === data.groupName)) {
       ElMessage.error(t('user_userGroupsIsExistsMsg'))

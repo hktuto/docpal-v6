@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { MasterTableProviderKey } from '~/utils/masterTableProvider'
 import { routeMasterTableDetail, routeMasterTableNew } from '~/utils/routerHelper'
 const tabProvider = inject(TabManagerKey)
@@ -40,16 +40,16 @@ function handleLogFilterChange(formModel: any) {
 }
 provide(MasterTableProviderKey, {
   GetMasterTablesPageApi: (params: any) => {
-    return clientApi.admin.postAdmindmsMasterTablePage({ ...params, ...state.tableFilter })
+    return newAdminApi.postDmsMasterTablePage({ ...params, ...state.tableFilter })
   },
   DeleteMasterTablesApi: (params: any) => {
-    return clientApi.admin.deleteAdmindmsMasterTableId(params)
+    return newAdminApi.deleteDmsMasterTableId(params)
   },
   GetMasterTablesPageConditionApi: (params: any) => {
-    return clientApi.admin.getAdmindmsMasterTablePageConditions(params)
+    return newAdminApi.getDmsMasterTablePageConditions(params)
   },
   UpdateMasterTableApi: (params: any) => {
-    return clientApi.admin.putAdmindmsMasterTable(params)
+    return newAdminApi.putDmsMasterTable(params)
   },
   openDetail,
   openNew

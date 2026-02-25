@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 const state = reactive<any>({
-  activeTab: "allTask",
-  loading: false,
-});
+  activeTab: 'allTask',
+  loading: false
+})
 
 function tabChange(tab: string) {
   // const refreshList = ["allTask", "myTask", "activeTask"];
@@ -18,25 +18,26 @@ const WorkflowRef = ref()
 const WorkflowPopoverDownloadRef = ref()
 
 async function handleDownload() {
-  const params = WorkflowRef.value.getDownloadParams();
+  const params = WorkflowRef.value.getDownloadParams()
   console.log(params)
-  WorkflowPopoverDownloadRef.value.handleOpen(params, state.activeTab);
+  WorkflowPopoverDownloadRef.value.handleOpen(params, state.activeTab)
 }
 </script>
 <template>
   <div class="pageContainer--padding workflow-page">
     <div class="buttons--absolute">
-      <el-button
-        id="Workflow__Export"
-        v-show="state.activeTab !== 'adhocTask'"
-        class="el-icon--left"
-        type="info"
-        @click="handleDownload"
-      >
-        {{ $t("button.export") }}
-      </el-button>
-      <WorkflowPopoverPersonal/>
-      <WorkflowPopoverNewTask @created="tabChange(state.activeTab)"/>
+      <!-- TODO: Lyle反饋該功能已棄用    -->
+      <!--      <el-button
+              id="Workflow__Export"
+              v-show="state.activeTab !== 'adhocTask'"
+              class="el-icon&#45;&#45;left"
+              type="info"
+              @click="handleDownload"
+            >
+              {{ $t("button.export") }}
+            </el-button>-->
+      <WorkflowPopoverPersonal />
+      <WorkflowPopoverNewTask @created="tabChange(state.activeTab)" />
     </div>
     <el-tabs
       v-model="state.activeTab"
@@ -44,10 +45,10 @@ async function handleDownload() {
       @tab-change="tabChange"
     >
       <el-tab-pane :label="$t('workflow_allTask')" name="allTask">
-        <WorkflowAllTask v-if="state.activeTab === 'allTask'" ref="WorkflowRef"/>
+        <WorkflowAllTask v-if="state.activeTab === 'allTask'" ref="WorkflowRef" />
       </el-tab-pane>
       <el-tab-pane :label="$t('workflow_myTask')" name="myTask">
-        <WorkflowMyTask v-if="state.activeTab === 'myTask'" ref="WorkflowRef"/>
+        <WorkflowMyTask v-if="state.activeTab === 'myTask'" ref="WorkflowRef" />
       </el-tab-pane>
       <el-tab-pane :label="$t('workflow_completedTask')" name="completeTask">
         <WorkflowCompleteTask
@@ -56,10 +57,10 @@ async function handleDownload() {
         />
       </el-tab-pane>
       <el-tab-pane :label="$t('workflow_activeTask')" name="activeTask">
-        <WorkflowActiveTask v-if="state.activeTab === 'activeTask'" ref="WorkflowRef"/>
+        <WorkflowActiveTask v-if="state.activeTab === 'activeTask'" ref="WorkflowRef" />
       </el-tab-pane>
       <el-tab-pane :label="$t('workflow_adhocTask')" name="adhocTask">
-        <WorkflowAdhocTask v-if="state.activeTab === 'adhocTask'" ref="WorkflowRef"/>
+        <WorkflowAdhocTask v-if="state.activeTab === 'adhocTask'" ref="WorkflowRef" />
       </el-tab-pane>
       <!-- <el-tab-pane
         v-if="checkLicenseFeatures('WORKFLOW_ADHOC')"
@@ -70,7 +71,7 @@ async function handleDownload() {
       </el-tab-pane> -->
     </el-tabs>
 
-    <WorkflowPopoverDownload ref="WorkflowPopoverDownloadRef"/>
+    <WorkflowPopoverDownload ref="WorkflowPopoverDownloadRef" />
   </div>
 </template>
 <style lang="scss" scoped>

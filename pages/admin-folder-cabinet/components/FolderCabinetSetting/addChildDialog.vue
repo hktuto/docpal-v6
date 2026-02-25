@@ -9,7 +9,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './addChildDialog.vform.json'
 import { ElMessage } from 'element-plus'
 
@@ -36,7 +36,7 @@ async function handleSubmit() {
     state.loading = true
     if (params.isEdit) {
       params.id = state.setting?.id
-      await clientApi.admin.patchAdmindmsCabinetTemplate(params)
+      await newAdminApi.patchDmsCabinetTemplate(params)
     } else {
       const labelRule = [
         {
@@ -46,7 +46,7 @@ async function handleSubmit() {
         }
       ]
       params.parentId = state.setting?.id
-      await clientApi.admin.postAdmindmsCabinetTemplate({ ...params, labelRule: JSON.stringify(labelRule) })
+      await newAdminApi.postDmsCabinetTemplate({ ...params, labelRule: JSON.stringify(labelRule) })
       ElMessage.success(t('tip_createdSuccessMsg', { modelName: t('folder_folderUnder'), name: state.setting.label }))
     }
     FormRendererRef.value.vFormRenderRef.resetForm()

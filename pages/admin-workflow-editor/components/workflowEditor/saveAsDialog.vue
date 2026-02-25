@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElDialog } from 'element-plus'
 
 const { data, copyVersion } = defineProps<{
@@ -40,16 +40,16 @@ async function save() {
     loading.value = true
     const selectedItem = versionList.find(item => item.id === form.copyVersion || item.versionNumber === form.copyVersion)
     console.log('selectedItem', selectedItem, versionList, form.copyVersion)
-    const blob = await clientApi.admin.getAdmindocpalWorkflowVersionBpmnxml({
+    const blob = await newAdminApi.getDocpalWorkflowVersionBpmnxml({
       draftId: data.id,
       versionNumber: selectedItem.versionNumber
     }, {
       format: 'blob'
     })
-    let { data: json } = await clientApi.admin.getAdmindocpalWorkflowVersionJson({
+    let json = await newAdminApi.getDocpalWorkflowVersionJson({
       draftId: data.id,
       versionNumber: selectedItem.versionNumber
-    }, {})
+    }, {}).then(r => r.data)
     const timestamp = new Date().getTime()
 
     const newForm: any = new FormData()
@@ -64,7 +64,7 @@ async function save() {
     newForm.append('jsonValue', json || '')
     newForm.append('file', newBlob, 'workflow.bpmn.xml')
     newForm.append('isDraft', true)
-    const { data: newVersionData } = await clientApi.api.postAdmindocpalWorkflowProcessDefinitionUpload({ requestDTO: {} }, newForm) as any
+    const newVersionData = await newAdminApi.postDocpalWorkflowProcessDefinitionUpload(newForm).then(r => r.data)
     if (!newVersionData) {
       throw new Error('newVersionData not found')
 
@@ -95,12 +95,12 @@ async function getVersionList() {
     throw new Error('data or data.id not found')
   }
   // get version list
-  const response = await clientApi.admin.postAdmindocpalWorkflowVersionPage({
+  const response = await newAdminApi.postDocpalWorkflowVersionPage({
     pageNum: 0,
     pageSize: 100,
     draftId: data.id || data.draftId
-  })
-  versionList = response.data?.entryList || []
+  }).then(r => r.data)
+  versionList = response?.entryList || []
 }
 
 async function open() {

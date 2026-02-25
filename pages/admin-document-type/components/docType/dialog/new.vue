@@ -40,7 +40,7 @@
 
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 import { getPermissionSelectOption, convertPermissionObjectByPermissions } from '#imports'
 
@@ -62,7 +62,7 @@ const categoryOptions = ref<any[]>([])
 async function getOptions() {
   permissionOptions.value = await getPermissionSelectOption()
 
-  const data: any = await clientApi.admin.getAdmindmsDocpalTypeCategories().then((res) => res.data)
+  const data: any = await newAdminApi.getDmsDocpalTypeCategories().then((res) => res.data)
   if (!data) {
     categoryOptions.value = []
     return
@@ -97,7 +97,7 @@ async function handleSubmit() {
 
     state.loading = true
 
-    const result = await clientApi.admin.postAdmindmsDocpalTypeCreate(data).then(r => r.data)
+    const result = await newAdminApi.postDmsDocpalTypeCreate(data).then(r => r.data)
     ElMessage.success(t('tip_createdMsg', {
       modelName: t('tip_newMsg') + t('docType_documentType'),
       name: data.name

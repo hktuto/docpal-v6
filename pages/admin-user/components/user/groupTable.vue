@@ -77,8 +77,7 @@ function handleGroupAddMemberFormShow() {
 
 async function getMemberGroupList() {
   if (!isFilter) {
-    tableData = await userProviderDetail
-      ?.MemberGroupGetApi({
+    tableData = await userProviderDetail?.MemberGroupGetApi({
         userId: props.user.userId
       })
       .then((res) => res.data)
