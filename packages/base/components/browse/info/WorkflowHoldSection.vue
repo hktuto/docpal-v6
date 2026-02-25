@@ -15,8 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
-import { ElMessage } from 'element-plus'
+import { newClientApi } from 'api'
 const props = defineProps<{ doc: any }>()
 const userId: string = useUserId().value
 const state = reactive({
@@ -27,7 +26,7 @@ const state = reactive({
 // #region module: audit
 async function handelAudit(approved: 'A' | 'D' | 'R') {
   state.loading = true
-  const result = await clientApi.api.patchPolicyDocumentsIdStatusStatus(props.doc.holdDetail.id, approved as any).then((res) => res.data)
+  const result = await newClientApi.patchDmsPolicyHoldDocumentHolddocumentidApprovalStatus(props.doc.holdDetail.id, approved as any).then((res) => res.data)
   state.loading = false
 }
 // #endregion

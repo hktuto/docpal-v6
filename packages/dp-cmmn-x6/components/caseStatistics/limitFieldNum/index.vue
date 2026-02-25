@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi, PostgREST_Decorate } from 'api'
+import { newClientApi, PostgREST_Decorate } from 'api'
 import formJson from '../setting.vform.json'
 import styleJson from './setting.style.vform.json'
 import setupJson from './setting.setup.vform.json'
@@ -289,7 +289,7 @@ async function getData(chartSetting: any) {
   }
   const data = []
   const sql = PostgREST_Decorate(sqlParams)
-  const response: any = await clientApi.api.getPostgrestTable(`${chartSetting.tableName}?${sql}`)
+  const response: any = await newClientApi.getPostgrestTable(`${chartSetting.tableName}?${sql}`)
   response.data.forEach((item) => {
     data.push({
       value: item[chartSetting.countField],

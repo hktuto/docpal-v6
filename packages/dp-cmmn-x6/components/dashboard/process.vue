@@ -33,7 +33,7 @@
   </DashboardCard>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const props = withDefaults(
   defineProps<{
@@ -104,9 +104,9 @@ async function getCDProcess() {
     const id = CMDProvider?.instanceId?.value || null
     const versionId = CMDProvider?.versionId?.value || null
     if (id) {
-      state.allList = await clientApi.api.getCaseDashboardInstanceCaseidStages(id).then(r => r.data)
+      state.allList = await newClientApi.getCaseDashboardInstanceCaseidStages(id).then(r => r.data)
     } else if (versionId) {
-      state.allList = await clientApi.api.getCaseDashboardVersionVersionidStages(versionId).then(r => r.data)
+      state.allList = await newClientApi.getCaseDashboardVersionVersionidStages(versionId).then(r => r.data)
     }
   } catch (error) {
     state.allList = []

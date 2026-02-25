@@ -14,7 +14,7 @@
 </template>
 <script lang="ts" setup>
 import { EventType } from 'eventbus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const props = withDefaults(
   defineProps<{
@@ -65,15 +65,15 @@ async function init() {
   // const _caseTypeId = CMDProvider.caseTypeId?.value || null
   const _versionId = CMDProvider?.versionId?.value || null
   if (id) {
-    const userAction = await clientApi.api.getCaseDashboardInstanceCaseidActions(id, { userId }).then(r => r.data)
+    const userAction = await newClientApi.getCaseDashboardInstanceCaseidActions(id, { userId }).then(r => r.data)
     state.data = userAction?.filter(filterActions).sort((a: any, b: any) => a.name.localeCompare(b.name))
   }
     // else if(_caseTypeId){
-    //   const { data: dashboardActions } = await clientApi.api.getCaseDashboardCasetypeCasetypeidActions(_caseTypeId).then(r
+    //   const { data: dashboardActions } = await newClientApi.getCaseDashboardCasetypeCasetypeidActions(_caseTypeId).then(r
     //   state.data = dashboardActions?.filter(s => s.state !== 'completed')
   // }
   else if (_versionId) {
-    const dashboardActions = await clientApi.api.getCaseDashboardVersionVersionidActions(_versionId).then(r => r.data)
+    const dashboardActions = await newClientApi.getCaseDashboardVersionVersionidActions(_versionId).then(r => r.data)
     state.data = dashboardActions?.filter(filterActions)
   }
 }

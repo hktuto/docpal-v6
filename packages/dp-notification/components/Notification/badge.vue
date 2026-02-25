@@ -12,11 +12,11 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api';
+import { newClientApi } from 'api';
 const unreadCount = ref(0);
 const dialogOpened = ref(false);
 async function getUnreadCount() {
-    const { result } = await clientApi.api.getNotificationUnreadNumber().then(r =>r.data)
+    const { result } = await newClientApi.getNotificationUnreadNumber().then(r =>r.data)
     unreadCount.value = result;
 }
 onMounted(() => {

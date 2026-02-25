@@ -1,7 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
-import { MoreFilled } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { newClientApi } from 'api'
 import '../../../../../packages/dp-dashboard/components/formSlot/displayColumn/vxeTableRender.ts'
 const platform = useAppPlatform()
 const { name, detail, relatedField } = defineProps<{
@@ -37,7 +35,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     if (platform.value === 'admin') {
       return []
     }
-    const { data } = await clientApi.api.postDmsMasterTableRecordPageNonpermission({
+    const { data } = await newClientApi.postDmsMasterTableRecordPageNonpermission({
       name: name,
       ...pageParams,
       ...extraParams

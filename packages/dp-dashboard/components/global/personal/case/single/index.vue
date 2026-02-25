@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const emits = defineEmits(['delete', 'refreshSetting'])
 const props = withDefaults(
   defineProps<{
@@ -37,8 +37,7 @@ function handleAddCaseDialog() {
 }
 async function getCaseDetail(caseId: string) {
   try {
-    const res = await clientApi.api.getCaseTypesCasetypeid(caseId).then((res) => res.data)
-    return res
+    return  await newClientApi.getCaseTypesCasetypeid(caseId).then((res) => res.data)
   } catch (error) {
     console.log('get cast type error', error)
     return {}

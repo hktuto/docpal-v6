@@ -44,11 +44,10 @@
 
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import { allowFeature } from '#imports'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { Plus, Edit } from '@element-plus/icons-vue'
+import { Edit } from '@element-plus/icons-vue'
 
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 import { getNormalizeSetting, dashboardWidgetSetting, getWidgetSetting, getDashboardWidgetByType } from '../utils/dashboardWidgetHelper'
 import type { DashboardWidget, DashboardWidgetSetting } from '../utils/dashboardWidgetHelper'
@@ -102,7 +101,7 @@ function handleFinish() {
 async function handleSave() {
   try {
     loading.value = true
-    await clientApi.api.putPersonalLandingSave({
+    await newClientApi.putDocpalPersonalLandingSave({
       styleJson: JSON.stringify(currentHome.value.layout)
     })
   } catch (error) {

@@ -9,7 +9,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -53,7 +53,7 @@ const {
 })
 
 async function getData(params: any = {}) {
-  const res = await clientApi.api.postDmsSharePage({ page: params.pageNum, size: params.pageSize, ...extraParams })
+  const res = await newClientApi.postDmsSharePage({ page: params.pageNum, size: params.pageSize, ...extraParams })
     .then((res) => res.data)
   return {
     data: {
@@ -75,7 +75,7 @@ function handleDblclick(row: any) {
 }
 
 async function handleSubmit(shareInfo: any) {
-  await clientApi.api.patchDmsShareSave(shareInfo)
+  await newClientApi.patchDmsShareSave(shareInfo)
   query({})
 }
 

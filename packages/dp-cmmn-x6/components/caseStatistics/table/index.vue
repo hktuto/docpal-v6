@@ -1,7 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
-import { MoreFilled } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { newClientApi } from 'api'
 import dayjs from 'dayjs'
 import '../../../../../packages/dp-dashboard/components/formSlot/displayColumn/vxeTableRender.ts'
 import { formSlotOrderDisplayColumns, formSlotHandleDisplayMethod, formSlotHandleDisplayDataMethod } from '../../../../../packages/dp-dashboard/components/formSlot/displayColumn/reorderColumn'
@@ -130,9 +128,8 @@ async function getData() {
     }
     return data
   }
-  const response: any = await clientApi.api.getPostgrestTable(`${setting.tableName}?${sql}`)
-  const data = groupTree(response.data)
-  return data
+  const response: any = await newClientApi.getPostgrestTable(`${setting.tableName}?${sql}`)
+  return groupTree(response.data)
 }
 function closeDialog() {
   emits('close')

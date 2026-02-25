@@ -34,7 +34,7 @@
 
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import formJson from './form/clientFileRequest.vform.json'
 
 const emits = defineEmits(['success'])
@@ -67,7 +67,7 @@ async function handleSubmit() {
     data.message = data.message.replace(/\r\n|\r|\n/g, '<br/>')
     data.idOrPath = props.doc.path
     if (data.fileType) data.fileType = data.fileType.join(',')
-    const res: any = await clientApi.api.postDmsUploadRequest(data).then((res) => res.data)
+    const res: any = await newClientApi.postDmsUploadRequest(data).then((res) => res.data)
     state.loading = false
     if (res?.errorCode) throw new Error(res.message || 'error')
     state.dialogOpened = false

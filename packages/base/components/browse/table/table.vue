@@ -9,7 +9,7 @@ const listProvider = inject(BrowseListProviderKey)
 const routerProvider = inject(MenuRouterKey)
 const BrowseDragMove = inject('BrowseDragMove')
 const { handleDragEnd, getToolTip } = BrowseDragMove
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 if (!listProvider || !routerProvider) {
   throw new Error('BrowseListProviderKey not found')
@@ -356,7 +356,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
         code: 'docWatermark',
         name: 'filePopover_watermark',
         action: async ({ row }) => {
-          const detail = await clientApi.api.postDmsDocumentFetch({ idOrPath: row.id }).then((res) => res.data)
+          const detail = await newClientApi.postDmsDocumentFetch({ idOrPath: row.id }).then((res) => res.data)
           const ev = new CustomEvent('docWatermark', { detail: detail })
           document.dispatchEvent(ev)
         }
@@ -398,7 +398,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
         code: 'docActionDelete',
         name: 'filePopover_delete',
         action: async ({ row }) => {
-          const detail = await clientApi.api.postDmsDocumentFetch({ idOrPath: row.id }).then((res) => res.data)
+          const detail = await newClientApi.postDmsDocumentFetch({ idOrPath: row.id }).then((res) => res.data)
           const ev = new CustomEvent('docActionDelete', { detail: detail })
           document.dispatchEvent(ev)
         }

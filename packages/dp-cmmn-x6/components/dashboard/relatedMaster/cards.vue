@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { rendererFunction } from '../../../../../packages/dp-dashboard/components/formSlot/displayColumn/vxeTableRender'
 const platform = useAppPlatform()
 const { name, detail, relatedField } = defineProps<{
@@ -52,7 +52,7 @@ async function getList() {
     list.value = []
     return
   }
-  const { data } = await clientApi.api.postDmsMasterTableRecordPageNonpermission({
+  const { data } = await newClientApi.postDmsMasterTableRecordPageNonpermission({
     name: name,
     ...pageParams,
     ...extraParams

@@ -6,7 +6,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const props = defineProps<{
   disabled: boolean
   formData: any
@@ -28,7 +28,7 @@ const baseSearch = ref<any>({
 })
 async function downloadAndUpload(row: any) {
   try {
-    const blob = await clientApi.api.postDmsDocumentDownload(
+    const blob = await newClientApi.postDmsDocumentDownload(
       { idOrPath: row.id },
       {
         format: 'blob'
@@ -47,7 +47,7 @@ async function downloadAndUpload(row: any) {
       })
     )
     formData.append('nonPermission', true)
-    const data = await clientApi.api.postWorkflowUploadFile(formData).then((res) => res.data)
+    const data = await newClientApi.postDocpalWorkflowUploadFiles(formData).then((res) => res.data)
     return { id: data.id, name: file.name }
   } catch (error) {
     console.log(error)
