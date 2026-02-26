@@ -549,22 +549,22 @@ export const getNormalizeSetting = (setting: DashboardWidget) => {
 
 // TODO : 删除
 export const widgetComponent = {
-  DocTypeCoCount: DocTypeCoCount,
-  DocTypeCount: DocTypeCount,
-  DocSizeStatistics: DocSizeStatistics,
+  DocTypeCoCount: LazyPersonalDashboard,
+  DocTypeCount: LazyPersonalDashboard,
+  DocSizeStatistics: LazyPersonalDashboard,
 
-  WorkflowCoCount: WorkflowCoCount,
-  WorkflowActiveCount: WorkflowActiveCount,
-  WorkflowApproveRate: WorkflowApproveRate,
-  WorkflowNewCount: WorkflowNewCount,
-  WorkflowTimeSpendPerTask: WorkflowTimeSpendPerTask,
-  WorkflowTimeSpendPerWorkflow: WorkflowTimeSpendPerWorkflow,
+  WorkflowCoCount: LazyPersonalDashboard,
+  WorkflowActiveCount: LazyPersonalDashboard,
+  WorkflowApproveRate: LazyPersonalDashboard,
+  WorkflowNewCount: LazyPersonalDashboard,
+  WorkflowTimeSpendPerTask: LazyPersonalDashboard,
+  WorkflowTimeSpendPerWorkflow: LazyPersonalDashboard,
 
-  WorkflowGroup: WorkflowGroup,
+  WorkflowGroup: LazyPersonalDashboard,
 
-  AzureThreshold: AzureThreshold,
-  AzureOcrProcessed: AzureOcrProcessed,
-  AzureOcrProcessedHistory: AzureOcrProcessedHistory,
+  AzureThreshold: LazyPersonalDashboard,
+  AzureOcrProcessed: LazyPersonalDashboard,
+  AzureOcrProcessedHistory: LazyPersonalDashboard,
 
   PersonalDashboard: LazyPersonalDashboard,
   PersonalShare: LazyPersonalShare,
