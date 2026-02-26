@@ -1,10 +1,4 @@
 
-import CaseFieldNum from '../components/caseStatistics/fieldNum/index.vue'
-import CaseMonthlyAverage from '../components/caseStatistics/monthlyAverage/index.vue'
-import CaseFieldLifecycle from '../components/caseStatistics/fieldLifecycle/index.vue'
-import CaseFieldTotal from '../components/caseStatistics/fieldTotal/index.vue'
-import CaseLimitFieldNum from '../components/caseStatistics/limitFieldNum/index.vue'
-import CaseLimitGroupFieldNum from '../components/caseStatistics/limitGroupFieldNum/index.vue'
 export type CaseStatisticsWidget = 'CaseFieldNum' | 'CaseMonthlyAverage' | 'CaseFieldLifecycle' | 'CaseFieldTotal' | 'CaseLimitFieldNum' | 'CaseLimitGroupFieldNum'
 export const enum CASE_STATISTICS_TYPE {
   caseCount = 'caseCount',
@@ -19,7 +13,7 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
     maxH: 12,
     w: 2,
     h: 2,
-    component: 'CaseFieldNum',
+    component: 'LazyCaseStatisticsFieldNum',
     setting: {
       name: '',
       prefix: '',
@@ -37,7 +31,7 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
     maxH: 12,
     w: 2,
     h: 2,
-    component: 'CaseFieldTotal',
+    component: 'LazyCaseStatisticsFieldTotal',
     setting: {
       caseId: '',
       relatedField: '',
@@ -60,7 +54,7 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
     maxH: 12,
     w: 3,
     h: 4,
-    component: 'CaseLimitFieldNum',
+    component: 'LazyCaseStatisticsLimitFieldNum',
     setting: {
       name: '',
       prefix: '',
@@ -78,7 +72,7 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
     maxH: 12,
     w: 3,
     h: 4,
-    component: 'CaseLimitGroupFieldNum',
+    component: 'LazyCaseStatisticsLimitGroupFieldNum',
     setting: {
       name: '',
       prefix: '',
@@ -96,7 +90,7 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
     maxH: 12,
     w: 6,
     h: 4,
-    component: 'CaseMonthlyAverage',
+    component: 'LazyCaseStatisticsMonthlyAverage',
     setting: {
       caseId: '',
       relatedField: '',
@@ -128,7 +122,7 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
     maxH: 12,
     w: 6,
     h: 4,
-    component: 'CaseFieldLifecycle',
+    component: 'LazyCaseStatisticsFieldLifecycle',
     setting: {
       caseId: '',
       relatedField: '',
@@ -141,15 +135,6 @@ export const CaseStatisticsWidgetSetting: { [key in CaseStatisticsWidget]: Dashb
     }
   }
 }
-export const CaseStatisticsWidgetComponent: { [key in CaseStatisticsWidget]: Component } = {
-  CaseFieldNum: CaseFieldNum,
-  CaseFieldTotal: CaseFieldTotal,
-  CaseMonthlyAverage: CaseMonthlyAverage,
-  CaseFieldLifecycle: CaseFieldLifecycle,
-  CaseLimitFieldNum: CaseLimitFieldNum,
-  CaseLimitGroupFieldNum: CaseLimitGroupFieldNum,
-}
-
 export function displaySettingFields(fields: string[], formRendererRef: any) {
   setTimeout(async () => {
     fields.forEach((field) => {

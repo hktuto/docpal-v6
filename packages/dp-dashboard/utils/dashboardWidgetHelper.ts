@@ -29,43 +29,8 @@ export type WorkflowCoCountWidget =
   | 'WorkflowNewCount'
   | 'WorkflowTimeSpendPerTask'
   | 'WorkflowTimeSpendPerWorkflow'
-import DocTypeCoCount from '../components/global/doc/coCount/index.vue'
-import DocTypeCount from '../components/global/doc/count.vue'
-import DocSizeStatistics from '../components/global/doc/sizeStatistics.vue'
-// workflow co-count
-import WorkflowCoCount from '../components/global/workflow/coCount/index.vue'
-import WorkflowActiveCount from '../components/global/workflow/coCount/activeCount.vue'
-import WorkflowApproveRate from '../components/global/workflow/coCount/approveRate.vue'
-import WorkflowNewCount from '../components/global/workflow/coCount/newCount.vue'
-import WorkflowTimeSpendPerTask from '../components/global/workflow/coCount/timeSpendPerTask.vue'
-import WorkflowTimeSpendPerWorkflow from '../components/global/workflow/coCount/timeSpendPerWorkflow.vue'
-// workflow group
-import WorkflowGroup from '../components/global/workflow/group/index.vue'
-// azure
-import AzureThreshold from '../components/global/azure/threshold.vue'
-import AzureOcrProcessed from '../components/global/azure/ocrProcessed/index.vue'
-import AzureOcrProcessedHistory from '../components/global/azure/ocrProcessHistory/index.vue'
 
-import PersonalDashboard from '../components/global/personal/dashboard.vue'
-import PersonalShare from '../components/global/personal/share/index.vue'
-import PersonalShareExternal from '../components/global/personal/share/external.vue'
-import PersonalShareInternalMe from '../components/global/personal/share/internalMe.vue'
-import PersonalShareInternalOther from '../components/global/personal/share/internalOther.vue'
-import PersonalPredefinedSearch from '../components/global/personal/predefinedSearch.vue'
-import PersonalWorkflowCreate from '../components/global/personal/workflow/create/index.vue'
-import PersonalWorkflow from '../components/global/personal/workflow/index.vue'
-import PersonalSearchHistory from '../components/global/personal/search/history.vue'
-import PersonalSearchDefine from '../components/global/personal/search/define.vue'
-import PersonalSearchRecentDoc from '../components/global/personal/search/recentDoc.vue'
-import PersonalSearchSubscribed from '../components/global/personal/search/subscribed.vue'
-import PersonalCaseCreate from '../components/global/personal/case/create.vue'
-import PersonalCase from '../components/global/personal/case/index.vue'
-import PersonalCaseSingle from '../components/global/personal/case/single/index.vue'
-import CalendarWidget from '../components/global/calendar/widget/index.vue'
-import PersonalWorkflowSingle from '../components/global/personal/workflow/single/index.vue'
-import PersonalWorkflowSingleFilter from '../components/global/personal/workflow/singleFilter/index.vue'
 import '../assets/dashboard.scss'
-import Browse from '../components/global/personal/browse/index.vue'
 export const enum DASHBOARD_TYPE {
   documentCount = 'documentCount',
   workflowCount = 'workflowCount',
@@ -105,7 +70,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 4,
     w: 2,
     h: 2,
-    component: 'DocSizeStatistics',
+    component: 'LazyDocSizeStatistics',
     setting: {
       style: 'pie',
       displayList: [{ documentType: 'File' }, { documentType: 'Video' }]
@@ -120,7 +85,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 4,
     w: 1,
     h: 2,
-    component: 'DocTypeCount',
+    component: 'LazyDocCount',
     setting: {
       documentType: 'File',
       color: 'red',
@@ -136,7 +101,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 8,
     w: 6,
     h: 6,
-    component: 'DocTypeCoCount',
+    component: 'LazyDocCoCount',
     setting: {
       documentType: 'File',
       color: '#fff',
@@ -156,7 +121,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 8,
     w: 6,
     h: 6,
-    component: 'WorkflowCoCount',
+    component: 'LazyWorkflowCoCount',
     setting: {
       workflow: 'contractApproval',
       displayList: [
@@ -178,7 +143,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 8,
     w: 12,
     h: 6,
-    component: 'WorkflowGroup',
+    component: 'LazyWorkflowGroup',
     setting: {
       groupId: '',
       filterList: []
@@ -238,7 +203,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 6,
     w: 3,
     h: 3,
-    component: 'PersonalDashboard',
+    component: 'LazyPersonalDashboard',
     setting: {}
   },
   PersonalShare: {
@@ -251,7 +216,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 6,
     w: 3,
     h: 3,
-    component: 'PersonalShare',
+    component: 'LazyPersonalShare',
     setting: {}
   },
   PersonalShareExternal: {
@@ -264,7 +229,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 6,
     w: 3,
     h: 3,
-    component: 'PersonalShareExternal',
+    component: 'LazyPersonalShareExternal',
     setting: {}
   },
   PersonalShareInternalOther: {
@@ -277,7 +242,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 6,
     w: 3,
     h: 3,
-    component: 'PersonalShareInternalOther',
+    component: 'LazyPersonalShareInternalOther',
     setting: {}
   },
   PersonalShareInternalMe: {
@@ -289,7 +254,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 6,
     w: 3,
     h: 3,
-    component: 'PersonalShareInternalMe',
+    component: 'LazyPersonalShareInternalMe',
     setting: {}
   },
   // merge to search
@@ -317,7 +282,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 6,
     w: 3,
     h: 3,
-    component: 'PersonalWorkflowCreate',
+    component: 'LazyPersonalWorkflowCreate',
     setting: {
       workflowKeys: []
     }
@@ -332,7 +297,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 12,
     w: 3,
     h: 3,
-    component: 'PersonalWorkflow',
+    component: 'LazyPersonalWorkflow',
     setting: {
       isTabView: false,
       processKeys: []
@@ -347,7 +312,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 12,
     w: 3,
     h: 3,
-    component: 'PersonalWorkflowSingle',
+    component: 'LazyPersonalWorkflowSingle',
     setting: {
       selectedWorkflow: '',
       columns: []
@@ -378,7 +343,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 6,
     w: 3,
     h: 3,
-    component: 'PersonalSearchHistory',
+    component: 'LazyPersonalSearchHistory',
     setting: {}
   },
   PersonalSearchDefine: {
@@ -390,7 +355,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 6,
     w: 3,
     h: 3,
-    component: 'PersonalSearchDefine',
+    component: 'LazyPersonalSearchDefine',
     setting: {}
   },
   PersonalSearchRecentDoc: {
@@ -403,7 +368,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 6,
     w: 3,
     h: 3,
-    component: 'PersonalSearchRecentDoc',
+    component: 'LazyPersonalSearchRecentDoc',
     setting: {}
   },
   PersonalSearchSubscribed: {
@@ -415,7 +380,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 5,
     w: 6,
     h: 3,
-    component: 'PersonalSearchSubscribed',
+    component: 'LazyPersonalSearchSubscribed',
     setting: {}
   },
   PersonalCaseCreate: {
@@ -427,7 +392,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 6,
     w: 2,
     h: 3,
-    component: 'PersonalCaseCreate',
+    component: 'LazyPersonalCaseCreate',
     setting: {}
   },
   PersonalCase: {
@@ -439,7 +404,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 6,
     w: 3,
     h: 3,
-    component: 'PersonalCase',
+    component: 'LazyPersonalCase',
     setting: {
       caseKeys: []
     }
@@ -453,7 +418,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 12,
     w: 6,
     h: 6,
-    component: 'PersonalCaseSingle',
+    component: 'LazyPersonalCaseSingle',
     setting: {
       caseId: '',
       caseLabel: '',
@@ -461,7 +426,6 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
       displayColumns: []
     }
   },
-  ...CaseStatisticsWidgetSetting,
   CalendarWidget: {
     divided: true,
     type: DASHBOARD_TYPE.default,
@@ -472,7 +436,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 12,
     w: 6,
     h: 8,
-    component: 'CalendarWidget',
+    component: 'LazyCalendarWidget',
     setting: {
       editable: true
     }
@@ -486,12 +450,13 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     maxH: 6,
     w: 3,
     h: 3,
-    component: 'Browse',
+    component: 'LazyPersonalBrowse',
     setting: {
       home: {},
       hideSetting: []
     }
-  }
+  },
+  ...CaseStatisticsWidgetSetting,
 }
 export function getDashboardWidgetByType(settingMap: { [key in string]: DashboardWidgetSetting }): { [key in string]: DashboardWidgetSetting[] } {
   const DashboardWidgetResult: { [key in string]: DashboardWidgetSetting[] } = {
@@ -526,43 +491,3 @@ export const getNormalizeSetting = (setting: DashboardWidget) => {
   }
 }
 
-// TODO : 删除
-export const widgetComponent = {
-  DocTypeCoCount: DocTypeCoCount,
-  DocTypeCount: DocTypeCount,
-  DocSizeStatistics: DocSizeStatistics,
-
-  WorkflowCoCount: WorkflowCoCount,
-  WorkflowActiveCount: WorkflowActiveCount,
-  WorkflowApproveRate: WorkflowApproveRate,
-  WorkflowNewCount: WorkflowNewCount,
-  WorkflowTimeSpendPerTask: WorkflowTimeSpendPerTask,
-  WorkflowTimeSpendPerWorkflow: WorkflowTimeSpendPerWorkflow,
-
-  WorkflowGroup: WorkflowGroup,
-
-  AzureThreshold: AzureThreshold,
-  AzureOcrProcessed: AzureOcrProcessed,
-  AzureOcrProcessedHistory: AzureOcrProcessedHistory,
-
-  PersonalDashboard: PersonalDashboard,
-  PersonalShare: PersonalShare,
-  PersonalShareExternal: PersonalShareExternal,
-  PersonalShareInternalMe: PersonalShareInternalMe,
-  PersonalShareInternalOther: PersonalShareInternalOther,
-  PersonalPredefinedSearch: PersonalPredefinedSearch,
-  PersonalWorkflowCreate: PersonalWorkflowCreate,
-  PersonalWorkflow: PersonalWorkflow,
-  PersonalSearchHistory: PersonalSearchHistory,
-  PersonalSearchDefine: PersonalSearchDefine,
-  PersonalSearchRecentDoc: PersonalSearchRecentDoc,
-  PersonalSearchSubscribed: PersonalSearchSubscribed,
-  PersonalCaseCreate: PersonalCaseCreate,
-  PersonalCase: PersonalCase,
-  PersonalWorkflowSingle: PersonalWorkflowSingle,
-  PersonalCaseSingle: PersonalCaseSingle,
-  CalendarWidget: CalendarWidget,
-
-  Browse: Browse,
-  ...CaseStatisticsWidgetComponent
-}

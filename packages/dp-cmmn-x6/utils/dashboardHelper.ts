@@ -12,7 +12,7 @@ import MasterTableInfo from '../components/dashboard/masterTableInfo/index.vue'
 import RelatedCaseInfo from '../components/dashboard/relatedCaseInfo/index.vue'
 import AuditLog from '../components/dashboard/auditLog/index.vue'
 import Stage from '../components/dashboard/stage/index.vue'
-import { CaseStatisticsWidgetSetting, CaseStatisticsWidgetComponent } from './dashboardCaseStatistics'
+import { CaseStatisticsWidgetSetting } from './dashboardCaseStatistics'
 import type { CaseStatisticsWidget as CaseStatisticsWidgetType } from './dashboardCaseStatistics'
 
 export type CmmnDashboardWidget =
@@ -244,5 +244,4 @@ export const CmmnWidgetComponent = {
   MasterTableInfo: MasterTableInfo,
   AuditLog: AuditLog,
   Stage: Stage,
-  ...CaseStatisticsWidgetComponent
 }

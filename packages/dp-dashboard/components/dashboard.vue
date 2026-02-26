@@ -19,7 +19,6 @@
           </template>
         </div>
       </div>
-      -->
       <DashboardDetail
         class="template-container--main"
         id="Dashboard__Home__Main"

@@ -68,7 +68,7 @@
             @moved="emits('save')"
           >
             <NuxtErrorBoundary>
-              <template v-if="!componentMap[item.component]">
+              <template v-if="!item.component">
                 <el-card class="custom-card" shadow="always">
                   <template #header>
                     <b>{{ item.label }} </b>
@@ -85,7 +85,7 @@
               </template>
               <component
                 v-else
-                :is="componentMap[item.component]"
+                :is="item.component"
                 :ref="
                   (el) => {
                     sheetRefs[item.i] = el
@@ -133,7 +133,6 @@ import 'splitpanes/dist/splitpanes.css'
 // import { GridLayout, GridItem } from "vue3-grid-layout-next";
 import { GridItem, GridLayout } from 'grid-layout-plus'
 import type { DashboardWidgetSetting } from '~/utils/dashboardWidgetHelper'
-import { widgetComponent } from '~/utils/dashboardWidgetHelper'
 import { useDebounceFn } from '@vueuse/core'
 import { useDashboardDrag } from '~/utils/dashboardDragHelper'
 
@@ -148,7 +147,6 @@ const props = withDefaults(
     dates?: any
     editMode?: boolean
     dashboardSettingList?: any
-    componentMap?: any
     type?: string
   }>(),
   {
@@ -158,7 +156,6 @@ const props = withDefaults(
     hideSetting: false,
     colNum: 12,
     rowHeight: 100,
-    componentMap: widgetComponent
   }
 )
 const activeNames = ref([])
