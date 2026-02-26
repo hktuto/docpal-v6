@@ -20,12 +20,11 @@
           </template>
         </div>
       </div>
-      <DashboardDetail
+      <!-- <DashboardDetail
         class="template-container--main"
         id="Dashboard__Home__Main"
         v-if="currentHome && currentHome.layout"
         ref="DashboardDetailRef"
-        :id="currentHome.id"
         v-model:layout="currentHome.layout"
         :dates="state.dates"
         :hideSetting="!state.editMode"
@@ -37,21 +36,20 @@
         @save="handleSave"
         @delete="handleDelete"
         @refreshSetting="handleRefresh"
-      ></DashboardDetail>
+      ></DashboardDetail> -->
     </template>
   </div>
 </template>
 
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import { allowFeature } from '#imports'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { Plus, Edit } from '@element-plus/icons-vue'
 
 import { clientApi } from 'api'
 
 import { getNormalizeSetting, dashboardWidgetSetting, getWidgetSetting, getDashboardWidgetByType } from '../utils/dashboardWidgetHelper'
-import type { DashboardWidget, DashboardWidgetSetting } from '../utils/dashboardWidgetHelper'
+
 import { onMounted, onUnmounted } from 'vue'
 
 const routerProvider = inject(MenuRouterKey)
