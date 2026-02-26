@@ -137,11 +137,15 @@ async function handleExportPdf() {
   }
 }
 onMounted(async () => {
-  console.log("onMounted", routerProvider?.refeshActions.value)
-  routerProvider?.refeshActions.value.push({
-    fn: getHomeList,
-    params: [true]
-  })
+  console.log('onMounted', routerProvider?.refeshActions)
+  // if (!routerProvider) {
+  //   console.warn('MenuRouterKey not found, refresh action will not be registered.')
+  //   return
+  // }
+  // routerProvider?.refeshActions.value.push({
+  //   fn: getHomeList,
+  //   params: [true]
+  // })
 })
 </script>
 
