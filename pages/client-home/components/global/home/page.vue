@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { Dashboard } from '#components'
+import { Dashboard as DashboardComponent } from '#components'
 </script>
 <template>
-  <div>Home</div>
-  <!-- <Dashboard></Dashboard> -->
+  <!-- <div>Home</div> -->
+  <DashboardComponent />
 </template>
 <style lang="scss" scoped></style>
