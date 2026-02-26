@@ -16,12 +16,10 @@
         </el-button>
       </div>
       <div class="dashboard-page--main">
-        <!-- {{ CmmnDashboardWidgetSetting }} -->
         <DashboardDetail
           ref="DashboardDetailRef"
           v-model:layout="state.layout"
           :dates="state.dates"
-          :componentMap="CmmnWidgetComponent"
           :resizable="true"
           :draggable="true"
           :editMode="true"

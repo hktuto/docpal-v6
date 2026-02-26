@@ -1,20 +1,8 @@
-import type { DashboardWidgetSetting } from '../../dp-dashboard/utils/dashboardWidgetHelper'
-import Action from '../components/dashboard/action/index.vue'
-import BasicInfo from '../components/dashboard/basicInfo.vue'
-import Activity from '../components/dashboard/activity.vue'
-import Process from '../components/dashboard/process.vue'
-import TaskPage from '../components/dashboard/taskPage.vue'
-import WorkflowPage from '../components/dashboard/workflowPage.vue'
-import DocumentRoot from '../components/dashboard/documentRoot.vue'
-import RelatedCase from '../components/dashboard/relatedCase/index.vue'
-import RelatedMaster from '../components/dashboard/relatedMaster/index.vue'
-import MasterTableInfo from '../components/dashboard/masterTableInfo/index.vue'
-import RelatedCaseInfo from '../components/dashboard/relatedCaseInfo/index.vue'
-import AuditLog from '../components/dashboard/auditLog/index.vue'
-import Stage from '../components/dashboard/stage/index.vue'
+import type { DashboardWidgetSetting } from '@packages/dp-dashboard/utils/dashboardWidgetHelper'
+
 import { CaseStatisticsWidgetSetting } from './dashboardCaseStatistics'
 import type { CaseStatisticsWidget as CaseStatisticsWidgetType } from './dashboardCaseStatistics'
-
+// TODO: 需要优化Lazy组件的引用
 export type CmmnDashboardWidget =
   CaseStatisticsWidgetType
   | 'Action'
@@ -40,7 +28,7 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     maxH: 12,
     w: 2,
     h: 2,
-    component: 'BasicInfo',
+    component: 'LazyDashboardBasicInfo',
     setting: {
       layout: [],
       defaultValue: {}
@@ -54,7 +42,7 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     maxH: 12,
     w: 2,
     h: 3,
-    component: 'Activity',
+    component: 'LazyDashboardActivity',
     setting: {}
   },
   Action: {
@@ -65,7 +53,7 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     maxH: 12,
     w: 2,
     h: 2,
-    component: 'Action',
+    component: 'LazyDashboardAction',
     setting: {}
   },
   Process: {
@@ -76,7 +64,7 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     maxH: 12,
     w: 2,
     h: 2,
-    component: 'Process',
+    component: 'LazyDashboardProcess',
     setting: {
       layout: []
     }
@@ -89,7 +77,7 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     maxH: 12,
     w: 2,
     h: 3,
-    component: 'TaskPage',
+    component: 'LazyDashboardTaskPage',
     setting: {}
   },
   WorkflowPage: {
@@ -100,7 +88,7 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     maxH: 12,
     w: 8,
     h: 4,
-    component: 'WorkflowPage',
+    component: 'LazyDashboardWorkflowPage',
     setting: {}
   },
   DocumentRoot: {
@@ -111,7 +99,7 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     maxH: 12,
     w: 8,
     h: 4,
-    component: 'DocumentRoot',
+    component: 'LazyDashboardDocumentRoot',
     setting: {
       home: ''
     }
@@ -124,7 +112,7 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     maxH: 12,
     w: 4,
     h: 4,
-    component: 'RelatedCase',
+    component: 'LazyDashboardRelatedCase',
     setting: {
       caseId: '',
       caseLabel: '',
@@ -140,7 +128,7 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     maxH: 12,
     w: 4,
     h: 4,
-    component: 'RelatedMaster',
+    component: 'LazyDashboardRelatedMaster',
     setting: {
       masterTableId: '',
       label: '',
@@ -156,7 +144,7 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     maxH: 12,
     w: 2,
     h: 2,
-    component: 'MasterTableInfo',
+    component: 'LazyDashboardMasterTableInfo',
     setting: {
       title: '',
       layout: [],
@@ -173,7 +161,7 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     maxH: 12,
     w: 2,
     h: 2,
-    component: 'RelatedCaseInfo',
+    component: 'LazyDashboardRelatedCaseInfo',
     setting: {
       title: '',
       layout: [],
@@ -191,7 +179,7 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     maxH: 12,
     w: 6,
     h: 4,
-    component: 'AuditLog',
+    component: 'LazyDashboardAuditLog',
     setting: {
       caseId: '',
       caseLabel: '',
@@ -207,7 +195,7 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     maxH: 2,
     w: 6,
     h: 1,
-    component: 'Stage',
+    component: 'LazyDashboardStage',
     setting: {
       label: "Stage",
       selectedField: "",
@@ -230,18 +218,4 @@ export const getCmmnNormalizeSetting = (setting: CmmnDashboardWidget) => {
     maxH: item.maxH
   }
 }
-export const CmmnWidgetComponent = {
-  BasicInfo: BasicInfo,
-  Action: Action,
-  Activity: Activity,
-  Process: Process,
-  TaskPage: TaskPage,
-  WorkflowPage: WorkflowPage,
-  DocumentRoot: DocumentRoot,
-  RelatedCase: RelatedCase,
-  RelatedCaseInfo: RelatedCaseInfo,
-  RelatedMaster: RelatedMaster,
-  MasterTableInfo: MasterTableInfo,
-  AuditLog: AuditLog,
-  Stage: Stage,
-}
+
