@@ -29,28 +29,6 @@ export type WorkflowCoCountWidget =
   | 'WorkflowNewCount'
   | 'WorkflowTimeSpendPerTask'
   | 'WorkflowTimeSpendPerWorkflow'
-
-// personal
-import {
-  LazyPersonalDashboard,
-  LazyPersonalShare,
-  LazyPersonalShareExternal,
-  LazyPersonalShareInternalMe,
-  LazyPersonalShareInternalOther,
-  LazyPersonalPredefinedSearch,
-  LazyPersonalWorkflowCreate,
-  LazyPersonalWorkflow,
-  LazyPersonalSearchHistory,
-  LazyPersonalSearchDefine,
-  LazyPersonalSearchRecentDoc,
-  LazyPersonalSearchSubscribed,
-  LazyPersonalCaseCreate,
-  LazyPersonalCase,
-  LazyPersonalCaseSingle,
-  LazyPersonalWorkflowSingle,
-  LazyCalendarWidget
-} from '#components'
-
 import DocTypeCoCount from '../components/global/doc/coCount/index.vue'
 import DocTypeCount from '../components/global/doc/count.vue'
 import DocSizeStatistics from '../components/global/doc/sizeStatistics.vue'
@@ -67,24 +45,25 @@ import WorkflowGroup from '../components/global/workflow/group/index.vue'
 import AzureThreshold from '../components/global/azure/threshold.vue'
 import AzureOcrProcessed from '../components/global/azure/ocrProcessed/index.vue'
 import AzureOcrProcessedHistory from '../components/global/azure/ocrProcessHistory/index.vue'
-// import PersonalDashboard from '../components/global/personal/dashboard.vue'
-// import PersonalShare from '../components/global/personal/share/index.vue'
-// import PersonalShareExternal from '../components/global/personal/share/external.vue'
-// import PersonalShareInternalMe from '../components/global/personal/share/internalMe.vue'
-// import PersonalShareInternalOther from '../components/global/personal/share/internalOther.vue'
-// import PersonalPredefinedSearch from '../components/global/personal/predefinedSearch.vue'
-// import PersonalWorkflowCreate from '../components/global/personal/workflow/create/index.vue'
-// import PersonalWorkflow from '../components/global/personal/workflow/index.vue'
-// import PersonalSearchHistory from '../components/global/personal/search/history.vue'
-// import PersonalSearchDefine from '../components/global/personal/search/define.vue'
-// import PersonalSearchRecentDoc from '../components/global/personal/search/recentDoc.vue'
-// import PersonalSearchSubscribed from '../components/global/personal/search/subscribed.vue'
-// import PersonalCaseCreate from '../components/global/personal/case/create.vue'
-// import PersonalCase from '../components/global/personal/case/index.vue'
-// import PersonalCaseSingle from '../components/global/personal/case/single/index.vue'
-// import CalendarWidget from '../components/global/calendar/widget/index.vue'
-// import PersonalWorkflowSingle from '../components/global/personal/workflow/single/index.vue'
-// import PersonalWorkflowSingleFilter from '../components/global/personal/workflow/singleFilter/index.vue'
+
+import PersonalDashboard from '../components/global/personal/dashboard.vue'
+import PersonalShare from '../components/global/personal/share/index.vue'
+import PersonalShareExternal from '../components/global/personal/share/external.vue'
+import PersonalShareInternalMe from '../components/global/personal/share/internalMe.vue'
+import PersonalShareInternalOther from '../components/global/personal/share/internalOther.vue'
+import PersonalPredefinedSearch from '../components/global/personal/predefinedSearch.vue'
+import PersonalWorkflowCreate from '../components/global/personal/workflow/create/index.vue'
+import PersonalWorkflow from '../components/global/personal/workflow/index.vue'
+import PersonalSearchHistory from '../components/global/personal/search/history.vue'
+import PersonalSearchDefine from '../components/global/personal/search/define.vue'
+import PersonalSearchRecentDoc from '../components/global/personal/search/recentDoc.vue'
+import PersonalSearchSubscribed from '../components/global/personal/search/subscribed.vue'
+import PersonalCaseCreate from '../components/global/personal/case/create.vue'
+import PersonalCase from '../components/global/personal/case/index.vue'
+import PersonalCaseSingle from '../components/global/personal/case/single/index.vue'
+import CalendarWidget from '../components/global/calendar/widget/index.vue'
+import PersonalWorkflowSingle from '../components/global/personal/workflow/single/index.vue'
+import PersonalWorkflowSingleFilter from '../components/global/personal/workflow/singleFilter/index.vue'
 import '../assets/dashboard.scss'
 import Browse from '../components/global/personal/browse/index.vue'
 export const enum DASHBOARD_TYPE {
@@ -549,40 +528,40 @@ export const getNormalizeSetting = (setting: DashboardWidget) => {
 
 // TODO : 删除
 export const widgetComponent = {
-  DocTypeCoCount: LazyPersonalDashboard,
-  DocTypeCount: LazyPersonalDashboard,
-  DocSizeStatistics: LazyPersonalDashboard,
+  DocTypeCoCount: DocTypeCoCount,
+  DocTypeCount: DocTypeCount,
+  DocSizeStatistics: DocSizeStatistics,
 
-  WorkflowCoCount: LazyPersonalDashboard,
-  WorkflowActiveCount: LazyPersonalDashboard,
-  WorkflowApproveRate: LazyPersonalDashboard,
-  WorkflowNewCount: LazyPersonalDashboard,
-  WorkflowTimeSpendPerTask: LazyPersonalDashboard,
-  WorkflowTimeSpendPerWorkflow: LazyPersonalDashboard,
+  WorkflowCoCount: WorkflowCoCount,
+  WorkflowActiveCount: WorkflowActiveCount,
+  WorkflowApproveRate: WorkflowApproveRate,
+  WorkflowNewCount: WorkflowNewCount,
+  WorkflowTimeSpendPerTask: WorkflowTimeSpendPerTask,
+  WorkflowTimeSpendPerWorkflow: WorkflowTimeSpendPerWorkflow,
 
-  WorkflowGroup: LazyPersonalDashboard,
+  WorkflowGroup: WorkflowGroup,
 
-  AzureThreshold: LazyPersonalDashboard,
-  AzureOcrProcessed: LazyPersonalDashboard,
-  AzureOcrProcessedHistory: LazyPersonalDashboard,
+  AzureThreshold: AzureThreshold,
+  AzureOcrProcessed: AzureOcrProcessed,
+  AzureOcrProcessedHistory: AzureOcrProcessedHistory,
 
-  PersonalDashboard: LazyPersonalDashboard,
-  PersonalShare: LazyPersonalShare,
-  PersonalShareExternal: LazyPersonalShareExternal,
-  PersonalShareInternalMe: LazyPersonalShareInternalMe,
-  PersonalShareInternalOther: LazyPersonalShareInternalOther,
-  PersonalPredefinedSearch: LazyPersonalPredefinedSearch,
-  PersonalWorkflowCreate: LazyPersonalWorkflowCreate,
-  PersonalWorkflow: LazyPersonalWorkflow,
-  PersonalSearchHistory: LazyPersonalSearchHistory,
-  PersonalSearchDefine: LazyPersonalSearchDefine,
-  PersonalSearchRecentDoc: LazyPersonalSearchRecentDoc,
-  PersonalSearchSubscribed: LazyPersonalSearchSubscribed,
-  PersonalCaseCreate: LazyPersonalCaseCreate,
-  PersonalCase: LazyPersonalCase,
-  PersonalWorkflowSingle: LazyPersonalWorkflowSingle,
-  PersonalCaseSingle: LazyPersonalCaseSingle,
-  CalendarWidget: LazyCalendarWidget,
+  PersonalDashboard: PersonalDashboard,
+  PersonalShare: PersonalShare,
+  PersonalShareExternal: PersonalShareExternal,
+  PersonalShareInternalMe: PersonalShareInternalMe,
+  PersonalShareInternalOther: PersonalShareInternalOther,
+  PersonalPredefinedSearch: PersonalPredefinedSearch,
+  PersonalWorkflowCreate: PersonalWorkflowCreate,
+  PersonalWorkflow: PersonalWorkflow,
+  PersonalSearchHistory: PersonalSearchHistory,
+  PersonalSearchDefine: PersonalSearchDefine,
+  PersonalSearchRecentDoc: PersonalSearchRecentDoc,
+  PersonalSearchSubscribed: PersonalSearchSubscribed,
+  PersonalCaseCreate: PersonalCaseCreate,
+  PersonalCase: PersonalCase,
+  PersonalWorkflowSingle: PersonalWorkflowSingle,
+  PersonalCaseSingle: PersonalCaseSingle,
+  CalendarWidget: CalendarWidget,
 
   Browse: Browse,
   ...CaseStatisticsWidgetComponent

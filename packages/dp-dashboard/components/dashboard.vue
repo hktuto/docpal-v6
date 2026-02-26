@@ -1,12 +1,10 @@
 <template>
   <div class="template-container">
-    {{ state }}
-    <!-- <template v-if="!currentHome"> loading... </template>
+    <template v-if="!currentHome"> loading... </template>
     <template v-else>
       <div class="template-container--header">
         <span class="template-container--header__title">
-          {{ state }}
-           <DashboardDate class="el-icon--right" v-model="state.dates" />
+          <DashboardDate class="el-icon--right" v-model="state.dates" />
         </span>
         <div class="template-container--header__buttons">
           <template v-if="!state.editMode">
@@ -20,8 +18,9 @@
             </el-button>
           </template>
         </div>
-      </div> -->
-    <!-- <DashboardDetail
+      </div>
+      -->
+      <DashboardDetail
         class="template-container--main"
         id="Dashboard__Home__Main"
         v-if="currentHome && currentHome.layout"
@@ -37,8 +36,8 @@
         @save="handleSave"
         @delete="handleDelete"
         @refreshSetting="handleRefresh"
-      ></DashboardDetail> -->
-    <!-- </template> -->
+      ></DashboardDetail>
+    </template>
   </div>
 </template>
 
@@ -55,7 +54,7 @@ import { onMounted, onUnmounted } from 'vue'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
-// const { currentHome, loading, getHomeList } = useHomePage()
+const { currentHome, loading, getHomeList } = useHomePage()
 let dashboardWidgetByType = getDashboardWidgetByType(dashboardWidgetSetting)
 const state = reactive<any>({
   editMode: false,
@@ -64,88 +63,83 @@ const state = reactive<any>({
   editCount: 0
 })
 
-// function handleAdd(data: any) {
-//   if (!currentHome.value.layout) currentHome.value.layout = []
-//   currentHome.value.layout.push({
-//     x: (currentHome.value.layout.length * 2) % 4,
-//     y: currentHome.value.layout.length + 4, // puts it at the bottom
-//     i: new Date().valueOf().toString(),
-//     ...data
-//   })
-// }
+function handleAdd(data: any) {
+  if (!currentHome.value.layout) currentHome.value.layout = []
+  currentHome.value.layout.push({
+    x: (currentHome.value.layout.length * 2) % 4,
+    y: currentHome.value.layout.length + 4, // puts it at the bottom
+    i: new Date().valueOf().toString(),
+    ...data
+  })
+}
 
-// function handleEdit() {
-//   state.editMode = true
-//   state.editCount = 0
-//   DashboardDetailRef.value.handleResize()
-// }
+function handleEdit() {
+  state.editMode = true
+  state.editCount = 0
+  DashboardDetailRef.value.handleResize()
+}
 
-// function handleRefresh(layoutSetting: any, id: any) {
-//   state.editCount++
-//   const index = currentHome.value.layout.findIndex((item) => item.i === layoutSetting.i)
-//   currentHome.value.layout[index] = deepCopy(layoutSetting)
-// }
+function handleRefresh(layoutSetting: any, id: any) {
+  state.editCount++
+  const index = currentHome.value.layout.findIndex((item) => item.i === layoutSetting.i)
+  currentHome.value.layout[index] = deepCopy(layoutSetting)
+}
 
-// function handleDelete(i: any) {
-//   state.editCount++
-//   const index = currentHome.value.layout.findIndex((item) => item.i === i)
-//   currentHome.value.layout.splice(index, 1)
-// }
+function handleDelete(i: any) {
+  state.editCount++
+  const index = currentHome.value.layout.findIndex((item) => item.i === i)
+  currentHome.value.layout.splice(index, 1)
+}
 
-// function handleFinish() {
-//   state.editMode = false
-//   DashboardDetailRef.value.handleResize()
-//   handleSave()
-// }
+function handleFinish() {
+  state.editMode = false
+  DashboardDetailRef.value.handleResize()
+  handleSave()
+}
 
-// async function handleSave() {
-//   try {
-//     loading.value = true
-//     await clientApi.api.putPersonalLandingSave({
-//       styleJson: JSON.stringify(currentHome.value.layout)
-//     })
-//   } catch (error) {
-//     console.log('error', error)
-//   } finally {
-//     loading.value = false
-//   }
-// }
+async function handleSave() {
+  try {
+    loading.value = true
+    await clientApi.api.putPersonalLandingSave({
+      styleJson: JSON.stringify(currentHome.value.layout)
+    })
+  } catch (error) {
+    console.log('error', error)
+  } finally {
+    loading.value = false
+  }
+}
 
-// async function handleClear() {
-//   try {
-//     const action = await ElMessageBox.confirm(t('tip_cleanMsg', { name: currentHome.value.name }))
-//     if (action !== 'confirm') return
-//     currentHome.value.layout = []
-//     handleSave()
-//   } catch (error) {
-//     console.log('error', error)
-//   } finally {
-//   }
-// }
-// const DashboardDetailRef = ref()
-// const exportLoading = ref(false)
-// async function handleExportPdf() {
-//   try {
-//     exportLoading.value = true
-//     await divToPDF('Dashboard__Home__Main', currentHome.value.name)
-//   } catch (error) {
-//     console.error('Export PDF error:', error)
-//     ElMessage.error(t('dpTip.exportPDFFailed'))
-//   } finally {
-//     exportLoading.value = false
-//   }
-// }
-// onMounted(async () => {
-//   console.log('onMounted', routerProvider?.refeshActions)
-//   // if (!routerProvider) {
-//   //   console.warn('MenuRouterKey not found, refresh action will not be registered.')
-//   //   return
-//   // }
-//   // routerProvider?.refeshActions.value.push({
-//   //   fn: getHomeList,
-//   //   params: [true]
-//   // })
-// })
+async function handleClear() {
+  try {
+    const action = await ElMessageBox.confirm(t('tip_cleanMsg', { name: currentHome.value.name }))
+    if (action !== 'confirm') return
+    currentHome.value.layout = []
+    handleSave()
+  } catch (error) {
+    console.log('error', error)
+  } finally {
+  }
+}
+const DashboardDetailRef = ref()
+const exportLoading = ref(false)
+async function handleExportPdf() {
+  try {
+    exportLoading.value = true
+    await divToPDF('Dashboard__Home__Main', currentHome.value.name)
+  } catch (error) {
+    console.error('Export PDF error:', error)
+    ElMessage.error(t('dpTip.exportPDFFailed'))
+  } finally {
+    exportLoading.value = false
+  }
+}
+onMounted(async () => {
+  routerProvider?.refeshActions.value.push({
+    fn: getHomeList,
+    params: [true]
+  })
+})
 </script>
 
 <style lang="scss" scoped>
