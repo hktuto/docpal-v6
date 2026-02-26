@@ -1,11 +1,12 @@
 <template>
   <div class="template-container">
-    <template v-if="!currentHome"> loading... </template>
+      {{ state }}
+    <!-- <template v-if="!currentHome"> loading... </template>
     <template v-else>
       <div class="template-container--header">
         <span class="template-container--header__title">
-          {{ currentHome.name }}
-          <DashboardDate class="el-icon--right" v-model="state.dates" />
+          {{ state }}
+           <DashboardDate class="el-icon--right" v-model="state.dates" />
         </span>
         <div class="template-container--header__buttons">
           <template v-if="!state.editMode">
@@ -19,7 +20,7 @@
             </el-button>
           </template>
         </div>
-      </div>
+      </div> -->
       <!-- <DashboardDetail
         class="template-container--main"
         id="Dashboard__Home__Main"
@@ -54,7 +55,7 @@ import { onMounted, onUnmounted } from 'vue'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
-const { currentHome, loading, getHomeList } = useHomePage()
+// const { currentHome, loading, getHomeList } = useHomePage()
 let dashboardWidgetByType = getDashboardWidgetByType(dashboardWidgetSetting)
 const state = reactive<any>({
   editMode: false,
