@@ -2,6 +2,7 @@
 import { Dashboard } from '#components'
 </script>
 <template>
-  <Dashboard></Dashboard>
+  <div>Home</div>
+  <!-- <Dashboard></Dashboard> -->
 </template>
 <style lang="scss" scoped></style>
