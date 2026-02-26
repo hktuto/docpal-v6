@@ -55,7 +55,7 @@
         
         <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" @submit="addColumn" />
       </div>
-      <MdFormPopover ref="MdFormPopoverRef" @submit="handleAddRowSubmit"/>
+      <MdFormPopover ref="MdFormPopoverRef" @submit="handleAddRowSubmit" />
 
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" @headerClick="handleHeaderClick" />
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
@@ -131,6 +131,9 @@ const {
 const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
 const rightClickCellPopoverRef = ref()
 const recordCardDialogRef = ref()
+function handleMove(direction: 'up' | 'down') {
+  moveCurrentRow(direction)
+}
 
 // 表格事件
 const gridEvents = computed<VxeGridListeners>(() => ({

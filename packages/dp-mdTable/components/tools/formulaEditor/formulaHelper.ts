@@ -3,15 +3,15 @@
  */
 import dayjs from 'dayjs'
 export interface FunctionItem {
-  name: string;
-  description: string;
-  usage: string;
+  name: string
+  description: string
+  usage: string
   params?: Array<{
-    name: string;
-    description: string;
-  }>;
-  example?: string;
-  func?: (...args: any[]) => any;
+    name: string
+    description: string
+  }>
+  example?: string
+  func?: (...args: any[]) => any
 }
 
 /**
@@ -20,44 +20,44 @@ export interface FunctionItem {
  * @returns 是否闭合
  */
 function isExpressionBalanced(expression: string): boolean {
-  let depth = 0;
-  let inString = false;
-  let stringChar = '';
+  let depth = 0
+  let inString = false
+  let stringChar = ''
 
   for (let i = 0; i < expression.length; i++) {
-    const char = expression[i];
+    const char = expression[i]
 
     if (!inString && (char === "'" || char === '"')) {
-      inString = true;
-      stringChar = char;
-      continue;
+      inString = true
+      stringChar = char
+      continue
     }
 
     if (inString) {
       if (char === '\\') {
-        i++;
-        continue;
+        i++
+        continue
       }
       if (char === stringChar) {
-        inString = false;
-        stringChar = '';
+        inString = false
+        stringChar = ''
       }
-      continue;
+      continue
     }
 
     if (char === '(') {
-      depth++;
-      continue;
+      depth++
+      continue
     }
     if (char === ')') {
-      depth--;
+      depth--
       if (depth < 0) {
-        return false;
+        return false
       }
     }
   }
 
-  return depth === 0 && !inString;
+  return depth === 0 && !inString
 }
 
 /**
@@ -143,7 +143,7 @@ export const textFunctions: FunctionItem[] = [
       return args[0].trim()
     }
   }
-];
+]
 
 /**
  * 数值函数列表
@@ -224,7 +224,7 @@ export const numberFunctions: FunctionItem[] = [
       return Math.abs(args[0])
     }
   }
-];
+]
 
 /**
  * 日期函数列表
@@ -268,8 +268,8 @@ export const dateFunctions: FunctionItem[] = [
     params: [{ name: 'date', description: '日期值（可选，默认为当前日期）' }],
     example: 'YEAR() 或 YEAR(TODAY()) 返回当前年份，例如 2024',
     func: (...args: any[]) => {
-      const date = args.length > 0 && args[0] ? args[0] : new Date();
-      return new Date(date).getFullYear();
+      const date = args.length > 0 && args[0] ? args[0] : new Date()
+      return new Date(date).getFullYear()
     }
   },
   {
@@ -279,8 +279,8 @@ export const dateFunctions: FunctionItem[] = [
     params: [{ name: 'date', description: '日期值（可选，默认为当前日期）' }],
     example: 'MONTH() 或 MONTH(TODAY()) 返回当前月份，例如 1',
     func: (...args: any[]) => {
-      const date = args.length > 0 && args[0] ? args[0] : new Date();
-      return new Date(date).getMonth() + 1;
+      const date = args.length > 0 && args[0] ? args[0] : new Date()
+      return new Date(date).getMonth() + 1
     }
   },
   {
@@ -290,8 +290,8 @@ export const dateFunctions: FunctionItem[] = [
     params: [{ name: 'date', description: '日期值（可选，默认为当前日期）' }],
     example: 'DAY() 或 DAY(TODAY()) 返回当前日期，例如 15',
     func: (...args: any[]) => {
-      const date = args.length > 0 && args[0] ? args[0] : new Date();
-      return new Date(date).getDate();
+      const date = args.length > 0 && args[0] ? args[0] : new Date()
+      return new Date(date).getDate()
     }
   },
   {
@@ -305,7 +305,9 @@ export const dateFunctions: FunctionItem[] = [
     ],
     example: "DATEDIF('2024-01-01', '2024-12-31', 'D') 返回 365",
     func: (...args: any[]) => {
-      const unitRaw = String(args[2] ?? '').trim().toUpperCase();
+      const unitRaw = String(args[2] ?? '')
+        .trim()
+        .toUpperCase()
       const unitMap: Record<string, dayjs.OpUnitType> = {
         D: 'day',
         DAY: 'day',
@@ -317,18 +319,18 @@ export const dateFunctions: FunctionItem[] = [
         Y: 'year',
         YEAR: 'year',
         YEARS: 'year'
-      };
-      const unit = unitMap[unitRaw] ?? 'day';
-      const start = dayjs(args[0]);
-      const end = dayjs(args[1]);
+      }
+      const unit = unitMap[unitRaw] ?? 'day'
+      const start = dayjs(args[0])
+      const end = dayjs(args[1])
       if (!start.isValid() || !end.isValid()) {
-        return '';
+        return ''
       }
       // 依照 Excel 语义，计算 end - start
-      return end.diff(start, unit);
+      return end.diff(start, unit)
     }
   }
-];
+]
 
 /**
  * 逻辑函数列表
@@ -358,7 +360,7 @@ export const logicalFunctions: FunctionItem[] = [
     ],
     example: 'AND(10 > 5, 20 > 15) 返回 TRUE',
     func: (...args: any[]) => {
-      return args.every(arg => arg)
+      return args.every((arg) => arg)
     }
   },
   {
@@ -371,7 +373,7 @@ export const logicalFunctions: FunctionItem[] = [
     ],
     example: 'OR(10 > 20, 5 > 3) 返回 TRUE',
     func: (...args: any[]) => {
-      return args.some(arg => arg)
+      return args.some((arg) => arg)
     }
   },
   {
@@ -422,25 +424,20 @@ export const logicalFunctions: FunctionItem[] = [
       return args[0] === 'error'
     }
   }
-];
+]
 
 /**
  * 合并所有函数到一个映射中
  */
 function getAllFunctions(): Map<string, FunctionItem> {
-  const functionMap = new Map<string, FunctionItem>();
-  const allFunctions = [
-    ...textFunctions,
-    ...numberFunctions,
-    ...dateFunctions,
-    ...logicalFunctions
-  ];
-  allFunctions.forEach(func => {
+  const functionMap = new Map<string, FunctionItem>()
+  const allFunctions = [...textFunctions, ...numberFunctions, ...dateFunctions, ...logicalFunctions]
+  allFunctions.forEach((func) => {
     if (func.func) {
-      functionMap.set(func.name.toUpperCase(), func);
+      functionMap.set(func.name.toUpperCase(), func)
     }
-  });
-  return functionMap;
+  })
+  return functionMap
 }
 
 /**
@@ -451,34 +448,34 @@ function getAllFunctions(): Map<string, FunctionItem> {
  */
 function findFunctionEnd(str: string, startPos: number): number {
   if (startPos < 0 || startPos >= str.length || str[startPos] !== '(') {
-    return -1;
+    return -1
   }
 
-  let depth = 1;
-  let pos = startPos + 1;
+  let depth = 1
+  let pos = startPos + 1
 
   while (pos < str.length && depth > 0) {
     if (str[pos] === '(') {
-      depth++;
+      depth++
     } else if (str[pos] === ')') {
-      depth--;
+      depth--
     } else if (str[pos] === "'" || str[pos] === '"') {
       // 跳过字符串字面量
-      const quote = str[pos];
-      pos++;
+      const quote = str[pos]
+      pos++
       while (pos < str.length && str[pos] !== quote) {
         if (str[pos] === '\\') {
-          pos++; // 跳过转义字符
+          pos++ // 跳过转义字符
         }
-        pos++;
+        pos++
       }
     }
     if (depth > 0) {
-      pos++;
+      pos++
     }
   }
 
-  return depth === 0 ? pos : -1;
+  return depth === 0 ? pos : -1
 }
 
 /**
@@ -490,47 +487,52 @@ function findFunctionEnd(str: string, startPos: number): number {
  */
 function parseFunctionArgs(argsStr: string, rowdata: any, functionMap: Map<string, FunctionItem>): any[] {
   if (!argsStr.trim()) {
-    return [];
+    return []
   }
 
-  const args: any[] = [];
-  let currentArg = '';
-  let depth = 0;
-  let inString = false;
-  let stringChar = '';
+  const args: any[] = []
+  let currentArg = ''
+  let depth = 0
+  let inString = false
+  let stringChar = ''
 
   for (let i = 0; i < argsStr.length; i++) {
-    const char = argsStr[i];
+    const char = argsStr[i]
 
     if (!inString && (char === "'" || char === '"')) {
-      inString = true;
-      stringChar = char;
-      currentArg += char;
+      inString = true
+      stringChar = char
+      currentArg += char
     } else if (inString && char === stringChar && argsStr[i - 1] !== '\\') {
-      inString = false;
-      currentArg += char;
+      inString = false
+      currentArg += char
     } else if (!inString && char === '(') {
-      depth++;
-      currentArg += char;
+      depth++
+      currentArg += char
     } else if (!inString && char === ')') {
-      depth--;
-      currentArg += char;
+      depth--
+      currentArg += char
     } else if (!inString && depth === 0 && char === ',') {
       // 找到参数分隔符，递归计算参数值
-      const argValue = evalFormula(currentArg.trim(), rowdata);
-      args.push(argValue);
-      currentArg = '';
+      // 判断currentArg是否为日期类型，日期类型转换为时间戳
+
+      if (dayjs(currentArg.trim()).isValid()) {
+        args.push(dayjs(currentArg).valueOf())
+      } else {
+        args.push(evalFormula(currentArg.trim(), rowdata))
+      }
+      currentArg = ''
     } else {
-      currentArg += char;
+      currentArg += char
     }
   }
 
   if (currentArg.trim()) {
-    const argValue = evalFormula(currentArg.trim(), rowdata);
-    args.push(argValue);
+    const argValue = evalFormula(currentArg.trim(), rowdata)
+    args.push(argValue)
   }
 
-  return args;
+  return args
 }
 
 /**
@@ -540,18 +542,18 @@ function parseFunctionArgs(argsStr: string, rowdata: any, functionMap: Map<strin
  * @returns 替换后的公式
  */
 function replaceVariables(formula: string, rowdata: any): string {
-  const variablePattern = /\{([^}]+)\}/g;
+  const variablePattern = /\{([^}]+)\}/g
   return formula.replace(variablePattern, (match, fieldName) => {
-    const value = rowdata?.[fieldName];
+    const value = rowdata?.[fieldName]
     if (value === undefined || value === null) {
-      return '""';
+      return '""'
     }
     // 如果是字符串，需要加引号
     if (typeof value === 'string') {
-      return `"${value.replace(/"/g, '\\"')}"`;
+      return `"${value.replace(/"/g, '\\"')}"`
     }
-    return String(value);
-  });
+    return String(value)
+  })
 }
 
 /**
@@ -562,79 +564,79 @@ function replaceVariables(formula: string, rowdata: any): string {
  * @returns 替换后的公式
  */
 function replaceFunctions(formula: string, rowdata: any, functionMap: Map<string, FunctionItem>): string {
-  const functionNamePattern = /([A-Za-z_][A-Za-z0-9_]*)\s*\(/g;
-  let result = formula;
-  let changed = true;
+  const functionNamePattern = /([A-Za-z_][A-Za-z0-9_]*)\s*\(/g
+  let result = formula
+  let changed = true
 
   // 循环处理，直到没有更多函数调用需要替换
   while (changed) {
-    changed = false;
-    const matches: Array<{ name: string; start: number; end: number; argsStr: string }> = [];
-    
+    changed = false
+    const matches: Array<{ name: string; start: number; end: number; argsStr: string }> = []
+
     // 重置正则表达式，使用 matchAll 来避免 exec 的状态问题
-    const allMatches = Array.from(result.matchAll(functionNamePattern));
+    const allMatches = Array.from(result.matchAll(functionNamePattern))
 
     for (const match of allMatches) {
-      const funcName = match[1].toUpperCase();
-      const funcStart = match.index!;
-      const leftParenPos = funcStart + match[0].length - 1;
+      const funcName = match[1].toUpperCase()
+      const funcStart = match.index!
+      const leftParenPos = funcStart + match[0].length - 1
 
       if (functionMap.has(funcName)) {
-        const funcEnd = findFunctionEnd(result, leftParenPos);
+        const funcEnd = findFunctionEnd(result, leftParenPos)
         if (funcEnd > 0) {
-          const argsStr = result.substring(leftParenPos + 1, funcEnd);
+          const argsStr = result.substring(leftParenPos + 1, funcEnd)
           matches.push({
             name: funcName,
             start: funcStart,
             end: funcEnd + 1,
             argsStr: argsStr
-          });
+          })
         }
       }
     }
 
     // 从后往前替换，避免位置偏移问题
     for (let i = matches.length - 1; i >= 0; i--) {
-      const match = matches[i];
-      const func = functionMap.get(match.name)!;
-      const args = parseFunctionArgs(match.argsStr, rowdata, functionMap);
-      let funcResult;
+      const match = matches[i]
+      const func = functionMap.get(match.name)!
+      const args = parseFunctionArgs(match.argsStr, rowdata, functionMap)
+      let funcResult
 
       try {
         if (func.func) {
-          funcResult = func.func(...args);
+          funcResult = func.func(...args)
         } else {
-          funcResult = '';
+          funcResult = ''
         }
 
         // 将结果转换为字符串，如果是字符串需要加引号
-        let resultStr: string;
+        let resultStr: string
         if (typeof funcResult === 'string') {
-          resultStr = `"${funcResult.replace(/"/g, '\\"')}"`;
+          resultStr = `"${funcResult.replace(/"/g, '\\"')}"`
         } else if (funcResult === null || funcResult === undefined) {
-          resultStr = '""';
+          resultStr = '""'
         } else {
-          resultStr = String(funcResult);
+          resultStr = String(funcResult)
         }
 
-        const beforeReplace = result;
-        result = result.substring(0, match.start) + resultStr + result.substring(match.end);
-        
+        const beforeReplace = result
+        result = result.substring(0, match.start) + resultStr + result.substring(match.end)
+
         if (beforeReplace !== result) {
-          changed = true;
+          changed = true
           // 只替换一个函数就退出循环，重新查找所有函数调用
-          break;
+          break
         }
       } catch (error) {
-        console.error(`Error executing function ${match.name}:`, error);
-        result = result.substring(0, match.start) + '""' + result.substring(match.end);
-        changed = true;
-        break;
+        console.error(`Error executing function ${match.name}:`, error)
+        result = result.substring(0, match.start) + '""' + result.substring(match.end)
+        changed = true
+        break
       }
     }
   }
 
-  return result;
+  return result
 }
 
 /**
@@ -645,41 +647,41 @@ function replaceFunctions(formula: string, rowdata: any, functionMap: Map<string
  */
 export function evalFormula(formula: string, rowdata: any = {}): any {
   if (!formula || !formula.trim()) {
-    return '';
+    return ''
   }
 
-  let processedFormula = formula;
   try {
-    const functionMap = getAllFunctions();
+    let processedFormula = formula
     // 第一步：替换变量引用
-    processedFormula = replaceVariables(formula, rowdata);
+    const functionMap = getAllFunctions()
     // 第二步：替换函数调用（需要递归处理嵌套函数）
-    let lastFormula = '';
-    let iterations = 0;
+    processedFormula = replaceVariables(formula, rowdata)
+    let lastFormula = ''
+    let iterations = 0
     while (processedFormula !== lastFormula && iterations < 100) {
-      lastFormula = processedFormula;
-      processedFormula = replaceFunctions(processedFormula, rowdata, functionMap);
-      iterations++;
+      lastFormula = processedFormula
+      processedFormula = replaceFunctions(processedFormula, rowdata, functionMap)
+      iterations++
     }
-
     // 第三步：处理字符串连接（将字符串的 + 转换为连接操作）
     // 由于我们已经将字符串用引号包裹，JavaScript 的 + 运算符会自动处理字符串连接
-
+  
     // 第四步：安全地执行计算
     // 使用 Function 构造函数而不是 eval，相对更安全
     if (!isExpressionBalanced(processedFormula)) {
-      return '';
+      return ''
     }
     if (!processedFormula || processedFormula.trim() === '') {
-      return '';
+      return ''
     }
-    const result = new Function('return (' + processedFormula + ')')();
+    console.log('processedFormula', processedFormula)
+    const result = new Function('return (' + processedFormula + ')')()
     // 返回结果，确保不是 undefined
-    return result !== undefined ? result : '';
+    return result !== undefined ? result : ''
   } catch (error) {
-    console.error('Formula evaluation error:', error);
-    console.error('Formula:', formula);
-    console.error('Processed formula:', processedFormula);
-    return '';
+    console.error('Formula evaluation error:', error)
+    console.error('Formula:', formula)
+    console.error('Processed formula:', processedFormula)
+    return ''
   }
 }

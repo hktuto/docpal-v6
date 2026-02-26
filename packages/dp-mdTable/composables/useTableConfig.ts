@@ -219,7 +219,8 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       rowConfig: {
         keyField: rowId,
         isHover: true,
-        useKey: true
+        useKey: true,
+        isCurrent: true
       },
       // 单元格类名配置 - 用于更新状态视觉反馈
       cellClassName: cellClassName || undefined

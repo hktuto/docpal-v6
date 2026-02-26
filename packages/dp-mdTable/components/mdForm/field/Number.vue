@@ -7,7 +7,7 @@
       clearable
       :precision="properties.precision"
       :step="1"
-      align="right"
+      align="left"
       controls-position="right"
     >
       <template v-if="properties.symbol && properties.symbolAlign === 'right'" #suffix>
