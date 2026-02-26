@@ -1,6 +1,6 @@
 <template>
   <div class="template-container">
-      {{ state }}
+    {{ state }}
     <!-- <template v-if="!currentHome"> loading... </template>
     <template v-else>
       <div class="template-container--header">
@@ -21,7 +21,7 @@
           </template>
         </div>
       </div> -->
-      <!-- <DashboardDetail
+    <!-- <DashboardDetail
         class="template-container--main"
         id="Dashboard__Home__Main"
         v-if="currentHome && currentHome.layout"
@@ -38,7 +38,7 @@
         @delete="handleDelete"
         @refreshSetting="handleRefresh"
       ></DashboardDetail> -->
-    </template>
+    <!-- </template> -->
   </div>
 </template>
 
