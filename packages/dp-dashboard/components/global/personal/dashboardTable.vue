@@ -4,9 +4,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { publicApi } from 'api'
-import { routeDashboardDetail } from '~/utils/routerHelper'
+import { newClientApi } from 'api'
 
 const userId: string = useUserId().value
 const routerProvider = inject(MenuRouterKey)
@@ -15,7 +13,7 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'd-dashboard',
   zoom: false,
-  api: (pageParams: any) => publicApi.api.postUserDashboardPage({ ...pageParams, ...extraParams, userId }),
+  api: (pageParams: any) => newClientApi.postDsbUserDashboardsPage({ ...pageParams, ...extraParams, userId }),
   columns: [
     { field: 'name', title: 'tableHeader_name', fixed: 'left' },
     {

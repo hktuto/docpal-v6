@@ -24,9 +24,8 @@
 </div>
 </template>
 
-
 <script lang="ts" setup>
-import { clientApi} from 'api'
+import { newClientApi} from 'api'
 const props = withDefaults(defineProps<{
     checkList: any,
 }>(), {
@@ -57,7 +56,7 @@ async function handleDocTypeChange (doc) {
         getMetaAndSetMeta()
     }
     async function getDocType(isFolder) {
-        const res = await clientApi.api.getDmsDocpalTypeActive()
+        const res = await newClientApi.getDmsDocpalTypeActive()
                                 .then(res => res.data)
                                 .then(data => data.sort((a,b)=> (a.name.localeCompare(b.name) ))) as any
         state.fileTypes = res.filter((item) => item.isFolder === isFolder)

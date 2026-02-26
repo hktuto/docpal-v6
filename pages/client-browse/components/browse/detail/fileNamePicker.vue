@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api';
+import { newClientApi } from 'api';
 
 const { title, parentRef,docId } = defineProps<{
     title: string,
@@ -11,7 +11,7 @@ const { title, parentRef,docId } = defineProps<{
 const emits = defineEmits(['itemClick'])
 
 async function loadData(entry: any[], path?: string, pageNum: number = 0) {
-  const data = await clientApi.api.postDmsDocumentChildrenThumbnail({
+  const data = await newClientApi.postDmsDocumentChildrenThumbnail({
     idOrPath: path,
     pageSize: 1000,
     pageNum

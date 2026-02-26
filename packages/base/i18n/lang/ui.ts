@@ -1,5 +1,5 @@
 import {defineI18nLocale} from '#imports'
-import { clientApi } from "api"
+import { newClientApi } from "api"
 import zhCN from 'vxe-table/lib/locale/lang/zh-CN'
 import enUS from 'vxe-table/lib/locale/lang/en-US'
 import zhHK from 'vxe-table/lib/locale/lang/zh-HK'
@@ -20,7 +20,7 @@ export default defineI18nLocale(async(locale:string) => {
     // for example, fetch locale messages from nuxt server
     console.log('ui', locale);
     
-    const data: any = await clientApi.api.getDmsFormPropertiesLanguageList({
+    const data: any = await newClientApi.getDmsFormPropertiesLanguageList({
         locale:locale,
         languageKey:'client'
     }).then(r => r.data)

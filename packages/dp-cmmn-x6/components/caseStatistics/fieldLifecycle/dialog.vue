@@ -82,6 +82,7 @@ async function getOptions(filterKey: string) {
     }
   ]
   const sql = PostgREST_Decorate(sqlParams)
+  console.log(2222,props.setting)
   const response = await clientApi.api.getPostgrestTable(`${props.setting.tableName}?${sql}`)
   const options = response.data.map((item: any) => item[filterKey])
   const uniqueOptions = [...new Set(options)]

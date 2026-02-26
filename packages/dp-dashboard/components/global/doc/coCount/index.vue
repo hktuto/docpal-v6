@@ -19,10 +19,14 @@
       ></DashboardUserFilter>
     </template>
     <div class="trendContainer">
-      <DocCoCountFileCount v-if="setting.showCount" ref="DocCoCountCountRef" :dates="dates" :setting="setting" :user="state.filterUser" />
-      <DocCoCountSize v-if="setting.showSize" ref="DocCoCountSizeRef" :dates="dates" :setting="setting" :user="state.filterUser" />
+      <DocCoCountFileCount v-if="setting.showCount" ref="DocCoCountCountRef" :dates="dates" :setting="setting"
+                           :user="state.filterUser" />
+      <DocCoCountSize v-if="setting.showSize" ref="DocCoCountSizeRef" :dates="dates" :setting="setting"
+                      :user="state.filterUser" />
     </div>
-    <el-button v-if="state.drillDownFlag" :loading="state.drillDownBackLoading" @click="handleDrillDownBack" text>{{ $t('dpButtom_back') }}</el-button>
+    <el-button v-if="state.drillDownFlag" :loading="state.drillDownBackLoading" @click="handleDrillDownBack" text>
+      {{ $t('dpButtom_back') }}
+    </el-button>
     <div class="metaContainer" style="--trend-columns: 1fr 1fr 1fr 1fr">
       <DocCoCountMeta
         v-for="item in setting.displayList"
@@ -43,7 +47,7 @@
 </template>
 
 <script lang="ts" setup>
-import { publicApi } from 'api'
+import { newClientApi } from 'api'
 
 const props = withDefaults(
   defineProps<{
@@ -90,14 +94,16 @@ function handleFilterUser(user: any) {
   state.filterUser = user
   getMetaData()
 }
+
 const GetCoCountMetaApi = async (params: any) => {
-  if (params.creator) return await publicApi.api.postDashboardNewfilesofspecifyusermetabydtypebyrange(params).then((res) => res.data)
-  return await publicApi.api.postDashboardNewfilesofusersmetabydtypebyrange(params).then((res) => res.data)
+  if (params.creator) return await newClientApi.postDsbNewFilesUserMetaDtypeRange(params).then((res) => res.data)
+  return await newClientApi.postDsbNewFilesUsersMetaDtypeRange(params).then((res) => res.data)
 }
 const GetCoCountMetaFilterApi = async (params: any) => {
-  if (params.creator) return await publicApi.api.postDashboardNewfilesofspecifyuserbydtypebyrangefiltermatedata(params).then((res) => res.data)
-  return await publicApi.api.postDashboardNewfilesofuserbydtypebyrangefiltermatedata(params).then((res) => res.data)
+  if (params.creator) return await newClientApi.postDsbNewFilesSpecifiedUserDtypeRangeFilterMetadata(params).then((res) => res.data)
+  return await newClientApi.postDsbNewFilesUserDtypeRangeFilterMetadata(params).then((res) => res.data)
 }
+
 async function getMetaData() {
   const params: any = {
     groupByMetadatas: props.setting.displayList.map((item: any) => item.meta),
@@ -113,17 +119,23 @@ async function getMetaData() {
   }
   try {
     metaData.value = await GetCoCountMetaApi(params)
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
 }
+
 async function handleDrillDownBack() {
   state.drillDownParams = {}
   state.drillDownBackLoading = true
   try {
     await getMetaData()
     state.drillDownFlag = false
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
   state.drillDownBackLoading = false
 }
+
 async function handleDrillDown(metaParams: any) {
   state.drillDownParams[metaParams.meta] = metaParams.key
   try {
@@ -142,11 +154,15 @@ async function handleDrillDown(metaParams: any) {
     }
     metaData.value = await GetCoCountMetaFilterApi(params)
     state.drillDownFlag = true
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
 }
+
 function handleDelete() {
   emits('delete')
 }
+
 function handleRefresh(chartSetting: any) {
   emits('refreshSetting', chartSetting)
 }
@@ -163,22 +179,26 @@ defineExpose({
   flex-flow: row wrap;
   container-type: inline-size;
 }
+
 .metaContainer {
   display: flex;
   flex-flow: row wrap;
   container-type: inline-size;
   padding: 0 var(--el-card-padding);
 }
+
 @container (min-width: 640px) {
   .co-count {
     flex: 1 0 50%;
     max-width: 50%;
   }
+
   .co-count-meta {
     flex: 1 0 25%;
     max-width: 25%;
   }
 }
+
 :deep(.co-count-chart) {
   width: 100%;
   height: 100%;

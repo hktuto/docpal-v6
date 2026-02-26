@@ -2,7 +2,7 @@
 import { updateExtentionProperties, getExtentionProperties } from '../../../utils/cmmnConfig'
 
 const props = defineProps(['graph', 'node'])
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const { node } = toRefs(props)
 const { caseId } = useCmmnGraph()
@@ -51,7 +51,7 @@ const fieldListApi = computed(() => {
 async function formSubmit() {
 
   const json = fromDesignRef.value.getFormJson()
-  await clientApi.api.postDmsFormPropertiesSave({
+  await newClientApi.postDmsFormPropertiesSave({
     processKey: caseId.value,
     userTaskId: node.value.data.data.attr_id,
     jsonValue: JSON.stringify(json),
@@ -64,7 +64,7 @@ async function editForm() {
 
   // formDialog.value.handleOpen(state.data)
   // console.log("editForm", caseId.value, node.value.data.data.attr_id, caseProvider.versionId.value)
-  const response = await clientApi.api.getDmsFormPropertiesQuery({
+  const response = await newClientApi.getDmsFormPropertiesQuery({
     processKey: caseId.value,
     userTaskId: node.value.data.data.attr_id,
     versionId: caseProvider.versionId.value

@@ -2,7 +2,7 @@
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -86,7 +86,7 @@ async function queryLog() {
     }
     // params.orderBy = 'logDate'
     params.isDesc = true
-    const data = await clientApi.api.postAuditLogWorkflowPage(params).then(r => r.data)
+    const data = await newClientApi.postDocpalAuditLogWorkflowPage(params).then(r => r.data)
     tableConfig.data = data.entryList.map((item: any) => {
       return {
         date: item.logDate,

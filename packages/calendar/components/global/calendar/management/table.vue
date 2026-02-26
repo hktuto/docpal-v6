@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { convertSiteEventToCalendarEvent } from '../../../../utils/calendarHelper'
@@ -94,7 +94,7 @@ async function getEventList(filterParams?: any) {
     endTime: filterParams.date?.endTime
   }
   try {
-    const data = await clientApi.api.postDmsCalendarsList(params).then(res => res.data)
+    const data = await newClientApi.postDmsCalendarsList(params).then(res => res.data)
 
     tableConfig.data = data.filter((event: any) => {
       if (!!filterParams.category) {

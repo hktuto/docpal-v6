@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const props = defineProps<{
     doc:any
 }>()
@@ -15,7 +15,7 @@ const loading = ref(false);
 async function getData() {
     loading.value = true;
     try {
-        const blob = await clientApi.api.postDmsDocumentPreview({idOrPath: props.doc.id},{
+        const blob = await newClientApi.postDmsDocumentPreview({idOrPath: props.doc.id},{
             format:'blob',
             timeout: 0,
             headers: {

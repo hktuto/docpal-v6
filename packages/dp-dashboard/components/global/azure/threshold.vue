@@ -27,8 +27,9 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
-import { publicApi } from 'api'
+import { newClientApi } from 'api'
 import formJson from './threshold.vform.json'
+
 dayjs.extend(isBetween)
 const props = defineProps(['setting', 'dates', 'hideSetting'])
 const emits = defineEmits(['refreshSetting', 'delete'])
@@ -38,6 +39,7 @@ const state = reactive<any>({
   cutOffTime: null,
   cutOffDates: {}
 })
+
 async function getData(scanType: string) {
   try {
     let params: any = { scanType }
@@ -45,15 +47,18 @@ async function getData(scanType: string) {
     state.cutOffDates = dates
     if (dates) params = { ...params, ...dates }
     // const da
-    const counts: any = await publicApi.api.postOcrQueryOcrThreshold(params).then((res) => res.data)
+    const counts: any = await newClientApi.postDsbOcrThreshold(params).then((res) => res.data)
     state.initData = counts
     state.percentage = ((counts.currentCount / counts.thresholdCount) * 100).toFixed(2)
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
 }
+
 async function getDates() {
   try {
     const currentDate = new Date()
-    const setting: any = await publicApi.api.getAzureOcrQueryazureocrsetting().then((res) => res.data)
+    const setting: any = await newClientApi.getDsbAzureOcrSetting().then((res) => res.data)
     state.cutOffTime = setting.cutOffTime
     const diffYear = dayjs(currentDate).diff(state.cutOffTime, 'year')
     let base = getBaseDiffYear(state.cutOffTime, currentDate)
@@ -79,6 +84,7 @@ async function getDates() {
   } catch (error) {
     return null
   }
+
   function getBaseDiffYear(date1, date2) {
     const _date1 = new Date(date1)
     const _date1Month = _date1.getMonth()
@@ -89,23 +95,26 @@ async function getDates() {
     return _date1Month === _date2Month && _date1Date === _date2Date ? -2 : -1
   }
 }
+
 // #region module: setting
 const { settingRef, cardRef, refresh, loading } = useDashboardCard({
   props,
   handleInitCardAction: (setting: any) => {
     getData(setting.scanType)
-  },
+  }
 })
+
 function handleDelete() {
   emits('delete')
 }
+
 function handleRefresh(chartSetting: any) {
   emits('refreshSetting', chartSetting)
 }
+
 // #endregion
 
-defineExpose({
-})
+defineExpose({})
 </script>
 <style lang="scss" scoped>
 h3 {

@@ -83,7 +83,7 @@
 </template>
 <script lang="ts" setup>
 import draggable from 'vuedraggable'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const emits = defineEmits(['refresh', 'delete'])
 const { t } = useI18n()
 const caseProvider: any = inject(CaseManagementDashboardKey)
@@ -130,7 +130,7 @@ async function handleSubmit() {
   }
 }
 async function initOptions() {
-  const data = await clientApi.api.getCaseTypes({ deployed: true }).then(r => r.data)
+  const data = await newClientApi.getCaseTypes({ deployed: true }).then(r => r.data)
   console.log('data', data)
   state.caseList = data.map((item: any) => ({
     value: item.id,
@@ -142,7 +142,7 @@ async function initOptions() {
 }
 async function getCaseFields(versionId: string) {
   if (versionId) {
-    const data = await clientApi.api.getCaseDashboardVersionVersionidPrimaryform(versionId).then(r => r.data)
+    const data = await newClientApi.getCaseDashboardVersionVersionidPrimaryform(versionId).then(r => r.data)
     return data.fields
       .map((item: any) => ({
         name: item.id,

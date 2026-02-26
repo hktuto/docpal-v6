@@ -16,8 +16,7 @@
   </DashboardCard>
 </template>
 <script lang="ts" setup>
-import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { MenuRouterKey } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
@@ -39,7 +38,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   id: 'subscribed',
   zoom: false,
   saveColumnOrder: false,
-  api: (pageParams: any) => clientApi.api.postLogsRecentDocumentPage(pageParams),
+  api: (pageParams: any) => newClientApi.postLogsRecentDocumentPage(pageParams),
   columns: [
     { field: 'name', title: 'table_fileName', fixed: 'left' },
     {

@@ -19,10 +19,25 @@ docs/
 |------|--------|---------|
 | Core | `CORE-XXX - Name.md` | `CORE-001 - Auth.md` |
 | Add-on | `ADD-XXX - Name.md` | `ADD-001 - Calendar & Timesheet.md` |
-| Feature | `FEAT-XXX.X - Name.md` | `FEAT-001.1 - Drag-drop upload.md` |
+| Feature | `FEAT-XXX.X - Name.md` | `FEAT-001.1 - Authentication.md` |
 | Task | `TASK-XXX.X.X - Name.md` | `TASK-001.1.1 - Progress bar component.md` |
 | Deprecated | `Name (deprecated).md` | `Case Management (deprecated).md` |
 | Journal | `YYYY-MM-DD - Description.md` | `2026-02-24 - Auth refactor notes.md` |
+
+### Feature Numbering Scheme
+
+| Range | Module |
+|-------|--------|
+| FEAT-001.x | CORE-001 - Auth |
+| FEAT-002.x | CORE-002 - DMS |
+| FEAT-003.x | CORE-003 - Workflow |
+| FEAT-004.x | CORE-004 - Dynamic Database |
+| FEAT-101.x | ADD-002 - E-signature |
+| FEAT-102.x | ADD-006 - Templates |
+| FEAT-103.x | ADD-008 - Watermark |
+| FEAT-104.x | ADD-009 - Retention |
+| FEAT-105.x | ADD-013 - Notification System |
+| FEAT-106.x | ADD-014 - Audit Log |
 
 ## Module Metadata Format
 

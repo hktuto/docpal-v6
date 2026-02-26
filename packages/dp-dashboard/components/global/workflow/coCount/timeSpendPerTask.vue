@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import { publicApi } from 'api'
+import { newClientApi } from 'api'
 const props = withDefaults(
   defineProps<{
     dates?: any
@@ -90,7 +90,7 @@ async function getData(workflow: string) {
       //     to: props.dates[1]
       // }
     }
-    const initData = await publicApi.api.postDashboardWorkflowactivatetaskspendtime(params).then((res) => res.data)
+    const initData = await newClientApi.postDsbWorkflowActivateTaskSpendTime(params).then((res) => res.data)
     if (!initData) return
     resultData.data = Object.keys(initData).reduce((prev: any, key: any) => {
       prev.push({

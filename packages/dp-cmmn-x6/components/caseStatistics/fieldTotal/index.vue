@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi, PostgREST_Decorate } from 'api'
+import { newClientApi, PostgREST_Decorate } from 'api'
 import formJson from '../setting.vform.json'
 import styleJson from './setting.style.vform.json'
 import setupJson from './setting.setup.vform.json'
@@ -114,7 +114,7 @@ const { cardRef, settingRef, resize, handleInitCard, loading, setSqlParamsByFilt
       })
     }
     const sql = PostgREST_Decorate(sqlParams)
-    const response = await clientApi.api.getPostgrestTable(`${chartSetting.tableName}?${sql}`)
+    const response = await newClientApi.getPostgrestTable(`${chartSetting.tableName}?${sql}`)
     total.value = response.data[0].sum
     return {
       total: total.value

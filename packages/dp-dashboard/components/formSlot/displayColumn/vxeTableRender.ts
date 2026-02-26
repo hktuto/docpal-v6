@@ -1,5 +1,4 @@
 import { VxeUI } from 'vxe-pc-ui'
-import { clientApi } from 'api'
 import DocumentLink from './link/document.vue'
 // 创建一个单元格超链接
 VxeUI.renderer.add('ClickActionCell', {

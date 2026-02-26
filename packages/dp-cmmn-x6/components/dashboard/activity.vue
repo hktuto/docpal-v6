@@ -26,8 +26,8 @@
   </DashboardCard>
 </template>
 <script lang="ts" setup>
-import { Finished, Select } from '@element-plus/icons-vue'
-import { clientApi } from 'api'
+import { Select } from '@element-plus/icons-vue'
+import { newClientApi } from 'api'
 const props = withDefaults(
   defineProps<{
     dates?: any
@@ -74,9 +74,9 @@ async function init() {
   const id = CMDProvider?.instanceId?.value || null
   const _caseTypeId = CMDProvider?.caseTypeId?.value || null
   if (id) {
-    state.activityList = await clientApi.api.getCaseDashboardInstanceCaseidActivity(id).then(r => r.data)
+    state.activityList = await newClientApi.getCaseDashboardInstanceCaseidActivity(id).then(r => r.data)
   } else if (_caseTypeId) {
-    state.activityList = await clientApi.api.getCaseDashboardCasetypeCasetypeidActivity(_caseTypeId).then(r => r.data)
+    state.activityList = await newClientApi.getCaseDashboardCasetypeCasetypeidActivity(_caseTypeId).then(r => r.data)
   }
 }
 const { cardRef, refresh, loading } = useDashboardCard({

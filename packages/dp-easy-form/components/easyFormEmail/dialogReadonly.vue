@@ -42,7 +42,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const emits = defineEmits(['email-update'])
 const props = defineProps(['detail'])
@@ -61,7 +61,7 @@ const form = ref({
 
 async function handleOpen(row) {
   state.visible = true
-  const email = await clientApi.api.getDmsEasyFormEmailLogId(row.id).then((res) => res.data)
+  const email = await newClientApi.getDmsEasyFormEmailLogId(row.id).then((res) => res.data)
   if (!email.body) email.body = ''
   if (!email.subject) email.subject = ''
   if (!email.userEmails) email.userEmails = []

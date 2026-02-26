@@ -14,17 +14,11 @@ Dynamic watermarking for document security and traceability.
 ## Technical Scope
 Applied during DMS document preview/download.
 
-## Implementation
+## Features
 
-### File Locations
-- **Watermark Package**: `packages/dp-watermark/`
-- **Admin Configuration**: `pages/admin-watermark/`
-
-### Key Components
-- Watermark composables
-- Dynamic text overlay on documents
-- User/IP tracking in watermark
-- Configurable watermark settings
+| Feature | Description | ID |
+|---------|-------------|-----|
+| Watermark Engine | Dynamic watermarking with user/IP tracking | [[FEAT-103.1 - Watermark Engine|FEAT-103.1]] |
 
 ## Status Notes
 - ✅ **IMPLEMENTED** - Watermark functionality complete

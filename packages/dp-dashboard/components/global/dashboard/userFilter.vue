@@ -18,7 +18,7 @@
 
 <script lang="ts" setup>
 import { ArrowDown } from '@element-plus/icons-vue'
-import { clientApi } from 'api';
+import { newClientApi } from 'api';
 const props = withDefaults( defineProps<{
     user: string,
     show: boolean
@@ -36,7 +36,7 @@ function handleCommand(command) {
     emits('refreshSetting', command)
 }
 onMounted(async() => {
-  state.userList = await clientApi.api.postUcenterUsers({}).then((res) => res.data)
+  state.userList = await newClientApi.postUcenterUsers({}).then((res) => res.data)
 })
 </script>
 

@@ -15,18 +15,11 @@ Legal hold, auto-expiry policies, and compliance retention rules.
 ## Technical Scope
 DMS for document lifecycle, Workflow for policy automation.
 
-## Implementation
+## Features
 
-### File Locations
-- **Admin File Policies**: `pages/admin-file-policies/`
-- **Client File Policies**: `pages/client-file-policies/`
-
-### Key Components
-- Retention policy configuration
-- File policy management
-- Legal hold functionality
-- Auto-expiry rules
-- Compliance reporting
+| Feature | Description | ID |
+|---------|-------------|-----|
+| Retention Policies | Legal hold and compliance retention rules | [[FEAT-104.1 - Retention Policies|FEAT-104.1]] |
 
 ## Status Notes
 - ✅ **IMPLEMENTED** - Retention policies complete

@@ -11,7 +11,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessage} from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const props = defineProps(['actionList'])
 const emits = defineEmits(['refresh','submit'])
@@ -34,7 +34,7 @@ const caseProvider: any = inject(CaseManagementDashboardKey)
 async function handleProcessTask(actionItem) {
   // get action item detail for process task
   const caseInstanceId = caseProvider.instanceId?.value ;
-  const res = await clientApi.api.postCaseDashboardInstanceActionPreRequisite({ id: actionItem.id }).then(res => res.data)
+  const res = await newClientApi.postCaseDashboardInstanceActionPreRequisite({ id: actionItem.id }).then(res => res.data)
   // Get Form Json and XML
   // check start event additional setting
   const routerItem = caseProcessTaskFormPage({
@@ -55,7 +55,7 @@ async function handleTask(actionItem) {
   } else if (actionItem.planItemDefinitionType === 'humantask') {
     dialogRef.value.handleOpen(actionItem.referenceId, actionItem, props.actionList)
   } else if(actionItem.planItemDefinitionType === 'usereventlistener') {
-    await clientApi.api.postCaseInstanceTriggerEvent({ caseInstanceId: actionItem.caseInstanceId, planItemDefinitionId: actionItem.planItemDefinitionId})
+    await newClientApi.postCaseInstanceTriggerEvent({ caseInstanceId: actionItem.caseInstanceId, planItemDefinitionId: actionItem.planItemDefinitionId})
     // await completeEventTaskApi(actionItem.id, actionItem.planItemDefinitionId)
     ElMessage.success(t('dpMsg_success'))
     emits('refresh')

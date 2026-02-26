@@ -19,7 +19,7 @@
   </DashboardCard>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const props = withDefaults(
   defineProps<{
     dates?: any
@@ -66,7 +66,7 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
       // category: 'Personal'
     }
 
-    const res: any = await clientApi.api.postCaseDashboardInstanceCaseidProcessInstancePage(
+    const res: any = await newClientApi.postCaseDashboardInstanceCaseidProcessInstancePage(
       _instanceId,
       paramsWithExtra
     ).then(r => r.data)
@@ -117,7 +117,7 @@ async function initCondition() {
   const _instanceId = CMDProvider?.instanceId?.value || null
   if (!_instanceId) return
   try {
-    const data = await clientApi.api.getCaseDashboardInstanceCaseidProcessInstancePageConditions(_instanceId)
+    const data = await newClientApi.getCaseDashboardInstanceCaseidProcessInstancePageConditions(_instanceId)
     ResponsiveFilterRef.value?.init(data)
   } catch (error) {
     console.error(error)

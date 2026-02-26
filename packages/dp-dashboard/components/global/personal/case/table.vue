@@ -4,9 +4,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ElMessage } from "element-plus";
-import { clientApi } from "api";
-import { watch } from "vue";
+import { newClientApi } from "api";
 const routerProvider = inject(MenuRouterKey);
 const { t } = useI18n();
 const platform = useAppPlatform()
@@ -49,7 +47,7 @@ async function getData(
       throw new Error("caseId is null");
     }
     if (platform.value === "admin") return;
-    const res = await clientApi.api
+    const res = await newClientApi
       .postCaseTypesCasetypeidRecordsPage(caseId, { ...params, ...extraParams })
       .then((res) => res.data);
     return {

@@ -1,21 +1,59 @@
-# Feature Template
+---
+type: feature
+module: "[[CORE-XXX - Module Name]]"
+status: planned | in-dev | testing | stable | deprecated
+feature-id: XXX-000
+depends-on: []
+---
 
-## Metadata
-- **type**: feature
-- **module**: ADD-xxx or CORE-xxx
-- **status**: planned | in-dev | testing | done
-- **assignee**: @name
+# XXX-000: Feature Name
 
-## Description
-Brief description of what this feature does.
+## Overview
+Brief description of what this feature does and its purpose in the system.
 
-## Acceptance Criteria
-- [ ] Criterion 1
-- [ ] Criterion 2
-- [ ] Criterion 3
+## User Flows
+
+### Flow 1: Primary Use Case
+1. Step 1
+2. Step 2
+3. Step 3
+
+### Flow 2: Secondary Use Case
+1. Step 1
+2. Step 2
+
+## API Endpoints
+
+| Endpoint | Method | Description | Request | Response |
+|----------|--------|-------------|---------|----------|
+| `/api/...` | GET/POST/PUT/DELETE | Description | Params/Body | Response format |
+
+## File Structure
+
+### UI Components
+| File | Purpose |
+|------|---------|
+| `path/to/file.vue` | Description |
+
+### Logic
+| File | Purpose |
+|------|---------|
+| `path/to/composable.ts` | Description |
+
+## UI Screenshots
+> *Add screenshots here*
 
 ## Technical Notes
-Implementation details, API contracts, etc.
+- Implementation details
+- Architecture decisions
+- Performance considerations
 
-## Related
-- [[Module or feature links]]
+## Related Features
+- [[XXX-001 - Related Feature]]
+- [[CORE-XXX - Parent Module]]
+
+## Completion Checklist
+- [ ] Feature implemented
+- [ ] API documented
+- [ ] UI screenshots added
+- [ ] Tests written

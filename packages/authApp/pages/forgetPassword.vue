@@ -40,7 +40,7 @@
 
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const {
   public: { DEFAULT_PATH }
@@ -72,7 +72,7 @@ async function handleSubmit() {
 
   loading.value = true
   try {
-    const data = await clientApi.api.postUcenterPasswordForgetPassword({ userId: form.value.userId }).then(r => r.data)
+    const data = await newClientApi.postUcenterPasswordForgetPassword({ userId: form.value.userId }).then(r => r.data)
     if (!!data) status.value = 'submitted'
     ElMessage.success(t('dpMsg_success'))
     returnLogin()

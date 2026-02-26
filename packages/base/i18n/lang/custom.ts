@@ -1,6 +1,6 @@
 import {useNuxtApp, defineI18nLocale} from '#imports'
 
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 export default defineI18nLocale(async(locale:string) => {
     console.log('?????customcustom?????', locale);
@@ -16,7 +16,7 @@ export default defineI18nLocale(async(locale:string) => {
             }
     }
     // for example, fetch locale messages from nuxt server
-    const {data} = await clientApi.api.getDmsFormPropertiesLanguageList({
+    const {data} = await newClientApi.getDmsFormPropertiesLanguageList({
         locale,
         languageKey:'admin'
     })

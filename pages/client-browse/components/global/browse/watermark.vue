@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { ElNotification } from 'element-plus'
 
 const routerProvider = inject(MenuRouterKey)
@@ -19,19 +19,19 @@ const errorOpen = ref(false)
 const templateList = ref<any[]>([])
 
 async function getTemplateList() {
-  const data = await clientApi.api.getDocpalWatermarkTemplatesAll().then(r => r.data)
+  const data = await newClientApi.getDocpalWatermarkTemplatesAll().then(r => r.data)
   templateList.value = data.sort((a, b) => a.name.localeCompare(b.name))
 }
 
 async function getWatermarkDetail() {
   // get document detail from route
-  doc.value = await clientApi.api.postDmsDocumentFetch({ idOrPath: docId }).then((res) => res.data)
+  doc.value = await newClientApi.postDmsDocumentFetch({ idOrPath: docId }).then((res) => res.data)
   const mimeType = getMimeTypeFromDocument(doc.value)
   if (!mimeType || (!mimeType.includes('image') && !mimeType.includes('pdf') && !mimeType.includes('video'))) {
     errorOpen.value = true
   }
   // get breadcrumb
-  const list = (await clientApi.api.postDmsDocumentBreadcrumb({ idOrPath: doc.value.parentRef }).then((res) => res.data)) || []
+  const list = (await newClientApi.postDmsDocumentBreadcrumb({ idOrPath: doc.value.parentRef }).then((res) => res.data)) || []
   if (list.length === 0) return
   breadcrumb.value = list.map((item: any) => item.id)
 }
@@ -102,7 +102,7 @@ async function preview() {
   temTemplate.value = await createWatermarkTemplate(update)
   console.log(temTemplate.value)
 
-  previewFile.blob = await clientApi.api.getDocpalWatermarkDocumentPreview(
+  previewFile.blob = await newClientApi.getDocpalWatermarkDocumentPreview(
     {
       watermarkTemplateId: temTemplate.value.id,
       documentId: doc.value.id
@@ -117,7 +117,7 @@ async function preview() {
 }
 
 async function saveNewVersion() {
-  const response = await clientApi.api.postDmsDocumentWatermark({
+  const response = await newClientApi.postDmsDocumentWatermark({
     idOrPath: doc.value.id,
     watermarkTemplateId: temTemplate.value.id
   }).then(r => r.data)
@@ -160,7 +160,7 @@ async function confimSaveNewFile() {
     const properties = await metaFormRef.value.getData()
     const { path } = await pathFormRef.value.getData()
     const idOrPath = path.pop()
-    const isDuplicate: boolean = await clientApi.api.postDmsDocumentNameValidate({
+    const isDuplicate: boolean = await newClientApi.postDmsDocumentNameValidate({
       parentPath: idOrPath,
       name: newFileForm.name
     }).then((res) => res.data.hasDuplicateTitle)
@@ -178,7 +178,7 @@ async function confimSaveNewFile() {
       originDocumentId: doc.value.id
     }
 
-    const newFile = await clientApi.api.postDmsDocumentCopyWatermark(params).then(r => r.data)
+    const newFile = await newClientApi.postDmsDocumentCopyWatermark(params).then(r => r.data)
     const newItem = createDetailPageParams({
       idOrPath: newFile.id,
       docName: newFile.name,

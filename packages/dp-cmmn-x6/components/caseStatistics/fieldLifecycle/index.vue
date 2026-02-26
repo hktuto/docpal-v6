@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import formJson from '../setting.vform.json'
 import setupJson from './setting.setup.vform.json'
 import { mergeSetting } from '../settingMergeHelper'
@@ -264,8 +264,7 @@ async function getData(chartSetting: any) {
   if (Object.keys(rpcParams._filters).length === 0) {
     delete rpcParams._filters
   }
-  const response = await clientApi.api.postPostgrestRpcFunc('case_status_lifecycle_stats', rpcParams)
-  return response.data
+  return await newClientApi.postPostgrestRpcFunc('case_status_lifecycle_stats', rpcParams).then(r => r.data)
 }
 function formatData(data: any, _option: any) {
   _option.xAxis[0].data = data.map((item) => item.day_range.replace('天', ''))

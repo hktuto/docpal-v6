@@ -23,10 +23,7 @@
   </DashboardCard>
 </template>
 <script lang="ts" setup>
-import { useEventBus, EventType } from 'eventbus'
-
-import { set, watchDebounced } from '@vueuse/core'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const platform = useAppPlatform()
 
@@ -118,10 +115,10 @@ async function getCaseData() {
         prev[item.name] = item.defaultValue
         return prev
       }, {})
-    state.caseRecord = await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(instanceIdId).then(r => r.data)
+    state.caseRecord = await newClientApi.getCaseDashboardInstanceCaseidPrimaryformData(instanceIdId).then(r => r.data)
     const caseId = state.caseRecord.rows.find((item: any) => item.id === props.setting.relatedCaseField)?.value
     if (!caseId) throw new Error('Case not found')
-    const caseData = await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(caseId).then(r => r.data)
+    const caseData = await newClientApi.getCaseDashboardInstanceCaseidPrimaryformData(caseId).then(r => r.data)
     return caseData.rows.reduce((prev: any, item: any) => {
       prev[item.id] = item.value
       return prev

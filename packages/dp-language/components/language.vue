@@ -27,7 +27,7 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
 import * as XLSX from 'xlsx'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const opened = ref(false)
 const state = reactive<any>({
@@ -139,7 +139,7 @@ async function handleUpload(json: any) {
       ...state.languageStores[key],
       languageContent: JSON.stringify(json[item.code])
     }
-    pList.push(clientApi.api.postDmsFormPropertiesLanguage(params))
+    pList.push(newClientApi.postDmsFormPropertiesLanguage(params))
   })
   const res = await Promise.all(pList)
   await GetLanguages()
@@ -207,7 +207,7 @@ async function GetLanguages() {
 
   async function getLanguage(code: any) {
     const key = getStoreKey(code)
-    const { data } = await clientApi.api.getDmsFormPropertiesLanguageList({
+    const { data } = await newClientApi.getDmsFormPropertiesLanguageList({
       locale: code,
       languageKey: state.selectedSection
     }) as any
@@ -226,7 +226,7 @@ function getStoreKey(code: any) {
 
 // #endregion
 onMounted(async () => {
-  const data = await clientApi.api.getDmsSettingSystemLanguage().then(r =>r.data) as any
+  const data = await newClientApi.getDmsSettingSystemLanguage().then(r =>r.data) as any
   state.locales = JSON.parse(data).locale
   await GetLanguages()
 })

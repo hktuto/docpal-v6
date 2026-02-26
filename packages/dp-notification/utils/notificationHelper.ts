@@ -1,4 +1,4 @@
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { caseManageDashboardPage, routeCalendarManagement } from '#imports'
 import { needDocHelper, openDocHelper } from './notificationDocHelper'
 export function notiShowView(row: any) {
@@ -34,7 +34,7 @@ export async function notiHandleView(row: any, tabProvider: any) {
     openDocHelper(row, tabProvider)
   } else if (row.content.caseInstanceId) {
     // TODO: get case instance
-    const caseInstance = await clientApi.api.getCaseInstanceCaseidCaseid(row.content.caseInstanceId).then((res) => res.data)
+    const caseInstance = await newClientApi.getCaseInstanceCaseidCaseid(row.content.caseInstanceId).then((res) => res.data)
     const newItem = caseManageDashboardPage({
       instanceId: row.content.caseInstanceId,
       versionId: caseInstance?.cmmnVersionId
@@ -63,7 +63,7 @@ export async function notiHandleView(row: any, tabProvider: any) {
         break
       case 'caseDashboard':
         try {
-          const caseInstance = await clientApi.api.getCaseInstanceCaseidCaseid(event.additionalContent).then((res) => res.data)
+          const caseInstance = await newClientApi.getCaseInstanceCaseidCaseid(event.additionalContent).then((res) => res.data)
           const data = {
             instanceId: event.additionalContent,
             versionId: caseInstance.cmmnVersionId
@@ -82,7 +82,7 @@ export async function notiHandleView(row: any, tabProvider: any) {
 
 export const getWorkflowRoute = async (processInstanceId: string) => {
   try {
-    const taskList: any = await clientApi.api.getWorkflowTasks({ processInstanceId }).then((res) => res.data)
+    const taskList: any = await newClientApi.getDocpalWorkflowTasks({ processInstanceId }).then((res) => res.data)
     let newTab = {}
     if (taskList && taskList.length > 0) {
       newTab = routeWorkflowDetail({

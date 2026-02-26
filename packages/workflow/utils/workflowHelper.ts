@@ -1,4 +1,4 @@
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { bpmnStringToJson } from '#imports'
 
 const generateDocumentComponent = 'LazyBpmnButtonGenerateDocument'
@@ -105,8 +105,8 @@ export async function getBpmnAdditionalElement(xml: any, taskDefinitionKey: stri
     const workflowKeyToStoreSignature = workflowToTemplateMapping[signatureSettingFromTask.attr_signature] || ''
 
     // step 6, get template detail and setting json
-    const { data: detail } = await clientApi.api.getNuxeoTemplateTemplateid(templateId)
-    let json = await clientApi.api.postDmsDocumentPreview({ idOrPath: detail.documentId }, {
+    const { data: detail } = await newClientApi.getDmsTemplateDocumentId(templateId)
+    let json = await newClientApi.postDmsDocumentPreview({ idOrPath: detail.documentId }, {
       format: 'blob'
     }).then(async (res) => {
       const t = await res.text()

@@ -7,7 +7,7 @@
 <script lang="ts" setup>
 import { Loading } from '@element-plus/icons-vue'
 import { ElNotification, ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const props = defineProps<{
   selectedList: any
@@ -34,7 +34,7 @@ async function deleteSelected() {
   })
   try {
     const params = props.selectedList.map((item: any) => ({ idOrPath: item.id }))
-    await clientApi.api.deleteDmsDocumentTrashBatch(params).then(r => r.data)
+    await newClientApi.deleteDmsDocumentTrashBatch(params).then(r => r.data)
     emits('success')
     ElNotification({
       title: 'Success',
@@ -59,7 +59,7 @@ async function checkAllShareInternal() {
   return msg ? `<span class="color__danger">${msg} ${t('msg_isShareInternalFile')}, </span>` : ''
 
   async function checkShareInternal(row: any) {
-    const isShareInternal = await clientApi.api.postDmsInternalshareCheckDocumentIsInShare({
+    const isShareInternal = await newClientApi.postDmsInternalshareCheckDocumentIsInShare({
       documentId: row.id
     })
     if (msg) msg += ','

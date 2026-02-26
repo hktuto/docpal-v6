@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { useMouse } from '@vueuse/core'
 import { EventType, useEventBus} from 'eventbus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { ElDialog } from 'element-plus'
 const openBus = useEventBus(EventType.FILE_PREVIEW_OPEN)
 const closeBus = useEventBus(EventType.FILE_PREVIEW_CLOSE)
@@ -18,7 +17,7 @@ const previewSize = ref(500);
 async function getDocPreview(idOrPath:string) {
     loading.value = true
     try{
-        const blob = await clientApi.api.postDmsDocumentThumbnail({idOrPath},{
+        const blob = await newClientApi.postDmsDocumentThumbnail({idOrPath},{
             format:'blob',
             timeout: 0,
             headers:{

@@ -25,8 +25,7 @@
 <script lang="ts" setup>
 import { useEventBus, EventType } from 'eventbus'
 
-import { set, watchDebounced } from '@vueuse/core'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import dayjs from 'dayjs'
 const platform = useAppPlatform()
 
@@ -135,11 +134,11 @@ async function getCDBasciInfo() {
     if (id) {
       // in client platform
       state.mode = 'normal'
-      state.data = await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(id).then(r => r.data)
+      state.data = await newClientApi.getCaseDashboardInstanceCaseidPrimaryformData(id).then(r => r.data)
     } else if (versionId) {
       // in admin platform
       state.mode = 'develop'
-      const  form : any = await clientApi.api.getCaseDashboardVersionVersionidPrimaryform(versionId).then(r => r.data)
+      const  form : any = await newClientApi.getCaseDashboardVersionVersionidPrimaryform(versionId).then(r => r.data)
       form.rows = form.fields.reduce((prev: any, item: any) => {
         let value = item.type
         if (item.type === 'date') value = '2024-01-01'

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import draggable from 'vuedraggable'
 import { ElMessage } from 'element-plus'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 
 const { t } = useI18n()
 const emits = defineEmits(['refresh'])
@@ -75,7 +75,7 @@ async function handleOpen(setting: any) {
 const masterTableList = ref([])
 
 async function getMasterTableList() {
-  const { data } = await adminApi.api.postMasterTablesPage({ pageSize: 100 })
+  const { data } = await newAdminApi.postDmsMasterTablePage({ pageSize: 100 })
   masterTableList.value = data.entryList.map((item) => ({
     id: item.id,
     name: item.name

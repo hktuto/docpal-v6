@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { CaseManagementDashboardKey } from '../../utils/caseProvider'
 import { inject, provide, ref } from 'vue';
 const props = withDefaults(
@@ -31,9 +31,9 @@ async function getCDBasciInfo() {
     const id = caseProvider.instanceId?.value || null
     const versionId = caseProvider.versionId?.value || null
     if (id) {
-      caseData = await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(id).then(r =>r.data)
+      caseData = await newClientApi.getCaseDashboardInstanceCaseidPrimaryformData(id).then(r =>r.data)
     } else if (versionId) {
-      caseData = await clientApi.api.getCaseDashboardVersionVersionidPrimaryform(versionId).then(r =>r.data)
+      caseData = await newClientApi.getCaseDashboardVersionVersionidPrimaryform(versionId).then(r =>r.data)
     } else {
       caseData = {
         fields: [],
@@ -82,7 +82,7 @@ onMounted(() => {
 })
 provide(BrowseListProviderKey, {
   getchildApi: (pageParams: any) => {
-    return clientApi.api.postDmsDocumentChildrenThumbnail(pageParams)
+    return newClientApi.postDmsDocumentChildrenThumbnail(pageParams)
   },
   idOrPath,
   changeRoute
