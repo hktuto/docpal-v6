@@ -29,7 +29,7 @@ const _targetOptions = computed(() => {
   return props.targetOptions.map((item: any) => {
     return {
       ...item,
-      options: item.options.map((option: any) => {
+      options: item.selectConfig.options.map((option: any) => {
         return {
           ...option,
           value: '&&' + item.value + '&&' + option.value

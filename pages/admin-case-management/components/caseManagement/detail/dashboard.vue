@@ -26,6 +26,9 @@ import { ElMessageBox } from 'element-plus'
 import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
+if (!routerProvider) {
+  throw new Error('MenuRouterKey is not provided')
+}
 const ResponsiveFilterRef = ref()
 const props = defineProps<{
   caseDetail: any
