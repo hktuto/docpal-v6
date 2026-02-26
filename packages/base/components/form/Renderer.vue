@@ -23,6 +23,10 @@
 import type { FormJson, FormData, WidgetItem, FormRenderer } from '@/types/vform'
 import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
+
+/** 延迟加载 v-form-render，避免打包后 TDZ 报错 */
+await useNuxtApp().$vFormReady();
+
 const emits = defineEmits(['submit', 'clean', 'fail', 'formChange', 'emit'])
 const { t } = useI18n()
 const props = withDefaults(

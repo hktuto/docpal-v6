@@ -14,6 +14,9 @@ import type { FormJson, FieldListApiType, FormConfig, FormDesigner } from '@/typ
 import { useMetadata } from '@/components/meta/metadata'
 import { ElMessage } from 'element-plus'
 
+/** 延迟加载 v-form-designer，避免打包后 TDZ 报错 */
+await useNuxtApp().$vFormReady();
+
 const { initMetadataVformOptions, getVFormVariableListByMetadata, vFormWidgetListDecorator, turnWorkflowRuleToBackendMetadata } = useMetadata()
 const props = defineProps<{
   fieldListApi?: FieldListApiType
