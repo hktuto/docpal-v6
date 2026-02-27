@@ -1,7 +1,11 @@
 <script lang="ts" setup>
 import { ArrowDown } from '@element-plus/icons-vue'
 import { newAdminApi } from 'api'
-import { getPermissionSelectOption } from '#imports'
+import {
+  getGroupsSelectOption,
+  getRoleSelectOption,
+  getUserSelectOption
+} from '#imports'
 
 const props = defineProps<{
   document: any
@@ -247,7 +251,35 @@ async function handleInherent() {
 
 async function getTargetOptions() {
   if (!targetOptions.value) return
-  targetOptions.value = await getPermissionSelectOption()
+  // TODO：後續需要統一logicalSelector 内的權限提交方法
+  // targetOptions.value = await getPermissionSelectOption()
+
+  targetOptions.value.push(
+    {
+      label: 'user_role',
+      value: 2, // 1=User, 3=Group, 2=Role
+      type: 'select',
+      selectConfig: {
+        options: await getRoleSelectOption()
+      }
+    },
+    {
+      label: 'user_groups',
+      value: 3,
+      type: 'select',
+      selectConfig: {
+        options: await getGroupsSelectOption()
+      }
+    },
+    {
+      label: 'user_users',
+      value: 1,
+      type: 'select',
+      selectConfig: {
+        options: await getUserSelectOption()
+      }
+    }
+  )
 }
 
 async function updateTargetOptions() {
