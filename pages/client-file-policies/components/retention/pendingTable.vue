@@ -2,24 +2,22 @@
   <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
     <template #toolbar_buttons>
       <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="documentName" />
-      <!-- <el-button id="RetentionList__RetentionPendingList__Refresh" text :loading="refreshLoading"
-                 @click="handleRefresh">
-        {{ $t('common_refresh') }}
-      </el-button> -->
     </template>
     <template #commonActions="{ row }">
       <template v-if="row.status === 'P'">
         <template v-if="row.applyApprovedBy === userId">
-          <el-button id="RetentionList__RetentionPendingList__Approve" class="approval-btn el-icon--left" size="small" type="primary" @click.stop="handleApprove(true, row)">
+          <el-button id="RetentionList__RetentionPendingList__Approve" class="approval-btn el-icon--left" size="small"
+                     type="primary" @click.stop="handleApprove(true, row)">
             {{ $t('workflow_startAdhocWorkflow_approve') }}
           </el-button>
-          <el-button id="RetentionList__RetentionPendingList__Reject" class="approval-btn " size="small" type="danger" @click.stop="handleApprove(false, row)">
+          <el-button id="RetentionList__RetentionPendingList__Reject" class="approval-btn " size="small" type="danger"
+                     @click.stop="handleApprove(false, row)">
             {{ $t('workflow_startAdhocWorkflow_reject') }}
           </el-button>
         </template>
         <template v-else>
           <el-button id="RetentionList__RetentionPendingList__PendingApproval" text :disabled="true">
-            {{ $t('workflow_statuspendingApproval') }} 
+            {{ $t('workflow_statuspendingApproval') }}
           </el-button>
         </template>
       </template>
@@ -34,7 +32,8 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item v-for="item in events[row.policyRetentionId]" :key="item.id" @click.stop="handleEvent(item, row)">
+              <el-dropdown-item v-for="item in events[row.policyRetentionId]" :key="item.id"
+                                @click.stop="handleEvent(item, row)">
                 {{ item.eventLabel }}
               </el-dropdown-item>
             </el-dropdown-menu>
@@ -46,7 +45,7 @@
 </template>
 <script lang="ts" setup>
 import { MoreFilled } from '@element-plus/icons-vue'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { MenuRouterKey } from '#imports'
 import { ElMessageBox } from 'element-plus'
 
@@ -65,7 +64,7 @@ const userId: string = useUserId().value
 const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
   id: 'clientRetentionPendingList',
   api: async (pageParams: any) => {
-    return clientApi.api.postPolicyRetentionsDocumentPage({
+    return newClientApi.postDmsPolicyRetentionDocumentListQuery({
       ...initParams,
       ...pageParams,
       ...extraParams
@@ -111,12 +110,10 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
     }
   }
 })
-const refreshLoading = ref(false)
-// #region module: ResponsiveFilterRef
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
-  const data: any = await clientApi.api.getPolicyRetentionsDocumentPageConditions().then((res) => res.data)
+  const data: any = await newClientApi.getDmsPolicyRetentionDocumentListConditions().then((res) => res.data)
   const foundItem = data.find((item: any) => item.key === 'retentionPolicyIds')
   if (foundItem.options.length > 0) {
     foundItem.options.sort((a: any, b: any) => a.label.localeCompare(b.label))
@@ -156,22 +153,13 @@ function handleFilterFormChange(formModel: any) {
   reload()
 }
 
-// #endregion
-
-async function handleRefresh() {
-  refreshLoading.value = true
-  await clientApi.api.getPolicyRetentionsScanDocument()
-  refreshLoading.value = false
-  reload()
-}
-
-async function handleApprove(state: any, row: any) {
+async function handleApprove(state: boolean, row: any) {
   try {
     let msg = t('msg_confirmWhetherToExecuteCommand')
     const command = state ? t('workflow_startAdhocWorkflow_approve') : t('workflow_startAdhocWorkflow_reject')
     const action = await ElMessageBox.confirm(`${msg}: ${command}`)
     if (action !== 'confirm') return
-    await clientApi.api.patchPolicyRetentionsIdStatusStatus(row.id, state)
+    await newClientApi.patchDmsPolicyRetentionDocumentRetentiondocumentidStatusStatus(row.id, state)
     reload()
   } catch (error) {
     console.log(error)
@@ -190,24 +178,27 @@ function handleDblclick(row: any) {
 }
 
 async function getEvents() {
-  events.value = await clientApi.api.getPolicyRetentionsEvents().then((res) => res.data)
+  events.value = await newClientApi.getDmsPolicyRetentionEventList().then((res) => res.data)
 }
+
 async function handleEvent(event: any, row: any) {
   try {
     let msg = t('msg_confirmWhetherToExecuteCommand')
     const action = await ElMessageBox.confirm(`${msg}: ${event.eventLabel}`)
     if (action !== 'confirm') return
-    await clientApi.api.postPolicyRetentionsSubmitevent({ eventId: event.id, documentId: row.documentId })
+    await newClientApi.postDmsPolicyRetentionDocumentEvent({
+      eventId: event.id,
+      documentId: row.documentId
+    }).then(r => r.data)
     reload()
   } catch (error) {
     console.log(error)
   }
 }
+
 onMounted(() => {
   getFilter()
   getEvents()
-  // clientApi.api.getPolicyRetentionsPolicyidScanDocument(414105); // 手动扫描
-  // clientApi.api.getPolicyRetentionsPolicyidScanExpired(414105); // 手动完成
 })
 </script>
 

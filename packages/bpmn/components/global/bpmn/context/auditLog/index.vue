@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Node } from '@antv/x6'
 import { ElMessage } from 'element-plus'
-import { adminApi } from 'api'
+import { newClientApi } from 'api'
 
 const { t } = useI18n()
 const { node } = defineProps<{
@@ -17,7 +17,7 @@ const caseList = ref([])
 
 async function getCaseLise() {
   try {
-    const data: any = await adminApi.api.getCaseTypes({ deployed: true }).then((r: any) => r.data)
+    const data: any = await newClientApi.getCaseTypes({ deployed: true }).then((r: any) => r.data)
     caseList.value = data.map((item: any) => {
       return {
         id: item.id,
@@ -40,8 +40,8 @@ function handelFieldOrValue(status: string) {
 }
 
 async function getMasterTableList() {
-  const { data } = await adminApi.api.postMasterTablesPage({ pageSize: 100 })
-  masterTableList.value = data.entryList.map((item) => ({
+  const data = await clientApi.api.postDmsMasterTablePage({ pageSize: 1000 }).then(r => r.data)
+  masterTableList.value = data.entryList.map((item: any) => ({
     id: item.id,
     name: item.name
   }))

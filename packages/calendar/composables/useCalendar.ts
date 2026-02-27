@@ -1,4 +1,4 @@
-import { adminApi, clientApi } from 'api'
+import { newAdminApi, newClientApi } from 'api'
 import { onMounted } from 'vue'
 import { viewName } from '../utils/calendarHelper'
 
@@ -75,20 +75,14 @@ export const useCalendarStore = () => {
   })
 
   async function getCalendarMasterTable() {
-    const appPlatform = useAppPlatform()
-    const api = appPlatform.value === 'admin' ? adminApi : clientApi
-    console.log('api', api.instance.defaults.baseURL)
-    const { data } = await api.api.getCalendarsSettingTables() as any
-    return data
+    return await newClientApi.getDmsCalendarsSettingTables().then(r => r.data)
   }
 
   const categoriesOption = useCalenarCategories()
   const calendarViewerCategories = useCalendarViewerCategories()
 
   async function getCategories() {
-    const appPlatform = useAppPlatform()
-    const api = appPlatform.value === 'admin' ? adminApi : clientApi
-    const data = await api.api.postMasterTablesRecords({
+    const data = await newClientApi.postDmsMasterTableRecords({
       id: setting.value.category.master_table
     }).then(res => res.data) as any
 
@@ -98,9 +92,7 @@ export const useCalendarStore = () => {
   const locationsOption = useCalenarLocation()
 
   async function getLocations() {
-    const appPlatform = useAppPlatform()
-    const api = appPlatform.value === 'admin' ? adminApi : clientApi
-    const data = await api.api.postMasterTablesRecords({
+    const data = await newClientApi.postDmsMasterTableRecords({
       id: setting.value.location.master_table
     }).then(res => res.data) as any
     locationsOption.value = (data || []).filter(i => i.status).sort((a, b) => a.name.localeCompare(b.name))
@@ -108,9 +100,7 @@ export const useCalendarStore = () => {
 
   async function getCalendarsSetting() {
     const masterTable = await getCalendarMasterTable()
-    const appPlatform = useAppPlatform()
-    const api = appPlatform.value === 'admin' ? adminApi : clientApi
-    const { data } = await api.api.getCalendarsSetting() as any
+    const data = await newClientApi.getDmsCalendarsSetting().then(r => r.data)
     const { public: { platform } } = useRuntimeConfig()
 
     setting.value = {
@@ -142,7 +132,7 @@ export const useCalendarStore = () => {
   }
 
   async function getFormJson(processKey: string, versionId: string) {
-    const response: any = await clientApi.api.getRelationQuery({
+    const response: any = await newClientApi.getDmsFormPropertiesQuery({
       userTaskId: 'start',
       processKey,
       versionId
@@ -187,10 +177,7 @@ export const useCalendarStore = () => {
       data.location = categories.location.value.map((item: any) => item.id).join(',')
     }
 
-    // const appPlatform = useAppPlatform()
-    // const api = appPlatform.value === 'admin' ? adminApi : clientApi
-    // TODO 該接口只有admin端有，client不存在
-    const workflow: any = await adminApi.api.getWorkflowVersionKeyProcessdefinitionkey(data.processKey).then((r) => r.data)
+    const workflow: any = await newAdminApi.getDocpalWorkflowVersionKeyProcessdefinitionkey(data.processKey).then((r) => r.data)
     if (!workflow) {
       throw new Error('workflow is empty')
     }
@@ -225,7 +212,7 @@ export const useCalendarStore = () => {
     }
 
     try {
-      await clientApi.api.postWorkflowProcessStart(form, { async: false }).then((res) => res.data)
+      await newClientApi.postDocpalWorkflowProcessStart(form, { async: false }).then((res) => res.data)
     } catch (e) {
       console.error(e)
     }

@@ -157,7 +157,7 @@ defineExpose({
       <DataTypeUserRoleUserGroup v-else-if="formData.type === 'user_role_user_group'" :form="formData" />
       <!-- 根据type显示不同的表单项 -->
       <ElFormItem>
-        <ElButton type="primary" @click="confirmHandler"> Confirm </ElButton>
+        <ElButton id="Workflow__EditField__AddField__Confirm" type="primary" @click="confirmHandler">{{ $t('dpButtom_confirm')}}</ElButton>
       </ElFormItem>
     </ElForm>
   </ElDialog>

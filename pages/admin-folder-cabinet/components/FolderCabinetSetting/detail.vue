@@ -2,16 +2,14 @@
   <div class="detail-container" v-loading="state.loading" :class="{ 'not-root': !isRoot }">
     <div style="overflow: auto; padding: 0 var(--app-space-xs)">
       <div class="flex-x-start">
-        <BrowseItemIcon class="file-icon el-icon--left" :type="state.setting.folder ? 'folder' : 'file'"
-                        :fileName="state.setting.label" />
+        <BrowseItemIcon class="file-icon el-icon--left" :type="state.setting.folder ? 'folder' : 'file'" :fileName="state.setting.label" />
         {{ state.setting.label }}
       </div>
       <FormRenderer ref="FormRendererRef" :form-json="formJson" @formChange="formChange"></FormRenderer>
       <div style="padding: 0 var(--app-space-xs)">
         <el-divider v-if="isRoot" />
         <el-form label-position="top" ref="FormRef" :model="form">
-          <el-form-item prop="labelRule" class="intro"
-                        :rules="[{ required: true, message: $t('tableHeader_labelRule') + $t('render.hint.fieldRequired') }]">
+          <el-form-item prop="labelRule" class="intro" :rules="[{ required: true, message: $t('tableHeader_labelRule') + $t('render.hint.fieldRequired') }]">
             <template #label>
               {{ $t('tableHeader_labelRule') }}
               <!-- <span
@@ -54,7 +52,12 @@
         </template>
 
         <el-divider />
-        <FolderCabinetSettingPermission :id="state.setting.id" :isFolder="state.setting.folder ? 'folder' : 'file'" :tableData="state.acls" @refresh="emits('update')" />
+        <FolderCabinetSettingPermission
+          :id="state.setting.id"
+          :isFolder="state.setting.folder ? 'folder' : 'file'"
+          :tableData="state.acls"
+          @refresh="emits('update')"
+        />
       </div>
     </div>
     <div style="padding: var(--app-space-xs); text-align: right">
@@ -69,8 +72,8 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { newAdminApi } from 'api'
+import { ElMessageBox } from 'element-plus'
 import formJson from './detail.vform.json'
 import { routeFolderCabinetPage } from '~/utils/routerHelper'
 
@@ -105,7 +108,7 @@ const FormRef = ref()
 const MetaFormRef = ref()
 
 function formChange({ fieldName, newValue, oldValue, formModel }) {
-  console.log(fieldName, newValue, oldValue, formModel)
+  // console.log(fieldName, newValue, oldValue, formModel)
 
   if (fieldName === 'documentType') handleDocTypeChange(newValue)
 }
@@ -151,6 +154,7 @@ function getReminder(data: any, revertList: any) {
 }
 
 const showNotification = ref(props.isRoot)
+
 // #endregion
 function init(row: any) {
   if (!row) return
@@ -213,7 +217,7 @@ async function handleSave() {
 
     if (props.isRoot) {
       if (state.setting.label != data.label) {
-        const { data: checkName } = await adminApi.api.postCabinetTemplateDuplicateName({ label: data.label })
+        const { data: checkName } = await newAdminApi.postDmsCabinetTemplateDuplicateName({ label: data.label })
         if (checkName) {
           routerProvider?.message.error(t('common_nameExists'))
           return
@@ -268,7 +272,7 @@ async function handleSave() {
     if (metadataDefault) params.metadataValue = JSON.stringify(metadataDefault)
 
     state.loading = true
-    await adminApi.api.patchCabinetTemplate(params)
+    await newAdminApi.patchDmsCabinetTemplate(params)
     routerProvider?.message.success(t('tip_updateMsg', { modelName: t('folder_folderCabinetDetails'), name: null }))
     emits('update')
     WorkflowDialogRef.value.handleCheck()
@@ -317,7 +321,7 @@ async function handleDelete() {
       }
     )
     if (action !== 'confirm') return
-    await adminApi.api.deleteCabinetId(state.setting.id)
+    await newAdminApi.deleteDmsCabinetId(state.setting.id)
     if (props.isRoot) {
       routerProvider?.navigateTo(routeFolderCabinetPage(), false)
       routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: msg }))

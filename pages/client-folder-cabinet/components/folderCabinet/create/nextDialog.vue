@@ -20,7 +20,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const props = defineProps(['id'])
@@ -96,16 +96,15 @@ async function handleSubmit() {
         },
         directory
       )
-    return await clientApi.api
-      .postNuxeoDocumentCreatefolders({
-        templateId: props.id,
-        layoutId: directory.id,
-        name,
-        type: directory.documentType,
-        idOrPath: directory.path,
-        properties: directory.properties,
-        dfcId: state.rootDetail.dfcId
-      })
+    return await newClientApi.postDmsDocumentFolder({
+      templateId: props.id,
+      layoutId: directory.id,
+      name,
+      type: directory.documentType,
+      idOrPath: directory.path,
+      properties: directory.properties,
+      dfcId: state.rootDetail.dfcId
+    })
       .then((res) => res.data)
   }
 
@@ -135,7 +134,7 @@ async function handleSubmit() {
     const formData: any = new FormData()
     formData.append('files', file.raw)
     formData.append('document', JSON.stringify(document))
-    return await clientApi.api.postNuxeoDocumentCreatedocument(formData).then((res) => res.data)
+    return await newClientApi.postDmsDocument(formData).then((res) => res.data)
   }
 }
 
@@ -212,6 +211,5 @@ function getMetaName(formData: any = {}, row: any) {
 defineExpose({ handleOpen })
 </script>
 <style lang="scss" scoped>
-main {
-}
+
 </style>

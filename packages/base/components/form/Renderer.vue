@@ -21,8 +21,9 @@
 
 <script lang="ts" setup>
 import type { FormJson, FormData, WidgetItem, FormRenderer } from '@/types/vform'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
+
 const emits = defineEmits(['submit', 'clean', 'fail', 'formChange', 'emit'])
 const { t } = useI18n()
 const props = withDefaults(
@@ -142,7 +143,7 @@ async function handleFilePreview(file: any, fieldOptions: any) {
     let fileId = ''
     if (fieldOptions?.uploadName === 'file') {
       fileId = file.response?.data ? file.response.data.id : file.id
-      previewFile.blob = (await clientApi.api.postNuxeoDocumentDownloadNonpermission(
+      previewFile.blob = (await newClientApi.postDmsDocumentDownloadPublic(
         { idOrPath: fileId },
         {
           format: 'blob'
@@ -150,7 +151,7 @@ async function handleFilePreview(file: any, fieldOptions: any) {
       )) as any
     } else {
       fileId = file.response?.data && file.response.data.length > 0 ? file.response.data[0].contentId : file.id
-      previewFile.blob = await clientApi.api.getWorkflowTaskAttachmentInfo(
+      previewFile.blob = await newClientApi.getWorkflowTaskAttachmentInfo(
         { attachmentId: fileId },
         {
           format: 'blob'

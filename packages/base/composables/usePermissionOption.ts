@@ -1,69 +1,76 @@
-import { adminApi, clientApi } from 'api'
+import { newClientApi } from 'api'
 
-const userList = ref([])
-const roleList = ref([])
-const groupList = ref([])
-const appPlatform = useAppPlatform()
-export const usePermissionOption = () => useState('permission', () => ([]))
+interface PermissionOption {
+  id: string;
+  label: string;
+  value: number;
+  type: string;
+  options: any[];
+}
 
-export const getFromServer = async function(loadUserList: boolean, loadRoleList: boolean, loadGroupList: boolean) {
+interface BaseOption {
+  value: string,
+  label: string,
+  email?: string
+}
+
+export const usePermissionOption = () => useState<PermissionOption[]>('permission', () => ([]))
+export const useUserPermissionOption = () => useState<BaseOption[]>('userPermission', () => ([]))
+export const useRolePermissionOption = () => useState<BaseOption[]>('rolePermission', () => ([]))
+export const useGroupsPermissionOption = () => useState<BaseOption[]>('groupsPermission', () => ([]))
+
+export const getFromServer = async function(loadUserList: boolean = true, loadRoleList: boolean = true, loadGroupList: boolean = true) {
   const options = usePermissionOption()
   options.value = []
-  const api = appPlatform.value === 'admin' ? adminApi : clientApi
-
   try {
     if (loadUserList) {
-      const user = await api.api.postNuxeoIdentityUsers().then((res) => res.data)
-      userList.value = user || []
-      if (userList.value.length > 0) {
+      const user = await getUserSelectOption(false)
+      if (user.length > 0) {
         options.value.push(
           {
-            label: 'User',
+            id: 'user',
+            label: $t('user_users'),
             value: 1,
             type: 'select',
-            options: user.map((item: any) => item)
+            options: user
           }
         )
       }
     }
 
     if (loadRoleList) {
-      const role = await api.api.postAclRoleList([{
-        column: 'status',
-        type: 'EQ',
-        values: '1'
-      }]).then((res) => res.data)
-      roleList.value = role || []
-      if (roleList.value.length > 0) {
+      const role = await getRoleSelectOption(false)
+      if (role.length > 0) {
         options.value.push(
           {
-            label: 'Role',
+            id: 'role',
+            label: $t('user_role'),
             value: 2,
             type: 'select',
-            options: role.map((item: any) => item)
+            options: role
           }
         )
       }
     }
 
     if (loadGroupList) {
-      const group = await api.api.postNuxeoIdentityGroups().then((res) => res.data)
-      groupList.value = group || []
-      if (groupList.value.length > 0) {
+      const group = await getGroupsSelectOption(false)
+      if (group.length > 0) {
         options.value.push(
           {
-            label: 'Group',
+            id: 'group',
+            label: $t('user_groups'),
             value: 3,
             type: 'select',
-            options: group.map((item: any) => item)
+            options: group
           }
         )
       }
     }
-
   } catch (e) {
     console.log(e)
   }
+  console.log('options.value', options.value)
   return options.value
 }
 
@@ -72,6 +79,24 @@ export const getPermissionSelectOption = async () => {
   const options = usePermissionOption()
   if (options.value.length === 0) {
     await getFromServer(true, true, true)
+  }
+  return convertId(options.value)
+}
+
+// User, Role Select option
+export const getUserAndRolePermissionSelectOption = async () => {
+  const options = usePermissionOption()
+  if (options.value.length === 0) {
+    await getFromServer(true, true, false)
+  }
+  return convertId(options.value)
+}
+
+// User, Group Select option
+export const getUserAndGroupPermissionSelectOption = async () => {
+  const options = usePermissionOption()
+  if (options.value.length === 0) {
+    await getFromServer(true, false, true)
   }
   return convertId(options.value)
 }
@@ -89,53 +114,86 @@ function convertId(options: any) {
   return options.map((item: any) => ({
     ...item,
     options: item.options.map((option: any) => {
-      const name = option.name || option.userName || option.username || ''
-      let id = option.id
-      switch (item.label) {
-        case 'User':
-          id = 'user_' + option.userId
+      let id = option.value
+      switch (item.id) {
+        case 'user':
+          id = `user_${id}`
           break
-        case 'Role':
-          id = 'role_' + id
+        case 'role':
+          id = `role_${id}`
           break
-        case 'Group':
-          id = 'group_' + id
+        case 'group':
+          id = `group_${id}`
           break
       }
-      return { value: id, label: name }
+      return { value: id, label: option.label }
     })
   }))
 }
 
-// From the select array, convert permissions to objects. format: { "user": ["joshua"], "group": ['group_IT'], "role": ['role_cxv']}
-export const convertPermissionObjectByPermissions = (permissions: any) => {
-  if(!permissions) return {}
-  const item: {} = {}
+/**
+ * From the select array, convert permissions to objects.
+ * ['user_joshua', 'role_cxv', 'group_IT'] To format: { "user": ["joshua"], "group": ['IT'], "role": ['cxv']}
+ * @param permissions string array
+ */
+export const convertPermissionObjectByPermissions = (permissions: string[]) => {
+  if (!permissions) return {}
+  const item: Record<string, string[]> = {}
   permissions.forEach((key: string) => {
-    const match = key.match(/^(user|role|group)_(.+)$/)
-    if (match) {
-      const [_, type, value] = match
-      if (!item[type]) {
-        item[type] = []
-      }
-      item[type].push(value)
+    const segments = key.split('_')
+
+    if (segments.length < 1) {
+      return item
     }
+    if (!item[segments[0]]) {
+      item[segments[0]] = []
+    }
+    item[segments[0]].push(segments.slice(1).join('_'))
   })
   return item
 }
 
-// Convert permissions object to permission array.  format: [ "user_joshua","group_IT","role_cxv"  ]
+/**
+ * Convert permissions object to permission array.
+ * { "user": ["joshua"], "group": ['IT'], "role": ['cxv']} To format: [ "user_joshua", "group_IT", "role_cxv" ]
+ * @param permissions { 'user': ['joshua'], 'group': ['group_IT'], 'role': ['role_cxv']}
+ */
 export const convertPermissionsByPermissionObject = (permissions: {
-  user: string[],
-  role: string[],
-  group: string[]
+  user?: string[],
+  role?: string[],
+  group?: string[]
 }) => {
   return Object.entries(permissions).flatMap(([key, values]) =>
     values.map(value => `${key}_${value}`)
   )
 }
 
-// To Select Options. output Data
+/**
+ * Exclude the permission content that has been selected
+ * @param permission string Array
+ * @param permissionOptionList <PermissionOption[]>
+ */
+export const excludeItemSelectList = (permission: any, permissionOptionList: PermissionOption[]) => {
+  if (!permission.exitList) {
+    return permissionOptionList
+  }
+  const userIdsToRemove = new Set(permission.exitList.map((item: any) => item.userId))
+  return permissionOptionList.reduce((acc: any[], allItem: any) => {
+    const newOptions = allItem.options.filter((option: any) => {
+      return !userIdsToRemove.has(option.value.split('_').slice(1).join('_'))
+    })
+    if (newOptions.length > 0) {
+      acc.push({ ...allItem, options: newOptions })
+    }
+    return acc
+  }, [])
+}
+
+/**
+ * Convert permissions array Object to permission array.
+ * [{"dataType": "group", "value": "administrators", "name": "Administrators Group"}] To format: [ "group_administrators" ]
+ * @param permissions
+ */
 export const convertSelectOptions = (permissions: any) => {
   const permission: any = []
   permissions.forEach((item: any) => {
@@ -156,39 +214,71 @@ export const convertSelectOptions = (permissions: any) => {
 }
 
 // User Select Option
-export const getUserPermissionSelectOption = async () => {
-  const options = usePermissionOption()
-  if (options.value.length === 0) {
-    await getFromServer(true, false, false)
-  }
+export const getUserSelectOption = async (refresh?: boolean) => {
+  const options = useUserPermissionOption()
+  if (options.value.length === 0 || refresh) {
+    try {
+      const list: any = await newClientApi.postUcenterUsers().then((res) => res.data)
+      if (list.length === 0) return []
 
-  return userList.value.map((item: any) => {
-    const name = item.name || item.userName || item.username || ''
-    return { label: name, value: item.userId, email: item.email, userId: item.userId }
-  })
+      options.value = list.map((item: any) => ({
+        id: item.userId,
+        value: item.userId,
+        label: item.username || item.userName || item.name || '',
+        email: item.email
+      })).sort((a: any, b: any) => a.label.localeCompare(b.label))
+    } catch (e) {
+      console.log(e)
+      return []
+    }
+  }
+  return options.value
 }
 
 // Role Select Option
-export const getRolePermissionSelectOption = async () => {
-  const options = usePermissionOption()
-  if (options.value.length === 0) {
-    await getFromServer(false, true, false)
-  }
+export const getRoleSelectOption = async (refresh?: boolean) => {
+  const options = useRolePermissionOption()
+  if (options.value.length === 0 || refresh) {
+    try {
+      const list: any = await newClientApi.postDocpalAclRoleList([{
+        column: 'status',
+        type: 'EQ',
+        values: '1'
+      }]).then((res: any) => res.data)
+      if (list.length === 0) return []
 
-  return roleList.value.map((item: any) => {
-    return { label: item.name, value: item.id }
-  })
+      options.value = list.map((item: any) => ({
+        id: item.id,
+        value: item.id,
+        label: item.name
+      })).sort((a: any, b: any) => a.label.localeCompare(b.label))
+    } catch (e) {
+      console.log(e)
+      return []
+    }
+  }
+  return options.value
 }
 
 // Group Select Option
-export const getGroupPermissionSelectOption = async () => {
-  const options = usePermissionOption()
-  if (options.value.length === 0) {
-    await getFromServer(false, false, true)
+export const getGroupsSelectOption = async (refresh?: boolean) => {
+  const options = useGroupsPermissionOption()
+  if (options.value.length === 0 || refresh) {
+    try {
+      let list: any = await newClientApi.postUcenterGroups().then((res) => res.data)
+      if (list.length === 0) return []
+
+      options.value = list.map((item: any) => ({
+        id: item.id,
+        value: item.id,
+        label: item.name
+      })).sort((a: any, b: any) => a.label.localeCompare(b.label))
+    } catch (e) {
+      console.log(e)
+      return []
+    }
   }
-  return groupList.value.map((item: any) => {
-    return { label: item.name, value: item.id }
-  })
+  return options.value
 }
 
 export const getPermissionPairOption = async () => {
@@ -202,50 +292,5 @@ export const getPermissionPairOption = async () => {
       const name = option.name || option.userName || option.username || ''
       return { value: option.id, label: name }
     })
-  }))
-}
-
-export const getCachePermissionOptions = async () => {
-  const options = usePermissionOption()
-  if (options.value.length > 0) {
-    return options.value
-  } else {
-    await getFromServer(true, true, true)
-    return options.value
-  }
-}
-
-export const getUserSelectOption = async () => {
-  const list: any = await adminApi.api.postNuxeoIdentityUsers().then((res) => res.data)
-  if (list.length === 0) return []
-
-  return list.map((item: any) => ({
-    id: item.userId,
-    name: item.username,
-    email: item.email
-  }))
-}
-
-export const getRoleSelectOption = async () => {
-  const list: any = await adminApi.api.postAclRoleList([{
-    column: 'status',
-    type: 'EQ',
-    values: '1'
-  }]).then((res) => res.data)
-  if (list.length === 0) return []
-
-  return list.map((item) => ({
-    id: item.id,
-    name: item.name
-  }))
-}
-
-export const getGroupsSelectOption = async () => {
-  let list = await adminApi.api.postNuxeoIdentityGroups().then((res) => res.data)
-  if (list.length === 0) return []
-
-  return list.map((item) => ({
-    id: item.id,
-    name: item.name
   }))
 }

@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 const props = defineProps<{
@@ -80,9 +80,9 @@ const handleConfirm = async () => {
     loading.value = true
     // 处理确认逻辑
     if (isEditMode.value) {
-      await adminApi.api.putAclResourcePermissionsId(permissionId, data)
+      await newAdminApi.putDocpalAclResourcePermissionsId(permissionId, data)
     } else {
-      await adminApi.api.postAclResourcePermissions(data)
+      await newAdminApi.postDocpalAclResourcePermissions(data)
     }
     loading.value = false
     emits('success')

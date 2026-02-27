@@ -5,7 +5,7 @@
              @close="handleClose"
              class="scroll-dialog"
   >
-    <FormRenderer ref="FormRendererRef" :form-json="formJson"/>
+    <FormRenderer ref="FormRendererRef" :form-json="formJson" />
     <template #footer>
       <div class="footer-grid">
         <!-- Please use [[emailContent]] as content container. -->
@@ -22,11 +22,11 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import {adminApi} from 'api'
-import {ElMessage, ElMessageBox} from 'element-plus'
+import { globalApi } from 'api'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import formJson from './dialog.vform.json'
 
-const {t} = useI18n()
+const { t } = useI18n()
 const emits = defineEmits([
   'refresh'
 ])
@@ -46,11 +46,11 @@ async function handleSubmit() {
     let msg
     if (state.edit) {
       data.id = state.setting.id
-      await adminApi.api.putTemplateEmailLayout(data)
-      msg = t('tip_updateMsg', {modelName: null, name: data.name})
+      await globalApi.putDmsTemplateEmailLayout(data)
+      msg = t('tip_updateMsg', { modelName: null, name: data.name })
     } else {
-      await adminApi.api.postTemplateEmailLayout(data)
-      msg = t('tip_createdMsg', {modelName: null, name: data.name})
+      await globalApi.postDmsTemplateEmailLayout(data)
+      msg = t('tip_createdMsg', { modelName: null, name: data.name })
     }
     ElMessage.success(msg)
     emits('refresh')
@@ -88,7 +88,7 @@ async function handleInit() {
 
 onMounted(async () => {
 })
-defineExpose({handleOpen})
+defineExpose({ handleOpen })
 </script>
 <style lang="scss" scoped>
 .footer-grid {

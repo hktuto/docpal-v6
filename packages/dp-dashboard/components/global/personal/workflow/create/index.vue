@@ -27,7 +27,7 @@
   </DashboardCard>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const emits = defineEmits(['delete', 'refreshSetting'])
 
 const props = withDefaults(
@@ -58,7 +58,7 @@ function handleRefresh(chartSetting: any) {
   emits('refreshSetting', chartSetting)
 }
 async function getWorkflowId() {
-  state.workflowAList = await clientApi.api.postWorkflowProcessList({}).then((res) => res.data)
+  state.workflowAList = await newClientApi.postDsbWorkflowProcessList({}).then((res) => res.data)
   if (props.setting.workflowList && props.setting.workflowList.length > 0) {
     state.workflowList = props.setting.workflowList.reduce((prev: any, item: any) => {
       const workflowItem = state.workflowAList?.find((workflow: any) => workflow.key === item.key)

@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage, type FormInstance } from 'element-plus'
 import {
   METADATA_OPTIONS,
@@ -137,7 +137,7 @@ async function handleUpdate() {
           return
         }
       }
-      await adminApi.api.patchDocpaltypeSettingsMetadataV2Update(formData.value).then((res) => res.data)
+      await newAdminApi.patchDmsMetadata(formData.value).then((res) => res.data)
 
       ElMessage.success(t('tip_updateMsg', { modelName: null, name: formData.value.name }))
       close()

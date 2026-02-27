@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newClientApi, newAdminApi } from 'api'
 import type { Node } from '@antv/x6'
 import { QuestionFilled } from '@element-plus/icons-vue'
 import { JsonSchemaToJsonData } from 'docpal-document-editor/src/client'
@@ -70,10 +70,10 @@ const variableForm = ref<any>([])
 const defaultField = ['parentPath', 'storeValue', 'documentName', 'documentType', 'templateId']
 
 async function init() {
-  const documentTypeData: any = await adminApi.api.getTypesActive().then(res => res.data)
+  const documentTypeData: any = await newClientApi.getDmsDocpalTypeActive().then(res => res.data)
   documentTypeList.value = documentTypeData.filter((item: any) => !item.isFolder)
 
-  const documentData: any = await adminApi.api.getTemplateDocumentAll().then(r => r.data)
+  const documentData: any = await newAdminApi.getDmsTemplateDocument().then(r => r.data)
   allDocumentTemplates.value = documentData.map((item: any) => {
     return {
       id: item.id,
@@ -192,8 +192,7 @@ async function handleChangeTemplateId() {
 
 async function getTemplateVariableList() {
   variableForm.value = []
-
-  const data: any = await adminApi.api.getTemplateDocumentRefreshId(form.value.templateId).then(r => r.data)
+  const data: any = await newAdminApi.getDmsTemplateDocumentRefreshId(form.value.templateId).then(r => r.data)
   const fields: any[] = node.data.data.extensionElements['flowable:field']
 
   if (data.fileType === 'Word') {

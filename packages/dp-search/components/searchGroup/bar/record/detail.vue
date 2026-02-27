@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const props = defineProps(['query', 'aggregation'])
@@ -45,7 +45,7 @@ async function handleSave() {
     label: recordData.label,
     queryCondition: JSON.stringify(condition)
   }
-  await clientApi.api.postNuxeoSearchSaveNestedSearchLog(params)
+  await newClientApi.postDmsSearchSaveNestedSearchLog(params).then(r => r.data)
   setTimeout(() => {
     loading.value = false
     ElMessage.success(t('dpMsg_success'))

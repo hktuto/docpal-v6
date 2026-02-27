@@ -19,7 +19,7 @@
 </template>
 <script lang="ts" setup>
 import { MenuRouterKey } from '#imports'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const props = withDefaults(
   defineProps<{
@@ -40,8 +40,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   saveColumnOrder: false,
   virtualScroll: true,
   api: async (pageParams: any) => {
-    const { data } = await clientApi.api.getNotificationSubscriberSubscriberFolders(useUserId().value, pageParams)
-    return data
+    return await newClientApi.getNotificationSubscriberSubscriberFoldersList(useUserId().value, pageParams).then(r => r.data)
   },
   columns: [
     { field: 'name', title: 'tableHeader.folderName', fixed: 'left' },

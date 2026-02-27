@@ -21,9 +21,8 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
-import { Select, CloseBold } from '@element-plus/icons-vue'
+import { ElMessageBox } from 'element-plus'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -123,7 +122,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
 
 async function getList() {
   if (!isFilter.value) {
-    const data: any = await adminApi.api.postDocpaltypeSettingsDocpalTypeV2MetadataQuery({ docpalTypeName: props.documentType }).then((res) => res.data)
+    const data: any = await newAdminApi.postDmsDocpalTypeMetadata({ docpalTypeName: props.documentType }).then((res) => res.data)
     tableData = data.metadataList.map((item: any) => ({
       ...item,
       display: !!item.display
@@ -143,6 +142,7 @@ async function getList() {
   isFilter.value = false
   return filterData
 }
+
 function handleRefresh(addMore: boolean = false) {
   isFilter.value = false
   if (addMore) handleDialogShow()
@@ -156,10 +156,12 @@ async function handleDelete(row: any) {
       confirmButtonText: t('common_confirmDelete')
     })
     if (action !== 'confirm') return
-    const res = await adminApi.api.deleteDocpaltypeSettingsDocpalTypeV2DeleteMetadataDocpaltypeid(props.id, {
-      metadataId: row.id
-    })
-    routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('tip_SelectedMsg') + t('docType_displayMeta')}))
+    const res = await newAdminApi
+      .deleteDmsDocpalTypeDocpaltypeidMetadata(props.id, {
+        metadataId: row.id
+      })
+      .then((r) => r.data)
+    routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('tip_SelectedMsg') + t('docType_displayMeta') }))
     reload()
   } catch (error) {
     console.log(error)
@@ -180,7 +182,7 @@ function handleFilterFormChange(formModel: any) {
 
 async function handleMove(row: any, moveIndex: number, isReload: boolean = true) {
   try {
-    await adminApi.api.postDocpaltypeSettingsDocpalTypeV2MoveMetadata({
+    await newAdminApi.postDmsDocpalTypeMetadataSort({
       docpalTypeId: props.id,
       metadataId: row.id,
       moveIndex
@@ -197,7 +199,7 @@ async function handleMove(row: any, moveIndex: number, isReload: boolean = true)
 async function handleDisplayChange(row: any) {
   try {
     row.loading = true
-    const params = {
+    const data = {
       metadataId: row.id,
       display: row.display,
       metadataPermission: row.metadataPermission || {
@@ -206,7 +208,7 @@ async function handleDisplayChange(row: any) {
         readOnlyPermissions: []
       }
     }
-    await adminApi.api.postDocpaltypeSettingsDocpalTypeV2UpdateMetadataDocpaltypeid(props.id, params)
+    await newAdminApi.postDmsDocpalTypeDocpaltypeidMetadata(props.id, data)
   } catch (error) {
     row.display = !row.display
     console.error(error)

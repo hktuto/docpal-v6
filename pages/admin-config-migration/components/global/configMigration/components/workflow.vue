@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 
 const props = defineProps<{
   workflowList: any[]
@@ -69,14 +69,14 @@ async function handleCreateWorkflow(caseResult: any, masterTableResult: any, doc
     form.append('jsonValue', formJson)
     form.append('file', blob, 'workflow.bpmn.xml')
     form.append('isDraft', true)
-    const data = await adminApi.api.postWorkflowProcessDefinitionUpload({ requestDTO: {} }, form).then((res) => res.data)
-    console.log("data", item.styleJson.data)
+    const data = await newAdminApi.postDocpalWorkflowProcessDefinitionUpload({ requestDTO: {} }, form).then((res) => res.data)
+    console.log('data', item.styleJson.data)
     if (!data || !data?.latestVersionId) {
       return
     }
 
     const draftId = data?.draftId
-    
+
     // update field
     const params: any = {
       versionDraftId: data?.latestVersionId,
@@ -85,11 +85,11 @@ async function handleCreateWorkflow(caseResult: any, masterTableResult: any, doc
       draftId: draftId,
       validationRules: item.fields
     }
-    await adminApi.api.postValidationRules(params)
+    await newAdminApi.postDocpalValidationRules(params)
 
     // update e-form
     for (const formItem of item.form) {
-      await adminApi.api.postRelationSave({
+      await newAdminApi.postDmsFormPropertiesSave({
         userTaskId: formItem.formId,
         processKey: nameToId,
         versionId: data?.latestVersionId,

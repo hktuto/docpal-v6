@@ -58,7 +58,8 @@
             prop="dueDate"
             :rules="[{ required: true, message: $t('tableHeader_dueDate') + $t('render.hint.fieldRequired') }]"
           >
-            <el-date-picker v-model="form.dueDate" type="datetime" :default-time="defaultTime" :shortcuts="shortcuts" style="width: 100%" />
+            <el-date-picker v-model="form.dueDate" type="datetime" :default-time="defaultTime" :shortcuts="shortcuts"
+                            style="width: 100%" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -75,11 +76,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { CopyDocument } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
 import { Base64 } from 'js-base64'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
+
 const routerProvider = inject(MenuRouterKey)
 const { diffMinute } = useTime()
 const {
@@ -168,10 +170,12 @@ function isValidateEmail(emailList) {
     }
   })
   return isValidate
+
   function isInContactList(email: string) {
     return contactList.some((item: any) => item.value === email)
   }
 }
+
 async function handleSubmit() {
   const valid = await formRef.value.validate((valid, fields) => valid)
   if (!valid) return
@@ -183,7 +187,7 @@ async function handleSubmit() {
     shareId: state.shareId
   }
 
-  routerProvider?.message.success(t('tip_updateMsg', { modelName: t('externalSharing_sharingRequest'),name: null }))
+  routerProvider?.message.success(t('tip_updateMsg', { modelName: t('externalSharing_sharingRequest'), name: null }))
   emit('submit', param)
   dialogVisible.value = false
 }
@@ -203,19 +207,22 @@ function initFormatItem(shareInfo: any) {
 function handleCopy(copyContent: string) {
   copy(copyContent, t('common_copySuccess'))
 }
+
 async function getContactList() {
-  const contactList = await clientApi.api.getContactgroupList().then((res) => res.data)
-  state.contactList = contactList
+  state.contactList = await newClientApi.getDmsContactGroupList().then((res) => res.data)
 }
+
 const selectRef = ref()
+
 function handleSelectChange() {
   selectRef.value.blur()
   setTimeout(() => {
     selectRef.value.focus()
   })
 }
+
 onMounted(async () => {
-  getContactList()
+  await getContactList()
 })
 const { defaultTime, shortcuts, shareLink, userList } = toRefs(state)
 defineExpose({ handleOpen })

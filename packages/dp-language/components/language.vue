@@ -27,12 +27,9 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
 import * as XLSX from 'xlsx'
-
-type TranslationSection = 'client' | 'admin' | 'meta'
-import { adminApi } from 'api'
+import { newClientApi } from 'api'
 
 const opened = ref(false)
-
 const state = reactive<any>({
   loading: false,
   getLoading: false,
@@ -59,11 +56,11 @@ function mergeData() {
 // #region module: downLoadXlsx
 async function downLoadXlsx() {
   let res = {}
-  state.locales.forEach(async (item) => {
+  for (const item of state.locales) {
     const key = getStoreKey(item.code)
     const l = state.languageStores[key].languageContent
     res = flattenJSON(l, item.code, res)
-  })
+  }
 
   const arr = jsonToArray(res)
   jsonToXlsx(arr, state.selectedSection)
@@ -142,10 +139,10 @@ async function handleUpload(json: any) {
       ...state.languageStores[key],
       languageContent: JSON.stringify(json[item.code])
     }
-    pList.push(adminApi.api.postRelationUpdatelanguage(params))
+    pList.push(newClientApi.postDmsFormPropertiesLanguage(params))
   })
   const res = await Promise.all(pList)
-  GetLanguages()
+  await GetLanguages()
   const result = res.reduce((falseList, item, index) => {
     if (!item) falseList.push(index)
     return falseList
@@ -197,14 +194,12 @@ function restoreChainJson(json) {
   return result
 }
 
-// #endregion
-// #region module: getLocales
 async function GetLanguages() {
   const pList: any = []
   state.getLoading = true
-  state.locales.forEach(async (item: any) => {
+  for (const item of state.locales) {
     pList.push(getLanguage(item.code))
-  })
+  }
   await Promise.all(pList)
   setTimeout(() => {
     state.getLoading = false
@@ -212,7 +207,7 @@ async function GetLanguages() {
 
   async function getLanguage(code: any) {
     const key = getStoreKey(code)
-    const { data } = await adminApi.api.getRelationQuerylanguage({
+    const { data } = await newClientApi.getDmsFormPropertiesLanguageList({
       locale: code,
       languageKey: state.selectedSection
     }) as any
@@ -231,10 +226,9 @@ function getStoreKey(code: any) {
 
 // #endregion
 onMounted(async () => {
-  const { data } = await adminApi.api.getNuxeoAdminSettingLanguage() as any
-
+  const data = await newClientApi.getDmsSettingSystemLanguage().then(r =>r.data) as any
   state.locales = JSON.parse(data).locale
-  GetLanguages()
+  await GetLanguages()
 })
 </script>
 

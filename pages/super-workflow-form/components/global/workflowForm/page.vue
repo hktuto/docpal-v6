@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { deepCopy } from "#imports"
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 const state = reactive<any>({
   loading: false,
   list: [],
@@ -9,7 +9,7 @@ const state = reactive<any>({
 async function getList () {
   try {
     state.loading = true
-    const res = await adminApi.api.getWorkflowProcessGetprocessdefinitionlist().then(res => res.data)
+    const res = await newAdminApi.getDocpalWorkflowProcessGetprocessdefinitionlist().then(res => res.data)
     res.forEach(item => {
       item.userTasks.push({ id:'complete', name: 'complete' })
     })

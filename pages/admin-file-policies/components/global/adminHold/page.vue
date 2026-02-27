@@ -21,14 +21,15 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
+import { ElMessageBox } from 'element-plus'
+import { newAdminApi } from 'api'
+
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-hold',
-  api: (pageParams: any) => adminApi.api.postPolicyHoldsPage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newAdminApi.postDmsPolicyHoldListQuery({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'policyName', title: 'holdPolicy_name', fixed: 'left' },
     { field: 'createdBy', title: 'holdPolicy_creator' },
@@ -124,12 +125,14 @@ function handleDblclick(row) {
 
 async function handleActive(row: any, isActive: 'A' | 'D') {
   try {
-    const result = await adminApi.api.patchPolicyHoldsIdStatusStatus(row.id, isActive).then((res) => res.data)
+    const result = await newAdminApi.patchDmsPolicyHoldHoldpolicyidStatusStatus(row.id, isActive).then((res) => res.data)
     if (!!result) {
       row.status = isActive
       routerProvider?.message.success(t('dpMsg_success'))
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 async function deleteItem(id: string) {
@@ -144,7 +147,7 @@ async function deleteItem(id: string) {
       return
     })
     if (action !== 'confirm') return
-    await adminApi.api.deletePolicyHoldsId(id)
+    await newAdminApi.deleteDmsPolicyHoldHoldpolicyid(id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('workflow_holdPolicy') }))
     query()
   } catch (error) {

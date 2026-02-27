@@ -10,7 +10,8 @@
   >
     <div>
       <h3>{{ $t('dashboard.workflowStartTask') }}</h3>
-      <WorkflowGroupDialogTags :allTags="state.workflowAList" :tags="form.workflowList" @change="handleWorkflowListChange" />
+      <WorkflowGroupDialogTags :allTags="state.workflowAList" :tags="form.workflowList"
+                               @change="handleWorkflowListChange" />
       <div class="sub-title">{{ $t('dashboard.workflowStartTaskPlaceholder') }}</div>
     </div>
     <div>
@@ -36,7 +37,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { publicApi } from 'api'
+import { newClientApi } from 'api'
 
 const props = defineProps(['setting'])
 const { t } = useI18n()
@@ -90,6 +91,7 @@ function handleOpen(setting) {
     // state.loading = false;
   })
 }
+
 function handleWorkflowListChange(list) {
   getWorkflowProps(list)
 }
@@ -98,10 +100,9 @@ async function getWorkflowProps(list) {
   const pList: any = []
   list.forEach((item) => {
     pList.push(
-      publicApi.api
-        .postWorkflowJobFilterData({
-          processDefinitionName: item.name
-        })
+      newClientApi.postDsbWorkflowJobFilterData({
+        processDefinitionName: item.name
+      })
         .then((res) => res.data)
     )
   })
@@ -156,7 +157,7 @@ async function getWorkflowProps(list) {
 }
 
 async function getWorkflowList() {
-  state.workflowAList = await publicApi.api.postWorkflowProcessList({}).then((res) => res.data)
+  state.workflowAList = await newClientApi.postDsbWorkflowProcessList({}).then((res) => res.data)
 }
 
 onMounted(() => {

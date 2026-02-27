@@ -4,7 +4,7 @@
              append-to-body
   >
     <template #header>
-      {{$t(`DAM_${state.title}`)}}
+      {{ $t(`DAM_${state.title}`) }}
       <span v-if="state.title !== 'addNewDAM'"> - {{ state.data.sourceType }}</span>
       <span v-if="state.title === 'editNewConvertion'"> - {{ state.data.label }}</span>
     </template>
@@ -22,7 +22,7 @@
         >
           <el-select v-model="state.data.sourceType" filterable clearable @change="handleSourceTypeChange"
                      :placeholder="t('common_selectedIsRequiredMsg')">
-            <el-option v-for="(item, index) in state.typeList" :key="index" :label="item.name" :value="item.name"/>
+            <el-option v-for="(item, index) in state.typeList" :key="index" :label="item.name" :value="item.name" />
           </el-select>
         </el-form-item>
         <div class="title">{{ $t('DAM_convertion') }}</div>
@@ -32,10 +32,10 @@
                     :rules="[{ required: true, message: $t('tableHeader_label') + $t('render.hint.fieldRequired')}]"
                     required=""
       >
-        <el-input type="text" v-model="state.data.label" :maxlength="10000"/>
+        <el-input type="text" v-model="state.data.label" :maxlength="10000" />
       </el-form-item>
       <el-form-item prop="name" v-show="false">
-        <el-input type="text" v-model="state.data.name" :maxlength="10000"/>
+        <el-input type="text" v-model="state.data.name" :maxlength="10000" />
       </el-form-item>
       <el-form-item :label="$t('DAM_targetFormat')"
                     prop="targetType"
@@ -44,16 +44,16 @@
         <el-select v-model="state.data.targetType" filterable clearable @change="handleTargetTypeChange"
                    :placeholder="t('common_selectedIsRequiredMsg')">
           <el-option v-for="(item, index) in state.targetList" :key="index" :label="item.targetFileType"
-                     :value="item.targetFileType"/>
+                     :value="item.targetFileType" />
         </el-select>
       </el-form-item>
       <template v-if="Object.keys(state.data.operation).includes('action')">
         <div class="title">{{ $t('DAM_operation') }}</div>
         <el-form-item :label="$t('tableHeader_actions')" prop="operation.action">
           <el-select v-model="state.data.operation.action" filterable clearable @change="handleActionChange">
-            <el-option :label="$t('zoom')" value="zoom"/>
-            <el-option :label="$t('compress')" value="compress"/>
-            <el-option :label="$t('rotate')" value="rotate"/>
+            <el-option :label="$t('zoom')" value="zoom" />
+            <el-option :label="$t('compress')" value="compress" />
+            <el-option :label="$t('rotate')" value="rotate" />
           </el-select>
         </el-form-item>
         <template v-if="state.data.operation.action === 'zoom'">
@@ -63,7 +63,7 @@
                             { validator: numberValidate, trigger: 'blur'}
                         ]"
           >
-            <el-input v-model="state.data.operation.height" type="text" :min="1" :max="9999"/>
+            <el-input v-model="state.data.operation.height" type="text" :min="1" :max="9999" />
           </el-form-item>
           <el-form-item :label="$t('search.width')"
                         prop="operation.width"
@@ -72,7 +72,7 @@
                             { validator: numberValidate, trigger: 'blur'}
                         ]"
           >
-            <el-input v-model="state.data.operation.width" type="text" :min="1" :max="9999"/>
+            <el-input v-model="state.data.operation.width" type="text" :min="1" :max="9999" />
           </el-form-item>
         </template>
         <template v-else-if="state.data.operation.action === 'rotate'">
@@ -95,11 +95,11 @@
                   </a>
                 </template>
                 <el-icon class="cursorPointer">
-                  <InfoFilled/>
+                  <InfoFilled />
                 </el-icon>
               </el-tooltip>
             </template>
-            <el-input v-model="state.data.operation.dub" type="text"/>
+            <el-input v-model="state.data.operation.dub" type="text" />
           </el-form-item>
         </template>
       </template>
@@ -107,14 +107,14 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import {InfoFilled} from '@element-plus/icons-vue';
-import {adminApi} from 'api';
+import { InfoFilled } from '@element-plus/icons-vue'
+import { newClientApi } from 'api'
 
 const emits = defineEmits([
   'refresh'
 ])
 
-const {t} = useI18n()
+const { t } = useI18n()
 const state = reactive<any>({
   loading: false,
   title: '',
@@ -135,12 +135,12 @@ async function handleSubmit() {
     switch (state.title) {
       case 'addNewDAM':
       case 'addNewConvertion':
-        await adminApi.api.putDamSetting(data)
-        break;
+        await newClientApi.postDmsDamSettings(data)
+        break
       case 'editNewConvertion':
-        await adminApi.api.postDamEditsetting(data)
+        await newClientApi.putDmsDamSettings(data)
     }
-    
+
     emits('refresh')
     state.visible = false
   } catch (error) {
@@ -185,7 +185,7 @@ const handleTargetTypeChange = (value?: any) => {
   const targetItem = state.targetList.find((item: any) => item.targetFileType === value)
   console.log(targetItem, state.targetList)
   if (targetItem) {
-    state.data.operation = {...targetItem.operation}
+    state.data.operation = { ...targetItem.operation }
     state.data.name = targetItem.type
   } else {
     state.data.operation = {}
@@ -202,10 +202,10 @@ function handleActionChange(clearAction: boolean = true) {
 
 const handleTypeListGet = async () => {
   state.typeList = []
-  const {data} = await adminApi.api.getDamGetsupportedformat() as any
+  const data = await newClientApi.getDmsDamSettingsFormats().then(r => r.data)
   if (!data) return
   Object.keys(data).forEach(key => {
-    state.typeList.push({name: key, targetList: data[key]})
+    state.typeList.push({ name: key, targetList: data[key] })
   })
 }
 const handleSourceTypeChange = async (value: any, clearTargetType: boolean = true) => {
@@ -223,25 +223,25 @@ const editSourceTypeChange = async (value: any) => {
 // #region module: validate
 function numberValidate(_rule: any, value: any, callback: any) {
   if (value === '') {
-    callback(new Error(t('render.hint.fieldRequired') as string));
+    callback(new Error(t('render.hint.fieldRequired') as string))
   } else if (!/^[1-9]\d*$/.test(value)) {
-    callback(new Error(t('dpTip.enterNumber') as string));
+    callback(new Error(t('dpTip.enterNumber') as string))
   } else {
-    callback();
+    callback()
   }
 }
 
 function dubValidate(_rule: any, value: any, callback: any) {
   if (value === '') {
-    callback(new Error(t('render.hint.fieldRequired') as string));
+    callback(new Error(t('render.hint.fieldRequired') as string))
   } else if (state.data.operation.action === 'rotate' &&
     !/^-?\d+([<>])?$/.test(value)) {
-    callback(new Error(t('dam.angleTip') as string));
+    callback(new Error(t('dam.angleTip') as string))
   } else if (state.data.operation.action === 'compress' &&
     !/^([1-9]\d{0,2}|1000)$/.test(value)) {
-    callback(new Error('1-1000'));
+    callback(new Error('1-1000'))
   } else {
-    callback();
+    callback()
   }
 }
 
@@ -249,7 +249,7 @@ function dubValidate(_rule: any, value: any, callback: any) {
 onMounted(async () => {
   await handleTypeListGet()
 })
-defineExpose({handleOpen})
+defineExpose({ handleOpen })
 </script>
 <style lang="scss" scoped>
 .el-select, .el-radio-group, .el-date-editor.el-input {

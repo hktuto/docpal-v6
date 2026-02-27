@@ -17,7 +17,7 @@
 </template>
 <script lang="ts" setup>
 import formJson from './complete.vform.json'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import dayjs from 'dayjs'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
 
@@ -38,13 +38,12 @@ const {
   cleanSelectedRows
 } = useVxeTable({
   id: 'complete_task',
-  api: (pageParams: any) =>
-    clientApi.api.postWorkflowHistoryProcessWithoutVariables({
-      ...pageParams,
-      ...extraParams,
-      completed: true,
-      userId
-    }),
+  api: (pageParams: any) => newClientApi.postDocpalWorkflowHistoryProcessWithoutVariables({
+    ...pageParams,
+    ...extraParams,
+    completed: true,
+    userId
+  }),
   columns: [
     { field: 'businessKey', title: 'table_name', fixed: 'left' },
     { field: 'processDefinitionName', title: 'workflow_workflowName' },
@@ -87,7 +86,7 @@ function handleDblclick(row: any) {
 }
 
 async function claimTask(row: any) {
-  await clientApi.api.postWorkflowTaskClaim({
+  await newClientApi.postWorkflowTaskClaim({
     taskId: row.id,
     userId
   })
@@ -103,12 +102,11 @@ function getDownloadParams() {
 }
 
 function handleFormChange(data: any) {
-  const params = Object.keys(data.formModel).reduce((prev: any, key: string) => {
+  extraParams = Object.keys(data.formModel).reduce((prev: any, key: string) => {
     if (data.formModel[key] && data.formModel[key].length > 0)
       prev[key] = data.formModel[key]
     return prev
   }, {})
-  extraParams = params
   reload()
 }
 
@@ -157,7 +155,7 @@ onMounted(() => {
 defineExpose({ getDownloadParams })
 </script>
 <style lang="scss" scoped>
-:deep(.el-input){
+:deep(.el-input) {
   width: 200px;
 }
 </style>

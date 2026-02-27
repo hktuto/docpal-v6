@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const props = defineProps<{
   doc: any
 }>()
@@ -66,7 +66,7 @@ function hidePopover() {
 }
 
 async function getList() {
-  const res = await clientApi.api.postNuxeoGetversions({ idOrPath: props.doc.id }).then((res) => res.data)
+  const res = await newClientApi.postDmsDocumentVersionList({ idOrPath: props.doc.id }).then((res) => res.data)
   const result = []
   Object.keys(res).forEach((key) => {
     result.push({ version: key, time: displayTime(res[key]) })

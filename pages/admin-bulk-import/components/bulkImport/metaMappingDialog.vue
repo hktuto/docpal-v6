@@ -13,7 +13,7 @@
 </template>
 <script lang="ts" setup>
 import formJson from './adminMetaMapping.vform.json'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const routerProvider = inject(MenuRouterKey)
@@ -44,7 +44,7 @@ async function handleSubmit() {
         [data.metaData]: data.label
       }
     }
-    await adminApi.api.postWorkflowSavemetadatamapping({ documentType: [param] })
+    await newAdminApi.postDocpalWorkflowSavemetadatamapping({ documentType: [param] })
     ElMessage.success(t('bulkImport_displayMetaSuccessMsg', { name: data.metaData }))
     state.visible = false
     FormRendererRef.value.vFormRenderRef.resetForm()
@@ -88,8 +88,7 @@ async function handleOptions(exitList: any) {
 }
 
 onMounted(async () => {
-  const data = await adminApi.api.getDocpaltypeSettingsMetadataDocumenttype('GlobalFile').then(res => res.data?.keywords) as any
-  state.globalSchemaList = data
+  state.globalSchemaList = await newAdminApi.getDmsDocpalTypeDocumenttypeMetadata('GlobalFile').then(res => res.data?.keywords) as any
 })
 defineExpose({ handleOpen })
 </script>

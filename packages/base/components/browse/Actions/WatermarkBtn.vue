@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const dialogOpend = ref(false)
 const {doc} = defineProps<{
     doc: any
@@ -9,7 +9,7 @@ const routerProvider = inject(MenuRouterKey)
 async function addWartermark(){
     let mimeType:any = '';
     if(!doc.properties){
-        const data = await clientApi.api.postNuxeoDocument({idOrPath:doc.id});
+        const data = await newClientApi.postDmsDocumentFetch({idOrPath:doc.id});
          mimeType = getMimeTypeFromDocument(data)
     }else{
         mimeType = getMimeTypeFromDocument(doc)

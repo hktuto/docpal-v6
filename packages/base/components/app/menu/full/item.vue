@@ -85,8 +85,8 @@ watch(selectedMenuItem, (newSelectedMenuItem) => {
       </div>
     </div>
     <div v-if="opened" class="subMenuContainer">
-    <AppMenuExpand :menu="item" :selectedMenuItem="selectedMenuItem" hideHeader @select="handleClick" />
-  </div>
+      <AppMenuExpand :menu="item" :selectedMenuItem="selectedMenuItem" hideHeader @select="handleClick" />
+    </div>
   </div>
   
   <Teleport v-if="dragState.type === 'preview'" :to="dragState.container">

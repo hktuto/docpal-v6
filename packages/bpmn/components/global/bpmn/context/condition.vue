@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {CONDITION_PROVIDER} from '#imports'
 import type { Node } from '@antv/x6'
-import { adminApi } from 'api';
+import { adminApi, clientApi } from 'api';
 const { node } = defineProps<{
     node:Node
 }>()
@@ -17,7 +17,7 @@ const conditionLabel = ref({
 })
 function refreshData() {
     if(!node.data || !node.data.data || !node.data.data.extensionElements || !node.data.data.extensionElements['docpal:decisionTable']){
-        
+
         node.setData({
             ...node.data,
             data:{
@@ -126,17 +126,17 @@ function updateCondition(newVal:any, index:number){
 
 const userGroupOption = ref<any[]>([]);
 async function getUserGroup() {
-    const data = await adminApi.api.postNuxeoIdentityGroups();
+    const data = await clientApi.api.postUcenterGroups().then(r => r.data)
     if(data.data){
         userGroupOption.value = data.data
     }
 }
 const masterTableOption = ref<any[]>([]);
 async function getMasterTable() {
-    const data = await adminApi.api.getMasterTables();
-    
-    if(data.data){
-        masterTableOption.value = data.data
+    const data = await clientApi.api.getDmsMasterTable().then(r => r.data);
+
+    if(data){
+        masterTableOption.value = data
     }else{
         masterTableOption.value = []
     }
@@ -145,7 +145,7 @@ async function getMasterTable() {
 const caseTableOption = ref<any[]>([]);
 async function getCaseTable() {
     const data = await adminApi.api.getCaseTables();
-    
+
     if(data.data){
         caseTableOption.value = data.data
     }else{
@@ -207,26 +207,26 @@ provide(CONDITION_PROVIDER,{
             <div class="title">Conditions</div>
             <div class="conditions">
                 <div v-for="(element,index) in form" :key="index" class="group">
-                  
-                    <BpmnSidebarConditionGroup  
-                        :elements="element.element" 
+
+                    <BpmnSidebarConditionGroup
+                        :elements="element.element"
                         :index="index"
-                        @delete="deleteCondition" 
-                        @update="(newVal:any) => updateCondition(newVal, index)" 
+                        @delete="deleteCondition"
+                        @update="(newVal:any) => updateCondition(newVal, index)"
                     />
                     <div class="addNewContainer" @click="addNewCondition">
                         <Icon name="lucide:circle-plus" />
-                        <div class="label">And</div>  
+                        <div class="label">And</div>
                     </div>
                 </div>
                 <div v-if="form.length === 0" :class="{addNewContainer:true, readonly: editorProvider.readonly.value}" @click="addNewCondition">
                         <Icon name="lucide:circle-plus" />
-                        <div class="label">And</div>  
+                        <div class="label">And</div>
                     </div>
-               
+
             </div>
         </div>
-        
+
     </div>
 </template>
 

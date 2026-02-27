@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 
 const { t } = useI18n()
 const props = defineProps<{
@@ -22,7 +22,7 @@ async function handleCreateFolderCabinet() {
   const list = []
 
   for (const item of Object.values(props.folderCabinetList)) {
-    const data = await adminApi.api.postCabinetTemplate({
+    const data = await newAdminApi.postDmsCabinetTemplate({
       documentType: 'Folder',
       label: item.label,
       userGroups: item.userGroups,
@@ -31,17 +31,6 @@ async function handleCreateFolderCabinet() {
       status: 'A'
     }).then(r => r.data)
   }
-}
-
-async function createFolderCabinetFile() {
-  // const data = await adminApi.api.postCabinetTemplate({
-  //   documentType: 'Folder',
-  //   label: form.value.label,
-  //   userGroups: form.value.userGroups,
-  //   binds: form.value.binds,
-  //   rootId: form.value.rootId,
-  //   status: 'A'
-  // }).then(r => r.data)
 }
 
 defineExpose({

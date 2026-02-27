@@ -9,11 +9,11 @@ const props = defineProps<{
     displayMenu: any[]
 }>()
 const opened = ref(false)
-const menuItemRefs = ref()
-
+const selectedMenuItem = ref<TabItem | undefined>()
+  const layout = useTabLayout()
+const hightLightPanel = useCurrentTargetPanel()
 const CONTEXT_MENU_OPEN_BUS = useEventBus(EventType.TABLE_CONTEXT_MENU_OPEN)
 function openExpandMenu(e:any, item:any){
-  console.log('openExpandMenu', e, item)
   const evtParams: TABLE_CONTEXT_PARAMS = {
     row: item,
     column: item,
@@ -35,11 +35,19 @@ function openExpandMenu(e:any, item:any){
 }
 
 function handleSelect(item:any){
-  if(item.component) {
+  if(item && item.component) {
     tabProvider?.openInCurrentTab(item)
-    opened.value = false
   }
+  opened.value = false
 }
+
+watch(() => [layout, hightLightPanel], () => {
+    // get hightLightPanel
+    setSelectedMenuItem(selectedMenuItem, props.displayMenu )
+},{
+    deep:true,
+    immediate:true
+})
 </script>
 
 <template>
@@ -48,14 +56,22 @@ function handleSelect(item:any){
   <div class="inlineMenuList">
     <template v-for="(item,index) in displayMenu" :key="index">
       <template v-if="item.children && item.children.length > 0" >
-        <div ref="menuItemRefs" class="menuItem" @click="e => openExpandMenu(e, item)">
-          <div class="menuIcon">
-            <Icon :name="item.icon" />
+        <el-popover>
+
+          <template #reference>
+            <div class="menuItem" >
+              <div class="menuIcon">
+                <Icon :name="item.icon" />
+              </div>
+              <div class="menuLabel">
+                {{ $t(item.label) }}
+              </div>
+            </div>
+          </template>
+          <div class="expandItemContainer">
+            <AppMenuExpand :menu="item" hideHeader :selectedMenuItem="selectedMenuItem" @click="handleSelect"/>
           </div>
-          <div class="menuLabel">
-            {{ $t(item.label) }}
-          </div>
-        </div>
+        </el-popover>
       </template>
       <template v-else>
         <div  class="menuItem" @click="handleSelect(item)">
@@ -76,7 +92,9 @@ function handleSelect(item:any){
 
       <AppMenuSearch menuMode="collapse"/>
       <ElDivider />
-      <AppMenuMobileList :menu="displayMenu" @select="handleSelect" />
+      <div class="fullMenuContainer">
+        <AppMenuFullItem  v-for="(item, index) in displayMenu" :key="index" :item="item" :selectedMenuItem="selectedMenuItem" @click="handleSelect"/>
+      </div>
       <ElDivider />
       <AuthUser menuMode="expand" /> 
     </div>
@@ -86,6 +104,13 @@ function handleSelect(item:any){
 </template>
 
 <style lang="scss" scoped>
+.fullMenuContainer{
+  width:100%;
+  overflow: auto;
+  :deep(.menuItem){
+    width:100%;
+  }
+}
 .mobileMenuContainer{
   display: flex;
   flex-flow: row nowrap;

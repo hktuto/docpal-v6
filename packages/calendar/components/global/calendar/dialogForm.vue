@@ -73,7 +73,7 @@ function openSelectUser() {
 }
 
 function handleUserListConfirm() {
-  const filter = userList.value.filter((item: any) => state.userList.includes(item.id))
+  const filter = userList.value.filter((item: any) => state.userList.includes(item.value))
   filter.forEach((item: any) => {
     if (!state.tableData.some((tData: any) => tData.id === item.id)) {
       state.tableData.push(item)
@@ -145,7 +145,7 @@ function setFormData(isEdit: boolean, data: EventFormData) {
   state.isEdit = isEdit
   if (isEdit) {
     state.userList = data.eventUser.split(',')
-    state.tableData = userList.value.filter((item: any) => state.userList.includes(item.id))
+    state.tableData = userList.value.filter((item: any) => state.userList.includes(item.value))
   }
   nextTick(() => {
     formRendererRef.value.setFormData(data)

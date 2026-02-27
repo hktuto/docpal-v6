@@ -49,7 +49,7 @@
 
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const props = defineProps<{ doc: any, permission: any }>()
 const { doc, permission } = toRefs(props)
@@ -60,7 +60,7 @@ const userId = useUserId()
 const dialogEl = ref()
 
 async function handleDataGet() {
-  const data: any = await clientApi.api.getAclResourceResourceid(props.doc.id).then(res => res.data)
+  const data: any = await newClientApi.getDocpalAclResourceResourceid(props.doc.id).then(res => res.data)
 
   aces.value = data.filter((item: any) => item.name !== null)
 }
@@ -91,7 +91,7 @@ async function handleRemove(ace) {
     return action
   })
   if (action !== 'confirm') return
-  await clientApi.api.deleteNuxeoDocumentAclRemove({ idOrPath: props.doc.id, userId: ace.userId })
+  await newClientApi.deleteNuxeoDocumentAclRemove({ idOrPath: props.doc.id, userId: ace.userId })
   handleDataGet()
 }
 
@@ -104,7 +104,7 @@ function handleAdd(type?: string) {
 
 async function handleAddLocalAclSubmit(_data: any, cb) {
   _data.idOrPath = props.doc.id
-  await clientApi.api.postNuxeoDocumentAclAdd(_data)
+  await newClientApi.postNuxeoDocumentAclAdd(_data)
   handleDataGet()
   cb()
 }
@@ -114,7 +114,7 @@ async function handleUpdateLocalAclSubmit(_data: any, cb) {
   _data.aceId = _data.id
   delete _data.isPermanent
   delete _data.id
-  await clientApi.api.putNuxeoDocumentAclReplace(_data)
+  await newClientApi.putNuxeoDocumentAclReplace(_data)
   handleDataGet()
   cb()
 }

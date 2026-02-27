@@ -41,8 +41,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
-import { ElMessageBox } from 'element-plus'
+import { newClientApi } from 'api'
 
 const state = reactive<any>({
   loading: false,
@@ -68,8 +67,9 @@ function tabChange(tab: string) {
 async function init() {
   state.loading = true
   try {
-    state.tabList = await clientApi.api.getCabinetLoginuserList().then((res) => res.data)
+    state.tabList = await newClientApi.getDmsCabinetLoginuserList().then((res) => res.data) || []
   } catch (error) {
+    console.log(error)
   }
   state.loading = false
 }

@@ -15,11 +15,11 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import {adminApi} from 'api'
+import { newAdminApi } from 'api'
 import formJson from './dialog.vform.json'
-import {ElMessage} from "element-plus";
+import { ElMessage } from 'element-plus'
 
-const {t} = useI18n()
+const { t } = useI18n()
 const emits = defineEmits([
   'update'
 ])
@@ -45,11 +45,11 @@ async function handleSubmit() {
     state.loading = true
     let msg
     if (state.isEdit) {
-      await adminApi.api.putPolicyHolds(params)
-      msg = t('tip_updateMsg', {modelName: t('workflow_holdPolicy'), name: null})
+      await newAdminApi.putDmsPolicyHold(params)
+      msg = t('tip_updateMsg', { modelName: t('workflow_holdPolicy'), name: null })
     } else {
-      await adminApi.api.postPolicyHolds(params)
-      msg = t('tip_createdMsg', {modelName: t('tip_newMsg') + t('workflow_holdPolicy'), name: null})
+      await newAdminApi.postDmsPolicyHold(params)
+      msg = t('tip_createdMsg', { modelName: t('tip_newMsg') + t('workflow_holdPolicy'), name: null })
     }
     ElMessage.success(msg)
     state.visible = false
@@ -67,7 +67,7 @@ async function handleOpen(setting) {
     if (setting && setting.isEdit) {
       state.isEdit = true
       state.setting = setting
-      await FormRendererRef.value.vFormRenderRef.setFormData({...state.setting})
+      await FormRendererRef.value.vFormRenderRef.setFormData({ ...state.setting })
       state.loading = false
     } else {
       state.isEdit = false
@@ -76,7 +76,7 @@ async function handleOpen(setting) {
   })
 }
 
-defineExpose({handleOpen})
+defineExpose({ handleOpen })
 </script>
 <style lang="scss" scoped>
 

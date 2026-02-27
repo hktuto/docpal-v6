@@ -7,31 +7,31 @@
       <div v-for="(item) in collections" :key="item.id" class="tag">
         <div class="label">{{ item.name }}</div>
         <SvgIcon v-if="RbacAllowTo('editMetadata', doc)" :src="'/icons/close.svg'"
-                 class="deleteIcon" @click="handleDelete(item)"/>
+                 class="deleteIcon" @click="handleDelete(item)" />
       </div>
       <div v-if="doc.status !== 20" class="addTagButton">
-        <SvgIcon :src="'/icons/add.svg'" @click="handleAddCollection"/>
+        <SvgIcon :src="'/icons/add.svg'" @click="handleAddCollection" />
       </div>
     </div>
     <ElDialog v-model="dialogVisible" :title="$t('collections_add')" destroy-on-close append-to-body show-close
               :close-on-click-modal="false">
       <BrowseInfoCollectionAdd :doc="doc" :exitList="collections"
-                               @handleAdd="() => {getCollection(); dialogVisible = false}"/>
+                               @handleAdd="() => {getCollection(); dialogVisible = false}" />
     </ElDialog>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {ElMessageBox} from 'element-plus'
-import {clientApi} from 'api'
+import { ElMessageBox } from 'element-plus'
+import { newClientApi } from 'api'
 
 const props = defineProps<{
   doc: any,
 }>()
-const {doc} = toRefs(props)
-const {t} = useI18n()
+const { doc } = toRefs(props)
+const { t } = useI18n()
 const collections = ref([])
-const dialogVisible = ref(false);
+const dialogVisible = ref(false)
 
 async function handleDelete(collection) {
   const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`, {
@@ -45,31 +45,27 @@ async function handleDelete(collection) {
   const index = collections.value.findIndex((item) => item.id === collection.id)
 
   const param = {
-    documents: [{idOrPath: props.doc.id}],
-    collection: {idOrPath: collection.id},
+    documents: [{ idOrPath: props.doc.id }],
+    collection: { idOrPath: collection.id }
   }
-  const res = await clientApi.api.deleteNuxeoCollectionRemove(param).then(res => res.data)
+  const res = await newClientApi.postDmsCollectionDocumentsRemove(param).then(res => res.data)
   await getCollection()
   if (!res) return
 }
 
 function handleAddCollection() {
-  dialogVisible.value = true;
+  dialogVisible.value = true
 }
 
 async function getCollection() {
-  collections.value = await clientApi.api.postNuxeoDocumentCollections({idOrPath: doc.value.id}).then(res => res.data) as any
+  collections.value = await newClientApi.postDmsDocumentCollections({ idOrPath: doc.value.id }).then(res => res.data) as any
 }
 
-watch(
-  doc,
-  (val) => {
-    if (val) {
-      getCollection()
-    }
-  },
-  {immediate: true}
-)
+watch(doc, (val) => {
+  if (val) {
+    getCollection()
+  }
+}, { immediate: true })
 </script>
 
 <style lang="scss" scoped>

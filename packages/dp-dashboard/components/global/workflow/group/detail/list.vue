@@ -42,7 +42,7 @@
 </template>
 <script lang="ts" setup>
 import { watchDebounced } from '@vueuse/core'
-import { publicApi } from 'api';
+import { newClientApi } from 'api';
 import dayjs from 'dayjs'
 const props = defineProps(['setting', 'dates'])
 const { t } = useI18n()
@@ -74,7 +74,7 @@ async function getData(params: any = {}) {
       params.pageSize = pageParams.value.pageSize
     }
     params.workflowNames = props.setting.workflowList.map(item=>(item.name))
-    const res: any = await publicApi.api.postWorkflowJobList({
+    const res: any = await newClientApi.postDsbWorkflowJobList({
       ...params,
       ...state.extraParams,
       ...state.extraParams2
@@ -144,8 +144,8 @@ function getClass(config, row) {
   const ResponsiveFilterRef = ref() 
   async function initCondition () {
     try {
-      const approvalList = await publicApi.api.getWorkflowJobQueryApproverList()
-      const creatorList = await publicApi.api.getWorkflowJobQueryStartCreatorList()
+      const approvalList = await newClientApi.getDsbWorkflowJobApproverList()
+      const creatorList = await newClientApi.getDsbWorkflowJobStartCreatorList()
       const statusList = [
         { label: 'In-process', value: 'In-process'},
         { label: 'Complete', value: 'Complete'},

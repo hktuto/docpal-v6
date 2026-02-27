@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 const props = defineProps<{
   targetOptions: any[]
 }>()
@@ -65,7 +65,7 @@ const open = async (row: any, documentId: string) => {
     dialogVisible.value = true
     if (row?.id) {
       loading.value = true
-      const aclPermission = await adminApi.api.getAclResourcePermissionsId(row.id).then((res) => res.data)
+      const aclPermission = await newAdminApi.getDocpalAclResourcePermissionsId(row.id).then((res) => res.data)
       userSetFormRef.value.setFormData(aclPermission.members)
       userSetDocFormRef.value.setFormData(aclPermission.rules[0])
       checkboxFormRef.value.setData({
@@ -113,9 +113,9 @@ const handleConfirm = async () => {
       rules: [docData]
     }
     if (permissionId.value) {
-      await adminApi.api.putAclResourcePermissionsId(permissionId.value, params)
+      await newAdminApi.putDocpalAclResourcePermissionsId(permissionId.value, params)
     } else {
-      await adminApi.api.postAclResourcePermissions(params)
+      await newAdminApi.postDocpalAclResourcePermissions(params)
     }
     emits('success')
   } catch (e) {

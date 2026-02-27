@@ -1,6 +1,11 @@
 <script lang="ts" setup>
 import { ArrowDown } from '@element-plus/icons-vue'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
+import {
+  getGroupsSelectOption,
+  getRoleSelectOption,
+  getUserSelectOption
+} from '#imports'
 
 const props = defineProps<{
   document: any
@@ -131,7 +136,7 @@ function handleAdd() {
 
 async function getList() {
   if (!isFilter.value) {
-    tableData = await adminApi.api.getAclResourcePermissionsResourceResourceid(document.value.id).then((res) => res.data)
+    tableData = await newAdminApi.getDocpalAclResourcePermissionsResourceResourceid(document.value.id).then((res) => res.data)
     setTimeout(() => {
       updateTargetOptions()
     }, 100)
@@ -181,7 +186,7 @@ async function getList() {
 }
 
 async function handleRemove(row: any) {
-  await adminApi.api.deleteAclResourcePermissionsId(row.id)
+  await newAdminApi.deleteDocpalAclResourcePermissionsId(row.id)
   reload()
 }
 
@@ -235,48 +240,27 @@ function getFilter() {
 }
 
 async function handleRemoveInherent() {
-  await adminApi.api.postAclResourcePermissionsCopyInheritResourceid(document.value.id)
+  await newAdminApi.postDocpalAclResourcePermissionsCopyInheritResourceid(document.value.id)
   reload()
 }
 
 async function handleInherent() {
-  await adminApi.api.postAclResourcePermissionsIncludeInheritResourceid(document.value.id)
+  await newAdminApi.postDocpalAclResourcePermissionsIncludeInheritResourceid(document.value.id)
   reload()
 }
 
-const { flatRole } = useRBAC()
-
 async function getTargetOptions() {
-  async function getGroupList() {
-    try {
-      return await adminApi.api.postNuxeoIdentityGroups({}).then((res) => res.data)
-    } catch (error) {
-      console.error(error)
-      return []
-    }
-  }
+  if (!targetOptions.value) return
+  // TODO：後續需要統一logicalSelector 内的權限提交方法
+  // targetOptions.value = await getPermissionSelectOption()
 
-  async function getUserList() {
-    try {
-      return await adminApi.api.postNuxeoIdentityGetkeycloakallusers({}).then((res) => res.data)
-    } catch (error) {
-      console.error(error)
-      return []
-    }
-  }
-
-  const groupList: any = await getGroupList()
-  const userList: any = await getUserList()
   targetOptions.value.push(
     {
       label: 'user_role',
       value: 2, // 1=User, 3=Group, 2=Role
       type: 'select',
       selectConfig: {
-        options: flatRole.value.map((item) => ({
-          label: item.name,
-          value: item.id
-        }))
+        options: await getRoleSelectOption()
       }
     },
     {
@@ -284,10 +268,7 @@ async function getTargetOptions() {
       value: 3,
       type: 'select',
       selectConfig: {
-        options: groupList.map((item: any) => ({
-          label: item.name,
-          value: item.id
-        }))
+        options: await getGroupsSelectOption()
       }
     },
     {
@@ -295,10 +276,7 @@ async function getTargetOptions() {
       value: 1,
       type: 'select',
       selectConfig: {
-        options: userList.map((item: any) => ({
-          label: item.username,
-          value: item.userId
-        }))
+        options: await getUserSelectOption()
       }
     }
   )
@@ -312,8 +290,7 @@ async function updateTargetOptions() {
     const targetIds = tableData.map((item: any) => item.targetId)
     targetOptions.value.forEach((item: any) => {
       item.selectConfig.options.forEach((option: any) => {
-        if (targetIds.includes(option.value)) option.disabled = true
-        else option.disabled = false
+        option.disabled = targetIds.includes(option.value)
       })
     })
   }
@@ -323,15 +300,11 @@ onMounted(() => {
   getFilter()
   getTargetOptions()
 })
-watch(
-  document,
-  async () => {
-    reload()
-  },
-  {
-    immediate: true
-  }
-)
+watch(document, async () => {
+  reload()
+}, {
+  immediate: true
+})
 </script>
 
 <template>

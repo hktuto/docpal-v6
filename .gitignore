@@ -19,3 +19,4 @@ env/.env.dev.client
 # remove all build files
 apps/*/dist
 apps/desktop/dist
+docs/.obsidian/workspace.json

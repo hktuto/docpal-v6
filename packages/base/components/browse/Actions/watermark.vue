@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 
 import { useEventListener } from '@vueuse/core'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const dialogOpend = ref(false)
 const router = useRouter()
 const tabProvider = inject(TabManagerKey)
@@ -9,7 +9,7 @@ async function handleWatermark(doc: any) {
     console.log("watermark trigger")
     let mimeType:any = '';
     if(!doc.properties){
-        const data = await clientApi.api.postNuxeoDocument({idOrPath:doc.id});
+        const data = await newClientApi.postDmsDocumentFetch({idOrPath:doc.id});
          mimeType = getMimeTypeFromDocument(data)
     }else{
         mimeType = getMimeTypeFromDocument(doc)

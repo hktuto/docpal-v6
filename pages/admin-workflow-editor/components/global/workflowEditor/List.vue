@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
@@ -12,7 +12,7 @@ const tableRef = ref()
 async function openLastestVersion(data: any, openInNewTab = false) {
 
   // REMARK: 在列表頁面是拿不到 version 的 draftId 的，所以需要先取得 version 再打开
-  // const {data:{ entryList}} = await adminApi.api.postWorkflowVersionPage({draftId:data.id, orderBy:'versionNumber', isDesc:true, pageSize:1})
+  // const {data:{ entryList}} = await newAdminApi.postDocpalWorkflowVersionPage({draftId:data.id, orderBy:'versionNumber', isDesc:true, pageSize:1})
   // console.log("openLastestVersion", entryList)
   const params: NewWorkflowVersionDetailParams = {
     id: data.id,
@@ -79,15 +79,15 @@ function actionPermission({ row, rowIndex, code }: any) {
 }
 
 async function deleteWorkflow(row: any) {
-  const { data } = await adminApi.api.deleteWorkflowProcessDefinitionRemoveDraftid(row.id)
-  if (data) {
+  const data = await newAdminApi.deleteDocpalWorkflowProcessDefinitionRemoveDraftid(row.id).then(r => r.data)
+  if (!!data) {
     routerProvider?.message?.success(t('dpMsg_success'))
     reload()
   }
 }
 
 async function activeWorkflow(row: any) {
-  await adminApi.api.postWorkflowProcessDefinitionActiveDraftid(row.id)
+  await newAdminApi.postDocpalWorkflowProcessDefinitionActiveDraftid(row.id)
   routerProvider?.message?.success(t('dpMsg_success'))
   reload()
 }
@@ -107,7 +107,7 @@ provide(WorkflowEditorListProviderKey, {
     //         params[key] = filter.value[key]
     //     }
     // })
-    return adminApi.api.postWorkflowProcessDefinitionDraftPage({ ...params, ...filter.value })
+    return newAdminApi.postDocpalWorkflowProcessDefinitionDraftPage({ ...params, ...filter.value })
   }
 })
 
@@ -149,7 +149,7 @@ function getFilter() {
   ]
 
   nextTick(() => {
-    if(ResponsiveFilterRef.value) {
+    if (ResponsiveFilterRef.value) {
       ResponsiveFilterRef.value?.init(data)
     }
   })

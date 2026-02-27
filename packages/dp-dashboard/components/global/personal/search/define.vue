@@ -23,7 +23,7 @@
   </DashboardCard>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -48,13 +48,13 @@ const state = reactive<any>({
 })
 
 async function getList() {
-  const { data } = (await clientApi.api.getNuxeoSearchQueryNestedSearchLog()) as any
+  const data = await newClientApi.getDmsSearchQueryNestedSearchLog().then(r => r.data)
   state.records = [...data]
   state._records = [...state.records]
 }
 
 async function getSystemRecords() {
-  const { data }: any = await clientApi.api.getNuxeoSfolder()
+  const data: any = await newClientApi.getDmsSmartFolder().then(r => r.data)
   state.systemRecords = data.map((item: any) => ({
     label: item.name,
     queryCondition: item.json_value

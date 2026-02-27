@@ -5,7 +5,7 @@ import { Selection } from '@antv/x6-plugin-selection'
 import { Dnd } from '@antv/x6-plugin-dnd'
 import { History } from '@antv/x6-plugin-history'
 import { graphToBpmnJson } from '~/utils/bpmnConverter'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import { bpmnElement } from '~/utils/bpmnElement'
 
 import { ElMessage } from 'element-plus'
@@ -185,7 +185,7 @@ function itemDrop(item: any, ev: any) {
 
 async function formSubmit() {
   const json = FormDesignRef.value.getFormJson()
-  await adminApi.api.postRelationSave({
+  await newAdminApi.postDmsFormPropertiesSave({
     processKey: props.processKey,
     userTaskId: selectedStep.value.id,
     jsonValue: JSON.stringify(json),
@@ -195,7 +195,7 @@ async function formSubmit() {
 }
 
 async function getFormByNode(node: Node) {
-  const response = await adminApi.api.getRelationQuery({
+  const response = await newAdminApi.getDmsFormPropertiesQuery({
     processKey: props.processKey,
     userTaskId: node.data.id,
     versionId: props.currentVersionId
@@ -210,7 +210,7 @@ async function getFormByNode(node: Node) {
 
 async function saveFormByNode(node: Node, json: any) {
   const id = node.data.type === 'endEvent' ? 'end' : node.id
-  return await adminApi.api.postRelationSave({
+  return await newAdminApi.postDmsFormPropertiesSave({
     processKey: props.processKey,
     userTaskId: id,
     jsonValue: JSON.stringify(json),
@@ -222,7 +222,7 @@ const formRenderVisible = ref(false)
 const fromRenderRef = ref()
 async function previewForm(node: Node) {
   const id = node.data.type === 'endEvent' ? 'end' : node.id
-  const response = await adminApi.api.getRelationQuery({
+  const response = await newAdminApi.getDmsFormPropertiesQuery({
     processKey: props.processKey,
     userTaskId: id,
     versionId: props.currentVersionId
@@ -262,7 +262,7 @@ async function openForm(node: Node) {
       return
     }
     const id = node.data ? node.data.id : node.id === 'end' ? 'complete' : node.id
-    const response = await adminApi.api.getRelationQuery({
+    const response = await newAdminApi.getDmsFormPropertiesQuery({
       processKey: props.processKey,
       userTaskId: id,
       versionId: props.currentVersionId
@@ -284,7 +284,7 @@ async function openForm(node: Node) {
       }
     })
   } catch (error) {
-    
+    console.log(error)
   }
 }
 
@@ -355,14 +355,14 @@ async function importWorkflow(importData:ExportWorkflowResult) {
   // save form to 
   const version = props.currentVersionId
   const processKey = props.processKey
-  allForms.forEach(async (form) => {
-    const res = await adminApi.api.postRelationSave({
+  for (const form of allForms) {
+    const res = await newAdminApi.postDmsFormPropertiesSave({
       processKey: processKey,
       userTaskId: form.formId,
       jsonValue: form.json,
       versionId: version,
     })
-  })
+  }
   await workflowDetail?.saveDraft()
 }
 
@@ -478,7 +478,6 @@ defineExpose({
       <slot name="actions" />
       <ElButton @click="openXmlEditor" :disabled="!ready">Open XML Editor</ElButton>
     </div>
-    
   </div>
 </template>
 

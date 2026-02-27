@@ -1,9 +1,11 @@
 <template>
-  <el-dialog v-model="state.visible" class="scroll-dialog" :title="$t('contactBook.create')" :close-on-click-modal="false" destroy-on-close>
+  <el-dialog v-model="state.visible" class="scroll-dialog" :title="$t('contactBook.create')"
+             :close-on-click-modal="false" destroy-on-close>
     <ContactBookPermissionForm ref="ContactBookPermissionRef" />
     <ContactBookFieldSetting ref="ContactBookFieldSettingRef" />
     <template #footer>
-      <el-button id="CaseManagement__CreateNewCaseTemplate__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
+      <el-button id="ContactBook__NewContactBook__Submit" type="primary" :loading="state.loading"
+                 @click="handleSubmit">
         {{ $t('common_submit') }}
       </el-button>
     </template>
@@ -12,6 +14,7 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
 import { globalApi } from 'api'
+
 const { t } = useI18n()
 const emits = defineEmits(['refresh'])
 
@@ -33,10 +36,12 @@ async function handleSubmit() {
       status: 'A'
     }
     console.log(data, fieldData)
-    const res = await globalApi.api.postContactgroup(params).then((res) => res.data)
+    const res = await globalApi.postDmsContactGroup(params).then((res: any) => res.data)
     ElMessage.success(t('dpMsg_success'))
     state.visible = false
-    emits('refresh', res)
+    if (!!res) {
+      emits('refresh', res)
+    }
   } catch (error) {
     console.log('error', error)
   } finally {

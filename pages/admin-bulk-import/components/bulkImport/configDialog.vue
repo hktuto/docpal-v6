@@ -1,25 +1,24 @@
 <script lang="ts" setup>
-import {ElMessage} from 'element-plus'
+import { ElMessage } from 'element-plus'
+import { newAdminApi } from 'api'
 
-import fromJson from './adminMetaRelated.vform.json'
-import {adminApi} from 'api';
 const routerProvider = inject(MenuRouterKey)
 const tableColumns = {
   columns: [
-    {id: '1', prop: 'title', label: 'title', defaultColumn: true},
-    {id: '2', prop: 'name', label: 'tableHeader_name'}
+    { id: '1', prop: 'title', label: 'title', defaultColumn: true },
+    { id: '2', prop: 'name', label: 'tableHeader_name' }
   ],
   events: [],
-  options: {pageSize: 20}
+  options: { pageSize: 20 }
 }
 
 const emits = defineEmits([
   'refresh'
 ])
-const {name} = defineProps<{
+const { name } = defineProps<{
   name: string,
 }>()
-const {t} = useI18n()
+const { t } = useI18n()
 const FormRef = ref()
 const TreeTableFormRef = ref()
 
@@ -31,10 +30,10 @@ const state = reactive({
   profileID: '',
   rules: {
     'title': [
-      {validator: handleCheckNameOrTitle, trigger: 'blur'}
+      { validator: handleCheckNameOrTitle, trigger: 'blur' }
     ],
     'name': [
-      {validator: handleCheckNameOrTitle, trigger: 'blur'}
+      { validator: handleCheckNameOrTitle, trigger: 'blur' }
     ]
   },
   options: {
@@ -46,10 +45,10 @@ const state = reactive({
     checkStrictly: true,
     lazy: true,
     lazyLoad(node: any, resolve: any) {
-      const {level, value} = node;
-      const idOrPath = level == 0 ? "/" : value
+      const { level, value } = node
+      const idOrPath = level == 0 ? '/' : value
       setTimeout(async () => {
-        let res = await adminApi.api.postNuxeoDocumentChildrenThumbnail({
+        let res = await newAdminApi.postDmsDocumentChildrenThumbnail({
           idOrPath,
           pageSize: 100000
         }).then(res => res.data) as any
@@ -76,7 +75,7 @@ async function handleCheckNameOrTitle(rule: any, value: any, callback: any) {
   if (value === '') {
     callback(new Error(t('render.hint.fieldRequired') as string))
   } else {
-    const res = await adminApi.api.postWorkflowChecknameortitle({nameOrTitle: value})
+    const res = await newAdminApi.postDocpalWorkflowChecknameortitle({ nameOrTitle: value })
     if (Number(res.code) === 500) {
       callback(new Error(res.message))
     }
@@ -94,15 +93,15 @@ async function handleSubmit() {
       folder: getFolder(configTree),
       documentType: name,
       profileName: configData.profileName,
-      rootPath: configData.rootPath.pop(),
+      rootPath: configData.rootPath.pop()
     }
     if (state.profileID) params.profileID = state.profileID
-    const res = await adminApi.api.postWorkflowSavedocumenttypeprofile(params)
+    const res = await newAdminApi.postDocpalWorkflowSavedocumenttypeprofile(params)
     if (!res.result) {
       ElMessage.error(res.message)
       return
     }
-    console.log("res", res)
+    console.log('res', res)
     state.visible = false
     emits('refresh')
   } catch (error) {
@@ -166,7 +165,7 @@ async function revertData(profile: any) {
   state.profileID = profile.profileID
   formData.profileName = profile.profileName
   try {
-    const {data} = await adminApi.api.postNuxeoDocumentBreadcrumb(profile.rootPath) as any
+    const data: any = await newAdminApi.postDmsDocumentBreadcrumb(profile.rootPath).then(r => r.data)
     formData.rootPath = data.reduce((prev: any, item: any) => {
       prev.push(item.path)
       return prev
@@ -177,7 +176,7 @@ async function revertData(profile: any) {
   state.pathLoading = false
 }
 
-defineExpose({handleOpen})
+defineExpose({ handleOpen })
 </script>
 
 <template>
@@ -190,7 +189,7 @@ defineExpose({handleOpen})
                     prop="profileName"
                     :rules="[{ required: true, message: $t('docType_profileName') + $t('render.hint.fieldRequired')}]"
       >
-        <el-input type="text" v-model="formData.profileName"/>
+        <el-input type="text" v-model="formData.profileName" />
       </el-form-item>
       <el-form-item :label="$t('dpTable_rootPath')"
                     prop="rootPath"
@@ -203,7 +202,8 @@ defineExpose({handleOpen})
                    :treeTableFormRule="state.rules"
                    :options="state.options"></TreeTableForm>
     <template #footer>
-      <el-button id="BulkImport__Profile__AddNewCaptureProfile__Submit" type="primary" :loading="state.loading" @click="handleSubmit()">
+      <el-button id="BulkImport__Profile__AddNewCaptureProfile__Submit" type="primary" :loading="state.loading"
+                 @click="handleSubmit()">
         {{ $t('common_submit') }}
       </el-button>
     </template>

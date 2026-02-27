@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { clientApi } from "api";
 import { routeShareMePage } from "~/utils/routerHelper";
 
 const props = defineProps<{ 

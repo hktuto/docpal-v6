@@ -1,6 +1,7 @@
 <template>
-  <el-dialog v-model="state.visible" :title="$t('docType.duplicate')" class="scroll-dialog" append-to-body :close-on-click-modal="false">
-    <FormRenderer ref="FormRendererRef" :form-json="formJson"> </FormRenderer>
+  <el-dialog v-model="state.visible" :title="$t('docType.duplicate')" class="scroll-dialog" append-to-body
+             :close-on-click-modal="false">
+    <FormRenderer ref="FormRendererRef" :form-json="formJson"></FormRenderer>
     <template #footer>
       <div class="footer-grid">
         <el-button type="primary" :loading="state.loading" @click="handleSubmit">
@@ -11,9 +12,10 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 import formJson from './duplicate.vform.json'
+
 const emits = defineEmits(['refresh', 'delete'])
 const { t } = useI18n()
 const state = reactive({
@@ -33,7 +35,7 @@ async function handleSubmit() {
       // category: state.setting.category,
       // isFolder: state.setting.isFolder === 'false' ? false : true,
     }
-    await adminApi.api.postDocpaltypeSettingsDocpalTypeV2Duplicate(params)
+    await newAdminApi.postDmsDocpalTypeDuplicate(params).then(r => r.data)
     ElMessage.success(t('metadata.duplicate_success', { name: data.name }))
     emits('refresh')
     state.visible = false

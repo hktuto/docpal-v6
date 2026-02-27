@@ -2,7 +2,7 @@
 import { ElTabs, ElTabPane, ElButton, ElDialog, ElBadge } from 'element-plus'
 import { useEventListener } from '@vueuse/core'
 import { TabManagerKey } from '#imports'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const props = defineProps<{
   unreadCount?: number
 }>()
@@ -38,8 +38,7 @@ function handleClick() {
   // console.log(state.activeName)
 }
 async function getTypeList() {
-  const { data } = await clientApi.api.getNotificationQueryNotificationUnreadCountList()
-  state.list = data
+  state.list = await newClientApi.getNotificationUnreadCountList().then(r =>r.data)
   const unreadCount = state.list.reduce((prev: any, item: any) => {
     prev += item.unreadCount
     return prev
@@ -62,12 +61,12 @@ async function handleDismissAll() {
   try {
     state.dismissLoading = true
     if (state.activeName === 'Unread') {
-      await clientApi.api.postNotificationReadAll()
+      await newClientApi.postNotificationReadAll().then(r => r.data)
       state.list.forEach((item: any) => {
         item.unreadCount = 0
       })
     } else {
-      await clientApi.api.putNotificationDissmissByType({ type: state.activeName })
+      await newClientApi.putNotificationDissmissByType({ type: state.activeName })
       const activeItem = state.list.find((item: any) => item.type === state.activeName)
       state.list[0].unreadCount -= activeItem.unreadCount
       activeItem.unreadCount = 0

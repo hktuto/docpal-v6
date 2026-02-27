@@ -10,7 +10,7 @@
   </VxeGrid>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { MenuRouterKey } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
@@ -25,7 +25,8 @@ const { t } = useI18n()
 const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
   id: 'c-retention-done',
   api: async (pageParams: any) => {
-    return clientApi.api.postPolicyRetentionsDocumentPage({
+    // TODO 缺少新APi
+    return newClientApi.postPolicyRetentionsDocumentPage({
       ...doneParams,
       ...pageParams,
       ...extraParams
@@ -81,9 +82,8 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
-  const data = await clientApi.api
-    .getPolicyRetentionsDocumentPageConditions()
-    .then((res) => res.data)
+  // TODO 缺少新APi
+  const data = await newClientApi.getPolicyRetentionsDocumentPageConditions().then((res) => res.data)
   const foundItem = data.find(item => item.key === 'retentionPolicyIds')
   if (foundItem.options.length > 0) {
     foundItem.options.sort((a, b) => a.label.localeCompare(b.label))
@@ -133,9 +133,6 @@ function handleDblclick(row: any) {
 
 onMounted(() => {
   getFilter()
-  // clientApi.api.getPolicyRetentionsPolicyidScanDocument(414105)
-
-  // clientApi.api.getPolicyRetentionsPolicyidScanExpired(414105);
 })
 </script>
 

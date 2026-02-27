@@ -17,8 +17,7 @@
         <strong class="primaryTitle">{{ $t('filePopover_newFiles') }}</strong>
         {{ 'in ' + state._doc.path }}
       </template>
-      <FileUpload class="sidebar"
-                  :accept="accept" @change="tableDataAdd"></FileUpload>
+      <FileUpload class="sidebar" :accept="accept" @change="tableDataAdd"/>
       <div class="header">
         <span>{{ $t('filePopover_batchTip') }}</span>
         <el-select v-model="state.documentType" class="el-icon--right" filterable default-first-option>
@@ -101,7 +100,8 @@
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useEventListener } from '@vueuse/core'
 
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
+import tableSetting from './uploadTableSetting.ts'
 
 const emits = defineEmits(['success'])
 const dialogOpened = ref(false)
@@ -133,8 +133,6 @@ function uploadDialog(doc) {
 }
 
 // #region module: table
-
-import tableSetting from './uploadTableSetting.ts'
 
 function tableDataAdd(list: Array) {
   list.forEach(async (item, index) => {
@@ -171,11 +169,10 @@ function removeFiles(ids) {
 }
 
 function handleExpand(row: any, expandRows: any) {
-  const result = expandRows.reduce((prev, item) => {
+  state.options.expandedRowKeys = expandRows.reduce((prev, item) => {
     prev.push(item.id)
     return prev
   }, [])
-  state.options.expandedRowKeys = result
 }
 
 function handleSelectionChange(rows) {
@@ -188,7 +185,7 @@ async function handleDocTypeChange(row) {
 }
 
 async function metaListGet(documentType: string, name) {
-  const { data } = await clientApi.api.getWorkflowQuerymetavalidationrule({ entity: { documentType } })
+  const { data } = await newClientApi.getWorkflowQuerymetavalidationrule({ entity: { documentType } })
 
   if (!data) return []
   data.forEach(item => {
@@ -310,10 +307,10 @@ async function handleDuplicate(list) {
       pList.push(handleCreateDocument(file))
     })
   } else if (action === 'cancel') {
-    list.forEach(async (file) => {
+    for (const file of list) {
       if (file.isDuplicate) pList.push(handleReplaceDocument(file))
       else pList.push(handleCreateDocument(file))
-    })
+    }
   }
   await waitAll(pList)
 }
@@ -336,7 +333,7 @@ const handleCreateDocument = async (file) => {
 
   formData.append('files', file.raw)
   formData.append('document', JSON.stringify(document))
-  return clientApi.api.postNuxeoDocumentCreatedocument(formData).then((res) => {
+  return newClientApi.postDmsDocument(formData).then((res) => {
     return !!res
   })
 }
@@ -348,7 +345,7 @@ async function handleReplaceDocument(file) {
   const formData = new FormData()
   formData.append('file', file.raw)
   formData.append('document', JSON.stringify(document))
-  const res = await clientApi.api.patchNuxeoDocumentReplacefile(formData)
+  const res = await newClientApi.patchDmsDocumentContent(formData)
   return !!res
 }
 
@@ -378,7 +375,7 @@ async function waitAll(promiseList: any) {
 
 onMounted(async () => {
   useEventListener(document, 'docActionAddFile', (event) => uploadDialog(event.detail))
-  const { data }: any = await adminApi.api.getTypesActive()
+  const data: any = await adminApi.api.getDmsDocpalTypeActive().then(r => r.data)
   state.fileTypes = data?.sort((a: any, b: any) => (a.name.localeCompare(b.name))).filter((item) => !item.isFolder)
 })
 </script>

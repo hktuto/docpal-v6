@@ -34,7 +34,7 @@
         "labelIconPosition": "rear",
         "labelTooltip": null,
         "onCreated": "",
-        "onMounted": "const _this = this\n$api.get('/docpal/types/active', {}).then(res => {\n   res = res.data.data\n  const reponse = res.map(item => ({\n    value: item.name,\n    label: $t(item.name)\n  }))\n  _this.loadOptions(reponse)\n}).catch(err => {\n})",
+        "onMounted": "const _this = this\n$api.get('/api/dms/docpal-type/active', {}).then(res => {\n   res = res.data.data\n  const reponse = res.map(item => ({\n    value: item.name,\n    label: $t(item.name)\n  }))\n  _this.loadOptions(reponse)\n}).catch(err => {\n})",
         "onRemoteQuery": "",
         "onChange": "",
         "onFocus": "",

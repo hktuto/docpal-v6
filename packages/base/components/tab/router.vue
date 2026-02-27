@@ -72,6 +72,7 @@ function navigateTo(param: RouterParams, openInNewTab: boolean = false, ignoreEx
     id: tab.value.id,
     initized: true
   }
+  console.log('navigateTo', tab.value)
   if (errorBoundary.value) {
     errorBoundary.value?.clearError()
   }
@@ -309,25 +310,22 @@ onUnmounted(() => {
       <Icon :name="tab.icon" />
     </Teleport>
     <Teleport v-if="tab.label" defer :to="`#${isFullscreen ? 'fullscreen-' : ''}tab-header-${tab.parent}-${tab.id} > .label`">
-      <div class="label">
-        {{ t(tab.label) }}
-      </div>
+      <div class="label">{{ t(tab.label) }}</div>
     </Teleport>
-
     <template v-if="tab.initized">
       <NuxtErrorBoundary ref="errorBoundary" @error="handleErr">
-        <component v-if="renderComponent" :is="tab.component" :tab="tab" v-bind="tab.props" />
+        <component :is="tab.component" :tab="tab" v-bind="tab.props" />
         <template #error="{ error, clearError }">
           <div class="errorBoundaryContainer">
             <div class="messageContainer">
               <h3 class="errorTitle">ERROR : {{ $t(tab.label) }}</h3>
               <pre>
-               {{ error }}
-            </pre
+                   {{ error }}
+                </pre
               >
               <pre>
-              {{ tab }}
-            </pre
+                  {{ tab }}
+                </pre
               >
               <el-button :icon="Refresh" @click="clearError">
                 {{ $t('common_refresh') }}

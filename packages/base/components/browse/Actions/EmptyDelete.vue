@@ -10,7 +10,7 @@ import { emitBus, EventType } from 'eventbus'
 import { useEventListener } from '@vueuse/core'
 import { Loading } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const emits = defineEmits(['delete', 'success'])
 const { t } = useI18n()
@@ -22,7 +22,7 @@ const { t } = useI18n()
 async function deleteItem(doc: any, deleteType?: 'folder' | 'file') {
   const idOrPath = doc.path
   let msg = ''
-  const isShareInternal = await clientApi.api.postInternalshareCheckdocumentisinshare({
+  const isShareInternal = await newClientApi.postDmsInternalshareCheckDocumentIsInShare({
     documentId: doc.id
   })
   if (isShareInternal) msg += `<span class="color__danger">${doc.name} ${t('msg_isShareInternalFile')}</span>,`
@@ -44,7 +44,7 @@ async function deleteItem(doc: any, deleteType?: 'folder' | 'file') {
     position: 'bottom-right'
   })
   try {
-    const response = await clientApi.api.deleteNuxeoDocumentTrash([{ idOrPath }])
+    const response = await newClientApi.deleteDmsDocumentTrashBatch([{ idOrPath }]).then(r => r.data)
     if (deleteType === 'file') {
       const ev = new CustomEvent('closeFilePreview', { detail: doc })
       document.dispatchEvent(ev)

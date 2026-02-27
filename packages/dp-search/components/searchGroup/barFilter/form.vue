@@ -2,20 +2,21 @@
   <el-form v-if="options" :model="form" label-position="top">
     <el-form-item :label="$t('search.conditionType')">
       <el-select-v2 v-if="options.conditionType"
-        v-model="state.form.queryType"
-        :options="options.conditionType"
-        :placeholder="$t('common_selectOccupancyContent')"
-        size="small"
-        clearable
-        filterable
-        default-first-option
-        @clear="emits('selectClear')"
-        @change="handleChangeQueryType"
+                    v-model="state.form.queryType"
+                    :options="options.conditionType"
+                    :placeholder="$t('common_selectOccupancyContent')"
+                    size="small"
+                    clearable
+                    filterable
+                    default-first-option
+                    @clear="emits('selectClear')"
+                    @change="handleChangeQueryType"
       >
       </el-select-v2>
     </el-form-item>
     <el-form-item v-if="isQuertType('keyword')" :label="$t('search.keyword')">
-      <el-input v-model="state.form.keyword" :placeholder="$t('tip.input')" clearable size="small" @change="handleChange" />
+      <el-input v-model="state.form.keyword" :placeholder="$t('tip.input')" clearable size="small"
+                @change="handleChange" />
     </el-form-item>
     <el-form-item v-if="isQuertType('metadata')" :label="$t('search.metadataKey')">
       <el-select-v2
@@ -201,7 +202,6 @@
   </el-form>
 </template>
 <script lang="ts" setup>
-import { isJSON } from '~/utils/searchFormHelper'
 import type { CascaderProps } from 'element-plus'
 import { globalApi } from 'api'
 
@@ -227,24 +227,22 @@ const pathProps: CascaderProps = {
     //   return
     // }
     const idOrPath = level == 0 ? '/' : value
-    globalApi.api
-      .postNuxeoDocumentChildrenThumbnail({ idOrPath, pageSize: 100000 })
-      .then((res: any) => {
-        const nodes = res.data.entryList.reduce((prev: any, item: any) => {
-          if (item.isFolder)
-            prev.push({
-              value: item.path,
-              label: item.name
-            })
-          return prev
-        }, [])
-        resolve(nodes)
-      })
-      .catch((err) => {
-        resolve([])
-      })
+    globalApi.postDmsDocumentChildrenThumbnail({ idOrPath, pageSize: 100000 }).then((res: any) => {
+      const nodes = res.data.entryList.reduce((prev: any, item: any) => {
+        if (item.isFolder)
+          prev.push({
+            value: item.path,
+            label: item.name
+          })
+        return prev
+      }, [])
+      resolve(nodes)
+    }).catch((err) => {
+      resolve([])
+    })
   }
 }
+
 function isQuertType(value: string) {
   return state.form.queryType === value
 }
@@ -258,6 +256,7 @@ async function handleMetaEcho(q: any) {
     handleMetaChange(q.value.key)
   }
 }
+
 async function handlePath(path: string) {
   const paths = path.split('/').filter((item) => item)
   state._path = paths.reduce((prev: any, name, index) => {
@@ -271,6 +270,7 @@ async function handlePath(path: string) {
     return prev
   }, [])
 }
+
 function handleMetaValueChange(value: string) {
   state.form.metadataValue = value
   handleChange()

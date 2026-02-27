@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { routeWorkflowPage } from '~/utils/routerHelper'
 import { generateData, replaceVariables } from 'docpal-document-editor/src/utils'
 
@@ -36,7 +35,7 @@ async function getDetail() {
     state.error = null
     switch (workflowType) {
       case state.processState.completeTask:
-        const historyList: any = await clientApi.api.postWorkflowHistoryProcess({
+        const historyList: any = await newClientApi.postDocpalWorkflowHistoryProcess({
           processInstanceId: id,
           completed: true
         }).then((res) => res?.data?.entryList)
@@ -45,10 +44,10 @@ async function getDetail() {
         }
         break
       default:
-        state.taskDetail = await clientApi.api.postWorkflowTask({ taskId: id }).then((res) => res.data)
+        state.taskDetail = await newClientApi.postDocpalWorkflowTask({ taskId: id }).then((res) => res.data)
         if (!state.taskDetail) {
           // handle if workflow task is already complete ,and should use history api
-          state.taskDetail = await clientApi.api.postWorkflowHistoryProcess({
+          state.taskDetail = await newClientApi.postDocpalWorkflowHistoryProcess({
             processInstanceId: id,
             completed: true
           }).then((res) => res.data)
@@ -72,11 +71,9 @@ async function getDetail() {
 
 async function handleGetActivity() {
   const processInstanceId = state.taskDetail.instanceId || state.taskDetail.processInstanceId
-  state.activityList = await clientApi.api
-    .postWorkflowHistoryActivity({
-      processInstanceId
-    })
-    .then((res: any) => res.data?.list.filter((i) => i.activityName).reverse())
+  state.activityList = await newClientApi.postDocpalWorkflowHistoryActivity({
+    processInstanceId
+  }).then((res: any) => res.data?.list.filter((i) => i.activityName).reverse())
 }
 
 // #region module: form
@@ -89,36 +86,33 @@ const formDataValue = ref<any>(null)
 /// #region full screen logic
 const workflowFormContainerRef = ref<any>(null)
 const isFullScreenForm = ref(false)
+
 function fullscreenEventListen() {
-  if(document.fullscreenElement) {
-    isFullScreenForm.value = true
-  } else {
-    isFullScreenForm.value = false
-  }
+  isFullScreenForm.value = !!document.fullscreenElement;
 }
 
 watch(isFullScreenForm, (newVal) => {
-  if(newVal) {
+  if (newVal) {
     document.addEventListener('fullscreenchange', fullscreenEventListen)
   } else {
     document.removeEventListener('fullscreenchange', fullscreenEventListen)
   }
-},{
-  immediate: true,
+}, {
+  immediate: true
 })
-/// #endregion
 
 function toggleFullScreenForm() {
   isFullScreenForm.value = !isFullScreenForm.value
-  if(isFullScreenForm.value) {
-  const el = workflowFormContainerRef.value
-    if(el) {
+  if (isFullScreenForm.value) {
+    const el = workflowFormContainerRef.value
+    if (el) {
       el.requestFullscreen()
     }
   } else {
     document.exitFullscreen()
   }
 }
+
 async function handleFormDataGet() {
   let formJson
   let formData
@@ -135,13 +129,13 @@ async function handleFormDataGet() {
           formJson = await formJsonGet(lastActivity.activityId, state.taskDetail.processDefinitionKey, state.taskDetail.processDefinitionVersionId)
         }
       }
-      xml = await clientApi.api.getWorkflowVersionVersionidBpmnxml(state.taskDetail.processDefinitionVersionId)
+      xml = await newClientApi.getDocpalWorkflowVersionVersionidBpmnxml(state.taskDetail.processDefinitionVersionId)
       vFormRef.value.setForm(formJson, formData, [], xml)
       await handleAdditionalSetting(xml, state.taskDetail, formData)
       formDataValue.value = formData
       break
     default:
-      const properties = await clientApi.api.postWorkflowProperties({ taskId: id }).then((res) => res.data)
+      const properties = await newClientApi.postDocpalWorkflowProperties({ taskId: id }).then((res) => res.data)
 
       formData = formDataGetFromProps(properties)
       formJson = await formJsonGet(
@@ -149,7 +143,7 @@ async function handleFormDataGet() {
         state.taskDetail.taskInstance.processDefinitionKey,
         state.taskDetail.processDefinitionVersionId
       )
-      xml = await clientApi.api.getWorkflowVersionVersionidBpmnxml(state.taskDetail.processDefinitionVersionId)
+      xml = await newClientApi.getDocpalWorkflowVersionVersionidBpmnxml(state.taskDetail.processDefinitionVersionId)
       vFormRef.value.setForm(formJson, formData, [], xml)
       formDataValue.value = formData
       await handleAdditionalSetting(xml, state.taskDetail, formData)
@@ -184,12 +178,11 @@ function formDataGetFromProps(list: any) {
 
 async function formJsonGet(userTaskId: string, processKey: string, versionId: string) {
   // @ts-ignore
-  const response: any = await clientApi.api
-    .getRelationQuery({
-      userTaskId,
-      processKey,
-      versionId
-    })
+  const response: any = await newClientApi.getDmsFormPropertiesQuery({
+    userTaskId,
+    processKey,
+    versionId
+  })
     .then((res) => res.data)
   if (!response || !response[0] || (response[0] && !response[0].jsonValue)) return {}
   return JSON.parse(response[0].jsonValue)
@@ -209,24 +202,25 @@ async function handleSave() {
       taskId: id,
       properties: { ...data }
     }
-    await clientApi.api.postWorkflowPropertiesSave(param)
+    await newClientApi.postDocpalWorkflowPropertiesSave(param)
     routerProvider?.message.success(`${t('msg_successfulOperation')}`)
   } catch (error) {
     console.log(error)
     // routerProvider?.message.error(error)
-  }finally{
+  } finally {
     state.loading = false
   }
 }
 
 const signSubmitStage = ref<'beforeSubmit' | 'afterSubmit'>('beforeSubmit')
 const signatureSettingDialogRef = ref<any>(null)
+
 function openSignatureSettingDialog() {
   signatureSettingDialogRef.value.open()
 }
 
 async function handleCancel() {
-  
+
   let data = await vFormRef.value.getFormData(false, false)
   data[signatureDetail.value.workflowKeyToStoreSignature] = null
   const allFormData = {
@@ -234,23 +228,25 @@ async function handleCancel() {
     ...data
   }
   const templateVariables = convertWorkflowVariableToTemplateVariable(allFormData, signatureDetail.value.workflowToTemplateMapping)
-  
+
   // check if current step need to sign
-  if(signatureDetail.value.signatureVariableSetting) {
-      templateVariables[signatureDetail.value.signatureVariableSetting.id] = signatureDetail.value.templateVariables[signatureDetail.value.signatureVariableSetting.id]
-    }
+  if (signatureDetail.value.signatureVariableSetting) {
+    templateVariables[signatureDetail.value.signatureVariableSetting.id] = signatureDetail.value.templateVariables[signatureDetail.value.signatureVariableSetting.id]
+  }
   const newVariables = generateData(templateVariables, JSON.parse(JSON.stringify(signatureDetail.value.templateDetail)))
   const content = signatureDetail.value.templateDetail.json.content.content
   signatureDetail.value.templateDetail.json.content.content = replaceVariables(content, newVariables.variables)
   temSignatureData.value = null
   signSubmitStage.value = 'beforeSubmit'
 }
+
 function handleResign() {
   openSignatureSettingDialog()
 }
+
 async function handleSubmit() {
   // if displayMode is signature, and signSubmitStage is beforeSubmit, do not submit form, open signature setting dialog
-  if(displayMode.value === 'signature' && signSubmitStage.value === 'beforeSubmit' && signatureDetail.value.signatureVariableSetting) {
+  if (displayMode.value === 'signature' && signSubmitStage.value === 'beforeSubmit' && signatureDetail.value.signatureVariableSetting) {
     openSignatureSettingDialog()
     return
   }
@@ -258,11 +254,11 @@ async function handleSubmit() {
   try {
     // FIXME : auto assign workflow to user if assigee is not user, API should auto do this step, if so remove this step
     if (state.taskDetail?.assignee !== userId) {
-      await clientApi.api.postWorkflowTaskClaim({ taskId: id, userId }).then((res) => res.data)
+      await newClientApi.postWorkflowTaskClaim({ taskId: id, userId }).then((res) => res.data)
     }
     // get form data
     let data = await vFormRef.value.getFormData(true, false)
-    if(signSubmitStage.value === 'afterSubmit') {
+    if (signSubmitStage.value === 'afterSubmit') {
       data[signatureDetail.value.workflowKeyToStoreSignature] = temSignatureData.value
     }
     // return;
@@ -293,7 +289,7 @@ async function handleSubmit() {
       taskId: id,
       properties: { ...data }
     }
-    const res: any = await clientApi.api.postWorkflowFormSubmit(param).then((res) => res.data)
+    const res: any = await newClientApi.postDocpalWorkflowFormSubmit(param).then((res) => res.data)
     routerProvider?.message.success(`${t('msg_successfulOperation')}`)
     const fallbackRoute = routeWorkflowPage({
       workflowType: workflowType
@@ -319,6 +315,7 @@ const signatureDetail = ref<any>(null)
 const pageButtonSetting = ref<any>(null)
 
 const temSignatureData = ref<any>(null)
+
 async function handleApplySignature(newSignature: any) {
   // temp add signature to form data and update signature setting variable
   // get form data
@@ -338,53 +335,58 @@ async function handleApplySignature(newSignature: any) {
 }
 
 async function handleAdditionalSetting(xml: any, taskDetail: any, formData: any) {
-  const { buttons, components, signatureSetting, buttonSetting } = await getBpmnAdditionalElement(xml, state.taskDetail.taskDefinitionKey, taskDetail, formData)
+  const {
+    buttons,
+    components,
+    signatureSetting,
+    buttonSetting
+  } = await getBpmnAdditionalElement(xml, state.taskDetail.taskDefinitionKey, taskDetail, formData)
   additionalButton.value = buttons
-  if(buttonSetting) {
+  if (buttonSetting) {
     pageButtonSetting.value = buttonSetting
   }
-  if(signatureSetting) {
+  if (signatureSetting) {
     signatureDetail.value = signatureSetting
     nextTick(() => {
       displayMode.value = 'signature'
     })
     signSubmitStage.value = 'beforeSubmit'
-  }else{
+  } else {
     signatureDetail.value = null
     nextTick(() => {
       displayMode.value = 'form'
     })
-    
+
   }
 }
 
 async function handleFormChange() {
-  if(displayMode.value === 'signature') {
+  if (displayMode.value === 'signature') {
     // get new form data and update signature preview
     let data = await vFormRef.value.getFormData(true, false)
     const allFormData = {
       ...formDataValue.value,
       ...data
     }
-    
+
     const templateVariables = convertWorkflowVariableToTemplateVariable(allFormData, signatureDetail.value.workflowToTemplateMapping)
     // check if current step need to sign
-    if(signatureDetail.value.signatureVariableSetting) {
+    if (signatureDetail.value.signatureVariableSetting) {
       templateVariables[signatureDetail.value.signatureVariableSetting.id] = signatureDetail.value.templateVariables[signatureDetail.value.signatureVariableSetting.id]
     }
     const newVariables = generateData(templateVariables, JSON.parse(JSON.stringify(signatureDetail.value.templateDetail)))
     const content = signatureDetail.value.templateDetail.json.content.content
     signatureDetail.value.templateDetail.json.content.content = replaceVariables(content, newVariables.variables)
-    console.log("signatureDetail.value", signatureDetail.value)
+    console.log('signatureDetail.value', signatureDetail.value)
   }
 }
 
-async function addtionalSubmit({formData,attr_booleanValue}: any) {
+async function addtionalSubmit({ formData, attr_booleanValue }: any) {
   state.loading = true
   if (state.taskDetail?.assignee !== userId) {
-    await clientApi.api.postWorkflowTaskClaim({ taskId: id, userId }).then((res) => res.data)
+    await newClientApi.postWorkflowTaskClaim({ taskId: id, userId }).then((res) => res.data)
   }
-  
+
   const additionButtonActions: any = []
   additionalButtonRef.value.forEach((item) => {
     if (item && item.beforeSubmit && item.attr_booleanValue !== attr_booleanValue) {
@@ -402,7 +404,7 @@ async function addtionalSubmit({formData,attr_booleanValue}: any) {
     taskId: id,
     properties: { ...formData }
   }
-  const res: any = await clientApi.api.postWorkflowFormSubmit(param).then((res) => res.data)
+  const res: any = await newClientApi.postDocpalWorkflowFormSubmit(param).then((res) => res.data)
   routerProvider?.message.success(`${t('msg_successfulOperation')}`)
   if (backItem) {
     routerProvider?.back(backItem)
@@ -471,80 +473,89 @@ onMounted(() => {
                               @change="handleTaskInfoChange"></WorkflowDetailInfo>
         </el-tab-pane>
         <el-tab-pane class="workflow-detail-pane" :label="$t('workflow_form')" name="form" v-loading="state.loading">
-            <div 
-              ref="workflowFormContainerRef"
-              v-show="displayMode !== 'signature' || signSubmitStage !== 'afterSubmit'"
+          <div
+            ref="workflowFormContainerRef"
+            v-show="displayMode !== 'signature' || signSubmitStage !== 'afterSubmit'"
             :class="
               { workflowFormContainer:true, 
                 [displayMode]:true, 
                 glass: displayMode === 'signature' && !isFullScreenForm,
                 showForm
               }">
-                <div v-if="displayMode === 'signature'" class="toggleFormButton">
-                    <Icon :name="showForm ? 'tabler:arrow-right' : 'tabler:arrow-left'  " size="20" @click="toggleShowForm"/>
-                </div>
-                <div v-if="displayMode === 'signature'" class="toggleFullScreenButton">
-                  <Icon :name="isFullScreenForm ? 'tabler:minimize' : 'tabler:maximize'" size="20" @click="toggleFullScreenForm" />
-                </div>
-              <WorkflowDetailFormRender 
-                ref="vFormRef" 
-                :taskDetail="state.taskDetail"
-                @formChange="handleFormChange"
-                >
-                  <template #action>
-                    <div class="workflow-detail-pane--btns" v-if="isAssigneeUser">
-                      <template v-for="(item, index) in additionalButton" :key="index">
-                        <component :is="item.component" ref="additionalButtonRef" v-bind="item.props"
-                                  @submit="addtionalSubmit" />
-                      </template>
-                      <el-button 
-                        v-if="!pageButtonSetting || pageButtonSetting.showSaveDraft"
-                        id="Workflow__AvailableTask__Detail__Form__SaveDraft" :disabled="workflowType === 'completeTask'" @click="handleSave">
-                        <template v-if="pageButtonSetting && pageButtonSetting.saveDraftLabel">
-                          {{ pageButtonSetting.saveDraftLabel }}
-                        </template>
-                        <template v-else>
-                          {{ $t('workflow_save') }}
-                        </template>
-                      </el-button>
-                      
-                      <el-button v-if="(!pageButtonSetting || pageButtonSetting.showSumBitButton) && (displayMode !== 'signature' || signSubmitStage === 'beforeSubmit')" id="Workflow__AvailableTask__Detail__Form__Submit" type="primary" :disabled="workflowType === 'completeTask'" @click="handleSubmit">
-                        <template v-if="pageButtonSetting && pageButtonSetting.submitButtonLabel">
-                          {{ pageButtonSetting.submitButtonLabel }}
-                        </template>
-                        <template v-else>
-                          {{ $t('common_submit') }}
-                        </template>
-                      </el-button>
-                      
-                    </div>
-                  </template>
-                </WorkflowDetailFormRender>
+            <div v-if="displayMode === 'signature'" class="toggleFormButton">
+              <Icon :name="showForm ? 'tabler:arrow-right' : 'tabler:arrow-left'  " size="20" @click="toggleShowForm" />
             </div>
-            <template v-if="displayMode === 'signature'">
-              <!-- template viewer -->
-              <div class="templateViewerContainer">
-                <!-- {{ signatureDetail.templateDetail }} -->
-                <DocTemplateViewer ref="templateViewerRef" v-if="!state.isEdit && signatureDetail" :options="signatureDetail.templateDetail.json.options"
-                                :json="signatureDetail.templateDetail.json.content" />
-              </div>
-              <div v-if="signSubmitStage === 'afterSubmit'" class="floatingButtonContainer glass">
-                <el-button  id="Workflow__AvailableTask__Detail__Form__Cancel" :disabled="workflowType === 'completeTask'" @click="handleCancel">
-                  {{ $t('cancelText') }}
-                </el-button>
-                <el-button  id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary" :disabled="workflowType === 'completeTask'" @click="handleResign">
-                  {{ $t('workflow_resign') }}
-                </el-button>
-                <el-button  id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary" :disabled="workflowType === 'completeTask'" @click="handleSubmit">
-                  {{ $t('common_submit') }}
-                </el-button>
-              </div>
-              <WorkflowSignatureDialog 
-                ref="signatureSettingDialogRef" 
-                :signatureSetting="signatureDetail"
-                @confirm="handleApplySignature"
-              />
-            </template>
+            <div v-if="displayMode === 'signature'" class="toggleFullScreenButton">
+              <Icon :name="isFullScreenForm ? 'tabler:minimize' : 'tabler:maximize'" size="20"
+                    @click="toggleFullScreenForm" />
+            </div>
+            <WorkflowDetailFormRender
+              ref="vFormRef"
+              :taskDetail="state.taskDetail"
+              @formChange="handleFormChange"
+            >
+              <template #action>
+                <div class="workflow-detail-pane--btns" v-if="isAssigneeUser">
+                  <template v-for="(item, index) in additionalButton" :key="index">
+                    <component :is="item.component" ref="additionalButtonRef" v-bind="item.props"
+                               @submit="addtionalSubmit" />
+                  </template>
+                  <el-button
+                    v-if="!pageButtonSetting || pageButtonSetting.showSaveDraft"
+                    id="Workflow__AvailableTask__Detail__Form__SaveDraft" :disabled="workflowType === 'completeTask'"
+                    @click="handleSave">
+                    <template v-if="pageButtonSetting && pageButtonSetting.saveDraftLabel">
+                      {{ pageButtonSetting.saveDraftLabel }}
+                    </template>
+                    <template v-else>
+                      {{ $t('workflow_save') }}
+                    </template>
+                  </el-button>
+
+                  <el-button
+                    v-if="(!pageButtonSetting || pageButtonSetting.showSumBitButton) && (displayMode !== 'signature' || signSubmitStage === 'beforeSubmit')"
+                    id="Workflow__AvailableTask__Detail__Form__Submit" type="primary"
+                    :disabled="workflowType === 'completeTask'" @click="handleSubmit">
+                    <template v-if="pageButtonSetting && pageButtonSetting.submitButtonLabel">
+                      {{ pageButtonSetting.submitButtonLabel }}
+                    </template>
+                    <template v-else>
+                      {{ $t('common_submit') }}
+                    </template>
+                  </el-button>
+
+                </div>
+              </template>
+            </WorkflowDetailFormRender>
+          </div>
+          <template v-if="displayMode === 'signature'">
+            <!-- template viewer -->
+            <div class="templateViewerContainer">
+              <!-- {{ signatureDetail.templateDetail }} -->
+              <DocTemplateViewer ref="templateViewerRef" v-if="!state.isEdit && signatureDetail"
+                                 :options="signatureDetail.templateDetail.json.options"
+                                 :json="signatureDetail.templateDetail.json.content" />
+            </div>
+            <div v-if="signSubmitStage === 'afterSubmit'" class="floatingButtonContainer glass">
+              <el-button id="Workflow__AvailableTask__Detail__Form__Cancel" :disabled="workflowType === 'completeTask'"
+                         @click="handleCancel">
+                {{ $t('cancelText') }}
+              </el-button>
+              <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary"
+                         :disabled="workflowType === 'completeTask'" @click="handleResign">
+                {{ $t('workflow_resign') }}
+              </el-button>
+              <el-button id="Workflow__AvailableTask__Detail__Form__Confirm" type="primary"
+                         :disabled="workflowType === 'completeTask'" @click="handleSubmit">
+                {{ $t('common_submit') }}
+              </el-button>
+            </div>
+            <WorkflowSignatureDialog
+              ref="signatureSettingDialogRef"
+              :signatureSetting="signatureDetail"
+              @confirm="handleApplySignature"
+            />
+          </template>
         </el-tab-pane>
         <el-tab-pane :label="$t('workflow_graph')" name="graph">
           <!-- need to use v-if for bpmn, if not  svg graph will not show -->
@@ -557,7 +568,7 @@ onMounted(() => {
           />
         </el-tab-pane>
         <el-tab-pane v-if="state.taskDetail && state.taskDetail.instanceId && isMobile"
-                    :label="$t('common_discussionChannel')" name="command">
+                     :label="$t('common_discussionChannel')" name="command">
           <WorkflowDetailDiscussionChannel :id="state.taskDetail.instanceId" :noToggle="true" />
         </el-tab-pane>
       </el-tabs>
@@ -573,7 +584,7 @@ onMounted(() => {
   </div>
 </template>
 <style lang="scss" scoped>
-.floatingButtonContainer{
+.floatingButtonContainer {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -585,6 +596,7 @@ onMounted(() => {
   gap: var(--app-space-xs);
   padding: var(--app-space-s);
 }
+
 .pageContainer--padding.workflow-detail {
   display: grid;
   grid-template-columns: 1fr min-content;
@@ -595,15 +607,17 @@ onMounted(() => {
     grid-template-columns: 1fr;
     grid-template-rows: min-content 1fr;
   }
-  > .wrapper{
+
+  > .wrapper {
     display: flex;
     flex-flow: column nowrap;
     height: 100%;
     overflow: hidden;
     position: relative;
     gap: var(--app-space-s);
+
     > h3 {
-      margin:  0;
+      margin: 0;
     }
   }
 }
@@ -616,14 +630,17 @@ onMounted(() => {
     height: 100%;
   }
 }
-.templateViewerContainer{
+
+.templateViewerContainer {
   position: relative;
   overflow: hidden;
 }
+
 .workflow-detail-pane {
   display: grid;
   grid-template-rows: 1fr min-content;
   transform: scale(1);
+
   &--btns {
     box-shadow: var(--el-box-shadow-light);
     padding: var(--app-space-s);
@@ -632,55 +649,64 @@ onMounted(() => {
     gap: var(--app-space-s);
     justify-content: flex-start;
     // text-align: right;
-    :deep(.el-button + .el-button){
+    :deep(.el-button + .el-button) {
       margin-left: 0;
     }
   }
 }
 
-.workflowFormContainer{
+.workflowFormContainer {
   position: relative;
   max-height: calc(100vh - 150px);
-  &.form{}
-  &.signature{
+
+  &.form {
+  }
+
+  &.signature {
     position: fixed;
     background: var(--app-grey-950);
     top: var(--app-space-xs);
     right: var(--app-space-xs);
     width: clamp(120px, 30vw, 400px);
-    height: calc( 100% - var(--app-space-xs) * 2);
+    height: calc(100% - var(--app-space-xs) * 2);
     padding: var(--app-space-l) var(--app-space-s) var(--app-space-s) var(--app-space-s);
     border-radius: var(--app-border-radius-m);
     z-index: 99;
     transition: all 0.2s ease-in-out;
     transform: translateX(90%);
-    &.showForm{
+
+    &.showForm {
       transform: translateX(0);
     }
-    &.glass{
+
+    &.glass {
       background-color: transparent;
-      background-image: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, var(--app-primary-alpha-30) 2%, var(--app-primary-alpha-50) 100%);
+      background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3) 0%, var(--app-primary-alpha-30) 2%, var(--app-primary-alpha-50) 100%);
 
     }
   }
 }
-.toggleFullScreenButton{
+
+.toggleFullScreenButton {
   position: absolute;
   top: var(--app-space-s);
   right: var(--app-space-s);
   z-index: 2;
   cursor: pointer;
-  &:hover{
+
+  &:hover {
     color: var(--app-primary-color);
   }
 }
-.toggleFormButton{
+
+.toggleFormButton {
   position: absolute;
   top: var(--app-space-s);
   left: var(--app-space-s);
   z-index: 2;
   cursor: pointer;
-  &:hover{
+
+  &:hover {
     color: var(--app-primary-color);
   }
 }

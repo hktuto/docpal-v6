@@ -30,7 +30,8 @@
           <template #toggleText>
             <div class="label">{{ $t('ai.uploadText') }}</div>
           </template>
-          <el-tree ref="treeRef" :data="state.fileList" default-expand-all nodeKey="id" :expand-on-click-node="false" @node-click="handleNodeClick">
+          <el-tree ref="treeRef" :data="state.fileList" default-expand-all nodeKey="id" :expand-on-click-node="false"
+                   @node-click="handleNodeClick">
             <template #default="{ node, data }">
               <div :class="['flex-x-between', 'tree-item', { 'disabled-line': data.isUpload === false }]">
                 <span :class="['flex-x-start', { color__danger: state.repearNameIdList.includes(data.id) }]">
@@ -47,7 +48,8 @@
             </template>
           </el-tree>
         </SplitpanesPanes>
-        <SplitpanesPanes class="main-center" v-model:size="middleSize" :defaultSize="55" parentId="panesContainer" :dragging="dragging" :minSizeInPixel="300">
+        <SplitpanesPanes class="main-center" v-model:size="middleSize" :defaultSize="55" parentId="panesContainer"
+                         :dragging="dragging" :minSizeInPixel="300">
           <div class="flex-x-between" v-show="state.selectedDoc" style="padding: var(--app-space-xs)">
             {{ state.selectedDoc.name }}
           </div>
@@ -90,15 +92,20 @@
       <div class="upload-footer flex-x-between">
         <div class="space"></div>
         <div>
-          <el-button :loading="state.submitLoading" :disabled="state.retryLoading" type="danger" @click.native="handleDiscard">
+          <el-button :loading="state.submitLoading" :disabled="state.retryLoading" type="danger"
+                     @click.native="handleDiscard">
             {{ $t('ai.cancelPatch') }}
           </el-button>
-          <el-button :loading="state.submitLoading" :disabled="state.retryLoading" type="info" @click.native="handleClose">{{ $t('common_close') }} </el-button>
-          <el-button v-if="state.status === 'Error'" :loading="state.retryLoading" :disabled="state.submitLoading" type="primary" @click.native="handleRetry"
-            >{{ $t('ai.retryAiLoading') }}
+          <el-button :loading="state.submitLoading" :disabled="state.retryLoading" type="info"
+                     @click.native="handleClose">{{ $t('common_close') }}
           </el-button>
-          <el-button :loading="state.submitLoading" :disabled="state.retryLoading" type="primary" @click.native="handleSubmit"
-            >{{ $t('dpButtom_confirm') }}
+          <el-button v-if="state.status === 'Error'" :loading="state.retryLoading" :disabled="state.submitLoading"
+                     type="primary" @click.native="handleRetry"
+          >{{ $t('ai.retryAiLoading') }}
+          </el-button>
+          <el-button :loading="state.submitLoading" :disabled="state.retryLoading" type="primary"
+                     @click.native="handleSubmit"
+          >{{ $t('dpButtom_confirm') }}
           </el-button>
         </div>
       </div>
@@ -109,7 +116,7 @@
 <script lang="ts" setup>
 import { ElMessageBox, ElNotification, ElMessage } from 'element-plus'
 import { emitBus, EventType } from 'eventbus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 
@@ -244,7 +251,7 @@ async function handleDeleteFile(data: any) {
       return action
     })
     if (action !== 'confirm') return
-    await clientApi.api.deleteNuxeoDocumentTempfileId(data.id)
+    await newClientApi.deleteDmsUploadTmpFileId(data.id).then(r => r.data)
     treeRef.value.remove(data)
   } catch (error) {
     console.log(error)
@@ -260,17 +267,10 @@ async function handleDiscard() {
       return action
     })
     if (action !== 'confirm') return
-    const formData = new FormData()
-    formData.append('userId', userId.value)
-    formData.append('uploadId', id)
-    await clientApi.instance.post(`/nuxeo/document/batchCancel`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
+    await newClientApi.postDmsUploadCancel({ userId: userId.value, uploadId: id }).then(r => r.data)
+
     const item = goAiUploadDetail()
     routerProvider?.navigateTo(item)
-    // await clientApi.api.postNuxeoDocumentBatchcancel(formData)
     // router.push(state.backPath)
   } catch (error) {
     console.log(error)
@@ -299,16 +299,19 @@ function checkExtension(filename: string) {
 async function handleRetry() {
   state.retryLoading = true
   try {
-    const result = await clientApi.api.getNuxeoDocumentRetryClassificationUploadid(id)
+    const result = await newClientApi.getDmsDocumentRetryClassificationUploadid(id)
     if (!!result) {
       state.status = 'Prepare'
       routerProvider?.updateProps({
         status: 'Prepare'
       })
-      init()
+      await init()
+    } else {
+      await init()
     }
-    init()
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
   setTimeout(() => (state.retryLoading = false), 1000)
 }
 
@@ -347,11 +350,11 @@ async function handleSubmit() {
   try {
     state.submitLoading = true
     if (await checkFailedListExist(fileConfirmDTOList)) return
-    const { data }: any = await clientApi.api.postNuxeoDocumentBatchconfirm({
+    const data: any = await newClientApi.postDmsUploadConfirm({
       userId: userId.value,
       uploadId: id,
       fileConfirmDTOList
-    })
+    }).then(r => r.data)
     // router.back()
 
     if (!!data.uploadSuccess) {
@@ -371,21 +374,19 @@ async function handleSubmit() {
 }
 
 async function checkFailedListExist(fileConfirmDTOList: any[]): Promise<boolean> {
-  const checkFailedList: any = await clientApi.api
-    .postNuxeoDocumentCheckfileexist({
-      uploadId: id,
-      fileCheckList: fileConfirmDTOList.reduce((prev, item) => {
-        if (!item.parentId) {
-          prev.push({
-            id: item.id,
-            docName: item.docName,
-            fileSuffix: '.' + item.fileSuffix
-          })
-        }
-        return prev
-      }, [])
-    })
-    .then((res: any) => res.data.checkFailedList)
+  const checkFailedList: any = await newClientApi.postDmsUploadValidation({
+    uploadId: id,
+    fileCheckList: fileConfirmDTOList.reduce((prev, item) => {
+      if (!item.parentId) {
+        prev.push({
+          id: item.id,
+          docName: item.docName,
+          fileSuffix: '.' + item.fileSuffix
+        })
+      }
+      return prev
+    }, [])
+  }).then((res: any) => res.data.checkFailedList)
   state.repearNameIdList = []
   const fileNames = checkFailedList.reduce((prev: any, item: any) => {
     prev.push(item.docName)
@@ -407,12 +408,10 @@ async function checkFailedListExist(fileConfirmDTOList: any[]): Promise<boolean>
 }
 
 async function init() {
-  let docList: any = await clientApi.api
-    .postNuxeoDocumentQueryuploadfiledetaildtolist({
-      userId: userId.value,
-      uploadId: id
-    })
-    .then((res) => res.data)
+  let docList: any = await newClientApi.postDmsUploadQueryItems({
+    userId: userId.value,
+    uploadId: id
+  }).then((res) => res.data)
   console.log('docList', docList)
   docList = docList.map((item: any) => ({
     ...item,
@@ -429,7 +428,7 @@ async function init() {
 }
 
 onMounted(async () => {
-  init()
+  await init()
   leftMin.value = CalMax()
   rightMin.value = CalMax()
 })
@@ -441,11 +440,13 @@ onMounted(async () => {
   height: 28px;
   position: relative;
   display: flex;
+
   img {
     width: 100%;
     height: 100%;
   }
 }
+
 .pageContainer {
   height: 100%;
   width: 100%;
@@ -460,6 +461,7 @@ onMounted(async () => {
   overflow: hidden;
   position: relative;
   gap: 0;
+
   :deep(.splitpanes__splitter) {
     width: 2px;
     background-color: var(--app-grey-950);
@@ -482,21 +484,25 @@ onMounted(async () => {
       }
     }
   }
+
   :deep(.splitpanes--vertical > .splitpanes__splitter:before) {
     top: 50%;
     left: -14px;
     height: 100%;
     width: 30px;
   }
+
   :deep(.splitpanes--horizontal > .splitpanes__splitter:before) {
     top: -30px;
     bottom: -30px;
     width: 100%;
   }
+
   :deep(.upload-footer) {
     border-top: 1px solid var(--app-grey-950);
     padding: var(--app-space-xs) calc(var(--app-space-xs) * 2);
   }
+
   :deep(.splitpanes.default-theme .splitpanes__pane) {
     background-color: var(--app-grey-0000);
   }
@@ -530,6 +536,7 @@ onMounted(async () => {
   gap: var(--app-space-xs);
   overflow: hidden;
   position: relative;
+
   .fileName {
     overflow: hidden;
     text-overflow: ellipsis;

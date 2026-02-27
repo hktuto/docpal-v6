@@ -7,24 +7,27 @@
     <div>
       {{ $t('tableHeader_labelRule') }}：
       <template v-for="(item, index) in getLabelList(state.setting.labelRule)" :key="index">
-        <el-tag>{{ $t(item.metadata || item.metaData) }} </el-tag>
+        <el-tag>{{ $t(item.metadata || item.metaData) }}</el-tag>
         <template v-if="index !== getLabelList(state.setting.labelRule).length - 1"> -</template>
       </template>
     </div>
     <el-text :type="hasPreviewName(state.setting.previewName) ? '' : 'danger'" style="margin-bottom: 15px"
-      >{{ $t('folderCabinet.previewName') }}：{{ state.setting.previewName }}</el-text
-    >
+    >{{ $t('folderCabinet.previewName') }}：{{ state.setting.previewName }}
+    </el-text>
     <FormUpload v-model="state.fileList" :limit="1" @change="handleChange"></FormUpload>
     <MetaRenderForm2 ref="MetaFormRef" mode="folderCabinet" @formChange="handleMetaChange"></MetaRenderForm2>
     <template #footer>
-      <el-button id="FolderCabinet__Detail__Create__Submit" :loading="state.loading" type="primary" @click="handleSubmit">{{ $t('submit') }} </el-button>
+      <el-button id="FolderCabinet__Detail__Create__Submit" :loading="state.loading" type="primary"
+                 @click="handleSubmit">{{ $t('submit') }}
+      </el-button>
     </template>
   </el-dialog>
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
+
 const emits = defineEmits(['success'])
 const route = useRoute()
 const state = reactive<any>({
@@ -37,6 +40,7 @@ const state = reactive<any>({
 })
 const MetaFormRef = ref()
 const { t } = useI18n()
+
 function getMetaName(formData: any = {}) {
   try {
     if (!!state.metaFormData)
@@ -45,7 +49,8 @@ function getMetaName(formData: any = {}) {
         ...state.metaFormData,
         label: state.setting.label
       }
-  } catch (error) {}
+  } catch (error) {
+  }
   const labelRules = getLabelList(state.setting.labelRule)
   return getNameByLabelRule(labelRules, formData)
 }
@@ -92,12 +97,10 @@ async function handleSubmit() {
       idOrPath: state.setting.documentPath + '/' + state.setting.previewName,
       type: state.setting.documentType
     }
-    const duplicateResult: any = await clientApi.api
-      .postNuxeoDocumentIsduplicatename({
-        path: state.setting.documentPath,
-        titles: [state.setting.previewName]
-      })
-      .then((res) => res.data)
+    const duplicateResult: any = await newClientApi.postDmsDocumentIsduplicatename({
+      path: state.setting.documentPath,
+      titles: [state.setting.previewName]
+    }).then((res: any) => res.data)
     if (duplicateResult[state.setting.previewName]) {
       if (state.setting.repeatName) {
         handleReplace(
@@ -120,7 +123,7 @@ async function handleSubmit() {
     inputFile.dfcId = state.setting.id
     formData.append('files', file)
     formData.append('document', JSON.stringify(inputFile))
-    const res = await clientApi.api.postNuxeoDocumentCreatedocument(formData)
+    const res = await newClientApi.postDmsDocument(formData).then(r => r.data)
     emits('success', inputFile)
     state.dialogOpened = false
   } catch (error) {
@@ -136,7 +139,7 @@ async function handleReplace(inputFile: any, file: any) {
   formData.append('document', JSON.stringify(inputFile))
   state.loading = true
   try {
-    const res = await clientApi.api.patchNuxeoDocumentReplacefileV2(formData, formData)
+    const res = await newClientApi.patchDmsDocumentContent(formData, formData).then(r => r.data)
     state.dialogOpened = false
     emits('success', inputFile)
   } catch (error) {

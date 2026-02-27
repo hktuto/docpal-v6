@@ -5,7 +5,8 @@
         <el-button id="Collection_CreateNewCollection" type="primary" @click="openAddCollectionDialog">
           {{ t('collections_new') }}
         </el-button>
-        <el-icon :class="['collapse-icon', 'el-icon--right', style.collapse ? 'rotate' : 'revert']" @click="handleCollapse">
+        <el-icon :class="['collapse-icon', 'el-icon--right', style.collapse ? 'rotate' : 'revert']"
+                 @click="handleCollapse">
           <ArrowDownBold />
         </el-icon>
       </div>
@@ -13,11 +14,12 @@
         <div
           v-for="item in state.collectionList"
           :key="item.id"
-          :class="['collection-item', 'cursorPointer', { current: state.curCollection.id === item.id }]"
+          :class="['collection-item', 'cursorPointer']"
           @click="handleTabClick(item)"
         >
           <span class="ellipsis" :title="item.name">{{ item.name }}</span>
-          <el-icon :id="`Collection__Delete_${item.name}`" class="color__danger__hover cursorPointer" @click.stop="handleDelete(item)">
+          <el-icon :id="`Collection__Delete_${item.name}`" class="color__danger__hover cursorPointer"
+                   @click.stop="handleDelete(item)">
             <Delete />
           </el-icon>
         </div>
@@ -26,33 +28,28 @@
     <div class="collection-main">
       <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
         <template #toolbar_buttons>
-          <div class="flex-x-between">
+          <div v-if="state.curCollection" class="flex-x-between">
             <div class="title">{{ state.curCollection.name }}</div>
-            <SvgIcon id="Collection__EditCollectionInfo" src="/icons/edit.svg" class="el-icon--right el-icon--left" @click="openEditCollectionDialog" />
+            <SvgIcon id="Collection__EditCollectionInfo" src="/icons/edit.svg"
+                     class="el-icon--right el-icon--left"
+                     :content="t('collections_edit')"
+                     @click="openEditCollectionDialog" />
           </div>
           <div class="flex-x-end">
             <template v-if="state">
-              <SvgIcon
-                v-if="state.tableData && state.tableData.length > 0"
-                src="/icons/file/share.svg"
-                round
-                :content="t('tip.addToShare')"
-                @click="handleShare"
-              />
+              <SvgIcon v-if="state.tableData && state.tableData.length > 0" src="/icons/file/share.svg"
+                       :content="t('tip.addToShare')" @click="handleShare" />
             </template>
-            <SvgIcon id="shareToQueue" src="/icons/file/share.svg" round></SvgIcon>
           </div>
         </template>
       </VxeGrid>
     </div>
-
-    <LazyCollectionAddCollectionDialog ref="addCollectionDialog" @success="handleAddCollection"> </LazyCollectionAddCollectionDialog>
-    <LazyCollectionEditCollectionDialog ref="editCollectionDialog" @refresh="reloadCollection"> </LazyCollectionEditCollectionDialog>
+    <LazyCollectionDialog ref="collectionDialog" @success="handleAddCollection" @refresh="reloadCollection" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import anime from 'animejs'
 import { ElMessageBox } from 'element-plus'
 import { createBrowseListPageParams, createDetailPageParams } from '~/utils/browseMenuHelper'
@@ -99,11 +96,10 @@ const state = reactive<TableState>({
 
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'clientCollectionsList',
-  api: async (pageParams: any) => {
+  api: async () => {
     let id = state.curCollection.id
-    const {
-      data: { entryList }
-    }: any = await clientApi.api.postNuxeoCollectionDocuments({ idOrPath: id })
+    if (!id || id == '') return
+    const { entryList }: any = await newClientApi.postDmsCollectionDocumentsQuery({ idOrPath: id }).then(r => r.data)
     state.tableData = entryList
     return entryList
   },
@@ -180,7 +176,7 @@ function reloadPage() {
 }
 
 async function getCollectionList() {
-  const { data }: any = await clientApi.api.getNuxeoCollection()
+  const data: any = await newClientApi.getDmsCollection().then(r => r.data)
   try {
     state.collectionList = data.entryList
     if (state.collectionList.length > 0) {
@@ -189,7 +185,9 @@ async function getCollectionList() {
       handleTabClick(state.collectionList[index])
     }
     reload()
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 function handleAddCollection(data: any) {
@@ -210,8 +208,11 @@ async function handleDelete(row: any) {
       return
     })
     if (action !== 'confirm') return
-    await clientApi.api.deleteNuxeoCollectionDeleteCollectionCollectionid(row.id)
+    await newClientApi.deleteDmsCollectionCollectionid(row.id).then(r => r.data)
     routerProvider?.message.success(t('collection_deleteSuccessMsg', { name: row.name }))
+    if (row.name === state.curCollection.name) {
+      state.curCollection = undefined
+    }
     reloadPage()
   } catch (error) {
     console.log(error)
@@ -231,26 +232,27 @@ function handleDocDelete(row: any) {
   }).then(async () => {
     state.loading = true
     try {
-      await clientApi.api.deleteNuxeoCollectionRemove(param)
+      await newClientApi.postDmsCollectionDocumentsRemove(param).then(r => r.data)
       setTimeout(() => {
         query({})
       }, 1000)
       routerProvider?.message.success(t('collectionFile_deleteSuccessMsg', { name: state.curCollection.name }))
       reload()
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
     state.loading = false
   })
 }
 
-const addCollectionDialog = ref()
-const editCollectionDialog = ref()
+const collectionDialog = ref()
 
 function openAddCollectionDialog() {
-  addCollectionDialog.value.handleOpen()
+  collectionDialog.value.handleOpen()
 }
 
 function openEditCollectionDialog() {
-  editCollectionDialog.value.handleOpen(state.curCollection)
+  collectionDialog.value.handleOpen(state.curCollection)
 }
 
 const style = reactive({
@@ -264,9 +266,8 @@ function handleCollapse() {
 const { addToShareList } = useShareStore()
 
 async function handleShare() {
-  const data: any = await clientApi.api.postNuxeoCollectionAlldocuments({ idOrPath: state.curCollection.id }).then((res: any) => res.data.entryList)
-  // TODO 未調試
-  addToShareList(data)
+  const entryList  = await newClientApi.postDmsCollectionDocumentsThumbnails({ idOrPath: state.curCollection.id }).then((res: any) => res.data.entryList)
+  addToShareList(entryList)
 
   nextTick(() => {
     const shareDraggableButton = document.getElementById('share-draggable-button')
@@ -289,12 +290,11 @@ async function handleShare() {
   })
 }
 
-function reloadCollection() {
-  let data = editCollectionDialog.value.getData()
-  state.curCollection.name = data.name
-  state.collectionList.find((item) => {
-    if (item.id === data.id) {
-      item.name = data.name
+function reloadCollection(row: any) {
+  state.curCollection.name = row.name
+  state.collectionList.find((item: any) => {
+    if (item.id === row.id) {
+      item.name = row.name
     }
   })
   reload()
@@ -320,11 +320,13 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
 }
-.title{
+
+.title {
   font-size: var(--app-font-size-xl);
   font-weight: 600;
   margin-right: var(--app-space-xs);
 }
+
 .collection-container {
   display: grid;
   grid-template-columns: min-content 1fr;

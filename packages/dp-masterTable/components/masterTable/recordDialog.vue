@@ -11,10 +11,8 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi, clientApi } from 'api'
+import { globalApi } from 'api'
 import { ElMessage } from 'element-plus'
-const appPlatform = useAppPlatform()
-const api = appPlatform.value === 'admin' ? adminApi : clientApi
 
 const { t } = useI18n()
 const props = withDefaults(
@@ -43,7 +41,7 @@ async function handleSubmit() {
     if (!data) return
     let msg
     if (state.edit) {
-      await api.api.putMasterTablesIdRecord(props.tableId, {
+      await globalApi.putDmsMasterTableIdRecord(props.tableId, {
         data: [data],
         where: {
           id: state.setting.id
@@ -51,7 +49,7 @@ async function handleSubmit() {
       })
       msg = t('tip_updateMsg', { modelName: t('common_row'), name: null })
     } else {
-      await api.api.postMasterTablesRecord({
+      await globalApi.postDmsMasterTableRecord({
         id: props.tableId,
         data: [data]
       })
@@ -127,9 +125,7 @@ async function turnFields(fields) {
   return resultFields
 
   async function getRelationOptions(params, field) {
-    const appPlatform = useAppPlatform()
-    const api = appPlatform.value === 'admin' ? adminApi : clientApi
-    const data = await api.api.getMasterTablesRecords(params).then((res) => res.data)
+    const data = await globalApi.getDmsMasterTableRecords(params).then((res) => res.data)
     field.type = 'select'
     field.options.optionItems = data?.map((item) => ({
       label: item[params.displayField],

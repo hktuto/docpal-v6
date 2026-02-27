@@ -12,7 +12,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { publicApi } from 'api'
+import { newClientApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 
@@ -28,7 +28,7 @@ const {
   cleanSelectedRows
 } = useVxeTable({
   id: 'c-dashboard',
-  api: (pageParams: any) => publicApi.api.postUserDashboardPage({ ...pageParams, ...extraParams, userId }),
+  api: (pageParams: any) => newClientApi.postDsbUserDashboardsPage({ ...pageParams, ...extraParams, userId }),
   columns: [
     { field: 'name', title: 'dashboard_name', fixed: 'left' },
     {

@@ -9,10 +9,10 @@
           inputPlaceHolder="folder_cabinetFilterItemName"
         />
         <el-button v-if="id"
-          id="FolderCabinet__AllowOtherFilesCabinet__NewItem"
-          data-testid="folderCabinetConfig-new-button"
-          type="primary"
-          @click="handleAdd()"
+                   id="FolderCabinet__AllowOtherFilesCabinet__NewItem"
+                   data-testid="folderCabinetConfig-new-button"
+                   type="primary"
+                   @click="handleAdd()"
         >
           {{ $t('folderCabinet.newItem') }}
         </el-button>
@@ -27,7 +27,7 @@
 <script lang="ts" setup>
 import type { VxeGridPropTypes } from 'vxe-table'
 
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { MenuRouterKey } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
@@ -65,7 +65,7 @@ const basicColumns: VxeGridPropTypes.Columns = [
     field: 'documentType',
     title: 'tableHeader_type',
     formatter({ cellValue }: any) {
-      return cellValue ? t(cellValue) : ""
+      return cellValue ? t(cellValue) : ''
     },
     width: 220
   }
@@ -88,7 +88,7 @@ const {
         }
       }
     initFilter(props.id)
-    return await clientApi.api.postCabinetPage({
+    return await newClientApi.postDmsCabinetPage({
       ...pageParams,
       ...extraParams,
       templateId: props.id
@@ -130,7 +130,7 @@ function handleAdd() {
 function handleFilterFormChange(formModel: any) {
   if (!formModel.isDesc) formModel.isDesc = true
   if (!formModel.orderBy) formModel.orderBy = 'modified_date_'
-  if (!!formModel.isDesc) formModel.isDesc = formModel.isDesc === 'false' ? false : true
+  if (!!formModel.isDesc) formModel.isDesc = formModel.isDesc !== 'false'
   extraParams = formModel
   reload()
 }
@@ -139,9 +139,7 @@ const ResponsiveFilterRef = ref()
 
 async function initFilter(id: string) {
   tableConfig.id = 'fc-' + id
-  let data: any = await clientApi.api
-    .getCabinetTemplateidPageConditions(id)
-    .then((res) => res.data)
+  let data: any = await newClientApi.getDmsCabinetTemplateidPageConditions(id).then((res) => res.data)
   if (!data) return
   data.unshift(
     {
@@ -199,7 +197,7 @@ async function initFilter(id: string) {
         title: row.label,
         width: 200,
         formatter({ cellValue }: any) {
-          return cellValue ? t(cellValue) : ""
+          return cellValue ? t(cellValue) : ''
         }
       }
     else {

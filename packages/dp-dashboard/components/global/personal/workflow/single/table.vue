@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -17,7 +17,7 @@ const isValid = computed(() => {
 
 // async function queryTaskDetail(instanceId: string) {
 //   try {
-//     const res = await clientApi.api
+//     const res = await newClientApi
 //       .getWorkflowVariablesInstanceid(instanceId, {
 //         headers: {
 //           noThrowError: true
@@ -144,7 +144,7 @@ async function getAllWorkingInstances(processKey: string, pageNum: number = 0, p
     pageNum,
     pageSize
   }
-  const { data }: any = await clientApi.api.postWorkflowTasksUser(pageParams)
+  const { data }: any = await newClientApi.postDocpalWorkflowTasksUser(pageParams)
   // filter step name
   const entryList = filterStep(data?.entryList || [])
   const _entryList = entryList.map((item: any) => {

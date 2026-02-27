@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { CalendarOptions } from '#imports'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const opened = ref(false)
 const { t } = useI18n()
@@ -18,7 +18,7 @@ const {
 const userFiterOptions = ref([])
 
 async function getOptions() {
-  const user = await clientApi.api.postNuxeoIdentityUsers({}).then(res => res.data)
+  const user =  await newClientApi.postUcenterUsers({}).then((res) => res.data)
   userFiterOptions.value = user.map(item => {
     return {
       label: item.username,

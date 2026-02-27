@@ -58,7 +58,7 @@ defineExpose({ openVariablesDialog })
       </el-form-item>
 
       <el-form-item :label="t('vxe.pro.fnr.header.value')" prop="value">
-        <div style="max-width: 900px">
+        <div style="width: 100%; min-width: 100px">
           <component :is="valueEditorComponent" v-model="state.editForm.value" />
         </div>
       </el-form-item>

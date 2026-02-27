@@ -1,8 +1,6 @@
 <script lang="ts" setup>
-import {ElMessage} from 'element-plus'
 import {Graph, Node} from "@antv/x6";
-
-import {adminApi} from 'api'
+import {newAdminApi, newClientApi} from 'api'
 
 const props = withDefaults(defineProps<{
   graph: Graph,
@@ -71,7 +69,7 @@ function handleChange(value: string) {
 const getBpmn = async (processKey: string) => {
   state.workflowLoading = true
   try {
-    const blob = await adminApi.api.postWorkflowProcessModel({
+    const blob = await newAdminApi.postDocpalWorkflowProcessModel({
       processKey
     }, {
       format: 'blob'
@@ -87,8 +85,7 @@ const getBpmn = async (processKey: string) => {
   state.workflowLoading = false
 }
 onMounted(async () => {
-  const {data} = await adminApi.api.postWorkflowProcessList({requestDTO: {}})
-  state.options = data
+  state.options = await newClientApi.postDsbWorkflowProcessList({requestDTO: {}}).then(r => r.data)
 })
 watch(node, () => {
   console.log("watch node", node.value)

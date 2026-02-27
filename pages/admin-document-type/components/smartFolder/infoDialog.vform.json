@@ -54,7 +54,7 @@
       "icon": "select-group-field",
       "formItemFlag": true,
       "options": {
-        "name": "access",
+        "name": "permission",
         "label": "user_UserAndUserGroup",
         "labelAlign": "",
         "defaultValue": [],
@@ -73,7 +73,8 @@
         "automaticDropdown": false,
         "multiple": true,
         "multipleLimit": 0,
-        "optionItems": [],
+        "optionItems": [
+        ],
         "required": true,
         "requiredHint": "",
         "validation": "",
@@ -83,9 +84,9 @@
         "labelIconPosition": "rear",
         "labelTooltip": null,
         "onCreated": "",
-        "onMounted": "const _this = this\ngetData()\n\nasync function getData() {\n  const userData = await $api.post('/nuxeo/identity/users', {}).then(res => res.data.data)\n  const _userData = userData.reduce((prev,item) => {\n    if(item.userId) prev.push({\n      value: item.userId,\n      label: item.username\n    })\n    return prev\n  }, [])\n  \n  const groupData = await $api.post('/nuxeo/identity/groups', {}).then(res => res.data.data)\n  const _groupData = groupData.reduce((prev,item) => {\n    if(item.id) prev.push({\n      value: item.id,\n      label: item.name\n    })\n    return prev\n  }, [])\n  \n  _this.loadOptions([\n    { label: $t('user_groups'), options: _groupData },  \n    { label: $t('user_users'), options: _userData }  \n  ])\n}",
+        "onMounted": "",
         "onRemoteQuery": "",
-        "onChange": "if(value.length === 0) this.setValue(['members'])",
+        "onChange": "if(value.length === 0) this.setValue(['group_members'])",
         "onFocus": "",
         "onBlur": "",
         "onValidate": ""
@@ -106,6 +107,7 @@
     "functions": "",
     "layoutType": "PC",
     "jsonVersion": 3,
+    "isCreateDynamicCode": true,
     "onFormCreated": "",
     "onFormMounted": "",
     "onFormDataChange": "",

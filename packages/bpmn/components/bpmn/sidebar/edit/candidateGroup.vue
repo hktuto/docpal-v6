@@ -1,12 +1,10 @@
 <script lang="ts" setup>
-
 import type { Node } from '@antv/x6'
-import { adminApi } from 'api'
+import { getGroupsSelectOption } from '#imports'
 
 const { node } = defineProps<{
   node: Node
 }>()
-
 
 const graphProvider = inject(BPMN_PROVIDER)
 const editorProvider = inject(EDITOR_PROVIDER)
@@ -21,9 +19,7 @@ const candidateGroup = ref<string>('')
 function refreshData() {
   // get candidateGroup
   const data = node.getData()
-
   candidateGroup.value = data.data['attr_flowable:candidateGroups'] || ''
-
 }
 
 function candidateGroupChanged(newVal: string) {
@@ -58,11 +54,8 @@ function candidateGroupChanged(newVal: string) {
 }
 
 async function getUserGroup() {
-  const data = await adminApi.api.postNuxeoIdentityGroups()
-  if (data.data) {
-    allUserGroup.value = data.data.sort((a: any, b: any) => a.name.localeCompare(b.name))
-  } else {
-    allUserGroup.value = []
+  if (!allUserGroup.value || allUserGroup.value.length == 0) {
+    allUserGroup.value = await getGroupsSelectOption()
   }
 }
 
@@ -97,7 +90,7 @@ watch(() => node, () => {
       <ElFormItem label="Candidate Group">
         <ElSelect v-model="candidateGroup" placeholder="Select Group" :disabled="editorProvider.readonly.value"
                   filterable clearable @change="candidateGroupChanged">
-          <ElOption v-for="item in allUserGroup" :key="item.id" :label="item.name" :value="item.id" />
+          <ElOption v-for="item in allUserGroup" :key="item.value" :label="item.label" :value="item.value" />
         </ElSelect>
       </ElFormItem>
     </ElForm>

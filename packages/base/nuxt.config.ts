@@ -71,6 +71,14 @@ const config = {
     // },
 
       devProxy:{
+        '/admin/api':{
+          target: process.env.ADMIN_PROXY,
+          changeOrigin: true,
+          prependPath: true,
+          headers: {
+            'accept-encoding': 'identity'
+          }
+        },
         '/adminApi/api':{
           target: process.env.ADMIN_PROXY,
           changeOrigin: true,

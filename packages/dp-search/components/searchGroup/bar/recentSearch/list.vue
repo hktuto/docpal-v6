@@ -31,7 +31,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { conditionDecorators } from '~/utils/searchFormHelper'
 import * as mime from 'mime-types'
 
@@ -88,7 +88,7 @@ async function getList() {
   try {
     pageParams.pageNum++
     state.loading = true
-    const { data: res } = (await clientApi.api.postLogsRecentSearchPageV2(pageParams)) as any
+    const res: any = await newClientApi.postDmsSearchHistory(pageParams).then(r => r.data)
     state.list.push(...res.entryList)
     state.scrollNoMore = state.list.length >= res.totalSize
   } catch (error) {

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from '../../retention/addDialog.vform.json'
+
 const routerProvider = inject(MenuRouterKey)
 const emits = defineEmits(['update'])
 const { id } = defineProps<{
@@ -25,11 +25,13 @@ async function handleSubmit() {
       status: state.setting.status
     }
     state.loading = true
-    await adminApi.api.putPolicyRetentions(params)
-    routerProvider?.message.success(t('tip_updateSuccessMsg', {
-      modelName: t('filePolicies_RetentionPolicy'),
-      name: null
-    }))
+    await newAdminApi.putDmsPolicyRetention(params)
+    routerProvider?.message.success(
+      t('tip_updateSuccessMsg', {
+        modelName: t('filePolicies_RetentionPolicy'),
+        name: null
+      })
+    )
     emits('update')
   } catch (error) {
     init()
@@ -42,7 +44,7 @@ async function handleSetStatus(isActive: 'A' | 'D') {
   if (!state.setting.id) return
   try {
     state.activeLoading = true
-    const result = await adminApi.api.patchPolicyRetentionsIdStatusStatus(id, isActive).then((res) => res.data)
+    const result = await newAdminApi.patchDmsPolicyHoldHoldpolicyidStatusStatus(id, isActive).then((res) => res.data)
     if (!!result) {
       state.setting.status = isActive
       routerProvider?.message.success(t('dpMsg_success'))
@@ -57,11 +59,11 @@ async function handleSetStatus(isActive: 'A' | 'D') {
 async function init() {
   try {
     state.loading = true
-    let setting = await adminApi.api.getPolicyRetentionsId(id).then((res) => res.data)
+    let setting = await newAdminApi.getDmsPolicyRetentionRetentionpolicyid(id).then((res) => res.data)
     if (!setting) setting = {}
     setTimeout(async () => {
       state.setting = setting
-      state.setting.actionType = setting?.actionType === 'D' ? true : false
+      state.setting.actionType = setting?.actionType === 'D'
       await FormRendererRef.value.vFormRenderRef.setFormData({ ...state.setting })
     })
   } catch (error) {
@@ -90,8 +92,7 @@ onMounted(async () => {
       </div>
       <div>
         <!-- <el-button type="danger" @click="handleDelete">{{$t('common_delete')}}</el-button> -->
-        <el-button :loading="state.loading" id="RetentionPolicySetting__EditRetentionPolicy__Submit" utton
-                   type="primary" @click="handleSubmit">
+        <el-button :loading="state.loading" id="RetentionPolicySetting__EditRetentionPolicy__Submit" utton type="primary" @click="handleSubmit">
           {{ $t('common_submit') }}
         </el-button>
       </div>

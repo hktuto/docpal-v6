@@ -6,7 +6,7 @@
   </BrowseMiniTable>
 </template>
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const props = defineProps<{
   disabled: boolean
   formData: any
@@ -33,8 +33,7 @@ async function getData() {
 
 provide(BrowseListProviderKey, {
   getchildApi: (pageParams: any) => {
-    console.log('getchildApi', pageParams)
-    return clientApi.api.postNuxeoDocumentChildrenThumbnailV2(pageParams)
+    return newClientApi.postDmsDocumentChildrenThumbnail(pageParams)
   },
   idOrPath,
   changeRoute

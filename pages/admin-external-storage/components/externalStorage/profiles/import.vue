@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import formJson from './import.vform.json'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
+
 const { t } = useI18n()
 const props = defineProps<{
   id: string
@@ -11,11 +12,12 @@ const props = defineProps<{
 const emits = defineEmits(['update'])
 const loading = ref(false)
 const FormRendererRef = ref()
+
 async function handleSave() {
   try {
     const data = await FormRendererRef.value.getFormData()
     loading.value = true
-    await adminApi.api.patchExternalstorageIdProfilesProfileidImport(props.storageId, props.id, data)
+    await newAdminApi.patchExt3rdstorageIdProfilesProfileidUpdateImport(props.storageId, props.id, data).then(r => r.data)
     ElMessage.success(t('dpMsg_success'))
     emits('update')
   } catch (error: any) {
@@ -24,6 +26,7 @@ async function handleSave() {
     loading.value = false
   }
 }
+
 watch(() => props.settings, (newVal) => {
   if (newVal) {
     // normalize newVal processingFolder, finishFolder, errorFolder
@@ -34,7 +37,7 @@ watch(() => props.settings, (newVal) => {
       error_folder: newVal.error_folder || '/error',
       file_type: newVal.file_type || '',
       include_folder: newVal.include_folder || true,
-      path: newVal.path || '/',
+      path: newVal.path || '/'
     }
     FormRendererRef.value.vFormRenderRef.setFormData(params)
   }
@@ -42,7 +45,7 @@ watch(() => props.settings, (newVal) => {
 </script>
 <template>
   <div class="container">
-    <FormRenderer ref="FormRendererRef" :form-json="formJson"> </FormRenderer>
+    <FormRenderer ref="FormRendererRef" :form-json="formJson"></FormRenderer>
     <div style="width: 100%; text-align: right">
       <el-button :loading="loading" type="primary" @click="handleSave">{{ $t('button.save') }}</el-button>
     </div>

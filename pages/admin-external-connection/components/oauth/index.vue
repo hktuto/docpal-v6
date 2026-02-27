@@ -1,23 +1,21 @@
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './index.vform.json'
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const FormRendererRef = ref()
 
-function handleFormChange() {
-}
+function handleFormChange() {}
 
 async function handleGet() {
-  const res = await adminApi.api.getOauth2Setting().then(res => res.data)
+  const res = await newAdminApi.getDocpalOauth2Setting().then((res) => res.data)
   FormRendererRef.value.vFormRenderRef.setFormData(res)
 }
 
 async function handleSubmit() {
   try {
     const data = await FormRendererRef.value.getFormData()
-    const res = await adminApi.api.postOauth2Setting(data)
+    const res = await newAdminApi.postDocpalOauth2Setting(data)
     if (data.authenticationMethod === 'DEFAULT') {
       routerProvider?.message.success(t('msg_successfullyModified'))
     } else {
@@ -39,7 +37,7 @@ function uploadXlsx() {
 function handleFile(event) {
   const reader = new FileReader()
   reader.readAsText(event.target.files[0], 'UTF-8')
-  reader.onload = function(e: any) {
+  reader.onload = function (e: any) {
     try {
       let configJson = JSON.parse(e.target.result as string)
       if (configJson.web) configJson = configJson.web
@@ -80,11 +78,7 @@ onMounted(() => {
         </el-button>
       </div>
     </div>
-    <FormRenderer
-      ref="FormRendererRef"
-      :form-json="formJson"
-      @formChange="handleFormChange"
-    />
+    <FormRenderer ref="FormRendererRef" :form-json="formJson" @formChange="handleFormChange" />
     <input v-show="false" ref="inputRef" type="file" accept=".json" @change="handleFile" />
   </el-card>
 </template>

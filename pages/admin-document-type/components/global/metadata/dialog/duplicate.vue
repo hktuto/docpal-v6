@@ -1,5 +1,6 @@
 <template>
-  <el-dialog v-model="visible" :title="t('actions.duplicate')" class="scroll-dialog" append-to-body :close-on-click-modal="false" destroy-on-close>
+  <el-dialog v-model="visible" :title="t('actions.duplicate')" class="scroll-dialog" append-to-body
+             :close-on-click-modal="false" destroy-on-close>
     <el-form :model="formData" ref="elFormRef" label-position="top">
       <el-form-item :label="t('metadata.original_name')" required>
         <el-input v-model="originalName" disabled />
@@ -10,7 +11,8 @@
       <el-form-item :label="t('metadata.dataType')" required>
         <el-select v-model="selectedType" placeholder="Select" disabled>
           <el-option-group v-for="group in METADATA_OPTIONS" :key="group.group" :label="t(group.group)">
-            <el-option v-for="option in group.options" :key="option.name" :label="t(option.name)" :value="option.name" />
+            <el-option v-for="option in group.options" :key="option.name" :label="t(option.name)"
+                       :value="option.name" />
           </el-option-group>
         </el-select>
       </el-form-item>
@@ -24,7 +26,8 @@
       <h4>{{ t('meta.mask') }}</h4>
       <el-form-item :label="t('meta.mask_type')" required>
         <el-select v-model="formData.maskRule.maskType" placeholder="Select">
-          <el-option v-for="option in MASK_OPTIONS" :key="option.value" :label="t(option.label)" :value="option.value" />
+          <el-option v-for="option in MASK_OPTIONS" :key="option.value" :label="t(option.label)"
+                     :value="option.value" />
         </el-select>
       </el-form-item>
       <el-form-item :label="t('meta.maskLength')" required>
@@ -38,10 +41,15 @@
 </template>
 
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage, type FormInstance } from 'element-plus'
-import { METADATA_OPTIONS, MASK_OPTIONS, type MetadataOption } from '../../../../../../packages/dp-datatype/utils/dataTypeHelper'
+import {
+  METADATA_OPTIONS,
+  MASK_OPTIONS,
+  type MetadataOption
+} from '../../../../../../packages/dp-datatype/utils/dataTypeHelper'
 import { mapDataType, getDefaultByType } from '../../../../../../packages/dp-datatype/utils/globalDataTypeHelper'
+
 const formData = ref<any>({
   name: '',
   validationRule: {},
@@ -138,20 +146,18 @@ async function handleDuplicate() {
       }
 
       // step 3 check if the name is already exists
-      const nameExists = await adminApi.api
-        .postDocpaltypeSettingsMetadataV2Query({
-          metadataName: formData.value.name,
-          pageNum: 0,
-          pageSize: 1
-        })
-        .then((res) => (res.data?.entryList?.length ?? 0) > 0)
+      const nameExists = await newAdminApi.postDmsMetadataPage({
+        metadataName: formData.value.name,
+        pageNum: 0,
+        pageSize: 1
+      }).then((res) => (res.data?.entryList?.length ?? 0) > 0)
 
       if (nameExists) {
         ElMessage.error(t('dpTip.exit', { name: formData.value.name }))
         return
       }
       // step 4 create the duplicated metadata
-      const result = await adminApi.api.postDocpaltypeSettingsMetadataV2Duplicate(formData.value).then((res) => res.data)
+      const result = await newAdminApi.postDmsMetadataDuplicate(formData.value).then((res) => res.data)
       if (result) {
         ElMessage.success(t('metadata.duplicate_success'))
         close()
@@ -162,7 +168,9 @@ async function handleDuplicate() {
         ElMessage.error(t('metadata.duplicate_error'))
       }
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 defineExpose({

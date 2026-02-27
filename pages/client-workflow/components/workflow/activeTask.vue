@@ -24,7 +24,7 @@
 </template>
 <script lang="ts" setup>
 import formJson from './active.vform.json'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -44,12 +44,11 @@ const {
   cleanSelectedRows
 } = useVxeTable({
   id: 'active_task',
-  api: (pageParams: any) =>
-    clientApi.api.postWorkflowTasksUser({
-      ...pageParams,
-      ...extraParams,
-      interrelatedUserId: userId
-    }),
+  api: (pageParams: any) => newClientApi.postDocpalWorkflowTasksUser({
+    ...pageParams,
+    ...extraParams,
+    interrelatedUserId: userId
+  }),
   columns: [
     { field: 'taskInstance.businessKey', title: 'workflow_jobName', fixed: 'left' },
     { field: 'taskInstance.processDefinitionName', title: 'workflow_workflowName' },
@@ -92,7 +91,7 @@ function handleDblclick(row: any) {
 }
 
 async function claimTask(row: any) {
-  await clientApi.api.postWorkflowTaskClaim({
+  await newClientApi.postWorkflowTaskClaim({
     taskId: row.id,
     userId
   })
@@ -100,12 +99,11 @@ async function claimTask(row: any) {
 }
 
 function handleFormChange(data: any) {
-  const params = Object.keys(data.formModel).reduce((prev: any, key: string) => {
+  extraParams = Object.keys(data.formModel).reduce((prev: any, key: string) => {
     if (data.formModel[key] && data.formModel[key].length > 0)
       prev[key] = data.formModel[key]
     return prev
   }, {})
-  extraParams = params
   reload()
 }
 

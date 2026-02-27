@@ -1,15 +1,13 @@
 <script lang="ts" setup>
 import { CaseManagementDetailProviderKey } from '#imports'
-import { adminApi } from 'api'
-
+import { newAdminApi } from 'api'
 
 const props = defineProps<{
   caseTypeId: string,
   name: string,
   currentVersion: string,
 }>()
-const {caseTypeId, name, currentVersion} = toRefs(props)
-
+const { caseTypeId, name, currentVersion } = toRefs(props)
 
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -23,7 +21,6 @@ const caseInfo = ref<any>()
 const xmlRef = ref()
 
 function handleSave() {
-
   xmlRef.value.save()
 }
 
@@ -50,7 +47,7 @@ function handleUpdate() {
 
 async function promoteToProduction() {
   buttonLoading.value = true
-  const {data} = await adminApi.api.postCaseTypesVersionVersionidActive(props.caseTypeId)
+  await newAdminApi.postCaseTypesVersionVersionidActive(props.caseTypeId).then(r => r.data)
   routerProvider?.message.success(t('dpMsg_success'))
   await init()
   buttonLoading.value = false
@@ -60,7 +57,7 @@ async function saveAsNewVersion() {
   // console.log("props",props);
 
   buttonLoading.value = true
-  const {data} = await adminApi.api.postCaseTypesVersionVersionidNew(props.caseTypeId)
+  const data = await newAdminApi.postCaseTypesVersionVersionidNew(props.caseTypeId).then(r => r.data)
   //TODO : get all form in case and save as to new version
   // Step 1 : get all form in case
   const allFrom = await xmlRef.value.getAllForm()
@@ -69,7 +66,7 @@ async function saveAsNewVersion() {
     const params = form.params
     params.versionId = data?.id
     params.jsonValue = JSON.stringify(form.form)
-    await adminApi.api.postRelationSave(params)
+    await newAdminApi.postDmsFormPropertiesSave(params).then(r => r.data)
   }
 
   routerProvider?.updateProps({
@@ -110,16 +107,15 @@ const production = ref(false)
 
 async function init() {
   loading.value = true
-  const {data} = await adminApi.api.getCaseTypesVersionVersionid(props.caseTypeId) as any
-  const {data: removeCaseTypeInfo} = await adminApi.api.getCaseTypesId(data.caseTypeId) as any
-
-  caseTypeInfo.value = removeCaseTypeInfo
+  const data: any = await newAdminApi.getCaseTypesVersionVersionid(props.caseTypeId).then(r => r.data)
+  caseTypeInfo.value = await newAdminApi.getCaseTypesCasetypeid(data.caseTypeId).then(r => r.data) as any
   caseInfo.value = data
   production.value = caseInfo.value.production
   // TODO : no way to get case name in version, use another api to get, and update tab name
   loading.value = false
   routerProvider?.updateTabName(props.name + ` - (${props.currentVersion})`)
 }
+
 // test pull
 defineOptions({
   name: 'CaseManagementDetailDead'
@@ -170,8 +166,8 @@ provide(CaseManagementDetailProviderKey, {
                                         @save="handleSave" />
     <CaseManagementDetailPermission ref="permissionRef" :node="caseData.caseNode" @save="handleSave" />
     <!-- <CmmnDetailPermission :node="caseData.caseNode"/>  -->
-    <CaseManagementDetailXml ref="xmlRef" v-bind="props" @getCase="getCase" @update="handleUpdate"/>
-    <CaseManagementDetailDashboard :caseDetail="caseTypeInfo" :caseDetailId="caseInfo.caseTypeId" v-bind="props"/>
+    <CaseManagementDetailXml ref="xmlRef" v-bind="props" @getCase="getCase" @update="handleUpdate" />
+    <CaseManagementDetailDashboard :caseDetail="caseTypeInfo" :caseDetailId="caseInfo.caseTypeId" v-bind="props" />
 
   </div>
 </template>

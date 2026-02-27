@@ -1,8 +1,8 @@
 <template>
-  <div class="case-card-view" >
+  <div class="case-card-view">
     <div class="card-container">
       <el-card v-for="item in state.data" :key="`p${item.id}`">
-        <div class="flex-x-start" >
+        <div class="flex-x-start">
           <el-checkbox :label="item.case_id" :value="item.id" />
         </div>
         <div class="row" v-for="f in fields" :key="`c${f.id}`">
@@ -14,9 +14,9 @@
   </div>
 </template>
 <script lang="ts" setup>
-import {clientApi} from 'api'
-const props = defineProps(['fields', 'id'])
+import { newClientApi } from 'api'
 
+const props = defineProps(['fields', 'id'])
 
 const state = reactive<any>({
   data: [],
@@ -24,16 +24,18 @@ const state = reactive<any>({
   selectRow: [],
   fields: []
 })
+
 async function getList(params) {
-  const res = await clientApi.api.postCaseTypesCasetypeidRecordsPage(props.id, params).then(res => res.data) as any
+  const res = await newClientApi.postCaseTypesCasetypeidRecordsPage(props.id, params).then(res => res.data) as any
   state.data = res.entryList
   state.totalSize = res.totalSize
 }
+
 function initFields(fields) {
   state.fields = fields
-  console.log(state.fields, 'init');
-  
+  console.log(state.fields, 'init')
 }
+
 onMounted(() => {
   getList({
     pageNum: 0,
@@ -48,9 +50,11 @@ defineExpose({ initFields })
   overflow: hidden;
   display: grid;
   grid-template-rows: 1fr min-content;
+
   .el-card {
     min-width: 200px;
   }
+
   .placeholder {
     width: 16px;
     height: 16px;
@@ -58,13 +62,16 @@ defineExpose({ initFields })
     border-radius: 3px;
     content: ' '
   }
+
   .row {
     margin-bottom: var(--app-space-xs);
+
     .title {
       color: var(--app-grey-600);
     }
   }
 }
+
 .card-container {
   display: grid;
   grid-template-columns: repeat(5, 1fr);

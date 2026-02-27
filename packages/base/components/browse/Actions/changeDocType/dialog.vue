@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { getDisplayProperties } from '@/components/meta/metadata'
 import { useEventListener } from '@vueuse/core'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { emitBus, EventType } from 'eventbus'
 
 const props = defineProps<{
@@ -27,7 +27,7 @@ async function iconClickHandler(doc: any) {
   state.loading = true
 
   try {
-    state.doc = await clientApi.api.postNuxeoDocument({ idOrPath: doc.id }).then(r => r.data)
+    state.doc = await newClientApi.postDmsDocumentFetch({ idOrPath: doc.id }).then(r => r.data)
     state.dispalyMeta = getDisplayProperties(state.doc.properties)
     if (!state.doc.properties) state.doc.properties = {}
     if (!state.doc.properties.maskList) state.doc.properties.maskList = []
@@ -65,7 +65,7 @@ async function handleSubmit() {
       // idOrPath: `${parentPath}/new Folder${timestamp}`,
     }
     delete params.properties.documentType
-    const res = await clientApi.api.patchNuxeoDocumentChangeType(params)
+    const res = await newClientApi.patchDmsDocumentType(params).then(r => r.data)
     dialogOpened.value = false
     if (state.doc.id !== route.query.docId) {
       setTimeout(() => {
@@ -119,9 +119,9 @@ defineExpose({ iconClickHandler })
         <BrowseActionsChangeDocTypeCopyItem :label="$t('info_type')" :value="state.doc.type" :noCopy="true" />
         <BrowseActionsChangeDocTypeCopyItem :label="$t('info_version')" :value="getVersion(state.doc)" />
         <BrowseActionsChangeDocTypeCopyItem
-          v-if="state.doc && state.doc.properties && state.doc.properties['file:content']"
+          v-if="state.doc && state.doc.properties && state.doc.properties['file_content']"
           :label="$t('docInfo.fileExtension')"
-          :value="state.doc?.properties['file:content']['mime-type']"
+          :value="state.doc?.properties['file_content']['mime-type']"
         />
         <BrowseActionsChangeDocTypeCopyItem v-else :label="$t('docInfo.fileExtension')" value="-" />
         <BrowseActionsChangeDocTypeCopyItem :label="$t('info_modified')" :value="formatDate(state.doc.modifiedDate)" />

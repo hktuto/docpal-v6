@@ -26,8 +26,7 @@
 
 
 <script lang="ts" setup>
-import {clientApi } from 'api'
-import dayjs from 'dayjs'
+import {newClientApi } from 'api'
 const props = defineProps<{doc: any}>();
 const { doc } = toRefs(props);
 const activities = ref<any[]>([])
@@ -47,7 +46,7 @@ const loadMore = async() => {
 }
 const getActivities = async () => {
     try {
-    const data = await clientApi.api.postNuxeoDocumentQueryauditevent(params).then(res => res.data)
+    const data = await newClientApi.postDmsDocumentQueryauditevent(params).then(res => res.data)
     console.log('data', data)
     totalSize.value = data.totalSize;
     activities.value.push(...data.entryList);

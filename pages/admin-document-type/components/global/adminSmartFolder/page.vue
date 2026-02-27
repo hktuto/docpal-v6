@@ -2,12 +2,7 @@
   <div class="pageContainer--padding">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter
-          ref="ResponsiveFilterRef"
-          @form-change="handleFilterFormChange"
-          inputKey="name"
-          inputPlaceHolder="doc_typeSmartFolderFilter"
-        />
+        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="name" inputPlaceHolder="doc_typeSmartFolderFilter" />
         <el-button id="SmartFolderSetting__CreateNewSmartFolder" type="primary" @click="handleCreate()">
           {{ $t('doc_typeSmartFolderCreateFolder') }}
         </el-button>
@@ -22,7 +17,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import { routeSmartFolderDetail } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -35,7 +30,7 @@ const state = reactive<any>({})
 const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   id: 'a-smartFolder',
   api: async (pageParams: any) => {
-    return await adminApi.api.postNuxeoSfolderPage({
+    return await newAdminApi.postDmsSmartFolderPage({
       ...pageParams,
       ...extraParams
     })
@@ -90,7 +85,7 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   }
 })
 
-function handleDblclick(row:any) {
+function handleDblclick(row: any) {
   routerProvider?.navigateTo(routeSmartFolderDetail(row), false)
 }
 
@@ -102,15 +97,13 @@ function handleCreate(setting?: any) {
 
 async function handleDelete(id: string) {
   try {
-    const action = await ElMessageBox.confirm(`${t('doc_typeSmartFolderDeletedMsg')}`,
-      {
-        confirmButtonClass: 'el-button el-button--warning',
-        dangerouslyUseHTMLString: true,
-        confirmButtonText: t('common_confirmDelete')
-      }
-    )
+    const action = await ElMessageBox.confirm(`${t('doc_typeSmartFolderDeletedMsg')}`, {
+      confirmButtonClass: 'el-button el-button--warning',
+      dangerouslyUseHTMLString: true,
+      confirmButtonText: t('common_confirmDelete')
+    })
     if (action !== 'confirm') return
-    await adminApi.api.deleteNuxeoSfolderId(id)
+    await newAdminApi.deleteDmsSmartFolderId(id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('file_smartFolder') }))
     query()
   } catch (error) {
@@ -126,9 +119,7 @@ function handleFilterFormChange(formModel: any) {
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
-  const filters = await adminApi.api.getNuxeoSfolderPageConditions().then((res) => {
-    return res.data
-  })
+  const filters = await newAdminApi.getDmsSmartFolderPageConditions().then(res => res.data)
   ResponsiveFilterRef.value.init(filters)
 }
 

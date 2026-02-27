@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { clientApi } from 'api';
+import { newClientApi } from 'api';
 import dayjs from "dayjs";
   const {doc} = defineProps<{
     doc: any
@@ -22,11 +22,11 @@ function reload() {
   async function getOcr():Promise<void> {
     try{
         // step 1 get OCR Status,
-        const ocrStatus = await clientApi.api.getNuxeoDocumentDocumentidOcrState(doc.id).then(res => res.data);
+        const ocrStatus = await newClientApi.getNuxeoDocumentDocumentidOcrState(doc.id).then(res => res.data);
         state.ocrState = ocrStatus
         if(ocrStatus === 'FINISH') {
             
-          const response = await clientApi.api.postNuxeoDocumentAttachmentHocrDownload({
+          const response = await newClientApi.postNuxeoDocumentAttachmentHocrDownload({
             idOrPath: doc.id
           },{
             format: 'blob',

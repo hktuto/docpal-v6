@@ -3,7 +3,7 @@
     <div class="LoginContainer">
       <LoadingBg></LoadingBg>
       <div class="fromContainer card glass">
-        <AppBigLogo class="logo" mode="withName"/>
+        <AppBigLogo class="logo" mode="withName" />
         <template v-if="status === 'submitted'">
           <div class="tip">
             {{ $t('The operation is successful, please go to the mailbox to reset the password') }}
@@ -12,9 +12,13 @@
         <template v-else>
           <el-form label-position="top" ref="FormRef" :status-icon="true" :model="form" @submit.native.prevent>
             <template v-if="status === 'beforeSubmit'">
-              <el-form-item :label="$t('login_username')" prop="userId" class="intro"
-                            :rules="[{ required: true, message: $t('login_username') + $t('render.hint.fieldRequired')}]">
-                <el-input v-model="form.userId" type="text" @keyup.enter.native="handleSubmit"/>
+              <el-form-item
+                :label="$t('login_username')"
+                prop="userId"
+                class="intro"
+                :rules="[{ required: true, message: $t('login_username') + $t('render.hint.fieldRequired') }]"
+              >
+                <el-input v-model="form.userId" type="text" @keyup.enter.native="handleSubmit" />
               </el-form-item>
               <el-button class="fullSize" type="primary" size="large" :block="true" @click="handleSubmit"
                          :loading="loading">
@@ -23,29 +27,28 @@
             </template>
           </el-form>
         </template>
-        <el-button class="intro" @click="login" text>
+        <el-button class="intro" @click="login" link>
           {{ $t('login') }}
         </el-button>
         <div v-if="state.time > 0">
-          <h3>
-            {{ $t('dpTip_autoLogin') }}: {{ state.time }}s
-          </h3>
+          <h3>{{ $t('dpTip_autoLogin') }}: {{ state.time }}s</h3>
         </div>
       </div>
     </div>
   </AppPublic>
 </template>
 
-
 <script lang="ts" setup>
-import {ElMessage} from 'element-plus'
-import {clientApi} from 'api'
+import { ElMessage } from 'element-plus'
+import { newClientApi } from 'api'
 
-const {public: {DEFAULT_PATH}} = useRuntimeConfig();
+const {
+  public: { DEFAULT_PATH }
+} = useRuntimeConfig()
 const status = ref('beforeSubmit')
 const loading = ref(false)
 const router = useRouter()
-const {t} = useI18n()
+const { t } = useI18n()
 const state = reactive<any>({
   time: 0,
   timer: null
@@ -53,8 +56,7 @@ const state = reactive<any>({
 const form = ref({
   userId: '',
   password: '',
-  confirmPassword: '',
-
+  confirmPassword: ''
 })
 
 const FormRef = ref()
@@ -70,12 +72,11 @@ async function handleSubmit() {
 
   loading.value = true
   try {
-    const {data} = await clientApi.api.postNuxeoUserForgetpassword({userId: form.value.userId})
-    if (data) status.value = 'submitted'
+    const data = await newClientApi.postUcenterPasswordForgetPassword({ userId: form.value.userId }).then(r => r.data)
+    if (!!data) status.value = 'submitted'
     ElMessage.success(t('dpMsg_success'))
     returnLogin()
   } catch (error) {
-
   }
   loading.value = false
 }
@@ -94,17 +95,14 @@ function returnLogin() {
 
 function login() {
   router.push({
-    path: '/'
+    path: '/login'
   })
 }
 
 onMounted(async () => {
-  await await getLocale();
+  await getLocale()
 })
-
-
 </script>
-
 
 <style scoped lang="scss">
 .LoginContainer {
@@ -127,8 +125,8 @@ onMounted(async () => {
 
 .logo {
   --icon-size: clamp(100px, 80%, 200px);
-    max-width: 200px;
-    margin: 0 auto var(--app-space-s) auto;
+  max-width: 200px;
+  margin: 0 auto var(--app-space-s) auto;
 }
 
 .tip {

@@ -21,7 +21,7 @@
 <script lang="ts" setup>
 import { emitBus, EventType } from 'eventbus'
 import { useEventListener } from '@vueuse/core'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const { t } = useI18n()
@@ -51,7 +51,7 @@ async function openDialog(detail: any) {
   form.value.path = detail.path
   dialogOpened.value = true
   nextTick(async () => {
-    const { data } = await clientApi.api.getNuxeoDocumentQueryaianalyzeIdorpath(state.doc.id)
+    const data = await newClientApi.getDmsDocumentQueryaianalyzeIdorpath(state.doc.id).then(r => r.data)
     const metadatas = data.metaDatas.reduce((prev: any, item) => {
       if (item.label || item.value) {
         prev[item.name] = {}
@@ -75,7 +75,7 @@ async function openDialog(detail: any) {
 
 async function handleSave() {
   state.loading = true
-  const detail = await clientApi.api.postNuxeoDocument({ idOrPath: state.doc.id }).then(res => res.data)
+  const detail = await newClientApi.postDmsDocumentFetch({ idOrPath: state.doc.id }).then(res => res.data)
 
   try {
     // check if the name is exist in the folder
@@ -86,7 +86,7 @@ async function handleSave() {
       state.loading = false
       return
     }
-    await clientApi.api.patchNuxeoDocument({
+    await newClientApi.patchDmsDocument({
       idOrPath: form.value.id,
       name: form.value.name
     })

@@ -17,10 +17,9 @@ export default defineNuxtPlugin(nuxtApp => {
     messageHandlers.value.forEach((handler) => {
       handler.handler(JSON.parse(notiData.value))
     })
-    // send system notification
-    window.dispatchEvent(new CustomEvent('sendMessage', { detail: JSON.parse(notiData.value) }))
-
-    // messageChangeCB(JSON.parse(notiData.value))
+    // TODO 等待新的消息通知格式. https://wclconsultancy.atlassian.net/wiki/spaces/DocPal/pages/1247444997/Notification+Type+Schema
+    // Send System Desktop Notification
+    window.dispatchEvent(new CustomEvent('sendDesktopMessage', { detail: { title: '', id: '' } }))
   })
 
   watch(notiError, () => {
