@@ -102,7 +102,8 @@ async function init() {
     } else {
       state.layout = []
     }
-  } catch {
+  } catch (e) {
+    console.log(e)
     state.layout = []
   }
 }

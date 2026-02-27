@@ -46,7 +46,7 @@ export const useDocumentType = () => {
                 name: documentType,
             }
         }   
-        const res = await newClientApi.getDmsSettingSystem('')
+        const res = await newClientApi.getDmsSettingSystem({})
         if(res && res.data){
             allMetadataSetting.value = res.data
         }
