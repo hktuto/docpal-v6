@@ -40,7 +40,7 @@ export default defineNuxtConfig({
     '../../pages/admin-bulk-import',
     '../../pages/admin-dam',
     '../../pages/admin-document-template',
-    '../../pages/admin-docTemplate',
+    // '../../pages/admin-docTemplate',
     '../../pages/admin-case-management',
     '../../pages/admin-file-policies',
     '../../pages/admin-docker-log',
