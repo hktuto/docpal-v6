@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { provide, ref, toRefs } from 'vue'
 import { DocumentTemplateListTable } from '#components'
-import { adminApi, clientApi } from 'api'
+import { newAdminApi, newClientApi } from 'api'
 import { DocumentTemplateProviderKey } from '~/utils/documentTemplateHelper'
-import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
+import { ElMessageBox, ElNotification } from 'element-plus'
 import { Download } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
@@ -72,11 +72,6 @@ function handleAdd() {
   TemplateAddStep1DialogRef.value.handleOpen()
 }
 
-async function handleActive(row: any, enable: boolean) {
-  await adminApi.api.putCaseTypesEnable({ id: row.id, enable })
-  tableRef.value.reload()
-}
-
 const TemplateReplaceDialogRef = ref()
 
 async function handleReplace(row: any) {
@@ -93,7 +88,7 @@ function officeUrl(docId: string, token: string) {
 }
 
 async function handleEdit(row: any) {
-  const { data: token }: any = await clientApi.api.getNuxeoGetofficetokenId(row.documentId, { fileType: 'NUXEO' })
+  const token = await newClientApi.getGetofficetokenId(row.documentId, { fileType: 'NUXEO' }).then(r => r.data)
   const baseUrl = officeUrl(row.documentId, token)
   window.open(baseUrl, '_blank')
 }
@@ -112,7 +107,7 @@ async function handleDelete(row: any) {
       confirmButtonText: t('common_confirmDelete')
     })
     if (action !== 'confirm') return
-    await adminApi.api.deleteTemplateDocumentId(row.id)
+    await newAdminApi.deleteDmsTemplateDocumentId(row.id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('adminMenu.template') }))
 
     tableRef.value?.reload()
@@ -134,7 +129,7 @@ async function handleDownload(row: any) {
     position: 'bottom-right'
   })
   try {
-    const blob = await adminApi.api.postNuxeoDocumentDownload(
+    const blob = await newAdminApi.postDmsDocumentDownload(
       { idOrPath: row.documentId },
       {
         format: 'blob',
@@ -168,13 +163,12 @@ provide(DocumentTemplateProviderKey, {
       isDesc: params.isDesc,
       filters
     })
-    return adminApi.api.postTemplateDocumentPage(params)
+    return newAdminApi.postDmsTemplateDocumentPage(params)
   },
   dblClickHandle: (row: any) => {
     const item = createNewDocumentTemplateDetail(row, true)
     routerProvider?.navigateTo(item)
   },
-  handleActive,
   handleReplace,
   handleEdit,
   handleEditInfo,
@@ -194,7 +188,8 @@ provide(DocumentTemplateProviderKey, {
     <DocumentTemplateListTable ref="tableRef" v-bind="props">
       <template #toolbar_buttons>
         <div class="actionsContainer">
-          <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="name" inputPlaceHolder="documentTemplate_Filter" />
+          <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="name"
+                            inputPlaceHolder="documentTemplate_Filter" />
           <div class="button-add">
             <el-button id="DocumentTemplate__CreateNewDocumentTemplate" type="primary" @click="handleAdd">
               {{ $t('documentTemplate_Create') }}
@@ -203,7 +198,7 @@ provide(DocumentTemplateProviderKey, {
         </div>
       </template>
     </DocumentTemplateListTable>
-    <TemplateAddStep1Dialog ref="TemplateAddStep1DialogRef" @update="tableRef?.reload"></TemplateAddStep1Dialog>
+    <TemplateAddStep1Dialog ref="TemplateAddStep1DialogRef" @update="tableRef?.reload" />
     <TemplateReplaceDialog ref="TemplateReplaceDialogRef" @refresh="tableRef?.reload" />
   </div>
 </template>

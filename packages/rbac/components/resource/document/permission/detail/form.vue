@@ -5,9 +5,11 @@
       prop="targetId"
       :rules="[{ required: true, message: $t('render.hint.fieldRequired', { name: $t('user_role') }), trigger: 'change' }]"
     >
-      <el-select v-model="formData.targetId" :disabled="isEdit" :placeholder="$t('choose', { name: $t('user_role') })" filterable>
+      <el-select v-model="formData.targetId" :disabled="isEdit" :placeholder="$t('choose', { name: $t('user_role') })"
+                 filterable>
         <el-option-group v-for="options in _targetOptions" :key="options.label" :label="$t(options.label)">
-          <el-option v-for="item in options.options" :key="item.value" :label="item.label" :value="item.value" :disabled="item.disabled" />
+          <el-option v-for="item in options.options" :key="item.value" :label="item.label" :value="item.value"
+                     :disabled="item.disabled" />
         </el-option-group>
       </el-select>
     </el-form-item>
@@ -17,8 +19,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { adminApi } from 'api'
 const props = defineProps<{
   isFolder: boolean
   isEdit: boolean
@@ -65,6 +65,7 @@ const formData = ref<FormData>({
   permissionLevel: 0,
   permissionIds: []
 })
+
 function setFormData(data: SaveData) {
   formData.value.resourceId = data.resourceId
   formData.value.resourceType = data.resourceType
@@ -82,20 +83,21 @@ async function getFormData() {
   try {
     await formRef.value.validate()
     const permissondata = checkboxFormRef.value.getData()
-    const data: any = {
+    return {
       resourceType: formData.value.resourceType || 1,
       resourceId: formData.value.resourceId,
       targetType: getTargetType(formData.value.targetId),
       targetId: getTargetId(formData.value.targetId),
       ...permissondata
     }
-    return data
   } catch (e) {
     console.error(e)
   }
+
   function getTargetType(targetId: string) {
     return Number(targetId.split('&&')[1])
   }
+
   function getTargetId(targetId: string) {
     return targetId.split('&&')[2] || ''
   }
@@ -114,6 +116,7 @@ defineExpose({
 .el-divider {
   margin: 20px 0;
 }
+
 .el-checkbox-group {
   display: flex;
   flex-direction: column;

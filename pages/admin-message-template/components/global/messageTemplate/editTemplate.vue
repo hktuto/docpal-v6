@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ElNotification } from 'element-plus'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 
 const { id } = defineProps<{
   id: number
@@ -15,8 +14,7 @@ const detailData = ref()
 
 async function getData() {
   loading.value = true
-  const { data } = await adminApi.api.getMessageTemplateDetailsId(id)
-  detailData.value = data
+  detailData.value = await newAdminApi.getDocpalMessageTemplateDetailsId(id).then((r) => r.data)
   console.log('detailData', detailData.value)
   loading.value = false
 }
@@ -24,15 +22,8 @@ async function getData() {
 const languageOptions = ref<any[]>([])
 
 async function getLanguageOptions() {
-  const { data } = await adminApi.api.getWhatsappLanguageList() as any
+  const data = await newAdminApi.getExt3rdmessageWhatsappLanguages().then((r) => r.data)
   languageOptions.value = data.data
-}
-
-async function saveTemplate() {
-  const template = detailData.value.template
-  await adminApi.api.postMessageTemplateEdit(template)
-  ElNotification.success('Success')
-  await getData()
 }
 
 async function init() {
@@ -44,11 +35,13 @@ async function saveData() {
   try {
     const params = detailData.value.template
     params.recordId = id
-    const { data } = await adminApi.api.postMessageTemplateEdit(params)
-    routerProvider?.message.success(t('tip_updateSuccessMsg', {
-      modelName: t('adminMenu.messageTemplate'),
-      name: null
-    }))
+    await newAdminApi.postDocpalMessageTemplateEdit(params).then((r) => r.data)
+    routerProvider?.message.success(
+      t('tip_updateSuccessMsg', {
+        modelName: t('adminMenu.messageTemplate'),
+        name: null
+      })
+    )
   } catch (e) {
     routerProvider?.message.error(t('dpMsg_error'))
   } finally {
@@ -63,7 +56,6 @@ const header = defineModel<string>('header')
 const body = defineModel<string>('body')
 const footer = defineModel<string>('footer')
 const textMessage = defineModel<string>('textMessage')
-
 </script>
 
 <template>
@@ -88,35 +80,30 @@ const textMessage = defineModel<string>('textMessage')
         </ElForm>
         <ElDivider />
         <div class="subSection">
-          <div class="title">
-            Header
-          </div>
+          <div class="title">Header</div>
         </div>
         <!-- {{detailData.template.header}} -->
-        <MessageTemplateEditor :row="1" v-model:content="detailData.template.header"
-                               v-model:parameters="detailData.template.hedaerParameters"
-                               v-model:labelName="header"
+        <MessageTemplateEditor
+          :row="1"
+          v-model:content="detailData.template.header"
+          v-model:parameters="detailData.template.hedaerParameters"
+          v-model:labelName="header"
         />
         <ElDivider />
         <div class="subSection">
-          <div class="title">
-            Body
-          </div>
-        </div>
-        <MessageTemplateEditor :row="6" v-model:content="detailData.template.body"
-                               v-model:parameters="detailData.template.bodyParameters"
-                               v-model:labelName="body" />
-        <ElDivider />
-        <div class="subSection">
-          <div class="title">
-            Footer
-          </div>
+          <div class="title">Body</div>
         </div>
         <MessageTemplateEditor
-          :row="1"
-          v-model:content="detailData.template.footer"
-          v-model:labelName="footer"
-          :show-variables="false" />
+          :row="6"
+          v-model:content="detailData.template.body"
+          v-model:parameters="detailData.template.bodyParameters"
+          v-model:labelName="body"
+        />
+        <ElDivider />
+        <div class="subSection">
+          <div class="title">Footer</div>
+        </div>
+        <MessageTemplateEditor :row="1" v-model:content="detailData.template.footer" v-model:labelName="footer" :show-variables="false" />
         <ElDivider />
         <ElSwitch v-model="detailData.template.needConfirm" active-text="Confirm" inactive-text="No confirm" />
         <ElFormItem label="Confirm Button">
@@ -125,9 +112,7 @@ const textMessage = defineModel<string>('textMessage')
         <ElDivider />
         <template v-if="detailData.template.needConfirm && detailData.template.confirmButtonName">
           <div class="subSection">
-            <div class="title">
-              Content
-            </div>
+            <div class="title">Content</div>
           </div>
           <MessageTemplateEditor
             :row="6"
@@ -149,18 +134,8 @@ const textMessage = defineModel<string>('textMessage')
       </div>
     </div>
     <div v-if="detailData" class="preview section">
-      <MessageTemplatePreviewText
-        :template="detailData.template"
-        title="Whatsapp"
-        :showConfirm="true"
-        bgColor="#F6EBCF"
-      />
-      <MessageTemplatePreviewText
-        :template="detailData.template"
-        title="Wechat"
-        :showConfirm="false"
-        bgColor="#E2F6CF"
-      />
+      <MessageTemplatePreviewText :template="detailData.template" title="Whatsapp" :showConfirm="true" bgColor="#F6EBCF" />
+      <MessageTemplatePreviewText :template="detailData.template" title="Wechat" :showConfirm="false" bgColor="#E2F6CF" />
     </div>
   </div>
 </template>
@@ -191,7 +166,7 @@ const textMessage = defineModel<string>('textMessage')
   overflow: hidden;
   padding: var(--app-space-s);
   display: grid;
-  grid-template-columns:1fr min-content;
+  grid-template-columns: 1fr min-content;
   gap: var(--app-space-s);
   background: var(--app-grey-950);
 }

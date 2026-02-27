@@ -12,7 +12,7 @@
   </el-card>
 </template>
 <script setup lang="ts">
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 
 const props = defineProps(['table', 'tableId'])
 const state = reactive<any>({
@@ -23,14 +23,14 @@ const state = reactive<any>({
 async function handleSave() {
   state.loading = true
   try {
-    await adminApi.api.putMasterTables({
+    await newAdminApi.putDmsMasterTable({
       id: props.tableId,
       status: state.isActive
-    })
+    }).then(r => r.data)
   } catch (error) {
     state.isActive = state.isActive === 'A' ? 'D' : 'A'
   } finally {
-    await new Promise(resolve => setTimeout(resolve, 300)); 
+    await new Promise((resolve) => setTimeout(resolve, 300))
     state.loading = false
   }
 }

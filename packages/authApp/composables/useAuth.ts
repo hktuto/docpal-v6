@@ -1,6 +1,6 @@
 import { useState, createError } from '#imports'
 import { EventType, emitBus } from 'eventbus'
-import { clientApi, adminApi } from 'api'
+import { newClientApi, globalApi } from 'api'
 import type Keycloak from 'keycloak-js'
 
 import type { UserDTO } from 'api/src/generate/client'
@@ -8,18 +8,7 @@ import type { UserDTO } from 'api/src/generate/client'
 export const useDesktopMode = () => useState<boolean>('is-desktop')
 export const useUserState = () => useState<UserDTO | null>('auth-user')
 
-export const usePublicPageState = () =>
-  useState<(string | RegExp)[]>('auth-public-page', () => [
-    '/forgetPassword',
-    '/forgetPassword/',
-    '/resetPassword/',
-    '/resetPassword',
-    '/login/',
-    '/login',
-    '/initPassword/',
-    '/initPassword',
-    /^\/test-.*/
-  ])
+export const usePublicPageState = () => useState<string[]>('auth-public-page', () => ['/forgetPassword', '/forgetPassword/', '/resetPassword/', '/resetPassword', '/login/', '/login', '/initPassword/', '/initPassword'])
 export const useLoginHook = () => useState<any>(() => shallowRef([]))
 
 export const useUserId = () => useState<string>(() => '')
@@ -47,7 +36,9 @@ export const userDisplayTimeSetting = () => {
   const userPreference = useUserPreference()
   return userPreference.value?.metaDateFormat ? userPreference.value.metaDateFormat : 'YYYY-MM-DD'
 }
+
 export async function verifly() {
+
   const logedIn = useLoginState()
   const isDesktopMode = useDesktopMode()
   const isMac = useIsMac()
@@ -71,7 +62,11 @@ export async function verifly() {
   const userId = useUserId()
   const user = useUserState()
 
-  const { create, findOne, deleteTable } = useSqliteTable({
+  const {
+    create,
+    findOne,
+    deleteTable
+  } = useSqliteTable({
     schema: {
       name: 'auth_user',
       columns: [
@@ -118,13 +113,16 @@ function parseJwt(token: string) {
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
   return JSON.parse(window.atob(base64))
 }
+
 export async function login() {
   // const keyCloakState = useKeyCloakState()
+
 
   // check route is superAdmin
   try {
     // get access token from local storage
     const storageToken = localStorage.getItem('access_token')
+    console.log('useAuth', storageToken)
     if (!storageToken) {
       throw new Error('access token not found')
     }
@@ -132,28 +130,32 @@ export async function login() {
     token.value = storageToken
     await verifly()
     await checkPassword()
+
   } catch (error) {
     console.log('login error', error)
     logout()
   }
 }
+
 async function checkPassword() {
   // let result = {
   //   accountExpire: false,
   //   firstLoginForceResetPassword: true
   // }
   try {
-    const { data } = await clientApi.api.getPasswordUserStatus()
+    const data = await newClientApi.getUcenterPasswordUserStatus().then(r => r.data)
     console.log(data)
     if (data?.firstLoginForceResetPassword || data?.accountExpire) {
       const router = useRouter()
       router.push('/resetPassword')
     }
-  } catch (error) {}
+  } catch (error) {
+  }
 }
+
 export function getOCRSetting() {
   const ocrSetting = useOcrSetting()
-  ocrSetting.value = clientApi.instance.get('/nuxeo/admin/setting/OCR').then((res) => res.data)
+  ocrSetting.value = newClientApi.getDmsSettingSystem('OCR').then((res) => res.data)
 }
 
 export function canOCR(extension: string): boolean {
@@ -163,12 +165,13 @@ export function canOCR(extension: string): boolean {
 }
 
 export function logout() {
+
   const logedIn = useLoginState()
 
   const userState = useUserState()
   const router = useRouter()
   const route = useRoute()
-  const ignoreRedirectPath = ['/login', '/forgetPassword', '/resetPassword', '/admin']
+  const ignoreRedirectPath = ['/login', '/forgetPassword', '/resetPassword', '/initPassword', '/admin']
   router.push({
     path: '/login',
     query: {
@@ -180,6 +183,7 @@ export function logout() {
 
   localStorage.clear()
   logedIn.value = false
+
 }
 
 /**
@@ -187,9 +191,7 @@ export function logout() {
  */
 async function getFeature() {
   const features = useFeature()
-  const appPlatform = useAppPlatform()
-  const api = appPlatform.value === 'admin' ? adminApi : clientApi
-  const { data } = await api.api.getSystemfeatureGetfeatures()
+  const data = await globalApi.getDmsFeatureGetfeatures().then(r => r.data)
   if (!data) throw new Error('get license feature error')
   features.value = data
 }
@@ -243,12 +245,13 @@ const uiSize = [
     value: '20px'
   }
 ]
+
 /**
  *  從後台拿回 user 的 setting, 包括文字大小，color mode ...
  */
 export async function getUserPreference() {
   const preference = useUserPreference()
-  const { data } = await clientApi.api.getUserSetting()
+  const data = await newClientApi.getDmsUserSetting().then(r => r.data)
   if (!data) {
     throw new Error('get user preference fail')
   }
@@ -297,7 +300,10 @@ async function getUser() {
   const user = useUserState()
   const userId = useUserId()
   const userRole = useUserRole()
-  const { data } = (await clientApi.api.getNuxeoUserGetapplication()) as any
+  const data: any = await newClientApi.getDmsUserGetapplication().then(r => r.data)
+  if (!data) {
+    throw new Error('Get Application Is Null')
+  }
   userId.value = data.userId
   userRole.value = data.aclUserDetail?.roleId
   localStorage.setItem('docpal-user', JSON.stringify(data))

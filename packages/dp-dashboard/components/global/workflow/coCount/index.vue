@@ -23,7 +23,7 @@
         v-for="(item, index) in setting.displayList"
         class="chartContainer-item"
         :dates="dates"
-        :is="widgetComponent[item]"
+        :is="item"
         :ref="
           (el) => {
             displayListRef[item] = el
@@ -39,8 +39,6 @@
 </template>
 
 <script lang="ts" setup>
-import { widgetComponent } from '~/utils/dashboardWidgetHelper'
-
 const props = withDefaults(
   defineProps<{
     dates?: any

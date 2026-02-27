@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {adminApi} from "api";
-import {newMessageTemplateTemplatePageRoute} from "~/utils/messageTemplateHelper";
+import { newAdminApi } from 'api'
+import { newMessageTemplateTemplatePageRoute } from '~/utils/messageTemplateHelper'
 
 const routerProvider = inject(MenuRouterKey)
-const {id} = defineProps<{
+const { id } = defineProps<{
   id: number
 }>()
 const loading = ref(false)
@@ -11,26 +11,25 @@ const detailData = ref()
 
 async function getData() {
   loading.value = true
-  const {data} = await adminApi.api.getMessageTemplateDetailsId(id)
-  detailData.value = data
+  detailData.value = await newAdminApi.getDocpalMessageTemplateDetailsId(id).then(r => r.data)
   loading.value = false
 }
 
 function handleEditTemplate() {
-  const tabItem = newMessageTemplateTemplatePageRoute({id, ...detailData.value.template})
+  const tabItem = newMessageTemplateTemplatePageRoute({ id, ...detailData.value.template })
   routerProvider?.navigateTo(tabItem)
 }
 
 const deleteDialogRef = ref()
 
 function handleDeleteTemplate() {
-  deleteDialogRef?.value?.open({id, ...detailData.value.template})
+  deleteDialogRef?.value?.open({ id, ...detailData.value.template })
 }
 
 const duplicateDialogRef = ref()
 
 function handleDuplicateTemplate() {
-  duplicateDialogRef?.value?.open({id, ...detailData.value.template})
+  duplicateDialogRef?.value?.open({ id, ...detailData.value.template })
 }
 
 function goBack() {
@@ -63,19 +62,15 @@ onMounted(() => {
           </template>
           <ElButton type="link">
             <ElIcon>
-              <SvgIcon class="dropdownIcon" src="/icons/dots.svg"/>
+              <SvgIcon class="dropdownIcon" src="/icons/dots.svg" />
             </ElIcon>
           </ElButton>
         </ElDropdown>
       </div>
-      <ElDivider/>
+      <ElDivider />
       <div class="subSection">
-        <div class="label">
-          Stat
-        </div>
-        <div class="desc">
-          Message Open/Sent
-        </div>
+        <div class="label">Stat</div>
+        <div class="desc">Message Open/Sent</div>
         <div class="statCountContainer">
           <div v-for="stat in detailData.messageCounts" :key="stat.name" class="stat">
             <div class="type">{{ stat.name }}</div>
@@ -83,11 +78,9 @@ onMounted(() => {
           </div>
         </div>
       </div>
-      <ElDivider/>
+      <ElDivider />
       <div class="subSection">
-        <div class="label">
-          Publish Status
-        </div>
+        <div class="label">Publish Status</div>
         <div class="statCountContainer">
           <div v-for="stat in detailData.templateStatuses" :key="stat.name" class="stat">
             <div class="type">{{ stat.name }}</div>
@@ -97,20 +90,12 @@ onMounted(() => {
       </div>
     </div>
     <div v-if="detailData" class="preview section">
-      <MessageTemplatePreviewText
-        :template="detailData.template"
-        title="Whatsapp"
-        :showConfirm="true"
-        bgColor="#F6EBCF"
-      />
-      <MessageTemplatePreviewText
-        :template="detailData.template"
-        title="Wechat"
-        bgColor="#E2F6CF"
-      />
+      <MessageTemplatePreviewText :template="detailData.template" title="Whatsapp" :showConfirm="true"
+                                  bgColor="#F6EBCF" />
+      <MessageTemplatePreviewText :template="detailData.template" title="Wechat" bgColor="#E2F6CF" />
     </div>
-    <MessageTemplateDeleteDialog ref="deleteDialogRef" @success="goBack"/>
-    <MessageTemplateDuplicateDialog ref="duplicateDialogRef"/>
+    <MessageTemplateDeleteDialog ref="deleteDialogRef" @success="goBack" />
+    <MessageTemplateDuplicateDialog ref="duplicateDialogRef" />
   </div>
 </template>
 

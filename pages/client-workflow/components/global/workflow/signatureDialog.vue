@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { clientApi } from 'api';
+import { newClientApi } from 'api'
 import { Plus } from '@element-plus/icons-vue'
+
 const opened = ref(false)
 const props = defineProps<{
   signatureSetting: any
@@ -18,41 +19,46 @@ function ensureUserId(): string {
   }
   return userId
 }
+
 const signatureCanvasRef = ref<any>(null)
 
-async function getUserSignature(){
- const signature = await clientApi.api.getUserProfileUseridSignature(ensureUserId(),{format: 'blob', headers: {
-  'noThrowError': true
- }}) as unknown as Blob
+async function getUserSignature() {
+  const signature = await newClientApi.getDmsUserprofileUseridSignature(ensureUserId(), {
+    format: 'blob', headers: {
+      'noThrowError': true
+    }
+  }) as unknown as Blob
 
- if(!signature || signature.size === 0) {
-  signaturePreview.value.push({
-      type: "user", img:""
+  if (!signature || signature.size === 0) {
+    signaturePreview.value.push({
+      type: 'user', img: ''
     })
     return
- }
- const reader = new FileReader();
-  reader.readAsDataURL(signature); 
+  }
+  const reader = new FileReader()
+  reader.readAsDataURL(signature)
   reader.onloadend = function() {
-    var base64data = reader.result;  
-    signatures.value.push(base64data)       
+    var base64data = reader.result
+    signatures.value.push(base64data)
     signaturePreview.value.push({
-      type: "user", img:base64data
+      type: 'user', img: base64data
     })
   }
 }
 
-async function getCompanyChop(chopId:string){
-  const signature = await clientApi.api.getCompanyprofilesChopsCompanychopidFile(chopId,{format: 'blob', headers: {
-    'noThrowError': true
-  }}) as unknown as Blob
-  const reader = new FileReader();
-  reader.readAsDataURL(signature); 
+async function getCompanyChop(chopId: string) {
+  const signature = await newClientApi.getDmsCompanyprofilesChopsCompanychopidFile(chopId, {
+    format: 'blob', headers: {
+      'noThrowError': true
+    }
+  }) as unknown as Blob
+  const reader = new FileReader()
+  reader.readAsDataURL(signature)
   reader.onloadend = function() {
-    var base64data = reader.result;  
-    signatures.value.push(base64data) 
+    var base64data = reader.result
+    signatures.value.push(base64data)
     signaturePreview.value.push({
-      type: "company", img:base64data
+      type: 'company', img: base64data
     })
   }
 }
@@ -64,14 +70,15 @@ async function open() {
   signaturePreview.value = []
   // check if signatureVariableSetting is personal or company
   const type = props.signatureSetting.signatureVariableSetting.value.type
-  if(type === 'personal' || type === 'both'){
+  if (type === 'personal' || type === 'both') {
     await getUserSignature()
   }
-  if(type === 'company' || type === 'both'){
+  if (type === 'company' || type === 'both') {
     const chopId = props.signatureSetting.signatureVariableSetting.value.signatureId
     await getCompanyChop(chopId)
   }
 }
+
 function close() {
   opened.value = false
 }
@@ -95,10 +102,10 @@ async function handleSubmitSignature(signature: string) {
   const userSignature = signaturePreview.value.find((item: any) => item.type === 'user')
 
   // TODO: swagger APi 文檔需要移除 query 參數
-  if (!userSignature ||!userSignature.img) {
-    await clientApi.api.postUserprofileUseridSignature(ensureUserId(), {} as any, form as any)
+  if (!userSignature || !userSignature.img) {
+    await newClientApi.postDmsUserprofileUseridSignature(ensureUserId(), {} as any, form as any)
   } else {
-    await clientApi.api.putUserprofileUseridSignature(ensureUserId(), {} as any, form as any)
+    await newClientApi.putDmsUserprofileUseridSignature(ensureUserId(), {} as any, form as any)
   }
   // step 1 save user signature, and call open again to draw new signature
   // signaturePreview.value.push(signature)
@@ -122,11 +129,9 @@ function confirmApplySignature() {
   close()
 }
 
-
 function toTitleCase(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
-
 
 const canDrawNewSignature = computed(() => {
   return props.signatureSetting.signatureVariableSetting.value.type === 'personal' || props.signatureSetting.signatureVariableSetting.value.type === 'both'
@@ -146,7 +151,7 @@ defineExpose({
           {{ toTitleCase(signature.type) }}
         </div>
         <div class="signatureImageContainer">
-          <template v-if="signature.img" >
+          <template v-if="signature.img">
             <img class="signatureImage" :src="signature.img" alt="signature" />
           </template>
           <template v-else>
@@ -172,13 +177,15 @@ defineExpose({
   flex-direction: row wrap;
   gap: var(--app-space-s);
 }
-.signatureItem{
+
+.signatureItem {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
   gap: 5px;
 }
+
 .signatureImage {
   width: 100%;
   height: 100%;

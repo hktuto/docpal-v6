@@ -11,10 +11,11 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import { userProviderKey } from '~/util/userProvider'
 import formJson from './dialog.vform.json'
 import { ElMessage } from 'element-plus'
+
 const { t } = useI18n()
 const userProvider = inject(userProviderKey)
 const emits = defineEmits([
@@ -35,9 +36,9 @@ async function handleSubmit() {
       return
     }
     state.loading = true
-    await adminApi.api.postNuxeoIdentityUser(data)
+    await newAdminApi.postUcenterUser(data).then(r => r.data)
     if (data.groupList.length > 0) {
-      await adminApi.api.postNuxeoIdentityUserBatchAddGroups({
+      await userProvider?.BatchUserAddGroupsApi({
         userId: data.userId,
         groupIds: data.groupList
       })

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue'
 import formJson from '../../companyProfile/newDialog.vform.json'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 
 const props = defineProps<{
   id: string
@@ -16,7 +16,7 @@ async function handleSave() {
     const data = await FormRendererRef.value.getFormData()
     data.status = data.status ? 'A' : 'D'
     loading.value = true
-    const result = await adminApi.api.putCompanyprofilesCompanyid(props.id, data).then(r => r.data)
+    const result = await newAdminApi.putDmsCompanyprofilesCompanyid(props.id, data).then(r => r.data)
     if (result) routerProvider?.message.success(t('dpMsg_success'))
   } catch (error: any) {
     console.error(error)
@@ -28,9 +28,9 @@ async function handleSave() {
 async function init() {
   try {
     loading.value = true
-    const data: any = await adminApi.api.getCompanyprofilesCompanyid(props.id).then((res) => res.data)
+    const data: any = await newAdminApi.getDmsCompanyprofilesCompanyid(props.id).then((res) => res.data)
     setTimeout(() => {
-      FormRendererRef.value.vFormRenderRef.setFormData({ ...data, status: data.status === 'A' ? true : false })
+      FormRendererRef.value.vFormRenderRef.setFormData({ ...data, status: data.status === 'A' })
     })
   } catch (error) {
     console.error(error)

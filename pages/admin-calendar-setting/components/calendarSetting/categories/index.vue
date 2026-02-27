@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
@@ -11,8 +11,7 @@ const detailDialogRef = ref()
 const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'calendarSetting_categories',
   api: (pageParams: any) => {
-    return adminApi.api.getEventCalendarsSettings({ eventCalendarSetting: {} }).then(r => r.data)
-    // return adminApi.api.getEventCalendarsSettings({ eventCalendarSetting: { ...extraParams } }).then(r => r.data)
+    return newAdminApi.getDmsCalendarsEventSettings({ eventCalendarSetting: {} })
   },
   virtualScroll: true,
   pageSize: 5,
@@ -113,7 +112,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
         code: 'delete',
         name: 'delete',
         action: async ({ row }: any) => {
-          await adminApi.api.deleteMasterTablesIdRecord(setting.value.category.master_table, { recordId: row.id }, {})
+          await newAdminApi.deleteDmsMasterTableIdRecord(setting.value.category.master_table, { recordId: row.id }, {})
           routerProvider?.message.success(t('tip_deleteSuccessMsg', {
             modelName: null,
             name: row.name
@@ -161,13 +160,6 @@ function setPermissionString(cellValue: any) {
   return list.toString()
 }
 
-// function handleFilterFormChange(formModel: any) {
-//   // if (!formModel.isDesc) formModel.isDesc = true
-//   // if (!!formModel.isDesc) formModel.isDesc = formModel.isDesc !== 'false'
-//   extraParams = formModel
-//   reload()
-// }
-
 function addRecord() {
   detailDialogRef.value.open()
 }
@@ -180,7 +172,6 @@ function addRecord() {
       <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
         <template #toolbar_buttons>
           <div class="actions">
-<!--            <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange" />-->
             <ElButton id="CalendarSetting__EventLocations__EventCategories__Add" type="primary" @click="addRecord">
               {{ $t('Add') }}
             </ElButton>

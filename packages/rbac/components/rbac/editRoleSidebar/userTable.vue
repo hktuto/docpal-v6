@@ -3,25 +3,24 @@
     <div class="user-table-header">
       <h4>{{ $t('orgChart.userTable.title') }}</h4>
       <div class="header-actions">
-  
       </div>
     </div>
-    <VxeGrid 
-      ref="tableRef" 
-      v-bind="tableConfig" 
+    <VxeGrid
+      ref="tableRef"
+      v-bind="tableConfig"
       v-on="tableEvent"
       @checkbox-change="handleCheckboxChange"
       @checkbox-all="handleCheckboxAll"
     >
       <template #toolbar_buttons>
         <div class="tableActions">
-          
+
           <el-button type="primary" @click="showAddUserDialog = true">
             {{ $t('orgChart.userTable.addUserButton') }}
           </el-button>
-          <el-button 
+          <el-button
             v-if="selectedUsers.length"
-            type="danger" 
+            type="danger"
             @click="handleBatchDelete"
           >
             {{ $t('common_delete') }}
@@ -42,7 +41,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import AddUserDialog from './AddUserDialog.vue'
 import { ElMessageBox, ElNotification } from 'element-plus'
 
@@ -70,11 +69,10 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
         values: props.roleId
       }
     ]
-    const data = await adminApi.api.postAclRoleUsersPage({
+    return await newAdminApi.postDocpalAclRoleUsersPage({
       ...pageParams,
       conditions
     })
-    return data
   },
   virtualScroll: props.isAdd,
   columns: [
@@ -82,7 +80,7 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
     { field: 'userName', title: t('orgChart.userTable.columns.username'), width: 120 },
     {
       field: 'email',
-      title: t('orgChart.userTable.columns.email'),
+      title: t('orgChart.userTable.columns.email')
     }
   ],
   bodyActions: [
@@ -124,7 +122,7 @@ async function handleBatchDelete() {
     if (action !== 'confirm') return
 
     const userIds = selectedUsers.value.map(user => user.id)
-    await adminApi.api.deleteAclRoleUsers(userIds)
+    await newAdminApi.deleteDocpalAclRoleUsers(userIds)
     selectedUsers.value = []
     emit('update', [])
     reload()
@@ -147,7 +145,7 @@ async function handleBatchDelete() {
 
 async function handleAddUsers(userIds: string[]) {
   try {
-    await adminApi.api.postAclRoleUsers({
+    await newAdminApi.postDocpalAclRoleUsers({
       roleId: props.roleId,
       userIds
     })
@@ -180,7 +178,7 @@ const handleRemoveUser = async (user: any) => {
     )
     if (action !== 'confirm') return
 
-    await adminApi.api.deleteAclRoleUsers([user.id])
+    await newAdminApi.deleteDocpalAclRoleUsers([user.id])
     emit('update', [])
     reload()
     ElNotification({

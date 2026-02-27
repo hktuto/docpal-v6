@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { UploadFilled, DeleteFilled } from '@element-plus/icons-vue'
 import { useDebounceFn } from '@vueuse/core'
 
@@ -26,8 +26,8 @@ async function handleOpen() {
 
 async function getImageUrl() {
   try {
-    const response = await clientApi.api.getUserprofileUseridSignature(props.userId, { format: 'blob' })
-    if (response && response.size > 0) {
+    const response: any = await newClientApi.getDmsUserprofileUseridSignature(props.userId, { format: 'blob' })
+    if (!!response && response.size > 0) {
       const blob = new Blob([response], { type: response.type })
       const url = URL.createObjectURL(blob)
 
@@ -47,7 +47,7 @@ async function getImageUrl() {
 
 async function handleSubmit() {
   if (!state.isCreate && state.fileList.length === 0) {
-    await clientApi.api.deleteUserprofileUseridSignature(props.userId)
+    await newClientApi.deleteDmsUserprofileUseridSignature(props.userId).then(r => r.data)
     routerProvider?.message.success(
       t('tip_updateSuccessMsg', {
         modelName: t('user.setting.userSignature'),
@@ -65,11 +65,10 @@ async function handleSubmit() {
     form.append('file', fileObj)
     form.append('format', format)
 
-    // TODO: swagger APi 文檔需要移除 query 參數
     if (state.isCreate) {
-      await clientApi.api.postUserprofileUseridSignature(props.userId, {}, form as any)
+      await newClientApi.postDmsUserprofileUseridSignature(props.userId, form as any)
     } else {
-      await clientApi.api.putUserprofileUseridSignature(props.userId, {}, form as any)
+      await newClientApi.putDmsUserprofileUseridSignature(props.userId, form as any)
     }
   } catch (e) {
     routerProvider?.message.error(t('user.setting.userSignatureUploadFailed'))

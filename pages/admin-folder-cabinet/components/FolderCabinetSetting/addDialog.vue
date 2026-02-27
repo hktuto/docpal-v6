@@ -17,7 +17,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './addDialog.vform.json'
 import { ElMessage } from 'element-plus'
 
@@ -37,13 +37,13 @@ async function handleSubmit() {
   try {
     const data = await FormRendererRef.value.getFormData()
     if (state.oldName != data.name) {
-      const { data: checkName } = await adminApi.api.postCabinetTemplateDuplicateName({ label: data.label })
+      const checkName = await newAdminApi.postDmsCabinetTemplateDuplicateName({ label: data.label }).then(r => r.data)
       if (checkName) {
         ElMessage.error(t('common_nameExists'))
         return
       }
     }
-  
+
     const params = {
       ...data,
       binds: data.userGroups.map((value: string) => {
@@ -58,20 +58,18 @@ async function handleSubmit() {
     let response
     if (state.isEdit) {
       params.id = state.setting.id
-      const { data: patchData } = await adminApi.api.patchCabinetTemplate({
+      const { data: patchData } = await newAdminApi.patchDmsCabinetTemplate({
         ...params,
         rootId: data.cabinetRoot.pop()
       })
-
       response = patchData
     } else {
-      const { data: createData } = await adminApi.api.postCabinetTemplate({
+      response = await newAdminApi.postDmsCabinetTemplate({
         documentType: 'Folder',
         ...params,
         rootId: data.cabinetRoot.pop(),
         status: 'A'
-      })
-      response = createData
+      }).then(r => r.data)
     }
     FormRendererRef.value.vFormRenderRef.resetForm()
     state.visible = false
@@ -128,7 +126,7 @@ function handleOpen(setting: any) {
 
 async function getRootIds(idOrPath: string) {
   try {
-    const data = await adminApi.api.postNuxeoDocumentBreadcrumb({ idOrPath }).then((res) => res.data)
+    const data = await newAdminApi.postDmsDocumentBreadcrumb({ idOrPath }).then((res) => res.data)
     return data?.map((item) => item.id).filter((item: any) => item !== 'root')
   } catch (error) {
     return []

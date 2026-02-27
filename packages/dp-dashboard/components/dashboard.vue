@@ -4,7 +4,6 @@
     <template v-else>
       <div class="template-container--header">
         <span class="template-container--header__title">
-          {{ currentHome.name }}
           <DashboardDate class="el-icon--right" v-model="state.dates" />
         </span>
         <div class="template-container--header__buttons">
@@ -25,7 +24,6 @@
         id="Dashboard__Home__Main"
         v-if="currentHome && currentHome.layout"
         ref="DashboardDetailRef"
-        :id="currentHome.id"
         v-model:layout="currentHome.layout"
         :dates="state.dates"
         :hideSetting="!state.editMode"
@@ -44,14 +42,13 @@
 
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import { allowFeature } from '#imports'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { Plus, Edit } from '@element-plus/icons-vue'
 
 import { clientApi } from 'api'
 
-import { getNormalizeSetting, dashboardWidgetSetting, getWidgetSetting, getDashboardWidgetByType } from '../utils/dashboardWidgetHelper'
-import type { DashboardWidget, DashboardWidgetSetting } from '../utils/dashboardWidgetHelper'
+import { dashboardWidgetSetting, getWidgetSetting, getDashboardWidgetByType } from '../utils/dashboardWidgetHelper'
+
 import { onMounted, onUnmounted } from 'vue'
 
 const routerProvider = inject(MenuRouterKey)
@@ -137,7 +134,6 @@ async function handleExportPdf() {
   }
 }
 onMounted(async () => {
-  console.log("onMounted", routerProvider?.refeshActions.value)
   routerProvider?.refeshActions.value.push({
     fn: getHomeList,
     params: [true]
@@ -170,7 +166,7 @@ onMounted(async () => {
     align-items: center;
     gap: var(--app-space-s);
     &__title {
-      height: 100%;
+      // height: 100%;
       line-height: 30px;
 
       title {
@@ -196,5 +192,7 @@ onMounted(async () => {
   justify-content: space-between;
   align-items: center;
   font-weight: bold;
+  flex-flow: row wrap;
+  gap: var(--app-space-s);
 }
 </style>

@@ -1,4 +1,4 @@
-import { adminApi } from 'api'
+import { newClientApi } from 'api'
 
 export type MetaSetting = {
     documentType?: string,
@@ -46,7 +46,7 @@ export const useDocumentType = () => {
                 name: documentType,
             }
         }   
-        const res = await adminApi.api.getNuxeoAdminSetting("")
+        const res = await newClientApi.getDmsSettingSystem('')
         if(res && res.data){
             allMetadataSetting.value = res.data
         }

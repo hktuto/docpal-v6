@@ -1,5 +1,5 @@
 
-import {clientApi} from 'api'
+import { newClientApi } from 'api'
 type DocumentSetting = {
     fileType: string[]
     meta: string,
@@ -18,7 +18,7 @@ export const useRelatedFolder =() => {
         if(parentKey){
             delete meta.parentKey
         }
-        return await clientApi.api.postNuxeoDocumentSearchbyproperties(meta)
+        return await newClientApi.postNuxeoDocumentSearchbyproperties(meta)
         .then(res => res.data.data)
         .then( data => data.map(i => {
             if(i.type === 'vendor'){
@@ -43,7 +43,7 @@ export const useRelatedFolder =() => {
     async function getRelatedChild(doc:any) {
         const returnObject:any[] = []
         try{
-            const relatedList = await clientApi.api.getTypesNameNameRelated(doc.type).then(res => res.data)
+            const relatedList = await newClientApi.getTypesNameNameRelated(doc.type).then(res => res.data)
             const pList: any = []
             relatedList.forEach((item: { metaData: string, rootDocPalType: string }) => {
                 pList.push(getRelatedDocs(item))

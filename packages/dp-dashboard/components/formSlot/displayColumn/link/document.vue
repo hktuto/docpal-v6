@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const props = defineProps<{
   docId: string
 }>()
-
 
 const tabProvider = inject(TabManagerKey)
 const routerProvider = inject(MenuRouterKey)
@@ -14,12 +13,10 @@ if (!tabProvider || !routerProvider) {
 const docDetail = ref<any>(null)
 const loading = ref(false)
 
-
 async function getDocDetail() {
   loading.value = true
   try {
-    const { data } = await clientApi.api.postNuxeoDocument({idOrPath: props.docId})
-    docDetail.value = data
+    docDetail.value = await newClientApi.postDmsDocumentFetch({idOrPath: props.docId}).then(r => r.data)
   } catch (error) {
     console.error(error)
   } finally {

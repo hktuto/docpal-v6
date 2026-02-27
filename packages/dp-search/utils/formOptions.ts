@@ -1,4 +1,4 @@
-import { globalApi, clientApi,adminApi } from 'api'
+import { newClientApi, newAdminApi } from 'api'
 
 export const conditionType = [
   { label: 'authors', value: 'authors' },
@@ -103,9 +103,9 @@ export const getMetadataOptions = async () => {
     let metadataOpts
     const platform = window.location.pathname.includes('admin') ? 'admin' : 'client'
     if (platform === 'admin') {
-      metadataOpts = await adminApi.api.getDocpaltypeSettingsMetadataV2QueryCache().then((res: any) => res.data)
+      metadataOpts = await newAdminApi.getDmsDocpalTypeCache().then((res: any) => res.data)
     } else {
-      metadataOpts = await clientApi.api.getTypesMetadataV2QueryCache().then((res: any) => res.data)
+      metadataOpts = await newClientApi.getTypesMetadataV2QueryCache().then((res: any) => res.data)
     }
     const optionList = metadataOpts.map((item: any) => ({
       ...item,
@@ -119,7 +119,7 @@ export const getMetadataOptions = async () => {
 }
 
 export const getGroupList = async () => {
-  const { data } = (await globalApi.api.postNuxeoIdentityGroups()) as any
+  const data = await newClientApi.postUcenterGroups().then(r => r.data)
   const optionList = data.map((item: any) => ({
     ...item,
     label: item.name,

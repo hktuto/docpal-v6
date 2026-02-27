@@ -1,18 +1,13 @@
 <template>
   <VxeGrid ref="tableRef" v-bind="tableConfig">
     <template #toolbar_buttons>
-      <ResponsiveFilter
-        ref="ResponsiveFilterRef"
-        @form-change="handleFilterFormChange"
-        inputKey="name"
-        inputPlaceHolder="masterTable_detailLogFilter"
-      />
+      <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="name" inputPlaceHolder="masterTable_detailLogFilter" />
     </template>
   </VxeGrid>
 </template>
 
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import { useI18n } from '#imports'
 
 const props = defineProps(['tableName'])
@@ -24,18 +19,20 @@ let extraParams: any = {
 let filtersParams: any = {}
 const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
   id: 'masterTable-log',
-  api: (pageParams: any) => adminApi.api.postMasterTablesLogs({ ...pageParams, ...extraParams, ...filtersParams }),
+  api: (pageParams: any) => newAdminApi.postDmsMasterTableLogs({ ...pageParams, ...extraParams, ...filtersParams }),
   columns: [
     { field: 'docPath', title: 'masterTable_masterName', fixed: 'left' },
     { field: 'principalName', title: 'user_username' },
     {
-      field: 'eventId', title: 'masterTable.eventType',
+      field: 'eventId',
+      title: 'masterTable.eventType',
       formatter({ cellValue }: any) {
         return t('eventId.' + cellValue)
       }
     },
     {
-      field: 'eventDate', title: 'masterTable.eventDate',
+      field: 'eventDate',
+      title: 'masterTable.eventDate',
       formatter({ cellValue }: any) {
         return formatDate(cellValue)
       }
@@ -47,7 +44,7 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
-  const filters: any = await adminApi.api.postMasterTablesLogsPageConditions({ ...extraParams }).then(res => res.data)
+  const filters: any = await newAdminApi.postDmsMasterTableLogsPageConditions({ ...extraParams }).then((res) => res.data)
   let data = filters.filter((item: any) => item.key !== 'orderBy' && item.key !== 'isDesc')
   data?.unshift(
     {
@@ -94,7 +91,6 @@ onMounted(() => {
   getFilter()
 })
 defineExpose({ reload })
-
 </script>
 
 <style lang="scss" scoped>

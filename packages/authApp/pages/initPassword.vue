@@ -40,8 +40,9 @@
 
 <script lang="ts" setup>
 import { ref, reactive } from 'vue'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
+
 const { t } = useI18n()
 const formRef = ref()
 const form = reactive({
@@ -51,11 +52,12 @@ const form = reactive({
 const ready = ref(false)
 const passwordPolicy = ref<any>({})
 const rules = ref<any>({})
-  const router = useRouter()
+const router = useRouter()
+
 async function getPasswordPolicy() {
   let config: any = {}
   try {
-    config = await clientApi.api.getPasswordConfig().then((res) => res.data)
+    config = await newClientApi.getUcenterPasswordConfig().then((res) => res.data)
   } catch (e) {
     console.error(e)
   }
@@ -67,10 +69,11 @@ async function getPasswordPolicy() {
     ...config
   }
 }
+
 async function onSubmit() {
   try {
     await formRef.value.validate()
-    const res = await clientApi.api.postPasswordInitPassword({
+    const res = await newClientApi.postUcenterPasswordInitPassword({
       password: form.newPassword
     }).then((res) => res.data)
     if (!!res) {
@@ -86,49 +89,57 @@ async function onSubmit() {
     return
   }
 }
+
 function parseJwt(token: string) {
   if (!token) {
-    return;
+    return
   }
-  const base64Url = token.split('.')[1];
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  return JSON.parse(window.atob(base64));
+  const base64Url = token.split('.')[1]
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+  return JSON.parse(window.atob(base64))
 }
-const route = useRoute()
 
+const route = useRoute()
 
 const id = ref('')
 onMounted(async () => {
   const token = route.query.token
-  if(!token){
+  if (!token) {
     ElMessage.error(t('no token provided'))
-    window.location.href = '/'
+    router.push({
+      path: '/login'
+    })
     return
   }
   const decodedToken = parseJwt(token as string)
-  if(!decodedToken){
+  if (!decodedToken) {
     ElMessage.error(t('no token provided'))
-    window.location.href = '/'
+    router.push({
+      path: '/login'
+    })
     return
   }
- 
+
   id.value = decodedToken.userId
   // get user detail from decodedToken
-  await getPasswordPolicy()
   localStorage.setItem('access_token', token as string)
   localStorage.setItem('token', token as string)
+  await getPasswordPolicy()
   // Need to wait for translation 
   rules.value = {
     newPassword: [
-      { required: true, message: t('render.hint.fieldRequired', { name: t('passwordPolicy.newPassword') }), trigger: 'blur' }
-      // {
-      //   validator: (rule, value) => value === form.oldPassword,
-      //   message: t('tip.samePassword'),
-      //   trigger: 'blur'
-      // }
+      {
+        required: true,
+        message: t('render.hint.fieldRequired', { name: t('passwordPolicy.newPassword') }),
+        trigger: 'blur'
+      }
     ],
     confirmPassword: [
-      { required: true, message: t('render.hint.fieldRequired', { name: t('passwordPolicy.confirmPassword') }), trigger: 'blur' },
+      {
+        required: true,
+        message: t('render.hint.fieldRequired', { name: t('passwordPolicy.confirmPassword') }),
+        trigger: 'blur'
+      },
       {
         validator: (rule: any, value: string) => value === form.newPassword,
         message: t('tip.inputUserPasswordMatch'),
@@ -157,33 +168,35 @@ onMounted(async () => {
   if (passwordPolicy.value.containSpecialCharacters) {
     rules.value.newPassword.push({
       validator: (rule: any, value: string) => {
-        return /^(?=.*[!@#$%&*]).+$/.test(value)
+        return /^(?=.*[!@#$%^&*()\-+=\[\]{}:;'",.<>/\\|]).+$/.test(value)
       },
       message: t('passwordPolicy.containSpecialCharacters'),
       trigger: 'blur'
     })
   }
   ready.value = true
-  // formRef.value.resetFields()
 })
 </script>
 
 <style scoped>
 .logo {
   --icon-size: clamp(100px, 80%, 200px);
-    max-width: 200px;
-    margin: 0 auto var(--app-space-s) auto;
+  max-width: 200px;
+  margin: 0 auto var(--app-space-s) auto;
 }
+
 .title {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 12px;
 }
+
 .tip {
   font-size: 1rem;
   color: var(--app-grey-950);
   margin-bottom: 12px;
 }
+
 .reset-password-form {
   width: 400px;
   padding: 32px 24px;
@@ -191,6 +204,7 @@ onMounted(async () => {
   border-radius: 16px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
+
 .LoginContainer {
   width: 100vw;
   height: 100vh;

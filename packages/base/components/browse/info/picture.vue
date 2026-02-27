@@ -6,9 +6,12 @@
     <div class="overflowHidden">
       <el-table :data="tableList" size="small">
         <el-table-column fixed="left" prop="filename" :label="$t('filePopover_fileName')"></el-table-column>
-        <el-table-column prop="width*height" :label="$t('tableHeader_width*height')" align="center" :formatter="formatter"></el-table-column>
-        <el-table-column prop="fileSize" :label="$t('tableHeader_fileSize')" align="center" :formatter="formatter"></el-table-column>
-        <el-table-column prop="fileFormat" :label="$t('tableHeader_fileFormat')" align="center" :formatter="formatter"></el-table-column>
+        <el-table-column prop="width*height" :label="$t('tableHeader_width*height')" align="center"
+                         :formatter="formatter"></el-table-column>
+        <el-table-column prop="fileSize" :label="$t('tableHeader_fileSize')" align="center"
+                         :formatter="formatter"></el-table-column>
+        <el-table-column prop="fileFormat" :label="$t('tableHeader_fileFormat')" align="center"
+                         :formatter="formatter"></el-table-column>
         <el-table-column fixed="right" width="40" align="center" :formatter="formatter">
           <template #default="scope">
             <el-button type="text" :icon="Download" @click="handleDownload(scope.row, $event)"></el-button>
@@ -20,13 +23,15 @@
 </template>
 
 <script lang="ts" setup>
-import { ElNotification, ElMessage } from 'element-plus'
+import { ElNotification } from 'element-plus'
 import { Download, Loading } from '@element-plus/icons-vue'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
+
 const props = defineProps<{ doc: any }>()
 const { displayTime } = useTime()
 const { t } = useI18n()
 const tableList = ref<any>([])
+
 function formatter(row: any, column: any) {
   switch (column.property) {
     case 'fileSize':
@@ -50,6 +55,7 @@ function fileSizeFilter(bytes: any) {
   }
   return bytes.toFixed(2) + unit
 }
+
 async function handleDownload(row: any) {
   const name = row.filename || row.content.name
   const noti = ElNotification({
@@ -63,13 +69,8 @@ async function handleDownload(row: any) {
     position: 'bottom-right'
   })
   try {
-    const response = await clientApi.api.getNuxeoDocumentAdditionalFormatDownload(
-      { documentId: props.doc.id, fileContentId: row.content },
-      {
-        type: 'application/json',
-        timeout: 0,
-        format: 'blob'
-      }
+    const response = await newClientApi.getDmsDocumentDocumentidAdditionalFormatsFilecontentidDownload(
+      props.doc.id, row.content
     )
     downloadBlob(response, name)
   } catch (error: any) {
@@ -78,8 +79,10 @@ async function handleDownload(row: any) {
     noti.close()
   }
 }
+
 const getConversionHistory = async () => {
-  const res = (await clientApi.api.getNuxeoDocumentAdditionalFormatDocumentid(props.doc.id).then((res) => res.data)) as any
+  const res = (await newClientApi.getDmsDocumentDocumentidAdditionalFormats(props.doc.id).then((res) => res.data)) as any
+
   tableList.value = res['picture:views'] || res['vid:transcodedVideos'] || []
   return res
 }

@@ -30,7 +30,6 @@ const FormRendererRef = ref()
 
 
 async function performExport(exportType: 'html' | 'docx' | 'pdf', configuredVariables: any[]) {
-  console.log(11,configuredVariables)
   const data = getJsonConfig(editor.value.getJSON(), options.value, configuredVariables)
   let filename
   let mime

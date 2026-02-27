@@ -1,39 +1,40 @@
-import {fabric} from "fabric";
-import { clientApi, globalApi  } from 'api'
+import { fabric } from 'fabric'
+import { globalApi } from 'api'
+
 export type Watermark = {
   id: number
-  order?: number,
-  name?: string,
+  order?: number
+  name?: string
   type: 'image' | 'text' | 'dynamic'
-  contentType?: string,
-  data?: string,
-  content?: string,
-  position: 'tLeft' | 'tRight' | 'bLeft' | 'bRight' |  'center',
-  opacity?: number,
-  rotate: number,
+  contentType?: string
+  data?: string
+  content?: string
+  position: 'tLeft' | 'tRight' | 'bLeft' | 'bRight' | 'center'
+  opacity?: number
+  rotate: number
   offset: {
-    x: number,
+    x: number
     y: number
-  },
+  }
   centerOffset: {
-    x: number,
+    x: number
     y: number
-  },
+  }
   font?: {
-    name:'',
-    size: number,
-    color: string,
-  },
-  size?: number,
-  scale: string,
+    name: ''
+    size: number
+    color: string
+  }
+  size?: number
+  scale: string
 }
 
 export type WatermarkTemplate = {
-  id:string,
+  id: string
   name: string
 }
 
-export type WatermarkTemplateDetail = WatermarkTemplate & {watermarkSettings: Watermark[]}
+export type WatermarkTemplateDetail = WatermarkTemplate & { watermarkSettings: Watermark[] }
 
 const defaultTextWatermark = {
   type: 'text',
@@ -61,43 +62,39 @@ const defaultTextWatermark = {
   textBackgroundColor: '',
   lockScaling: true,
   position: 'tLeft',
-  offset:{
-    x:0,
-    y:0,
+  offset: {
+    x: 0,
+    y: 0
   },
-  font:{
+  font: {
     size: 3,
     color: '#000000',
     name: ''
   },
-  snapAngle: 1,
+  snapAngle: 1
 }
 export type Response<T> = {
   code: number
-  message: string,
-  data : T
+  message: string
+  data: T
 }
 export const useWatermark = () => {
-
   const list = ref<WatermarkTemplate[]>([])
-  const watermarkTypes = ['image', 'text', 'dynamic'];
-  
+  const watermarkTypes = ['image', 'text', 'dynamic']
+
   // TODO 'clearanceLevel' 对不上，先隐藏
-  const textTypes = ["text", "title", 'version', "lastModify", 'createAt', 'createBy', 'contributors', 'watermarkApplyBy', 'watermarkApplyAt']
+  const textTypes = ['text', 'title', 'version', 'lastModify', 'createAt', 'createBy', 'contributors', 'watermarkApplyBy', 'watermarkApplyAt']
 
   function isTextWatermark(type: string) {
-    return type === 'text' || type === 'dynamic';
+    return type === 'text' || type === 'dynamic'
   }
 
-
-  async function createWatermarkTemplate(template: {name:string}) {
-    const { data } = await globalApi.api.postWatermarkTemplates(template) as any
-    return data;
+  async function createWatermarkTemplate(template: { name: string }) {
+    return globalApi.postDocpalWatermarkTemplates(template).then((r) => r.data)
   }
 
-  async function removeWatermarkTemplate(id:string) {
-    const { data } = await globalApi.api.deleteWatermarkTemplatesId(id) as any
-    return data;
+  async function removeWatermarkTemplate(id: string) {
+    return await globalApi.deleteDocpalWatermarkTemplatesId(id).then((r) => r.data)
   }
 
   // async function removeWatermarkApi(id:string) {
@@ -105,26 +102,23 @@ export const useWatermark = () => {
   //   const { data } = await api.delete<Response<boolean>>(`/docpal/watermark/settings/${id}`).then(res => res.data)
   //   return data;
   // }
-  async function getWatermarkTemplateDetail(id:string):Promise<WatermarkTemplateDetail> {
-    const { data } = await globalApi.api.getWatermarkTemplatesId(id) as any
+  async function getWatermarkTemplateDetail(id: string): Promise<WatermarkTemplateDetail> {
+    return await globalApi.getDocpalWatermarkTemplatesId(id).then((r) => r.data)
     // const { data } = await api.get<Response<WatermarkTemplateDetail>>(`/docpal/watermark/templates/${id}`).then(res => res.data);
-    return data
   }
-  async function updateWatermarkTemplateDetail(template:WatermarkTemplateDetail) {
-    
-    const { data } = await globalApi.api.patchWatermarkTemplates(template as any) as any
+
+  async function updateWatermarkTemplateDetail(template: WatermarkTemplateDetail) {
+    return await globalApi.patchDocpalWatermarkTemplates(template as any).then((r) => r.data)
     // const { data } = await api.patch<Response<WatermarkTemplateDetail>>(`/docpal/watermark/templates`, template).then(res => res.data);
-    return data
   }
 
   function fontSizeConverter(size, height) {
-    return size * height / 800
+    return (size * height) / 800
   }
 
-
-  function watermarkToFabricObject(item:Watermark, canvas:fabric.Canvas) {
-    switch(item.type){
-      case 'text' :
+  function watermarkToFabricObject(item: Watermark, canvas: fabric.Canvas) {
+    switch (item.type) {
+      case 'text':
         // @ts-ignore
         const text = new fabric.IText(item.content, {
           ...defaultTextWatermark,
@@ -140,12 +134,12 @@ export const useWatermark = () => {
           opacity: item.opacity || 1,
           position: item.position,
           offset: item.offset,
-          font:item.font,
-          centerOffset: item.centerOffset,
-        });
-        setupControl(text);
-        return text;
-      case 'dynamic' :
+          font: item.font,
+          centerOffset: item.centerOffset
+        })
+        setupControl(text)
+        return text
+      case 'dynamic':
         const dynamicText = new fabric.IText(item.content, {
           ...defaultTextWatermark,
           // @ts-ignore
@@ -160,18 +154,17 @@ export const useWatermark = () => {
           opacity: item.opacity || 1,
           position: item.position,
           offset: item.offset,
-          font:item.font
-        });
+          font: item.font
+        })
 
-        setupControl(dynamicText);
-        return dynamicText;
-      case 'image' :
-        break;
+        setupControl(dynamicText)
+        return dynamicText
+      case 'image':
+        break
     }
   }
 
-
-  function setupControl(obj:fabric.Object) {
+  function setupControl(obj: fabric.Object) {
     obj.setControlsVisibility({
       tr: false,
       tl: false,
@@ -180,40 +173,42 @@ export const useWatermark = () => {
       ml: false,
       bl: false,
       br: false,
-      mb: false,
+      mb: false
     })
   }
 
-  function newTextWatermark(canvas:fabric.Canvas) {
-      const text =  new fabric.IText('New Text', {
-        ...defaultTextWatermark,
-        // @ts-ignore
-        id: 'object_' + Date.now(),
-        fontSize: fontSizeConverter(20, canvas.getHeight()),
-        offset:{
-          x:0,
-          y:0,
-        },
-        font:{
-          size: 20,
-          color: '#000000',
-          name: ''
-        }
-      });
-      setupControl(text);
+  function newTextWatermark(canvas: fabric.Canvas) {
+    const text = new fabric.IText('New Text', {
+      ...defaultTextWatermark,
+      // @ts-ignore
+      id: 'object_' + Date.now(),
+      fontSize: fontSizeConverter(20, canvas.getHeight()),
+      offset: {
+        x: 0,
+        y: 0
+      },
+      font: {
+        size: 20,
+        color: '#000000',
+        name: ''
+      }
+    })
+    setupControl(text)
 
-      return text;
-    }
-  function newImageWatermark(canvas:fabric.Canvas):HTMLImageElement {
+    return text
+  }
+
+  function newImageWatermark(canvas: fabric.Canvas): HTMLImageElement {
     // create id and add to object
-    const id = 'object_' + Date.now();
+    const id = 'object_' + Date.now()
     // add hidden image to dom
-    const img = document.createElement('img');
-    img.id = id;
-    img.src = '/images/logo-withName-dark.svg';
-    img.style.display = 'none';
+    const img = document.createElement('img')
+    img.id = id
+    img.src = '/images/logo-withName-dark.svg'
+    img.style.display = 'none'
     return img
   }
+
   return {
     createWatermarkTemplate,
     removeWatermarkTemplate,
@@ -226,6 +221,6 @@ export const useWatermark = () => {
     fontSizeConverter,
     newTextWatermark,
     newImageWatermark,
-    watermarkToFabricObject,
+    watermarkToFabricObject
   }
 }

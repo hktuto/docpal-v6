@@ -8,14 +8,11 @@ import setting from './setting.json'
 dotenv.config()
 
 const clientUrl = process.env.CLIENTURL || setting.CLIENT_URL
-const adminUrl = process.env.ADMINURL || setting.ADMIN_URL
 const publicUrl = process.env.PUBLIC_URL || setting.PUBLIC_URL
 const templateUrl = process.env.OPEN_PROXY || setting.TEMPLATE_URL
 
 const endpoint = [
-    {name: 'client', url:`${clientUrl}/v3/api-docs`, className:"Client"},
-    {name: 'admin', url:`${adminUrl}/v3/api-docs`, className:"Admin"},
-    {name: 'public', url:`${publicUrl}/v3/api-docs`, className:"Public"},
+    {name: 'newClient', url:`${clientUrl}/v3/api-docs`, className:"Standard"},
     {name: 'template', url:`${templateUrl}/docs/swagger.json`, className:"Template"},
 ]
 
@@ -33,11 +30,11 @@ async function generate(){
             }
         }
 
-        
         await Promise.all(
-            endpoint.map( 
+            endpoint.map(
                 point => {
                     let finalRoute:Record<string, any> = {}
+
                     generateApi({
                         name: point.name + '.ts',
                         output: path.resolve(process.cwd(), "./src/generate"),
@@ -59,27 +56,26 @@ async function generate(){
                         },
                         hooks:{
                             onCreateRoute:(routeData) => {
-                                // if routeData.route start with /api, remove it
-                                // console.log("onCreateRoute", routeData.request.path)
-                                // @ts-ignore
-                                if(routeData.request.path && routeData.request.path.startsWith('/api')){
-                                    // @ts-ignore
-                                    routeData.request.path = routeData.request.path.replace('/api','')
-                                }
-                                return routeData
+                              // if routeData.route start with /api, remove it
+                              // console.log("onCreateRoute", routeData.request.path)
+                              return routeData
                             },
                             onCreateRouteName:(routeNameInfo, rawRouteInfo) => {
                                 return routeNameInfo
                             },
                             onFormatRouteName: (routeInfo, templateRouteName) => {
-                                // console.log(routeInfo);
-                                const paths = routeInfo.route.replace('/api/','').split('/');
+                                // console.log("routeInfo: ",routeInfo);
+                                const paths = routeInfo.route
+                                  .replace('/admin/','/')
+                                  .replace('/api/','')
+                                  .split('/');
                                 if(paths[paths.length -1] === '') {
                                     paths[paths.length -1] = 'deprecate'
                                 }
-                                const ignoreList = ['api', 'docpal'];
+
+                                const ignoreList = ['api','admin'];
                                 const allPath = paths.reduce((all, curr, index) => {
-                                    if(ignoreList.includes(curr)) return all
+                                  if(ignoreList.includes(curr)) return all
                                     // if curr contain "${}", replace it
                                     if(curr.includes('${')) {
                                         const newPath = curr.replace('${', '').replace('}', '')
@@ -87,19 +83,17 @@ async function generate(){
                                     all.push(curr)
                                     return all
                                 },[])
-                               
+
                                 let newName = routeInfo.method + toPascalCase(allPath.join('-'))
-                                let oldName = newName;
                                 if(finalRoute[newName]) {
                                     newName += finalRoute[newName].length
                                 }
-                                finalRoute[newName] = {
+                                finalRoute[`${routeInfo.method}_${newName}`] = {
                                     name: newName,
                                     method: routeInfo.method,
                                     route: routeInfo.route,
                                     moduleName: routeInfo.moduleName,
                                 }
-
                                 // if(!finalRoute[routeInfo.moduleName]){
                                 //     finalRoute[routeInfo.moduleName]= {}
                                 // }
@@ -110,11 +104,9 @@ async function generate(){
                                 //     newName += finalRoute[routeInfo.moduleName][oldName].length
                                 // }
                                 // finalRoute[routeInfo.moduleName][oldName].push(routeInfo.method +" : " + newName + " : " + routeInfo.route)
-                                
                                 return newName
                             }
                         }
-                        
                     }
                     ).then(() => {
                         // fs.writeFile( path.join(__dirname,`/generate/${point.name}.json`), JSON.stringify(finalRoute),{}, () => {
@@ -124,7 +116,6 @@ async function generate(){
                 }
             )
         )
-        
     }catch(error) {
         console.log(error)
     }

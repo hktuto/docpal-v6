@@ -17,7 +17,9 @@
           </el-icon>
           <slot :item="element" :index="index">
             <div v-for="(item, index) in dragHeader" :key="item.name + index">
-              {{ element[item.name] ? (item.i18n ? $t(`${item.i18n}${element[item.name]}`) : element[item.name]) : '-' }}
+              {{
+                element[item.name] ? (item.i18n ? $t(`${item.i18n}${element[item.name]}`) : element[item.name]) : '-'
+              }}
             </div>
           </slot>
           <div class="position-icon">
@@ -63,6 +65,7 @@
 import { ElMessageBox } from 'element-plus'
 import { Rank, Edit, Delete } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
+
 const { t } = useI18n()
 const props = withDefaults(
   defineProps<{
@@ -176,7 +179,7 @@ function importWorkflowField() {
   --icon-color: #1995a0;
   --icon-size: 8px;
 
-  :deep(.svg-icon ){
+  :deep(.svg-icon ) {
     margin-bottom: 4.8px;
   }
 }

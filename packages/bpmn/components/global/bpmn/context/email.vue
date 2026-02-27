@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 
 const { node } = defineProps<{
   node: Node
@@ -32,6 +32,7 @@ const allFieldOptions = computed(() => {
   })
 })
 const canUseContractList = ['tos', 'ccs', 'bcc', 'attachmentsFilePath']
+
 function setEmailTemplateId(value: string) {
   const newItem = {
     attr_name: 'notificationType',
@@ -89,7 +90,7 @@ function setEmailTemplateId(value: string) {
       })
     newData.data.extensionElements['flowable:field'] = [newItem, ...variable]
   }
-  
+
   templateVariables.value = nodeData.data.extensionElements['flowable:field'].filter(
     (item: any) =>
       item.attr_name !== 'notificationType' && item.attr_name !== 'hostUrl' && item.attr_name !== 'processInstanceId' && !item.attr_name.includes(',')
@@ -117,8 +118,7 @@ function fieldMappingUpdate(name: string, newVal: string[]) {
 
 async function initForm() {
   if (allEmailTemplates.value.length === 0) {
-    const response = await adminApi.api.getTemplateEmailAll()
-    allEmailTemplates.value = response.data
+    allEmailTemplates.value = await newAdminApi.getDmsTemplateEmailAll().then(r => r.data)
   }
   const notificationTypeField = node.data.data.extensionElements['flowable:field'].find((el: any) => el.attr_name === 'notificationType')
   emailTemplateId.value = notificationTypeField ? notificationTypeField['flowable:string'].__cdata : ''
@@ -134,24 +134,21 @@ function generateFieldList() {
       item.attr_name !== 'notificationType' && item.attr_name !== 'hostUrl' && item.attr_name !== 'processInstanceId' && !item.attr_name.includes(',')
   )
 }
+
 async function getContactBookFieldList() {
-  const response = await adminApi.api.getContactgroupList()
-  contactBookFieldList.value = response.data
+  contactBookFieldList.value = await newAdminApi.getDmsContactGroupList().then(r => r.data)
 }
+
 onMounted(async () => {
   await getContactBookFieldList()
 })
-watch(
-  () => node,
-  async () => {
-    console.log('watch node from email', node)
-    await initForm()
-  },
-  {
-    immediate: true,
-    deep: true
-  }
-)
+watch(() => node, async () => {
+  console.log('watch node from email', node)
+  await initForm()
+}, {
+  immediate: true,
+  deep: true
+})
 </script>
 
 <template>
@@ -181,10 +178,12 @@ watch(
           @change="(val: any) => fieldMappingUpdate(item.attr_name, item.value)"
         >
           <ElOptionGroup label="Form Fields">
-            <ElOption v-for="item in allFieldOptions" :key="item.value" :label="item.label" :value="item.value"></ElOption>
+            <ElOption v-for="item in allFieldOptions" :key="item.value" :label="item.label"
+                      :value="item.value"></ElOption>
           </ElOptionGroup>
           <ElOptionGroup v-if="canUseContractList.includes(item.attr_name)" :label="$t('adminMenu.contactBook')">
-            <ElOption v-for="item in contactBookFieldList" :key="item.value" :label="item.name" :value="item.id"></ElOption>
+            <ElOption v-for="item in contactBookFieldList" :key="item.value" :label="item.name"
+                      :value="item.id"></ElOption>
           </ElOptionGroup>
         </ElSelect>
       </ElFormItem>

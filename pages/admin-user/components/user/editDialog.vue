@@ -9,9 +9,10 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './editDialog.vform.json'
 import { ElMessage } from 'element-plus'
+
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const props = defineProps<{
@@ -28,7 +29,7 @@ async function handleSubmit() {
   try {
     const data = await FormRendererRef.value.getFormData()
     state.loading = true
-    await adminApi.api.patchNuxeoIdentityUser({ ...props.user, properties: null, ...data })
+    await newAdminApi.patchUcenterUser({ ...props.user, properties: null, ...data }).then(r => r.data)
     ElMessage.success(t('tip_updateMsg', { modelName: t('user_info'), name: data.firstName }))
     state.visible = false
     FormRendererRef.value.vFormRenderRef.resetForm()

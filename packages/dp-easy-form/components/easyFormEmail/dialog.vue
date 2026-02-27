@@ -87,100 +87,97 @@
         :loading="state.loading"
         @click="handleSubmit()"
       >
-        {{ $t("common_submit") }}
+        {{ $t('common_submit') }}
       </el-button>
     </template>
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { globalApi } from "api";
+import { newClientApi } from 'api'
+import type { FormInstance } from 'element-plus'
+import { ElMessage } from 'element-plus'
 
-import type { FormInstance } from "element-plus";
-import { ElMessage } from "element-plus";
-
-const emits = defineEmits(["email-update"]);
-const { t } = useI18n();
+const emits = defineEmits(['email-update'])
+const { t } = useI18n()
 const {
-  public: { endPoint },
-} = useRuntimeConfig();
+  public: { endPoint }
+} = useRuntimeConfig()
 const state = reactive<any>({
   visible: false,
   userList: [],
-  easyFormId: "",
-});
-const subjectRef = ref();
-const bodyRef = ref();
+  easyFormId: ''
+})
+const subjectRef = ref()
+const bodyRef = ref()
 
 const subjectFieldList = [
-  { label: "Email", value: "${email}" },
-  { label: "Name", value: "${name}" },
-];
+  { label: 'Email', value: '${email}' },
+  { label: 'Name', value: '${name}' }
+]
 const bodyFieldList = ref([
   {
-    label: "Email",
-    value: "${email}",
-    templateValue: '<span th:text="${email}"></span>',
+    label: 'Email',
+    value: '${email}',
+    templateValue: '<span th:text="${email}"></span>'
   },
-  { label: "Name", value: "${name}", templateValue: '<span th:text="${name}"></span>' },
+  { label: 'Name', value: '${name}', templateValue: '<span th:text="${name}"></span>' },
   {
-    label: "Form Link",
-    value: "${formLink}",
-    templateValue: '<a th:href="${formLink}">Form Link</a>',
-  },
-]);
-const bodyFieldExtraList = [{ value: "\n", templateValue: "<br />" }];
+    label: 'Form Link',
+    value: '${formLink}',
+    templateValue: '<a th:href="${formLink}">Form Link</a>'
+  }
+])
+const bodyFieldExtraList = [{ value: '\n', templateValue: '<br />' }]
 
 const form = ref({
-  emails: ["1299962367@qq.com"],
-  subject: "subject",
-  body: "Dear ",
-});
+  emails: [],
+  subject: 'subject',
+  body: 'Dear '
+})
 
-const emailPattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const emailPattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
-let emailCheck = false;
+let emailCheck = false
 const emailValidate = (rule: any, value: any, callback: any) => {
   value.forEach((item) => {
     if (!emailPattern.test(item)) {
-      emailCheck = true;
-      callback(new Error($t("tip.enterValidEmail")));
+      emailCheck = true
+      callback(new Error($t('tip.enterValidEmail')))
     }
-  });
-  callback();
-};
+  })
+  callback()
+}
 
-async function handleOpen(easyFormId: string = "", userEmail: string = "") {
-  state.visible = true;
-  state.easyFormId = easyFormId;
-  const email: any = await globalApi.api
-    .getFormDesignEmailId(easyFormId)
-    .then((res) => res.data);
-  if (!email.body) email.body = "";
-  if (!email.subject) email.subject = "";
-  if (!email.userEmails) email.userEmails = [];
-  form.value.body = getBody(email.body);
-  form.value.subject = email.subject;
-  form.value.emails = [];
-  if (userEmail) form.value.emails.push(userEmail);
+async function handleOpen(easyFormId: string = '', userEmail: string = '') {
+  state.visible = true
+  state.easyFormId = easyFormId
+  const email: any = await globalApi.api.getFormDesignEmailId(easyFormId).then((res) => res.data)
+  if (!email.body) email.body = ''
+  if (!email.subject) email.subject = ''
+  if (!email.userEmails) email.userEmails = []
+  form.value.body = getBody(email.body)
+  form.value.subject = email.subject
+  form.value.emails = []
+  if (userEmail) form.value.emails.push(userEmail)
   setTimeout(() => {
-    formRef.value.clearValidate();
-  });
+    formRef.value.clearValidate()
+  })
 
   // form.value.emails = email.userEmails.map(item => (item.email))
   function getBody(str) {
-    const list = [...bodyFieldList.value, ...bodyFieldExtraList];
+    const list = [...bodyFieldList.value, ...bodyFieldExtraList]
     const body = list.reduce((prev: string, item: any) => {
-      const regex = new RegExp(item.templateValue.replace(/[${}/?\\<>]/g, "\\$&"), "g");
-      prev = prev.replace(regex, item.value);
-      return prev;
-    }, str);
-    const regex = /<p>(.*?)<\/p>/;
-    const match = body.match(regex);
-    return body.replace("<html><body><p>", "").replace("</p></body></html>", "");
+      const regex = new RegExp(item.templateValue.replace(/[${}/?\\<>]/g, '\\$&'), 'g')
+      prev = prev.replace(regex, item.value)
+      return prev
+    }, str)
+    const regex = /<p>(.*?)<\/p>/
+    const match = body.match(regex)
+    return body.replace('<html><body><p>', '').replace('</p></body></html>', '')
   }
 }
 
-const formRef = ref<FormInstance>();
+const formRef = ref<FormInstance>()
 
 async function handleSubmit() {
   try {
@@ -194,70 +191,69 @@ async function handleSubmit() {
     formLink: getFormLink(false),
     subject: form.value.subject,
     userEmails: getEmail(),
-    body: getBody(form.value.body),
-  };
-  await globalApi.api.postFormDesignSendEmail(params);
-  emits("email-update");
-  ElMessage.success(t("dpMsg_success"));
-  state.visible = false;
+    body: getBody(form.value.body)
+  }
+  await newClientApi.postDmsEasyFormEmailSend(params)
+  emits('email-update')
+  ElMessage.success(t('dpMsg_success'))
+  state.visible = false
 
   function getBody(str) {
-    const list = [...bodyFieldList.value, ...bodyFieldExtraList];
+    const list = [...bodyFieldList.value, ...bodyFieldExtraList]
     const body = list.reduce((prev: string, item: any) => {
-      const regexStr = item.value.replace(/[${}/?\\<>]/g, "\\$&");
+      const regexStr = item.value.replace(/[${}/?\\<>]/g, '\\$&')
 
-      const regex = new RegExp(item.value.replace(/[${}/?\\<>]/g, "\\$&"), "g");
-      prev = prev.replace(regex, item.templateValue);
-      return prev;
-    }, str);
-    return `<html><body><p>${body}</p></body></html>`;
+      const regex = new RegExp(item.value.replace(/[${}/?\\<>]/g, '\\$&'), 'g')
+      prev = prev.replace(regex, item.templateValue)
+      return prev
+    }, str)
+    return `<html><body><p>${body}</p></body></html>`
   }
 
   function getEmail() {
     return form.value.emails.reduce((prev, email: string) => {
-      const user = state.userList.find((item) => item.email === email);
-      console.log(user);
+      const user = state.userList.find((item) => item.email === email)
+      console.log(user)
       prev.push({
-        username: user ? user.firstName + user.lastName : "",
-        email: user ? user.email : email,
-      });
-      return prev;
-    }, []);
+        username: user ? user.firstName + user.lastName : '',
+        email: user ? user.email : email
+      })
+      return prev
+    }, [])
   }
 
   function getFormLink(initBodyField = true) {
-    const fItem = bodyFieldList.value.find((item) => item.label === "Form Link");
-    const origin = endPoint?.upload;
-    const href = `https://${origin}/public-form?id=${state.easyFormId}`;
+    const fItem = bodyFieldList.value.find((item) => item.label === 'Form Link')
+    const origin = endPoint?.upload
+    const href = `https://${origin}/public-form?id=${state.easyFormId}`
     // if(initBodyField) {
     //   fItem.value = href
     //   fItem.templateValue = `<a href="${href}">${href}</a>`;
     // }
-    return href;
+    return href
   }
 }
 
 // #region module: selectRef
-const selectRef = ref();
+const selectRef = ref()
 
 function handleSelectChange() {
-  selectRef.value.blur();
+  selectRef.value.blur()
   setTimeout(() => {
-    selectRef.value.focus();
-  });
+    selectRef.value.focus()
+  })
 }
 
 // #endregion
 // #endregion
 onMounted(async () => {
-  const { data } = await globalApi.api.postNuxeoIdentityUsers({});
-
+  const data = await newClientApi.postUcenterUsers({}).then((res) => res.data)
   const uniqueEmails = Array.from(
     new Map(data.map((item) => [item.email, item])).values()
-  );
-  state.userList = uniqueEmails || ([] as any);
-});
+  )
+  state.userList = uniqueEmails || ([] as any)
+})
 
-defineExpose({ handleOpen });
+defineExpose({ handleOpen })
 </script>
 <style lang="scss" scoped></style>

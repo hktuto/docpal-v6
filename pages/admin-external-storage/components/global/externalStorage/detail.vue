@@ -4,7 +4,7 @@
       <template #toolbar_buttons>
         <div class="actions">
           <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange" />
-          <el-button id="ExternalStorage__Detail__EditConnection" type="primary" @click="handleEdit()">
+          <el-button id="ExternalStorage__Detail__EditConnection" type="primary" @click="handleEdit">
             {{ $t('externalStorage.editConnection') }}
           </el-button>
           <el-button id="ExternalStorage__Detail__Create" type="primary" @click="handleAdd()">
@@ -22,11 +22,11 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 import { routeExternalStorageProfileDetailPage } from '../../../util/routerHelper'
 
-const props = defineProps(['id'])
+const props = defineProps(['id', 'host'])
 const ResponsiveFilterRef = ref()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -39,8 +39,7 @@ let extraParams: any = {
 }
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-external-storage-detail',
-  // api: (pageParams: any) => adminApi.api.getExternalstorageIdProfilesList(props.id, { ...pageParams, ...extraParams }),
-  api: (pageParams: any) => adminApi.api.postExternalstorageIdProfilesPage(props.id, { ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newAdminApi.postExt3rdstorageIdProfilesPage(props.id, { ...pageParams, ...extraParams }),
   columns: [
     { field: 'name', title: 'dpTable.name', fixed: 'left' },
     { field: 'profile_type', title: 'docType_type' },
@@ -53,9 +52,9 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     },
     {
       title: 'externalStorage.profile.sourcePath',
-      field: 'importSetting.path',
+      field: 'importSetting.processing_folder',
       formatter({ row }: any) {
-        return row.importSetting?.path
+        return `${props.host}${row.import_setting?.processing_folder}`
       }
     },
     { field: 'created_by', title: 'search.createdBy' },
@@ -148,10 +147,8 @@ function handleDblclick(row: any) {
 
 async function handleActive(row: any, status: string) {
   try {
-    const result = await adminApi.api.patchExternalstorageIdProfilesProfileidStatus(props.id, row.id, { status: status }).then((res) => res.data)
-    if (!!result) {
-      row.status = status
-    }
+    await newAdminApi.patchExt3rdstorageIdProfilesProfileidUpdateStatus(props.id, row.id, { status: status }).then((res) => res.data)
+    reload()
   } catch (error) {
     console.log(error)
   }
@@ -179,7 +176,7 @@ async function handleDelete(row: any) {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    await adminApi.api.deleteExternalstorageIdProfilesProfileid(props.id, row.id)
+    await newAdminApi.deleteExt3rdstorageIdProfilesProfileid(props.id, row.id)
     reload()
   } catch (error) {
     console.log(error)
@@ -215,7 +212,7 @@ function getFilter() {
 }
 
 async function getDetail() {
-  detail.value = await adminApi.api.getExternalstorageId(props.id).then((res: any) => res.data)
+  detail.value = await newAdminApi.getExt3rdstorageId(props.id).then((res: any) => res.data)
 }
 
 onMounted(() => {

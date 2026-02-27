@@ -3,9 +3,11 @@
     <!-- TODO: muultiple select -->
     <template #toolbar_buttons>
       <div v-if="state.selectList.length === 0" class="flex-x-between">
-        <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="q" inputPlaceHolder="masterTable_detailRecordsFilter" @form-change="handleFilterFormChange" />
+        <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="q" inputPlaceHolder="masterTable_detailRecordsFilter"
+                          @form-change="handleFilterFormChange" />
         <div class="flex-x-end">
-          <div v-for="item in ['optional', 'unique', 'required']" class="column-dynamic el-icon--left" :style="`--column-color: ${getColor('', item)}`">
+          <div v-for="item in ['optional', 'unique', 'required']" class="column-dynamic el-icon--left"
+               :style="`--column-color: ${getColor('', item)}`">
             {{ t(`marsterTable.${item}`) }}
             <div class="column-dynamic-point"></div>
           </div>
@@ -24,7 +26,8 @@
       <div v-else class="flex-x-between">
         <div class="title-select color__primary">
           <b class="el-icon--left"> {{ t('masterTable_selected') }}: {{ state.selectList.length }} </b>
-          <Icon id="MasterTable__Tables__Detail__Records__CleanSelected" name="ic:baseline-clear" class="normal cursor-pointer" @click="cleanSelectedRows">
+          <Icon id="MasterTable__Tables__Detail__Records__CleanSelected" name="ic:baseline-clear"
+                class="normal cursor-pointer" @click="cleanSelectedRows">
           </Icon>
         </div>
         <div>
@@ -32,7 +35,8 @@
           <el-button id="MasterTable__Tables__Detail__Records__Delete" type="danger" @click="handleDeleteSelected">
             {{ t('common_delete') }}
           </el-button>
-          <el-dropdown id="MasterTable__Tables__Detail__Records__Active" v-if="platform === 'admin' || permission?.enable" trigger="click">
+          <el-dropdown id="MasterTable__Tables__Detail__Records__Active"
+                       v-if="platform === 'admin' || permission?.enable" trigger="click">
             <el-button class="el-icon--left el-icon--right" type="warning">
               {{ t('actions.active') }}
             </el-button>
@@ -73,15 +77,15 @@
       <el-tag v-else type="danger">{{ t('actions.inactive') }}</el-tag>
     </template>
   </VxeGrid>
-  <MasterTableRecordDialog ref="MasterTableNewRowDialogRef" :ignoreList="ignoreList" :tableId="tableId" @refresh="query" />
+  <MasterTableRecordDialog ref="MasterTableNewRowDialogRef" :ignoreList="ignoreList" :tableId="tableId"
+                           @refresh="query" />
   <MasterTableBatchEditDialog ref="BatchDialogRef" :tableId="tableId" :ignoreList="ignoreList" @refresh="query" />
 </template>
 
 <script lang="ts" setup>
-import { adminApi, globalApi } from 'api'
+import { newClientApi, globalApi } from 'api'
 import type { MTColumnInfo } from 'api/src/generate/admin'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { onMounted } from 'vue'
 
 const emits = defineEmits(['filter-change'])
 const routerProvider = inject(MenuRouterKey)
@@ -143,11 +147,11 @@ const { tableConfig, tableEvent, tableRef, reload, query, cleanSelectedRows } = 
           totalSize: 0
         }
       }
-    const { data } = await globalApi.api.postMasterTablesRecordPage({
+    const data = await newClientApi.postDmsMasterTableRecordPage({
       ...pageParams,
       ...state.extraParams,
       id: props.tableId
-    })
+    }).then((r: any) => r.data)
     return {
       data: {
         entryList: data?.entryList || [],
@@ -240,7 +244,7 @@ async function handleDelete(row: any) {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    const result = await globalApi.api.deleteMasterTablesIdRecord(props.tableId, { recordId: row.id }, {})
+    const result = await globalApi.deleteDmsMasterTableIdRecord(props.tableId, { recordId: row.id }, {})
     if (!result) {
       routerProvider?.message.error(t('dpTip.deleteFailed'))
       return
@@ -267,7 +271,7 @@ function handleAddRow(row?: any) {
 async function handleBatchActive(status: boolean) {
   try {
     const ids = state.selectList.map((item: any) => item.id)
-    await globalApi.api.patchMasterTablesIdBatchRecordStatus(props.tableId, {
+    await newClientApi.patchDmsMasterTableIdBatchRecordStatus(props.tableId, {
       in: {
         id: ids
       },
@@ -284,13 +288,13 @@ async function handleActive(row, status: boolean) {
   try {
     row.loading = true
     row.status = status
-    await globalApi.api.patchMasterTablesIdRecordStatus(props.tableId, {
+    await globalApi.patchDmsMasterTableIdRecordStatus(props.tableId, {
       id: row.id,
       status
     })
     ElMessage.success(t('dpMsg_success'))
   } catch (error) {
-    row.status = row.status ? false : true
+    row.status = !row.status
   } finally {
     row.loading = false
   }
@@ -312,7 +316,9 @@ function getColor(prop: any, option?: any) {
       if (mItem.unique) return '#0099FF'
       else if (mItem.required) return '#7B61FF'
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
   switch (option) {
     case 'unique':
       return '#0099FF'
@@ -379,7 +385,7 @@ async function handleDeleteSelected() {
     })
     if (action !== 'confirm') return
     const ids = state.selectList.map((item: any) => item.id)
-    await globalApi.api.postMasterTablesBatchDelete({
+    await globalApi.postDmsMasterTableBatchDelete({
       tableId: props.tableId,
       recordIds: ids
     })
@@ -419,7 +425,7 @@ async function getFilter() {
       ]
     }
   ]
-  const { data: filterData } = await globalApi.api.getMasterTablesRecordSortOptionTableid(props.tableId)
+  const { data: filterData } = await newClientApi.getDmsMasterTableRecordSortOptionTableid(props.tableId)
   data[0].options = filterData
   ResponsiveFilterRef.value.init(data)
 }

@@ -48,8 +48,8 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { newClientApi } from 'api'
+import { ElMessageBox } from 'element-plus'
 import { MenuRouterKey } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
@@ -86,14 +86,14 @@ async function init(docItem: any, templateId: string) {
   state.activeDoc = docItem
   state.templateId = templateId
   try {
-    const data: any = await clientApi.api.postCabinetVerificationComplete({ id: docItem.id }).then((res) => res.data)
+    const data: any = await newClientApi.postDmsCabinetVerificationComplete({ id: docItem.id }).then((res) => res.data)
     state.lastModifiedDate = data.modifiedDate
     if (data.children && data.children.length > 0) {
       addDocToChildren(data.children, data.documentPath)
       state.treeData = data.children
     } else {
       state.treeData = []
-      state.cabinetTemplate = await clientApi.api.getCabinetTemplateId(templateId).then((res) => res.data)
+      state.cabinetTemplate = await newClientApi.getDmsCabinetTemplateId(templateId).then((res) => res.data)
     }
   } catch (error) {
     state.treeData = []
@@ -171,7 +171,7 @@ async function handleDeleteFile(data: any) {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    await clientApi.api.deleteNuxeoDocumentTrash([{ idOrPath: data.path }])
+    await newClientApi.deleteDmsDocumentTrashBatch([{ idOrPath: data.path }]).then(r => r.data)
     refresh()
   } catch (error) {
     console.log(error)
@@ -198,7 +198,7 @@ function handleOpenReplaceDialog(doc: any) {
 async function refreshCabinet() {
   if (state.refreshLoading) return
   state.refreshLoading = true
-  await clientApi.api.getCabinetRefreshcompletestatusId(state.activeDoc.id)
+  await newClientApi.getDmsCabinetRefreshcompletestatusId(state.activeDoc.id)
   setTimeout(() => {
     state.refreshLoading = false
     routerProvider?.message.success(t('dpMsg_success'))

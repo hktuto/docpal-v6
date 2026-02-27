@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 const props = defineProps<{
   workflow: string
   varList: any[]
@@ -22,7 +22,7 @@ function getTargetLabel(value) {
 }
 async function getWorkflowProps(processKey: string) {
   try {
-    const options = await adminApi.api.postWorkflowProperties({ processKey }).then((res) => res.data)
+    const options = await newAdminApi.postDocpalWorkflowProperties({ processKey }).then((res) => res.data)
     return options.map((item) => ({
       label: item.name,
       value: item.id

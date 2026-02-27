@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 
 const props = defineProps<{
   emailTemplateList: any[]
@@ -21,7 +21,7 @@ async function handleCreateEmailTemplate() {
 
   for (const item of Object.values(props.emailTemplateList)) {
     try {
-      const res = await adminApi.api.postTemplateEmailTemplate({
+      const res = await newAdminApi.postDmsTemplateEmailTemplate({
         label: item.label,
         subject: item.subject,
         body: item.body,

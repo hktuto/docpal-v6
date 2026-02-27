@@ -45,9 +45,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import type { FormInstance } from 'element-plus'
 
 const { t } = useI18n()
@@ -116,7 +115,7 @@ function treeToArray(root) {
 
 async function getUserList() {
   try {
-    return await adminApi.api.postNuxeoIdentityGetkeycloakallusers({}).then((res) => res.data)
+    return await newAdminApi.postUcenterGetKeycloakAllUsers({}).then((res) => res.data)
   } catch (error) {
     console.error(error)
     return []
@@ -151,7 +150,7 @@ async function handleSubmit() {
     await formRef.value.validate()
     loading.value = true
 
-    await adminApi.api.putAclRole({
+    await newAdminApi.putDocpalAclRole({
       ...formData,
       id: String(formData.id),
       parentId: formData.parentId ? String(formData.parentId) : undefined,

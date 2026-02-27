@@ -22,7 +22,7 @@
 import { ref } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import FieldSettingDialog from './fieldSettingDialog.vue'
-import { adminApi } from 'api'
+import { newClientApi } from 'api'
 const props = defineProps<{
   mode: 'edit' | 'create'
   id: string
@@ -51,7 +51,7 @@ async function handleAddFieldConfirm(field: Field) {
   if (props.mode === 'edit') {
     try {
       loading.value = true
-      await adminApi.api.postContactgroupIdNewfields(props.id, field)
+      await newClientApi.postDmsContactGroupIdNewfields(props.id, field)
     } catch (error) {
       return
     } finally {

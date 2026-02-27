@@ -5,7 +5,7 @@ import { useEventListener } from '@vueuse/core'
 import { Loading } from '@element-plus/icons-vue'
 import { ElNotification, ElMessageBox } from 'element-plus'
 
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const { t } = useI18n()
 const emits = defineEmits(['success'])
@@ -72,15 +72,15 @@ async function pasteItem(doc) {
           }
         ).then(async ({ value }) => {
           if (type === 'copy') {
-            const copyResponse = await clientApi.api.postNuxeoDocumentCopy(param).then(res => res.data)
-            await clientApi.api.patchNuxeoDocument({
+            const copyResponse = await newClientApi.postDmsDocumentCopy(param).then(res => res.data)
+            await newClientApi.patchDmsDocument({
               idOrPath: copyResponse.id,
               name: item.newName
             })
             msg = t('common_copySuccess')
           } else {
-            await clientApi.api.postNuxeoDocumentMove(param)
-            await clientApi.api.patchNuxeoDocument({
+            await newClientApi.postDmsDocumentMove(param).then(r => r.data)
+            await newClientApi.patchDmsDocument({
               idOrPath: copyItem.id,
               name: item.newName
             })
@@ -94,10 +94,10 @@ async function pasteItem(doc) {
       await Promise.all(promises)
     } else {
       if (type === 'copy') {
-        await clientApi.api.postNuxeoDocumentCopy(param)
+        await newClientApi.postDmsDocumentCopy(param).then(r => r.data)
         msg = t('common_copySuccess')
       } else {
-        await clientApi.api.postNuxeoDocumentMove(param)
+        await newClientApi.postDmsDocumentMove(param).then(r => r.data)
         msg = t('common_moveSuccess')
       }
     }

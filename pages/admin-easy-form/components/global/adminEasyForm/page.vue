@@ -3,12 +3,8 @@
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
         <div class="actions">
-          <ResponsiveFilter
-            ref="ResponsiveFilterRef"
-            inputKey="name"
-            @form-change="handleFilterFormChange"
-            inputPlaceHolder="easyForm_filter"
-          />
+          <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange"
+                            inputPlaceHolder="easyForm_filter" />
           <el-button id="EasyForm__CreateNewForm" type="primary" @click="handleAdd()">
             {{ $t('easyForm_createForm') }}
           </el-button>
@@ -23,7 +19,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import { routeEasyFormDetail } from '~/util/easyFormRouterHelper'
 
 const ResponsiveFilterRef = ref()
@@ -33,17 +29,9 @@ if (!routerProvider) {
 }
 const { t } = useI18n()
 let extraParams: any = {}
-const {
-  tableConfig,
-  tableEvent,
-  tableRef,
-  query,
-  reload,
-  cleanSelectedRows
-} = useVxeTable({
+const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-easyForm',
-  api: (pageParams: any) =>
-    adminApi.api.postFormDesignPage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newAdminApi.postDmsEasyFormPage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'name', title: 'easyForm.name', fixed: 'left', type: 'checkbox' },
     {
@@ -133,12 +121,17 @@ function handleDblclick(row: any) {
 
 async function handleActive(row: any, isActive: boolean) {
   try {
-    const type = isActive ? 'patchFormDesignEnableId' : 'patchFormDesignDisableId'
-    const result = await adminApi.api[type](row.id).then((res) => res.data)
+    let result
+    if (isActive) {
+      result = await newAdminApi.patchDmsEasyFormEnableId(row.id).then((res) => res.data)
+    } else {
+      result = await newAdminApi.patchDmsEasyFormDisableId(row.id).then((res) => res.data)
+    }
     if (!!result) {
       row.enable = isActive
     }
   } catch (error) {
+    console.log(error)
   }
 }
 

@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import formJson from './bulkImport.vform.json'
 
 const routerProvider = inject(MenuRouterKey)
@@ -50,7 +50,7 @@ async function handleSubmit() {
         docTypeToProFileId: data.docTypeToProFileId
       }
     }
-    const res: any = await clientApi.api.postWorkflowProcessStart(param).then(res => res.data)
+    const res: any = await newClientApi.postDocpalWorkflowProcessStart(param).then(res => res.data)
     if (res.errorCode) throw new Error(res.message)
     state.dialogVisible = false
   } catch (error) {

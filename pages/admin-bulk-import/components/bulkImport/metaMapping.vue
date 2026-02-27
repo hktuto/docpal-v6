@@ -18,10 +18,10 @@
 
 
 <script lang="ts" setup>
-import {ElMessageBox} from 'element-plus'
-import {adminApi} from 'api';
+import { ElMessageBox } from 'element-plus'
+import { newAdminApi } from 'api'
 
-const {name, docType} = defineProps<{
+const { name, docType } = defineProps<{
   docType: object,
   name: string
 }>()
@@ -35,21 +35,21 @@ const state = reactive<{
   metaMapping: {}
 })
 
-const {t} = useI18n()
+const { t } = useI18n()
 
 
-const {tableConfig, tableEvent, tableRef, reload} = useVxeTable({
+const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'admin-bulk-import-meta',
   api: async (params: any) => {
-    const data = await adminApi.api.getWorkflowQuerymetadatamapping({name}).then(res => res.data || []).catch((err) => ([])) as any
+    const data = await newAdminApi.getDocpalWorkflowQuerymetadatamapping({ name }).then(res => res.data || []).catch((err) => ([])) as any
 
-    state.metaMapping = {...data[0]}
+    state.metaMapping = { ...data[0] }
     state.metaMapping.metaDataMapper = data[0].metaDataMapper ? JSON.parse(data[0].metaDataMapper) : {}
     state.list = data.reduce((prev: any, item: any) => {
       if (item.metaDataMapper) {
         const _metaDataMapper = JSON.parse(item.metaDataMapper)
         Object.keys(_metaDataMapper).forEach(key => {
-          prev.push({metaData: key, label: _metaDataMapper[key]})
+          prev.push({ metaData: key, label: _metaDataMapper[key] })
         })
       }
       return prev
@@ -60,32 +60,32 @@ const {tableConfig, tableEvent, tableRef, reload} = useVxeTable({
   columns: [
     {
       field: 'metaData',
-      title: 'docType_property',
+      title: 'docType_property'
     },
     {
       field: 'label',
-      title: 'docType_label',
+      title: 'docType_label'
     }
   ],
   bodyActions: [
     [
       {
         name: 'common_edit',
-        action: ({row}: any) => handleDialogShow(row)
+        action: ({ row }: any) => handleDialogShow(row)
       },
       {
         name: 'common_delete',
-        action: ({row}: any) => handleDelete(row)
+        action: ({ row }: any) => handleDelete(row)
       }
     ]
   ],
-  dblClickAction: ({row}: any) => handleDialogShow(row),
+  dblClickAction: ({ row }: any) => handleDialogShow(row),
   permissionMethod: (args: PermissionMethodParams) => {
     if (!args.row) {
       return { visible: false, disabled: false }
     }
 
-    return {visible: true, disabled: false}
+    return { visible: true, disabled: false }
   }
 })
 
@@ -94,10 +94,10 @@ async function handleDelete(row: any) {
     .then(async () => {
       const _metaMapping = {
         name: state.metaMapping.name,
-        metaDataMapper: {...state.metaMapping.metaDataMapper}
+        metaDataMapper: { ...state.metaMapping.metaDataMapper }
       }
       delete _metaMapping.metaDataMapper[row.metaData]
-      await adminApi.api.postWorkflowSavemetadatamapping({
+      await newAdminApi.postDocpalWorkflowSavemetadatamapping({
         documentType: [_metaMapping]
       })
       reload()

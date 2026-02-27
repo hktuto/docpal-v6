@@ -2,7 +2,7 @@ import type { Ref } from 'vue'
 import { ElMessageBox, ElMessage, ElNotification } from 'element-plus'
 import { emitBus, EventType } from 'eventbus'
 import { Loading } from '@element-plus/icons-vue'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 // import { ElMessageBox } from 'element-plus'
 export const useBrowseDragMove = (selectedList: any) => {
   const dragRows = ref<any[]>([])
@@ -30,7 +30,7 @@ export const useBrowseDragMove = (selectedList: any) => {
 
     const {
       data: { hasDuplicateTitle }
-    } = (await clientApi.api.postNuxeoDocumentIsduplicatename({
+    } = (await newClientApi.postDmsDocumentIsduplicatename({
       path: dropTargetRow.path,
       titles: copyItems.map((item) => item.name)
     })) as any
@@ -55,7 +55,7 @@ export const useBrowseDragMove = (selectedList: any) => {
         position: 'bottom-right'
       })
       try {
-        await clientApi.api.postNuxeoDocumentMove(param)
+        await newClientApi.postDmsDocumentMove(param).then(r => r.data)
       } finally {
         noti.close()
       }

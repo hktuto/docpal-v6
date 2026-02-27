@@ -11,7 +11,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './dialog.vform.json'
 import { ElMessage } from 'element-plus'
 const emits = defineEmits(['refresh', 'delete', 'add'])
@@ -32,12 +32,10 @@ async function handleSubmit() {
       groupId: data.groupId.join(',')
     }
 
-    const res = await adminApi.api
-      .postPersonalDashboardSave({
-        ..._data,
-        styleJson: state.setting.styleJson
-      })
-      .then((res) => res.data)
+    const res = await newAdminApi.postDocpalPersonalDashboardSave({
+      ..._data,
+      styleJson: state.setting.styleJson
+    }).then((res) => res.data)
     ElMessage.success(
       t('tip_createdMsg', {
         modelName: t('tip_newMsg') + t('workPanel_workPanel'),

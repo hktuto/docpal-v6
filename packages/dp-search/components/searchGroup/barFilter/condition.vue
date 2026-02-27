@@ -83,11 +83,11 @@ function handleDelete(item: searchGroupQQ, fieldName?: string) {
 
 async function getData() {
   const pList: any = []
-  props.qItem.matchs.forEach(async (item: any) => {
+  for (const item of props.qItem.matchs) {
     pList.push(getFormData(item))
-  })
+  }
   const data = await Promise.all(pList)
-  const result = data.reduce((pre, cur) => {
+  return data.reduce((pre, cur) => {
     const item: any = {}
     let rItem: any = {}
     Object.keys(cur).forEach(key => {
@@ -127,7 +127,6 @@ async function getData() {
     }
     return pre
   }, [])
-  return result
 }
 
 async function getFormData(item: any) {

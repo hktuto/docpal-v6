@@ -18,8 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { newClientApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const route = useRoute()
@@ -43,9 +42,7 @@ async function handleGetPublicDocument(formData: any) {
     state.loading = true
     formData.token = !!route.query.token ? route.query.token : formData.token
     if (!formData.token) throw new Error(`${t('responseMsg_errorCode_2')}`)
-    const res: any = await clientApi.api
-      .getNuxeoPublicDocument(formData)
-      .then((res) => res.data)
+    const res: any = await newClientApi.getDmsPublicShareDocuments(formData).then((res) => res.data)
     if (res.errorCode) {
       switch (res.errorCode) {
         case 10:

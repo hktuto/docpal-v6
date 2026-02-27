@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElColorPicker, ElDialog } from 'element-plus'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 
@@ -37,10 +37,10 @@ async function generateDefWorkflow(name: string) {
     isDesc: true,
     name: 'Def Calendar Event By',
     orderBy: 'modifiedDate',
-    categories: ["business_processes", "system_processes"]
+    categories: ['business_processes', 'system_processes']
   }
 
-  const {entryList} = await adminApi.api.postWorkflowProcessDefinitionDraftPage(params).then((r) => r.data)
+  const { entryList } = await newAdminApi.postDocpalWorkflowProcessDefinitionDraftPage(params).then((r) => r.data)
 
   const eventActions: any = {
     'Def Calendar Event By Create': 'Create',
@@ -68,10 +68,13 @@ async function generateDefWorkflow(name: string) {
 
 async function init() {
   permissionOptions.value = await getPermissionSelectOption()
-
-  userOptions.value = permissionOptions.value[0].options
-  roleOptions.value = permissionOptions.value[1].options
-  groupOptions.value = permissionOptions.value[2].options
+  try {
+    userOptions.value = permissionOptions.value[0].options
+    roleOptions.value = permissionOptions.value[1].options
+    groupOptions.value = permissionOptions.value[2].options
+  } catch (e) {
+    console.log(e)
+  }
   locationsOptions.value = locationsOption.value.map((item: any) => ({
     id: item.id,
     name: item.name
@@ -220,13 +223,13 @@ async function submit() {
 
   try {
     if (isEdit.value) {
-      const result = await adminApi.api.putEventCalendarsSettingId(currentData.value.id, currentData.value)
+      const result = await newAdminApi.putDmsCalendarsEventSettingId(currentData.value.id, currentData.value).then(r => r.data)
       routerProvider?.message.success(t('tip_updateSuccessMsg', { modelName: null, name: currentData.value.name }))
     } else {
       // TODO use def value
       defWorkflow.value = await generateDefWorkflow(currentData.value.name)
       currentData.value.flows = defWorkflow.value
-      const result = await adminApi.api.postEventCalendarsSetting(currentData.value)
+      const result = await newAdminApi.postDmsCalendarsEventSetting(currentData.value).then(r => r.data)
       routerProvider?.message.success(t('tip_createdSuccessMsg', { modelName: null, name: currentData.value.name }))
     }
   } catch (e) {
@@ -239,7 +242,7 @@ async function submit() {
 async function handleJumpWorkflow(workflowKey: string) {
   if (!workflowKey) return
 
-  const data = await adminApi.api.getWorkflowVersionKeyProcessdefinitionkey(workflowKey).then((r) => r.data)
+  const data = await newAdminApi.getWorkflowDefinitionVersionKeyProcessdefinitionkey(workflowKey).then((r) => r.data)
   if (!data) return
 
   const params: NewWorkflowVersionDetailParams = {

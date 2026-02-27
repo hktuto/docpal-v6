@@ -5,7 +5,7 @@
         <div class="actions">
           <h3>{{ $t('companyProfile.chopTitle') }}</h3>
           <!-- <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange" inputPlaceHolder="companyProfile.filterTip" /> -->
-          <el-button id="EasyForm__CreateNewForm" type="primary" @click="handleAdd()">
+          <el-button id="CompanyProfile__NewProfile_Detail__AddChop" type="primary" @click="handleAdd()">
             {{ $t('companyProfile.chopCreate') }}
           </el-button>
         </div>
@@ -19,7 +19,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 
 const props = defineProps<{
@@ -34,7 +34,7 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-company-profile-chops',
-  api: (pageParams: any) => adminApi.api.postCompanyprofilesCompanyidChopsPage(props.id, {
+  api: (pageParams: any) => newAdminApi.postDmsCompanyprofilesCompanyidChopsPage(props.id, {
     ...pageParams, ...extraParams
   }),
   columns: [
@@ -139,7 +139,7 @@ function handleEdit(row: any) {
 
 async function handleActive(row: any, status: string) {
   try {
-    const result = await adminApi.api.putCompanyprofilesCompanyidChopsCompanychopidStatus(props.id, row.id, { status: status }).then((res) => res.data)
+    const result = await newAdminApi.putDmsCompanyprofilesCompanyidChopsCompanychopidStatus(props.id, row.id, { status: status }).then((res) => res.data)
     if (!!result) {
       row.status = status
     }
@@ -163,7 +163,7 @@ async function handleDelete(row: any) {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    await adminApi.api.deleteCompanyprofilesCompanyidChopsCompanychopid(props.id, row.id).then((res) => res.data)
+    await newAdminApi.deleteDmsCompanyprofilesCompanyidChopsCompanychopid(props.id, row.id).then((res) => res.data)
     reload()
   } catch (error) {
     console.log(error)

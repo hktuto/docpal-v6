@@ -14,7 +14,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import fieldForm from './form/field.vform.json'
 import humanTaskFieldsForm from './form/humanTaskFields.vform.json'
 import flowableInForm from './form/flowableIn.vform.json'
@@ -74,7 +74,7 @@ async function handleSubmit() {
 }
 
 function handleOpen(row: any) {
-  state.isEdit = !!row ? true : false
+  state.isEdit = !!row
   state.visible = true
   setTimeout(async () => {
     // FormRendererRef.value.vFormRenderRef.setFormJson(formJson)
@@ -155,7 +155,7 @@ async function getWorkflowProperties() {
   try {
     const workflow = props.node.data.data.processRefExpression.__cdata
 
-    const options = await adminApi.api.postWorkflowProperties({ processKey: workflow })
+    const options = await newAdminApi.postDocpalWorkflowProperties({ processKey: workflow })
     return options.map((item) => ({
       label: item.name,
       value: item.id

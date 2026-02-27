@@ -9,9 +9,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ElMessage } from 'element-plus'
 import formJson from './api.vform.json'
-
 import { AzureProviderKey } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)

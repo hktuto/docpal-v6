@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const { id } = defineProps<{
-  id: string;
+  id: string
 }>()
 const editInfoOpened = ref(false)
 const testEmailOpened = ref(false)
@@ -28,7 +28,6 @@ const layoutHtml = computed(() => {
 let data: any = ref(null)
 
 async function handleInit() {
-
   // TODO : if id is new , create new dummy data
   if (!id || id === 'new') {
     ready.value = true
@@ -43,7 +42,7 @@ async function handleInit() {
       emailTemplateVariable: ''
     }
   }
-  const res = await adminApi.api.getTemplateEmailTemplateId(id).then((res) => res.data)
+  const res = await newAdminApi.getDmsTemplateEmailTemplateId(id).then((res) => res.data)
   // loop template body and get all variables
   // const body = res?.body;
   await getTemplateLayout(res?.emailLayoutId)
@@ -61,9 +60,10 @@ async function handleInit() {
  * @param templateId
  */
 async function getTemplateLayout(templateId?: any) {
-  const res: any = await adminApi.api
-    .postTemplateEmailLayoutPage({ pageNum: 0, pageSize: 1000 })
-    .then((res) => res.data)
+  const res: any = await newAdminApi.postDmsTemplateEmailLayoutPage({
+    pageNum: 0,
+    pageSize: 1000
+  }).then((res) => res.data)
   layouts.value = res?.entryList
   const layoutId = layouts.value.length > 0 ? layouts.value[0].id : ''
   selectedLayout.value = templateId || layoutId
@@ -90,7 +90,6 @@ function handleClose() {
 async function save() {
   const { html, json, variable } = await editorEl.value.getData()
   try {
-
     // if id is new , create new
     // check form valid
     if (id === 'new') {
@@ -103,7 +102,7 @@ async function save() {
         return
       }
       // }
-      const result = await adminApi.api.postTemplateEmailTemplate({
+      const result = await newAdminApi.postDmsTemplateEmailTemplate({
         ...data.value,
         // TODO : send html to body
         // url encode html
@@ -111,7 +110,7 @@ async function save() {
         emailLayoutId: selectedLayout.value,
         emailTemplateJson: JSON.stringify(json),
         emailTemplateVariable: JSON.stringify(variable)
-      }).then(res => res.data)
+      }).then((res) => res.data)
       if (result?.id) {
         routerProvider?.updateProps({
           label: result.id,
@@ -127,7 +126,7 @@ async function save() {
 
     // update new variable
     // test save json to backend
-    await adminApi.api.putTemplateEmailTemplate({
+    await newAdminApi.putDmsTemplateEmailTemplate({
       id: id,
       ...data.value,
       // TODO : send html to body
@@ -136,11 +135,13 @@ async function save() {
       emailLayoutId: selectedLayout.value,
       emailTemplateJson: JSON.stringify(json),
       emailTemplateVariable: JSON.stringify(variable)
-    })
-    routerProvider?.message.success(t('tip_updateMsg', {
-      modelName: null,
-      name: data.value.label
-    }))
+    }).then(r => r.data)
+    routerProvider?.message.success(
+      t('tip_updateMsg', {
+        modelName: null,
+        name: data.value.label
+      })
+    )
     editInfoOpened.value = false
   } catch (error) {
     console.error(error)
@@ -170,7 +171,6 @@ onMounted(async () => {
 </script>
 <template>
   <div class="pageContainer--padding">
-    
     <Editorjs v-if="data" ref="editorEl" :data="data" :layout="layoutHtml">
       <template #name>
         <div class="editButton">
@@ -215,7 +215,15 @@ onMounted(async () => {
     <ElDialog v-model="testEmailOpened" append-to-body destroy-on-close>
       <EditorjsTestDialog ref="testEmailDialog" v-if="data" :data="data" :id="id" :variables="variables" />
       <template #footer>
-        <ElButton type="primary" @click="() => {sendTest();testEmailOpened = false;}">
+        <ElButton
+          type="primary"
+          @click="
+            () => {
+              sendTest()
+              testEmailOpened = false
+            }
+          "
+        >
           {{ $t('email_send_test') }}
         </ElButton>
       </template>
@@ -276,7 +284,7 @@ onMounted(async () => {
 }
 
 .emailTemplateContainer {
-  height: 100%
+  height: 100%;
 }
 
 .responsiveSizeEditorContainer {

@@ -14,7 +14,7 @@ const emit = defineEmits<{
 }>()
 
 defineExpose({
-  open,
+  open
 })
 
 function open(): void {
@@ -73,8 +73,8 @@ async function handleConfirm(): Promise<void> {
       {
         type: 'warning',
         confirmButtonText: 'Import',
-        cancelButtonText: 'Cancel',
-      },
+        cancelButtonText: 'Cancel'
+      }
     )
   } catch {
     return
@@ -87,17 +87,9 @@ async function handleConfirm(): Promise<void> {
 </script>
 
 <template>
-  <ElDialog
-    v-model="dialogVisible"
-    width="480px"
-    title="Import Workflow"
-    @closed="resetState"
-  >
+  <ElDialog v-model="dialogVisible" width="480px" title="Import Workflow" @closed="resetState">
     <div class="import-dialog">
-      <label
-        class="import-dialog__label"
-        for="import-workflow-file"
-      >
+      <label class="import-dialog__label" for="import-workflow-file">
         Select a workflow JSON file
       </label>
 
@@ -113,26 +105,17 @@ async function handleConfirm(): Promise<void> {
         @keydown.enter.prevent="fileInputRef?.click()"
       >
 
-      <p
-        v-if="selectedFileName"
-        class="import-dialog__file-name"
-      >
+      <p v-if="selectedFileName" class="import-dialog__file-name">
         Selected file: {{ selectedFileName }}
       </p>
     </div>
 
     <template #footer>
       <div class="import-dialog__actions">
-        <ElButton
-          text
-          @click="handleClose"
-        >
+        <ElButton text @click="handleClose">
           Cancel
         </ElButton>
-        <ElButton
-          type="primary"
-          @click="handleConfirm"
-        >
+        <ElButton type="primary" @click="handleConfirm">
           Import
         </ElButton>
       </div>

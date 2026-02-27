@@ -16,12 +16,10 @@
         </el-button>
       </div>
       <div class="dashboard-page--main">
-        <!-- {{ CmmnDashboardWidgetSetting }} -->
         <DashboardDetail
           ref="DashboardDetailRef"
           v-model:layout="state.layout"
           :dates="state.dates"
-          :componentMap="CmmnWidgetComponent"
           :resizable="true"
           :draggable="true"
           :editMode="true"
@@ -35,8 +33,9 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import dayjs from 'dayjs'
+
 const { t } = useI18n()
 const props = defineProps<{
   id: string
@@ -55,15 +54,6 @@ const state = reactive({
   dates: [dayjs().startOf('year').format('YYYY-MM-DDT00:00:00'), formatDate(new Date(), 'YYYY-MM-DDT23:59:59')]
 })
 let dashboardWidgetByType = getDashboardWidgetByType(CmmnDashboardWidgetSetting)
-function createDashboard(command: CmmnDashboardWidget) {
-  const item = getCmmnWidgetSetting(command)
-  state.layout.push({
-    x: (state.layout.length * 2) % 4,
-    y: state.layout.length + 4, // puts it at the bottom
-    i: new Date().valueOf().toString(),
-    ...item
-  })
-}
 
 function handleRefresh(layoutSetting: any) {
   console.log('handleRefresh', layoutSetting)
@@ -75,17 +65,19 @@ function handleDelete(i) {
   const index = state.layout.findIndex((item) => item.i === i)
   state.layout.splice(index, 1)
 }
+
 function handleClear() {
   state.layout = []
   handleSave()
 }
+
 async function handleSave() {
   try {
     state.saveLoading = true
-    await adminApi.api.postCaseDashboardSaveStyle({
+    await newAdminApi.postCaseDashboardSaveStyle({
       id: props.id,
       styleJson: JSON.stringify(state.layout)
-    })
+    }).then((r) => r.data)
     routerProvider?.message.success(t('dpMsg_success'))
   } catch (error) {
   } finally {
@@ -97,7 +89,7 @@ const versionId = ref()
 
 async function init() {
   try {
-    const { data } = await adminApi.api.getCaseDashboardId(props.id)
+    const data = await newAdminApi.getCaseDashboardId(props.id).then((r) => r.data)
     versionId.value = data.cmmnVersionId
     state.detail = data
     name.value = data.label
@@ -105,7 +97,7 @@ async function init() {
     const temLayout = JSON.parse(data.styleJson)
     if (Array.isArray(temLayout)) {
       state.layout = temLayout.map((item) => {
-        return Object.assign(item, getCmmnNormalizeSetting(item.component))
+        return Object.assign(item, getCmmnNormalizeSetting(item.label))
       })
     } else {
       state.layout = []
@@ -114,6 +106,7 @@ async function init() {
     state.layout = []
   }
 }
+
 onMounted(() => {
   init()
 })

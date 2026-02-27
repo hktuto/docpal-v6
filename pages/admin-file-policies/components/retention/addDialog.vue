@@ -14,7 +14,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './addDialog.vform.json'
 import { ElMessage } from 'element-plus'
 
@@ -40,11 +40,15 @@ async function handleSubmit() {
       actionType: data.actionType ? 'D' : 'A'
     }
     state.loading = true
-    await adminApi.api.postPolicyRetentions(params)
-    ElMessage.success(t('tip_createdMsg', { modelName: t('tip_newMsg') + t('filePolicies_RetentionPolicy'), name: null }))
+    await newAdminApi.postDmsPolicyRetention(params).then(r => r.data)
+    ElMessage.success(t('tip_createdMsg', {
+      modelName: t('tip_newMsg') + t('filePolicies_RetentionPolicy'),
+      name: null
+    }))
     state.visible = false
     emits('update')
   } catch (error) {
+    console.log(error)
   }
   state.loading = false
 }

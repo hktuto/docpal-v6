@@ -2,12 +2,9 @@
   <div class="pageContainer--padding">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter
-          ref="ResponsiveFilterRef"
-          @form-change="handleFilterFormChange"
-        />
+        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" />
       </template>
-      <template #status="{row, rowIndex}">
+      <template #status="{ row, rowIndex }">
         <el-tag v-if="row.status === 'ERROR'" type="danger">{{ row.status }}</el-tag>
         <el-tag v-else type="info">{{ row.status }}</el-tag>
       </template>
@@ -15,22 +12,14 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 let extraParams: any = {}
-const {
-  tableConfig,
-  tableEvent,
-  tableRef,
-  query,
-  reload,
-  cleanSelectedRows
-} = useVxeTable({
+const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'message-queue',
   api: async (pageParams: any) => {
-    const data = await adminApi.api.postMessageQueuePage({ ...pageParams }, extraParams)
+    const data = await newAdminApi.postMessageQueuePage({ ...pageParams }, extraParams)
     return {
       data: {
         entryList: data.data.content,
@@ -43,7 +32,8 @@ const {
     { field: 'logicalPath', title: 'search.logicalPath' },
     { field: 'category', title: 'category' },
     {
-      field: 'status', title: 'log_auditEvent',
+      field: 'status',
+      title: 'log_auditEvent',
       slots: {
         default: 'status'
       }
@@ -110,7 +100,10 @@ async function getFilter() {
       ]
     },*/
     {
-      key: 'status', label: 'log_auditEvent', type: 'string', isMultiple: false,
+      key: 'status',
+      label: 'log_auditEvent',
+      type: 'string',
+      isMultiple: false,
       options: [
         { label: 'CREATE', value: 'CREATE' },
         { label: 'PENDING', value: 'PENDING' },
@@ -129,7 +122,7 @@ onMounted(() => {
 })
 </script>
 <style lang="scss" scoped>
-:deep(.vxe-buttons--wrapper ){
+:deep(.vxe-buttons--wrapper) {
   display: flex;
   justify-content: space-between;
 }

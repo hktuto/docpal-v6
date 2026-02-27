@@ -73,8 +73,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
-import { ElMessage } from 'element-plus'
+import { newClientApi } from 'api'
 
 const emits = defineEmits(['change'])
 const props = defineProps<{
@@ -100,7 +99,7 @@ const isAssigneeUser = computed(() => {
 async function handleUnclaim() {
   try {
     state.loading = true
-    const response = await clientApi.api.postWorkflowTaskUnclaim({ taskId: props.id })
+    const response = await newClientApi.postWorkflowTaskUnclaim({ taskId: props.id })
     // emits('change', response, false)
     props.taskDetail.assignee = ''
   } catch (error) {
@@ -114,12 +113,10 @@ async function handleUnclaim() {
 async function handleClaim() {
   try {
     state.loading = true
-    const response: any = await clientApi.api
-      .postWorkflowTaskClaim({
-        taskId: props.id,
-        userId
-      })
-      .then((res) => res.data)
+    const response: any = await newClientApi.postWorkflowTaskClaim({
+      taskId: props.id,
+      userId
+    }).then((res) => res.data)
     if (!response.errorCode) {
       emits('change', response, true)
     }
@@ -135,13 +132,15 @@ async function handelDelete() {
   try {
     state.loading = true
     const processInstanceId = props.taskDetail.taskInstance.processInstanceId
-    const response = await clientApi.api.deleteWorkflowProcessDeleteprocessinstancebycreator({
+    // TODO: 缺少新API
+    const response = await newClientApi.deleteWorkflowProcessDeleteprocessinstancebycreator({
       processInstanceId,
       userId
     })
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('common_item') }))
     routerProvider?.back()
-  } catch {
+  } catch(e) {
+    console.log(e)
   } finally {
     state.loading = false
     deletePopoverRef.value.hide()

@@ -2,7 +2,8 @@
   <div class="pageContainer--padding">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="fileName" inputPlaceHolder="tip.fileOrFolderName" />
+        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="fileName"
+                          inputPlaceHolder="tip.fileOrFolderName" />
       </template>
       <template #path="{ row, index }">
         <path-tab-button :path="row.nuxeoPath" :displayPath="row.uploadPath" :canOpen="row.nuxeoPath" />
@@ -20,7 +21,7 @@
 <script lang="ts" setup>
 import { useVxeTable } from '#imports'
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { createAiUploadDetail } from '../../../utils/aiUpoloadHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -97,7 +98,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
         ...extraParams.value
       }
     }
-    const { data: response } = (await clientApi.api.postNuxeoDocumentQueryuploadfiledtopage(pageParams)) as any
+    const response = await newClientApi.postDmsUploadQuery(pageParams).then(r => r.data)
     return {
       data: {
         entryList: response.content,
@@ -215,11 +216,7 @@ async function handleDelete(id: any) {
     formData.append('userId', userId.value)
     formData.append('uploadId', id)
     console.log('formData', formData, id, userId.value)
-    await clientApi.instance.post(`/nuxeo/document/batchCancel`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
+    await newClientApi.postDmsUploadCancel({ userId: userId.value, uploadId: id }).then(r => r.data)
     reload()
   } catch (error) {
     console.log(error)

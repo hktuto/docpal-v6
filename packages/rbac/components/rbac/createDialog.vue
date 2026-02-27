@@ -51,7 +51,7 @@
 <script lang="ts" setup>
 import { ref, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import type { FormInstance } from 'element-plus'
 
 const { t } = useI18n()
@@ -116,7 +116,7 @@ async function handleSubmit() {
     await formRef.value.validate()
     loading.value = true
     
-    await adminApi.api.postAclRole({
+    await newAdminApi.postDocpalAclRole({
       name: formData.name,
       parentId: formData.parentId?.toString(),
       status: formData.status,

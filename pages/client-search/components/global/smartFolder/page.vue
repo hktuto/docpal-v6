@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from "api";
+import { newClientApi } from "api";
 import { routeSmartFolderDetail } from "~/utils/routerHelper";
 const routerProvider = inject(MenuRouterKey);
 if (!routerProvider) {
@@ -19,7 +19,7 @@ const {
 } = useVxeTable({
   id: "my_task",
   api: async(pageParams: any) => {
-    const res = await clientApi.api.getNuxeoSfolder({
+    const res = await newClientApi.getDmsSmartFolder({
       ...pageParams,
       ...extraParams
     }).then(res => res.data)

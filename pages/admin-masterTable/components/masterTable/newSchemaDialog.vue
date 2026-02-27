@@ -44,7 +44,6 @@
 </template>
 <script lang="ts" setup>
 import formJson from "./newSchemaDialog.vform.json";
-import {ElMessage} from "element-plus";
 
 /**
  * 如果 type === 'again',

@@ -19,7 +19,7 @@
 <script lang="ts" setup>
 import { userProviderDetailKey } from '~/util/userProvider'
 import { ElMessage } from 'element-plus'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -91,9 +91,9 @@ function validatePassword(rule: any, value: any, callback: any) {
     }
   }
 
-  // 检查是否包含特殊字符（只允许 !,@,#,$,%,&,*）
+  // 检查是否包含特殊字符（只允许 !@#$%^&*()-+=[]{}:;'",.<>\|）
   if (passwordPolicy.value.containSpecialCharacters) {
-    if (!/^(?=.*[!@#$%&*]).+$/.test(value)) {
+    if (!/^(?=.*[!@#$%^&*()\-+=\[\]{}:;'",.<>/\\|]).+$/.test(value)) {
       callback(new Error(t('passwordPolicy.containSpecialCharacters')))
       return
     }
@@ -134,14 +134,15 @@ async function handleSubmit() {
     form.confirmPassword = ''
     emits('refresh')
   } catch (error) {
-    console.error(error)
+    console.log(error)
+    return
   } finally {
     state.loading = false
   }
 }
 
 async function getPasswordPolicy() {
-  const response = await adminApi.api.getPasswordConfig().then(r => r.data)
+  const response = await newAdminApi.getUcenterPasswordConfig().then(r => r.data)
   if (!response) {
     routerProvider?.message.error(t('Password policy rules not found'))
     state.visible = false

@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const props = defineProps<{
   doc: any
@@ -20,7 +19,7 @@ const fileType = computed(() => {
 
 async function getBlobFile(id: string) {
   state.loading = true
-  state.blob = await clientApi.api.getNuxeoDocumentDownloadTempFileId(id as any, {
+  state.blob = await newClientApi.getDmsUploadTmpFileIdDownload(id, {
     format: 'blob'
   })
   state.encodeUrl = URL.createObjectURL(state.blob)
@@ -28,8 +27,7 @@ async function getBlobFile(id: string) {
 }
 
 async function readBlobToText(blob: Blob) {
-  const text = await blob.text()
-  return text
+  return await blob.text()
 }
 
 function checkExtension(filename: string) {
@@ -69,13 +67,14 @@ function checkExtension(filename: string) {
       <ViewerPicture :images="[state.encodeUrl]" />
     </template> -->
     <template v-else-if="fileType === 'text'">
-     <ReaderText :blob="state.blob" />
+      <ReaderText :blob="state.blob" />
     </template>
     <template v-else-if="fileType === 'collabora'">
       <LazyCollaboraViewer :docId="props.doc.id" fileType="LOCAL" :readonly="true" />
     </template>
     <template v-else-if="fileType === 'pdf'">
-      <LazyViewerPdf v-if="state.blob" :blob="state.blob" :options="{print:false, loadAnnotations:false, readOnly:true}" />
+      <LazyViewerPdf v-if="state.blob" :blob="state.blob"
+                     :options="{print:false, loadAnnotations:false, readOnly:true}" />
     </template>
     <template v-else-if="fileType === 'video'">
       <Video v-if="state.encodeUrl" :src="state.encodeUrl" />

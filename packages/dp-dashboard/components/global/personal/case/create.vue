@@ -20,7 +20,7 @@
   </DashboardCard>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const emits = defineEmits(['delete', 'refreshSetting'])
 
@@ -62,7 +62,7 @@ function handleRefresh(chartSetting: any, caseList: any) {
 
 async function getList() {
   try {
-    const res = await clientApi.api.postCaseTypesPage({}).then((res) => res.data)
+    const res = await newClientApi.postCaseTypesPage({}).then((res) => res.data)
     return res?.entryList
   } catch (error) {
     return []

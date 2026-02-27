@@ -30,8 +30,7 @@
   </el-card>
 </template>
 <script lang="ts" setup>
-import { ElMessageBox, ElMessage } from 'element-plus'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 
 const caseDetailProvider = inject(CaseManagementDetailProviderKey)
@@ -53,7 +52,7 @@ const { t } = useI18n()
 //     const action = await ElMessageBox.confirm(`${t('msg.confirmWhetherToPublish')}`)
 //     if(action !== 'confirm') throw new Error("");
 //     state.publishLoading = true
-//     await adminApi.api.postCaseTypesIdPublish(caseDetailProvider?.caseInfo.value.id,{});
+//     await clientApi.api.postCaseTypesIdPublish(caseDetailProvider?.caseInfo.value.id,{});
 //     routerProvider?.message.success(t('dpMsg_success'))
 //   } catch (error) {
 
@@ -70,11 +69,10 @@ async function handleBlur(e) {
 
     // const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToSave')}`)
     // if(action !== 'confirm') throw new Error("");
-    await adminApi.api.putCaseTypes({
+    await newAdminApi.putCaseTypes({
       ...props.detail,
       name: value
-
-    })
+    }).then(r => r.data)
     routerProvider?.message.success(t('dpMsg_success'))
   } catch (error) {
 

@@ -19,7 +19,6 @@ function expandedItemsChange(expandedItems: any[]) {
 }
 </script>
 
-
 <template>
     <div class="pageContainer">
       <ResourceDocumentTable 
@@ -29,7 +28,6 @@ function expandedItemsChange(expandedItems: any[]) {
         @expandedItemsChange="expandedItemsChange" 
       />
     </div>
-            
 </template>
 
 <style lang="scss" scoped>

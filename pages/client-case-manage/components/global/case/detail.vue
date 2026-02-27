@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const { id, name, data } = defineProps<{
   id: string;
@@ -29,7 +29,7 @@ const {
   id: 'clientCaseTableList',
   api: async (pageParams: any) => {
     try {
-      return clientApi.api.postCaseTypesCasetypeidRecordsPage(id, { ...pageParams, ...extraParams })
+      return newClientApi.postCaseTypesCasetypeidRecordsPage(id, { ...pageParams, ...extraParams })
     } catch (e) {
       console.log(e)
     }
@@ -55,7 +55,7 @@ const responsiveFilter = ref()
 
 async function initCondition() {
   try {
-    const { data } = await clientApi.api.getCaseTypesCasetypeidRecordsPageConditions(id)
+    const data = await newClientApi.getCaseTypesCasetypeidRecordsPageConditions(id).then(r =>r.data)
     const order = [
       {
         key: 'orderBy',
@@ -106,7 +106,7 @@ function handleFilterFormChange(formModel: any) {
 
 async function reorderColumn() {
   try {
-    const { data: { fields } } = await clientApi.api.getCaseDashboardCasetypeCasetypeidPrimaryform(id)
+    const { fields } = await newClientApi.getCaseDashboardCasetypeCasetypeidPrimaryform(id).then(r => r.data)
     const columns = [
       // { field: 'case_id', title: 'caseManagement.id' },
       {

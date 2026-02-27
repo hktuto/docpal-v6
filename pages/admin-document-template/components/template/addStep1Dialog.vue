@@ -4,8 +4,7 @@
     v-model="state.visible" :title="state.isEdit ? $t('template.editInfo') : $t('documentTemplate_Create')"
     :close-on-click-modal="false" append-to-body
   >
-    <FormRenderer ref="FormRendererRef" :form-json="formJson">
-    </FormRenderer>
+    <FormRenderer ref="FormRendererRef" :form-json="formJson" />
     <template #footer>
       <!-- <el-button @click="createFile('Excel', 'test')"></el-button> -->
       <el-button id="DocumentTemplate__CreateNewDocumentTemplate__Submit" type="primary" :loading="state.loading"
@@ -17,11 +16,12 @@
   <TemplateAddStep2Dialog ref="TemplateAddStep2DialogRef" />
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
+import { MenuRouterKey } from '#imports'
 import { ExtensionMap } from '~/utils/documentTemplateHelper'
 import formJson from './templateAddStep1.vform.json'
-import { ElMessage } from 'element-plus'
 
+const routerProvider = inject(MenuRouterKey)
 const emits = defineEmits([
   'update'
 ])
@@ -32,10 +32,6 @@ const state = reactive({
   isEdit: false
 })
 const { t } = useI18n()
-const routerProvider = inject(MenuRouterKey)
-const form = reactive({
-  labelRule: []
-})
 const FormRendererRef = ref()
 const TemplateAddStep2DialogRef = ref()
 
@@ -45,13 +41,13 @@ async function handleSubmit() {
     if (!formData) return
     state.loading = true
     if (state.isEdit) {
-      await adminApi.api.putTemplateDocument({
+      await newAdminApi.putDmsTemplateDocument({
         name: formData.name,
         description: formData.description,
         id: state.setting.id,
         fileType: state.setting.fileType
-      })
-      ElMessage.success(t('tip_updateSuccessMsg', { modelName: t('adminMenu.template'), name: null }))
+      }).then(r => r.data)
+      routerProvider?.message.success(t('tip_updateSuccessMsg', { modelName: t('adminMenu.template'), name: null }))
       emits('update')
     } else {
       const file = await createFile(formData.type, formData.name)
@@ -60,8 +56,11 @@ async function handleSubmit() {
       params.append('name', formData.name)
       params.append('fileType', formData.type)
       params.append('description', formData.description)
-      const { data } = await adminApi.api.postTemplateDocument({ requestDTO: {} }, params as any) as any
-      ElMessage.success(t('tip_createdMsg', { modelName: t('tip_newMsg') + t('adminMenu.template'), name: null }))
+      const data: any = await newAdminApi.postDmsTemplateDocument(params).then(r => r.data)
+      routerProvider?.message.success(t('tip_createdMsg', {
+        modelName: t('tip_newMsg') + t('adminMenu.template'),
+        name: null
+      }))
       const templateInfo = data
       const link = createNewDocumentTemplateDetail({
         id: templateInfo.id,
@@ -78,11 +77,11 @@ async function handleSubmit() {
   state.loading = false
 }
 
-async function handleOpen(setting?) {
+async function handleOpen(setting?: any) {
   state.visible = true
   setTimeout(async () => {
     await FormRendererRef.value.vFormRenderRef.resetForm()
-    if (setting && setting.isEdit) {
+    if (!!setting && setting.isEdit) {
       state.isEdit = true
       state.setting = setting
       await FormRendererRef.value.vFormRenderRef.setFormData({ ...state.setting })

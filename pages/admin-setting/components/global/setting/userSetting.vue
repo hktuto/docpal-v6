@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import draggable from 'vuedraggable'
-import { Edit, Delete, DeleteFilled } from '@element-plus/icons-vue'
-import { adminApi } from 'api'
+import { DeleteFilled } from '@element-plus/icons-vue'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -64,7 +64,7 @@ async function handleSubmit() {
       return acc
     }, {})
 
-    await adminApi.api.putUserProfileSetting({ properties: newProperties }).then((res: any) => {
+    await newAdminApi.putDmsUserProfileSetting({ properties: newProperties }).then((res: any) => {
       if (res.code === 200) {
         routerProvider?.message.success(t('tip_updateSuccessMsg', { modelName: null, name: null }))
       }
@@ -76,11 +76,11 @@ async function handleSubmit() {
 
 async function init() {
   try {
-    const systemFieldList: any = await adminApi.api.getUserSystemFields().then((res) => res.data)
+    const systemFieldList: any = await newAdminApi.getDmsUserSystemFields().then((res) => res.data)
     const exceptionList = ['SIGN']
     state.systemFieldList = systemFieldList.filter((item: any) => !exceptionList.includes(item.key))
 
-    let { properties }: any = await adminApi.api.getUserProfileSetting().then((res) => res.data)
+    let { properties }: any = await newAdminApi.getDmsUserProfileSetting().then((res) => res.data)
     if (!properties) {
       return
     }

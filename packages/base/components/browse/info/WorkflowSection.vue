@@ -32,7 +32,7 @@
         <el-form-item :label="$t('role.auditor')">
           <el-select v-model="form.user_approver_id" multiple filterable clearable>
             <template v-for="item in userListFilter">
-              <el-option v-if="item.userId" :key="item.userId" :label="item.userId" :value="item.userId"></el-option>
+              <el-option v-if="item.value" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </template>
           </el-select>
         </el-form-item>
@@ -42,13 +42,12 @@
         <el-button type="primary" @click="handleStart">{{ $t('dpButtom_confirm') }}</el-button>
       </div>
     </el-dialog>
-
-    <!-- <template> -->
   </div>
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
+import { getUserSelectOption } from '#imports'
 
 const props = defineProps<{ doc: any }>()
 const emit = defineEmits(['update'])
@@ -82,10 +81,9 @@ const displayStatus = computed(() => {
 const userList = ref([])
 // #region module: befor audit
 // TODO : add method to get UserList
-// const { userList } = toRefs(UseUser())
 const userListFilter = computed(() => {
   if (!userList) return []
-  return userList.value.filter((item) => item.userId !== userId.value)
+  return userList.value.filter((item) => item.value !== userId.value)
 })
 const dialogShow = ref(false)
 const form = ref({
@@ -115,7 +113,7 @@ function handleStart() {
       }
       loading.value = true
       try {
-        await clientApi.api.postWorkflowProcessStart(param)
+        await newClientApi.postDocpalWorkflowProcessStart(param)
         dialogShow.value = false
         FormRef.value.resetFields()
         getNewHistory()
@@ -126,7 +124,9 @@ function handleStart() {
     }
   })
 }
+
 let intervalId = null
+
 function getNewHistory() {
   checkLoading.value = true
   intervalId = setInterval(async () => {
@@ -140,6 +140,7 @@ function getNewHistory() {
     }
   }, 2000, { immediate: true })
 }
+
 const canApproval = ref(false)
 
 async function handelAudit(approved: boolean) {
@@ -156,7 +157,7 @@ async function handelAudit(approved: boolean) {
     }
   }
   loading.value = true
-  const result = await clientApi.api.postWorkflowAdhocApproval(param as any).then((res) => res.code)
+  const result = await newClientApi.postDocpalWorkflowAdhocApproval(param as any).then((res) => res.code)
   loading.value = false
   if (result) {
     canApproval.value = false
@@ -176,12 +177,10 @@ function tagTextFilter(status: number) {
 }
 
 async function getWorkflowAdhoc(documentId) {
-  const data = (await clientApi.api
-    .getWorkflowAdhocList({
-      documentId: documentId,
-      userId: userId.value
-    })
-    .then((res) => res.data)) as any
+  const data = (await newClientApi.getDocpalWorkflowAdhocList({
+    documentId: documentId,
+    userId: userId.value
+  }).then((res) => res.data)) as any
 
   // data is null
   if (!data.id && !data.histories) {
@@ -219,8 +218,7 @@ watch(
 )
 
 onMounted(async () => {
-  const res = (await clientApi.api.postNuxeoIdentityUsers().then((res) => res.data)) as any
-  userList.value = res.sort((a, b) => a.username.localeCompare(b.username))
+  userList.value = await getUserSelectOption()
 })
 onUnmounted(() => {
   if (intervalId) clearInterval(intervalId)

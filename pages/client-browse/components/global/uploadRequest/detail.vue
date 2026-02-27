@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { CircleCheckFilled, WarningFilled, Download } from '@element-plus/icons-vue'
 import { createUploadRequestPageParams } from '../../../utils/browseMenuHelper'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { MenuRouterKey } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
@@ -30,7 +30,7 @@ const paramKey = (props.paramKey ? props.paramKey : 'processInstanceId') as stri
 async function getData() {
   state.loading = true
   try {
-    const response: any = await clientApi.api.postWorkflowProperties({ [paramKey]: props.id }).then((res) => res.data)
+    const response: any = await newClientApi.postWorkflowProperties({ [paramKey]: props.id }).then((res) => res.data)
     const index = response.findIndex((item: any) => item.id === 'files')
     if (index !== -1) state.tableData = await revertUploadFile(response[index].value)
     if (state.tableData.length > 0) handleDblclick(state.tableData[0])
@@ -56,7 +56,7 @@ async function getData() {
     if (!fileIds) return result
     const ids: string[] = fileIds.split(',')
     for (const item of ids) {
-      const pItem = clientApi.api.getWorkflowTaskAttachmentInfo({ attachmentId: item }).then((res) => res.data)
+      const pItem = newClientApi.getWorkflowTaskAttachmentInfo({ attachmentId: item }).then((res) => res.data)
       pList.push(pItem)
     }
     const response = await Promise.all(pList)
@@ -95,7 +95,7 @@ async function handleSubmit() {
         approved: getParams()
       }
     }
-    const res = await clientApi.api.postWorkflowFormSubmit(param).then((res: any) => res.result)
+    const res = await newClientApi.postWorkflowFormSubmit(param).then((res: any) => res.result)
     if (!!res) routerProvider?.navigateTo(createUploadRequestPageParams({}))
   } catch (error) {}
   state.submitLoading = false
@@ -184,7 +184,7 @@ async function handleDblclick(row: any) {
     previewFile.loading = true
     try {
       previewFile.name = row.initName
-      previewFile.blob = await clientApi.api.getWorkflowTaskAttachmentPreview(
+      previewFile.blob = await newClientApi.getWorkflowTaskAttachmentPreview(
         { attachmentId: row.id },
         {
           format: 'blob'
@@ -199,7 +199,7 @@ async function handleDblclick(row: any) {
 async function handleDownload(file: any) {
   try {
     file.downloadLoading = true
-    const blob: any = await clientApi.api.getWorkflowTaskAttachment(
+    const blob: any = await newClientApi.getWorkflowTaskAttachment(
       { attachmentId: file.id },
       {
         format: 'blob'
@@ -230,7 +230,7 @@ onMounted(() => {
   getData()
 })
 onMounted(async () => {
-  const res: any = await clientApi.api.getTypesActive().then((res) => res.data)
+  const res: any = await newClientApi.getDmsDocpalTypeActive().then((res) => res.data)
   state.fileTypes = res.filter((item: any) => !item.isFolder)
 })
 </script>

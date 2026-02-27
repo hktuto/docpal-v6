@@ -3,15 +3,13 @@
     <h3 class="title">{{ $t('master.setting.name') }}</h3>
     <div class="description">{{ $t('master.setting.nameDescription') }}</div>
     <el-input v-model="state.name" clearable :maxlength="61" />
-    <el-button id="MasterTable__Tables__Detail__Setting__Name__Save" :loading="state.loading" type="primary"
-               @click="handleSave">
+    <el-button id="MasterTable__Tables__Detail__Setting__Name__Save" :loading="state.loading" type="primary" @click="handleSave">
       {{ $t('common_save') }}
     </el-button>
   </el-card>
 </template>
 <script setup lang="ts">
-import { adminApi } from 'api'
-import { ElMessage } from 'element-plus'
+import { newAdminApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const props = defineProps(['table', 'tableId'])
 const state = reactive<{ name: string; loading: boolean }>({
@@ -28,10 +26,10 @@ async function handleSave() {
   }
   try {
     state.loading = true
-    const data = await adminApi.api.putMasterTables({
+    await newAdminApi.putDmsMasterTable({
       id: props.tableId,
       name: state.name
-    })
+    }).then(r => r.data)
     routerProvider?.message.success(t('dpMsg_success'))
   } catch (error) {
     //     routerProvider?.message.error($i18n.t('dpMsg_error'))
@@ -43,7 +41,7 @@ async function handleSave() {
 watch(
   () => props.table,
   () => {
-    if(props.table?.name) {
+    if (props.table?.name) {
       state.name = props.table?.name
     }
   },

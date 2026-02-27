@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import {clientApi } from 'api'
+import { newClientApi } from 'api'
 import { useEventListener } from '@vueuse/core'
 type PdfJsOptions = {
     print: boolean,
@@ -34,11 +34,10 @@ const { options } = toRefs(props)
 const blob = ref();
 async function getAnnotation():Promise<Object> {
     if(!props.options.loadAnnotations) return new Map();
-    const {data:annotation} = await clientApi.api.getNuxeoAnnotation({idOrPath: props.doc.id});
+    const annotation = await newClientApi.getDmsDocumentAnnotation({idOrPath: props.doc.id}).then(r =>r.data)
     let annotationObj = []
     if(annotation.length > 0) {
         if(annotation[0].object.paths) {
-          
             annotationObj = Array.isArray(JSON.parse(annotation[0].object.paths)) ? JSON.parse(annotation[0].object.paths) : []
         }
     }
@@ -56,7 +55,7 @@ async function sendPdfAndAnnotation() {
     if(props.doc.isFolder) return; // 如果是文件夹，不要拿预览
     loading.value = true;
     try {
-        const b = await clientApi.api.postNuxeoDocumentPreview({idOrPath: props.doc.id},{
+        const b = await newClientApi.postDmsDocumentPreview({idOrPath: props.doc.id},{
             format:'blob',
             timeout: 0,
             headers: {
@@ -126,8 +125,7 @@ async function saveAnnotation(annotation:Map<string, object>) {
         },
         comments
     }
-    await clientApi.api.postNuxeoAnnotation([param])
-
+    await newClientApi.postDmsDocumentAnnotation([param])
 }
 // TODO : message must contain doc id, and match with props.doc.id
 useEventListener(window, 'message', gotMessageFromIframe)

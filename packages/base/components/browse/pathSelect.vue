@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { adminApi, clientApi } from 'api'
+import { globalApi } from 'api'
 
 const appPlatform = useAppPlatform()
 const props = defineProps<{
@@ -19,18 +19,10 @@ const setting = computed(() => ({
 const emit = defineEmits(['id'])
 
 async function getBrowseList(idOrPath: string) {
-  let data: any
-  if (appPlatform.value === 'admin') {
-    data = await adminApi.api.postNuxeoDocumentChildrenThumbnail({
-      idOrPath: idOrPath,
-      pageSize: 10000
-    }).then(res => res.data)
-  } else {
-    data = await clientApi.api.postNuxeoDocumentChildrenThumbnailV2({
-      idOrPath: idOrPath,
-      pageSize: 10000
-    })
-  }
+  const data = await globalApi.postDmsDocumentChildrenThumbnail({
+    idOrPath: idOrPath,
+    pageSize: 10000
+  }).then(res => res.data)
 
   return data.entryList.reduce((prev: any[], item: any) => {
     if (item.isFolder) prev.push({

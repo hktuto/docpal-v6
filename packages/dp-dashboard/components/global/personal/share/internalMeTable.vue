@@ -4,8 +4,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const platform = useAppPlatform()
@@ -25,7 +24,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 async function getData(params: any = {}) {
   if (platform.value === 'admin') return
-  const res = await clientApi.api.postInternalshareMe({ ...params, ...extraParams }).then((res) => res.data)
+  const res = await newClientApi.postDmsInternalshareMe({ ...params, ...extraParams }).then((res) => res.data)
   return {
     data: {
       entryList: res?.entryList,

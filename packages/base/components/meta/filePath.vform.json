@@ -38,7 +38,7 @@
           "onFocus": "",
           "onBlur": "",
           "onValidate": "",
-          "onLazyLoad": "const { level, value, childrenData } = node\nif(!!childrenData) {\n  resolve(childrenData)\n  return\n}\nconst idOrPath = level == 0 ? \"/\" : value\n$api.post('/nuxeo/document/children/thumbnail', {idOrPath, pageSize: 100000}).then(res => {\n  const nodes = res.data.data.entryList.reduce((prev, item) => { \n    if(item.isFolder) prev.push({\n      value: item.id,\n      label: item.name\n    })\n    return prev\n  },[])\n  // 通过调用resolve将子节点数据返回，通知组件数据加载完成\n  resolve(nodes)\n}).catch(err => {\n  resolve([])\n})"
+          "onLazyLoad": "const { level, value, childrenData } = node\nif(!!childrenData) {\n  resolve(childrenData)\n  return\n}\nconst idOrPath = level == 0 ? \"/\" : value\n$api.post('/api/dms/document/children/thumbnail', {idOrPath, pageSize: 100000}).then(res => {\n  const nodes = res.data.data.entryList.reduce((prev, item) => { \n    if(item.isFolder) prev.push({\n      value: item.id,\n      label: item.name\n    })\n    return prev\n  },[])\n  // 通过调用resolve将子节点数据返回，通知组件数据加载完成\n  resolve(nodes)\n}).catch(err => {\n  resolve([])\n})"
         },
         "id": "cascader76990"
       }

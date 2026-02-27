@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Pane, Splitpanes } from 'splitpanes'
 
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { EventType, useEventBus, emitBus } from 'eventbus'
 import { actions, ActionsFilter } from '~/../base/utils/browseActions'
 
@@ -162,7 +162,7 @@ watch(
 
 provide(BrowseListProviderKey, {
   getchildApi: (pageParams: any) => {
-    return clientApi.api.postNuxeoDocumentChildrenThumbnailV2(pageParams)
+    return newClientApi.postDmsDocumentChildrenThumbnail(pageParams)
   },
   idOrPath: currentIdOrPath,
   docDetail,
@@ -274,7 +274,6 @@ function handleSearchBlur() {
               </div>
             </slot>
             <slot name="toolbarTools">
-              <BrowseActionsShare class="shareActions" :doc="docDetail" :selectedList="selectedList" />
               <div :class="{ searchContainer: true, expanded: isSearchExpanded }">
                 <div v-if="!isSearchExpanded" class="searchButton" @click="expandSearch">
                   <Icon name="mdi:magnify" />

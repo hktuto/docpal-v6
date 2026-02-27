@@ -10,8 +10,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
-import { globalApi } from 'api'
+import { newClientApi } from 'api'
+
 const dialogOpened = ref(false)
 const { t } = useI18n()
 const props = defineProps<{
@@ -31,11 +31,11 @@ async function handleSubmit() {
     state.loading = true
     const data = await FormVariablesRendererRef.value.getData()
     if (state.setting.id) {
-      await globalApi.api.putContactgroupIdContactdetailContactdetailid(contactBookDetail.value.id, state.setting.id, data)
+      await newClientApi.putDmsContactGroupIdContactdetailContactdetailid(contactBookDetail.value.id, state.setting.id, data)
     } else {
-      await globalApi.api.postContactgroupIdContactdetail(contactBookDetail.value.id, JSON.stringify(data))
-      emits('refresh')
+      await newClientApi.postDmsContactGroupIdContactdetail(contactBookDetail.value.id, JSON.stringify(data))
     }
+    emits('refresh')
     dialogOpened.value = false
   } catch (error) {
     console.log(error)
@@ -43,6 +43,7 @@ async function handleSubmit() {
     state.loading = false
   }
 }
+
 function handleOpen(initData: any) {
   console.log(initData)
   dialogOpened.value = true
@@ -50,6 +51,7 @@ function handleOpen(initData: any) {
     init(initData)
   })
 }
+
 function init(initData: any) {
   state.setting = {}
   FormVariablesRendererRef.value.createJson(attributesVForm.value)
@@ -58,5 +60,6 @@ function init(initData: any) {
     FormVariablesRendererRef.value.setData(initData)
   }
 }
+
 defineExpose({ handleOpen })
 </script>

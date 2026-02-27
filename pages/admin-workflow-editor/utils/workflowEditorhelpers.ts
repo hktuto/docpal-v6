@@ -1,4 +1,4 @@
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 
 export async function saveWorkflowFormToNewVersion(xml: string, processKey: string, oldVersion: string, newVersion: string) {
   if (!xml) {
@@ -10,6 +10,7 @@ export async function saveWorkflowFormToNewVersion(xml: string, processKey: stri
   await batchSaveForm(allForm, processKey, newVersion, oldVersion)
   getBpmnRuleAndSave(oldVersion, newVersion)
 }
+
 export async function getBpmnRuleAndSave(oldVersion: string, newVersion: string) {
   const oldVersions = oldVersion.split(':')
   const oldVersionNum = oldVersions[0]
@@ -18,13 +19,11 @@ export async function getBpmnRuleAndSave(oldVersion: string, newVersion: string)
   const newVersions = newVersion.split(':')
   const newVersionNum = newVersions[0]
   try {
-    const rule: any = await adminApi.api
-      .getValidationRulesVersiondraftid(oldVersion, {
-        headers: {
-          noThrowError: 'true'
-        }
-      })
-      .then((res) => res.data)
+    const rule: any = await newAdminApi.getDocpalValidationRulesVersiondraftid(oldVersion, {
+      headers: {
+        noThrowError: 'true'
+      }
+    }).then((res) => res.data)
     const params: any = {
       versionDraftId: newVersionNum + draftId,
       version: newVersionNum,
@@ -32,12 +31,14 @@ export async function getBpmnRuleAndSave(oldVersion: string, newVersion: string)
       draftId,
       validationRules: rule?.validationRules || []
     }
-    await adminApi.api.postValidationRules(params)
+    await newAdminApi.postDocpalValidationRules(params).then(r => r.data)
   } catch (error) {
     console.log('error', error)
   }
 }
+
 type BatchForms = { formId: string; json: string }[]
+
 export async function getAllFormFromXML(xml: string, processKey: string, version: string): Promise<BatchForms> {
   const allFormsID: string[] = []
   // convert xml to json
@@ -54,7 +55,7 @@ export async function getAllFormFromXML(xml: string, processKey: string, version
     allFormsID.push(endEvent.attr_id)
   })
   for await (const formId of allFormsID) {
-    const response = await adminApi.api.getRelationQuery({
+    const response = await newAdminApi.getDmsFormPropertiesQuery({
       processKey: processKey,
       userTaskId: formId,
       versionId: version
@@ -71,7 +72,7 @@ export async function getAllFormFromXML(xml: string, processKey: string, version
     })
   }
   // allFormsID.forEach(async(formId) => {
-  //     const response = await adminApi.api.getRelationQuery({
+  //     const response = await newAdminApi.getRelationQuery({
   //         processKey: processKey,
   //         userTaskId: formId,
   //         versionId: version
@@ -93,8 +94,8 @@ export async function getAllFormFromXML(xml: string, processKey: string, version
 
 export async function batchSaveForm(forms: BatchForms, processKey: string, version: string, oldVersion: string) {
   console.log('batchSaveForm', forms, processKey, version)
-  forms.forEach(async (form) => {
-    const res = await adminApi.api.postRelationSave({
+  for (const form of forms) {
+    const res = await newAdminApi.postDmsFormPropertiesSave({
       processKey: processKey,
       userTaskId: form.formId,
       jsonValue: form.json,
@@ -103,5 +104,5 @@ export async function batchSaveForm(forms: BatchForms, processKey: string, versi
       oldVersion: oldVersion
     })
     console.log('forms', form.formId, processKey, version, res)
-  })
+  }
 }

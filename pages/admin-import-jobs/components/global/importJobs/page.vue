@@ -14,8 +14,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
-import { ElMessageBox } from 'element-plus'
+import { newAdminApi } from 'api'
 import { routeImportJobsDetailPage } from '../../../util/routerHelper'
 const ResponsiveFilterRef = ref()
 const routerProvider = inject(MenuRouterKey)
@@ -26,8 +25,9 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-company-profile',
-  api: (pageParams: any) => adminApi.api.postImportjobsPage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newAdminApi.postExt3rdstorageImportjobsPage({ ...pageParams, ...extraParams }),
   columns: [
+    { field: 'batchId', title: 'Batch Id', fixed: 'left' },
     { field: 'profileName', title: 'importJobs.profileName', fixed: 'left' },
     { field: 'fileName', title: 'externalStorage.fileName' },
     { field: 'status', title: 'common_status' },
@@ -89,7 +89,7 @@ function handleDblclick(row: any) {
 }
 
 async function handlePlaceFirst(row: any) {
-  await adminApi.api.postImportjobsJobqueueFirst({ id: row.id })
+  await newAdminApi.postExt3rdstorageImportjobsJobqueueFirst({ id: row.id })
   reload()
 }
 function handleFilterFormChange(formModel: any) {

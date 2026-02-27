@@ -4,7 +4,7 @@
       <template #toolbar_buttons>
         <div class="actions">
           <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="name" @form-change="handleFilterFormChange" />
-          <el-button id="ExternalStorage__Add" type="primary" @click="handleAdd()">
+          <el-button id="ExternalStorage__Add" type="primary" @click="handleAdd">
             {{ $t('externalStorage.create') }}
           </el-button>
         </div>
@@ -18,8 +18,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
-import { ElMessageBox } from 'element-plus'
+import { newAdminApi } from 'api'
 import { routeExternalStorageDetailPage } from '../../../util/routerHelper'
 
 const ResponsiveFilterRef = ref()
@@ -31,11 +30,12 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-external-storage',
-  api: (pageParams: any) => adminApi.api.postExternalstoragePage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newAdminApi.postExt3rdstoragePage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'name', title: 'dpTable.name', fixed: 'left' },
     { field: 'connection_type', title: 'externalStorage.connection' },
     { field: 'path', title: 'table_path' },
+    { field: 'credentials.host', title: 'Host' },
     {
       field: 'status',
       title: 'common_status',
@@ -133,7 +133,7 @@ function handleDblclick(row: any) {
 
 async function handleActive(row: any, status: string) {
   try {
-    const result = await adminApi.api.patchExternalstorageIdStatus(row.id, { status: status }).then((res) => res.data)
+    const result = await newAdminApi.patchExt3rdstorageIdUpdateStatus(row.id, { status: status }).then((res) => res.data)
     if (!!result) {
       row.status = status
     }

@@ -1,22 +1,18 @@
 <script setup lang="ts">
-import formJson from './duplicateDialog.vform.json'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
-const FormRendererRef = ref()
 const props = defineProps<{
   row: any
 }>()
 
-const emits = defineEmits([
-  'refresh'
-])
+const emits = defineEmits(['refresh'])
 
 const state = reactive<{
-  loading: boolean,
-  visible: boolean,
-  row: any,
+  loading: boolean
+  visible: boolean
+  row: any
 }>({
   loading: false,
   visible: false,
@@ -26,25 +22,35 @@ const state = reactive<{
 })
 
 function handleOpen(row: any) {
-  setTimeout(() => {
-    FormRendererRef.value.vFormRenderRef.resetForm()
-    state.row = deepCopy(row)
-    state.row.name = ''
-    FormRendererRef.value.vFormRenderRef.setFormData(state.row)
-  }, 100)
+  state.row = deepCopy(row)
+  state.row.name = ''
   state.visible = true
 }
 
+const rules = reactive([
+  { required: true, message: t('render.hint.fieldRequired', { name: t('dpTable_name') }), trigger: 'blur' }
+])
+
+const formRef = ref()
+
 async function handleSubmit() {
   try {
-    let { name } = await FormRendererRef.value.getFormData()
-    const data = await adminApi.api.postIdTemplates({ name: name }).then(res => res.data)
+    await formRef.value.validate()
+  } catch (e) {
+    return
+  }
+
+  try {
+    const data: any = await newAdminApi.postDocpalIdTemplates({ name: state.row.name }).then((res) => res.data)
+    if (!data) return
     state.row.id = data.id
-    await adminApi.api.putIdTemplatesId(data.id, { ...data, ...state.row })
-    routerProvider?.message.success(t('tip_createdSuccessMsg', {
-      modelName: t('adminMenu.uniqueIdGenerator'),
-      name: name
-    }))
+    await newAdminApi.putDocpalIdTemplatesId(data.id, { ...data, ...state.row })
+    routerProvider?.message.success(
+      t('tip_createdSuccessMsg', {
+        modelName: t('adminMenu.uniqueIdGenerator'),
+        name: name
+      })
+    )
     state.visible = false
     emits('refresh')
   } catch (e) {
@@ -57,7 +63,11 @@ defineExpose({ handleOpen })
 
 <template>
   <el-dialog v-model="state.visible" :title="t('uniQueIdGenerator_duplicate')" width="500">
-    <FormRenderer ref="FormRendererRef" :form-json="formJson" />
+    <el-form ref="formRef" label-position="top">
+      <el-form-item prop="name" :label="t('dpTable_name')" :rules="rules">
+        <el-input v-model="state.row.name " />
+      </el-form-item>
+    </el-form>
     <template #footer>
       <el-button id="UniqueId__Duplicate__Submit" type="primary" @click="handleSubmit">
         {{ t('common_submit') }}
@@ -66,6 +76,4 @@ defineExpose({ handleOpen })
   </el-dialog>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

@@ -15,7 +15,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useEventListener } from '@vueuse/core'
 import formJson from './addDialog.vform.json'
 
 const emits = defineEmits(['save'])

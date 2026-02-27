@@ -46,7 +46,7 @@
                 "labelIconPosition": "rear",
                 "labelTooltip": null,
                 "onCreated": "",
-                "onMounted": "// /docpal/contactGroup/list\nconst _this = this\ngetOptions()\nasync function getOptions () {\n  const data = await $api.get('/docpal/contactGroup/list').then(res => res.data.data)\n  const list = data.reduce((prev,item) => {\n    if (item.id) prev.push({\n      label: item.name,\n      value: item.id\n    })\n    return prev\n  }, [])\n  _this.loadOptions(list)\n}",
+                "onMounted": "// /docpal/contactGroup/list\nconst _this = this\ngetOptions()\nasync function getOptions () {\n  const data = await $api.get('api/dms/contact-group/list').then(res => res.data.data)\n  const list = data.reduce((prev,item) => {\n    if (item.id) prev.push({\n      label: item.name,\n      value: item.id\n    })\n    return prev\n  }, [])\n  _this.loadOptions(list)\n}",
                 "onRemoteQuery": "",
                 "onChange": "",
                 "onFocus": "",

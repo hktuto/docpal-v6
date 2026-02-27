@@ -48,7 +48,7 @@ watch([selectedMenuItem, menu], ([newSelectedMenuItem, newMenu]) => {
     <template v-if="menu && menu.children && menu.children.length > 0" v-for="(item,index) in menu.children" :key="item.component">
 
       <template v-if="item.inlineComponent">
-        <component :is="item.inlineComponent" :menuItem="item" :selected="index === selectedIndex"/>
+        <component :is="item.inlineComponent" :menuItem="item" :selected="index === selectedIndex" @selected="$emit('select', item)"/>
       </template>
       <template v-else>
         <AppMenuExpandItem :item="item" @click="$emit('select', item)" :selected="selectedIndex === index" />

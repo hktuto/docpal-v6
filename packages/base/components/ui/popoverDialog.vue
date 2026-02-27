@@ -7,11 +7,8 @@
  * - Mobile OR no target: Shows dialog
  * - highlightElement (optional): Element to highlight with focus-outline class.
  *   If not provided, uses targetElement for highlighting.
- * - Automatically tracks target position with smooth fade effect when target goes off-screen
- * - Fades to 50% opacity when target moves off-screen (within threshold)
- * - Auto-closes when target exceeds offScreenThreshold distance (default 100px)
  */
-import { onClickOutside, useEventListener, useElementBounding } from '@vueuse/core'
+import { onClickOutside, useEventListener } from '@vueuse/core'
 
 interface Props {
   title?: string
@@ -20,11 +17,8 @@ interface Props {
   offset?: number
   closeOnClickModal?: boolean
   closeOnClickOutside?: boolean // If false, clicking outside won't close popover
-  closeOnOffScreen?: boolean // If true, auto close when target goes off-screen
-  offScreenThreshold?: number // Distance in px before auto-close (default 100px). Opacity fades gradually within this threshold
   showClose?: boolean
   persistId?: string // If provided, save/restore size to localStorage
-  teleportTo?: string // Teleport to body by default
 }
 
 interface Emits {
@@ -34,17 +28,13 @@ interface Emits {
   (e: 'closed'): void
 }
 
-const contentId = ref('content-id-' + Date.now())
 const props = withDefaults(defineProps<Props>(), {
   placement: 'bottom-start',
   offset: 12,
   width: '400px',
   closeOnClickModal: true,
   closeOnClickOutside: true,
-  closeOnOffScreen: true,
-  offScreenThreshold: 100,
   showClose: true,
-  teleportTo: 'body',
 })
 
 const emit = defineEmits<Emits>()
@@ -64,9 +54,6 @@ const popoverStyle = ref({
   transformOrigin: 'top left',
 })
 
-// Opacity state (for off-screen fade effect)
-const popoverOpacity = ref(1)
-
 // Arrow position state
 const arrowStyle = ref({
   top: '0px',
@@ -82,81 +69,6 @@ const popoverSize = ref<{ width: number | null; height: number | null }>({
 const isResizing = ref(false)
 const resizeDirection = ref<'top' | 'bottom' | 'left' | 'right' | null>(null)
 const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0, top: 0, left: 0 })
-
-// Track target element position changes
-const targetBounding = useElementBounding(targetElement)
-
-/**
- * Calculate how far the target element is off-screen
- * @returns Distance in pixels (0 if on-screen, positive if off-screen)
- */
-function getOffScreenDistance() {
-  const { left, top, width, height } = targetBounding
-  const viewport = {
-    width: window.innerWidth,
-    height: window.innerHeight,
-  }
-  
-  let distance = 0
-  
-  // Check each edge and calculate maximum off-screen distance
-  if (left.value + width.value < 0) {
-    // Off left edge
-    distance = Math.max(distance, Math.abs(left.value + width.value))
-  }
-  if (left.value > viewport.width) {
-    // Off right edge
-    distance = Math.max(distance, left.value - viewport.width)
-  }
-  if (top.value + height.value < 0) {
-    // Off top edge
-    distance = Math.max(distance, Math.abs(top.value + height.value))
-  }
-  if (top.value > viewport.height) {
-    // Off bottom edge
-    distance = Math.max(distance, top.value - viewport.height)
-  }
-  
-  return distance
-}
-
-// Watch for position/size changes and recalculate popover position
-watch(
-  [
-    () => targetBounding.left.value,
-    () => targetBounding.top.value,
-    () => targetBounding.width.value,
-    () => targetBounding.height.value,
-  ],
-  () => {
-    if (visible.value && !isMobile.value && targetElement.value && contentRef.value) {
-      // Check if target is off-screen
-      if (props.closeOnOffScreen) {
-        const offScreenDistance = getOffScreenDistance()
-        
-        if (offScreenDistance > 0) {
-          // Target is off-screen
-          if (offScreenDistance >= props.offScreenThreshold) {
-            // Beyond threshold - close popover
-            close()
-            return
-          } else {
-            // Within threshold - fade opacity gradually
-            // Opacity ranges from 1.0 (on-screen) to 0.5 (at threshold)
-            const fadeRatio = offScreenDistance / props.offScreenThreshold
-            popoverOpacity.value = 1 - (fadeRatio * 0.2) // Fades from 1.0 to 0.5
-          }
-        } else {
-          // Target is on-screen - full opacity
-          popoverOpacity.value = 1
-        }
-      }
-      
-      // Recalculate position
-      recalculate()
-    }
-  }
-)
 
 // localStorage key for size persistence
 const sizeStorageKey = computed(() => 
@@ -218,7 +130,7 @@ function handleResize(e: MouseEvent) {
   const deltaY = e.clientY - resizeStart.value.y
   const arrowSize = 8
   const baseMinWidth = 200
-  const baseMinHeight = 50
+  const baseMinHeight = 100
   
   const targetRect = targetElement.value.getBoundingClientRect()
   const side = arrowStyle.value.side
@@ -402,6 +314,7 @@ function findBestPlacement(
 function calculatePosition(target: HTMLElement, content: HTMLElement) {
   const targetRect = target.getBoundingClientRect()
   const contentRect = content.getBoundingClientRect()
+  console.log('calculatePosition', contentRect)
   const viewport = {
     width: window.innerWidth,
     height: window.innerHeight,
@@ -520,52 +433,10 @@ function calculatePosition(target: HTMLElement, content: HTMLElement) {
 }
 
 /**
- * Find and focus the first focusable form element in the content
- */
-function focusFirstFormElement(container: HTMLElement) {
-  // List of focusable form elements
-  const focusableSelectors = [
-    'input:not([type="hidden"]):not([disabled]):not([readonly])',
-    'textarea:not([disabled]):not([readonly])',
-    'select:not([disabled])',
-    'button:not([disabled])',
-    '[contenteditable="true"]',
-    '[tabindex]:not([tabindex="-1"])',
-  ].join(', ')
-  
-  // Find first focusable element
-  const firstFocusable = container.querySelector(focusableSelectors) as HTMLElement | null
-  
-  if (firstFocusable) {
-    // Use setTimeout to ensure the element is fully rendered and focusable
-    setTimeout(() => {
-      try {
-        firstFocusable.focus()
-        // If it's an input/textarea, select the text if it has a value
-        if (firstFocusable instanceof HTMLInputElement || firstFocusable instanceof HTMLTextAreaElement) {
-          if (firstFocusable.value) {
-            firstFocusable.select()
-          }
-        }
-      } catch (e) {
-        // Silently fail if focus is not possible (e.g., element not visible)
-        console.debug('Could not focus element:', e)
-      }
-    }, 0)
-  }
-}
-
-/**
  * Open popover
  */
-async function open(target?: any, highlight?: any) {
+async function open(target?: HTMLElement, highlight?: HTMLElement) {
   // check if target is a Vue component or a DOM element
-  if(target && !(target instanceof HTMLElement)) {
-    target = target.$el as HTMLElement || null
-  }
-  if(highlight && !(highlight instanceof HTMLElement)) {
-    highlight = highlight.$el as HTMLElement || null
-  }
   targetElement.value = target || null
   highlightElement.value = highlight || null
   
@@ -574,13 +445,6 @@ async function open(target?: any, highlight?: any) {
     visible.value = true
     emit('open')
     await nextTick()
-    // Focus first form element in dialog after it's fully rendered
-    setTimeout(() => {
-      const dialogElement = document.querySelector('.el-dialog__body') as HTMLElement
-      if (dialogElement) {
-        focusFirstFormElement(dialogElement)
-      }
-    }, 100)
     emit('opened')
     return
   }
@@ -590,7 +454,6 @@ async function open(target?: any, highlight?: any) {
   // Desktop with target → use positioned popover
   emit('open')
   visible.value = true
-  popoverOpacity.value = 1 // Reset opacity when opening
   if(highlightElement.value){
     highlightElement.value.classList.add('highlight-element')
   }else if(targetElement.value){
@@ -612,15 +475,9 @@ async function open(target?: any, highlight?: any) {
     left: position.arrowLeft,
     side: position.arrowSide,
   }
-  
-  // Focus first form element in content after it's fully rendered
-  
   // the contentRef just render, so we need to recalculate the position after the content is rendered
   setTimeout(() => {
     recalculate()
-    if (contentRef.value) {
-      focusFirstFormElement(contentRef.value)
-    }
   }, 100)
   emit('opened')
 }
@@ -630,6 +487,7 @@ async function open(target?: any, highlight?: any) {
  */
 async function close() {
   if (!visible.value) return
+  
   emit('close')
   visible.value = false
   // Remove outline from highlight element (or target if no highlight was set)
@@ -641,7 +499,7 @@ async function close() {
   await nextTick()
   emit('closed')
 }
-const slots = useSlots()
+
 // Click outside to close (but not if clicking inside a nested popover or target element)
 onClickOutside(popoverRef, (event) => {
   // Skip if closeOnClickOutside is disabled
@@ -657,10 +515,16 @@ onClickOutside(popoverRef, (event) => {
     // Check if click is on or inside the highlight element
     if (highlightElement.value?.contains(clickedElement)) return
     
-    close()
+    // Check if click is inside another popover (nested popover case)
+    // All popovers are teleported to body, so nested ones are siblings in the DOM
+    const isInsideAnyPopover = clickedElement.closest('.custom-popover')
+    
+    // Only close if NOT clicking inside any popover
+    // (if clicking in nested popover, don't close parent)
+    if (!isInsideAnyPopover) {
+      close()
+    }
   }
-},{
-  ignore: [contentRef.value, '.el-popper'],
 })
 
 // Close on escape (but not if user is typing in an input)
@@ -750,7 +614,7 @@ defineExpose({
 
 <template>
       
-    <Teleport :to="teleportTo">
+  <Teleport to="body">
     <!-- Desktop Popover -->
     <div
       v-if="visible && !isMobile && targetElement"
@@ -761,7 +625,6 @@ defineExpose({
         ...popoverStyle,
         width: popoverSize.width ? `${popoverSize.width}px` : (typeof width === 'number' ? `${width}px` : width),
         height: popoverSize.height ? `${popoverSize.height}px` : undefined,
-        opacity: popoverOpacity,
       }"
     >
       <!-- Arrow pointing to target -->
@@ -796,13 +659,13 @@ defineExpose({
         @mousedown="startResize('right', $event)"
       />
       
-      <div ref="contentRef" class="popover-content" :id="contentId" >
+      <div ref="contentRef" class="popover-content">
         <slot />
       </div>
     </div>
-    </Teleport>
-    <!-- Mobile Dialog -->
 
+    <!-- Mobile Dialog -->
+  </Teleport>
     <el-dialog
       v-model="visible"
       v-if="isMobile || !targetElement"
@@ -811,7 +674,6 @@ defineExpose({
       :close-on-click-modal="closeOnClickModal"
       :show-close="showClose"
       append-to-body
-      class="scroll-dialog"
       @open="emit('open')"
       @close="emit('close')"
       @opened="emit('opened')"
@@ -840,8 +702,7 @@ defineExpose({
   border-radius: var(--app-border-radius-m);
   box-shadow: var(--app-shadow-l);
   min-width: 200px;
-  transition: opacity 0.2s ease;
-  // min-height: 100px;
+  min-height: 100px;
   
   &.is-resizing {
     user-select: none;
@@ -849,7 +710,7 @@ defineExpose({
 }
 
 .popover-content {
-  padding: var(--app-space-s);
+  padding: var(--app-space-xs);
   max-height: calc(100vh - 40px);
   height: 100%;
   overflow-y: auto;

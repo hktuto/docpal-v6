@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { updateExtentionProperties, getExtentionProperties } from '../../../utils/cmmnConfig'
-import {adminApi} from 'api'
+import { newAdminApi } from 'api'
 const props = defineProps(['graph', 'node'])
 const {node} = toRefs(props)
 const state = reactive<any>({
@@ -31,12 +31,11 @@ async function init() {
         outForm.value = nodeData.data.extensionElements['flowable:out'] || []
         console.log("init", inForm.value, outForm.value)
         if(nodeData.data.processRefExpression.__cdata) {
-            const {data} = await adminApi.api.postWorkflowProperties({processKey:nodeData.data.processRefExpression.__cdata})
-            workflowVariable.value = data
+          workflowVariable.value = await newAdminApi.postDocpalWorkflowProperties({processKey:nodeData.data.processRefExpression.__cdata}).then(r => r.data)
         }else{
             workflowVariable.value = null
         }
-        // nomalize processTask 
+        // nomalize processTask
         if(!nodeData.data.extensionElements['flowable:planItemLifecycleListener']) {
             node.value.setData({
                 ...nodeData,
@@ -55,7 +54,7 @@ async function init() {
                 overwrite:true, deep:true
             })
         }
-       
+
         // state.outData = getExtentionProperties(nodeData.data, 'flowable:out')
     } catch (error) {
         workflowVariable.value = null
@@ -104,20 +103,20 @@ watch(node, async()=> {
             </el-tab-pane>
             <el-tab-pane v-if="workflowVariable" :label="$t('cmmn.input')" name="input">
                 <CmmnSidePanelUiWorkflowInOut type="in" :workflowInfos="workflowVariable" :form="inForm" @change="(newForm) => inOutFormChange(newForm, 'in')" />
-                <!-- <CmmnSidePanelDraggable :list="state.inData" 
+                <!-- <CmmnSidePanelDraggable :list="state.inData"
                     :node="node" :graph="graph"
-                    :dragHeader="inputHeader" 
+                    :dragHeader="inputHeader"
                     formJsonUrl="flowableIn"
                     @change="handleSave('flowable:in', state.inData)">
                 </CmmnSidePanelDraggable> -->
             </el-tab-pane>
             <el-tab-pane v-if="workflowVariable" :label="$t('cmmn.output')" name="output">
                 <CmmnSidePanelUiWorkflowInOut type="out" :workflowInfos="workflowVariable" :form="outForm" @change="(newForm) => inOutFormChange(newForm, 'out')"  />
-                
-                <!-- <CmmnSidePanelDraggable 
+
+                <!-- <CmmnSidePanelDraggable
                     :node="node" :graph="graph"
-                    :list="state.outData" 
-                    :dragHeader="outputHeader" 
+                    :list="state.outData"
+                    :dragHeader="outputHeader"
                     formJsonUrl="flowableOut"
                     @change="handleSave('flowable:out', state.outData)">
                 </CmmnSidePanelDraggable> -->

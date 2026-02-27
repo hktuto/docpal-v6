@@ -1,4 +1,4 @@
-import { clientApi } from "api"
+import { newClientApi } from "api"
 import zhCN from 'vxe-table/lib/locale/lang/zh-CN'
 import enUS from 'vxe-table/lib/locale/lang/en-US'
 import zhHK from 'vxe-table/lib/locale/lang/zh-HK'
@@ -11,7 +11,11 @@ export const initPublicLayout = async () => {
   let resultLanguage = 'en-US'
   if (navigatorLanguage === 'zh-HK') resultLanguage = 'zh-HK'
   else if (navigatorLanguage.includes('zh')) resultLanguage = 'zh-CN'
-  loadState.value = await getLocale(resultLanguage)
+  try {
+    loadState.value = await getLocale(resultLanguage)
+  } catch (e) {
+    console.error(e)
+  }
 
   setTimeout(() => {
     loadState.value = 'Ready'
@@ -22,19 +26,17 @@ export async function getLocale(curLocale: string = 'en-US') {
   const { locale, availableLocales, setLocaleMessage, setLocale } = useI18n()
   await Promise.all(availableLocales.map(async (code) => {
     const vxeLang = code === 'zh-CN' ? zhCN : code === 'en-US' ? enUS : zhHK
-    const { data: clientData } = await clientApi.api.getRelationQuerylanguage({
+    const { data: clientData } = await newClientApi.getDmsFormPropertiesLanguageList({
       locale: code,
       languageKey: 'client'
     }) as any
     const clientJson = JSON.parse(clientData[0].languageContent)
-
-    const { data: adminData } = await clientApi.api.getRelationQuerylanguage({
+    const { data: adminData } = await newClientApi.getDmsFormPropertiesLanguageList({
       locale: code,
       languageKey: 'admin'
     }) as any
     const adminJson = JSON.parse(adminData[0].languageContent)
-
-    const { data: metaData } = await clientApi.api.getRelationQuerylanguage({
+    const { data: metaData } = await newClientApi.getDmsFormPropertiesLanguageList({
       locale: code,
       languageKey: 'meta'
     }) as any
@@ -45,7 +47,6 @@ export async function getLocale(curLocale: string = 'en-US') {
       ...metaJson,
       ...vxeLang
     })
-
   })
   )
   setLocale(curLocale)

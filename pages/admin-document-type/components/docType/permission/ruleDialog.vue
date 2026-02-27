@@ -1,11 +1,13 @@
 <template>
-  <el-dialog v-model="visible" :title="$t('docType.ruleTitle', { name: title })" width="600px" :before-close="handleClose" class="scroll-dialog">
+  <el-dialog v-model="visible" :title="$t('docType.ruleTitle', { name: title })" width="600px"
+             :before-close="handleClose" class="scroll-dialog">
     <el-form ref="ruleFormRef" :model="formData" :rules="rules" label-position="top">
       <!-- 规则名称 -->
       <el-form-item :label="$t('docType.ruleName')" prop="name">
-        <el-input v-model="formData.name" :placeholder="$t('render.hint.fieldRequired', { name: $t('docType.ruleName') })" clearable />
+        <el-input v-model="formData.name"
+                  :placeholder="$t('render.hint.fieldRequired', { name: $t('docType.ruleName') })" clearable />
       </el-form-item>
-      <DocTypePermissionUserRules ref="UserRulesRef" :targetOptions="userRulesOpts" />
+      <DocTypePermissionUserRules ref="UserRulesRef" :targetOptions="permission" />
     </el-form>
 
     <template #footer>
@@ -19,10 +21,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
-import { User, Delete, Plus } from '@element-plus/icons-vue'
-import { userRulesOpts, initUserRulesOpts } from '@/composables/useDocumentTypeOptioins'
+import { getPermissionSelectOption } from '#imports'
+
 const props = defineProps<{
   title: string
 }>()
@@ -46,6 +47,7 @@ const formData = reactive<RuleForm>({
     }
   ]
 })
+const permission = ref([])
 
 // 表单验证规则
 const rules: FormRules = {
@@ -65,7 +67,7 @@ const handleOpen = async (data: any, index: number = -1) => {
   }, 100)
   try {
     loading.value = true
-    await initUserRulesOpts()
+    permission.value = await getPermissionSelectOption()
   } catch (error) {
     console.error(error)
   } finally {

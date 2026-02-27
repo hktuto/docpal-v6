@@ -113,7 +113,7 @@
         "labelIconPosition": "rear",
         "labelTooltip": null,
         "onCreated": "",
-        "onMounted": "this.globalOptionData.fileList = []\nthis.globalOptionData.folderList = []\n$api.get('/docpal/types/active', {}).then(res => {\n  res = res.data.data\n  res.forEach((item) => {\n    const _item = {\n       value: item.name,\n      label: $t(item.name)\n    }\n    if(item.isFolder) {\n      this.globalOptionData.folderList.push(_item)\n    } else {\n      this.globalOptionData.fileList.push(_item)\n    }\n  })\n  this.loadOptions(this.globalOptionData.folderList)\n}).catch(err => {\n  console.log(\"error\", err)\n})",
+        "onMounted": "this.globalOptionData.fileList = []\nthis.globalOptionData.folderList = []\n$api.get('/api/dms/docpal-type/active', {}).then(res => {\n  res = res.data.data\n  res.forEach((item) => {\n    const _item = {\n       value: item.name,\n      label: $t(item.name)\n    }\n    if(item.isFolder) {\n      this.globalOptionData.folderList.push(_item)\n    } else {\n      this.globalOptionData.fileList.push(_item)\n    }\n  })\n  this.loadOptions(this.globalOptionData.folderList)\n}).catch(err => {\n  console.log(\"error\", err)\n})",
         "onRemoteQuery": "",
         "onChange": "",
         "onFocus": "",

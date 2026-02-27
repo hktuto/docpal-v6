@@ -2,8 +2,7 @@
   <el-dialog v-model="state.visible" :title="$t('user_editGroup')" :close-on-click-modal="false">
     <FormRenderer ref="FormRendererRef" :form-json="formJson" />
     <template #footer>
-      <el-button id="UserGroupList__Info__EditUserGroup__Submit" type="primary" :loading="state.loading"
-                 @click="handleSubmit">
+      <el-button id="UserGroupList__Info__EditUserGroup__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
         {{ $t('common_submit') }}
       </el-button>
     </template>
@@ -12,17 +11,15 @@
 <script lang="ts" setup>
 import { groupProviderDetailKey } from '~/util/userProvider'
 import formJson from './editDialog.vform.json'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 const groupProviderDetail = inject(groupProviderDetailKey)
 const props = defineProps<{
-  group: any,
+  group: any
 }>()
-const emits = defineEmits([
-  'refresh'
-])
+const emits = defineEmits(['refresh'])
 const state = reactive({
   loading: false,
   visible: false
@@ -30,7 +27,6 @@ const state = reactive({
 const FormRendererRef = ref()
 
 async function handleSubmit() {
-  
   try {
     const data = await FormRendererRef.value.getFormData()
     if (!data.groupName) {
@@ -41,7 +37,7 @@ async function handleSubmit() {
       state.visible = false
       return
     }
-    const groupList: any = await adminApi.api.postNuxeoIdentityGroups().then((res) => res.data)
+    const groupList: any = await newAdminApi.postUcenterGroups().then((r) => r.data)
     // check group name exist
     if (groupList.some((g: any) => g.name === data.groupName)) {
       ElMessage.error(t('user_userGroupsIsExistsMsg'))
@@ -66,10 +62,7 @@ function handleOpen() {
   })
 }
 
-onMounted(async () => {
-})
+onMounted(async () => {})
 defineExpose({ handleOpen })
 </script>
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

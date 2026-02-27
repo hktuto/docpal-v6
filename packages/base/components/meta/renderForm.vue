@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { Check, Close } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 
@@ -254,7 +254,7 @@ async function init(documentType: any, initOptions: initMetaFormOptions = {}) {
     state.data = []
     state.variables = []
 
-    state.data = await clientApi.api.postTypesMetadatas({ name: documentType }).then((res) => res.data)
+    state.data = await newClientApi.postTypesMetadatas({ name: documentType }).then((res) => res.data)
 
     await getVariables(initOptions?.isFolder)
     if (props.mode === 'ai' || props.mode === 'ai-edit') {
@@ -345,7 +345,7 @@ async function deleteAiSuggestion(deleteName: string) {
     aiId: state.aiDocId
   }
   try {
-    const res = await clientApi.api.patchNuxeoDocumentUpdateaidocument(params)
+    const res = await newClientApi.patchDmsDocumentUpdateaidocument(params).then(r => r.data)
     delete state.aiAnalysis[deleteName]
   } catch (error) {}
 }
@@ -357,7 +357,7 @@ function handleApply(formModel: any) {
 // #region module: Validate
 async function getValidateMsg(documentType: string, properties?: any) {
   let msg = ''
-  const metaList = await clientApi.api.postTypesMetadatas({ name: documentType }).then((res) => res.data)
+  const metaList = await newClientApi.postTypesMetadatas({ name: documentType }).then((res) => res.data)
   if (!metaList) return msg
   metaList.forEach((metaItem: any) => {
     if (!metaItem.display || ignoreList.includes(metaItem.metaData)) return
@@ -399,7 +399,7 @@ async function checkMetaValidate(docList: any[], docKey: string = 'name') {
 // #endregion
 function GetActiveDocpalTypeWithIsFolderApi(isFolder: boolean) {
   try {
-    const docList: any = clientApi.api.getTypesActive().then((res) => res.data)
+    const docList: any = newClientApi.getDmsDocpalTypeActive().then((res: any) => res.data)
     return docList
       ?.filter((item) => item.isFolder === isFolder)
       .map((item) => ({

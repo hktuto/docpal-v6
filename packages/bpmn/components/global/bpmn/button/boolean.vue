@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ElButton } from 'element-plus';
-import { clientApi } from 'api';
 
 const { 
     attr_buttonStyle = "primary",

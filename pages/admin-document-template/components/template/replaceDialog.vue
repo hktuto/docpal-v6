@@ -14,7 +14,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import {adminApi} from 'api'
+import { newAdminApi } from 'api'
 
 const emits = defineEmits([
   'refresh'
@@ -23,7 +23,7 @@ const state = reactive({
   loading: false,
   visible: false,
   accept: '',
-  setting: {},
+  setting: {}
 })
 const router = useRouter()
 const form = reactive({
@@ -36,14 +36,14 @@ async function handleSubmit() {
     return
   }
   const file = form.fileList[0]
-  Object.defineProperty(file, 'name', {writable: true})
+  Object.defineProperty(file, 'name', { writable: true })
   file.name = getName()
   try {
     state.loading = true
     const formData = new FormData()
     formData.append('file', file)
     formData.append('id', state.setting.id)
-    await adminApi.api.putTemplateDocumentUpload({requestDTO: {}}, formData as any)
+    await newAdminApi.putDmsTemplateDocumentUpload({ requestDTO: {} }, formData as any).then(r => r.data)
     state.visible = false
     emits('refresh')
   } catch (error) {
@@ -65,7 +65,7 @@ async function handleOpen(setting) {
   form.fileList = []
 }
 
-defineExpose({handleOpen})
+defineExpose({ handleOpen })
 </script>
 <style lang="scss" scoped>
 

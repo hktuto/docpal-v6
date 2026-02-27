@@ -26,7 +26,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 import { groupProviderDetailKey } from '~/util/userProvider'
 
@@ -48,7 +48,7 @@ async function handleDelete() {
   try {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
-    const res = await adminApi.api.deleteNuxeoIdentityGroup({ groupId: id })
+    const res = await newAdminApi.deleteUcenterGroup({ groupId: id })
     if (!!res) openGroupList()
   } catch (error) {
     console.log(error)
@@ -81,23 +81,22 @@ function handleEditRefresh(group: any) {
 
 provide(groupProviderDetailKey, {
   DeleteGroupApi: (params: any) => {
-    return adminApi.api.deleteNuxeoIdentityGroup(params)
+    return newAdminApi.deleteUcenterGroup(params)
   },
   GetMemberListApi: (params: any) => {
-    return adminApi.api.postNuxeoIdentityMember(params)
+    return newAdminApi.postUcenterMember(params)
   },
   BatchGroupRemoveUsersApi: (params: any) => {
-    return adminApi.api.postNuxeoIdentityGroupBatchRemoveUsers(params)
+    return newAdminApi.postUcenterGroupBatchRemoveUsers(params)
   },
   BatchGroupAddUsersApi: (params: any) => {
-    return adminApi.api.postNuxeoIdentityGroupBatchAddUsers(params)
+    return newAdminApi.postUcenterGroupBatchAddUsers(params)
   },
   PatchGroupApi: (params: any) => {
-    return adminApi.api.patchNuxeoIdentityGroup(params)
+    return newAdminApi.patchUcenterGroup(params)
   },
   getUserListApi: async () => {
-    const res = await adminApi.api.postNuxeoIdentityUsers({})
-    return res.data
+    return await newAdminApi.postUcenterUsers({}).then((res) => res.data)
   }
 })
 watch(

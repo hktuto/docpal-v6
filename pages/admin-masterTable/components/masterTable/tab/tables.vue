@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import { onMounted } from 'vue'
 import { MasterTableProviderKey } from '~/utils/masterTableProvider'
 
@@ -85,7 +85,7 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
         disabled: false
       }
     }
-    if (args.code === 'actions.inactive') {
+    if (args.code === 'inactive') {
       return {
         visible: args.row.status === 'A',
         disabled: false
@@ -103,14 +103,11 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
 
 async function handleDelete(row: any) {
   try {
-    const action = await ElMessageBox.confirm(
-      t('masterTable_deleteMsg', { name: row.name }),
-      {
-        confirmButtonClass: 'el-button el-button--warning',
-        dangerouslyUseHTMLString: true,
-        confirmButtonText: t('common_confirmDelete')
-      }
-    )
+    const action = await ElMessageBox.confirm(t('masterTable_deleteMsg', { name: row.name }), {
+      confirmButtonClass: 'el-button el-button--warning',
+      dangerouslyUseHTMLString: true,
+      confirmButtonText: t('common_confirmDelete')
+    })
     if (action !== 'confirm') return
     const result = await masterTableProvider?.DeleteMasterTablesApi(row.id)
     if (!result) {

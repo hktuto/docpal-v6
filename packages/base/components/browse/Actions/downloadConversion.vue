@@ -8,7 +8,8 @@
         :rules="[{ required: true, message: $t('convert_documentFormat') + $t('render.hint.fieldRequired') }]"
       >
         <ElSelect v-model="form.targetFile" value-key="targetFileType">
-          <ElOption v-for="item in supportedFormatList" :key="item.targetFileType" :label="item.targetFileType" :value="item"></ElOption>
+          <ElOption v-for="item in supportedFormatList" :key="item.targetFileType" :label="item.targetFileType"
+                    :value="item"></ElOption>
         </ElSelect>
       </ElFormItem>
     </ElForm>
@@ -18,7 +19,7 @@
 
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import * as mime from 'mime-types'
 
 const props = defineProps<{
@@ -35,7 +36,7 @@ const supportedFormatObject = ref<any>({})
 // #region new convert
 const supportedFormatList = computed(() => {
   try {
-    const suffix = mime.extension(props.doc.properties['file:content']['mime-type'])
+    const suffix = mime.extension(props.doc.properties['file_content']['mime-type'])
     return filterArrObj(supportedFormatObject.value[suffix], 'targetFileType')
   } catch (error) {
     return []
@@ -54,7 +55,7 @@ const handleConfirm = async () => {
     fileType: form.value.targetFile.type
   }
   loading.value = true
-  const response = await clientApi.api.postNuxeoConversionSubmitexportrequest([param])
+  const response = await newClientApi.postDmsConversionFormatSubmit([param])
   if (response.result) {
     ElMessage.success(`${$i18n.t('convert_transferring')}`)
     formRef.value.resetFields()
@@ -69,12 +70,10 @@ const handleConfirm = async () => {
 }
 const handleGetSupportedFormat = async () => {
   if (supportedFormatObject.value instanceof Object && Object.keys(supportedFormatObject.value).length !== 0) return
-  const { data } = await clientApi.api.getNuxeoConversionGetsupportedformat()
-  supportedFormatObject.value = data
+  supportedFormatObject.value = await newClientApi.getDmsConversionFormatSupport().then(r => r.data)
 }
 const filterArrObj = (arr, filterField) => {
-  const newArr = arr.reduce((pre, cur) => (pre.some((item) => item[filterField] === cur[filterField]) ? pre : [...pre, cur]), [])
-  return newArr
+  return arr.reduce((pre, cur) => (pre.some((item) => item[filterField] === cur[filterField]) ? pre : [...pre, cur]), [])
 }
 // #endregion
 

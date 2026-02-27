@@ -1,9 +1,6 @@
 <template>
-  <el-dialog v-model="state.visible" :title="state.title"
-             class="scroll-dialog"
-             append-to-body
-             :close-on-click-modal="false"
-  >
+  <el-dialog v-model="state.visible" :title="state.title" class="scroll-dialog" append-to-body
+             :close-on-click-modal="false">
     <FormRenderer ref="FormRendererRef" :form-json="formJson" />
     <template #footer>
       <div class="footer-grid">
@@ -16,13 +13,12 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './infoDialog.vform.json'
 import { ElMessage } from 'element-plus'
+import { convertPermissionsByPermissionObject, getUserAndGroupPermissionSelectOption } from '#imports'
 
-const emits = defineEmits([
-  'refresh'
-])
+const emits = defineEmits(['refresh'])
 const { t } = useI18n()
 const state = reactive({
   loading: false,
@@ -32,20 +28,24 @@ const state = reactive({
   title: t('doc_typeSmartFolderCreateFolder')
 })
 const FormRendererRef = ref()
+const permissions = ref([])
 
 async function handleSubmit() {
   try {
     const data = await FormRendererRef.value.getFormData()
     state.loading = true
+
+    // TODO: 數據格式不正確,無法區分user與group
     const _data = {
       name: data.name,
-      bind: data.access.join(',')
+      bind: data.permission.join(',')
     }
     let msg
-    const res = await adminApi.api.patchNuxeoSfolder({
+    const res = await newAdminApi.patchDmsSmartFolder({
       ...state.setting,
       ..._data
-    })
+    }).then((r) => r.data)
+
     if (Object.keys(state.setting).length === 0) {
       msg = t('tip_createdMsg', { modelName: t('tip_newMsg') + t('file_smartFolder'), name: null })
     } else {
@@ -60,10 +60,16 @@ async function handleSubmit() {
   state.loading = false
 }
 
-function handleOpen(setting?) {
+function handleOpen(setting?: any) {
   state.visible = true
   state.edit = false
   state.loading = false
+
+  setTimeout(async () => {
+    const permissionsRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('permission')
+    permissionsRef.loadOptions(permissions.value)
+  })
+
   if (!setting) {
     setTimeout(async () => {
       state.setting = {}
@@ -72,21 +78,28 @@ function handleOpen(setting?) {
     })
     return
   }
+
   setTimeout(async () => {
     const _setting = deepCopy(setting)
-    // state.title = _setting.name
     state.title = t('doc_typeSmartFolderInfo')
     state.setting = _setting
     if (_setting.bind) _setting.access = _setting.bind.split(',')
     else _setting.access = []
+    // TODO: 數據格式原因導致無法分辨user與group
     await FormRendererRef.value.vFormRenderRef.setFormData({
-      ..._setting
+      name: _setting.name,
+      permission: convertPermissionsByPermissionObject({
+        user: [],
+        group: _setting.userGroups
+      })
     })
   })
 }
 
+onMounted(async () => {
+  permissions.value = await getUserAndGroupPermissionSelectOption()
+})
+
 defineExpose({ handleOpen })
 </script>
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

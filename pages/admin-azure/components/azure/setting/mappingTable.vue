@@ -23,7 +23,6 @@
 
 <script lang="ts" setup>
 const azureProvider = inject(AzureProviderKey)
-import { ElMessage } from 'element-plus'
 const routerProvider = inject(MenuRouterKey)
 const props = defineProps(['tableData'])
 const emits = defineEmits(['refresh'])

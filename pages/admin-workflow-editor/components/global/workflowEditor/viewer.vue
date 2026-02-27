@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { adminApi } from 'api';
+import { newClientApi } from 'api';
 import {BpmnViewer} from '#components'
 const { id, latestVersion, productionVersion } = defineProps<{
     id: string
@@ -13,11 +13,11 @@ const viewerRef = ref<InstanceType<typeof BpmnViewer>>();
 async function getData() {
     loading.value = true;
 
-    const xmlBlob = await adminApi.workflowVersionController.getBpmnxml({draftId:id, versionNumber:latestVersion}, {
+    const xmlBlob = await newClientApi.workflowVersionController.getBpmnxml({draftId:id, versionNumber:latestVersion}, {
         format: 'blob'
     }) as unknown as Blob
     const bpmn = await xmlBlob.text()
-    const json = await adminApi.workflowVersionController.getJson({draftId:id, versionNumber:latestVersion}, {})
+    const json = await newClientApi.workflowVersionController.getJson({draftId:id, versionNumber:latestVersion}, {})
     if(json && json.data){
         const x6Json = JSON.parse(json.data)
         viewerRef.value?.init(bpmn, x6Json)

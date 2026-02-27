@@ -110,7 +110,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 
@@ -136,11 +136,10 @@ const form = ref({
 // 加载密码策略配置
 async function init() {
   try {
-
     loading.value = true
-    const response = await adminApi.api.getPasswordConfig()
-    if (response.data) {
-      const policyData = response.data
+    const data = await newAdminApi.getUcenterPasswordConfig().then(r => r.data)
+    if (!!data) {
+      const policyData = data
       // 更新表单数据
       Object.assign(form.value, {
         minPasswordLength: policyData.minPasswordLength || 12,
@@ -185,7 +184,7 @@ async function handleSave() {
     }
 
     // 调用API保存配置
-    await adminApi.api.postPasswordSaveConfig(policyData)
+    await newAdminApi.postUcenterPasswordSaveConfig(policyData)
 
     ElMessage.success(t('passwordPolicy.saveSuccess'))
   } catch (error) {

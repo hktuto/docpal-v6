@@ -1,11 +1,6 @@
 <template>
-  <el-dialog v-model="state.visible" :title="title"
-             class="scroll-dialog"
-             append-to-body
-             :close-on-click-modal="false"
-             @close="handleClose"
-  >
-    <FormRenderer ref="FormRendererRef" :form-json="formJson"/>
+  <el-dialog v-model="state.visible" :title="title" class="scroll-dialog" append-to-body :close-on-click-modal="false">
+    <FormRenderer ref="FormRendererRef" :form-json="formJson" />
     <template #footer>
       <div class="footer-grid">
         <el-button id="Dashboard__CreateNewDashboard__Submit" type="primary" :loading="state.loading"
@@ -17,14 +12,12 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import {publicApi} from 'api'
+import { newClientApi } from 'api'
 import formJson from './dialog.vform.json'
-import {ElMessage} from "element-plus";
+import { ElMessage } from 'element-plus'
 
-const emits = defineEmits([
-  'refresh', 'add'
-])
-const {t} = useI18n()
+const emits = defineEmits(['refresh', 'add'])
+const { t } = useI18n()
 const state = reactive({
   loading: false,
   visible: false,
@@ -42,18 +35,23 @@ async function handleSubmit() {
       access: data.access.join(',')
     }
     if (state.edit) {
-      const res = await publicApi.api.putUserDashboard({
+      const res = await newClientApi.putDsbUserDashboards({
         ...state.setting,
         ..._data
       })
-      ElMessage.success(t('tip_updateMsg', {
-        modelName: null,
-        name: _data.name
-      }))
+      ElMessage.success(
+        t('tip_updateMsg', {
+          modelName: null,
+          name: _data.name
+        })
+      )
       emits('refresh')
     } else {
-      const res = await publicApi.api.postUserDashboard(_data)
-      ElMessage.success(t('tip_createdMsg', {modelName: t('tip_newMsg') + t('dashboard.PersonalDashboard'), name: _data.name}))
+      const res = await newClientApi.postDsbUserDashboards(_data)
+      ElMessage.success(t('tip_createdMsg', {
+        modelName: t('tip_newMsg') + t('dashboard.PersonalDashboard'),
+        name: _data.name
+      }))
       // router.push(`/data-dashboard/${res.id}`)
       emits('add', res.data)
     }
@@ -65,19 +63,19 @@ async function handleSubmit() {
   }
 }
 
-let title = t('dashboard_create');
+let title = t('dashboard_create')
 
 function handleOpen(setting?: any) {
   state.visible = true
   state.edit = false
   if (!setting) {
-    title = t('dashboard_create');
+    title = t('dashboard_create')
     setTimeout(async () => {
       FormRendererRef.value.vFormRenderRef.resetForm()
     })
     return
   }
-  title = t('dashboard_edit');
+  title = t('dashboard_edit')
   setTimeout(async () => {
     const _setting = deepCopy(setting)
     state.edit = _setting.edit = true
@@ -91,7 +89,7 @@ function handleOpen(setting?: any) {
   })
 }
 
-defineExpose({handleOpen})
+defineExpose({ handleOpen })
 </script>
 <style lang="scss" scoped>
 

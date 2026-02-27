@@ -11,7 +11,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 import { createBrowseListPageParams, createUploadRequestDetailParams } from '../../../utils/browseMenuHelper'
 import { MenuRouterKey } from '#imports'
@@ -29,10 +29,10 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
       pageSize: pageParams.pageSize
     }
     delete pageParams.pageNum
-    const { data } = await clientApi.api.getNuxeoFilerequest({
+    const data = await newClientApi.getDmsUploadRequest({
       ..._pageParams,
       ...extraParams
-    })
+    }).then(r => r.data)
     return {
       data: {
         entryList: data?.requests,

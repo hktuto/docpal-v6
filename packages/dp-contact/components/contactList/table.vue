@@ -2,11 +2,13 @@
   <div style="overflow: hidden; height: 100%">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
       <template #toolbar_buttons>
-        <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="q" @form-change="handleFilterFormChange" inputPlaceHolder="tableHeader_name" />
+        <ResponsiveFilter ref="ResponsiveFilterRef" inputKey="q" @form-change="handleFilterFormChange"
+                          inputPlaceHolder="tableHeader_name" />
         <div class="actions">
           <ContactListExportButton class="el-icon--left" :id="id" :name="name" />
           <ContactListImportButton v-if="isCreate" :id="id" :name="name" :detail="detail" @refresh="reload" />
-          <el-button v-if="isCreate" class="el-icon--right" id="Dashboard__CreateNewDashboard" type="primary" @click="handleCreate">
+          <el-button v-if="isCreate" class="el-icon--right" id="User__ContactBook__Add__Add" type="primary"
+                     @click="handleCreate">
             {{ $t('button.add') }}
           </el-button>
         </div>
@@ -21,8 +23,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { globalApi } from 'api'
-import { routeContactList } from '~/utils/routerHelper'
+import { newClientApi } from 'api'
 
 const props = defineProps<{
   id: string
@@ -37,7 +38,7 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: `contactBook-${props.id}`,
   api: (pageParams: any) => {
-    return globalApi.api.postContactgroupIdContactdetailPage(props.id, { ...pageParams, ...extraParams })
+    return newClientApi.postDmsContactGroupIdContactdetailPage(props.id, { ...pageParams, ...extraParams })
   },
   columns: [],
   bodyActions: [
@@ -96,9 +97,11 @@ const ContactListDialogRef = ref()
 async function handleCreate() {
   ContactListDialogRef.value.handleOpen()
 }
+
 function handleEditRow(row: any) {
   ContactListDialogRef.value.handleOpen(row)
 }
+
 async function handleEditRowValid(row: any, rowIndex: number) {
   try {
     const validateResult = await tableRef.value.validate(true).catch((errMap) => errMap)
@@ -113,16 +116,17 @@ async function handleEditRowValid(row: any, rowIndex: number) {
     props.detail.attributes.forEach((item: any) => {
       params[item.value] = row[item.value]
     })
-    await globalApi.api.putContactgroupIdContactdetailContactdetailid(props.id, row.id, params)
+    await newClientApi.putDmsContactGroupIdContactdetailContactdetailid(props.id, row.id, params)
   } catch (error) {
     console.error(error)
   }
 }
+
 async function deleteItem(row: any) {
   try {
     const action = await ElMessageBox.confirm(t('msg_confirmWhetherToDelete'))
     if (action !== 'confirm') return
-    await globalApi.api.deleteContactgroupIdContactdetailContactdetailid(props.id, row.id)
+    await newClientApi.deleteDmsContactGroupIdContactdetailContactdetailid(props.id, row.id)
     routerProvider?.message.success(
       t('tip_deleteSuccessMsg', {
         modelName: props.name,
@@ -185,9 +189,14 @@ const EDIT_RENDER = {
     showStatus: true
   }
 }
+
 function init() {
   const defauleRule = {
-    name: [{ required: true, message: t('render.hint.fieldRequired', { name: t('tableHeader_name') }), trigger: 'blur' }],
+    name: [{
+      required: true,
+      message: t('render.hint.fieldRequired', { name: t('tableHeader_name') }),
+      trigger: 'blur'
+    }],
     email: [
       {
         required: true,
@@ -245,6 +254,7 @@ defineExpose({
 
 .responsive-container {
   width: 70%;
+
   :deep(.el-input) {
     width: 200px;
   }

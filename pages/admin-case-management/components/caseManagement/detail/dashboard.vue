@@ -2,7 +2,7 @@
   <el-card style="height: 60vh" class="viewer">
     <template #header>
       <div class="card-header">
-        <h4 >{{ $t('caseManagement_detailCaseDashboardView') }}</h4>
+        <h4>{{ $t('caseManagement_detailCaseDashboardView') }}</h4>
       </div>
     </template>
     <div style="height: 100%">
@@ -23,9 +23,12 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
+if (!routerProvider) {
+  throw new Error('MenuRouterKey is not provided')
+}
 const ResponsiveFilterRef = ref()
 const props = defineProps<{
   caseDetail: any
@@ -57,7 +60,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
           totalSize: 0
         }
       }
-    return await adminApi.api.postCaseDashboardPage({ ...params, ...state.extraParams })
+    return await newAdminApi.postCaseDashboardPage({ ...params, ...state.extraParams })
   },
   defaultSort: [
     {
@@ -75,7 +78,7 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       field: 'permissions',
       title: 'rbac.permission.permissionLevel',
       formatter({ cellValue }: any) {
-        if(!cellValue) return '-'
+        if (!cellValue) return '-'
         const permissions = cellValue.map((item: any) => {
           return item.name
         })
@@ -176,7 +179,7 @@ async function handleDelete(row) {
     const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
     if (action !== 'confirm') return
     state.loading = true
-    await adminApi.api.deleteCaseDashboardId(row.id)
+    await newAdminApi.deleteCaseDashboardId(row.id).then(r => r.data)
     reload()
     // await deleteCaseDashboardApi(row.id)
   } catch (error) {

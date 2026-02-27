@@ -5,7 +5,6 @@
 </template>
 
 <script lang="ts" setup>
-import {clientApi } from 'api'
 const props = defineProps<{
     doc:any
 }>()

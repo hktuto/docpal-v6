@@ -31,7 +31,7 @@
 <script lang="ts" setup>
 import { watchDebounced } from '@vueuse/core'
 import * as mime from 'mime-types'
-import { globalApi } from 'api'
+import { newClientApi } from 'api'
 
 const { tableId, showCheckbox } = defineProps<{
   tableId: string
@@ -278,7 +278,7 @@ async function getList(param: any) {
         }
       }
     }
-    const { data: res } = (await globalApi.api.postNuxeoSearchOpenSearch({ ...cleanBarParams, ...state.aggParams, ...param })) as any
+    const res = await newClientApi.postDmsSearchOpenSearch({ ...cleanBarParams, ...state.aggParams, ...param }).then(r => r.data)
     if (!res.page)
       res.page = {
         data: {
@@ -289,8 +289,8 @@ async function getList(param: any) {
     // const res = await SearchGroupGetApi({ ...state.barParams, ...state.aggParams, ...param })
     const list = res.page.entryList.map((item: any) => {
       const _item = { ...item }
-      if (item.properties && item.properties['file:content']) {
-        const mimeType = item.properties['file:content']['mime-type']
+      if (item.properties && item.properties['file_content']) {
+        const mimeType = item.properties['file_content']['mime-type']
         _item.mimeType2 = mime.extension(mimeType) ? mime.extension(mimeType) : '-'
       }
       return _item

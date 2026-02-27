@@ -1,16 +1,16 @@
 <template>
   <div class="pageContainer">
     <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
-      <template #toolbar_buttons>
-
-      </template>
+      <template #toolbar_buttons> </template>
       <template #configuredLevel="{ row }">
-        <el-select v-model="row.configuredLevel"
-                   style="width: 250px"
-                   filterable
-                   default-first-option
-                   :disabled="row.loading"
-                   @change="(value) => handleLevelChange(value, row)">
+        <el-select
+          v-model="row.configuredLevel"
+          style="width: 250px"
+          filterable
+          default-first-option
+          :disabled="row.loading"
+          @change="(value) => handleLevelChange(value, row)"
+        >
           <el-option v-for="level in row.levels" :key="level" :value="level" :label="$t(level)"></el-option>
         </el-select>
         <el-button type="text" :loading="row.loading"></el-button>
@@ -19,19 +19,18 @@
   </div>
 </template>
 
-
 <script lang="ts" setup>
-import {useVxeTable} from '#imports'
-import {adminApi} from 'api';
+import { useVxeTable } from '#imports'
+import { newAdminApi } from 'api'
 
-const {t} = useI18n();
+const { t } = useI18n()
 const logKey = 'ROOT'
-const {tableConfig, tableEvent, tableRef, reload} = useVxeTable({
+const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
   id: 'admin-log-manage',
   saveColumnOrder: false,
   api: async (params: any) => {
-    const {data} = await adminApi.api.getManagementLoggers() as any
-    console.log("api", data)
+    const data = await newAdminApi.getDocpalManagementLoggers().then(r => r.data) as any
+    console.log('api', data)
     return Object.keys(data).reduce((prev, key) => {
       prev.push({
         service: key,
@@ -41,29 +40,28 @@ const {tableConfig, tableEvent, tableRef, reload} = useVxeTable({
         loading: false
       })
       return prev
-    }, [] as any);
+    }, [] as any)
   },
   virtualScroll: true,
   columns: [
-    {title: 'service', field: 'service',},
-    {title: 'effectiveLevel', field: 'effectiveLevel'},
-    {title: 'configuredLevel', field: 'configuredLevel', slots: {default: 'configuredLevel'}, showOverflow: false}
-  ],
+    { title: 'service', field: 'service' },
+    { title: 'effectiveLevel', field: 'effectiveLevel' },
+    { title: 'configuredLevel', field: 'configuredLevel', slots: { default: 'configuredLevel' }, showOverflow: false }
+  ]
 })
 // #region module: page
-
 
 // #endregion
 async function handleLevelChange(level: any, row: any) {
   row.loading = true
   try {
-    await adminApi.api.postManagementLoggers({
+    await newAdminApi.postDocpalManagementLoggers({
       service: row.service,
       level
     })
     await reload()
   } catch (error) {
-
+    console.log(error)
   }
   row.loading = false
 }

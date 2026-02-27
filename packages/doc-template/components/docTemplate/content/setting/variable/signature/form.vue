@@ -1,27 +1,27 @@
 <script setup lang="ts">
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
 import type { SignatureSetting } from './type'
 import TemplateEditor from './templateEditor.vue'
 
 const modelValue = defineModel<SignatureSetting>('modelValue', {
   default: () => ({
-    id: "",
+    id: '',
     type: 'personal',
-    prefix: "",
-    suffix: "",
-    value: "",
-    signBy: "",
-    signatureId: ""
+    prefix: '',
+    suffix: '',
+    value: '',
+    signBy: '',
+    signatureId: ''
   })
 })
 
 const companyOptions = ref<any[]>([])
 
 async function getCompanyList() {
-  const { data } = await adminApi.api.postCompanyprofilesPage({
+  const data = await newAdminApi.postDocpalAclRoleList({
     pageNum: 0,
     pageSize: 100
-  })
+  }).then(r => r.data)
   if (data && data.entryList) {
     companyOptions.value = data.entryList
   }
@@ -29,17 +29,17 @@ async function getCompanyList() {
 
 onMounted(async () => {
   await getCompanyList()
-  
+
   // Initialize id if not set
   if (!modelValue.value) {
     modelValue.value = {
       id: Date.now().toString(),
       type: 'personal',
-      prefix: "",
-      suffix: "",
-      value: "",
-      signBy: "",
-      signatureId: ""
+      prefix: '',
+      suffix: '',
+      value: '',
+      signBy: '',
+      signatureId: ''
     }
   }
 })
@@ -48,7 +48,7 @@ onMounted(async () => {
 
 <template>
   <div class="variable_editor">
-    <TemplateEditor 
+    <TemplateEditor
       v-model="modelValue"
       :companyListOptions="companyOptions"
     />
@@ -59,7 +59,7 @@ onMounted(async () => {
 .variable_editor {
   display: flex;
   flex-direction: column;
-  width:100%;
+  width: 100%;
   gap: var(--app-space-xs);
 }
 </style> 
