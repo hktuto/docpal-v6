@@ -3,9 +3,12 @@
     <template v-if="mode === 'edit'" #header>
       <div class="el-dialog__title mdForm-title">
         {{ $t('common_edit') }}
-        <div>
-          <el-icon :class="disabledUp ? 'cursor-not-allowed' : 'cursor-pointer'" :disabled="disabledUp" @click="handleMove('up')"><Top /></el-icon>
-          <el-icon :class="disabledDown ? 'cursor-not-allowed' : 'cursor-pointer'" :disabled="disabledDown" @click="handleMove('down')"><Bottom /></el-icon>
+        <div v-if="showSourceButtons">
+          <el-icon style="font-size: 16px;" @click="handleSourceClick"><Position /></el-icon>
+        </div>
+        <div v-if="showMoveButtons">
+          <el-icon style="font-size: 16px;" :class="disabledUp ? 'cursor-not-allowed' : 'cursor-pointer'" :disabled="disabledUp" @click="handleMove('up')"><Top /></el-icon>
+          <el-icon style="font-size: 16px;" :class="disabledDown ? 'cursor-not-allowed' : 'cursor-pointer'" :disabled="disabledDown" @click="handleMove('down')"><Bottom /></el-icon>
         </div>
       </div>
     </template>
@@ -20,13 +23,13 @@
 </template>
 
 <script setup lang="ts">
-import { Top, Bottom } from '@element-plus/icons-vue'
+import { Top, Bottom, Position } from '@element-plus/icons-vue'
 const visible = ref(false)
 const formData = ref<any>({})
 const mode = ref('edit')
 const props = defineProps<{
-  /** 上/下移动回调，返回新 formData 则更新表单 */
-  onMove?: (direction: 'up' | 'down') => { formData?: any } | void
+  showMoveButtons: boolean
+  showSourceButtons: boolean
 }>()
 const emits = defineEmits(['submit'])
 const { currentRow, setCurrentRow, moveCurrentRow, disabledUp, disabledDown } = useCurrentRow()
@@ -48,7 +51,7 @@ const open = (row: any, _mode: 'default' | 'edit' = 'default') => {
   formData.value = row
   mode.value = _mode
   visible.value = true
-  setCurrentRow(row)
+  if(props.showMoveButtons) setCurrentRow(row)
 }
 function handleMove(direction: 'up' | 'down') {
   console.log('handleMove', direction)

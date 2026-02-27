@@ -47,7 +47,6 @@ export function useMDTable(props: any) {
   
   // Get update status helper for cell styling
   const { getCellClass } = useUpdateStatus()
-  
   const { gridOptions } = useTableConfig(
     {
       ...props,

@@ -1,5 +1,5 @@
 <template>
-  <div class="relation-card">
+  <div class="relation-card" @click="handleClick">
     <button
       v-if="showRemove"
       type="button"
@@ -82,7 +82,9 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const recordData = computed(() => props.sampleData || {})
-
+function handleClick() {
+  emit('original-click', recordData.value)
+}
 const titleDisplay = computed(() => {
   if (!props.config.titleField) return ''
   const v = recordData.value[props.config.titleField]

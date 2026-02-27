@@ -36,7 +36,12 @@ const props = defineProps<{
 
 const displayFormat = computed(() => {
   const properties = props.column.properties ?? {}
-  return 'YYYY-MM-DD'
+  console.log('props.column', props.column)
+  if (properties.dateFormat) {
+    return properties.dateFormat
+  } else {
+    return 'YYYY-MM-DD'
+  }
 })
 
 /** Formula 列根据 returnType 格式化的显示值（空值显示为 '-'） */

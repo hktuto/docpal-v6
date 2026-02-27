@@ -8,6 +8,7 @@
       :relation-table-id="relationTableId"
       :table-label="tableLabel"
       @update:model-value="handleUpdate"
+      @original-click="handleOriginalClick"
     />
     <span v-else class="relation-no-config">{{ $t('mdTable.relationPicker.configRequired') }}</span>
   </MdFormItem>
@@ -21,6 +22,9 @@ const props = defineProps<{
   column: any
 }>()
 
+const emit = defineEmits<{
+  (e: 'original-click', id: string): void
+}>()
 const pickerRef = ref<InstanceType<typeof MdFormFieldRelationPicker>>()
 const availableRecords = ref<any[]>([])
 const { queryRelatedTable, getFieldsForTable } = useColumnsContext()
@@ -44,7 +48,9 @@ function getVirtualColumnsForRelation(relationFieldName: string) {
     return sourceRelationField === relationFieldName
   })
 }
-
+function handleOriginalClick(record: any) {
+  emit('original-click', record)
+}
 function handleUpdate(value: string[]) {
   if (!props.formData || props.column?.field == null) return
 

@@ -1,8 +1,11 @@
 <template>
   <ElForm ref="formRef" :model="formData" label-position="top">
     <div v-for="column in columns" :key="column.field">
-      <component v-if="mode === 'edit' || !systemFieldsTypes.includes(column.type)" :is="getComponent(column.type)" :form-data="formData" :column="column" />
+      <component v-if="mode === 'edit' || !systemFieldsTypes.includes(column.type)" :is="getComponent(column.type)" :form-data="formData" :column="column" 
+        @original-click="handleOriginalClick"
+      />
     </div>
+    <MdFormPopover v-if="originalShow" ref="MdFormPopoverRef" showSourceButtons @submit="handleAddRowSubmit" />
   </ElForm>
 </template>
 
@@ -15,6 +18,7 @@ const props = defineProps<{
 }>()
 const { columns } = useMDTableInject()
 const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
+const originalShow = ref(false)
 const componentMap = {
   Text: resolveComponent('LazyMdFormFieldText'),
   MultiText: resolveComponent('LazyMdFormFieldMultiText'),
@@ -31,8 +35,8 @@ const componentMap = {
   // VirtualColumn: resolveComponent('LazyMdFormFieldVirtualColumn'),
   Relation: resolveComponent('LazyMdFormFieldRelation'),
   // 'Formula': resolveComponent('LazyMdFormFieldFormula'),
-  // 'CreatedTime': resolveComponent('LazyMdFormFieldCreatedTime'),
-  // 'LastModifiedTime': resolveComponent('LazyMdFormFieldLastModifiedTime'),
+  CreatedTime: resolveComponent('LazyMdFormFieldDateTime'),
+  LastModifiedTime: resolveComponent('LazyMdFormFieldDateTime'),
   // 'CreatedBy': resolveComponent('LazyMdFormFieldCreatedBy'),
   // 'LastModifiedBy': resolveComponent('LazyMdFormFieldLastModifiedBy'),
   Document: resolveComponent('LazyMdFormFieldDocument'),
@@ -57,6 +61,13 @@ const getFormData = async () => {
     console.error('formData is not valid', error)
     return false
   }
+}
+const MdFormPopoverRef = ref()
+function handleOriginalClick(id: any) {
+  // originalShow.value = true
+  // setTimeout(() => {
+  //   MdFormPopoverRef.value.open(id)
+  // }, 1000)
 }
 defineExpose({
   getFormData

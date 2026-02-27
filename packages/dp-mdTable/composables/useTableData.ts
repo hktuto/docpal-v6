@@ -66,6 +66,7 @@ export interface TableDataContext {
   updateRow: (rows: any[]) => void
   deleteRow: (ids: string | string[]) => void
   getAggChildData?: (params?: any, aggregate?: { id: string; field: string; order: string }) => Promise<any[] | undefined>
+  queryRecordById: (id: string) => any
   upsertRows?: (
     rows: any[],
     lookupColumns: string[],
@@ -160,7 +161,13 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
     tableData.value.push(row)
     rawData.value.push(row)
   }
-
+  function queryRecordById(id: string) {
+    const record = tableData.value.find((item) => item?.id === id)
+    if (record) {
+      return record
+    }
+    return null
+  }
   /**
    * 更新行数据：根据每行的 id 在 tableData/rawData 中查找并合并更新
    * @param rows - 要更新的行（可含部分字段），至少需包含 id
@@ -213,6 +220,7 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
 
     // 方法
     getTableData,
+    queryRecordById,
     getAggChildData,
     refresh,
     addRow,
@@ -228,6 +236,7 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
     error,
     queryParams,
     // 方法
+    queryRecordById,
     getTableData,
     refresh,
     addRow,

@@ -240,6 +240,9 @@ export const dateFunctions: FunctionItem[] = [
     ],
     example: 'FORMAT_DATE(TODAY(), "YYYY-MM-DD") 返回当前日期，例如 2024-01-15',
     func: (...args: any[]) => {
+      if(!args[0]) {
+        return ''
+      }
       return dayjs(args[0]).format(args[1])
     }
   },

@@ -55,7 +55,7 @@
         
         <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" @submit="addColumn" />
       </div>
-      <MdFormPopover ref="MdFormPopoverRef" @submit="handleAddRowSubmit" />
+      <MdFormPopover ref="MdFormPopoverRef" showMoveButtons @submit="handleAddRowSubmit" />
 
       <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" @headerClick="handleHeaderClick" />
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />

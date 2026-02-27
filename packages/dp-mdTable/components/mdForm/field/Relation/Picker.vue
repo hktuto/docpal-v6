@@ -61,6 +61,7 @@
             :sample-data="selectedRecordsMap[id]"
             :show-remove="true"
             @remove="handleRemove(id)"
+            @original-click="handleOriginalClick"
           />
         </template>
         <div v-else class="selected-card-loading">
@@ -94,7 +95,8 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: string[]): void
+  (e: 'update:modelValue', value: string[]): void,
+  (e: 'original-click'): void
 }>()
 
 const { t } = useI18n()
@@ -137,7 +139,9 @@ const displayList = computed(() => {
 })
 
 const selectedRecordsMap = ref<Record<string, any>>({})
-
+function handleClick(id: string) {
+  emit('original-click', id)
+}
 async function loadCardConfigAndFields() {
   if (!props.relationTableId || !getTableCardConfig || !getFieldsForTable) return
   try {
@@ -232,7 +236,9 @@ function handleRemove(id: string) {
     selectedIds.value.filter((i) => i !== id)
   )
 }
-
+function handleOriginalClick(record: any) {
+  emit('original-click', record)
+}
 function handlePopoverShow() {
   pendingSelection.value = [...selectedIds.value]
   searchKeyword.value = ''

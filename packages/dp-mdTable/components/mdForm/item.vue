@@ -1,5 +1,5 @@
 <template>
-  <ElFormItem :prop="column.field" :required="column.required" :rules="rules">
+  <ElFormItem v-if="column && column.field" :prop="column.field" :required="column.required" :rules="rules">
     <template #label>
       <span>{{ column.title }} </span>
     </template>
