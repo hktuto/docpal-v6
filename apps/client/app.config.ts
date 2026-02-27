@@ -217,12 +217,6 @@ export default defineAppConfig({
       name: 'admin-case-management'
     },
     {
-      name: 'admin-case-management-import-export'
-    },
-    // {
-    //   name: 'admin-dashboard'
-    // },
-    {
       label: 'client_retention_item',
       icon: 'lucide:book-lock',
       children: [
@@ -261,9 +255,6 @@ export default defineAppConfig({
         }
       ]
     },
-    
-    
-    
     {
       name: 'admin-unique-id-generator'
     },
@@ -271,9 +262,6 @@ export default defineAppConfig({
     {
       name: 'admin-external-storage'
     },
-    // {
-    //   name: 'admin-bulk-import'
-    // },
     {
       name: 'admin-import-jobs'
     },
