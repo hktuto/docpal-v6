@@ -63,7 +63,7 @@ export type DashboardWidgetSetting = {
 export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting } = {
   DocSizeStatistics: {
     type: DASHBOARD_TYPE.documentCount,
-    label: 'docTypeSizeChart',
+    label: 'DocSizeStatistics',
     minW: 2,
     minH: 2,
     maxW: 4,
@@ -78,7 +78,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
   },
   DocTypeCount: {
     type: DASHBOARD_TYPE.documentCount,
-    label: 'docTypeCountChart',
+    label: 'DocTypeCount',
     minW: 1,
     minH: 2,
     maxW: 2,
@@ -94,7 +94,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
   },
   DocTypeCoCount: {
     type: DASHBOARD_TYPE.documentCount,
-    label: 'docTypeChart',
+    label: 'DocTypeCoCount',
     minW: 4,
     minH: 4,
     maxW: 12,
@@ -114,7 +114,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
   WorkflowCoCount: {
     type: DASHBOARD_TYPE.workflowCount,
     divided: true,
-    label: 'workflowCoCount',
+    label: 'WorkflowCoCount',
     minW: 4,
     minH: 4,
     maxW: 12,
@@ -136,7 +136,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
   },
   WorkflowGroup: {
     type: DASHBOARD_TYPE.workflowCount,
-    label: 'workflowGroup',
+    label: 'WorkflowGroup',
     minW: 4,
     minH: 4,
     maxW: 12,
@@ -154,7 +154,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
   // AzureThreshold: {
   //     feature: 'AZURE_OCR',
   //     divided: true,
-  //     label: 'azureThreshold',
+  //     label: 'AzureThreshold',
   //     minW: 1,
   //     minH: 1,
   //     maxW: 4,
@@ -168,7 +168,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
   // },
   // AzureOcrProcessed: {
   //     feature: 'AZURE_OCR',
-  //     label: 'azureOcrProcessed',
+  //     label: 'AzureOcrProcessed',
   //     minW: 4,
   //     minH: 2,
   //     maxW: 12,
@@ -182,7 +182,7 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
   // },
   // AzureOcrProcessedHistory: {
   //     feature: 'AZURE_OCR',
-  //     label: 'azureOcrProcessedHistory',
+  //     label: 'AzureOcrProcessedHistory',
   //     minW: 4,
   //     minH: 2,
   //     maxW: 12,

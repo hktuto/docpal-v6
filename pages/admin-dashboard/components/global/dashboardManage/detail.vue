@@ -68,7 +68,7 @@ async function getInfo() {
   const temLayout = JSON.parse(state.info.styleJson)
   if (Array.isArray(temLayout)) {
     state.layout = temLayout.map((item) => {
-      return Object.assign(item, getNormalizeSetting(item.component))
+      return Object.assign(item, getNormalizeSetting(item.label))
     })
   } else {
     // dashboard is new, set layout to empty array

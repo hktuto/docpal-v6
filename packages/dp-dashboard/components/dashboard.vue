@@ -47,7 +47,7 @@ import { Plus, Edit } from '@element-plus/icons-vue'
 
 import { clientApi } from 'api'
 
-import { getNormalizeSetting, dashboardWidgetSetting, getWidgetSetting, getDashboardWidgetByType } from '../utils/dashboardWidgetHelper'
+import { dashboardWidgetSetting, getWidgetSetting, getDashboardWidgetByType } from '../utils/dashboardWidgetHelper'
 
 import { onMounted, onUnmounted } from 'vue'
 

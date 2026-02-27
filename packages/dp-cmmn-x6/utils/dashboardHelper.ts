@@ -5,23 +5,23 @@ import type { CaseStatisticsWidget as CaseStatisticsWidgetType } from './dashboa
 // TODO: 需要优化Lazy组件的引用
 export type CmmnDashboardWidget =
   CaseStatisticsWidgetType
-  | 'Action'
-  | 'BasicInfo'
-  | 'Process'
-  | 'TaskPage'
-  | 'WorkflowPage'
-  | 'Activity'
-  | 'DocumentRoot'
-  | 'RelatedCase'
-  | 'RelatedMaster'
-  | 'MasterTableInfo'
-  | 'RelatedCaseInfo'
+  | 'CmmnAction'
+  | 'CmmnBasicInfo'
+  | 'CmmnProcess'
+  | 'CmmnTaskPage'
+  | 'CmmnWorkflowPage'
+  | 'CmmnActivity'
+  | 'CmmnDocumentRoot'
+  | 'CmmnRelatedCase'
+  | 'CmmnRelatedMaster'
+  | 'CmmnMasterTableInfo'
+  | 'CmmnRelatedCaseInfo'
   | 'AuditLog'
   | 'Stage'
 
 export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: DashboardWidgetSetting } = {
-  BasicInfo: {
-    label: 'cmmnBasicInfo',
+  CmmnBasicInfo: {
+    label: 'CmmnBasicInfo',
     minW: 2,
     minH: 2,
     maxW: 12,
@@ -34,8 +34,8 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
       defaultValue: {}
     }
   },
-  Activity: {
-    label: 'cmmnActivity',
+  CmmnActivity: {
+    label: 'CmmnActivity',
     minW: 2,
     minH: 2,
     maxW: 10,
@@ -45,8 +45,8 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     component: 'LazyDashboardActivity',
     setting: {}
   },
-  Action: {
-    label: 'cmmnAction',
+  CmmnAction: {
+    label: 'CmmnAction',
     minW: 2,
     minH: 2,
     maxW: 4,
@@ -56,8 +56,8 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     component: 'LazyDashboardAction',
     setting: {}
   },
-  Process: {
-    label: 'cmmnProcess',
+  CmmnProcess: {
+    label: 'CmmnProcess',
     minW: 2,
     minH: 2,
     maxW: 12,
@@ -69,8 +69,8 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
       layout: []
     }
   },
-  TaskPage: {
-    label: 'cmmnTaskPage',
+  CmmnTaskPage: {
+    label: 'CmmnTaskPage',
     minW: 2,
     minH: 2,
     maxW: 8,
@@ -80,8 +80,8 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     component: 'LazyDashboardTaskPage',
     setting: {}
   },
-  WorkflowPage: {
-    label: 'cmmnWorkflowPage',
+  CmmnWorkflowPage: {
+    label: 'CmmnWorkflowPage',
     minW: 6,
     minH: 4,
     maxW: 12,
@@ -91,8 +91,8 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     component: 'LazyDashboardWorkflowPage',
     setting: {}
   },
-  DocumentRoot: {
-    label: 'cmmnDocumentRoot',
+  CmmnDocumentRoot: {
+    label: 'CmmnDocumentRoot',
     minW: 2,
     minH: 4,
     maxW: 12,
@@ -104,8 +104,8 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
       home: ''
     }
   },
-  RelatedCase: {
-    label: 'cmmnRelatedCase',
+  CmmnRelatedCase: {
+    label: 'CmmnRelatedCase',
     minW: 4,
     minH: 4,
     maxW: 12,
@@ -120,8 +120,8 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
       displayColumns: []
     }
   },
-  RelatedMaster: {
-    label: 'cmmnRelatedMaster',
+  CmmnRelatedMaster: {
+    label: 'CmmnRelatedMaster',
     minW: 2,
     minH: 2,
     maxW: 12,
@@ -136,8 +136,8 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
       displayColumns: []
     }
   },
-  MasterTableInfo: {
-    label: 'cmmnMasterTableInfo',
+  CmmnMasterTableInfo: {
+    label: 'CmmnMasterTableInfo',
     minW: 2,
     minH: 2,
     maxW: 12,
@@ -153,8 +153,8 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
       relatedField: ''
     }
   },
-  RelatedCaseInfo: {
-    label: 'cmmnRelatedCaseInfo',
+  CmmnRelatedCaseInfo: {
+    label: 'CmmnRelatedCaseInfo',
     minW: 2,
     minH: 2,
     maxW: 12,
@@ -172,7 +172,7 @@ export const CmmnDashboardWidgetSetting: { [key in CmmnDashboardWidget]: Dashboa
     }
   },
   AuditLog: {
-    label: '',
+    label: 'AuditLog',
     minW: 6,
     minH: 4,
     maxW: 16,
