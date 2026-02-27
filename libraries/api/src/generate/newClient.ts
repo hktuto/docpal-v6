@@ -285,9 +285,9 @@ export interface ContactGroupRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -298,8 +298,8 @@ export interface Permission {
 }
 
 export interface SortObject {
-    unsorted?: boolean;
     sorted?: boolean;
+    unsorted?: boolean;
     empty?: boolean;
 }
 
@@ -645,9 +645,9 @@ export interface TableDataRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Master Table ID */
     master_table_id?: string;
@@ -729,9 +729,9 @@ export interface TableRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** URL name (unique per entity_id) */
     url_name?: string;
@@ -1055,9 +1055,9 @@ export interface CaseTypeRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Case schema definition (JSON) */
     case_schema?: Record<string, any>;
@@ -1208,9 +1208,9 @@ export interface PersonalDashboardRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -1712,9 +1712,9 @@ export interface MTRecordRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -1895,9 +1895,9 @@ export interface CompanyChopRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2035,9 +2035,9 @@ export interface MTColumnInfo {
     nullRelation?: boolean;
     /** @format int32 */
     sort?: number;
-    primaryKey?: boolean;
-    unique?: boolean;
     required?: boolean;
+    unique?: boolean;
+    primaryKey?: boolean;
 }
 
 export interface ResultCaseType {
@@ -2086,9 +2086,9 @@ export interface CmmnDashboardRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2121,6 +2121,196 @@ export interface ResultCmmnDashboardResponseDTO {
     message?: string;
     /** Case model dashboard (RequestDTO) */
     data?: CmmnDashboardResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Capture save proj info */
+export interface CaptureProjSaveRequestDTO {
+    /** proj id */
+    id?: string;
+    /** proj name */
+    name?: string;
+    /** project description */
+    description?: string;
+    /** created method */
+    createdMethod?: string;
+    /** status */
+    status?: string;
+    /** addition fields setting */
+    additionFieldsSetting?: JsonNode;
+    /**
+     * delete batch after days
+     * @format int32
+     */
+    deleteBatchAfterDays?: number;
+    /** notification enabled */
+    notificationEnabled?: boolean;
+    /** notification setting */
+    notificationSetting?: JsonNode;
+    /** prefix */
+    prefix?: string;
+    /**
+     * minDigit
+     * @format int32
+     */
+    minDigit?: number;
+    /**
+     * startingNumber
+     * @format int32
+     */
+    startingNumber?: number;
+    /** zip password */
+    zipPassword?: string;
+    /** enable audit log */
+    enableAuditLog?: boolean;
+    /** auto classification */
+    autoClassification?: boolean;
+    /** auto verification */
+    autoVerification?: boolean;
+    /** require manual review */
+    requireManualReview?: boolean;
+    /** default prompt template id */
+    defaultPromptTemplateId?: string;
+    /** created by */
+    createdBy?: string;
+    /** updated by */
+    updatedBy?: string;
+    /**
+     * created at
+     * @format date-time
+     */
+    createdAt?: string;
+    /**
+     * updated at
+     * @format date-time
+     */
+    updatedAt?: string;
+    /** code */
+    code?: string;
+    idTemplateEntity?: IdTemplate;
+}
+
+export interface CaptureProj {
+    /** @format uuid */
+    id?: string;
+    name?: string;
+    description?: string;
+    createdMethod?: string;
+    status?: string;
+    additionFieldsSetting?: JsonNode;
+    /** @format int32 */
+    deleteBatchAfterDays?: number;
+    notificationEnabled?: boolean;
+    notificationSetting?: JsonNode;
+    zipPassword?: string;
+    enableAuditLog?: boolean;
+    autoClassification?: boolean;
+    autoVerification?: boolean;
+    requireManualReview?: boolean;
+    /** @format uuid */
+    defaultPromptTemplateId?: string;
+    /** @format uuid */
+    createdBy?: string;
+    /** @format uuid */
+    updatedBy?: string;
+    /** @format date-time */
+    createdAt?: string;
+    /** @format date-time */
+    updatedAt?: string;
+    code?: string;
+}
+
+export interface ResultCaptureProj {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProj;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Capture save proj Form Setting info */
+export interface CaptureProjFormSettingSaveRequestDTO {
+    /** primary key id */
+    id?: string;
+    /** form config name */
+    name?: string;
+    /** form config code */
+    code?: string;
+    /** form config description */
+    description?: string;
+    /** associated project id */
+    projectId?: string;
+    /** page split config */
+    pageSplitConfig?: JsonNode;
+    /** sample document path */
+    sampleDocPath?: string;
+    /** form classification config */
+    formClassificationConfig?: JsonNode;
+    /** document separation config */
+    docSeparationConfig?: JsonNode;
+    /** fields setting */
+    fieldsSetting?: JsonNode;
+    /** other metadata setting */
+    otherMetadataSetting?: JsonNode;
+    /** status (A-valid, others-invalid) */
+    status?: string;
+    /** created by user id */
+    createdBy?: string;
+    /** updated by user id */
+    updatedBy?: string;
+    /**
+     * created time
+     * @format date-time
+     */
+    createdAt?: string;
+    /**
+     * updated time
+     * @format date-time
+     */
+    updatedAt?: string;
+    /**
+     * default page count
+     * @format int32
+     */
+    defaultPageCount?: number;
+}
+
+export interface CaptureProjFormSetting {
+    /** @format uuid */
+    id?: string;
+    name?: string;
+    code?: string;
+    description?: string;
+    /** @format uuid */
+    projectId?: string;
+    pageSplitConfig?: JsonNode;
+    sampleDocPath?: string;
+    formClassificationConfig?: JsonNode;
+    docSeparationConfig?: JsonNode;
+    fieldsSetting?: JsonNode;
+    otherMetadataSetting?: JsonNode;
+    status?: string;
+    /** @format uuid */
+    createdBy?: string;
+    /** @format uuid */
+    updatedBy?: string;
+    /** @format date-time */
+    createdAt?: string;
+    /** @format date-time */
+    updatedAt?: string;
+    /** @format int32 */
+    defaultPageCount?: number;
+}
+
+export interface ResultCaptureProjFormSetting {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProjFormSetting;
     messageKey?: string;
     locale?: string;
 }
@@ -2336,9 +2526,9 @@ export interface DocumentTemplateRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2450,9 +2640,9 @@ export interface RetentionPolicyRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -2522,8 +2712,8 @@ export interface HoldPolicy {
     createdDate?: string;
     /** @format date-time */
     modifiedDate?: string;
-    holdAuto?: boolean;
     removeAuto?: boolean;
+    holdAuto?: boolean;
     holdReasonReq?: boolean;
     removeReasonReq?: boolean;
 }
@@ -2673,8 +2863,8 @@ export interface MetadataPermissionRuleDTO {
 }
 
 export interface MetadataValidation {
-    validationRuleName?: string;
     isMultiple?: boolean;
+    validationRuleName?: string;
 }
 
 export type NumberValidation = MetadataValidation & {
@@ -3012,13 +3202,13 @@ export interface DocumentDTO {
     originalPath?: string;
     fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
+    fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
-    fileContentExtension?: string;
-    fileContentMimeType?: string;
-    fileContentName?: string;
     /** @format int64 */
     fileContentLength?: number;
+    fileContentMimeType?: string;
+    fileContentName?: string;
 }
 
 export interface FileContentDTO {
@@ -3407,9 +3597,9 @@ export interface QueryWorkflowJobRequest {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -3627,9 +3817,9 @@ export interface ProcessVersionRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -3745,9 +3935,9 @@ export interface ProcessDefinitionRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -4374,10 +4564,10 @@ export interface SubNotificationRequest {
 }
 
 export interface PageNotificationRecord {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -4393,12 +4583,12 @@ export interface PageNotificationRecord {
 }
 
 export interface PageableObject {
-    unpaged?: boolean;
-    paged?: boolean;
     /** @format int32 */
     pageNumber?: number;
+    paged?: boolean;
     /** @format int32 */
     pageSize?: number;
+    unpaged?: boolean;
     /** @format int64 */
     offset?: number;
     sort?: SortObject;
@@ -4439,9 +4629,9 @@ export interface QueryNotificationRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -4504,17 +4694,17 @@ export interface QueryFileOverviewRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
 export interface PageUploadBatchDTO {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -4748,9 +4938,9 @@ export interface ExternalProfileRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** External storage ID that this external storage profile belongs to */
     external_storage_id?: string;
@@ -4817,9 +5007,9 @@ export interface ExternalStorageRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
     /** Type of connection (e.g., S3, FTP, SFTP, etc.) */
     connection_type?: string;
@@ -4870,9 +5060,9 @@ export interface ExternalStorageImportJobRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5112,9 +5302,9 @@ export interface WorkflowJobRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5240,9 +5430,9 @@ export interface UserDashboardRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5313,9 +5503,9 @@ export interface PluginRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5425,9 +5615,9 @@ export interface OcrTransactionLogRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -5645,10 +5835,10 @@ export interface ResultWMKTemplateRequestDTO {
 }
 
 export interface PageWatermarkSettingsTemplate {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -5778,9 +5968,9 @@ export interface IdTemplateRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6087,9 +6277,9 @@ export interface CmmnProcessRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6214,8 +6404,8 @@ export interface PlanItemInstanceDTO {
     subItems?: PlanItemInstanceDTO[];
     /** Workflow PlanItem Form */
     planForm?: CmmnPlanFormDTO;
-    humanTaskId?: string;
     processInstanceId?: string;
+    humanTaskId?: string;
 }
 
 export interface PlanTableFieldDTO {
@@ -6610,9 +6800,9 @@ export interface EmailTemplateRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6691,9 +6881,9 @@ export interface EmailLayoutRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6815,12 +7005,14 @@ export interface SmartFolderRequestDTO {
     bind?: string;
     json_value?: string;
     userGroupIds?: string[];
+    /** Permission */
+    permission?: Permission;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -6853,7 +7045,8 @@ export interface SmartFolderResponseDTO {
     name?: string;
     bind?: string;
     json_value?: string;
-    userGroups?: string[];
+    /** Permission */
+    permission?: Permission;
 }
 
 /** EasyShare (Request) */
@@ -6895,12 +7088,12 @@ export interface EasyShareDocumentDetails {
     watermarkData?: WatermarkData;
     createdBy?: string;
     originFilePath?: string;
-    watermarkStatus?: string;
+    conversionId?: string;
     watermarkTemplateId?: string;
-    watermarkedLocalPath?: string;
+    watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
-    conversionId?: string;
+    watermarkedLocalPath?: string;
 }
 
 /** EasyShare (Request) */
@@ -7142,9 +7335,9 @@ export interface BasePageRequest {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7204,9 +7397,9 @@ export interface SearchDocumentVO {
     version?: Record<string, any>;
     id?: string;
     properties?: Record<string, any>;
-    ocr?: boolean;
     updateChildName?: boolean;
     folder?: boolean;
+    ocr?: boolean;
     be_index?: boolean;
     create_by?: string;
     /** @format date-time */
@@ -7273,9 +7466,9 @@ export interface RetentionPolicyDocumentRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7386,9 +7579,9 @@ export interface HoldDocumentRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7503,9 +7696,9 @@ export interface MasterTableRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7525,9 +7718,9 @@ export interface MasterTableResponseDTO {
     userId?: string;
     aces?: string;
     enable?: boolean;
-    read?: boolean;
     create?: boolean;
     edit?: boolean;
+    read?: boolean;
 }
 
 export interface ResultMasterTableResponseDTO {
@@ -7597,9 +7790,9 @@ export interface MTAuditLogRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -7672,9 +7865,9 @@ export interface MTPermissionDTO {
     userName?: string;
     userType?: string;
     enable?: boolean;
-    read?: boolean;
     create?: boolean;
     edit?: boolean;
+    read?: boolean;
 }
 
 export interface InternalShareQueryDTO {
@@ -8005,8 +8198,8 @@ export interface DocumentRequestDTO {
     watermarkTemplateId?: string;
     version?: string;
     needMetadata?: boolean;
-    title?: string;
     fileName?: string;
+    title?: string;
 }
 
 /** Document (Request) */
@@ -8087,9 +8280,9 @@ export interface ContactRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8137,9 +8330,9 @@ export interface CaseInstanceRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8236,9 +8429,9 @@ export interface FormDesignRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8339,9 +8532,9 @@ export interface EasyFormResultRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8420,9 +8613,9 @@ export interface EasyFormEmailQueryRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8516,8 +8709,8 @@ export interface WatermarkDocumentRequestDTO {
     needMetadata?: boolean;
     /** Origin Document Id */
     originDocumentId?: string;
-    title?: string;
     fileName?: string;
+    title?: string;
 }
 
 /** Versioning (Request) */
@@ -8563,9 +8756,9 @@ export interface TrashRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -8703,7 +8896,6 @@ export interface OpenObserveAuditLogSearchRequest {
     path?: string;
     masterTables?: string[];
     userIds?: string[];
-    desc?: boolean;
     isDesc?: boolean;
 }
 
@@ -8821,13 +9013,13 @@ export interface DocumentResponseDTO {
     retentionDocument?: RetentionDocument;
     fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
+    fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
-    fileContentExtension?: string;
-    fileContentMimeType?: string;
-    fileContentName?: string;
     /** @format int64 */
     fileContentLength?: number;
+    fileContentMimeType?: string;
+    fileContentName?: string;
 }
 
 export interface ResultDocumentResponseDTO {
@@ -9076,9 +9268,9 @@ export interface CompanyRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9309,15 +9501,15 @@ export interface FolderCabinetRequestDTO {
     emailReminder?: FCReminder;
     /** The default value list of label rule */
     metadataValue?: string;
+    delayEmail?: FCNotificationConfig;
     systemReminderConfig?: FCNotificationConfig;
     summaryReportEmail?: FCNotificationConfig;
-    delayEmail?: FCNotificationConfig;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9565,9 +9757,9 @@ export interface DocFolderCabinetRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9621,8 +9813,8 @@ export interface DFCRequestDTO {
     emailReport?: FCReminder;
     /** Email Reminder */
     emailReminder?: FCReminder;
-    title?: string;
     fileName?: string;
+    title?: string;
 }
 
 export interface DFCNotificationConfig {
@@ -9873,9 +10065,9 @@ export interface CmmnVersionRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -9952,9 +10144,9 @@ export interface CaseTableRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10160,9 +10352,9 @@ export interface PlanItemInstanceRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10269,6 +10461,368 @@ export interface ResultPaginationDTOCmmnDashboardResponseDTO {
     data?: PaginationDTOCmmnDashboardResponseDTO;
     messageKey?: string;
     locale?: string;
+}
+
+/** Capture save proj Permission Setting info */
+export interface CaptureProjPermissionSettingSaveRequestDTO {
+    /** projectId */
+    projectId?: string;
+    /** roleName(Creator/Verifier/Exporter/Admin) */
+    roleName?: string;
+    /** permission(key=entityType, value=entityId List) */
+    permission?: Record<string, string[]>;
+}
+
+/** Capture save proj Form Setting info */
+export interface CaptureProjFormSettingSplitPageRequestDTO {
+    /**
+     * primary key id
+     * @minLength 1
+     */
+    id: string;
+    /**
+     * associated project id
+     * @minLength 1
+     */
+    projectId: string;
+    /**
+     * file path
+     * @minLength 1
+     */
+    path: string;
+    /** number of pages */
+    pages?: string;
+}
+
+export interface CaptureProjFormSettingRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** FormSetting id */
+    id?: string;
+    /** FormSetting name */
+    name?: string;
+    /** proj id */
+    projId?: string;
+    descSort?: SortObject;
+    /** @format int32 */
+    pageIndex?: number;
+    desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
+    sort?: SortObject;
+}
+
+export interface CaptureProjFormSettingResponseDTO {
+    /** primary key id */
+    id?: string;
+    /** form config name */
+    name?: string;
+    /** form config code */
+    code?: string;
+    /** form config description */
+    description?: string;
+    /** associated project id */
+    projectId?: string;
+    /** page split config */
+    pageSplitConfig?: JsonNode;
+    /** sample document path */
+    sampleDocPath?: string;
+    /** form classification config */
+    formClassificationConfig?: JsonNode;
+    /** document separation config */
+    docSeparationConfig?: JsonNode;
+    /** fields setting */
+    fieldsSetting?: JsonNode;
+    /** other metadata setting */
+    otherMetadataSetting?: JsonNode;
+    /** status (A-valid, others-invalid) */
+    status?: string;
+    /** created by user id */
+    createdBy?: string;
+    /** updated by user id */
+    updatedBy?: string;
+    /**
+     * created time
+     * @format date-time
+     */
+    createdAt?: string;
+    /**
+     * updated time
+     * @format date-time
+     */
+    updatedAt?: string;
+    /**
+     * default page count
+     * @format int32
+     */
+    defaultPageCount?: number;
+}
+
+export interface ResultListCaptureProjFormSettingResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProjFormSettingResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface CaptureProjRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** proj id */
+    id?: string;
+    /** proj name */
+    name?: string;
+    /** status list */
+    statusList?: string[];
+    descSort?: SortObject;
+    /** @format int32 */
+    pageIndex?: number;
+    desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
+    sort?: SortObject;
+}
+
+export interface CaptureProjResponseDTO {
+    /** proj id */
+    id?: string;
+    /** proj name */
+    name?: string;
+    /** project description */
+    description?: string;
+    /** created method */
+    createdMethod?: string;
+    /** status */
+    status?: string;
+    /** addition fields setting */
+    additionFieldsSetting?: JsonNode;
+    /**
+     * delete batch after days
+     * @format int32
+     */
+    deleteBatchAfterDays?: number;
+    /** notification enabled */
+    notificationEnabled?: boolean;
+    /** notification setting */
+    notificationSetting?: JsonNode;
+    /** prefix */
+    prefix?: string;
+    /**
+     * minDigit
+     * @format int32
+     */
+    minDigit?: number;
+    /**
+     * startingNumber
+     * @format int32
+     */
+    startingNumber?: number;
+    /** zip password */
+    zipPassword?: string;
+    /** enable audit log */
+    enableAuditLog?: boolean;
+    /** auto classification */
+    autoClassification?: boolean;
+    /** auto verification */
+    autoVerification?: boolean;
+    /** require manual review */
+    requireManualReview?: boolean;
+    /** default prompt template id */
+    defaultPromptTemplateId?: string;
+    /** created by */
+    createdBy?: string;
+    /** updated by */
+    updatedBy?: string;
+    /**
+     * created at
+     * @format date-time
+     */
+    createdAt?: string;
+    /**
+     * updated at
+     * @format date-time
+     */
+    updatedAt?: string;
+    /** code */
+    code?: string;
+}
+
+export interface ResultListCaptureProjResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProjResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface AdditionField {
+    key?: string;
+    value?: any;
+}
+
+/** Capture Confirm Batch Request */
+export interface CaptureConfirmBatchRequestDTO {
+    additionFields?: AdditionField[];
+    /**
+     * Applicant number JSON mapping: {applicant_num: file_name}
+     * @example {"200045":"1234567890.pdf","200046":"fgf.pdf"}
+     */
+    applicantNumJson?: Record<string, string>;
+    /** Start applicant number (smallest) */
+    applicantStart?: string;
+    /** End applicant number (largest) */
+    applicantEnd?: string;
+    /** @minItems 1 */
+    documents: DocumentInfo[];
+}
+
+export interface DocumentInfo {
+    /** @minLength 1 */
+    tempFilePath: string;
+}
+
+/** Document verification update request */
+export interface CaptureDocUpdateRequestDTO {
+    /** User-edited OCR result JSON */
+    newResultJson?: any;
+    /** User-verified new value */
+    newValue?: string;
+    /** Form source classification */
+    formSource?: string;
+    /** Family category classification */
+    familyCategory?: string;
+    /** Family class classification */
+    familyClass?: string;
+    /** Optional verification notes */
+    verificationNotes?: string;
+}
+
+/** Retry document with manual form selection */
+export interface CaptureDocRetryRequestDTO {
+    /**
+     * Manually selected form ID
+     * @minLength 1
+     */
+    formId: string;
+}
+
+/** Capture Status Count Request */
+export interface CaptureStatusCountRequestDTO {
+    /**
+     * Project ID list (required)
+     * @minItems 1
+     */
+    projectId: string[];
+}
+
+/** Capture Query Batch List Request */
+export interface CaptureQueryBatchListRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** Fuzzy search for batch name */
+    filter?: string;
+    /** Project ID list for filtering (multi-select) */
+    projectId?: string[];
+    /** Status list for filtering (multi-select) */
+    status?: string[];
+    /**
+     * Created at range start (inclusive)
+     * @format date-time
+     * @example "2026-01-01T00:00:00Z"
+     */
+    createdAtStart?: string;
+    /**
+     * Created at range end (inclusive)
+     * @format date-time
+     * @example "2026-12-31T23:59:59Z"
+     */
+    createdAtEnd?: string;
+    /**
+     * Updated at range start (inclusive)
+     * @format date-time
+     * @example "2026-01-01T00:00:00Z"
+     */
+    updatedAtStart?: string;
+    /**
+     * Updated at range end (inclusive)
+     * @format date-time
+     * @example "2026-12-31T23:59:59Z"
+     */
+    updatedAtEnd?: string;
+    /**
+     * Filter by applicant number
+     * @example 200045
+     */
+    applicantNum?: string;
+    descSort?: SortObject;
+    /** @format int32 */
+    pageIndex?: number;
+    desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
+    sort?: SortObject;
+}
+
+/** Capture Create Temp Batch Request */
+export interface CaptureCreateTempBatchRequestDTO {
+    /** Project ID */
+    projectId: string;
+}
+
+/** Capture Batch Cancel Request */
+export interface CaptureBatchCancelRequestDTO {
+    /**
+     * List of batch IDs to cancel
+     * @minItems 1
+     */
+    batchIds: string[];
 }
 
 export interface LoginRequest {
@@ -10445,10 +10999,10 @@ export interface BusinessResultRecord {
 }
 
 export interface PageBusinessResultRecord {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -10665,9 +11219,9 @@ export interface MessageTemplateRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -10894,6 +11448,17 @@ export interface ResultPaginationDTODocumentTemplate {
     locale?: string;
 }
 
+export interface ResultSmartFolderResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Smart Folder */
+    data?: SmartFolderResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface GenerateXApiKeyRequestDTO {
     userId?: string;
 }
@@ -10971,9 +11536,9 @@ export interface HoldPolicyRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -11022,9 +11587,9 @@ export interface QueryMetadataRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -11099,9 +11664,9 @@ export interface MetadataRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -11228,9 +11793,9 @@ export interface DocPalTypeRequestDTO {
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
-    sortOrModifiedDate?: SortObject;
     desc?: boolean;
     orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
     sort?: SortObject;
 }
 
@@ -11405,17 +11970,6 @@ export interface ExternalProfileOutputDTO {
     imageSetting?: Record<string, any>;
 }
 
-export interface ResultSmartFolderResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Smart Folder */
-    data?: SmartFolderResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
 /** ResetEasyShare (Request) */
 export interface ShareSaveRequestDTO {
     /** Share Id */
@@ -11528,10 +12082,10 @@ export interface ResultListProcessDefinitionDraft {
 }
 
 export interface PageSearchHistory {
-    /** @format int32 */
-    totalPages?: number;
     /** @format int64 */
     totalElements?: number;
+    /** @format int32 */
+    totalPages?: number;
     pageable?: PageableObject;
     /** @format int32 */
     numberOfElements?: number;
@@ -12949,6 +13503,63 @@ export interface ResultCmmnInstance {
     locale?: string;
 }
 
+/** CaptureProjPermissionSettingResponseDTO */
+export interface CaptureProjPermissionSettingResponseDTO {
+    /** projectId */
+    projectId?: string;
+    /** roleName(Creator/Verifier/Exporter/Admin) */
+    roleName?: string;
+    /** permission(key=entityType, value=entityId List) */
+    permission?: Record<string, string[]>;
+}
+
+export interface ResultListCaptureProjPermissionSettingResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProjPermissionSettingResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultCaptureProjFormSettingResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProjFormSettingResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface CaptureProjFormSettingDropDownResponseDTO {
+    /** primary key id */
+    id?: string;
+    /** form config name */
+    name?: string;
+}
+
+export interface ResultListCaptureProjFormSettingDropDownResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProjFormSettingDropDownResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultCaptureProjResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProjResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface AiTopicIdVO {
     topicId?: string;
 }
@@ -13294,6 +13905,26 @@ export interface ResultDocPalTypeDTO {
     message?: string;
     /** Document Type */
     data?: DocPalTypeDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Document Type */
+export interface DocumentTypeDTO {
+    /** Document Type Name */
+    name?: string;
+    /** Is Folder Type */
+    isFolder?: boolean;
+    /** Document Type keywords */
+    keywords?: KeywordDTO[];
+}
+
+export interface ResultListDocumentTypeDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocumentTypeDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -16502,6 +17133,74 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBoolean, any>({
                 path: `/api/case/dashboard/status`,
                 method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjController
+         * @name PutCaptureProj
+         * @summary Update Capture Proj
+         * @request PUT:/api/capture/proj
+         */
+        putCaptureProj: (data: CaptureProjSaveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCaptureProj, any>({
+                path: `/api/capture/proj`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjController
+         * @name PostCaptureProj
+         * @summary Create Capture Proj
+         * @request POST:/api/capture/proj
+         */
+        postCaptureProj: (data: CaptureProjSaveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultString, any>({
+                path: `/api/capture/proj`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjFormSettingController
+         * @name PutCaptureProjformsetting
+         * @summary Update Capture Proj Form Setting
+         * @request PUT:/api/capture/projFormSetting
+         */
+        putCaptureProjformsetting: (data: CaptureProjFormSettingSaveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCaptureProjFormSetting, any>({
+                path: `/api/capture/projFormSetting`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjFormSettingController
+         * @name PostCaptureProjformsetting
+         * @summary Create Capture Proj Form Setting
+         * @request POST:/api/capture/projFormSetting
+         */
+        postCaptureProjformsetting: (data: CaptureProjFormSettingSaveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultString, any>({
+                path: `/api/capture/projFormSetting`,
+                method: "POST",
                 body: data,
                 type: ContentType.Json,
                 ...params,
@@ -22467,26 +23166,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags UserSettingController
-         * @name PostDmsUserForgetpassword
-         * @request POST:/api/dms/user/forgetPassword
-         */
-        postDmsUserForgetpassword: (
-            query: {
-                userId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/dms/user/forgetPassword`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Document
          * @name PostDmsUploadValidation
          * @summary check file exist
@@ -27536,6 +28215,390 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjPermissionSettingController
+         * @name PostCaptureProjpermissionsetting
+         * @summary Save Capture Proj Permission Setting
+         * @request POST:/api/capture/projPermissionSetting
+         */
+        postCaptureProjpermissionsetting: (
+            data: CaptureProjPermissionSettingSaveRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/capture/projPermissionSetting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjFormSettingController
+         * @name PostCaptureProjformsettingSplitpage
+         * @summary Split Page
+         * @request POST:/api/capture/projFormSetting/splitPage
+         */
+        postCaptureProjformsettingSplitpage: (
+            data: CaptureProjFormSettingSplitPageRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListString, any>({
+                path: `/api/capture/projFormSetting/splitPage`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjFormSettingController
+         * @name PostCaptureProjformsettingPage
+         * @summary Query projectFormSetting list page
+         * @request POST:/api/capture/projFormSetting/page
+         */
+        postCaptureProjformsettingPage: (data: CaptureProjFormSettingRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListCaptureProjFormSettingResponseDTO, any>({
+                path: `/api/capture/projFormSetting/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjController
+         * @name PostCaptureProjPage
+         * @summary Query project list page
+         * @request POST:/api/capture/proj/page
+         */
+        postCaptureProjPage: (data: CaptureProjRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListCaptureProjResponseDTO, any>({
+                path: `/api/capture/proj/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureFileController
+         * @name PostCaptureFileUploadtempfiletobatch
+         * @summary Upload TempFile to Batch
+         * @request POST:/api/capture/file/uploadTempFileToBatch
+         */
+        postCaptureFileUploadtempfiletobatch: (
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                batchId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringString, any>({
+                path: `/api/capture/file/uploadTempFileToBatch`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureFileController
+         * @name PostCaptureFileUploadexampletoform
+         * @summary Upload Example to form
+         * @request POST:/api/capture/file/uploadExampleToForm
+         */
+        postCaptureFileUploadexampletoform: (
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                projId?: string;
+                /** @format string */
+                formId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListString, any>({
+                path: `/api/capture/file/uploadExampleToForm`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureFileController
+         * @name PostCaptureFileQuerycapturefilebypath
+         * @summary Query Capture File By Path
+         * @request POST:/api/capture/file/queryCaptureFileByPath
+         */
+        postCaptureFileQuerycapturefilebypath: (
+            query: {
+                path: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string, any>({
+                path: `/api/capture/file/queryCaptureFileByPath`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * @description Releases the lock on a batch. If status is verifying, reverts to verify-ready. Idempotent — silently returns if not locked or not owner. No request body needed.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchBatchidRelease
+         * @summary Release a batch
+         * @request POST:/api/capture/batch/{batchId}/release
+         */
+        postCaptureBatchBatchidRelease: (batchId: string, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/release`,
+                method: "POST",
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Checks lock and status, returns accessMode (edit/readonly). If verify-ready and unlocked, acquires lock and transitions to verifying. No request body needed, batchId is in the path.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchBatchidOpen
+         * @summary Open a batch for verification
+         * @request POST:/api/capture/batch/{batchId}/open
+         */
+        postCaptureBatchBatchidOpen: (batchId: string, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/open`,
+                method: "POST",
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Confirms a draft batch, copies files to process directory and creates document records. Returns immediately with 202 Accepted.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchBatchidDraftConfirm
+         * @summary Confirm draft batch - async processing
+         * @request POST:/api/capture/batch/{batchId}/draft/confirm
+         */
+        postCaptureBatchBatchidDraftConfirm: (
+            batchId: string,
+            data: CaptureConfirmBatchRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/draft/confirm`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Save edited OCR data without changing document status.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchBatchidDocDocidSaveDraft
+         * @summary Save document draft
+         * @request POST:/api/capture/batch/{batchId}/doc/{docId}/save-draft
+         */
+        postCaptureBatchBatchidDocDocidSaveDraft: (
+            batchId: string,
+            docId: string,
+            data: CaptureDocUpdateRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/doc/${docId}/save-draft`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Retry processing-failed document with manually selected form.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchBatchidDocDocidRetryWithForm
+         * @summary Retry document with form
+         * @request POST:/api/capture/batch/{batchId}/doc/{docId}/retry-with-form
+         */
+        postCaptureBatchBatchidDocDocidRetryWithForm: (
+            batchId: string,
+            docId: string,
+            data: CaptureDocRetryRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/doc/${docId}/retry-with-form`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Upload a new file to replace a processing-failed document and retry OCR processing.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchBatchidDocDocidReplaceAndRetry
+         * @summary Replace document file and retry
+         * @request POST:/api/capture/batch/{batchId}/doc/{docId}/replace-and-retry
+         */
+        postCaptureBatchBatchidDocDocidReplaceAndRetry: (
+            batchId: string,
+            docId: string,
+            data: {
+                /** @format binary */
+                file: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/doc/${docId}/replace-and-retry`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Save edited OCR data and set document status to verified.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchBatchidDocDocidConfirm
+         * @summary Confirm document
+         * @request POST:/api/capture/batch/{batchId}/doc/{docId}/confirm
+         */
+        postCaptureBatchBatchidDocDocidConfirm: (
+            batchId: string,
+            docId: string,
+            data: CaptureDocUpdateRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/doc/${docId}/confirm`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Confirm batch after all documents are verified. Releases lock.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchBatchidConfirm
+         * @summary Confirm batch verification
+         * @request POST:/api/capture/batch/{batchId}/confirm
+         */
+        postCaptureBatchBatchidConfirm: (batchId: string, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/confirm`,
+                method: "POST",
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchStatusCount
+         * @summary Get batch status count statistics
+         * @request POST:/api/capture/batch/status-count
+         */
+        postCaptureBatchStatusCount: (data: CaptureStatusCountRequestDTO, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/status-count`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchList
+         * @summary Query batch list with pagination and filters
+         * @request POST:/api/capture/batch/list
+         */
+        postCaptureBatchList: (data: CaptureQueryBatchListRequestDTO, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchDraft
+         * @summary Create a draft batch
+         * @request POST:/api/capture/batch/draft
+         */
+        postCaptureBatchDraft: (data: CaptureCreateTempBatchRequestDTO, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/draft`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Cancels multiple batches. Cannot cancel if any batch is completed.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchCancel
+         * @summary Cancel batches
+         * @request POST:/api/capture/batch/cancel
+         */
+        postCaptureBatchCancel: (data: CaptureBatchCancelRequestDTO, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/cancel`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
                 ...params,
             }),
 
@@ -35120,6 +36183,128 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags CaptureProjPermissionSettingController
+         * @name GetCaptureProjpermissionsettingListProjid
+         * @summary Query projectPermissionSetting Drop Down by ProjId
+         * @request GET:/api/capture/projPermissionSetting/list/{projId}
+         */
+        getCaptureProjpermissionsettingListProjid: (projId: string, params: RequestParams = {}) =>
+            this.request<ResultListCaptureProjPermissionSettingResponseDTO, any>({
+                path: `/api/capture/projPermissionSetting/list/${projId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjFormSettingController
+         * @name GetCaptureProjformsettingId
+         * @summary Query projectFormSetting info by Id
+         * @request GET:/api/capture/projFormSetting/{id}
+         */
+        getCaptureProjformsettingId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultCaptureProjFormSettingResponseDTO, any>({
+                path: `/api/capture/projFormSetting/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjFormSettingController
+         * @name GetCaptureProjformsettingGetdropdownlistbyprojidProjid
+         * @summary Query projectFormSetting Drop Down by ProjId
+         * @request GET:/api/capture/projFormSetting/getDropDownListByProjId/{projId}
+         */
+        getCaptureProjformsettingGetdropdownlistbyprojidProjid: (projId: string, params: RequestParams = {}) =>
+            this.request<ResultListCaptureProjFormSettingDropDownResponseDTO, any>({
+                path: `/api/capture/projFormSetting/getDropDownListByProjId/${projId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjFormSettingController
+         * @name GetCaptureProjformsettingDuplicateId
+         * @summary Duplicate Capture Proj Form Setting
+         * @request GET:/api/capture/projFormSetting/duplicate/{id}
+         */
+        getCaptureProjformsettingDuplicateId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultCaptureProjFormSetting, any>({
+                path: `/api/capture/projFormSetting/duplicate/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjController
+         * @name GetCaptureProjId
+         * @summary Query project info by Id
+         * @request GET:/api/capture/proj/{id}
+         */
+        getCaptureProjId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultCaptureProjResponseDTO, any>({
+                path: `/api/capture/proj/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjController
+         * @name DeleteCaptureProjId
+         * @summary Delete Capture Proj
+         * @request DELETE:/api/capture/proj/{id}
+         */
+        deleteCaptureProjId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/capture/proj/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * @description Returns document detail for verification UI. Excludes ocrResult, path, otherMetadata.
+         *
+         * @tags CaptureBatchController
+         * @name GetCaptureBatchBatchidDocDocidDetail
+         * @summary Get document detail
+         * @request GET:/api/capture/batch/{batchId}/doc/{docId}/detail
+         */
+        getCaptureBatchBatchidDocDocidDetail: (batchId: string, docId: string, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/doc/${docId}/detail`,
+                method: "GET",
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Returns batch info and its documents list.
+         *
+         * @tags CaptureBatchController
+         * @name GetCaptureBatchBatchidDetail
+         * @summary Get batch detail with document list
+         * @request GET:/api/capture/batch/{batchId}/detail
+         */
+        getCaptureBatchBatchidDetail: (batchId: string, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/detail`,
+                method: "GET",
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags AI
          * @name GetAiAskAiAiChatQueryaitopicid
          * @request GET:/api/ai/ask_ai/ai_chat/queryAiTopicId
@@ -35823,6 +37008,36 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBoolean, any>({
                 path: `/api/case/instance/instance/${caseId}`,
                 method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureFileController
+         * @name DeleteCaptureFileTempfilefrombatch
+         * @summary Remove File From Temp Batch By FileName
+         * @request DELETE:/api/capture/file/TempFileFromBatch
+         */
+        deleteCaptureFileTempfilefrombatch: (
+            query: {
+                batchId: string;
+                fileName: string;
+            },
+            data: {
+                /** @format string */
+                batchId?: string;
+                /** @format string */
+                fileName?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/capture/file/TempFileFromBatch`,
+                method: "DELETE",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
                 ...params,
             }),
 
@@ -41053,6 +42268,61 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags SmartFolderController(Admin Page)
+         * @name GetDmsSmartFolder
+         * @request GET:/admin/api/dms/smart-folder
+         */
+        getDmsSmartFolder: (
+            query?: {
+                name?: string;
+                userGroupIds?: string[];
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListSmartFolderResponseDTO, any>({
+                path: `/admin/api/dms/smart-folder`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SmartFolderController(Admin Page)
+         * @name PostDmsSmartFolder
+         * @summary Create Smart Folder Setting
+         * @request POST:/admin/api/dms/smart-folder
+         */
+        postDmsSmartFolder: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultSmartFolderResponseDTO, any>({
+                path: `/admin/api/dms/smart-folder`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SmartFolderController(Admin Page)
+         * @name PatchDmsSmartFolder
+         * @summary Save Smart Folder
+         * @request PATCH:/admin/api/dms/smart-folder
+         */
+        patchDmsSmartFolder: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultSmartFolderResponseDTO, any>({
+                path: `/admin/api/dms/smart-folder`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SmartFolderController(Admin Page)
          * @name PostDmsSmartFolderPage
          * @summary Pagination Search (Smart Folder)
          * @request POST:/admin/api/dms/smart-folder/page
@@ -44163,44 +45433,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         ) =>
             this.request<ResultDocumentTemplateResponseDTO, any>({
                 path: `/admin/api/dms/template/document/updateTemplateVariable`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags SmartFolderController(Admin Page)
-         * @name GetDmsSmartFolder
-         * @request GET:/admin/api/dms/smart-folder
-         */
-        getDmsSmartFolder: (
-            query?: {
-                name?: string;
-                userGroupIds?: string[];
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListSmartFolderResponseDTO, any>({
-                path: `/admin/api/dms/smart-folder`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags SmartFolderController(Admin Page)
-         * @name PatchDmsSmartFolder
-         * @summary Save Smart Folder
-         * @request PATCH:/admin/api/dms/smart-folder
-         */
-        patchDmsSmartFolder: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultSmartFolderResponseDTO, any>({
-                path: `/admin/api/dms/smart-folder`,
                 method: "PATCH",
                 body: data,
                 type: ContentType.Json,
@@ -47516,6 +48748,27 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultListMetadataResponseVO, any>({
                 path: `/admin/api/dms/docpal-type/metadata/list`,
                 method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDocPalTypeManagementController
+         * @name GetDmsDocpalTypeList
+         * @summary Obtain all docpal type
+         * @request GET:/admin/api/dms/docpal-type/list
+         */
+        getDmsDocpalTypeList: (
+            query?: {
+                active?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListDocumentTypeDTO, any>({
+                path: `/admin/api/dms/docpal-type/list`,
+                method: "GET",
+                query: query,
                 ...params,
             }),
 

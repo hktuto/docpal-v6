@@ -1,12 +1,12 @@
 // import { availableLocales } from 'i18n/makeI18nSetting';
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { ElNotification } from 'element-plus'
 const availableLocales = [ 'en-US', 'zh-CN', 'zh-HK']
 const pageKeys: any = {
     '/trash': ['commons_success', 'Fail', 'trash_error_noAction', 'dpTip_noSelection']
 }
 const GetLanguageApi = async(locale: string, languageKey: string) => {
-    const data: any = await clientApi.api.getDmsFormPropertiesLanguageList({locale, languageKey}, {
+    const data: any = await newClientApi.getDmsFormPropertiesLanguageList({locale, languageKey}, {
         headers: { 'noRouteErrorPage' : "true" }
     }).then(res=>res.data)
     if(!!data && !!data[0]) return {
@@ -16,7 +16,7 @@ const GetLanguageApi = async(locale: string, languageKey: string) => {
     else return {}
 }
 const SetLanguageApi = async(params: any) => {
-    return await clientApi.api.postDmsFormPropertiesLanguage(params).then(res=>res.result)
+    return await newClientApi.postDmsFormPropertiesLanguage(params).then(res=>res.result)
 }
 export const useLanguage = () => {
     const ignoreList:string[] = ['en-US', 'zh-CN', 'zh-HK']

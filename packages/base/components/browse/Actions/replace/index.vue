@@ -9,8 +9,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const { t } = useI18n()
 const props = defineProps<{ doc: any }>()
@@ -19,7 +18,7 @@ const BrowseActionsReplaceDialogRef = ref()
 
 async function handleOpenReplaceDialog(doc: any) {
   // check is the doc OCR status is pending
-  // const { data } = await clientApi.api.getNuxeoDocumentDocumentidOcrState(doc.id)
+  // const { data } = await newClientApi.getNuxeoDocumentDocumentidOcrState(doc.id)
   // const status = data;
   // if(status !== "FINISH") {
   //     // Need to update user menu

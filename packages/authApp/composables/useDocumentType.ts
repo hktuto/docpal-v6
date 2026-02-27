@@ -1,4 +1,4 @@
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 export type MetaSetting = {
     documentType?: string,
@@ -46,7 +46,7 @@ export const useDocumentType = () => {
                 name: documentType,
             }
         }   
-        const res = await clientApi.api.getDmsSettingSystem("")
+        const res = await newClientApi.getDmsSettingSystem({})
         if(res && res.data){
             allMetadataSetting.value = res.data
         }

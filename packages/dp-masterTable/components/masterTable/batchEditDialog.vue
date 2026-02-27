@@ -19,7 +19,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const { t } = useI18n()
 const props = withDefaults(
@@ -58,7 +58,7 @@ async function handleSubmit() {
       params.relationRecords = data.relationRecords
       delete params.data[0].relationRecords
     }
-    await clientApi.api.putDmsMasterTableIdBatchRecord(props.tableId, params)
+    await newClientApi.putDmsMasterTableIdBatchRecord(props.tableId, params)
     // console.log(params);
     emits('refresh')
     state.visible = false

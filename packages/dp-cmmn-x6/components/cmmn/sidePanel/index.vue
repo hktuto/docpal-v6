@@ -20,7 +20,6 @@ function nodeClickHandler({detail}) {
 }
 const editComponent = computed(() => {
     switch(nodeType.value){
-        
         case 'humanTask':
             return resolveComponent('LazyCmmnSidePanelHumanTask')
         case 'processTask':
@@ -40,7 +39,6 @@ const editComponent = computed(() => {
         default:
             return resolveComponent('LazyCmmnSidePanelCase')
     }
-    
 })
 
 useEventListener(window, 'cmmn-node-click', nodeClickHandler)

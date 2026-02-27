@@ -80,7 +80,7 @@ import { ElMessage } from 'element-plus'
 import { CopyDocument } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
 import { Base64 } from 'js-base64'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { diffMinute } = useTime()
@@ -209,7 +209,7 @@ function handleCopy(copyContent: string) {
 }
 
 async function getContactList() {
-  state.contactList = await clientApi.api.getDmsContactGroupList().then((res) => res.data)
+  state.contactList = await newClientApi.getDmsContactGroupList().then((res) => res.data)
 }
 
 const selectRef = ref()

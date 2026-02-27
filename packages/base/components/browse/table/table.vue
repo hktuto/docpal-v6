@@ -1,7 +1,6 @@
 <script lang="tsx" setup>
 import { useDebounceFn, useMagicKeys } from '@vueuse/core'
 import { emitBus, EventType, useEventBus } from 'eventbus'
-import { ElMessageBox } from 'element-plus'
 import { useSqliteTable, documentColumn, documentIndex, apiToColumn, columnToApi } from '#imports'
 import type { DocumentColumnData, DocumentApiData } from '#imports'
 
@@ -10,7 +9,7 @@ const listProvider = inject(BrowseListProviderKey)
 const routerProvider = inject(MenuRouterKey)
 const BrowseDragMove = inject('BrowseDragMove')
 const { handleDragEnd, getToolTip } = BrowseDragMove
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 if (!listProvider || !routerProvider) {
   throw new Error('BrowseListProviderKey not found')
@@ -357,7 +356,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
         code: 'docWatermark',
         name: 'filePopover_watermark',
         action: async ({ row }) => {
-          const detail = await clientApi.api.postDmsDocumentFetch({ idOrPath: row.id }).then((res) => res.data)
+          const detail = await newClientApi.postDmsDocumentFetch({ idOrPath: row.id }).then((res) => res.data)
           const ev = new CustomEvent('docWatermark', { detail: detail })
           document.dispatchEvent(ev)
         }
@@ -399,7 +398,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
         code: 'docActionDelete',
         name: 'filePopover_delete',
         action: async ({ row }) => {
-          const detail = await clientApi.api.postDmsDocumentFetch({ idOrPath: row.id }).then((res) => res.data)
+          const detail = await newClientApi.postDmsDocumentFetch({ idOrPath: row.id }).then((res) => res.data)
           const ev = new CustomEvent('docActionDelete', { detail: detail })
           document.dispatchEvent(ev)
         }
@@ -474,6 +473,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     }
     Object.keys(permissionCodes).forEach((key) => {
       const code = permissionCodes[key]
+      console.log(123,code)
       if (row.comeFrom === 'google_drive') {
         result[key] = {
           visible: false,

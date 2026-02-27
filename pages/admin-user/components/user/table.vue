@@ -152,7 +152,6 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
         code: 'sendInvitation',
         name: 'Send Invitation',
         action: ({ row }: any) => {
-          console.log('row', row)
           if (row.registered === 'Pending') {
             userProvider?.sendInvitation(row)
           }
@@ -170,7 +169,6 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     ]
   ],
   permissionMethod: ({ row, code }) => {
-    console.log('row', row)
     if (code === 'sendInvitation') {
       return {
         visible: row.registered === 'Pending',

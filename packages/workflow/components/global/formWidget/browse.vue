@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const home = ref({ secondId: '/' })
 const idOrPath = ref('')
 
@@ -47,7 +47,7 @@ defineExpose({ getFormData })
 
 provide(BrowseListProviderKey, {
   getchildApi: (pageParams: any) => {
-    return clientApi.api.postDmsDocumentChildrenThumbnail(pageParams)
+    return newClientApi.postDmsDocumentChildrenThumbnail(pageParams)
   },
   idOrPath,
   changeRoute

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { TabApp } from "#components";
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const {public : { platform }} = useRuntimeConfig()
 const localeReady = ref(false)
 const appPlatform = useAppPlatform()
@@ -97,7 +97,7 @@ async function saveTabsToLocalStorage(layout: TabPanel[]) {
     preference.value.userStoreTab = {}
   }
   preference.value.userStoreTab[appPlatform.value] = JSON.stringify(saveData)
-  await clientApi.api.putDmsUserSetting(preference.value as any)
+  await newClientApi.putDmsUserSetting(preference.value as any)
   
   // localStorage.setItem(tabStorageKey, JSON.stringify(saveData));
 }

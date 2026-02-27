@@ -3,7 +3,7 @@
     append-to-body destroy-on-close>
     <template #header>
         <div class="flex-x-between">
-            <div>{{name}}</div>
+            <div>{{ props.name }}</div>
             <div style="padding: 0 var(--app-space-xs)">
                 <slot name="header"></slot>
             </div>

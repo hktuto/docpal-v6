@@ -12612,8 +12612,8 @@ packages:
         optional: true
 
   v-form-designer@file:libraries/V-form/v-form-designer.tgz:
-    resolution: {integrity: sha512-gpPkX4Ajg3gZ80uPXyBZdRtRlsQsNf7Cg76dN6KeHiPWBnrOR4dvwzo+u3FKGQGjP6lrccmvc3ZyJWjjUKopSw==, tarball: file:libraries/V-form/v-form-designer.tgz}
-    version: 3.3.37
+    resolution: {integrity: sha512-SoY7Oz6OJudvGDJcRw6HEpxl8MN9hYtXifxuVkdx9pLXKA5VXuhVBiCfcBgcbOYH0uhhZogpRt+rwjIw7NsJrg==, tarball: file:libraries/V-form/v-form-designer.tgz}
+    version: 3.3.39
 
   v-viewer@3.0.22:
     resolution: {integrity: sha512-uYyP5FPT4K/Sd5D1mhB2HMVV8jnf6zYy2HD1PHCNAO6s2Iway+Wls60pwh7y4F3e2Nlc9549Pvy2HXaq8PKrAg==}

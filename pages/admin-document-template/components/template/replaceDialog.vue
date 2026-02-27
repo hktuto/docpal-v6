@@ -43,7 +43,7 @@ async function handleSubmit() {
     const formData = new FormData()
     formData.append('file', file)
     formData.append('id', state.setting.id)
-    await newAdminApi.putDmsTemplateDocumentUpload({ requestDTO: {} }, formData as any).then(r => r.data)
+    await newAdminApi.putDmsTemplateDocumentUpload(formData as any).then(r => r.data)
     state.visible = false
     emits('refresh')
   } catch (error) {

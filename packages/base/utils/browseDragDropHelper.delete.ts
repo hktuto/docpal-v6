@@ -12,7 +12,7 @@ import { containsFiles, getFiles } from '@atlaskit/pragmatic-drag-and-drop/exter
 import { dropTargetForExternal } from '@atlaskit/pragmatic-drag-and-drop/external/adapter';
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus';
 import { rowKey } from 'element-plus/es/components/table-v2/src/common.mjs';
-import { clientApi } from 'api';
+import { newClientApi } from 'api';
 import { emitBus, EventType } from 'eventbus';
 import { Loading } from '@element-plus/icons-vue';
 
@@ -173,7 +173,7 @@ export function createDropableBreadcrumb(element: HTMLElement, row: any, tableRe
         }
         element.classList.remove('dropOver');
         const { $i18n } = useNuxtApp();
-        const dropItemDetail = await clientApi.api.postDmsDocumentFetch({ idOrPath: row.id });
+        const dropItemDetail = await newClientApi.postDmsDocumentFetch({ idOrPath: row.id });
         if (!dropItemDetail.data || !dropItemDetail.data.parentRef) return;
         ElMessageBox.confirm(
           $i18n.t('browse.confirmMoveFile', {
@@ -187,7 +187,7 @@ export function createDropableBreadcrumb(element: HTMLElement, row: any, tableRe
           const copyItems = Array.isArray(args.source.data.data) ? args.source.data.data : [args.source.data.data];
           //check duplicate'
 
-          const hasDuplicateTitle: boolean = await clientApi.api.postDmsDocumentIsduplicatename({
+          const hasDuplicateTitle: boolean = await newClientApi.postDmsDocumentIsduplicatename({
             path: row.path,
             titles: copyItems.map(item => item.name)
           }).then(r => r.data?.hasDuplicateTitle)
@@ -216,8 +216,8 @@ export function createDropableBreadcrumb(element: HTMLElement, row: any, tableRe
               position: 'bottom-right'
             });
             try {
-              await clientApi.api.postDmsDocumentMove(param).then(r => r.data)
-              const copyItemDetail = await clientApi.api.postDmsDocumentFetch({ idOrPath: item.id });
+              await newClientApi.postDmsDocumentMove(param).then(r => r.data)
+              const copyItemDetail = await newClientApi.postDmsDocumentFetch({ idOrPath: item.id });
             } finally {
               noti.close();
             }
@@ -331,7 +331,7 @@ export function createDropableFolder(element: HTMLElement, row: any, tableRef: R
         }
         element.classList.remove('dropOver');
         const { $i18n } = useNuxtApp();
-        const dropItemDetail = await clientApi.api.postDmsDocumentFetch({ idOrPath: row.id });
+        const dropItemDetail = await newClientApi.postDmsDocumentFetch({ idOrPath: row.id });
         if (!dropItemDetail.data || !dropItemDetail.data.parentRef) return;
         ElMessageBox.confirm(
           $i18n.t('browse.confirmMoveFile', {
@@ -345,7 +345,7 @@ export function createDropableFolder(element: HTMLElement, row: any, tableRef: R
           const copyItems = Array.isArray(args.source.data.data) ? args.source.data.data : [args.source.data.data];
           //check duplicate'
 
-          const hasDuplicateTitle = await clientApi.api.postDmsDocumentIsduplicatename({
+          const hasDuplicateTitle = await newClientApi.postDmsDocumentIsduplicatename({
             path: row.path,
             titles: copyItems.map(item => item.name)
           }).then(r => r.data?.hasDuplicateTitle);
@@ -373,8 +373,8 @@ export function createDropableFolder(element: HTMLElement, row: any, tableRef: R
               position: 'bottom-right'
             });
             try {
-              await clientApi.api.postDmsDocumentMove(param).then(r => r.data)
-              const copyItemDetail = await clientApi.api.postDmsDocumentFetch({ idOrPath: item.id });
+              await newClientApi.postDmsDocumentMove(param).then(r => r.data)
+              const copyItemDetail = await newClientApi.postDmsDocumentFetch({ idOrPath: item.id });
             } finally {
               noti.close();
             }
@@ -469,7 +469,7 @@ export function createRootDropZone(tableRef: Ref<any>, docDetail: Ref<any>) {
           const copyItems = Array.isArray(args.source.data.data) ? args.source.data.data : [args.source.data.data];
           //check duplicate'
 
-          const hasDuplicateTitle = await clientApi.api.postDmsDocumentIsduplicatename({
+          const hasDuplicateTitle = await newClientApi.postDmsDocumentIsduplicatename({
             path: docDetail.value.path,
             titles: copyItems.map(item => item.name)
           }).then(r => r.data?.hasDuplicateTitle)
@@ -497,8 +497,8 @@ export function createRootDropZone(tableRef: Ref<any>, docDetail: Ref<any>) {
               position: 'bottom-right'
             });
             try {
-              await clientApi.api.postDmsDocumentMove(param).then(r => r.data)
-              const copyItemDetail = await clientApi.api.postDmsDocumentFetch({ idOrPath: item.id }).then(r => r.data)
+              await newClientApi.postDmsDocumentMove(param).then(r => r.data)
+              const copyItemDetail = await newClientApi.postDmsDocumentFetch({ idOrPath: item.id }).then(r => r.data)
             } finally {
               noti.close();
             }

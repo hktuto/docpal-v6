@@ -12,7 +12,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { publicApi } from 'api'
+import { newClientApi } from 'api'
 import formJson from './dialog.vform.json'
 import { ElMessage } from 'element-plus'
 
@@ -35,7 +35,7 @@ async function handleSubmit() {
       access: data.access.join(',')
     }
     if (state.edit) {
-      const res = await publicApi.api.putUserDashboard({
+      const res = await newClientApi.putDsbUserDashboards({
         ...state.setting,
         ..._data
       })
@@ -47,7 +47,7 @@ async function handleSubmit() {
       )
       emits('refresh')
     } else {
-      const res = await publicApi.api.postUserDashboard(_data)
+      const res = await newClientApi.postDsbUserDashboards(_data)
       ElMessage.success(t('tip_createdMsg', {
         modelName: t('tip_newMsg') + t('dashboard.PersonalDashboard'),
         name: _data.name

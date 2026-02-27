@@ -1,6 +1,6 @@
 import { useDebounceFn } from '@vueuse/core'
 import { emitBus, EventType } from 'eventbus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
 export const useBrowseBreadcrumbDrop = () => {
   const currentRow = ref<any>({
@@ -18,7 +18,7 @@ export const useBrowseBreadcrumbDrop = () => {
     const dropRow = JSON.parse(JSON.stringify(currentRow.value))
     BrowseDragMove.setDropRow(dropRow, true)
     handleDragleave()
-    const docDetail = await clientApi.api.getDmsDocument({ idOrPath: dropRow.data.id }).then((res: any) => res.data)
+    const docDetail = await newClientApi.getDmsDocument({ idOrPath: dropRow.data.id }).then((res: any) => res.data)
     if (!docDetail) return
     const canDrop = RbacAllowTo('create', { ...docDetail })
     if (!canDrop) {

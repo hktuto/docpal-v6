@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const props = defineProps<{
   doc: any,
@@ -67,7 +67,7 @@ const handleConfirm = async () => {
     documents: [{ idOrPath: props.doc.id }],
     collection: { idOrPath: collection.id }
   }
-  clientApi.api.postDmsCollectionDocuments(param).then((res) => {
+  newClientApi.postDmsCollectionDocuments(param).then((res) => {
     selected.value = ''
     if (!res) return
     emit('handleAdd', props.doc.id)
@@ -81,7 +81,7 @@ const handleGetCollection = async () => {
   if (index !== -1) {
     return myCollection.value[index]
   }
-  const newCollection = await clientApi.api.postDmsCollection({ name: selected.value }).then(res => res.data)
+  const newCollection = await newClientApi.postDmsCollection({ name: selected.value }).then(res => res.data)
   await getCollection()
   if (!!newCollection) {
     allCollection.value.push(newCollection)
@@ -108,7 +108,7 @@ async function querySearchAsync(queryString, cb) {
 
 async function getCollection() {
   try {
-    allCollection.value = await clientApi.api.getDmsCollection().then(res => res.data.entryList) || []
+    allCollection.value = await newClientApi.getDmsCollection().then(res => res.data.entryList) || []
   } catch (error) {
     allCollection.value = []
   }

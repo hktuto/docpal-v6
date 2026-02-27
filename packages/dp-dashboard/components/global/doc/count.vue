@@ -12,9 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-import * as echarts from 'echarts'
-import { useEventListener, watchDebounced } from '@vueuse/core'
-import { publicApi } from 'api'
+import { newClientApi } from 'api'
 
 const props = withDefaults(
   defineProps<{
@@ -70,8 +68,7 @@ async function getData(documentType: string) {
         to: props.dates[1]
       }
     }
-    const res = await publicApi.api.postDashboardDocumenttypeofcountbyrange(params).then((res) => res.data)
-    state.initData = res
+    state.initData  = await newClientApi.postDsbDocumentTypeCountRange(params).then((res) => res.data)
     let others = 0
     state.data = state.initData.reduce((prev:any, item: any) => {
       if (item.key === documentType) {

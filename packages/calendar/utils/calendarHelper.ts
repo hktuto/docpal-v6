@@ -1,5 +1,5 @@
 import type { CalendarEventExternal } from '@schedule-x/calendar'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import type { CalendarTaskRespDTO } from 'api/src/generate/client'
 import dayjs, { Dayjs } from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -86,7 +86,7 @@ export async function getEventFromApi(calendarApp: any, calendarControls: any, f
   const user = localStorage.getItem('docpal-user')
   const userId = user ? JSON.parse(user).userId : undefined
   // TODO : backend is missing filter
-  const data = await clientApi.api.postDmsCalendarsList(params).then(res => res.data)
+  const data = await newClientApi.postDmsCalendarsList(params).then(res => res.data)
   const calendarLocation = useCalenarLocation()
 
   const events = data.filter((event: any) => {

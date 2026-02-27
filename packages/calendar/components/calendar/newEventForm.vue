@@ -2,7 +2,7 @@
 import dayjs from 'dayjs'
 import { ElMessage, ElTimeSelect } from 'element-plus'
 import { snapDownTo15Minutes } from '../../utils/calendarHelper'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const opened = ref(false)
 const newEventId = defineModel<string>('newEventId')
@@ -41,11 +41,11 @@ async function getFilterOptions() {
   let user: any[] = []
   console.log('getFilterOptions', options.createUserFilter)
   if (options.createUserFilter) {
-    const res = await clientApi.api.getPermissionUserGroupGroupidUsers(options.createUserFilter).then(res => res.data)
+    const res = await newClientApi.getPermissionUserGroupGroupidUsers(options.createUserFilter).then(res => res.data)
     user = res.users.filter(item => item.status).sort((a, b) => a.username.localeCompare(b.username))
     console.log('user', user)
   } else {
-    user =  await clientApi.api.postUcenterUsers({}).then((res) => res.data)
+    user =  await newClientApi.postUcenterUsers({}).then((res) => res.data)
     user = user.filter(item => item.status).sort((a, b) => a.username.localeCompare(b.username))
   }
   userFiterOptions.value = user.map(item => {

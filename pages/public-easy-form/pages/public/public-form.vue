@@ -14,7 +14,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const route = useRoute()
 const router = useRouter()
@@ -29,7 +29,7 @@ const FormRendererRef = ref()
 async function getFormJson() {
   try {
     state.formJsonLoad = true
-    state.detail = await clientApi.api.getDmsEasyFormIdDetail(route.query?.id as string).then(res => res.data)
+    state.detail = await newClientApi.getDmsEasyFormIdDetail(route.query?.id as string).then(res => res.data)
     console.log(state.detail)
     const json = state.detail.previewStyle
     state.formJson = JSON.parse(json)
@@ -63,7 +63,7 @@ async function handleSubmit() {
     // easy form email 日志追踪
     // const logId = route.query.emailBusinessLogId
     // if(!!logId) params.emailBusinessLogId = logId
-    await clientApi.api.postDmsEasyFormSubmitData({
+    await newClientApi.postDmsEasyFormSubmitData({
       id: route.query.id as string,
       emailBusinessLogId: route.query.emailBusinessLogId,
       params

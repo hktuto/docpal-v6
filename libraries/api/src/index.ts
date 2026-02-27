@@ -1,10 +1,10 @@
 import { Admin } from './generate/admin'
-import { Public } from './generate/public'
+// import { Public } from './generate/public'
 import { Template } from './generate/template'
 import { Standard } from './generate/newClient'
 
 let clientBaseURL = '/'
-let publicBaseURL = '/public-api/report/v1/api'
+// let publicBaseURL = '/public-api/report/v1/api'
 let templateBaseURL = '/open-api/template'
 
 export const clientApi = new Standard({
@@ -23,10 +23,10 @@ export const newAdminApi = clientApi.admin
 
 export const globalApi = window.location.pathname.includes('admin') ? newAdminApi : newClientApi
 
-export const publicApi = new Public({
+/*export const publicApi = new Public({
   baseURL: publicBaseURL,
   timeout: 50000
-})
+})*/
 
 export const templateApi = new Template({
   baseURL: templateBaseURL,

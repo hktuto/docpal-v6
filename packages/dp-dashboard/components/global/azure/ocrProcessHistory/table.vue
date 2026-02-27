@@ -12,13 +12,14 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { publicApi } from 'api'
+import { newClientApi } from 'api'
+
 const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'd-azure',
   zoom: false,
-  api: (pageParams: any) => publicApi.api.postOcrQueryOcrTransactionLogs({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newClientApi.postDsbOcrTransactionLogs({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'businessName', title: 'dpTableHeader.businessName', fixed: 'left' },
     { field: 'workflow', title: 'azureDashboard.workflow' },
@@ -44,14 +45,17 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   ]
 })
 const ResponsiveFilterRef = ref()
+
 async function getFilter() {
-  const data = await publicApi.api.getOcrConditions().then((res) => res.data)
+  const data = await newClientApi.getDsbOcrConditions().then((res) => res.data)
   ResponsiveFilterRef.value.init(data)
 }
+
 function handleFilterFormChange(formModel: any) {
   extraParams = formModel
   reload()
 }
+
 onMounted(() => {
   getFilter()
 })

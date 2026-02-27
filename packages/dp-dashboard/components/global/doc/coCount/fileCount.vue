@@ -5,7 +5,8 @@
 </template>
 
 <script lang="ts" setup>
-import { publicApi } from 'api'
+import { newClientApi } from 'api'
+
 const props = withDefaults(
   defineProps<{
     dates?: any
@@ -61,28 +62,27 @@ const { chartRef, cardRef, resize, handleInitCard } = useDashboardCard({
     return resultOptions
   }
 })
+
 // #region module: set
 function initStyle() {
   const pHeight = cardRef.value.offsetHeight
   const pWidth = cardRef.value.offsetWidth
   chartRef.value.style = `height: ${pHeight}px; width: ${pWidth - 20}px`
 }
+
 // #endregion
 
 async function GetCoCountData(params: any, creator?: string) {
   if (creator)
-    return await publicApi.api
-      .postDashboardNewfilesofspecifyusercountbydtypebymonthlycumulation({
-        ...params,
-        creator
-      })
-      .then((res) => res.data)
-  return await publicApi.api
-    .postDashboardNewfilesofuserscountbydtypebymonthlycumulation(params, {
-      baseURL: '/dashboard'
-    })
-    .then((res) => res.data)
+    return await newClientApi.postDsbNewFilesUserCountDtypeMonthlyCumulation({
+      ...params,
+      creator
+    }).then((res) => res.data)
+  return await newClientApi.postDsbNewFilesUsersCountDtypeMonthlyCumulation(params, {
+    baseURL: '/dashboard'
+  }).then((res) => res.data)
 }
+
 // #region module: setting
 
 async function getData(documentType: string) {

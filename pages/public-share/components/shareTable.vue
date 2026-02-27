@@ -19,7 +19,7 @@
   <ReaderDialog ref="ReaderRef" v-bind="previewFile" :options="{ readOnly: true, print: false, loadAnnotations: false }"> </ReaderDialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import dayjs from 'dayjs'
 
 const { t } = useI18n()
@@ -84,7 +84,7 @@ async function handleDblclick(row: any) {
       password: sessionStorage.getItem('sharePWD'),
       documentId: fileId
     }
-    previewFile.blob = await clientApi.api.getDmsPublicShareDocumentsDocumentidPreview(params, {
+    previewFile.blob = await newClientApi.getDmsPublicShareDocumentsDocumentidPreview(params, {
       format: 'blob'
     })
   } catch (error) {}
@@ -101,7 +101,7 @@ async function handleDownload(row: any) {
       password: sessionStorage.getItem('sharePWD'),
       documentId: row.id
     }
-    const blob: any = await clientApi.api.getDmsPublicShareDocumentsDocumentidDownload(params, {
+    const blob: any = await newClientApi.getDmsPublicShareDocumentsDocumentidDownload(params, {
       format: 'blob'
     })
     downloadBlob(blob, row.name || row.title, blob.type)

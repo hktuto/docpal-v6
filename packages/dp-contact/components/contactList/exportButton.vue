@@ -11,7 +11,7 @@
   </el-dropdown>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const props = defineProps<{
   id: string
@@ -23,7 +23,7 @@ const loading = ref(false)
 async function handleExport(command: string) {
   try {
     loading.value = true
-    const res = await clientApi.api.postDmsContactGroupIdContactdetailExport(
+    const res = await newClientApi.postDmsContactGroupIdContactdetailExport(
       props.id,
       {
         fileType: command

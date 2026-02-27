@@ -1,6 +1,6 @@
 import type { WidgetItem } from '@/types/vform'
 import type { DocumentMetadata, VariableItem } from '@/types/vform.extend'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { mounteMasterTableOptions, mounteRoleOptions } from './metadata.vform.extent'
 import dayjs from 'dayjs'
 
@@ -40,7 +40,7 @@ export const useMetadata = () => {
   const getDocumentMetadata = async (type: string, isInitOption = true): Promise<any> => {
     try {
       // type = 'testOy'
-      const { data }: any = await clientApi.api.getTypesMetadataGenerateJsonSchemaDocpaltypename(type, {
+      const { data }: any = await newClientApi.getDmsDocpalTypeDocpaltypenameSchema(type, {
         headers: { noThrowError: 'true' }
       })
       console.log('data', data)
@@ -453,7 +453,7 @@ export const getMasterTableOptions = async ({
   valueColumn: string
 }): Promise<any> => {
   try {
-    const record: any = await clientApi.api.postDmsMasterTableRecordPageNonpermission({
+    const record: any = await newClientApi.postDmsMasterTableRecordPageNonpermission({
       name: masterTableName
     })
       .then((res) => res.data)
@@ -477,7 +477,7 @@ function getParseDataItem(s: string) {
 
 export async function getUserList() {
   try {
-    const data: any =  await clientApi.api.postUcenterUsers({}).then((res) => res.data)
+    const data: any =  await newClientApi.postUcenterUsers({}).then((res) => res.data)
     return data.map((item: any) => ({
       label: item.username,
       value: item.userId
@@ -490,7 +490,7 @@ export async function getUserList() {
 
 export async function getRoleList(type: string = 'role') {
   try {
-    const data = await clientApi.api.getDocpalAclRoleRoot().then((res: any) => res.data)
+    const data = await newClientApi.getDocpalAclRoleRoot().then((res: any) => res.data)
     const roleList = data ? makeFlapRoleList([data]) : []
     return roleList.map((item: any) => ({
       label: item.name,
@@ -517,7 +517,7 @@ function makeFlapRoleList(data: any[], roleList: any[] = []) {
 
 export async function getUserGroupList(type: string = 'group') {
   try {
-    const data: any = await clientApi.api.postUcenterGroups().then(r => r.data)
+    const data: any = await newClientApi.postUcenterGroups().then(r => r.data)
     return data.map((item: any) => ({
       label: item.name,
       value: item.id,

@@ -11,9 +11,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { publicApi } from 'api'
 import formJson from './setting.vform.json'
-import { ElMessage } from 'element-plus'
 const emits = defineEmits(['refresh', 'add'])
 const { t } = useI18n()
 const state = reactive({
