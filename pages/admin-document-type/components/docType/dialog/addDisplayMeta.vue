@@ -56,8 +56,7 @@
     </el-form>
 
     <template #footer>
-      <el-button id="DocumentType__DisplayMeta__AddNewDisplayMeta__Submit" type="primary" :loading="state.loading"
-                 @click="handleSubmit()">
+      <el-button id="DocumentType__DisplayMeta__AddNewDisplayMeta__Submit" type="primary" :loading="state.loading" @click="handleSubmit()">
         {{ $t('common_submit') }}
       </el-button>
       <el-button
@@ -133,13 +132,15 @@ async function handleSubmit(addMore: boolean = false) {
     state.loading = true
     // Add or update metadata
     if (state.isEdit) {
-      await newAdminApi.putAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, formData)
-      routerProvider?.message.success(t('tip_updateMsg', {
-        modelName: t('tip_SelectedMsg') + t('docType_displayMeta'),
-        name: null
-      }))
+      await newAdminApi.putDmsDocpalTypeDocpaltypeidMetadata(props.id, formData)
+      routerProvider?.message.success(
+        t('tip_updateMsg', {
+          modelName: t('tip_SelectedMsg') + t('docType_displayMeta'),
+          name: null
+        })
+      )
     } else {
-      await newAdminApi.postAdmindmsDocpalTypeDocpaltypeidMetadata(props.id, formData).then(r => r.data)
+      await newAdminApi.postDmsDocpalTypeDocpaltypeidMetadata(props.id, formData).then((r) => r.data)
       ElMessage.success(t('common_addSuccess'))
     }
     const newMetadata = JSON.parse(JSON.stringify(formData))

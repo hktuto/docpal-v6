@@ -12,7 +12,7 @@
   </el-card>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const props = defineProps(['detail'])
 const { t } = useI18n()
@@ -26,7 +26,7 @@ async function handleSave() {
     name: item.name,
     type: item.type
   }))
-  await clientApi.admin.postAdmindmsEasyFormSaveInformation({
+  await newAdminApi.postDmsEasyFormSaveInformation({
     information,
     id: props.detail.id
   })

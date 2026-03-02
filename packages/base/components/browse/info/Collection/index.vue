@@ -23,7 +23,7 @@
 
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const props = defineProps<{
   doc: any,
@@ -48,7 +48,7 @@ async function handleDelete(collection) {
     documents: [{ idOrPath: props.doc.id }],
     collection: { idOrPath: collection.id }
   }
-  const res = await clientApi.api.postDmsCollectionDocumentsRemove(param).then(res => res.data)
+  const res = await newClientApi.postDmsCollectionDocumentsRemove(param).then(res => res.data)
   await getCollection()
   if (!res) return
 }
@@ -58,7 +58,7 @@ function handleAddCollection() {
 }
 
 async function getCollection() {
-  collections.value = await clientApi.api.postDmsDocumentCollections({ idOrPath: doc.value.id }).then(res => res.data) as any
+  collections.value = await newClientApi.postDmsDocumentCollections({ idOrPath: doc.value.id }).then(res => res.data) as any
 }
 
 watch(doc, (val) => {

@@ -30,7 +30,7 @@ async function sendInvitation(data: any) {
     throw new Error('only non-register user can be invitate')
   }
   try {
-    const response = await newAdminApi.getAdminucenterSendInitPasswordEmailUserid(data.userId).then((r) => r.data)
+    const response = await newAdminApi.getUcenterSendInitPasswordEmailUserid(data.userId).then((r) => r.data)
     console.log('response', response)
     routerProvider?.message.success('Invitation sent successfully')
   } catch (error) {
@@ -51,7 +51,7 @@ function handleFilterChange(filter: any) {
 // #endregion
 provide(userProviderKey, {
   getAllUsersApi: async (params: any) => {
-    const res: any = await newAdminApi.postAdminucenterGetAllUsers({
+    const res: any = await newAdminApi.postUcenterGetAllUsers({
       ...params,
       ...userTableFilter
     })
@@ -66,17 +66,20 @@ provide(userProviderKey, {
     return newClientApi.postUcenterBatchActive(params)
   },
   BatchDeleteUserApi: (params: any) => {
-    return newAdminApi.postAdminucenterUsersBatchDelete(params)
+    return newAdminApi.postUcenterUsersBatchDelete(params)
   },
   getAllUserAndActiveCountApi: async () => {
-    const res = await newAdminApi.postAdminucenterGetLicenseUserNumAndActiveCount()
+    const res = await newAdminApi.postUcenterGetLicenseUserNumAndActiveCount()
     return res.data
   },
+  BatchUserAddGroupsApi: (params: any) => {
+    return newAdminApi.postUcenterUserBatchAddGroups(params)
+  },
   BatchUsersToGroupsApi: (params: any) => {
-    return newAdminApi.postAdminucenterUsersBatchAddGroups(params)
+    return newAdminApi.postUcenterUsersBatchAddGroups(params)
   },
   GetGroupListApi: async () => {
-    return await newAdminApi.postAdminucenterGroups().then((r) => r.data)
+    return await newAdminApi.postUcenterGroups().then((r) => r.data)
   },
   sendInvitation,
   openUserDetail

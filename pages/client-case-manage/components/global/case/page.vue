@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { caseManageDetailPage } from '~/utils/routerHelper'
 
 const { t } = useI18n()
@@ -18,8 +18,7 @@ const {
   cleanSelectedRows
 } = useVxeTable({
   id: 'clientCaseList',
-  api: async (pageParams: any) =>
-    clientApi.api.postCaseTypesPage({ ...pageParams, ...extraParams }),
+  api: async (pageParams: any) => newClientApi.postCaseTypesPage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'name', title: 'caseManagement.name' },
     {

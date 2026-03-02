@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import type { Node } from '@antv/x6'
 
 const { t } = useI18n()
@@ -33,7 +33,7 @@ const updateFieldsList = ref([])
 
 async function getCaseLise() {
   try {
-    const data: any = await clientApi.admin.getAdmincaseTypes({ deployed: true }).then((r: any) => r.data)
+    const data: any = await newAdminApi.getCaseTypes({ deployed: true }).then((r: any) => r.data)
     caseList.value = data.map((item: any) => {
       return {
         id: item.id,
@@ -118,7 +118,7 @@ function handelFieldsList() {
 async function getCaseOption() {
   loading.value = true
   try {
-    const caseData: any = await clientApi.admin.getAdmincaseTypesIdStarttask(form.value.attr_caseTypeId).then(r => r.data)
+    const caseData: any = await newAdminApi.getCaseTypesIdStarttask(form.value.attr_caseTypeId).then(r => r.data)
     if (!caseData) {
       caseOptionList.value = []
       return

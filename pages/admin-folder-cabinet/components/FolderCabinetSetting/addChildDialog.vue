@@ -36,7 +36,7 @@ async function handleSubmit() {
     state.loading = true
     if (params.isEdit) {
       params.id = state.setting?.id
-      await newAdminApi.patchAdmindmsCabinetTemplate(params)
+      await newAdminApi.patchDmsCabinetTemplate(params)
     } else {
       const labelRule = [
         {
@@ -46,7 +46,7 @@ async function handleSubmit() {
         }
       ]
       params.parentId = state.setting?.id
-      await newAdminApi.postAdmindmsCabinetTemplate({ ...params, labelRule: JSON.stringify(labelRule) })
+      await newAdminApi.postDmsCabinetTemplate({ ...params, labelRule: JSON.stringify(labelRule) })
       ElMessage.success(t('tip_createdSuccessMsg', { modelName: t('folder_folderUnder'), name: state.setting.label }))
     }
     FormRendererRef.value.vFormRenderRef.resetForm()

@@ -116,7 +116,7 @@
 <script lang="ts" setup>
 import { ElMessageBox, ElNotification, ElMessage } from 'element-plus'
 import { emitBus, EventType } from 'eventbus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 
@@ -251,7 +251,7 @@ async function handleDeleteFile(data: any) {
       return action
     })
     if (action !== 'confirm') return
-    await clientApi.api.deleteDmsUploadTmpFileId(data.id).then(r => r.data)
+    await newClientApi.deleteDmsUploadTmpFileId(data.id).then(r => r.data)
     treeRef.value.remove(data)
   } catch (error) {
     console.log(error)
@@ -267,7 +267,7 @@ async function handleDiscard() {
       return action
     })
     if (action !== 'confirm') return
-    await clientApi.api.postDmsUploadCancel({ userId: userId.value, uploadId: id }).then(r => r.data)
+    await newClientApi.postDmsUploadCancel({ userId: userId.value, uploadId: id }).then(r => r.data)
 
     const item = goAiUploadDetail()
     routerProvider?.navigateTo(item)
@@ -299,7 +299,7 @@ function checkExtension(filename: string) {
 async function handleRetry() {
   state.retryLoading = true
   try {
-    const result = await clientApi.api.getDmsDocumentRetryClassificationUploadid(id)
+    const result = await newClientApi.getDmsDocumentRetryClassificationUploadid(id)
     if (!!result) {
       state.status = 'Prepare'
       routerProvider?.updateProps({
@@ -350,7 +350,7 @@ async function handleSubmit() {
   try {
     state.submitLoading = true
     if (await checkFailedListExist(fileConfirmDTOList)) return
-    const data: any = await clientApi.api.postDmsUploadConfirm({
+    const data: any = await newClientApi.postDmsUploadConfirm({
       userId: userId.value,
       uploadId: id,
       fileConfirmDTOList
@@ -374,7 +374,7 @@ async function handleSubmit() {
 }
 
 async function checkFailedListExist(fileConfirmDTOList: any[]): Promise<boolean> {
-  const checkFailedList: any = await clientApi.api.postDmsUploadValidation({
+  const checkFailedList: any = await newClientApi.postDmsUploadValidation({
     uploadId: id,
     fileCheckList: fileConfirmDTOList.reduce((prev, item) => {
       if (!item.parentId) {
@@ -408,7 +408,7 @@ async function checkFailedListExist(fileConfirmDTOList: any[]): Promise<boolean>
 }
 
 async function init() {
-  let docList: any = await clientApi.api.postDmsUploadQueryItems({
+  let docList: any = await newClientApi.postDmsUploadQueryItems({
     userId: userId.value,
     uploadId: id
   }).then((res) => res.data)

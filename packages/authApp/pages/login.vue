@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const loading = ref(false)
 const form = reactive({
@@ -13,16 +13,15 @@ const rules = {
   username: [{ required: true, message: 'Please input Username', trigger: 'blur' }],
   password: [{ required: true, message: 'Please input Password', trigger: 'blur' }]
 }
+
 async function submit() {
   try {
     loading.value = true
     errorMessage.value = ''
-    const { data } = await clientApi.instance
-      .post('/api/auth/login', {
-        username: form.username,
-        password: form.password
-      })
-      .then((res) => res.data)
+    const data = await newClientApi.postAuthLogin({
+      username: form.username,
+      password: form.password
+    }).then((res) => res.data)
     localStorage.setItem('access_token', data.access_token)
     localStorage.setItem('token', data.access_token)
     localStorage.setItem('refresh_token', data.refresh_token)
@@ -57,6 +56,7 @@ function forgetPassword() {
   const router = useRouter()
   router.push('/forgetPassword')
 }
+
 const languageReady = ref(false)
 
 async function initLoginPage() {
@@ -75,6 +75,7 @@ async function initLoginPage() {
     })
   }
 }
+
 onMounted(() => {
   initLoginPage()
 })
@@ -114,6 +115,7 @@ onMounted(() => {
   display: grid;
   place-items: center;
 }
+
 .fromContainer {
   width: clamp(300px, calc(100vw - 4rem), 600px);
   display: flex;
@@ -121,6 +123,7 @@ onMounted(() => {
   justify-content: flex-start;
   align-items: stretch;
 }
+
 .logo {
   --icon-size: clamp(100px, 80%, 200px);
   max-width: 200px;

@@ -34,7 +34,7 @@ function openUserList(openInNewTab: boolean = false) {
 }
 
 async function getUser() {
-  const data: any = await newAdminApi.getAdminucenterUserUserid(id).then((r) => r.data)
+  const data: any = await newAdminApi.getUcenterUserUserid(id).then((r) => r.data)
   if (!data) return
   console.log('user info', data)
   data.status = data.status === 'A' ? 'A' : 'D'
@@ -49,22 +49,22 @@ provide(userProviderDetailKey, {
     return newClientApi.postUcenterBatchActive(params)
   },
   BatchDeleteUserApi: (params: any) => {
-    return newAdminApi.postAdminucenterUsersBatchDelete(params)
+    return newAdminApi.postUcenterUsersBatchDelete(params)
   },
   PatchUserPasswordApi: (params: any) => {
-    return newAdminApi.patchAdminucenterUserPassword(params)
+    return newAdminApi.patchUcenterUserPassword(params)
   },
   MemberGroupGetApi: (params: any) => {
-    return newAdminApi.postAdminucenterMemberGroup(params)
+    return newAdminApi.postUcenterMemberGroup(params)
   },
   BatchUserRemoveGroupsApi: (params: any) => {
-    return newAdminApi.postAdminucenterUserBatchRemoveGroups(params)
+    return newAdminApi.postUcenterUserBatchRemoveGroups(params)
   },
   BatchUserAddGroupsApi: (params: any) => {
-    return newAdminApi.postAdminucenterUserBatchAddGroups(params)
+    return newAdminApi.postUcenterUserBatchAddGroups(params)
   },
   GetGroupListApi: async () => {
-    return await newAdminApi.postAdminucenterGroups().then((r) => r.data)
+    return await newAdminApi.postUcenterGroups().then((r) => r.data)
   },
   getUser,
   openUserList

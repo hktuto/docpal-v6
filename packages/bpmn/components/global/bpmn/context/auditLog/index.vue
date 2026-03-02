@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Node } from '@antv/x6'
 import { ElMessage } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const { t } = useI18n()
 const { node } = defineProps<{
@@ -17,7 +17,7 @@ const caseList = ref([])
 
 async function getCaseLise() {
   try {
-    const data: any = await clientApi.api.getCaseTypes({ deployed: true }).then((r: any) => r.data)
+    const data: any = await newClientApi.getCaseTypes({ deployed: true }).then((r: any) => r.data)
     caseList.value = data.map((item: any) => {
       return {
         id: item.id,

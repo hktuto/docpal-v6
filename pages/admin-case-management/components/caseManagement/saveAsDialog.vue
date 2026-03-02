@@ -28,7 +28,7 @@ let versionList: any[] = []
 
 async function getVersionList() {
   // get version list
-  const response = await newAdminApi.postAdmincaseTypesVersionPage({
+  const response = await newAdminApi.postCaseTypesVersionPage({
     pageNum: 0,
     pageSize: 1000,
     caseTypeId: data.id || data.draftId
@@ -68,10 +68,10 @@ async function save() {
       versionId: versionId
     }
 
-    const copyRes: any = await newAdminApi.postAdmincaseTypesIdCopy(data.id, params).then((res) => res.data)
+    const copyRes: any = await newAdminApi.postCaseTypesIdCopy(data.id, params).then((res) => res.data)
     // get case detail
 
-    const blob = (await newAdminApi.getAdmincaseTypesIdDownloadXml(
+    const blob = (await newAdminApi.getCaseTypesIdDownloadXml(
       data.id,
       { versionNumber: formData.copyVersion },
       {
@@ -82,13 +82,13 @@ async function save() {
     const v = cmmnToJson(cmmnString)
     const humanTasks = v.definitions.case.casePlanModel.humanTask || []
 
-    // const data = await newAdminApi.postAdmincaseTypesVersionVersionidNew(props.caseTypeId).then(r => r.data)
+    // const data = await newAdminApi.postCaseTypesVersionVersionidNew(props.caseTypeId).then(r => r.data)
     //TODO : get all form in case and save as to new version
     // Step 1 : get all form in case
     // const allFrom = await xmlRef.value.getAllForm()
     for (let i = 0; i < humanTasks.length; i++) {
       const task = humanTasks[i] as any
-      const response = await newAdminApi.getAdmindmsFormPropertiesQuery({
+      const response = await newAdminApi.getDmsFormPropertiesQuery({
         processKey: data.name,
         userTaskId: task.attr_id,
         versionId: versionId
@@ -100,7 +100,7 @@ async function save() {
           versionId: copyRes?.latestVersionId
         }
         params.jsonValue = response[0].jsonValue
-        await newAdminApi.postAdmindmsFormPropertiesSave(params).then(r => r.data)
+        await newAdminApi.postDmsFormPropertiesSave(params).then(r => r.data)
       }
     }
     // TODO : copy form data

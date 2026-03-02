@@ -1,4 +1,4 @@
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 export type uploadRequest = {
   doc: any
@@ -18,13 +18,13 @@ export const useUploadAIStore = () => {
   async function createUploadRequest(doc: any, files: any[]) {
     const docList = getUploadFiles(files)
     //doc.path 是 id 的 path 要用 breadcrumb
-    const breadcrumbList: any = await clientApi.api.postDmsDocumentBreadcrumb({ idOrPath: doc.path }).then(r => r.data)
+    const breadcrumbList: any = await newClientApi.postDmsDocumentBreadcrumb({ idOrPath: doc.path }).then(r => r.data)
     const path = breadcrumbList.reduce((prev: any, item: any) => {
       if (prev !== '/') prev += '/'
       prev += item.name
       return prev
     }, '/')
-    const uploadAiId = await clientApi.api.postDmsUploadBatch({
+    const uploadAiId = await newClientApi.postDmsUploadBatch({
       userId: userId.value,
       filesCount: docList.length,
       uploadPath: path,
@@ -114,13 +114,13 @@ export const useUploadAIStore = () => {
       console.log('doc', doc)
 
       if (doc.isFolder) {
-        result = await clientApi.api.postDmsUploadTmpFolder(_document)
+        result = await newClientApi.postDmsUploadTmpFolder(_document)
       } else {
         _document.fileModifiedTimestamp = doc.file.lastModified
         const formData = new FormData()
         formData.append('file', doc.file)
         formData.append('uploadTempFileRequestStr', JSON.stringify(_document))
-        const result = await clientApi.api.postDmsUploadTmpFile({}, formData).then((res) => res.data)
+        const result = await newClientApi.postDmsUploadTmpFile(formData).then((res) => res.data)
       }
       doc.status = 'success'
     } catch (error) {

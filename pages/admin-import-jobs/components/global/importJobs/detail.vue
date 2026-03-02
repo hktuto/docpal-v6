@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const { t } = useI18n()
 const routerProvider = inject(MenuRouterKey)
@@ -62,7 +62,7 @@ async function init(id: string) {
   }
 
   try {
-    job.value = await clientApi.admin.getAdminext3rdstorageImportjobsId(id).then((res: any) => res.data)
+    job.value = await newAdminApi.getExt3rdstorageImportjobsId(id).then((res: any) => res.data)
   } catch (error) {
     job.value = {
       activityLog: []
@@ -74,7 +74,7 @@ async function handleChangeQueueOrder() {
   if (!job.value.id) {
     return
   }
-  await clientApi.admin.putAdminext3rdstorageImportjobsIdUpdate(job.value.id, job.value).then(r => r.data)
+  await newAdminApi.putExt3rdstorageImportjobsIdUpdate(job.value.id, job.value).then(r => r.data)
   routerProvider?.message.success(t('tip_updateSuccessMsg', { modelName: null, name: null }))
 }
 

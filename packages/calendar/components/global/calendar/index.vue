@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import type { CalendarEventExternal } from '@schedule-x/calendar'
 
 const { t } = useI18n()
@@ -50,10 +50,10 @@ async function getFilterOptions() {
   try {
     let user: any = []
     if (props.options.userFilter) {
-      const res = await clientApi.api.getPermissionUserGroupGroupidUsers(props.options.userFilter).then((res) => res.data)
+      const res = await newClientApi.getPermissionUserGroupGroupidUsers(props.options.userFilter).then((res) => res.data)
       user = res.users
     } else {
-      user =  await clientApi.api.postUcenterUsers({}).then((res) => res.data)
+      user =  await newClientApi.postUcenterUsers({}).then((res) => res.data)
       if (!user) throw new Error('no user')
     }
 

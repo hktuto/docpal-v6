@@ -15,7 +15,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './dialog.vform.json'
 import { ElMessage } from 'element-plus'
 
@@ -45,10 +45,10 @@ async function handleSubmit() {
     state.loading = true
     let msg
     if (state.isEdit) {
-      await clientApi.admin.putAdmindmsPolicyHold(params)
+      await newAdminApi.putDmsPolicyHold(params)
       msg = t('tip_updateMsg', { modelName: t('workflow_holdPolicy'), name: null })
     } else {
-      await clientApi.admin.postAdmindmsPolicyHold(params)
+      await newAdminApi.postDmsPolicyHold(params)
       msg = t('tip_createdMsg', { modelName: t('tip_newMsg') + t('workflow_holdPolicy'), name: null })
     }
     ElMessage.success(msg)

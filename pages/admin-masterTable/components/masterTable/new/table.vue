@@ -58,7 +58,7 @@
 import { MenuRouterKey } from '#imports'
 import { getIgnoreSchemas } from '~/utils/masterTableProvider'
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const { t } = useI18n()
 const ignoreList = getIgnoreSchemas()
@@ -156,7 +156,7 @@ async function handleSubmit() {
     return
   }
   try {
-    const data = await clientApi.admin.postAdmindmsMasterTable({
+    const data = await newAdminApi.postDmsMasterTable({
       name: state.name,
       fields: tableConfig.data
     }).then(r => r.data)
@@ -216,7 +216,7 @@ function handleUpdateSchama(schema: any) {
 }
 
 onMounted(async () => {
-  const res = await clientApi.admin.getAdmindmsMasterTableDatatypeMapping()
+  const res = await newAdminApi.getDmsMasterTableDatatypeMapping()
   state.dataTypeList = res.data
   state.dataTypeList.push({
     value: 'relation',

@@ -46,7 +46,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import {clientApi} from 'api'
+import { newClientApi } from 'api'
 import draggable from 'vuedraggable'
 // @ts-ignore
 const state = reactive<any>({
@@ -73,7 +73,7 @@ async function handleSubmit() {
       return prev
     }, [])
     let blob: any
-    if (state.activeTab === 'completeTask') blob = await clientApi.api.postWorkflowHistoryExportprocesshistory({
+    if (state.activeTab === 'completeTask') blob = await newClientApi.postWorkflowHistoryExportprocesshistory({
       ...state.extraParams,
       orderList
     }, {
@@ -82,7 +82,7 @@ async function handleSubmit() {
         'TimeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
       }
     })
-    else blob = await clientApi.api.postWorkflowTasksExporttasksuser({...state.extraParams, orderList}, {
+    else blob = await newClientApi.postWorkflowTasksExporttasksuser({...state.extraParams, orderList}, {
       format: 'blob',
       headers: {
         'TimeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -98,8 +98,8 @@ async function handleSubmit() {
 
 async function getExportList() {
   let res
-  if (state.activeTab === 'completeTask') res = await clientApi.api.getWorkflowHistoryGethistoryexportheader().then(res => res.data)
-  else res = await clientApi.api.postWorkflowTasksGetusersexportheader(state.extraParams).then(res => res.data)
+  if (state.activeTab === 'completeTask') res = await newClientApi.getWorkflowHistoryGethistoryexportheader().then(res => res.data)
+  else res = await newClientApi.postWorkflowTasksGetusersexportheader(state.extraParams).then(res => res.data)
   state.exportList = []
   state.hideList = []
   Object.keys(res).forEach(key => {

@@ -36,7 +36,7 @@ async function handleSubmit() {
       return
     }
     state.loading = true
-    await newAdminApi.postAdminucenterUser(data).then(r => r.data)
+    await newAdminApi.postUcenterUser(data).then(r => r.data)
     if (data.groupList.length > 0) {
       await userProvider?.BatchUserAddGroupsApi({
         userId: data.userId,

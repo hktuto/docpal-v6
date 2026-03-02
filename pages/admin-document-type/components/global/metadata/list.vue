@@ -42,7 +42,7 @@ let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   id: 'metadataList',
   api: async (params: any) => {
-    return await newAdminApi.postAdmindmsMetadataPage({
+    return await newAdminApi.postDmsMetadataPage({
       ...params,
       ...extraParams
     })
@@ -118,7 +118,7 @@ async function handleExport() {
     text: t('metadata.export_loading'),
     background: 'rgba(0, 0, 0, 0.7)'
   })
-  const result = await newAdminApi.postAdmindmsMetadataExportMetadataCvs(
+  const result = await newAdminApi.postDmsMetadataExportMetadataCvs(
     { pageNum: 0, pageSize: 1000 },
     { format: 'blob', timeout: 0 }
   )
@@ -165,7 +165,7 @@ const handleRemove = async (row: any) => {
     console.log('action', action)
     if (action !== 'confirm') return
 
-    const result = await newAdminApi.deleteAdmindmsMetadataMetadataid(row.id)
+    const result = await newAdminApi.deleteDmsMetadataMetadataid(row.id)
     if (result) {
       ElMessage.success(t('tip_deleteSuccessMessage'))
       reload()

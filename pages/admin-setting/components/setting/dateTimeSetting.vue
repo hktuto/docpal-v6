@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -31,13 +31,13 @@ const dateFormatOption = ref([
 const systemId = ref('system_default_setting')
 
 async function getMySetting() {
-  const data = await clientApi.admin.getAdmindmsSettingSystemSystemid(systemId.value).then(r => r.data)
+  const data = await newAdminApi.getDmsSettingSystemSystemid(systemId.value).then(r => r.data)
   if (!data) return
   dateFormat.value = data.metaDateFormat
 }
 
 async function handleSuccess(newValue: string) {
-  await clientApi.admin.putAdmindmsSettingSystemSystemid(systemId.value, { metaDateFormat: newValue }).then(r => r.data)
+  await newAdminApi.putDmsSettingSystemSystemid(systemId.value, { metaDateFormat: newValue }).then(r => r.data)
 
   routerProvider?.message.success(t('dpMsg_success'))
   const bus = useEventBus<string>(EventType.USER_PREFERENCE_CHANGE__TIME)

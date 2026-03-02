@@ -16,7 +16,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { routeUniqueIdGeneratorDetail } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -29,7 +29,7 @@ const duplicateDialogRef = ref()
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'unique-id-generator',
   api: async (pageParams: any) => {
-    return await clientApi.admin.postAdmindocpalIdTemplatesPage({
+    return await newAdminApi.postDocpalIdTemplatesPage({
       ...pageParams,
       ...extraParams
     })
@@ -101,7 +101,7 @@ async function handleDelete(row: any) {
     confirmButtonText: t('common_delete')
   }).then(async () => {
     try {
-      await clientApi.admin.deleteAdmindocpalIdTemplatesId(row.id)
+      await newAdminApi.deleteDocpalIdTemplatesId(row.id)
       routerProvider?.message.success(
         t('tip_deleteSuccessMsg', {
           modelName: t('adminMenu.uniqueIdGenerator'),

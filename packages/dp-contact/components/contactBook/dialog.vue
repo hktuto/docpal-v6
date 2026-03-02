@@ -4,7 +4,7 @@
     <ContactBookPermissionForm ref="ContactBookPermissionRef" />
     <ContactBookFieldSetting ref="ContactBookFieldSettingRef" />
     <template #footer>
-      <el-button id="CaseManagement__CreateNewCaseTemplate__Submit" type="primary" :loading="state.loading"
+      <el-button id="ContactBook__NewContactBook__Submit" type="primary" :loading="state.loading"
                  @click="handleSubmit">
         {{ $t('common_submit') }}
       </el-button>
@@ -13,7 +13,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { newClientApi } from 'api'
+import { globalApi } from 'api'
 
 const { t } = useI18n()
 const emits = defineEmits(['refresh'])
@@ -36,7 +36,7 @@ async function handleSubmit() {
       status: 'A'
     }
     console.log(data, fieldData)
-    const res = await newClientApi.postDmsContactGroup(params).then((res: any) => res.data)
+    const res = await globalApi.postDmsContactGroup(params).then((res: any) => res.data)
     ElMessage.success(t('dpMsg_success'))
     state.visible = false
     if (!!res) {

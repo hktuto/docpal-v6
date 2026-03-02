@@ -1,4 +1,4 @@
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 export const useOutputOptioins = () => {
   const documentTypeOpts = useState('documentTypeOpts', () => [{ label: 'File', value: 'File' }])
@@ -66,7 +66,7 @@ export const useOutputOptioins = () => {
   // @ts-ignore
   async function initExternalStorageProfileOpts() {
     try {
-      const data = await clientApi.admin.getAdminext3rdstorageList({} as any).then((res: any) => res.data)
+      const data = await newAdminApi.getExt3rdstorageList({} as any).then((res: any) => res.data)
       externalStorageProfileOpts.value = data.map((item: any) => ({
         label: item.name,
         value: item.id
@@ -78,7 +78,7 @@ export const useOutputOptioins = () => {
 
   async function getMetaOpts() {
     try {
-      const { data }: any = await clientApi.admin.getAdmindmsDocpalTypeDocumenttypeMetadata('GlobalFile')
+      const data: any = await newAdminApi.getDmsDocpalTypeDocumenttypeMetadata('GlobalFile', {}).then(r => r.data)
       const optionList = data.keywords.map((item: any) => ({
         ...item,
         label: item.name,
@@ -95,7 +95,7 @@ export const useOutputOptioins = () => {
   }
 
   async function initWorkflowOpts() {
-    const data = await clientApi.admin.getAdmindmsEasyFormProcessDefinitions().then((res: any) => res.data)
+    const data = await newAdminApi.getDmsEasyFormProcessDefinitions().then((res: any) => res.data)
     workflowOpts.value = data.map((item: any) => ({
       label: item.label,
       value: item.key

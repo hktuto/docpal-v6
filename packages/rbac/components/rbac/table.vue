@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { useVxeTable } from '#imports'
 import { useDebounceFn } from '@vueuse/core'
 import { ResponsiveFilter } from '#components'
@@ -55,7 +54,7 @@ const bodyActions: TableMenuActions[][] = [
       name: t('actions.active'),
       action: async ({ row }: { row: Role }) => {
         try {
-          await clientApi.admin.putAdmindocpalAclRole({
+          await newAdminApi.putDocpalAclRole({
             id: String(row.id),
             name: row.name,
             parentId: row.parentRoleId ? String(row.parentRoleId) : undefined,
@@ -73,7 +72,7 @@ const bodyActions: TableMenuActions[][] = [
       name: t('actions.inactive'),
       action: async ({ row }: { row: Role }) => {
         try {
-          await clientApi.admin.putAdmindocpalAclRole({
+          await newAdminApi.putDocpalAclRole({
             id: String(row.id),
             name: row.name,
             parentId: row.parentRoleId ? String(row.parentRoleId) : undefined,
@@ -93,7 +92,7 @@ const bodyActions: TableMenuActions[][] = [
         try {
           const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete')}`)
           if (action !== 'confirm') return
-          await clientApi.admin.putAdmindocpalAclRole({
+          await newAdminApi.putDocpalAclRole({
             id: String(row.id),
             name: row.name,
             parentId: row.parentRoleId ? String(row.parentRoleId) : undefined,
@@ -159,7 +158,7 @@ const { tableConfig, tableEvent, tableRef, reload, query } = useVxeTable({
       })
     }
 
-    return clientApi.admin.postAdmindocpalAclRolePage({ ...pageParams, conditions })
+    return newAdminApi.postDocpalAclRolePage({ ...pageParams, conditions })
   },
   columns: [
     {
@@ -339,7 +338,7 @@ function handleAddRole() {
       <template #toolbar_buttons>
         <div class="tableActions">
           <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" inputKey="q" />
-          <ElButton type="primary" @click="handleAddRole">{{ t('common_add') }}</ElButton>
+          <ElButton id="Role__Table__Add" type="primary" @click="handleAddRole">{{ t('common_add') }}</ElButton>
         </div>
       </template>
     </vxe-grid>

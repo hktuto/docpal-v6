@@ -14,7 +14,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { routeImportJobsDetailPage } from '../../../util/routerHelper'
 const ResponsiveFilterRef = ref()
 const routerProvider = inject(MenuRouterKey)
@@ -25,7 +25,7 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-company-profile',
-  api: (pageParams: any) => clientApi.admin.postAdminext3rdstorageImportjobsPage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newAdminApi.postExt3rdstorageImportjobsPage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'batchId', title: 'Batch Id', fixed: 'left' },
     { field: 'profileName', title: 'importJobs.profileName', fixed: 'left' },
@@ -89,7 +89,7 @@ function handleDblclick(row: any) {
 }
 
 async function handlePlaceFirst(row: any) {
-  await clientApi.admin.postAdminext3rdstorageImportjobsJobqueueFirst({ id: row.id })
+  await newAdminApi.postExt3rdstorageImportjobsJobqueueFirst({ id: row.id })
   reload()
 }
 function handleFilterFormChange(formModel: any) {

@@ -6,7 +6,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -21,7 +21,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     }
     delete params.pageNum
     delete params.pageSize
-    const res: any = await clientApi.admin.postAdmindmsShareGet({ ...params, ...extraParams }).then((res) => res.data)
+    const res: any = await newAdminApi.postDmsShareGet({ ...params, ...extraParams }).then((res) => res.data)
     return {
       data: {
         entryList: res.list,
@@ -86,7 +86,7 @@ async function handleDisabled(row) {
     if (action !== 'confirm') return
     const param = []
     param.push(row.shareID)
-    await clientApi.admin.deleteAdmindmsShare(param).then(r => r.data)
+    await newAdminApi.deleteDmsShare(param).then(r => r.data)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('tip_SelectedMsg') + t('share_externalShareLink') }))
     query()
   } catch (error) {
@@ -101,7 +101,7 @@ function handleDblclick(row) {
 }
 
 async function handleSubmit(shareInfo) {
-  await clientApi.admin.patchAdmindmsShareSave(shareInfo).then(r => r.data)
+  await newAdminApi.patchDmsShareSave(shareInfo).then(r => r.data)
   query()
 }
 </script>

@@ -18,7 +18,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { routeEasyFormDetail } from '~/util/easyFormRouterHelper'
 
 const ResponsiveFilterRef = ref()
@@ -39,7 +39,7 @@ const {
 } = useVxeTable({
   id: 'a-easyForm',
   api: (pageParams: any) => {
-    return clientApi.api.postDmsEasyFormPage({ ...pageParams, ...extraParams })
+    return newClientApi.postDmsEasyFormPage({ ...pageParams, ...extraParams })
   },
   columns: [
     { field: 'name', title: 'easyForm.name', fixed: 'left' },

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api';
+import { globalApi } from 'api';
 import { ElFormItem } from 'element-plus';
 import {CONDITION_PROVIDER} from '#imports'
 const {element} = defineProps<{
@@ -98,9 +98,9 @@ const masterTableLoading = ref(false)
 const selectedMasterTableOption = ref<any[]>([])
 async function masterTableChange(masterTableId:string) {
     masterTableLoading.value = true
-    const data = await clientApi.api.getDmsMasterTableId(masterTableId);
-    if(data.data && data.data.fields){
-        selectedMasterTableOption.value = data.data.fields
+    const data = await globalApi.getDmsMasterTableId(masterTableId).then(r=>r.data)
+    if(!!data && data.fields){
+        selectedMasterTableOption.value = data.fields
     }else{
         selectedMasterTableOption.value = []
     }
@@ -111,10 +111,10 @@ const castColumnLoading = ref(false)
 const selectedCaseTableOption = ref<any[]>([])
 async function caseTableChange(caseTableId:string) {
     castColumnLoading.value = true
-    const data = await clientApi.admin.getAdmincaseTablesId(caseTableId);
+    const data = await globalApi.getCaseTablesId(caseTableId).then(r =>r.data)
     console.log("caseTableChange", data)
-    if(data.data && data.data.fields){
-        selectedCaseTableOption.value = data.data.fields
+    if(!!data && data.fields){
+        selectedCaseTableOption.value = data.fields
     }else{
         selectedCaseTableOption.value = []
     }

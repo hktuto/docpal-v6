@@ -4,14 +4,12 @@
              content="tip.new_folder"
              round
              @click="iconClickHandler(doc)"></SvgIcon>
-    <el-dialog class="scroll-dialog" v-model="dialogOpened" append-to-body
-               :close-on-click-modal="false">
+    <el-dialog class="scroll-dialog" v-model="dialogOpened" append-to-body :close-on-click-modal="false">
       <template #header>
         <strong class="primaryTitle">{{ $t('filePopover_newFolder') }}</strong>
         {{ 'in /' + state.doc.name }}
       </template>
-      <FormRenderer :ref="(el) => FormRendererRef = el" :form-json="formJson"
-                    @formChange="formChange" />
+      <FormRenderer :ref="(el) => FormRendererRef = el" :form-json="formJson" @formChange="formChange" />
       <MetaRenderForm2 ref="MetaFormRef"></MetaRenderForm2>
       <template #footer>
         <el-button id="Browse__NewFolder__Submit" type="primary" :loading="state.loading" @click="handleSubmit">
@@ -20,14 +18,13 @@
       </template>
     </el-dialog>
   </div>
-
 </template>
 
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
 import { useEventListener } from '@vueuse/core'
 import { emitBus, EventType } from 'eventbus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { duplicateNameFilter } from '../../../../packages/base/utils/browseHelper'
 
 const dialogOpened = ref(false)
@@ -89,7 +86,7 @@ async function handleSubmit() {
     if (isDuplicate) {
       throw new Error('dpTip.newFolderDuplicateName')
     }
-    const  newDoc = await clientApi.api.postDmsDocumentFolder(params).then(r => r.data)
+    const newDoc = await newClientApi.postDmsDocumentFolder(params).then(r => r.data)
     dialogOpened.value = false
     emitBus(EventType.FILE_NEED_REFRESH, {
       relatedIdOrPath: newDoc.parentRef,
@@ -100,7 +97,7 @@ async function handleSubmit() {
     //     let parentRef = state.doc.parentRef
     //     if(!parentRef){
     //         // get document detail
-    //         const {data:parentDoc} = await clientApi.api.postDmsDocumentFetch({idOrPath: state.doc.id}) as any
+    //         const {data:parentDoc} = await newClientApi.postDmsDocumentFetch({idOrPath: state.doc.id}) as any
     //         parentRef = parentDoc.parentRef
     //     }
     //     emitBus(EventType.FILE_NEED_REFRESH, {
@@ -130,7 +127,6 @@ function handleReset() {
     const typeRef = FormRendererRef.value.vFormRenderRef.getWidgetRef('type')
     typeRef.setValue('Folder')
   }
-
 }
 
 onMounted(() => {

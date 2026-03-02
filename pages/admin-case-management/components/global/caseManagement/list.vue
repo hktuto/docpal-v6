@@ -148,7 +148,7 @@ provide(CaseManagementListProviderKey, {
       isDesc: params.isDesc,
       filters
     })
-    return newAdminApi.postAdmincaseTypesPage(params)
+    return newAdminApi.postCaseTypesPage(params)
   },
   updatePageParams,
   openLatestVersion,
@@ -172,7 +172,8 @@ provide(CaseManagementListProviderKey, {
             inputKey="name"
             inputPlaceHolder="caseManagement_filter"
           />
-          <el-button id="CaseManagement__CreateNewCaseTemplate" type="primary" @click="openNewCaseDialog" @refresh="reload">
+          <el-button id="CaseManagement__CreateNewCaseTemplate" type="primary" @click="openNewCaseDialog"
+                     @refresh="reload">
             {{ $t('caseManagement_create') }}
           </el-button>
         </div>

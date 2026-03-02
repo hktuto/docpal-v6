@@ -41,7 +41,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import AddUserDialog from './AddUserDialog.vue'
 import { ElMessageBox, ElNotification } from 'element-plus'
 
@@ -69,11 +69,10 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
         values: props.roleId
       }
     ]
-    const data = await clientApi.admin.postAdmindocpalAclRoleUsersPage({
+    return await newAdminApi.postDocpalAclRoleUsersPage({
       ...pageParams,
       conditions
     })
-    return data
   },
   virtualScroll: props.isAdd,
   columns: [
@@ -123,7 +122,7 @@ async function handleBatchDelete() {
     if (action !== 'confirm') return
 
     const userIds = selectedUsers.value.map(user => user.id)
-    await clientApi.admin.deleteAdmindocpalAclRoleUsers(userIds)
+    await newAdminApi.deleteDocpalAclRoleUsers(userIds)
     selectedUsers.value = []
     emit('update', [])
     reload()
@@ -146,7 +145,7 @@ async function handleBatchDelete() {
 
 async function handleAddUsers(userIds: string[]) {
   try {
-    await clientApi.admin.postAdmindocpalAclRoleUsers({
+    await newAdminApi.postDocpalAclRoleUsers({
       roleId: props.roleId,
       userIds
     })
@@ -179,7 +178,7 @@ const handleRemoveUser = async (user: any) => {
     )
     if (action !== 'confirm') return
 
-    await clientApi.admin.deleteAdmindocpalAclRoleUsers([user.id])
+    await newAdminApi.deleteDocpalAclRoleUsers([user.id])
     emit('update', [])
     reload()
     ElNotification({

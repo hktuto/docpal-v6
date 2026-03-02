@@ -12,14 +12,14 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'message-queue',
   api: async (pageParams: any) => {
-    const data = await clientApi.admin.postAdminmessageQueuePage({ ...pageParams }, extraParams)
+    const data = await newAdminApi.postMessageQueuePage({ ...pageParams }, extraParams)
     return {
       data: {
         entryList: data.data.content,

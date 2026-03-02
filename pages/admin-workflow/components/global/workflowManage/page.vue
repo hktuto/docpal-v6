@@ -19,7 +19,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -32,7 +32,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   id: 'a-workflow-manage',
   api: async (pageParams: any) => {
     state.selectedRows = []
-    return await clientApi.admin.postAdmindocpalWorkflowTasksUser({ ...pageParams, ...extraParams })
+    return await newAdminApi.postDocpalWorkflowTasksUser({ ...pageParams, ...extraParams })
   },
   columns: [
     { field: 'taskInstance.businessKey', title: 'workflow_ManageName', fixed: 'left', type: 'checkbox' },
@@ -94,7 +94,7 @@ async function handleDelete(row: any) {
       confirmButtonText: t('common_confirmDelete')
     })
     if (action !== 'confirm') return
-    await clientApi.admin.deleteAdmindocpalWorkflowProcess({ processInstanceId: row.instanceId })
+    await newAdminApi.deleteDocpalWorkflowProcess({ processInstanceId: row.instanceId })
     routerProvider?.message.success(t('tip_deleteSuccessMsg', { modelName: t('workflow_WorkflowTasks'), name: null }))
     query({})
   } catch (error) {
@@ -112,7 +112,7 @@ async function handleDeleteSelected() {
     if (action !== 'confirm') return
     state.loading = true
     const pList: any = []
-    state.selectedRows.forEach((s: any) => pList.push(clientApi.admin.deleteAdmindocpalWorkflowProcess({ processInstanceId: s.instanceId }).then((res) => res.data)))
+    state.selectedRows.forEach((s: any) => pList.push(newAdminApi.deleteDocpalWorkflowProcess({ processInstanceId: s.instanceId }).then((res) => res.data)))
 
     await Promise.all(pList)
 

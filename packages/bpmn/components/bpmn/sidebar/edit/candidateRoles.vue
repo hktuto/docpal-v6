@@ -22,7 +22,7 @@ function refreshData() {
   const data = node.getData()
   if (data.data['attr_flowable:candidateRoles'] && data.data['attr_flowable:candidateRoles'] !== '') {
     candidateRoles.value = data.data['attr_flowable:candidateRoles'].split(', ').map((item: string) => item).filter((item: string) => item !== '')
-  }else{
+  } else {
     candidateRoles.value = ''
   }
 }
@@ -42,7 +42,9 @@ function candidateRoleChanged(newVal: any) {
 }
 
 onMounted(async () => {
-  allUserRole.value = await getRoleSelectOption()
+  if (!allUserRole.value || allUserRole.value.length == 0) {
+    allUserRole.value = await getRoleSelectOption()
+  }
 })
 
 watch(() => node, () => {

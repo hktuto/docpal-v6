@@ -9,7 +9,7 @@
   </el-card>
 </template>
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const props = defineProps(['table', 'tableId'])
 const state = reactive<{ name: string; loading: boolean }>({
@@ -26,7 +26,7 @@ async function handleSave() {
   }
   try {
     state.loading = true
-    await clientApi.admin.putAdmindmsMasterTable({
+    await newAdminApi.putDmsMasterTable({
       id: props.tableId,
       name: state.name
     }).then(r => r.data)

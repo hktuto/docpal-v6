@@ -146,7 +146,7 @@ async function handleSubmit(attr: string) {
       const i18nValue = attr === 'isFolder' ? (state.form.isFolder ? 'Yes' : 'No') : state.form[attr]
       tip = attr === 'permission' ? `[${i18nMap[attr]}]` : `[${i18nMap[attr]}:${i18nValue}]`
     }
-    await newAdminApi.postAdmindmsDocpalTypeUpdate(params).then((res) => res.data)
+    await newAdminApi.postDmsDocpalTypeUpdate(params).then((res) => res.data)
     state.docTypeDetail[attr] = params[attr]
     routerProvider?.message.success(t('dpMsg_success', { tip }))
   } catch (error) {

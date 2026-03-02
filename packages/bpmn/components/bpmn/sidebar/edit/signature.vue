@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useI18n } from '#imports'
 import type { Node } from '@antv/x6'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { JsonSchemaToJsonData } from 'docpal-document-editor/src/client'
 
 const { t } = useI18n()
@@ -84,7 +84,7 @@ const signatureVariable = ref<any[]>([])
 
 async function getTemplateVariableList(stepDefinitionKey: string) {
   const selectedStep = allDocumentStep.value.find((item: any) => item.value === stepDefinitionKey)
-  const data = await clientApi.admin.getAdmindmsTemplateDocumentRefreshId(selectedStep.templateId).then(r => r.data)
+  const data = await newAdminApi.getDmsTemplateDocumentRefreshId(selectedStep.templateId).then(r => r.data)
   if (data.fileType !== 'Word') {
     console.log('not word file')
     // reset form 

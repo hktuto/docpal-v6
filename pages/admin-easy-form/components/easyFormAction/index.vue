@@ -35,7 +35,7 @@
   </el-card>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessageBox } from 'element-plus'
 import type { EasyFormResult } from 'api/src/generate/admin'
 
@@ -82,8 +82,7 @@ function handleAction(command: string, row: EasyFormResult) {
 
 async function handleActive(row: EasyFormResult) {
   try {
-    const action = await clientApi.admin
-      .postAdmindmsEasyFormSaveFormresultAppend({
+    const action = await newAdminApi.postDmsEasyFormSaveFormresultAppend({
         id: props.detail.id,
         formResult: {
           ...row,
@@ -107,7 +106,7 @@ async function handleDelete(id: string) {
     if (action !== 'confirm') return
     // const index = list.value.findIndex(item => item.id === id)
     // list.value.splice(index, 1)
-    await clientApi.admin.deleteAdmindmsEasyFormDraftidFormresultFormresultid(props.detail.id, id)
+    await newAdminApi.deleteDmsEasyFormDraftidFormresultFormresultid(props.detail.id, id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: t('tip_SelectedMsg') + t('easyForm_formAction') }))
     emits('delete', id)
   } catch (error) {

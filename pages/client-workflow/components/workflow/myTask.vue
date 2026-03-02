@@ -16,9 +16,8 @@
   </div>
 </template>
 <script lang="ts" setup>
-
 import formJson from './uncomplete.vform.json'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { routeWorkflowDetail } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -38,12 +37,11 @@ const {
   cleanSelectedRows
 } = useVxeTable({
   id: 'my_task',
-  api: (pageParams: any) =>
-    clientApi.api.postWorkflowTasksUser({
-      ...pageParams,
-      ...extraParams,
-      assignedUser: userId
-    }),
+  api: (pageParams: any) => newClientApi.postDocpalWorkflowTasksUser({
+    ...pageParams,
+    ...extraParams,
+    assignedUser: userId
+  }),
   columns: [
     { field: 'taskInstance.businessKey', title: 'workflow_jobName', fixed: 'left' },
     { field: 'taskInstance.processDefinitionName', title: 'workflow_workflowName' },
@@ -56,8 +54,8 @@ const {
       //   },
     },
     {
-      field: "assignee",
-      title: "workflow_assignee",
+      field: 'assignee',
+      title: 'workflow_assignee'
     },
     {
       field: 'createDate',
@@ -91,7 +89,7 @@ function handleDblclick(row: any) {
 }
 
 async function claimTask(row: any) {
-  await clientApi.api.postWorkflowTaskClaim({
+  await newClientApi.postWorkflowTaskClaim({
     taskId: row.id,
     userId
   })
@@ -138,7 +136,7 @@ function getFilter() {
         { label: 'workflow_dueDate', value: 'dueDate' },
         { label: 'workflow_createDate', value: 'createDate' },
         { label: 'workflow_taskName', value: 'name' },
-        { label: 'workflow_workflowName', value: 'taskInstance.processDefinitionName' },
+        { label: 'workflow_workflowName', value: 'taskInstance.processDefinitionName' }
       ]
     },
     {
@@ -162,7 +160,7 @@ onMounted(() => {
 defineExpose({ getDownloadParams })
 </script>
 <style lang="scss" scoped>
-:deep(.el-input){
+:deep(.el-input) {
   width: 200px;
 }
 </style>

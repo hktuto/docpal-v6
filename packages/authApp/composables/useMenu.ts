@@ -2535,6 +2535,31 @@ export const allMenuItem: Record<string, menuTypeSetting> = {
       return true
     }
   },
+  'calendar-management': {
+    id: 'calendar-management',
+    name: 'calendar-management',
+    label: 'Calendar Management',
+    icon: 'carbon:calendar',
+    component: 'LazyCalendarManagement',
+    feature: 'CALENDAR',
+    props: {},
+    createRouteItem: async ({ activeTab }) => {
+      return {
+        id: 'calendar-management',
+        name: 'calendar-management',
+        label: 'Calendar Management',
+        icon: 'carbon:calendar',
+        component: 'LazyCalendarManagement',
+        feature: 'CALENDAR',
+        props: {
+          activeTab: activeTab || 'table'
+        }
+      }
+    },
+    shouldReplace: (oldSetting: any, newSetting: any) => {
+      return oldSetting.props.activeTab == newSetting.props.activeTab
+    }
+  },
   'workflow': {
     id: 'client-workflow',
     name: 'client-workflow',

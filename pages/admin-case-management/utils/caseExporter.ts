@@ -97,7 +97,7 @@ const useAllWorkflowList = () => useState<any[]>('all-workflow-list', () => [])
 
 async function getAllCaseList() {
   const allCaseList = useAllCaseList()
-  const res = await newAdminApi.postAdmincaseTypesPage({ pageNum: 0, pageSize: 1000 })
+  const res = await newAdminApi.postCaseTypesPage({ pageNum: 0, pageSize: 1000 })
   if (!res.data || !res.data.entryList) {
     throw new Error('Failed to get all case list')
   }
@@ -133,20 +133,20 @@ export async function getCaseExportData(caseId: string) {
   result.id = selectedCaseData.id
   result.name = selectedCaseData.name
 
-  const caseDetails = await newAdminApi.getAdmincaseTypesCasetypeid(selectedCaseData.id).then(r => r.data)
+  const caseDetails = await newAdminApi.getCaseTypesCasetypeid(selectedCaseData.id).then(r => r.data)
   result.caseIdDigit = caseDetails.caseIdDigit
   result.caseIdPrefix = caseDetails.caseIdPrefix
   result.startNumber = caseDetails.startNumber
 
-  let caseStyleJson = await newAdminApi.getAdmincaseTypesIdStylejson(selectedCaseData.id, { versionNumber: selectedCaseData?.latestVersion }).then(r => r.data)
+  let caseStyleJson = await newAdminApi.getCaseTypesIdStylejson(selectedCaseData.id, { versionNumber: selectedCaseData?.latestVersion }).then(r => r.data)
   caseStyleJson = caseStyleJson ? JSON.parse(caseStyleJson) : null
-  const blob = await newAdminApi.getAdmincaseTypesIdDownloadXml(selectedCaseData.id, { versionNumber: selectedCaseData?.latestVersion }, {
+  const blob = await newAdminApi.geCaseTypesIdDownloadXml(selectedCaseData.id, { versionNumber: selectedCaseData?.latestVersion }, {
     format: 'blob'
   }) as any
   const cmmnString = await blob.text()
   result.xml = cmmnString
   result.styleJson = caseStyleJson
-  const caseDashboard = await newAdminApi.postAdmincaseDashboardPage({
+  const caseDashboard = await newAdminApi.postCaseDashboardPage({
     caseTypeId: selectedCaseData.id,
     pageNum: 0,
     pageSize: 1000
@@ -179,7 +179,7 @@ export async function getCaseExportData(caseId: string) {
       const item = steps.humanTask[i]
       console.log('try to get form', item)
       if (!item.data.attr_id) continue
-      const form = await newAdminApi.getAdmindmsFormPropertiesQuery({
+      const form = await newAdminApi.getDmsFormPropertiesQuery({
         processKey: selectedCaseData.name,
         userTaskId: item.data.attr_id,
         versionId: selectedCaseData?.latestVersion

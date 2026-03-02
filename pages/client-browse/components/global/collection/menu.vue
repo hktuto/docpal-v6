@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts" setup>
-import {clientApi} from 'api'
+import { newClientApi } from 'api'
 const pageParams = {
   pageIndex: 0,
   pageSize: 20
@@ -53,7 +53,7 @@ if(!tabProvider) {
 
 async function getCollectionList() {
   loading.value = true
-  const data : any = await clientApi.api.getDmsCollection().then(r => r.data)
+  const data : any = await newClientApi.getDmsCollection().then(r => r.data)
   collectionList.value = data.entryList
   loading.value = false
 }

@@ -237,26 +237,25 @@ watch(
       </div>
     </div>
     <div class="actionsContainer">
-      <ElButton type="primary" @click="editField" :disabled="editorProvider.readonly.value"> Edit Field</ElButton>
-
-      <ElButton type="primary" @click="editorProvider.openForm(node)">
+      <ElButton type="primary" id="Workflow__UserTask__EditField" :disabled="editorProvider.readonly.value"
+                @click="editField">
+        Edit Field
+      </ElButton>
+      <ElButton type="primary" id="Workflow__UserTask__EditForm" @click="editorProvider.openForm(node)">
         Edit Form
       </ElButton>
-      <ElButton type="primary" @click="editorProvider.previewForm(node)"> Preview Form</ElButton>
+      <ElButton type="primary" id="Workflow__UserTask__PreviewForm" @click="editorProvider.previewForm(node)">
+        Preview Form
+      </ElButton>
     </div>
     <El-divider />
     <div class="actionsContainer">
-      <ElButton type="link" size="small" @click="copyFormAndFieldSetting" :disabled="editorProvider.readonly.value">Copy
-        Form and Field setting
+      <ElButton type="link" size="small" @click="copyFormAndFieldSetting" :disabled="editorProvider.readonly.value">
+        Copy Form and Field setting
       </ElButton>
 
-      <ElButton
-        v-if="editorProvider.copyKey.value "
-        type="link"
-        size="small"
-        :disabled="editorProvider.readonly.value"
-        @click="pasteForm"
-      >
+      <ElButton v-if="editorProvider.copyKey.value" type="link" size="small" :disabled="editorProvider.readonly.value"
+                @click="pasteForm">
         Paste Form
       </ElButton>
     </div>

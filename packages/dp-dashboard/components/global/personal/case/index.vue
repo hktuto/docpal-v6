@@ -36,7 +36,7 @@
 </template>
 <script lang="ts" setup>
 import { ArrowDown } from "@element-plus/icons-vue";
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const emits = defineEmits(['delete', 'refreshSetting'])
 const props = withDefaults(
   defineProps<{
@@ -73,7 +73,7 @@ const { settingRef, cardRef, refresh, loading } = useDashboardCard({
 })
 onMounted(async () => {
   try {
-    const res = await clientApi.api.postCaseTypesPage({}).then((res) => res.data)
+    const res = await newClientApi.postCaseTypesPage({}).then((res) => res.data)
     list.value = res?.entryList
     if (list.value.length > 0) handleCommand(list[0]?.id)
   } catch (error) {

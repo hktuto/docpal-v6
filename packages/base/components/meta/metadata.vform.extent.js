@@ -75,7 +75,7 @@ export function mounteMasterTableOptions(masterTableId, displayColumn, valueColu
   const codeString = `const _this = this
 async function getList() {
   try {
-    const data = await $api.post('/dms/master-tables/record/page/nonPermission', {
+    const data = await $api.post('/api/dms/master-table/record/page/nonPermission', {
       name: '${masterTableId}'
     }).then(res => res.data.data)
     return data.reduce((prev, item) => {

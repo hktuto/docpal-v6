@@ -104,7 +104,7 @@ async function handleCreate() {
         return
       }
       // step 4 create the metadata
-      const result = await newAdminApi.postAdmindmsMetadata(formData).then((res) => res.data)
+      const result = await newAdminApi.postDmsMetadata(formData).then((res) => res.data)
       if (result) {
         ElMessage.success(
           t('meta.create_success', {

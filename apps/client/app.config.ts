@@ -1,4 +1,5 @@
 export default defineAppConfig({
+
   appMenu: [
     {
       name: 'client-work-panel',
@@ -14,9 +15,10 @@ export default defineAppConfig({
       name: 'client-browse',
       icon: 'dp-icon:browse-outline',
       hoverIcon: 'dp-icon:browse-fill',
-      children: [
+      children:[
+        
         {
-          name: 'client-browse'
+          name: 'client-browse',
         },
         {
           name: 'client-collections'
@@ -27,19 +29,20 @@ export default defineAppConfig({
         {
           name: 'client-fileRequest'
         },
-
+    
         {
           name: 'client-folder-cabinet'
-        }
+        },
+        
       ]
-    },
+    }, 
     {
       name: 'client-search'
     },
     {
-      label: 'share.share',
+      label:"share.share",
       icon: 'lucide:share-2',
-      children: [
+      children:[
         {
           name: 'client-share'
         },
@@ -48,7 +51,7 @@ export default defineAppConfig({
         },
         {
           name: 'client-share-other'
-        }
+        },
       ]
     },
     {
@@ -57,7 +60,7 @@ export default defineAppConfig({
     // {
     //     name: "client-smartFolder"
     // },
-
+    
     {
       name: 'client-workflow'
     },
@@ -82,7 +85,7 @@ export default defineAppConfig({
     // {
     //   name: 'client-dashboard'
     // },
-
+    
     {
       name: 'client-easy-form'
     },
@@ -94,7 +97,7 @@ export default defineAppConfig({
     },
     {
       name: 'contact-book'
-    }
+    },
   ],
   adminMenu: [
     {
@@ -157,44 +160,44 @@ export default defineAppConfig({
         },
         {
           name: 'admin-master-table'
-        }
+        },
       ]
     },
-    // {
-    //   label: 'adminMenu.shareModule',
-    //   icon: 'lucide:share-2',
-    //   hoverIcon: 'lucide:share-2',
-    //   children: [
-    //     {
-    //       name: 'admin-internal-share'
-    //     },
-    //     {
-    //       name: 'admin-external-share'
-    //     }
-    //     // {
-    //     //     name: 'admin-share-list'
-    //     // }
-    //   ]
-    // },
-    // {
-    //   label: 'adminMenu.workflow',
-    //   icon: 'dp-icon:flow-outline',
-    //   children: [
-    //     {
-    //       name: 'admin-workflow-manage'
-    //     },
-    //     {
-    //       name: 'admin-workflow-retry'
-    //     },
-    //     {
-    //       name: 'admin-workflow-editor'
-    //     }
-    //     // {
-    //     //     name: "super-workflow-form"
-    //     // }
-    //   ]
-    // },
-
+    {
+      label: 'adminMenu.shareModule',
+      icon: 'lucide:share-2',
+      hoverIcon: 'lucide:share-2',
+      children: [
+        {
+          name: 'admin-internal-share'
+        },
+        {
+          name: 'admin-external-share'
+        }
+        // {
+        //     name: 'admin-share-list'
+        // }
+      ]
+    },
+    {
+      label: 'adminMenu.workflow',
+      icon: 'dp-icon:flow-outline',
+      children: [
+        {
+          name: 'admin-workflow-manage'
+        },
+        {
+          name: 'admin-workflow-retry'
+        },
+        {
+          name: 'admin-workflow-editor'
+        }
+        // {
+        //     name: "super-workflow-form"
+        // }
+      ]
+    },
+    
     {
       label: 'adminMenu.templateManagement',
       icon: 'lucide:layout-template',
@@ -210,27 +213,21 @@ export default defineAppConfig({
         }
       ]
     },
-    // {
-    //   name: 'admin-case-management'
-    // },
-    // {
-    //   name: 'admin-case-management-import-export'
-    // },
-    // {
-    //   name: 'admin-dashboard'
-    // },
-    // {
-    //   label: 'client_retention_item',
-    //   icon: 'lucide:book-lock',
-    //   children: [
-    //     {
-    //       name: 'admin-hold-policies'
-    //     },
-    //     {
-    //       name: 'admin-retention-policies'
-    //     }
-    //   ]
-    // },
+    {
+      name: 'admin-case-management'
+    },
+    {
+      label: 'client_retention_item',
+      icon: 'lucide:book-lock',
+      children: [
+        {
+          name: 'admin-hold-policies'
+        },
+        {
+          name: 'admin-retention-policies'
+        }
+      ]
+    },
     {
       label: 'adminMenu.system',
       icon: 'lucide:server',
@@ -258,17 +255,13 @@ export default defineAppConfig({
         }
       ]
     },
-
     {
       name: 'admin-unique-id-generator'
     },
-
+    
     {
       name: 'admin-external-storage'
     },
-    // {
-    //   name: 'admin-bulk-import'
-    // },
     {
       name: 'admin-import-jobs'
     },
@@ -282,6 +275,6 @@ export default defineAppConfig({
     },
     {
       name: 'admin-calendar-setting'
-    }
+    },
   ]
 })

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const tableData = defineModel<any>('tableData', { required: true })
 
 const emit = defineEmits(['update:tableData', 'db-click', 'delete'])
@@ -62,7 +62,7 @@ function handleDblclick(row: any) {
 onMounted(async () => {
   if (!allowFeature('WATERMARK')) {
   } else {
-    const data = await clientApi.api.getDocpalWatermarkTemplatesAll().then(r => r.data)
+    const data = await newClientApi.getDocpalWatermarkTemplatesAll().then(r => r.data)
     state.watermarkList = data.sort((a, b) => a.name.localeCompare(b.name))
   }
 })

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { MoreFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { formSlotOrderDisplayColumns } from '../../../../formSlot/displayColumn/reorderColumn'
@@ -45,7 +45,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       delete where.value.q
       pageParams.where = { ...where.value }
     }
-    return clientApi.api.postCaseTypesCasetypeidRecordsPage(id, pageParams)
+    return newClientApi.postCaseTypesCasetypeidRecordsPage(id, pageParams)
   },
   columns: [],
   dblClickAction: ({ row }) => {
@@ -60,7 +60,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 
 async function getActions(row: any) {
   try {
-    caseEvents.value = await clientApi.api
+    caseEvents.value = await newClientApi
       .getCaseDashboardInstanceCaseidActions(row.case_id)
       .then((res) => res.data?.filter((s) => s.state !== 'completed').sort((a: any, b: any) => a.name.localeCompare(b.name)))
   } catch (error) {
@@ -72,14 +72,14 @@ async function handleTask(actionItem: any, row?: any) {
   if (actionItem.planItemDefinitionType === 'humantask') {
     dialogRef.value.handleOpen(actionItem.referenceId, actionItem)
   } else if (actionItem.planItemDefinitionType === 'usereventlistener') {
-    await clientApi.api.postCaseInstanceTriggerEvent({ caseInstanceId: actionItem.caseInstanceId, planItemDefinitionId: actionItem.planItemDefinitionId })
+    await newClientApi.postCaseInstanceTriggerEvent({ caseInstanceId: actionItem.caseInstanceId, planItemDefinitionId: actionItem.planItemDefinitionId })
     // await completeEventTaskApi(actionItem.id, actionItem.planItemDefinitionId)
     ElMessage.success(t('dpMsg_success'))
     emits('refresh')
   } else if (actionItem.planItemDefinitionType === 'processtask') {
     console.log('handleTask', actionItem, row)
     const caseInstanceId = actionItem.caseInstanceId
-    const res = await clientApi.api.postCaseDashboardInstanceActionPreRequisite({ id: actionItem.id }).then((res) => res.data)
+    const res = await newClientApi.postCaseDashboardInstanceActionPreRequisite({ id: actionItem.id }).then((res) => res.data)
     // Get Form Json and XML
 
     // check start event additional setting

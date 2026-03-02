@@ -1,6 +1,6 @@
 import { useState, createError } from '#imports'
 import { EventType, emitBus } from 'eventbus'
-import { clientApi } from 'api'
+import { newClientApi, globalApi } from 'api'
 import type Keycloak from 'keycloak-js'
 
 import type { UserDTO } from 'api/src/generate/client'
@@ -143,7 +143,7 @@ async function checkPassword() {
   //   firstLoginForceResetPassword: true
   // }
   try {
-    const data = await clientApi.api.getUcenterPasswordUserStatus().then(r => r.data)
+    const data = await newClientApi.getUcenterPasswordUserStatus().then(r => r.data)
     console.log(data)
     if (data?.firstLoginForceResetPassword || data?.accountExpire) {
       const router = useRouter()
@@ -155,7 +155,7 @@ async function checkPassword() {
 
 export function getOCRSetting() {
   const ocrSetting = useOcrSetting()
-  ocrSetting.value = clientApi.instance.get('/api/dms/setting/system/OCR').then((res) => res.data)
+  ocrSetting.value = newClientApi.getDmsSettingSystem('OCR').then((res) => res.data)
 }
 
 export function canOCR(extension: string): boolean {
@@ -171,7 +171,7 @@ export function logout() {
   const userState = useUserState()
   const router = useRouter()
   const route = useRoute()
-  const ignoreRedirectPath = ['/login', '/forgetPassword', '/resetPassword', '/admin']
+  const ignoreRedirectPath = ['/login', '/forgetPassword', '/resetPassword', '/initPassword', '/admin']
   router.push({
     path: '/login',
     query: {
@@ -191,7 +191,7 @@ export function logout() {
  */
 async function getFeature() {
   const features = useFeature()
-  const data = await clientApi.api.getDmsFeatureGetfeatures().then(r => r.data)
+  const data = await globalApi.getDmsFeatureGetfeatures().then(r => r.data)
   if (!data) throw new Error('get license feature error')
   features.value = data
 }
@@ -251,7 +251,7 @@ const uiSize = [
  */
 export async function getUserPreference() {
   const preference = useUserPreference()
-  const data = await clientApi.api.getDmsUserSetting().then(r => r.data)
+  const data = await newClientApi.getDmsUserSetting().then(r => r.data)
   if (!data) {
     throw new Error('get user preference fail')
   }
@@ -300,8 +300,8 @@ async function getUser() {
   const user = useUserState()
   const userId = useUserId()
   const userRole = useUserRole()
-  const data: any = await clientApi.api.getDmsUserGetapplication().then(r => r.data)
-  if(!data){
+  const data: any = await newClientApi.getDmsUserGetapplication().then(r => r.data)
+  if (!data) {
     throw new Error('Get Application Is Null')
   }
   userId.value = data.userId

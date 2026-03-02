@@ -9,7 +9,7 @@
 
 <script lang="ts" setup>
 import { ElNotification } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { allowFeature, caseManageDashboardPage, routeCalendarManagement } from '#imports'
 import { TabManagerKey } from '#imports'
 
@@ -27,7 +27,7 @@ function handleOpen() {
 }
 
 async function getUnreadCount() {
-  unreadCount.value = await clientApi.api.getNotificationUnreadNumber().then(r =>r.data)
+  unreadCount.value = await newClientApi.getNotificationUnreadNumber().then(r =>r.data)
 }
 
 function handleUnreadCountChange(count: number) {
@@ -184,7 +184,7 @@ function handleOpenCaseDashboard(message: any) {
     type: 'success',
     duration: 0,
     onClick: async () => {
-      const caseInstance = await clientApi.api.getCaseInstanceCaseidCaseid(message.additionalContent).then((res) => res.data)
+      const caseInstance = await newClientApi.getCaseInstanceCaseidCaseid(message.additionalContent).then((res) => res.data)
       const data = {
         instanceId: message.additionalContent,
         versionId: caseInstance.cmmnVersionId

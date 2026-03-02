@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { SignatureSetting } from './type'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const props = defineProps<{
   companyListOptions?: any[]
@@ -20,7 +20,7 @@ const templateVariableOption = [
 const companyChopList = ref<any[]>([])
 
 async function getCompanyChopList(companyId: string) {
-  companyChopList.value = await clientApi.admin.getAdmindmsCompanyprofilesCompanyidChops(companyId, {
+  companyChopList.value = await newAdminApi.getDmsCompanyprofilesCompanyidChops(companyId, {
     requestDTO: {
       pageNum: 1,
       pageSize: 1000,

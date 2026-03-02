@@ -32,26 +32,26 @@
                  :loading="state.loading" @click="handleSubmit">
         {{ $t('common_download') }}
       </el-button>
-<!--    TODO: Need to be consistent with the interface of document Temple -->
-<!--      <el-dropdown id="Workflow__PersonalWorkflow__Download" type="primary" v-if="state.canDownload"
-                   :loading="state.loading">
-        <el-button>
-          {{ t('common_download') }}
-        </el-button>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item @click="handleSubmit('word')">
-              {{ t('docTemplate.test.word') }}
-            </el-dropdown-item>
-            <el-dropdown-item @click="handleSubmit('pdf')">
-              {{ t('docTemplate.test.pdf') }}
-            </el-dropdown-item>
-            <el-dropdown-item @click="handleSubmit('html')">
-              {{ t('docTemplate.test.html') }}
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>-->
+      <!--    TODO: Need to be consistent with the interface of document Temple -->
+      <!--      <el-dropdown id="Workflow__PersonalWorkflow__Download" type="primary" v-if="state.canDownload"
+                         :loading="state.loading">
+              <el-button>
+                {{ t('common_download') }}
+              </el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item @click="handleSubmit('word')">
+                    {{ t('docTemplate.test.word') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="handleSubmit('pdf')">
+                    {{ t('docTemplate.test.pdf') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item @click="handleSubmit('html')">
+                    {{ t('docTemplate.test.html') }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>-->
 
     </template>
   </DialogFullscreen>
@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts" setup>
-import { clientApi, templateApi } from 'api'
+import { newClientApi, templateApi } from 'api'
 import { replaceVariables, generateVariables } from 'docpal-document-editor/src/utils'
 
 const routerProvider = inject(MenuRouterKey)
@@ -121,6 +121,8 @@ async function generatePreviewFile() {
     const res = await generateFile()
     const ext = mimeTypeToExtension(res.type)
     previewFile.blob = res
+  } catch (e) {
+    console.log(e)
   } finally {
     state.loading = false
   }
@@ -128,7 +130,7 @@ async function generatePreviewFile() {
 
 async function generateFile() {
   const data = await FormVariablesRendererRef.value.getData()
-  return await clientApi.api.postDmsTemplateDocumentGenerateFile({
+  return await newClientApi.postDmsTemplateDocumentGenerateFile({
     templatePath: form.templatePath,
     paramsMap: data
   }, {
@@ -178,7 +180,7 @@ async function templateParamGet(templatePath: string) {
 
   // word
   if (state.fileType === 'json') {
-    const dataJson = await clientApi.api.postDmsDocumentPreview({ idOrPath: form.templatePath })
+    const dataJson = await newClientApi.postDmsDocumentPreview({ idOrPath: form.templatePath })
     state.wordJson = dataJson
     state.jsonData = dataJson.json.content
     state.documentOptions = dataJson.json.options
@@ -192,7 +194,7 @@ async function templateParamGet(templatePath: string) {
 
   // excel and ppt
   try {
-    const res: any = await clientApi.api.postDmsTemplateDocumentVariables({
+    const res: any = await newClientApi.postDmsTemplateDocumentVariables({
       templatePath
     }).then(res => res.data)
     form.paramList = [...new Set(res.paramsList)].map(item => ({
@@ -201,7 +203,7 @@ async function templateParamGet(templatePath: string) {
       required: true
     }))
     // get preview file
-    previewFile.blob = await clientApi.api.postDmsDocumentPreview(
+    previewFile.blob = await newClientApi.postDmsDocumentPreview(
       { idOrPath: templatePath },
       {
         format: 'blob',
@@ -222,7 +224,7 @@ async function templateParamGet(templatePath: string) {
 // @ts-ignore
 onMounted(async () => {
   try {
-    state.templateList = await clientApi.api.postDmsTemplateDocumentList().then(res => res.data) || []
+    state.templateList = await newClientApi.postDmsTemplateDocumentList().then(res => res.data) || []
   } catch (error) {
     console.log(error)
     state.templateList = []

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import type { SignatureSetting } from './type'
 import TemplateEditor from './templateEditor.vue'
 
@@ -18,7 +18,7 @@ const modelValue = defineModel<SignatureSetting>('modelValue', {
 const companyOptions = ref<any[]>([])
 
 async function getCompanyList() {
-  const data = await clientApi.admin.postAdmindocpalAclRoleList({
+  const data = await newAdminApi.postDocpalAclRoleList({
     pageNum: 0,
     pageSize: 100
   }).then(r => r.data)

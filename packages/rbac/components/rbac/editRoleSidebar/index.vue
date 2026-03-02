@@ -46,7 +46,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import type { FormInstance } from 'element-plus'
 
 const { t } = useI18n()
@@ -115,7 +115,7 @@ function treeToArray(root) {
 
 async function getUserList() {
   try {
-    return await clientApi.admin.postAdminucenterGetKeycloakAllUsers({}).then((res) => res.data)
+    return await newAdminApi.postUcenterGetKeycloakAllUsers({}).then((res) => res.data)
   } catch (error) {
     console.error(error)
     return []
@@ -150,7 +150,7 @@ async function handleSubmit() {
     await formRef.value.validate()
     loading.value = true
 
-    await clientApi.admin.putAdmindocpalAclRole({
+    await newAdminApi.putDocpalAclRole({
       ...formData,
       id: String(formData.id),
       parentId: formData.parentId ? String(formData.parentId) : undefined,

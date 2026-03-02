@@ -53,7 +53,7 @@ function goClientPath(path: string) {
 
 provide(AuditProviderKey, {
   getListApi: (params: any) => {
-    return newAdminApi.postAdmindmsDocumentQueryauditevent({ ...params, ...formData.value })
+    return newAdminApi.postDmsDocumentQueryauditevent({ ...params, ...formData.value })
   },
   goClientPath
 })

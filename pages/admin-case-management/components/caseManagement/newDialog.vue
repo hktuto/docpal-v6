@@ -30,7 +30,7 @@ async function handleSubmit() {
   try {
     const data = await FormRendererRef.value.getFormData()
     state.visible = false
-    const res = await newAdminApi.postAdmincaseTypes(data).then(res => res.data)
+    const res = await newAdminApi.postCaseTypes(data).then(res => res.data)
     ElMessage.success(t('tip_createdMsg', {
       modelName: null,
       name: data.name

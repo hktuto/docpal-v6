@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
-import userSignature from '~/components/setting/userSignature.vue'
+import { newClientApi } from 'api'
 
 const platform = useAppPlatform()
 const router = useRouter()
@@ -17,7 +16,7 @@ const state = reactive<any>({
 
 async function init() {
   try {
-    const { properties } = await clientApi.api.getDmsUserProfileSetting().then((res: any) => res.data)
+    const { properties } = await newClientApi.getDmsUserProfileSetting().then((res: any) => res.data)
     if (!properties || properties.length === 0) {
       return
     }
@@ -34,7 +33,7 @@ async function init() {
       }))
 
     if (state.list.length > 0) {
-      const data = await clientApi.api.getDmsUserGetapplication().then((res: any) => res.data)
+      const data = await newClientApi.getDmsUserGetapplication().then((res: any) => res.data)
 
       state.form.id = data.id
       state.list.forEach((item: any) => {
@@ -43,7 +42,7 @@ async function init() {
     }
 
     if ('groups' in state.form || 'role' in state.form) {
-      const { roleName, groups } = await clientApi.api.getDocpalAclUserUserid(userId.value).then((res: any) => res.data)
+      const { roleName, groups } = await newClientApi.getDocpalAclUserUserid(userId.value).then((res: any) => res.data)
       state.form.role = roleName
       state.form.groups = groups.map((item: any) => item.groupName)
     }
@@ -56,7 +55,7 @@ async function init() {
       }
     }
 
-    state.notificationPreferenceList = await clientApi.api.getNotificationSettingUserUseridPreferences(userId.value).then(res => res.data)
+    state.notificationPreferenceList = await newClientApi.getNotificationSettingUserUseridPreferences(userId.value).then(res => res.data)
   } catch (e: any) {
     throw createError(e)
   }
@@ -130,11 +129,11 @@ async function save() {
         newUserInfo[item.key] = state.form[item.key]
       }
     })
-    await clientApi.api.patchUcenterUser(newUserInfo).then(r => r.data)
+    await newClientApi.patchUcenterUser(newUserInfo).then(r => r.data)
 
-    await clientApi.api.putDmsUserSetting(userPreference.value as any).then(r => r.data)
+    await newClientApi.putDmsUserSetting(userPreference.value as any).then(r => r.data)
 
-    await clientApi.api.postNotificationSettingUserUseridSavePreferences(userId.value, state.notificationPreferenceList).then(r => r.data)
+    await newClientApi.postNotificationSettingUserUseridSavePreferences(userId.value, state.notificationPreferenceList).then(r => r.data)
 
     routerProvider?.message.success(t('tip_updateSuccessMsg', { modelName: t('user_info'), name: null }))
 
@@ -223,7 +222,7 @@ onMounted(() => {
     </div>
   </div>
 
-  <userSignature ref="userSignatureRef" :userId="userId" />
+  <SettingUserSignature ref="userSignatureRef" :userId="userId" />
 
 </template>
 

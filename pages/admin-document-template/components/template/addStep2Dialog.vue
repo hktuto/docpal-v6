@@ -12,7 +12,7 @@
 </el-dialog>
 </template>
 <script lang="ts" setup>
-import { adminApi,clientApi } from 'api'
+import { newClientApi, newAdminApi } from 'api'
 const emits = defineEmits([
     'refresh'
 ])
@@ -36,7 +36,7 @@ async function handleSubmit() {
         const formData = new FormData()
         formData.append('file', file)
         formData.append('id', state.setting.id)
-        await clientApi.admin.putAdmindmsTemplateDocumentUpload({requestDTO:{}},formData as any)
+        await newAdminApi.putDmsTemplateDocumentUpload(formData as any)
         state.visible = false
     } catch (error) {
     }
@@ -51,7 +51,7 @@ async function handleOpen(setting) {
 
 async function goOffice(docId:any){
     if(!docId) docId = state.setting.documentId
-    const token = await adminApi.api.getGetofficetokenId(docId).then(r => r.data)
+    const token = await newClientApi.getGetofficetokenId(docId).then(r => r.data)
     const baseUrl = officeUrl(docId, token)
     state.visible = false
     // const baseUrl = `https://office.app4.wclsolution.com/browser/85ac843/cool.html?WOPISrc=https://app4.wclsolution.com/api/wopi/files/${props.doc.id}?access_token=${token}`

@@ -30,9 +30,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
-
-import { clientApi } from 'api'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { newClientApi } from 'api'
 
 const { updateShareList, getMineTypeShareList, getUseWatermark, shareList } = useShareStore()
 import formJson from './shareRequest.vform.json'
@@ -82,11 +81,11 @@ async function handleDblclick(row: any) {
           handlePreviewFail()
         }
 
-        const res = await clientApi.api.getDmsSharePrepareDownloadDocidGetDownloadStatus(row.id).then(res => res.data)
+        const res = await newClientApi.getDmsSharePrepareDownloadDocidGetDownloadStatus(row.id).then(res => res.data)
         if (res === 'YES') {
           clearInterval(state.interval)
 
-          previewFile.blob = await clientApi.api.getDocpalWatermarkDocumentPreview(
+          previewFile.blob = await newClientApi.getDocpalWatermarkDocumentPreview(
             {
               watermarkTemplateId: row.watermark,
               documentId: row.id
@@ -99,7 +98,7 @@ async function handleDblclick(row: any) {
         }
       }, 1000)
     } else {
-      previewFile.blob = await clientApi.api.postDmsDocumentPreview(
+      previewFile.blob = await newClientApi.postDmsDocumentPreview(
         { idOrPath: row.id },
         {
           format: 'blob'
@@ -151,7 +150,7 @@ async function handleSubmit() {
       password: formData.password ? formData.password : '',
       tokenLiveInMinutes: diffMinute(formData.dueDate)
     }
-    await clientApi.api.postDmsShareNew(param).then(res => res.data)
+    await newClientApi.postDmsShareNew(param).then(res => res.data)
     routerProvider?.message.success(t('share_success'))
     console.log('share_success', '=================share_success=================', updateShareList)
     updateShareList([])
@@ -232,7 +231,7 @@ watch(
         if (item.mimeType && getUseWatermark(item.mimeType)) prev.push(item.id)
         return prev
       }, [])
-      clientApi.api.postDmsSharePrepareDownloadCheckFileComplete(mimeTypeList).then(r => r.data)
+      newClientApi.postDmsSharePrepareDownloadCheckFileComplete(mimeTypeList).then(r => r.data)
     } catch (error) {
       console.log(error)
     }
@@ -260,7 +259,7 @@ watch(
 //     if (item.mimeType && getUseWatermark(item.mimeType)) prev.push(item.id)
 //     return prev
 //   }, [])
-//   clientApi.api.postDmsSharePrepareDownloadCheckFileComplete(mimeTypeList)
+//   newClientApi.postDmsSharePrepareDownloadCheckFileComplete(mimeTypeList)
 // })
 onUnmounted(() => {
   if (!!state.interval) clearInterval(state.interval)

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import formJson from './import.vform.json'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const { t } = useI18n()
@@ -17,7 +17,7 @@ async function handleSave() {
   try {
     const data = await FormRendererRef.value.getFormData()
     loading.value = true
-    await clientApi.admin.patchAdminext3rdstorageIdProfilesProfileidUpdateImport(props.storageId, props.id, data).then(r => r.data)
+    await newAdminApi.patchExt3rdstorageIdProfilesProfileidUpdateImport(props.storageId, props.id, data).then(r => r.data)
     ElMessage.success(t('dpMsg_success'))
     emits('update')
   } catch (error: any) {

@@ -18,7 +18,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { routeExternalStorageDetailPage } from '../../../util/routerHelper'
 
 const ResponsiveFilterRef = ref()
@@ -30,7 +30,7 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'a-external-storage',
-  api: (pageParams: any) => clientApi.admin.postAdminext3rdstoragePage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newAdminApi.postExt3rdstoragePage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'name', title: 'dpTable.name', fixed: 'left' },
     { field: 'connection_type', title: 'externalStorage.connection' },
@@ -133,7 +133,7 @@ function handleDblclick(row: any) {
 
 async function handleActive(row: any, status: string) {
   try {
-    const result = await clientApi.admin.patchAdminext3rdstorageIdUpdateStatus(row.id, { status: status }).then((res) => res.data)
+    const result = await newAdminApi.patchExt3rdstorageIdUpdateStatus(row.id, { status: status }).then((res) => res.data)
     if (!!result) {
       row.status = status
     }

@@ -19,7 +19,7 @@
 
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import * as mime from 'mime-types'
 
 const props = defineProps<{
@@ -55,7 +55,7 @@ const handleConfirm = async () => {
     fileType: form.value.targetFile.type
   }
   loading.value = true
-  const response = await clientApi.api.postDmsConversionFormatSubmit([param])
+  const response = await newClientApi.postDmsConversionFormatSubmit([param])
   if (response.result) {
     ElMessage.success(`${$i18n.t('convert_transferring')}`)
     formRef.value.resetFields()
@@ -70,11 +70,10 @@ const handleConfirm = async () => {
 }
 const handleGetSupportedFormat = async () => {
   if (supportedFormatObject.value instanceof Object && Object.keys(supportedFormatObject.value).length !== 0) return
-  supportedFormatObject.value = await clientApi.api.getDmsConversionFormatSupport().then(r => r.data)
+  supportedFormatObject.value = await newClientApi.getDmsConversionFormatSupport().then(r => r.data)
 }
 const filterArrObj = (arr, filterField) => {
-  const newArr = arr.reduce((pre, cur) => (pre.some((item) => item[filterField] === cur[filterField]) ? pre : [...pre, cur]), [])
-  return newArr
+  return arr.reduce((pre, cur) => (pre.some((item) => item[filterField] === cur[filterField]) ? pre : [...pre, cur]), [])
 }
 // #endregion
 

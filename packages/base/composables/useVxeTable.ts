@@ -1,6 +1,6 @@
 import { useEventBus, EventType, emitBus } from 'eventbus'
 
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import type { TABLE_CONTEXT_PARAMS } from '#imports'
 import type { VxeGridProps, VxeGridListeners, VxeGridPropTypes, VxeTableDefines, VxeTablePropTypes, VxeGridInstance, VxeGridDefines } from 'vxe-table'
 import { useUserPreference } from '../../authApp/composables/useAuth'
@@ -161,7 +161,7 @@ export const useVxeTable = (params: UseVxeTableParams) => {
             if (!perference.value.tableSettings) perference.value.tableSettings = {}
             perference.value.tableSettings[id] = storeData
             // save perference
-            return clientApi.api.putDmsUserSetting(perference.value)
+            return newClientApi.putDmsUserSetting(perference.value)
           } catch (error) {
             console.error('error', error)
           }

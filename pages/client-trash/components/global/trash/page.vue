@@ -27,7 +27,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox, ElNotification } from 'element-plus'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { useDebounceFn } from '@vueuse/core'
 
 const routerProvider = inject(MenuRouterKey)
@@ -67,7 +67,7 @@ const { tableConfig, tableEvent, tableRef, reload, query, cleanSelectedRows } = 
   api: async (pageParams: any) => {
     cleanSelectedRows()
     pageParams = { ...pageParams, ...state.extraParamsFilter }
-    return await clientApi.api.postDmsDocumentTrashQuery(pageParams)
+    return await newClientApi.postDmsDocumentTrashQuery(pageParams)
   },
   columns: [
     { field: 'checkbox', type: 'checkbox', width: '50px', fixed: 'left' },
@@ -215,7 +215,7 @@ async function handleDeleteAll() {
     if (action !== 'confirm') return
 
     state.loading = true
-    await clientApi.api.deleteDmsDocumentTrashPurge()
+    await newClientApi.deleteDmsDocumentTrashPurge()
     setTimeout(async () => {
       state.loading = false
       routerProvider?.message.success(t('trash_emptyTrashSuccessMsg'))
@@ -313,7 +313,7 @@ function handleMsg(messages: string) {
 
 async function deleteOne(idOrPath: string, name: string) {
   try {
-    await clientApi.api.deleteDmsDocumentDocumentidPurge(idOrPath).then(r => r.data)
+    await newClientApi.deleteDmsDocumentDocumentidPurge(idOrPath).then(r => r.data)
   } catch (error) {
     console.log(error)
     return `${t('doc_typeSmartFolderSearchName')}: ${name}, ${t('upload_Status_error')}: ` + (error?.response?.data?.message || 'Server Error') + '.</br> '
@@ -322,7 +322,7 @@ async function deleteOne(idOrPath: string, name: string) {
 
 async function restore(idOrPath: string, name: string) {
   try {
-    await clientApi.api.postDmsDocumentTrashRestore({ idOrPath }, { headers: { noErrorMessage: true } }).then(r => r.data)
+    await newClientApi.postDmsDocumentTrashRestore({ idOrPath }, { headers: { noErrorMessage: true } }).then(r => r.data)
     return null
   } catch (error) {
     console.log('call Api error', error)

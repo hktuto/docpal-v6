@@ -29,7 +29,7 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElNotification } from 'element-plus'
 
 interface UserOption {
@@ -72,7 +72,7 @@ const loadUsers = async () => {
     // need to check type if type is 1 , use role user dropdown 
     let allUsers = []
     if (props.type === 1) {
-      const response = await clientApi.admin.getAdmindocpalAclRoleUsersDropdown({
+      const response = await newAdminApi.getDocpalAclRoleUsersDropdown({
         params: {
           roleId: props.roleId
         }
@@ -85,7 +85,7 @@ const loadUsers = async () => {
         value: item.userId || ''
       }))
     } else if (props.type === 2) {
-      const groupUserResponse = await clientApi.api.postUcenterUsers({}).then((res) => res.data)
+      const groupUserResponse = await newAdminApi.postUcenterUsers({}).then((res) => res.data)
       if (!groupUserResponse) {
         throw new Error(t('common.invalidResponseFormat'))
       }

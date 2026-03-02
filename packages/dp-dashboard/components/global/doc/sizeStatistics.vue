@@ -15,9 +15,10 @@
 </template>
 
 <script lang="ts" setup>
-import { publicApi } from 'api'
+import { newClientApi } from 'api'
 import { fileSize } from '../../../utils/tool'
 import { useDashboardCard } from '../../../utils/useDashboardCard'
+
 const props = withDefaults(
   defineProps<{
     dates?: any
@@ -50,7 +51,7 @@ const dbSetting = {
         type: 'value',
         // interval: 1024 ,
         axisLabel: {
-          formatter: function (value, index) {
+          formatter: function(value, index) {
             //自定义提示框里提示的内容、样式等，可以打印看item里的值
             return fileSize(value, ['MB', 'GB', 'TB', 'PB'])
           }
@@ -62,7 +63,7 @@ const dbSetting = {
       tooltip: {
         appendToBody: true,
         trigger: 'item',
-        formatter: function (item) {
+        formatter: function(item) {
           //自定义提示框里提示的内容、样式等，可以打印看item里的值
           return `${item.seriesName}: ${fileSize(item.value, ['MB', 'GB', 'TB', 'PB'])}`
         }
@@ -92,7 +93,7 @@ const dbSetting = {
       tooltip: {
         appendToBody: true,
         trigger: 'item',
-        formatter: function (item) {
+        formatter: function(item) {
           //自定义提示框里提示的内容、样式等，可以打印看item里的值
           return `${item.name} <br/>${item.seriesName}  ${item.value.toFixed(2)}`
         }
@@ -121,7 +122,7 @@ const dbSetting = {
       tooltip: {
         appendToBody: true,
         trigger: 'item',
-        formatter: function (item) {
+        formatter: function(item) {
           //自定义提示框里提示的内容、样式等，可以打印看item里的值
           return `${item.seriesName}: ${fileSize(item.value)}`
         }
@@ -140,7 +141,7 @@ const dbSetting = {
         normal: {
           position: 'inside', // 在内部显示，outseide 是在外部显示
           show: true,
-          formatter: function (item) {
+          formatter: function(item) {
             //自定义提示框里提示的内容、样式等，可以打印看item里的值
             return fileSize(item.value)
           }
@@ -156,7 +157,7 @@ const dbSetting = {
       xAxis: {
         type: 'value',
         axisLabel: {
-          formatter: function (value, index) {
+          formatter: function(value, index) {
             //自定义提示框里提示的内容、样式等，可以打印看item里的值
             return fileSize(value)
           }
@@ -169,7 +170,7 @@ const dbSetting = {
       tooltip: {
         appendToBody: true,
         trigger: 'item',
-        formatter: function (item) {
+        formatter: function(item) {
           //自定义提示框里提示的内容、样式等，可以打印看item里的值
           return `${item.seriesName}1: ${fileSize(item.value)}`
         }
@@ -187,7 +188,7 @@ const dbSetting = {
         normal: {
           position: 'inside', // 在内部显示，outseide 是在外部显示
           show: true,
-          formatter: function (item, params) {
+          formatter: function(item, params) {
             //自定义提示框里提示的内容、样式等，可以打印看item里的值
             return fileSize(item.value)
           }
@@ -200,7 +201,7 @@ const dbSetting = {
       tooltip: {
         appendToBody: true,
         trigger: 'item',
-        formatter: function (item) {
+        formatter: function(item) {
           //自定义提示框里提示的内容、样式等，可以打印看item里的值
           return `${item.name}: ${fileSize(item.value)}`
         }
@@ -321,6 +322,7 @@ function getSeries(chartData, type: string = 'pie', displayList: any[]) {
     ...dbSetting[`${type}Setting`].series
   }
 }
+
 function getTrendSeries(chartData, type: string = 'pie', displayList: any[]) {
   return Object.keys(chartData).reduce((prev: any, key) => {
     const values = chartData[key]
@@ -341,6 +343,7 @@ function getTrendSeries(chartData, type: string = 'pie', displayList: any[]) {
     return prev
   }, [])
 }
+
 // #endregion
 
 // #region module: Data
@@ -355,7 +358,7 @@ async function getData(displayList: any = []) {
       to: props.dates[1]
     }
   }
-  const initData: any = await publicApi.api.postDashboardDocumenttypeofsizebyrange(params).then((res) => res.data)
+  const initData: any = await newClientApi.postDsbDocumentTypeSizeRange(params).then((res) => res.data)
   seriesData = {}
   let others = 0
   totalStorage = 0
@@ -370,12 +373,14 @@ async function getData(displayList: any = []) {
   // } catch (error) {
   // }
 }
+
 let initTrendData = []
+
 async function getTrendData(displayList, dataType: string = 'trendSizeData') {
   if (!displayList || displayList.length === 0) return {}
   try {
     if (!initTrendData || initTrendData.length === 0) {
-      const res: any = await publicApi.api.postDashboardDocumenttypeofsizebymonthlyrangecumulation({}).then((res) => res.data)
+      const res: any = await newClientApi.postDsbDocumentTypeSizeMonthlyRangeCumulation({}).then((res) => res.data)
       initTrendData = res?.group_document_type?.buckets || []
     }
     let trendData
@@ -423,15 +428,19 @@ async function getTrendData(displayList, dataType: string = 'trendSizeData') {
     } else {
       trendSizeData = trendData
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 function handleRefresh(chartSetting) {
   emits('refreshSetting', chartSetting)
 }
+
 function handleDelete() {
   emits('delete')
 }
+
 // #endregion
 defineExpose({ resize })
 </script>

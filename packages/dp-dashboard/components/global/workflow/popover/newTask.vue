@@ -42,7 +42,8 @@
     </ElTabs>
     <template #footer>
       <el-button v-if="!pageButtonSetting || pageButtonSetting.showSumBitButton"
-                 id="Workflow__NewWorkflow__StartWorkflow" type="primary" :disabled="state.loading" @click="checkAndSubmit">
+                 id="Workflow__NewWorkflow__StartWorkflow" type="primary" :disabled="state.loading"
+                 @click="checkAndSubmit">
         <template v-if="pageButtonSetting && pageButtonSetting.submitButtonLabel">
           {{ pageButtonSetting.submitButtonLabel }}
         </template>
@@ -58,7 +59,7 @@
 import { ElMessage } from 'element-plus'
 import { ArrowDown } from '@element-plus/icons-vue'
 // @ts-ignore
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const { formStartHandle } = useWorkflow()
 const isFullScreen = ref(false)
@@ -89,7 +90,7 @@ function tabChangeHandler() {
 }
 
 async function getAvailableWorkflow() {
-  state.availableWorkflow = await clientApi.api.postDsbWorkflowProcessList({}).then(res => res.data)
+  state.availableWorkflow = await newClientApi.postDocpalWorkflowProcessList().then(res => res.data) as any || []
 }
 
 async function workflowClickHandler(item: any) {
@@ -97,7 +98,7 @@ async function workflowClickHandler(item: any) {
   state.loading = true
 
   //TODO : get xml and check if need to open new page
-  const xml = await clientApi.api.getWorkflowVersionVersionidBpmnxml(item.versionId)
+  const xml = await newClientApi.getDocpalWorkflowVersionVersionidBpmnxml(item.versionId)
   const { flatObj } = bpmnStringToJson(xml)
   const startEvent = flatObj.Start
   state.formDialogVisible = true
@@ -123,10 +124,9 @@ async function workflowClickHandler(item: any) {
     }
   }
 
-
   // @ts-ignore
   state.selectedWorkflow = deepCopy(item)
-  initForm(item.key, item.versionId)
+  await initForm(item.key, item.versionId)
   state.loading = false
   // createWorkflowForm.value = await workflowStore.getFromProperties(item.key)
 
@@ -138,7 +138,6 @@ async function workflowClickHandler(item: any) {
   // VformRenderRef.value.setFormDataAndJson(formJson, formData, createWorkflowForm.value)
 }
 
-
 // #region module: vform
 // @ts-ignore
 const vFormRef = ref()
@@ -147,7 +146,7 @@ async function checkAndSubmit() {
   state.loading = true
   const data = await vFormRef.value.getFormData()
   if (data) {
-    
+
     const form = {
       processKey: state.selectedWorkflow.key,
       businessKey: data.businessKey || '',
@@ -156,9 +155,9 @@ async function checkAndSubmit() {
         return newObj
       }, {})
     }
-    
+
     try {
-      await clientApi.api.postWorkflowProcessStart(form).then(res => res.data)
+      await newClientApi.postDocpalWorkflowProcessStart(form).then(res => res.data)
       state.formDialogVisible = false
       ElMessage.success('Workflow created')
       emits('created')
@@ -190,13 +189,13 @@ async function handleAdditionalSetting(xml: any, taskDetail: any, formData: any)
 }
 
 async function initForm(processKey: string, versionId: string) {
-  const props = await clientApi.api.postWorkflowProperties({ processKey }).then(res => res.data)
+  const props = await newClientApi.postDocpalWorkflowProperties({ processKey }).then(res => res.data)
   const formData = formDataGet(props)
   const formJson = await formJsonGet('start', processKey, versionId)
   setTimeout(() => {
     vFormRef.value.setForm(formJson, formData, props)
   })
-  const blob: any = await clientApi.api.postWorkflowProcessModel({ processKey }, {
+  const blob: any = await newClientApi.postDocpalWorkflowProcessModel({ processKey }, {
     format: 'blob'
   })
   const text = await blob.text()
@@ -216,7 +215,7 @@ function formDataGet(propList = []) {
 }
 
 async function formJsonGet(userTaskId: string, processKey: string, versionId: string) {
-  const response: any = await clientApi.api.getDmsFormPropertiesQuery({
+  const response: any = await newClientApi.getDmsFormPropertiesQuery({
     userTaskId,
     processKey,
     versionId

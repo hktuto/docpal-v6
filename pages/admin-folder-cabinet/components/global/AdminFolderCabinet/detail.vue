@@ -20,7 +20,7 @@ const state = reactive<{
 async function getData() {
   state.loading = true
   try {
-    state.setting = await newAdminApi.getAdmindmsCabinetTemplateId(id).then((res) => res.data)
+    state.setting = await newAdminApi.getDmsCabinetTemplateId(id).then((res) => res.data)
     state.setting.folder = true
   } catch (error) {
   } finally {
@@ -57,7 +57,7 @@ async function handleDeleteChild(setting: any) {
       duration: 0,
       position: 'bottom-right'
     })
-    await newAdminApi.deleteAdmindmsCabinetId(setting.id)
+    await newAdminApi.deleteDmsCabinetId(setting.id)
     await getData()
     ElNotification({
       title: 'Success',

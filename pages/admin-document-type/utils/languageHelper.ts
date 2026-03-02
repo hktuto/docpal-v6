@@ -1,5 +1,7 @@
-import { clientApi } from 'api'
+import { newAdminApi, newClientApi } from 'api'
+
 export const localeKeys = ['en-US', 'zh-CN', 'zh-HK']
+
 export async function getMetaI18n(lKey: string) {
   const languages = await getMetaLanguageList()
 
@@ -14,18 +16,18 @@ export async function getMetaI18n(lKey: string) {
   }
   return result
 }
+
 let languageListMap: any = {}
+
 export async function getMetaLanguageList(languageKey: string = 'meta') {
   if (languageListMap['en-US']) return languageListMap
   let pList: any = []
   for (const locale of localeKeys) {
     pList.push(
-      clientApi.api
-        .getDmsFormPropertiesLanguageList({
-          locale,
-          languageKey
-        })
-        .then((res) => res.data[0])
+      newClientApi.getDmsFormPropertiesLanguageList({
+        locale,
+        languageKey
+      }).then((res) => res.data[0])
     )
   }
   const pResult = await Promise.all(pList)
@@ -65,9 +67,10 @@ export async function saveMetaI18n(lKey: string, lKeyValueMap: any) {
     _languageListMap[locale].languageContent = JSON.stringify(languages)
     delete _languageListMap[locale].languages
     try {
-      await clientApi.admin.postAdmindmsFormPropertiesLanguage(_languageListMap[locale]).then((r) => r.data)
+      await newAdminApi.postDmsFormPropertiesLanguage(_languageListMap[locale]).then((r) => r.data)
       languageListMap[locale].languages = recordLanguage
-    } catch (error) {}
+    } catch (error) {
+    }
   }
 
   // 链化

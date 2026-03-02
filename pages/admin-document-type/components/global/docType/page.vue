@@ -41,7 +41,7 @@ const state = reactive<any>({})
 const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   id: 'docTypeManage',
   api: async (pageParams: any) => {
-    return await newAdminApi.postAdmindmsDocpalTypePage({
+    return await newAdminApi.postDmsDocpalTypePage({
       ...pageParams,
       ...extraParams
     })
@@ -158,7 +158,7 @@ function handleDuplicate(row: any) {
 }
 
 async function handleActive(row: any, isActive: boolean) {
-  const result = await newAdminApi.patchAdmindmsDocpalTypeActive({
+  const result = await newAdminApi.patchDmsDocpalTypeActive({
     name: row.name,
     enable: isActive
   }).then((res) => res.data)
@@ -184,7 +184,7 @@ function handleFilterFormChange(formModel: any) {
 const ResponsiveFilterRef = ref()
 
 async function getFilter() {
-  const filters = await newAdminApi.getAdmindmsDocpalTypePageConditions().then((res) => res.data)
+  const filters = await newAdminApi.getDmsDocpalTypePageConditions().then((res) => res.data)
   ResponsiveFilterRef.value?.init([
     ...filters,
     {
@@ -226,7 +226,7 @@ async function handleExport() {
     text: t('metadata.export_loading'),
     background: 'rgba(0, 0, 0, 0.7)'
   })
-  const result = await newAdminApi.postAdmindmsDocpalTypeExportCvs({
+  const result = await newAdminApi.postDmsDocpalTypeExportCvs({
     pageNum: 0,
     pageSize: 1000
   }, {

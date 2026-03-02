@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import * as echarts from "echarts";
-import { publicApi } from 'api';
+import { newClientApi } from 'api';
 import { useEventListener } from '@vueuse/core'
 const props = withDefaults( defineProps<{
     dates?: any;
@@ -98,12 +98,12 @@ function resize() {
     }
     const GetCoCountSizeApi = async(params: any, creator?: string) => {
         if (creator) {
-            return await publicApi.api.postDashboardNewfilesofspecifyusersizebydtypebymonthlycumulation({
+            return await newClientApi.postDsbNewFilesUserSizeDtypeMonthlyCumulation({
                 ...params,
                 creator
             }).then(res => res.data)
         }
-        return await publicApi.api.postDashboardNewfilesofuserssizebydtypebymonthlycumulation(params).then(res => res.data)
+        return await newClientApi.postDsbNewFilesUsersSizeDtypeMonthlyCumulation(params).then(res => res.data)
     }
     async function handleInitChart(documentType) {
         options = { 

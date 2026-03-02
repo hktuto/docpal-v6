@@ -184,7 +184,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from "api";
+import { newClientApi } from "api";
 const props = defineProps<{
   unreadCount: number;
 }>();
@@ -225,7 +225,7 @@ const userId = useUserId();
 const { displayTime } = useTime();
 async function getNotiPage() {
   state.loading = true;
-  const { data: res } = await clientApi.api.postNotificationPage(state.notiPageParam, {
+  const { data: res } = await newClientApi.postNotificationPage(state.notiPageParam, {
     receiveId: userId.value,
   });
 
@@ -252,7 +252,7 @@ function handleCheckedNotisChange(value) {
 }
 // #region module: delete
 async function handleDeleteSelected() {
-  await clientApi.api.deleteNotifications(state.checkedNotis);
+  await newClientApi.deleteNotification(state.checkedNotis);
   state.checkAll = false;
   state.checkedNotis = [];
   state.notiList = [];
@@ -263,7 +263,7 @@ async function handleDelete(item, index) {
   if (item.loading) return;
   item.loading = true;
   try {
-    const { data: res } = await clientApi.api.deleteNotifications([item.id]);
+    const { data: res } = await newClientApi.deleteNotification([item.id]);
     if (res) {
       state.notiList.splice(index, 1);
       const notiIndex = state.checkedNotis.findIndex((notiId) => notiId === item.id);
@@ -281,14 +281,14 @@ async function handleDelete(item, index) {
 
 // #region module: read
 async function handleRead(item) {
-  const { data: res } = await clientApi.api.putNotificationIdStatusStatus(item.id, 'READED');
+  const { data: res } = await newClientApi.putNotificationIdUpdateStatusStatus(item.id, 'READED');
   if (res && item.status !== "READED") {
     item.status = "READED";
     emit("unreadCountChange", props.unreadCount - 1);
   }
 }
 async function handleReadAll() {
-  const { data: res } = await clientApi.api.postNotificationReadAll();
+  const { data: res } = await newClientApi.postNotificationReadAll();
   if (res) {
     state.notiList.forEach((item) => {
       item.status = "READED";

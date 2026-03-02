@@ -18,7 +18,7 @@ let extraParams = {
 let isFilter = false
 
 async function getChildApi(id: string = 'root') {
-  return newAdminApi.postAdmindocpalAclDocumentList({
+  return newAdminApi.postDocpalAclDocumentList({
     documentId: id,
     ...extraParams
   })
@@ -249,7 +249,7 @@ const { flatRole } = useRBAC()
 async function getFilter() {
   async function getGroupList() {
     try {
-      return await newAdminApi.postAdminucenterGroups().then(r => r.data)
+      return await newAdminApi.postUcenterGroups().then(r => r.data)
     } catch (error) {
       console.error(error)
       return []
@@ -258,7 +258,7 @@ async function getFilter() {
 
   async function getUserList() {
     try {
-      return await newAdminApi.postAdminucenterGetKeycloakAllUsers({}).then((res) => res.data)
+      return await newAdminApi.postUcenterGetKeycloakAllUsers({}).then((res) => res.data)
     } catch (error) {
       console.error(error)
       return []
@@ -345,8 +345,6 @@ watch(
   <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
     <template #toolbar_buttons>
       <div class="action_list_container">
-
-
         <!-- <el-button type="primary" @click="getTable()">Clear</el-button> -->
         <ResourceDocumentBreadcrumb :id="id" @idChange="emits('idChange', $event)" />
         <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" />

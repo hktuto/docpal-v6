@@ -19,7 +19,7 @@
 </template>
 <script lang="ts" setup>
 import formJson from './newDialog.vform.json'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const { t } = useI18n()
@@ -53,9 +53,9 @@ async function handleSubmit() {
       }
     }
     if (state.isEdit) {
-      await clientApi.admin.putAdminext3rdstorageIdUpdate(state.setting.id, params).then(r => r.data)
+      await newAdminApi.putExt3rdstorageIdUpdate(state.setting.id, params).then(r => r.data)
     } else {
-      await clientApi.admin.postAdminext3rdstorage(params).then(r => r.data)
+      await newAdminApi.postExt3rdstorage(params).then(r => r.data)
     }
     ElMessage.success(t('dpMsg_success'))
     state.visible = false

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElButton } from 'element-plus'
-import { clientApi, templateApi } from 'api'
+import { newClientApi, templateApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 
@@ -28,20 +28,19 @@ const dialogOpened = ref(false)
 const dialogHeight = ref(640)
 
 async function generateOldTemplate(templateId: string, map: any) {
-  const res: any = await clientApi.api.postDmsTemplateDocumentGenerateFile({
+  return await newClientApi.postDmsTemplateDocumentGenerateFile({
     templateId: templateId,
     paramsMap: map
   }, {
     format: 'blob'
   })
-  return res
 }
 
 async function generateNewTemplatePreview(templateId: string, map: any) {
 
   try {
     // try to get template detail 
-    const templateDetail = await clientApi.api.getDmsTemplateEmailTemplateId(templateId).then(r => r.data)
+    const templateDetail = await newClientApi.getDmsTemplateEmailTemplateId(templateId).then(r => r.data)
 
     if (!templateDetail) {
       return
@@ -49,7 +48,7 @@ async function generateNewTemplatePreview(templateId: string, map: any) {
     if (templateDetail.fileType !== 'Word') {
       await generateOldTemplate(templateId, map)
     }
-    const res = await clientApi.api.postDmsDocumentPreview({
+    const res = await newClientApi.postDmsDocumentPreview({
       idOrPath: templateDetail.documentId
     })
     if (typeof res !== 'object') {

@@ -2,7 +2,7 @@
 import { EventType, useEventBus } from 'eventbus'
 
 import { ArrowRight } from '@element-plus/icons-vue'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { MenuRouterKey } from '#imports'
 
 const routerProvider = inject(MenuRouterKey)
@@ -27,7 +27,7 @@ async function getBreadcrumb() {
   try {
     // if idOrPath === home.secondId, then data = []
     let data = []
-    data = await clientApi.api.postDmsDocumentBreadcrumb({ idOrPath: idOrPath.value }).then((res: any) => {
+    data = await newClientApi.postDmsDocumentBreadcrumb({ idOrPath: idOrPath.value }).then((res: any) => {
       return res.data
     })
     if (props.home) {

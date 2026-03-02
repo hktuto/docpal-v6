@@ -143,8 +143,8 @@ export interface UserDTO {
     userLevel?: string;
     /** Registered */
     registered?: string;
-    userName?: string;
     kcUserId?: string;
+    userName?: string;
 }
 
 /** User detail data transfer object */
@@ -282,10 +282,10 @@ export interface ContactGroupRequestDTO {
     attributes?: ContactAttribute[];
     operator?: string;
     verifyReadPermission?: boolean;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -616,6 +616,498 @@ export interface ExternalStorageImportJobDTO {
     modifiedDate?: string;
 }
 
+/** Table Data Request DTO */
+export interface TableDataRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** Data record content (dynamic fields) */
+    data?: Record<string, any>;
+    /** Status: A (Active), I (Inactive), D (Deleted) */
+    status?: string;
+    /** Filter conditions (JSON object) */
+    filters?: Record<string, any>;
+    /** Select fields (JSON object) */
+    select?: Record<string, any>;
+    descSort?: SortObject;
+    /** @format int32 */
+    pageIndex?: number;
+    desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
+    sort?: SortObject;
+    /** Master Table ID */
+    master_table_id?: string;
+    /** View name for personal view query */
+    view_name?: string;
+    /** Sort by field name */
+    sort_by?: string;
+    /** Sort order: asc/desc */
+    sort_order?: string;
+}
+
+export interface ResultTableDataDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Table Data DTO */
+    data?: TableDataDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Table Data DTO */
+export interface TableDataDTO {
+    /** Data record ID */
+    id?: string;
+    /** Data content (dynamic fields) */
+    data?: Record<string, any>;
+    /** Status: A (Active), I (Inactive), D (Deleted) */
+    status?: string;
+    /** Master Table ID */
+    master_table_id?: string;
+    /** Created by user ID */
+    created_by?: string;
+    /** Created timestamp */
+    created_at?: string;
+    /** Updated by user ID */
+    updated_by?: string;
+    /** Updated timestamp */
+    updated_at?: string;
+}
+
+/** Table Request DTO */
+export interface TableRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /**
+     * Table display name
+     * @minLength 0
+     * @maxLength 255
+     */
+    name: string;
+    /**
+     * Table description
+     * @minLength 0
+     * @maxLength 1000
+     */
+    description?: string;
+    /** Status: A-Active, I-Inactive, D-Deleted */
+    status?: string;
+    /** Fields definition (optional, for creating table with fields) */
+    fields?: Record<string, any>;
+    /** Filters for list query (optional) */
+    filters?: Record<string, any>;
+    descSort?: SortObject;
+    /** @format int32 */
+    pageIndex?: number;
+    desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
+    sort?: SortObject;
+    /** URL name (unique per entity_id) */
+    url_name?: string;
+    /** Entity type: common, case, workflow, system */
+    entity_type?: string;
+    /** Entity ID for multi-tenant isolation */
+    entity_id?: string;
+    /** Form structure (JSON) */
+    form_structure?: Record<string, any>;
+}
+
+export interface ResultTableDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Table DTO */
+    data?: TableDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Table DTO */
+export interface TableDTO {
+    /** Table ID (UUID) */
+    id?: string;
+    /** Display name */
+    name?: string;
+    /** Description */
+    description?: string;
+    /** Status: A-Active, I-Inactive, D-Deleted */
+    status?: string;
+    /** Database table name (auto-generated) */
+    table_name?: string;
+    /** View name (auto-generated) */
+    view_name?: string;
+    /** URL name */
+    url_name?: string;
+    /** Entity type: common, case, workflow, system */
+    entity_type?: string;
+    /** Entity ID */
+    entity_id?: string;
+    /** Parent folder ID */
+    folder_id?: string;
+    /** Form structure (JSON) */
+    form_structure?: Record<string, any>;
+    /** Data table name */
+    table_data_name?: string;
+    /** Created by */
+    created_by?: string;
+    /** Created at (ISO 8601) */
+    created_at?: string;
+    /** Updated by */
+    updated_by?: string;
+    /** Updated at (ISO 8601) */
+    updated_at?: string;
+}
+
+/** Field Request DTO */
+export interface FieldRequestDTO {
+    /** Fields array for batch creation */
+    fields?: FieldRequestDTO[];
+    fieldType?: string;
+    /** Master Table ID (required for create/list) */
+    master_table_id?: string;
+    /** Field name (alias/display name) */
+    field_name?: string;
+    /** Business type: text, number, select, date, boolean, relation, formula, aggregation */
+    business_type?: string;
+    /**
+     * Field length (for text fields)
+     * @format int32
+     */
+    field_length?: number;
+    /** Is required field */
+    is_required?: boolean;
+    /** Is unique field */
+    is_unique?: boolean;
+    /** Is hidden field */
+    is_hidden?: boolean;
+    /** Is array type */
+    is_array?: boolean;
+    /** Is reference field (for relation type) */
+    is_reference?: boolean;
+    /** Default value */
+    default_value?: string;
+    /**
+     * Sort order for display
+     * @format int32
+     */
+    sort_order?: number;
+    /** Aggregation method: sum, avg, max, min, count */
+    aggregation_method?: string;
+    /** Aggregation field name */
+    aggregation_field_name?: string;
+    /** Formula expression (for formula type) */
+    formula_expression?: string;
+    /** Validation rules (JSON Schema format) */
+    validation_rules?: Record<string, any>;
+    /** Display structure configuration */
+    display_structure?: Record<string, any>;
+    /** Related table ID (for relation type) */
+    relation_table_id?: string;
+    /** Related field ID (null = primary key) */
+    relation_field_id?: string;
+    /** Display field IDs from related table */
+    display_field_ids?: string[];
+    /** Include hidden fields in list response */
+    include_hidden?: boolean;
+}
+
+export interface ResultTableFieldDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Table Field DTO */
+    data?: TableFieldDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Table Field DTO */
+export interface TableFieldDTO {
+    /** Field ID (UUID) */
+    id?: string;
+    /** Master Table ID */
+    master_table_id?: string;
+    /** Field name (database column name) */
+    field_name?: string;
+    /** Field name alias (display name) */
+    field_name_alias?: string;
+    /** Field type: text, integer, numeric, boolean, date, timestamp, uuid, jsonb */
+    field_type?: string;
+    /** Business type: text, number, select, date, boolean, relation, formula, aggregation */
+    business_type?: string;
+    /**
+     * Field length
+     * @format int32
+     */
+    field_length?: number;
+    /** Is required */
+    is_required?: boolean;
+    /** Is unique */
+    is_unique?: boolean;
+    /** Is hidden */
+    is_hidden?: boolean;
+    /** Is array type */
+    is_array?: boolean;
+    /** Is reference field */
+    is_reference?: boolean;
+    /** Default value */
+    default_value?: string;
+    /**
+     * Sort order
+     * @format int32
+     */
+    sort_order?: number;
+    /** Aggregation method: sum, avg, max, min, count */
+    aggregation_method?: string;
+    /** Aggregation field name */
+    aggregation_field_name?: string;
+    /** Formula expression */
+    formula_expression?: string;
+    /** Validation rules (JSON Schema) */
+    validation_rules?: Record<string, any>;
+    /** Display structure (JSON) */
+    display_structure?: Record<string, any>;
+    /** Created by */
+    created_by?: string;
+    /** Created at */
+    created_at?: string;
+    /** Updated by */
+    updated_by?: string;
+    /** Updated at */
+    updated_at?: string;
+}
+
+/** Menu Request DTO */
+export interface MenuRequestDTO {
+    /**
+     * Menu name
+     * @minLength 0
+     * @maxLength 255
+     */
+    name: string;
+    /**
+     * Description
+     * @minLength 0
+     * @maxLength 1000
+     */
+    description?: string;
+    /** Status: A-Active, I-Inactive */
+    status?: string;
+    /** Metadata (JSON) */
+    metadata?: Record<string, any>;
+    /**
+     * Item type: folder, master_table, view, dashboard, report
+     * @minLength 1
+     */
+    item_type: string;
+    /** Parent menu ID, null for root level */
+    parent_id?: string;
+    /** Menu icon */
+    item_icon?: string;
+    /** Menu URL name (unique per reference_entity_id) */
+    item_url_name?: string;
+    /** Reference entity type (e.g., case) */
+    reference_entity_type?: string;
+    /** Reference entity ID (e.g., Case Type ID) */
+    reference_entity_id?: string;
+    /** Base table ID (required for view type) */
+    view_base_table_id?: string;
+    /** View type: table, kanban, gantt, calendar, gallery */
+    view_type?: string;
+    /** View condition (JSON) */
+    view_condition?: Record<string, any>;
+}
+
+/** Menu Item DTO */
+export interface MenuDTO {
+    /** Menu ID */
+    id?: string;
+    /** Menu name */
+    name?: string;
+    /** Description */
+    description?: string;
+    /** Status: A-Active, I-Inactive, D-Deleted */
+    status?: string;
+    /** Metadata (JSON) */
+    metadata?: Record<string, any>;
+    /**
+     * Version number
+     * @format int32
+     */
+    version?: number;
+    /** Child menus */
+    children?: MenuDTO[];
+    /** Parent menu ID, null for root level */
+    parent_id?: string;
+    /** Item type: folder, master_table, view, dashboard, report */
+    item_type?: string;
+    /** Associated item ID (table ID, view ID, etc.) */
+    item_id?: string;
+    /** Menu icon */
+    item_icon?: string;
+    /** Menu URL name */
+    item_url_name?: string;
+    /**
+     * Sort order
+     * @format int32
+     */
+    sort_order?: number;
+    /** Reference entity type (e.g., case) */
+    reference_entity_type?: string;
+    /** Reference entity ID (e.g., Case Type ID) */
+    reference_entity_id?: string;
+    /** Creator user ID */
+    created_by?: string;
+    /** Last updater user ID */
+    updated_by?: string;
+    /** Creation time */
+    created_at?: string;
+    /** Last update time */
+    updated_at?: string;
+}
+
+export interface ResultMenuDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Menu Item DTO */
+    data?: MenuDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Menu Move Request DTO */
+export interface MenuMoveRequestDTO {
+    /** Target parent menu ID, null for root level */
+    move_to_parent_id?: string;
+    /** Insert before this menu ID */
+    insert_before_menu_id?: string;
+}
+
+/** Case Type Request DTO */
+export interface CaseTypeRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /**
+     * Case Type name
+     * @minLength 0
+     * @maxLength 255
+     */
+    name: string;
+    /**
+     * Case Type description
+     * @minLength 0
+     * @maxLength 1000
+     */
+    description?: string;
+    /** Status: A-Active, I-Inactive, D-Deleted */
+    status?: string;
+    /** Metadata (JSON) */
+    metadata?: Record<string, any>;
+    descSort?: SortObject;
+    /** @format int32 */
+    pageIndex?: number;
+    desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
+    sort?: SortObject;
+    /** Case schema definition (JSON) */
+    case_schema?: Record<string, any>;
+}
+
+/** Case Type DTO */
+export interface CaseTypeDTO {
+    /** Case Type ID */
+    id?: string;
+    /** Case Type name */
+    name?: string;
+    /** Description */
+    description?: string;
+    /** Status: A-Active, I-Inactive, D-Deleted */
+    status?: string;
+    /** Metadata (JSON) */
+    metadata?: Record<string, any>;
+    /**
+     * Version number
+     * @format int32
+     */
+    version?: number;
+    /**
+     * Sort order
+     * @format int32
+     */
+    sort_order?: number;
+    /** Case schema definition (JSON) */
+    case_schema?: Record<string, any>;
+    /** Creator user ID */
+    created_by?: string;
+    /** Last updater user ID */
+    updated_by?: string;
+    /** Creation time */
+    created_at?: string;
+    /** Last update time */
+    updated_at?: string;
+}
+
+export interface ResultCaseTypeDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Case Type DTO */
+    data?: CaseTypeDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface UserDashboard {
     /** @format int64 */
     id?: number;
@@ -713,10 +1205,10 @@ export interface PersonalDashboardRequestDTO {
     name?: string;
     groupId?: string;
     styleJson?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -1217,10 +1709,10 @@ export interface MTRecordRequestDTO {
     in?: Record<string, any>;
     /** Relation Record */
     relationRecords?: MTRecordDTO[];
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -1400,10 +1892,10 @@ export interface CompanyChopRequestDTO {
     status?: string;
     /** @format binary */
     file?: File;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -1543,9 +2035,9 @@ export interface MTColumnInfo {
     nullRelation?: boolean;
     /** @format int32 */
     sort?: number;
+    required?: boolean;
     unique?: boolean;
     primaryKey?: boolean;
-    required?: boolean;
 }
 
 export interface ResultCaseType {
@@ -1591,10 +2083,10 @@ export interface CmmnDashboardRequestDTO {
     status?: string;
     /** Where Condition */
     where?: Record<string, any>;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -1633,11 +2125,227 @@ export interface ResultCmmnDashboardResponseDTO {
     locale?: string;
 }
 
+/** Capture save proj info */
+export interface CaptureProjSaveRequestDTO {
+    /** proj id */
+    id?: string;
+    /** proj name */
+    name?: string;
+    /** project description */
+    description?: string;
+    /** created method */
+    createdMethod?: string;
+    /** status */
+    status?: string;
+    /** addition fields setting */
+    additionFieldsSetting?: JsonNode;
+    /**
+     * delete batch after days
+     * @format int32
+     */
+    deleteBatchAfterDays?: number;
+    /** notification enabled */
+    notificationEnabled?: boolean;
+    /** notification setting */
+    notificationSetting?: JsonNode;
+    /** prefix */
+    prefix?: string;
+    /**
+     * minDigit
+     * @format int32
+     */
+    minDigit?: number;
+    /**
+     * startingNumber
+     * @format int32
+     */
+    startingNumber?: number;
+    /** zip password */
+    zipPassword?: string;
+    /** enable audit log */
+    enableAuditLog?: boolean;
+    /** auto classification */
+    autoClassification?: boolean;
+    /** auto verification */
+    autoVerification?: boolean;
+    /** require manual review */
+    requireManualReview?: boolean;
+    /** default prompt template id */
+    defaultPromptTemplateId?: string;
+    /** created by */
+    createdBy?: string;
+    /** updated by */
+    updatedBy?: string;
+    /**
+     * created at
+     * @format date-time
+     */
+    createdAt?: string;
+    /**
+     * updated at
+     * @format date-time
+     */
+    updatedAt?: string;
+    /** code */
+    code?: string;
+    idTemplateEntity?: IdTemplate;
+}
+
+export interface CaptureProj {
+    /** @format uuid */
+    id?: string;
+    name?: string;
+    description?: string;
+    createdMethod?: string;
+    status?: string;
+    additionFieldsSetting?: JsonNode;
+    /** @format int32 */
+    deleteBatchAfterDays?: number;
+    notificationEnabled?: boolean;
+    notificationSetting?: JsonNode;
+    zipPassword?: string;
+    enableAuditLog?: boolean;
+    autoClassification?: boolean;
+    autoVerification?: boolean;
+    requireManualReview?: boolean;
+    /** @format uuid */
+    defaultPromptTemplateId?: string;
+    /** @format uuid */
+    createdBy?: string;
+    /** @format uuid */
+    updatedBy?: string;
+    /** @format date-time */
+    createdAt?: string;
+    /** @format date-time */
+    updatedAt?: string;
+    code?: string;
+}
+
+export interface ResultCaptureProj {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProj;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Capture save proj Form Setting info */
+export interface CaptureProjFormSettingSaveRequestDTO {
+    /** primary key id */
+    id?: string;
+    /** form config name */
+    name?: string;
+    /** form config code */
+    code?: string;
+    /** form config description */
+    description?: string;
+    /** associated project id */
+    projectId?: string;
+    /** page split config */
+    pageSplitConfig?: JsonNode;
+    /** sample document path */
+    sampleDocPath?: string;
+    /** form classification config */
+    formClassificationConfig?: JsonNode;
+    /** document separation config */
+    docSeparationConfig?: JsonNode;
+    /** fields setting */
+    fieldsSetting?: JsonNode;
+    /** other metadata setting */
+    otherMetadataSetting?: JsonNode;
+    /** status (A-valid, others-invalid) */
+    status?: string;
+    /** created by user id */
+    createdBy?: string;
+    /** updated by user id */
+    updatedBy?: string;
+    /**
+     * created time
+     * @format date-time
+     */
+    createdAt?: string;
+    /**
+     * updated time
+     * @format date-time
+     */
+    updatedAt?: string;
+    /**
+     * default page count
+     * @format int32
+     */
+    defaultPageCount?: number;
+}
+
+export interface CaptureProjFormSetting {
+    /** @format uuid */
+    id?: string;
+    name?: string;
+    code?: string;
+    description?: string;
+    /** @format uuid */
+    projectId?: string;
+    pageSplitConfig?: JsonNode;
+    sampleDocPath?: string;
+    formClassificationConfig?: JsonNode;
+    docSeparationConfig?: JsonNode;
+    fieldsSetting?: JsonNode;
+    otherMetadataSetting?: JsonNode;
+    status?: string;
+    /** @format uuid */
+    createdBy?: string;
+    /** @format uuid */
+    updatedBy?: string;
+    /** @format date-time */
+    createdAt?: string;
+    /** @format date-time */
+    updatedAt?: string;
+    /** @format int32 */
+    defaultPageCount?: number;
+}
+
+export interface ResultCaptureProjFormSetting {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProjFormSetting;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface WhatsAppSettingDTO {
     accessToken?: string;
     phoneNum?: string;
     accountNum?: string;
     whatsAppSwitch?: boolean;
+}
+
+export interface AzureOcrSettingDTO {
+    cutOffTime?: string;
+    /** @format int32 */
+    readThreshold?: number;
+    /** @format int32 */
+    preBuildThreshold?: number;
+    /** @format int32 */
+    customModelThreshold?: number;
+    alertEmail?: string;
+    emailTemplate?: string;
+}
+
+export interface AzureOcrApiKeyDTO {
+    apiKey?: string;
+    description?: string;
+}
+
+export interface ProfileMappingRequestDTO {
+    /** @format int64 */
+    id?: number;
+    name?: string;
+    scanProfile?: string;
+    normalizeSetting?: string;
+    status?: string;
 }
 
 /** Validation Rule Request DTO */
@@ -1703,32 +2411,6 @@ export interface ValidationRuleResponseDTO {
      * @format date-time
      */
     modifiedDate?: string;
-}
-
-export interface AzureOcrSettingDTO {
-    cutOffTime?: string;
-    /** @format int32 */
-    readThreshold?: number;
-    /** @format int32 */
-    preBuildThreshold?: number;
-    /** @format int32 */
-    customModelThreshold?: number;
-    alertEmail?: string;
-    emailTemplate?: string;
-}
-
-export interface ProfileMappingRequestDTO {
-    /** @format int64 */
-    id?: number;
-    name?: string;
-    scanProfile?: string;
-    normalizeSetting?: string;
-    status?: string;
-}
-
-export interface AzureOcrApiKeyDTO {
-    apiKey?: string;
-    description?: string;
 }
 
 /** Resource permission data transfer object */
@@ -1841,10 +2523,10 @@ export interface DocumentTemplateRequestDTO {
     fileTypes?: string[];
     createdBys?: string[];
     variables?: Record<string, any>;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -1955,10 +2637,10 @@ export interface RetentionPolicyRequestDTO {
     approvalIds?: string[];
     /** the list of retention policy id */
     ids?: string[];
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -2030,8 +2712,8 @@ export interface HoldPolicy {
     createdDate?: string;
     /** @format date-time */
     modifiedDate?: string;
-    holdAuto?: boolean;
     removeAuto?: boolean;
+    holdAuto?: boolean;
     holdReasonReq?: boolean;
     removeReasonReq?: boolean;
 }
@@ -2518,11 +3200,11 @@ export interface DocumentDTO {
     comeFrom?: string;
     drivePreviewLink?: string;
     originalPath?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentDigestAlgorithm?: string;
     fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
-    fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentMimeType?: string;
@@ -2912,10 +3594,10 @@ export interface QueryWorkflowJobRequest {
     isDesc?: boolean;
     state?: string;
     businessKey?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -3132,10 +3814,10 @@ export interface ProcessVersionRequestDTO {
     name?: string;
     publishStatus?: string;
     operator?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -3250,10 +3932,10 @@ export interface ProcessDefinitionRequestDTO {
     publishStatus?: string;
     /** Process categories */
     categories?: string[];
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -3887,10 +4569,10 @@ export interface PageNotificationRecord {
     /** @format int32 */
     totalPages?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: NotificationRecord[];
@@ -3902,11 +4584,11 @@ export interface PageNotificationRecord {
 
 export interface PageableObject {
     /** @format int32 */
-    pageSize?: number;
-    paged?: boolean;
-    unpaged?: boolean;
-    /** @format int32 */
     pageNumber?: number;
+    paged?: boolean;
+    /** @format int32 */
+    pageSize?: number;
+    unpaged?: boolean;
     /** @format int64 */
     offset?: number;
     sort?: SortObject;
@@ -3944,10 +4626,10 @@ export interface QueryNotificationRequestDTO {
     readStatus?: string;
     type?: string;
     action?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -4009,10 +4691,10 @@ export interface QueryFileOverviewRequestDTO {
     userId?: string;
     fileUploadStatus?: string[];
     fileName?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -4024,10 +4706,10 @@ export interface PageUploadBatchDTO {
     /** @format int32 */
     totalPages?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: UploadBatchDTO[];
@@ -4253,10 +4935,10 @@ export interface ExternalProfileRequestDTO {
     name?: string;
     /** Status of the external storage profile (ACTIVE, INACTIVE, etc.) */
     status?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -4322,10 +5004,10 @@ export interface ExternalStorageRequestDTO {
     status?: string;
     /** Authentication credentials for the storage */
     credentials?: Record<string, any>;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -4375,10 +5057,10 @@ export interface ExternalStorageImportJobRequestDTO {
     startDate?: string;
     /** End date for filtering */
     endDate?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -4463,6 +5145,75 @@ export interface SendMessageResponseDTO {
     messageId?: string;
 }
 
+export interface PaginationDTOTableDataDTO {
+    entryList?: TableDataDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOTableDataDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOTableDataDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PaginationDTOTableDTO {
+    entryList?: TableDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOTableDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOTableDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface PaginationDTOCaseTypeDTO {
+    entryList?: CaseTypeDTO[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTOCaseTypeDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTOCaseTypeDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 /** Dashboard Workflow Request DTO */
 export interface DashboardWorkflowRequestDTO {
     /** Workflow ID */
@@ -4508,6 +5259,16 @@ export interface ResultMapStringInteger {
     locale?: string;
 }
 
+export interface ResultListProcessDefinitionDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: ProcessDefinitionDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface WorkflowDateFilterDTO {
     filterType?: string;
     startDate?: string;
@@ -4538,10 +5299,10 @@ export interface WorkflowJobRequestDTO {
     dateFilter?: WorkflowDateFilterDTO;
     variables?: JSONObject;
     workflowNames?: string[];
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -4666,10 +5427,10 @@ export interface UserDashboardRequestDTO {
     status?: string;
     /** The User ID */
     userId?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -4739,10 +5500,10 @@ export interface PluginRequestDTO {
     createdBy?: string;
     /** The record status (A,D,P.R) */
     status?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -4851,10 +5612,10 @@ export interface OcrTransactionLogRequestDTO {
      * @format date-time
      */
     endDate?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -5024,7 +5785,7 @@ export interface Offset {
 
 export interface WMKTemplateRequestDTO {
     id?: string;
-    name: string;
+    name?: string;
     enabled?: boolean;
     createdBy?: string;
     modifiedBy?: string;
@@ -5079,10 +5840,10 @@ export interface PageWatermarkSettingsTemplate {
     /** @format int32 */
     totalPages?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: WatermarkSettingsTemplate[];
@@ -5204,10 +5965,10 @@ export interface IdTemplateRequestDTO {
     id?: string;
     /** Name */
     name?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -5513,10 +6274,10 @@ export interface CmmnProcessRequestDTO {
     candidateOrAssigned?: string;
     category?: string;
     workflow?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -5643,8 +6404,8 @@ export interface PlanItemInstanceDTO {
     subItems?: PlanItemInstanceDTO[];
     /** Workflow PlanItem Form */
     planForm?: CmmnPlanFormDTO;
-    humanTaskId?: string;
     processInstanceId?: string;
+    humanTaskId?: string;
 }
 
 export interface PlanTableFieldDTO {
@@ -6036,10 +6797,10 @@ export interface EmailTemplateRequestDTO {
     /** Email Layout ID List */
     emailLayoutIds?: number[];
     name?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -6117,10 +6878,10 @@ export interface EmailLayoutRequestDTO {
     createdBy?: string;
     /** Email Layout Modified By */
     modifiedBy?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -6244,10 +7005,12 @@ export interface SmartFolderRequestDTO {
     bind?: string;
     json_value?: string;
     userGroupIds?: string[];
-    desc?: boolean;
+    /** Permission */
+    permission?: Permission;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -6282,7 +7045,8 @@ export interface SmartFolderResponseDTO {
     name?: string;
     bind?: string;
     json_value?: string;
-    userGroups?: string[];
+    /** Permission */
+    permission?: Permission;
 }
 
 /** EasyShare (Request) */
@@ -6324,12 +7088,12 @@ export interface EasyShareDocumentDetails {
     watermarkData?: WatermarkData;
     createdBy?: string;
     originFilePath?: string;
+    conversionId?: string;
     watermarkTemplateId?: string;
-    watermarkedLocalPath?: string;
     watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
-    conversionId?: string;
+    watermarkedLocalPath?: string;
 }
 
 /** EasyShare (Request) */
@@ -6551,6 +7315,63 @@ export interface SearchResponseHits {
     hits?: HitsHits[];
 }
 
+export interface BasePageRequest {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    descSort?: SortObject;
+    /** @format int32 */
+    pageIndex?: number;
+    desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
+    sort?: SortObject;
+}
+
+export interface NestedSearchLogV2 {
+    searchRequest?: SearchRequestDTO;
+    /** @format int64 */
+    totalSize?: number;
+    /** @format int64 */
+    eventTimestamp?: number;
+}
+
+export interface PaginationDTONestedSearchLogV2 {
+    entryList?: NestedSearchLogV2[];
+    /** @format int32 */
+    totalSize?: number;
+    /** @format int32 */
+    currentPageSize?: number;
+    /** @format int32 */
+    pageNum?: number;
+    /** @format int32 */
+    pageCount?: number;
+    isNextPageAvailable?: boolean;
+}
+
+export interface ResultPaginationDTONestedSearchLogV2 {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: PaginationDTONestedSearchLogV2;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface ResultListSearchDocumentVO {
     result?: boolean;
     /** @format int32 */
@@ -6577,8 +7398,8 @@ export interface SearchDocumentVO {
     id?: string;
     properties?: Record<string, any>;
     updateChildName?: boolean;
-    ocr?: boolean;
     folder?: boolean;
+    ocr?: boolean;
     be_index?: boolean;
     create_by?: string;
     /** @format date-time */
@@ -6642,10 +7463,10 @@ export interface RetentionPolicyDocumentRequestDTO {
     applyBy?: string;
     /** The Retention Policy Document Status List */
     states?: string[];
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -6755,10 +7576,10 @@ export interface HoldDocumentRequestDTO {
     documentName?: string;
     /** Document path */
     documentPath?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -6872,10 +7693,10 @@ export interface MasterTableRequestDTO {
     data?: Record<string, any>[];
     /** Where Condition */
     where?: Record<string, any>;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -6896,10 +7717,10 @@ export interface MasterTableResponseDTO {
     fields?: MTColumnInfo[];
     userId?: string;
     aces?: string;
+    enable?: boolean;
     create?: boolean;
     edit?: boolean;
     read?: boolean;
-    enable?: boolean;
 }
 
 export interface ResultMasterTableResponseDTO {
@@ -6966,10 +7787,10 @@ export interface MTAuditLogRequestDTO {
     creators?: string[];
     /** Master Table Logs Principal Name list */
     eventCategory?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -7043,10 +7864,10 @@ export interface MTPermissionDTO {
     userId?: string;
     userName?: string;
     userType?: string;
+    enable?: boolean;
     create?: boolean;
     edit?: boolean;
     read?: boolean;
-    enable?: boolean;
 }
 
 export interface InternalShareQueryDTO {
@@ -7456,10 +8277,10 @@ export interface ContactRequestDTO {
     status?: string;
     customData?: Record<string, any>;
     operator?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -7506,10 +8327,10 @@ export interface CaseInstanceRequestDTO {
     planItemInstanceIds?: string[];
     /** PlanItem Definition Type list */
     planItemDefinitionTypes?: string[];
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -7605,10 +8426,10 @@ export interface FormDesignRequestDTO {
     notEquals?: Record<string, any>;
     /** Where Condition (Equal) */
     equals?: Record<string, any>;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -7708,10 +8529,10 @@ export interface EasyFormResultRequestDTO {
     name?: string;
     /** Form Design Form Result List */
     formResult?: EasyFormResult;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -7789,10 +8610,10 @@ export interface EasyFormEmailQueryRequestDTO {
     subject?: string;
     easyFormId?: string;
     status?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -7932,10 +8753,10 @@ export interface TrashRequestDTO {
     isDesc?: boolean;
     /** Name */
     name?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -8075,7 +8896,6 @@ export interface OpenObserveAuditLogSearchRequest {
     path?: string;
     masterTables?: string[];
     userIds?: string[];
-    desc?: boolean;
     isDesc?: boolean;
 }
 
@@ -8191,11 +9011,11 @@ export interface DocumentResponseDTO {
     isCollectionMember?: boolean;
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
+    fileContentMinioFileVersion?: string;
+    fileContentDigestAlgorithm?: string;
     fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
-    fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentMimeType?: string;
@@ -8445,10 +9265,10 @@ export interface CompanyRequestDTO {
     website?: string;
     /** Contact Address */
     address?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -8542,32 +9362,6 @@ export interface ResultPaginationDTODocumentDTO {
     locale?: string;
 }
 
-export interface BasePageRequest {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    desc?: boolean;
-    descSort?: SortObject;
-    /** @format int32 */
-    pageIndex?: number;
-    orderByValue?: string;
-    sortOrModifiedDate?: SortObject;
-    sort?: SortObject;
-}
-
 export interface PaginationDTOEventCalendarSetting {
     entryList?: EventCalendarSetting[];
     /** @format int32 */
@@ -8601,6 +9395,31 @@ export interface FCMetadata {
     value?: any;
 }
 
+export interface FCNotificationConfig {
+    id?: string;
+    folderCabinetId?: string;
+    reminderType?: string;
+    /** @format int32 */
+    intervalTime?: number;
+    /**
+     * @deprecated
+     * @format int32
+     */
+    notificationReminder?: number;
+    /**
+     * @deprecated
+     * @format int32
+     */
+    reportDay?: number;
+    /**
+     * @deprecated
+     * @format int32
+     */
+    emailReminder?: number;
+    tos?: string;
+    ccs?: string;
+}
+
 export interface FCReminder {
     /**
      * Interval Time
@@ -8624,41 +9443,74 @@ export interface FolderCabinetBinds {
 
 /** Folder Cabinet RequestDTO */
 export interface FolderCabinetRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** Folder Cabinet ID */
     id?: string;
+    /** Document ID of Nuxeo */
     rootId?: string;
-    metadataValue?: string;
+    /** The parent ID of this folder cabinet */
     parentId?: string;
+    /** The name of folder cabinet */
     label?: string;
+    /** The document type of nuxeo */
     documentType?: string;
+    /** The document path of nuxeo */
     documentPath?: string;
+    /** Whether it is a folder? */
     folder?: boolean;
+    /** Whether it allow other document-type file? */
     allow?: boolean;
+    /** Whether it allow multiple file? */
     multiple?: boolean;
+    repeatName?: boolean;
     pathIds?: string;
+    /** The create user of this folder cabinet */
     createdBy?: string;
+    /** The last modify user of this folder cabinet */
     modifiedBy?: string;
     /** @format date-time */
     createdDate?: string;
     /** @format date-time */
     modifiedDate?: string;
-    documentId?: string;
-    /** The bind owners of this folder cabinet */
-    binds?: FolderCabinetBinds[];
     /** choose metadata */
     metadata?: FCMetadata[];
     /** The label Rule list */
     labelRule?: string;
+    /** The bind owners of this folder cabinet */
+    binds?: FolderCabinetBinds[];
     /** Notification Reminder */
     notificationReminder?: FCReminder;
     /** Email Reminder For Summary Report */
     emailReport?: FCReminder;
     /** Email Reminder */
     emailReminder?: FCReminder;
-    orderList?: string[];
+    /** The default value list of label rule */
+    metadataValue?: string;
+    delayEmail?: FCNotificationConfig;
+    systemReminderConfig?: FCNotificationConfig;
+    summaryReportEmail?: FCNotificationConfig;
+    descSort?: SortObject;
     /** @format int32 */
-    pageNum?: number;
-    /** @format int32 */
-    pageSize?: number;
+    pageIndex?: number;
+    desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
+    sort?: SortObject;
 }
 
 /** Folder Cabinet ResponseDTO */
@@ -8724,31 +9576,6 @@ export interface ResultDocFolderCabinetResponseDTO {
     data?: DocFolderCabinetResponseDTO;
     messageKey?: string;
     locale?: string;
-}
-
-export interface FCNotificationConfig {
-    id?: string;
-    folderCabinetId?: string;
-    reminderType?: string;
-    /** @format int32 */
-    intervalTime?: number;
-    /**
-     * @deprecated
-     * @format int32
-     */
-    notificationReminder?: number;
-    /**
-     * @deprecated
-     * @format int32
-     */
-    reportDay?: number;
-    /**
-     * @deprecated
-     * @format int32
-     */
-    emailReminder?: number;
-    tos?: string;
-    ccs?: string;
 }
 
 /** Document Access Control Entry */
@@ -8927,10 +9754,10 @@ export interface DocFolderCabinetRequestDTO {
     emailReminder?: FCReminder;
     nuxeoSortSql?: string;
     jpasortOrderStr?: SortObject;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -9235,10 +10062,10 @@ export interface CmmnVersionRequestDTO {
     versionNumber?: string;
     /** The style json */
     styleJson?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -9314,10 +10141,10 @@ export interface CaseTableRequestDTO {
     c?: Record<string, any>;
     /** User */
     operator?: UserDTO;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -9330,40 +10157,6 @@ export interface WhereCondition {
     arrays?: any[];
     start?: any;
     end?: any;
-}
-
-/** Case Type RequestDTO */
-export interface CaseTypeRequestDTO {
-    /** Fuzzy Search Parameter */
-    q?: string;
-    /**
-     * Page Number
-     * @format int32
-     */
-    pageNum?: number;
-    /**
-     * Page Size
-     * @format int32
-     */
-    pageSize?: number;
-    /** The sortBy fields */
-    orderBy?: string;
-    /** The sort ASC or DESC */
-    isDesc?: boolean;
-    /** ID */
-    id?: string;
-    /** Name */
-    name?: string;
-    /** is enable */
-    enable?: boolean;
-    caseIds?: string[];
-    desc?: boolean;
-    descSort?: SortObject;
-    /** @format int32 */
-    pageIndex?: number;
-    orderByValue?: string;
-    sortOrModifiedDate?: SortObject;
-    sort?: SortObject;
 }
 
 export interface PaginationDTOCaseType {
@@ -9556,10 +10349,10 @@ export interface PlanItemInstanceRequestDTO {
     workflowVariables?: Record<string, any>;
     /** Execute Action */
     action?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -9668,6 +10461,368 @@ export interface ResultPaginationDTOCmmnDashboardResponseDTO {
     data?: PaginationDTOCmmnDashboardResponseDTO;
     messageKey?: string;
     locale?: string;
+}
+
+/** Capture save proj Permission Setting info */
+export interface CaptureProjPermissionSettingSaveRequestDTO {
+    /** projectId */
+    projectId?: string;
+    /** roleName(Creator/Verifier/Exporter/Admin) */
+    roleName?: string;
+    /** permission(key=entityType, value=entityId List) */
+    permission?: Record<string, string[]>;
+}
+
+/** Capture save proj Form Setting info */
+export interface CaptureProjFormSettingSplitPageRequestDTO {
+    /**
+     * primary key id
+     * @minLength 1
+     */
+    id: string;
+    /**
+     * associated project id
+     * @minLength 1
+     */
+    projectId: string;
+    /**
+     * file path
+     * @minLength 1
+     */
+    path: string;
+    /** number of pages */
+    pages?: string;
+}
+
+export interface CaptureProjFormSettingRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** FormSetting id */
+    id?: string;
+    /** FormSetting name */
+    name?: string;
+    /** proj id */
+    projId?: string;
+    descSort?: SortObject;
+    /** @format int32 */
+    pageIndex?: number;
+    desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
+    sort?: SortObject;
+}
+
+export interface CaptureProjFormSettingResponseDTO {
+    /** primary key id */
+    id?: string;
+    /** form config name */
+    name?: string;
+    /** form config code */
+    code?: string;
+    /** form config description */
+    description?: string;
+    /** associated project id */
+    projectId?: string;
+    /** page split config */
+    pageSplitConfig?: JsonNode;
+    /** sample document path */
+    sampleDocPath?: string;
+    /** form classification config */
+    formClassificationConfig?: JsonNode;
+    /** document separation config */
+    docSeparationConfig?: JsonNode;
+    /** fields setting */
+    fieldsSetting?: JsonNode;
+    /** other metadata setting */
+    otherMetadataSetting?: JsonNode;
+    /** status (A-valid, others-invalid) */
+    status?: string;
+    /** created by user id */
+    createdBy?: string;
+    /** updated by user id */
+    updatedBy?: string;
+    /**
+     * created time
+     * @format date-time
+     */
+    createdAt?: string;
+    /**
+     * updated time
+     * @format date-time
+     */
+    updatedAt?: string;
+    /**
+     * default page count
+     * @format int32
+     */
+    defaultPageCount?: number;
+}
+
+export interface ResultListCaptureProjFormSettingResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProjFormSettingResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface CaptureProjRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** proj id */
+    id?: string;
+    /** proj name */
+    name?: string;
+    /** status list */
+    statusList?: string[];
+    descSort?: SortObject;
+    /** @format int32 */
+    pageIndex?: number;
+    desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
+    sort?: SortObject;
+}
+
+export interface CaptureProjResponseDTO {
+    /** proj id */
+    id?: string;
+    /** proj name */
+    name?: string;
+    /** project description */
+    description?: string;
+    /** created method */
+    createdMethod?: string;
+    /** status */
+    status?: string;
+    /** addition fields setting */
+    additionFieldsSetting?: JsonNode;
+    /**
+     * delete batch after days
+     * @format int32
+     */
+    deleteBatchAfterDays?: number;
+    /** notification enabled */
+    notificationEnabled?: boolean;
+    /** notification setting */
+    notificationSetting?: JsonNode;
+    /** prefix */
+    prefix?: string;
+    /**
+     * minDigit
+     * @format int32
+     */
+    minDigit?: number;
+    /**
+     * startingNumber
+     * @format int32
+     */
+    startingNumber?: number;
+    /** zip password */
+    zipPassword?: string;
+    /** enable audit log */
+    enableAuditLog?: boolean;
+    /** auto classification */
+    autoClassification?: boolean;
+    /** auto verification */
+    autoVerification?: boolean;
+    /** require manual review */
+    requireManualReview?: boolean;
+    /** default prompt template id */
+    defaultPromptTemplateId?: string;
+    /** created by */
+    createdBy?: string;
+    /** updated by */
+    updatedBy?: string;
+    /**
+     * created at
+     * @format date-time
+     */
+    createdAt?: string;
+    /**
+     * updated at
+     * @format date-time
+     */
+    updatedAt?: string;
+    /** code */
+    code?: string;
+}
+
+export interface ResultListCaptureProjResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProjResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface AdditionField {
+    key?: string;
+    value?: any;
+}
+
+/** Capture Confirm Batch Request */
+export interface CaptureConfirmBatchRequestDTO {
+    additionFields?: AdditionField[];
+    /**
+     * Applicant number JSON mapping: {applicant_num: file_name}
+     * @example {"200045":"1234567890.pdf","200046":"fgf.pdf"}
+     */
+    applicantNumJson?: Record<string, string>;
+    /** Start applicant number (smallest) */
+    applicantStart?: string;
+    /** End applicant number (largest) */
+    applicantEnd?: string;
+    /** @minItems 1 */
+    documents: DocumentInfo[];
+}
+
+export interface DocumentInfo {
+    /** @minLength 1 */
+    tempFilePath: string;
+}
+
+/** Document verification update request */
+export interface CaptureDocUpdateRequestDTO {
+    /** User-edited OCR result JSON */
+    newResultJson?: any;
+    /** User-verified new value */
+    newValue?: string;
+    /** Form source classification */
+    formSource?: string;
+    /** Family category classification */
+    familyCategory?: string;
+    /** Family class classification */
+    familyClass?: string;
+    /** Optional verification notes */
+    verificationNotes?: string;
+}
+
+/** Retry document with manual form selection */
+export interface CaptureDocRetryRequestDTO {
+    /**
+     * Manually selected form ID
+     * @minLength 1
+     */
+    formId: string;
+}
+
+/** Capture Status Count Request */
+export interface CaptureStatusCountRequestDTO {
+    /**
+     * Project ID list (required)
+     * @minItems 1
+     */
+    projectId: string[];
+}
+
+/** Capture Query Batch List Request */
+export interface CaptureQueryBatchListRequestDTO {
+    /** Fuzzy Search Parameter */
+    q?: string;
+    /**
+     * Page Number
+     * @format int32
+     */
+    pageNum?: number;
+    /**
+     * Page Size
+     * @format int32
+     */
+    pageSize?: number;
+    /** The sortBy fields */
+    orderBy?: string;
+    /** The sort ASC or DESC */
+    isDesc?: boolean;
+    /** Fuzzy search for batch name */
+    filter?: string;
+    /** Project ID list for filtering (multi-select) */
+    projectId?: string[];
+    /** Status list for filtering (multi-select) */
+    status?: string[];
+    /**
+     * Created at range start (inclusive)
+     * @format date-time
+     * @example "2026-01-01T00:00:00Z"
+     */
+    createdAtStart?: string;
+    /**
+     * Created at range end (inclusive)
+     * @format date-time
+     * @example "2026-12-31T23:59:59Z"
+     */
+    createdAtEnd?: string;
+    /**
+     * Updated at range start (inclusive)
+     * @format date-time
+     * @example "2026-01-01T00:00:00Z"
+     */
+    updatedAtStart?: string;
+    /**
+     * Updated at range end (inclusive)
+     * @format date-time
+     * @example "2026-12-31T23:59:59Z"
+     */
+    updatedAtEnd?: string;
+    /**
+     * Filter by applicant number
+     * @example 200045
+     */
+    applicantNum?: string;
+    descSort?: SortObject;
+    /** @format int32 */
+    pageIndex?: number;
+    desc?: boolean;
+    orderByValue?: string;
+    sortOrModifiedDate?: SortObject;
+    sort?: SortObject;
+}
+
+/** Capture Create Temp Batch Request */
+export interface CaptureCreateTempBatchRequestDTO {
+    /** Project ID */
+    projectId: string;
+}
+
+/** Capture Batch Cancel Request */
+export interface CaptureBatchCancelRequestDTO {
+    /**
+     * List of batch IDs to cancel
+     * @minItems 1
+     */
+    batchIds: string[];
 }
 
 export interface LoginRequest {
@@ -9849,10 +11004,10 @@ export interface PageBusinessResultRecord {
     /** @format int32 */
     totalPages?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: BusinessResultRecord[];
@@ -10061,10 +11216,10 @@ export interface MessageTemplateRequestDTO {
     usages?: string;
     createdBy?: string;
     modifiedBy?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -10293,6 +11448,17 @@ export interface ResultPaginationDTODocumentTemplate {
     locale?: string;
 }
 
+export interface ResultSmartFolderResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Smart Folder */
+    data?: SmartFolderResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface GenerateXApiKeyRequestDTO {
     userId?: string;
 }
@@ -10367,10 +11533,10 @@ export interface HoldPolicyRequestDTO {
     policyName?: string;
     /** HoldPolicy status */
     status?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -10418,10 +11584,10 @@ export interface QueryMetadataRequestDTO {
     isDesc?: boolean;
     metadataName?: string;
     docpalTypeName?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -10495,10 +11661,10 @@ export interface MetadataRequestDTO {
     group?: string;
     dataType?: string;
     status?: string;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -10624,10 +11790,10 @@ export interface DocPalTypeRequestDTO {
     categories?: string[];
     createBys?: string[];
     metadataFieldMap?: Record<string, any>;
-    desc?: boolean;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
+    desc?: boolean;
     orderByValue?: string;
     sortOrModifiedDate?: SortObject;
     sort?: SortObject;
@@ -10804,17 +11970,6 @@ export interface ExternalProfileOutputDTO {
     imageSetting?: Record<string, any>;
 }
 
-export interface ResultSmartFolderResponseDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    /** Smart Folder */
-    data?: SmartFolderResponseDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
 /** ResetEasyShare (Request) */
 export interface ShareSaveRequestDTO {
     /** Share Id */
@@ -10863,16 +12018,6 @@ export interface ResultListUserTaskDTO {
     code?: number;
     message?: string;
     data?: UserTaskDTO[];
-    messageKey?: string;
-    locale?: string;
-}
-
-export interface ResultListProcessDefinitionDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: ProcessDefinitionDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -10942,10 +12087,10 @@ export interface PageSearchHistory {
     /** @format int32 */
     totalPages?: number;
     pageable?: PageableObject;
-    first?: boolean;
-    last?: boolean;
     /** @format int32 */
     numberOfElements?: number;
+    first?: boolean;
+    last?: boolean;
     /** @format int32 */
     size?: number;
     content?: SearchHistory[];
@@ -11213,6 +12358,86 @@ export interface ResultListMessageTemplateDTO {
     code?: number;
     message?: string;
     data?: MessageTemplateDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultListTableFieldDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: TableFieldDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultTableStructureDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    /** Table Structure DTO */
+    data?: TableStructureDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Table Structure DTO */
+export interface TableStructureDTO {
+    /** Field definitions */
+    fields?: TableFieldDTO[];
+    /** Table basic information */
+    table_info?: TableDTO;
+    /** Relation display field configurations */
+    relation_display_fields?: Record<string, any>[];
+}
+
+export interface ResultListMenuDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: MenuDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Case Type Menu Item DTO */
+export interface CaseTypeMenuItemDTO {
+    /** Menu item ID */
+    id?: string;
+    /** Menu item name */
+    name?: string;
+    /** Icon name */
+    icon?: string;
+    /** Status */
+    status?: string;
+    /** Child menu items */
+    children?: CaseTypeMenuItemDTO[];
+    /** Parent menu ID */
+    parent_id?: string;
+    /** Item type: folder, master_table, view, dashboard, report */
+    item_type?: string;
+    /** Associated item ID (table ID, view ID, etc.) */
+    item_id?: string;
+    /**
+     * Sort order
+     * @format int32
+     */
+    sort_order?: number;
+    /** Reference entity type */
+    reference_entity_type?: string;
+    /** Reference entity ID */
+    reference_entity_id?: string;
+}
+
+export interface ResultListCaseTypeMenuItemDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaseTypeMenuItemDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -12278,6 +13503,63 @@ export interface ResultCmmnInstance {
     locale?: string;
 }
 
+/** CaptureProjPermissionSettingResponseDTO */
+export interface CaptureProjPermissionSettingResponseDTO {
+    /** projectId */
+    projectId?: string;
+    /** roleName(Creator/Verifier/Exporter/Admin) */
+    roleName?: string;
+    /** permission(key=entityType, value=entityId List) */
+    permission?: Record<string, string[]>;
+}
+
+export interface ResultListCaptureProjPermissionSettingResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProjPermissionSettingResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultCaptureProjFormSettingResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProjFormSettingResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface CaptureProjFormSettingDropDownResponseDTO {
+    /** primary key id */
+    id?: string;
+    /** form config name */
+    name?: string;
+}
+
+export interface ResultListCaptureProjFormSettingDropDownResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProjFormSettingDropDownResponseDTO[];
+    messageKey?: string;
+    locale?: string;
+}
+
+export interface ResultCaptureProjResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProjResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface AiTopicIdVO {
     topicId?: string;
 }
@@ -12416,6 +13698,39 @@ export interface ResultListLanguageDTO {
     locale?: string;
 }
 
+export interface AzureOcrProfileMapping {
+    /** @format int64 */
+    id?: number;
+    /** @format date-time */
+    createdDate?: string;
+    /** @format date-time */
+    modifiedDate?: string;
+    createdBy?: string;
+    modifiedBy?: string;
+    ocrProfileName?: string;
+    scanProfile?: string;
+    normalizeSetting?: string;
+    scanType?: string;
+    status?: string;
+}
+
+export interface AzureSettingDTO {
+    azureOcrApiKey?: AzureOcrApiKeyDTO;
+    azureOcrSetting?: AzureOcrSettingDTO;
+    azureOcrProfileMappings?: AzureOcrProfileMapping[];
+    ocrTransactionLogs?: PaginationDTOOcrTransactionLogDTO;
+}
+
+export interface ResultAzureSettingDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: AzureSettingDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 export interface ResultListLong {
     result?: boolean;
     /** @format int32 */
@@ -12546,39 +13861,6 @@ export interface ResultMapStringMapStringObject {
     locale?: string;
 }
 
-export interface AzureOcrProfileMapping {
-    /** @format int64 */
-    id?: number;
-    /** @format date-time */
-    createdDate?: string;
-    /** @format date-time */
-    modifiedDate?: string;
-    createdBy?: string;
-    modifiedBy?: string;
-    ocrProfileName?: string;
-    scanProfile?: string;
-    normalizeSetting?: string;
-    scanType?: string;
-    status?: string;
-}
-
-export interface AzureSettingDTO {
-    azureOcrApiKey?: AzureOcrApiKeyDTO;
-    azureOcrSetting?: AzureOcrSettingDTO;
-    azureOcrProfileMappings?: AzureOcrProfileMapping[];
-    ocrTransactionLogs?: PaginationDTOOcrTransactionLogDTO;
-}
-
-export interface ResultAzureSettingDTO {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: AzureSettingDTO;
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface ResultListRetentionTrigger {
     result?: boolean;
     /** @format int32 */
@@ -12623,6 +13905,26 @@ export interface ResultDocPalTypeDTO {
     message?: string;
     /** Document Type */
     data?: DocPalTypeDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
+/** Document Type */
+export interface DocumentTypeDTO {
+    /** Document Type Name */
+    name?: string;
+    /** Is Folder Type */
+    isFolder?: boolean;
+    /** Document Type keywords */
+    keywords?: KeywordDTO[];
+}
+
+export interface ResultListDocumentTypeDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: DocumentTypeDTO[];
     messageKey?: string;
     locale?: string;
 }
@@ -13671,6 +14973,248 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "PUT",
                 body: data,
                 type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name GetDynamicDbTableTableidDataDataid
+         * @summary Get Single Data Record
+         * @request GET:/api/dynamic-db/table/{tableId}/data/{dataId}
+         */
+        getDynamicDbTableTableidDataDataid: (tableId: string, dataId: string, params: RequestParams = {}) =>
+            this.request<ResultTableDataDTO, any>({
+                path: `/api/dynamic-db/table/${tableId}/data/${dataId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name PutDynamicDbTableTableidDataDataid
+         * @summary Update Data Record
+         * @request PUT:/api/dynamic-db/table/{tableId}/data/{dataId}
+         */
+        putDynamicDbTableTableidDataDataid: (
+            tableId: string,
+            dataId: string,
+            data: TableDataRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultTableDataDTO, any>({
+                path: `/api/dynamic-db/table/${tableId}/data/${dataId}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name DeleteDynamicDbTableTableidDataDataid
+         * @summary Delete Data Record
+         * @request DELETE:/api/dynamic-db/table/{tableId}/data/{dataId}
+         */
+        deleteDynamicDbTableTableidDataDataid: (tableId: string, dataId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dynamic-db/table/${tableId}/data/${dataId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name GetDynamicDbTableId
+         * @summary Get Table structure (table info + fields + relations)
+         * @request GET:/api/dynamic-db/table/{id}
+         */
+        getDynamicDbTableId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultTableStructureDTO, any>({
+                path: `/api/dynamic-db/table/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name PutDynamicDbTableId
+         * @summary Update Master Table
+         * @request PUT:/api/dynamic-db/table/{id}
+         */
+        putDynamicDbTableId: (id: string, data: TableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTableDTO, any>({
+                path: `/api/dynamic-db/table/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name DeleteDynamicDbTableId
+         * @summary Delete Master Table (physical delete)
+         * @request DELETE:/api/dynamic-db/table/{id}
+         */
+        deleteDynamicDbTableId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dynamic-db/table/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name PutDynamicDbTableFieldsFieldid
+         * @summary Update Field
+         * @request PUT:/api/dynamic-db/table/fields/{fieldId}
+         */
+        putDynamicDbTableFieldsFieldid: (fieldId: string, data: FieldRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTableFieldDTO, any>({
+                path: `/api/dynamic-db/table/fields/${fieldId}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name DeleteDynamicDbTableFieldsFieldid
+         * @summary Delete Field
+         * @request DELETE:/api/dynamic-db/table/fields/{fieldId}
+         */
+        deleteDynamicDbTableFieldsFieldid: (fieldId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dynamic-db/table/fields/${fieldId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBMenuController
+         * @name GetDynamicDbMenusId
+         * @summary Get Menu info
+         * @request GET:/api/dynamic-db/menus/{id}
+         */
+        getDynamicDbMenusId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultMenuDTO, any>({
+                path: `/api/dynamic-db/menus/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBMenuController
+         * @name PutDynamicDbMenusId
+         * @summary Update Menu item
+         * @request PUT:/api/dynamic-db/menus/{id}
+         */
+        putDynamicDbMenusId: (id: string, data: MenuRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMenuDTO, any>({
+                path: `/api/dynamic-db/menus/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBMenuController
+         * @name DeleteDynamicDbMenusId
+         * @summary Delete Menu item (physical delete, must delete children first)
+         * @request DELETE:/api/dynamic-db/menus/{id}
+         */
+        deleteDynamicDbMenusId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dynamic-db/menus/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBMenuController
+         * @name PutDynamicDbMenusIdMove
+         * @summary Move Menu item to new position
+         * @request PUT:/api/dynamic-db/menus/{id}/move
+         */
+        putDynamicDbMenusIdMove: (id: string, data: MenuMoveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMenuDTO, any>({
+                path: `/api/dynamic-db/menus/${id}/move`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBCaseTypeController
+         * @name GetDynamicDbCaseTypesId
+         * @summary Get Case Type details
+         * @request GET:/api/dynamic-db/case-types/{id}
+         */
+        getDynamicDbCaseTypesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultCaseTypeDTO, any>({
+                path: `/api/dynamic-db/case-types/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBCaseTypeController
+         * @name PutDynamicDbCaseTypesId
+         * @summary Update Case Type
+         * @request PUT:/api/dynamic-db/case-types/{id}
+         */
+        putDynamicDbCaseTypesId: (id: string, data: CaseTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCaseTypeDTO, any>({
+                path: `/api/dynamic-db/case-types/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBCaseTypeController
+         * @name DeleteDynamicDbCaseTypesId
+         * @summary Delete Case Type (soft delete, set status to D)
+         * @request DELETE:/api/dynamic-db/case-types/{id}
+         */
+        deleteDynamicDbCaseTypesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dynamic-db/case-types/${id}`,
+                method: "DELETE",
                 ...params,
             }),
 
@@ -15589,6 +17133,74 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             this.request<ResultBoolean, any>({
                 path: `/api/case/dashboard/status`,
                 method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjController
+         * @name PutCaptureProj
+         * @summary Update Capture Proj
+         * @request PUT:/api/capture/proj
+         */
+        putCaptureProj: (data: CaptureProjSaveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCaptureProj, any>({
+                path: `/api/capture/proj`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjController
+         * @name PostCaptureProj
+         * @summary Create Capture Proj
+         * @request POST:/api/capture/proj
+         */
+        postCaptureProj: (data: CaptureProjSaveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultString, any>({
+                path: `/api/capture/proj`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjFormSettingController
+         * @name PutCaptureProjformsetting
+         * @summary Update Capture Proj Form Setting
+         * @request PUT:/api/capture/projFormSetting
+         */
+        putCaptureProjformsetting: (data: CaptureProjFormSettingSaveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCaptureProjFormSetting, any>({
+                path: `/api/capture/projFormSetting`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjFormSettingController
+         * @name PostCaptureProjformsetting
+         * @summary Create Capture Proj Form Setting
+         * @request POST:/api/capture/projFormSetting
+         */
+        postCaptureProjformsetting: (data: CaptureProjFormSettingSaveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultString, any>({
+                path: `/api/capture/projFormSetting`,
+                method: "POST",
                 body: data,
                 type: ContentType.Json,
                 ...params,
@@ -18400,6 +20012,157 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags DynamicDBTableController
+         * @name PostDynamicDbTable
+         * @summary Create Master Table
+         * @request POST:/api/dynamic-db/table
+         */
+        postDynamicDbTable: (data: TableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTableDTO, any>({
+                path: `/api/dynamic-db/table`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name GetDynamicDbTableTableidFields
+         * @summary List Fields for Master Table
+         * @request GET:/api/dynamic-db/table/{tableId}/fields
+         */
+        getDynamicDbTableTableidFields: (tableId: string, params: RequestParams = {}) =>
+            this.request<ResultListTableFieldDTO, any>({
+                path: `/api/dynamic-db/table/${tableId}/fields`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name PostDynamicDbTableTableidFields
+         * @summary Create Field(s) for Master Table
+         * @request POST:/api/dynamic-db/table/{tableId}/fields
+         */
+        postDynamicDbTableTableidFields: (tableId: string, data: FieldRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dynamic-db/table/${tableId}/fields`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name PostDynamicDbTableTableidData
+         * @summary Create Data for Master Table
+         * @request POST:/api/dynamic-db/table/{tableId}/data
+         */
+        postDynamicDbTableTableidData: (tableId: string, data: TableDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTableDataDTO, any>({
+                path: `/api/dynamic-db/table/${tableId}/data`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name PostDynamicDbTableTableidDataPage
+         * @summary List Data for Master Table
+         * @request POST:/api/dynamic-db/table/{tableId}/data/page
+         */
+        postDynamicDbTableTableidDataPage: (tableId: string, data: TableDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOTableDataDTO, any>({
+                path: `/api/dynamic-db/table/${tableId}/data/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBTableController
+         * @name PostDynamicDbTablePage
+         * @summary Paginated query for Table list
+         * @request POST:/api/dynamic-db/table/page
+         */
+        postDynamicDbTablePage: (data: TableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOTableDTO, any>({
+                path: `/api/dynamic-db/table/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBMenuController
+         * @name PostDynamicDbMenus
+         * @summary Create Menu item
+         * @request POST:/api/dynamic-db/menus
+         */
+        postDynamicDbMenus: (data: MenuRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMenuDTO, any>({
+                path: `/api/dynamic-db/menus`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBCaseTypeController
+         * @name PostDynamicDbCaseTypes
+         * @summary Create Case Type
+         * @request POST:/api/dynamic-db/case-types
+         */
+        postDynamicDbCaseTypes: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCaseTypeDTO, any>({
+                path: `/api/dynamic-db/case-types`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBCaseTypeController
+         * @name PostDynamicDbCaseTypesPage
+         * @summary Paginated query for Case Type list
+         * @request POST:/api/dynamic-db/case-types/page
+         */
+        postDynamicDbCaseTypesPage: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOCaseTypeDTO, any>({
+                path: `/api/dynamic-db/case-types/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags Dashboard
          * @name PostDsbWorkflowSpendTime
          * @summary Workflow spend time
@@ -18418,27 +20181,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDashboard
-         * @name PostDsbWorkflowProcessListDeprecate
-         * @request POST:/api/dsb/workflow/process/list/
-         */
-        postDsbWorkflowProcessListDeprecate: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListProcessDTO, any>({
-                path: `/api/dsb/workflow/process/list/`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags WorkflowDashboard
          * @name PostDsbWorkflowProcessList
          * @request POST:/api/dsb/workflow/process/list
          */
         postDsbWorkflowProcessList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListProcessDTO, any>({
+            this.request<ResultListProcessDefinitionDTO, any>({
                 path: `/api/dsb/workflow/process/list`,
                 method: "POST",
                 body: data,
@@ -18454,7 +20201,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request POST:/api/dsb/workflow/process/combine/list
          */
         postDsbWorkflowProcessCombineList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultListProcessDTO, any>({
+            this.request<ResultListProcessDefinitionDTO, any>({
                 path: `/api/dsb/workflow/process/combine/list`,
                 method: "POST",
                 body: data,
@@ -21419,26 +23166,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags UserSettingController
-         * @name PostDmsUserForgetpassword
-         * @request POST:/api/dms/user/forgetPassword
-         */
-        postDmsUserForgetpassword: (
-            query: {
-                userId: string;
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultBoolean, any>({
-                path: `/api/dms/user/forgetPassword`,
-                method: "POST",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags Document
          * @name PostDmsUploadValidation
          * @summary check file exist
@@ -22080,6 +23807,23 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDmsSearchManticoreSearch: (data: DocpalSearchRequest, params: RequestParams = {}) =>
             this.request<ResultSearchResponse, any>({
                 path: `/api/dms/search/manticore-search`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Search (Nuxeo)
+         * @name PostDmsSearchHistory
+         * @summary Open Search
+         * @request POST:/api/dms/search/history
+         */
+        postDmsSearchHistory: (data: BasePageRequest, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTONestedSearchLogV2, any>({
+                path: `/api/dms/search/history`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -23090,6 +24834,22 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         postDmsFacadeNotificationSend: (data: SubNotificationRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/api/dms/facade/notification/send`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags Facade API
+         * @name PostDmsFacadeMasterTableRecord
+         * @request POST:/api/dms/facade/master-table/record
+         */
+        postDmsFacadeMasterTableRecord: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/dms/facade/master-table/record`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -26461,6 +28221,390 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags CaptureProjPermissionSettingController
+         * @name PostCaptureProjpermissionsetting
+         * @summary Save Capture Proj Permission Setting
+         * @request POST:/api/capture/projPermissionSetting
+         */
+        postCaptureProjpermissionsetting: (
+            data: CaptureProjPermissionSettingSaveRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/capture/projPermissionSetting`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjFormSettingController
+         * @name PostCaptureProjformsettingSplitpage
+         * @summary Split Page
+         * @request POST:/api/capture/projFormSetting/splitPage
+         */
+        postCaptureProjformsettingSplitpage: (
+            data: CaptureProjFormSettingSplitPageRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListString, any>({
+                path: `/api/capture/projFormSetting/splitPage`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjFormSettingController
+         * @name PostCaptureProjformsettingPage
+         * @summary Query projectFormSetting list page
+         * @request POST:/api/capture/projFormSetting/page
+         */
+        postCaptureProjformsettingPage: (data: CaptureProjFormSettingRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListCaptureProjFormSettingResponseDTO, any>({
+                path: `/api/capture/projFormSetting/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjController
+         * @name PostCaptureProjPage
+         * @summary Query project list page
+         * @request POST:/api/capture/proj/page
+         */
+        postCaptureProjPage: (data: CaptureProjRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultListCaptureProjResponseDTO, any>({
+                path: `/api/capture/proj/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureFileController
+         * @name PostCaptureFileUploadtempfiletobatch
+         * @summary Upload TempFile to Batch
+         * @request POST:/api/capture/file/uploadTempFileToBatch
+         */
+        postCaptureFileUploadtempfiletobatch: (
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                batchId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultMapStringString, any>({
+                path: `/api/capture/file/uploadTempFileToBatch`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureFileController
+         * @name PostCaptureFileUploadexampletoform
+         * @summary Upload Example to form
+         * @request POST:/api/capture/file/uploadExampleToForm
+         */
+        postCaptureFileUploadexampletoform: (
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                projId?: string;
+                /** @format string */
+                formId?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListString, any>({
+                path: `/api/capture/file/uploadExampleToForm`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureFileController
+         * @name PostCaptureFileQuerycapturefilebypath
+         * @summary Query Capture File By Path
+         * @request POST:/api/capture/file/queryCaptureFileByPath
+         */
+        postCaptureFileQuerycapturefilebypath: (
+            query: {
+                path: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<string, any>({
+                path: `/api/capture/file/queryCaptureFileByPath`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * @description Releases the lock on a batch. If status is verifying, reverts to verify-ready. Idempotent — silently returns if not locked or not owner. No request body needed.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchBatchidRelease
+         * @summary Release a batch
+         * @request POST:/api/capture/batch/{batchId}/release
+         */
+        postCaptureBatchBatchidRelease: (batchId: string, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/release`,
+                method: "POST",
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Checks lock and status, returns accessMode (edit/readonly). If verify-ready and unlocked, acquires lock and transitions to verifying. No request body needed, batchId is in the path.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchBatchidOpen
+         * @summary Open a batch for verification
+         * @request POST:/api/capture/batch/{batchId}/open
+         */
+        postCaptureBatchBatchidOpen: (batchId: string, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/open`,
+                method: "POST",
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Confirms a draft batch, copies files to process directory and creates document records. Returns immediately with 202 Accepted.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchBatchidDraftConfirm
+         * @summary Confirm draft batch - async processing
+         * @request POST:/api/capture/batch/{batchId}/draft/confirm
+         */
+        postCaptureBatchBatchidDraftConfirm: (
+            batchId: string,
+            data: CaptureConfirmBatchRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/draft/confirm`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Save edited OCR data without changing document status.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchBatchidDocDocidSaveDraft
+         * @summary Save document draft
+         * @request POST:/api/capture/batch/{batchId}/doc/{docId}/save-draft
+         */
+        postCaptureBatchBatchidDocDocidSaveDraft: (
+            batchId: string,
+            docId: string,
+            data: CaptureDocUpdateRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/doc/${docId}/save-draft`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Retry processing-failed document with manually selected form.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchBatchidDocDocidRetryWithForm
+         * @summary Retry document with form
+         * @request POST:/api/capture/batch/{batchId}/doc/{docId}/retry-with-form
+         */
+        postCaptureBatchBatchidDocDocidRetryWithForm: (
+            batchId: string,
+            docId: string,
+            data: CaptureDocRetryRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/doc/${docId}/retry-with-form`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Upload a new file to replace a processing-failed document and retry OCR processing.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchBatchidDocDocidReplaceAndRetry
+         * @summary Replace document file and retry
+         * @request POST:/api/capture/batch/{batchId}/doc/{docId}/replace-and-retry
+         */
+        postCaptureBatchBatchidDocDocidReplaceAndRetry: (
+            batchId: string,
+            docId: string,
+            data: {
+                /** @format binary */
+                file: File;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/doc/${docId}/replace-and-retry`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Save edited OCR data and set document status to verified.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchBatchidDocDocidConfirm
+         * @summary Confirm document
+         * @request POST:/api/capture/batch/{batchId}/doc/{docId}/confirm
+         */
+        postCaptureBatchBatchidDocDocidConfirm: (
+            batchId: string,
+            docId: string,
+            data: CaptureDocUpdateRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/doc/${docId}/confirm`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Confirm batch after all documents are verified. Releases lock.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchBatchidConfirm
+         * @summary Confirm batch verification
+         * @request POST:/api/capture/batch/{batchId}/confirm
+         */
+        postCaptureBatchBatchidConfirm: (batchId: string, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/confirm`,
+                method: "POST",
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchStatusCount
+         * @summary Get batch status count statistics
+         * @request POST:/api/capture/batch/status-count
+         */
+        postCaptureBatchStatusCount: (data: CaptureStatusCountRequestDTO, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/status-count`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchList
+         * @summary Query batch list with pagination and filters
+         * @request POST:/api/capture/batch/list
+         */
+        postCaptureBatchList: (data: CaptureQueryBatchListRequestDTO, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/list`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchDraft
+         * @summary Create a draft batch
+         * @request POST:/api/capture/batch/draft
+         */
+        postCaptureBatchDraft: (data: CaptureCreateTempBatchRequestDTO, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/draft`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Cancels multiple batches. Cannot cancel if any batch is completed.
+         *
+         * @tags CaptureBatchController
+         * @name PostCaptureBatchCancel
+         * @summary Cancel batches
+         * @request POST:/api/capture/batch/cancel
+         */
+        postCaptureBatchCancel: (data: CaptureBatchCancelRequestDTO, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/cancel`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags Authentication API Management
          * @name PostAuthToken
          * @request POST:/api/auth/token
@@ -27715,9 +29859,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @request GET:/api/workflow/definition/version/json
          */
         getWorkflowDefinitionVersionJson: (
-            query: {
-                draftId: string;
-                versionNumber: string;
+            query?: {
+                draftId?: string;
+                versionNumber?: string;
+                versionId?: string;
             },
             params: RequestParams = {},
         ) =>
@@ -28962,6 +31107,58 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         getExt3rdmessageWhatsappGetMessageTemplates: (params: RequestParams = {}) =>
             this.request<ResultListMessageTemplateDTO, any>({
                 path: `/api/ext3rdMessage/whatsapp/get_message_templates`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBMenuController
+         * @name GetDynamicDbMenusIdTree
+         * @summary Get Menu Tree by parent menu ID
+         * @request GET:/api/dynamic-db/menus/{id}/tree
+         */
+        getDynamicDbMenusIdTree: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListMenuDTO, any>({
+                path: `/api/dynamic-db/menus/${id}/tree`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBMenuController
+         * @name GetDynamicDbMenusTree
+         * @summary Get Menu tree by reference entity (e.g., case type)
+         * @request GET:/api/dynamic-db/menus/tree
+         */
+        getDynamicDbMenusTree: (
+            query: {
+                referenceEntityType: string;
+                referenceEntityId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListMenuDTO, any>({
+                path: `/api/dynamic-db/menus/tree`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags DynamicDBCaseTypeController
+         * @name GetDynamicDbCaseTypesIdItemsTree
+         * @summary Get Case Type menu tree (folders, tables, views, etc.)
+         * @request GET:/api/dynamic-db/case-types/{id}/items-tree
+         */
+        getDynamicDbCaseTypesIdItemsTree: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListCaseTypeMenuItemDTO, any>({
+                path: `/api/dynamic-db/case-types/${id}/items-tree`,
                 method: "GET",
                 ...params,
             }),
@@ -30713,8 +32910,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          */
         getDmsSharePreview: (
             query: {
-                /** @format int64 */
-                shareId: number;
+                shareId: string;
                 documentId: string;
             },
             params: RequestParams = {},
@@ -30771,8 +32967,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          */
         getDmsShareDownload: (
             query: {
-                /** @format int64 */
-                shareId: number;
+                shareId: string;
                 documentId: string;
             },
             params: RequestParams = {},
@@ -30815,8 +33010,7 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          */
         getDmsShareDocuments: (
             query: {
-                /** @format int64 */
-                id: number;
+                id: string;
             },
             params: RequestParams = {},
         ) =>
@@ -33989,6 +36183,128 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags CaptureProjPermissionSettingController
+         * @name GetCaptureProjpermissionsettingListProjid
+         * @summary Query projectPermissionSetting Drop Down by ProjId
+         * @request GET:/api/capture/projPermissionSetting/list/{projId}
+         */
+        getCaptureProjpermissionsettingListProjid: (projId: string, params: RequestParams = {}) =>
+            this.request<ResultListCaptureProjPermissionSettingResponseDTO, any>({
+                path: `/api/capture/projPermissionSetting/list/${projId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjFormSettingController
+         * @name GetCaptureProjformsettingId
+         * @summary Query projectFormSetting info by Id
+         * @request GET:/api/capture/projFormSetting/{id}
+         */
+        getCaptureProjformsettingId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultCaptureProjFormSettingResponseDTO, any>({
+                path: `/api/capture/projFormSetting/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjFormSettingController
+         * @name GetCaptureProjformsettingGetdropdownlistbyprojidProjid
+         * @summary Query projectFormSetting Drop Down by ProjId
+         * @request GET:/api/capture/projFormSetting/getDropDownListByProjId/{projId}
+         */
+        getCaptureProjformsettingGetdropdownlistbyprojidProjid: (projId: string, params: RequestParams = {}) =>
+            this.request<ResultListCaptureProjFormSettingDropDownResponseDTO, any>({
+                path: `/api/capture/projFormSetting/getDropDownListByProjId/${projId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjFormSettingController
+         * @name GetCaptureProjformsettingDuplicateId
+         * @summary Duplicate Capture Proj Form Setting
+         * @request GET:/api/capture/projFormSetting/duplicate/{id}
+         */
+        getCaptureProjformsettingDuplicateId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultCaptureProjFormSetting, any>({
+                path: `/api/capture/projFormSetting/duplicate/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjController
+         * @name GetCaptureProjId
+         * @summary Query project info by Id
+         * @request GET:/api/capture/proj/{id}
+         */
+        getCaptureProjId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultCaptureProjResponseDTO, any>({
+                path: `/api/capture/proj/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjController
+         * @name DeleteCaptureProjId
+         * @summary Delete Capture Proj
+         * @request DELETE:/api/capture/proj/{id}
+         */
+        deleteCaptureProjId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/capture/proj/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * @description Returns document detail for verification UI. Excludes ocrResult, path, otherMetadata.
+         *
+         * @tags CaptureBatchController
+         * @name GetCaptureBatchBatchidDocDocidDetail
+         * @summary Get document detail
+         * @request GET:/api/capture/batch/{batchId}/doc/{docId}/detail
+         */
+        getCaptureBatchBatchidDocDocidDetail: (batchId: string, docId: string, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/doc/${docId}/detail`,
+                method: "GET",
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * @description Returns batch info and its documents list.
+         *
+         * @tags CaptureBatchController
+         * @name GetCaptureBatchBatchidDetail
+         * @summary Get batch detail with document list
+         * @request GET:/api/capture/batch/{batchId}/detail
+         */
+        getCaptureBatchBatchidDetail: (batchId: string, params: RequestParams = {}) =>
+            this.request<void, any>({
+                path: `/api/capture/batch/${batchId}/detail`,
+                method: "GET",
+                format: "json",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags AI
          * @name GetAiAskAiAiChatQueryaitopicid
          * @request GET:/api/ai/ask_ai/ai_chat/queryAiTopicId
@@ -34698,6 +37014,36 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags CaptureFileController
+         * @name DeleteCaptureFileTempfilefrombatch
+         * @summary Remove File From Temp Batch By FileName
+         * @request DELETE:/api/capture/file/TempFileFromBatch
+         */
+        deleteCaptureFileTempfilefrombatch: (
+            query: {
+                batchId: string;
+                fileName: string;
+            },
+            data: {
+                /** @format string */
+                batchId?: string;
+                /** @format string */
+                fileName?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/capture/file/TempFileFromBatch`,
+                method: "DELETE",
+                query: query,
+                body: data,
+                type: ContentType.FormData,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags Identity
          * @name GetUcenterIsCanModified
          * @summary group is can modified ?
@@ -34847,11 +37193,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name GetAdminworkflowInstanceTaskCandidates
+         * @name GetWorkflowInstanceTaskCandidates
          * @summary Retrieve task candidates by process task definition
          * @request GET:/admin/api/workflow/instance/task/candidates
          */
-        getAdminworkflowInstanceTaskCandidates: (
+        getWorkflowInstanceTaskCandidates: (
             query: {
                 taskDefinitionKey: string;
                 processKey: string;
@@ -34869,11 +37215,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name PostAdminworkflowInstanceTaskCandidates
+         * @name PostWorkflowInstanceTaskCandidates
          * @summary Retrieve task candidates by process task definition
          * @request POST:/admin/api/workflow/instance/task/candidates
          */
-        postAdminworkflowInstanceTaskCandidates: (
+        postWorkflowInstanceTaskCandidates: (
             query: {
                 taskDefinitionKey: string;
                 processKey: string;
@@ -34891,11 +37237,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name GetAdmindocpalWorkflowTaskCandidatesbytaskdefinitionkey
+         * @name GetDocpalWorkflowTaskCandidatesbytaskdefinitionkey
          * @summary Retrieve task candidates by process task definition
          * @request GET:/admin/api/docpal/workflow/task/candidatesByTaskDefinitionKey
          */
-        getAdmindocpalWorkflowTaskCandidatesbytaskdefinitionkey: (
+        getDocpalWorkflowTaskCandidatesbytaskdefinitionkey: (
             query: {
                 taskDefinitionKey: string;
                 processKey: string;
@@ -34913,11 +37259,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name PostAdmindocpalWorkflowTaskCandidatesbytaskdefinitionkey
+         * @name PostDocpalWorkflowTaskCandidatesbytaskdefinitionkey
          * @summary Retrieve task candidates by process task definition
          * @request POST:/admin/api/docpal/workflow/task/candidatesByTaskDefinitionKey
          */
-        postAdmindocpalWorkflowTaskCandidatesbytaskdefinitionkey: (
+        postDocpalWorkflowTaskCandidatesbytaskdefinitionkey: (
             query: {
                 taskDefinitionKey: string;
                 processKey: string;
@@ -34935,11 +37281,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name GetAdmindocpalWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate
+         * @name GetDocpalWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate
          * @summary Retrieve task candidates by process task definition
          * @request GET:/admin/api/docpal/workflow/task/candidatesByTaskDefinitionKey/
          */
-        getAdmindocpalWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate: (
+        getDocpalWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate: (
             query: {
                 taskDefinitionKey: string;
                 processKey: string;
@@ -34957,11 +37303,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name PostAdmindocpalWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate
+         * @name PostDocpalWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate
          * @summary Retrieve task candidates by process task definition
          * @request POST:/admin/api/docpal/workflow/task/candidatesByTaskDefinitionKey/
          */
-        postAdmindocpalWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate: (
+        postDocpalWorkflowTaskCandidatesbytaskdefinitionkeyDeprecate: (
             query: {
                 taskDefinitionKey: string;
                 processKey: string;
@@ -34979,11 +37325,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name GetAdmindmsContactGroupIdContactdetaillist
+         * @name GetDmsContactGroupIdContactdetaillist
          * @summary Get contact detail list include filter and sort by
          * @request GET:/admin/api/dms/contact-group/{id}/contactDetailList
          */
-        getAdmindmsContactGroupIdContactdetaillist: (id: string, data: any, params: RequestParams = {}) =>
+        getDmsContactGroupIdContactdetaillist: (id: string, data: any, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, any>({
                 path: `/admin/api/dms/contact-group/${id}/contactDetailList`,
                 method: "GET",
@@ -34996,11 +37342,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name PostAdmindmsContactGroupIdContactdetaillist
+         * @name PostDmsContactGroupIdContactdetaillist
          * @summary Get contact detail list include filter and sort by
          * @request POST:/admin/api/dms/contact-group/{id}/contactDetailList
          */
-        postAdmindmsContactGroupIdContactdetaillist: (id: string, data: any, params: RequestParams = {}) =>
+        postDmsContactGroupIdContactdetaillist: (id: string, data: any, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, any>({
                 path: `/admin/api/dms/contact-group/${id}/contactDetailList`,
                 method: "POST",
@@ -35013,11 +37359,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name GetAdmindmsContactGroupList
+         * @name GetDmsContactGroupList
          * @summary Query all contact group without filter condition
          * @request GET:/admin/api/dms/contact-group/list
          */
-        getAdmindmsContactGroupList: (
+        getDmsContactGroupList: (
             query: {
                 requestDTO: ContactGroupRequestDTO;
             },
@@ -35034,11 +37380,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name PostAdmindmsContactGroupList
+         * @name PostDmsContactGroupList
          * @summary Query all contact group without filter condition
          * @request POST:/admin/api/dms/contact-group/list
          */
-        postAdmindmsContactGroupList: (
+        postDmsContactGroupList: (
             query: {
                 requestDTO: ContactGroupRequestDTO;
             },
@@ -35055,11 +37401,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UcenterController
-         * @name PutAdminucenterUserStatus
+         * @name PutUcenterUserStatus
          * @summary Update User State
          * @request PUT:/admin/api/ucenter/user/status
          */
-        putAdminucenterUserStatus: (data: ActiveUserRequestDTO, params: RequestParams = {}) =>
+        putUcenterUserStatus: (data: ActiveUserRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, any>({
                 path: `/admin/api/ucenter/user/status`,
                 method: "PUT",
@@ -35072,11 +37418,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PutAdminext3RdstorageIdUpdate
+         * @name PutExt3RdstorageIdUpdate
          * @summary Update an existing external storage configuration
          * @request PUT:/admin/api/ext3rdStorage/{id}/update
          */
-        putAdminext3rdstorageIdUpdate: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
+        putExt3rdstorageIdUpdate: (id: string, data: ExternalStorageDTO, params: RequestParams = {}) =>
             this.request<ExternalStorageDTO, any>({
                 path: `/admin/api/ext3rdStorage/${id}/update`,
                 method: "PUT",
@@ -35089,11 +37435,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update an existing external profile for a specific external storage
          *
          * @tags ExternalStorageController
-         * @name PutAdminext3RdstorageIdUpdateProfilesProfileid
+         * @name PutExt3RdstorageIdUpdateProfilesProfileid
          * @summary Update a external profile in external storage id
          * @request PUT:/admin/api/ext3rdStorage/{id}/update-profiles/{profileId}
          */
-        putAdminext3rdstorageIdUpdateProfilesProfileid: (
+        putExt3rdstorageIdUpdateProfilesProfileid: (
             id: string,
             profileId: string,
             data: ExternalProfileDTO,
@@ -35111,11 +37457,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageImportJobController
-         * @name PutAdminext3RdstorageImportjobsIdUpdate
+         * @name PutExt3RdstorageImportjobsIdUpdate
          * @summary Update import job
          * @request PUT:/admin/api/ext3rdStorage/importJobs/{id}/update
          */
-        putAdminext3rdstorageImportjobsIdUpdate: (
+        putExt3rdstorageImportjobsIdUpdate: (
             id: string,
             data: ExternalStorageImportJobDTO,
             params: RequestParams = {},
@@ -35132,10 +37478,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-whats-app-controller
-         * @name PutAdminext3RdmessageWhatsappSettings
+         * @name PutExt3RdmessageWhatsappSettings
          * @request PUT:/admin/api/ext3rdMessage/whatsapp/settings
          */
-        putAdminext3rdmessageWhatsappSettings: (data: WhatsAppSettingDTO, params: RequestParams = {}) =>
+        putExt3rdmessageWhatsappSettings: (data: WhatsAppSettingDTO, params: RequestParams = {}) =>
             this.request<ResultVoid, any>({
                 path: `/admin/api/ext3rdMessage/whatsapp/settings`,
                 method: "PUT",
@@ -35147,12 +37493,332 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags AdminDynamicDBTableController
+         * @name GetDynamicDbTableTableidDataDataid
+         * @summary Get Single Data Record
+         * @request GET:/admin/api/dynamic-db/table/{tableId}/data/{dataId}
+         */
+        getDynamicDbTableTableidDataDataid: (tableId: string, dataId: string, params: RequestParams = {}) =>
+            this.request<ResultTableDataDTO, any>({
+                path: `/admin/api/dynamic-db/table/${tableId}/data/${dataId}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name PutDynamicDbTableTableidDataDataid
+         * @summary Update Data Record
+         * @request PUT:/admin/api/dynamic-db/table/{tableId}/data/{dataId}
+         */
+        putDynamicDbTableTableidDataDataid: (
+            tableId: string,
+            dataId: string,
+            data: TableDataRequestDTO,
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultTableDataDTO, any>({
+                path: `/admin/api/dynamic-db/table/${tableId}/data/${dataId}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name DeleteDynamicDbTableTableidDataDataid
+         * @summary Delete Data Record
+         * @request DELETE:/admin/api/dynamic-db/table/{tableId}/data/{dataId}
+         */
+        deleteDynamicDbTableTableidDataDataid: (tableId: string, dataId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/admin/api/dynamic-db/table/${tableId}/data/${dataId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name GetDynamicDbTableId
+         * @summary Get Table structure (table info + fields + relations)
+         * @request GET:/admin/api/dynamic-db/table/{id}
+         */
+        getDynamicDbTableId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultTableStructureDTO, any>({
+                path: `/admin/api/dynamic-db/table/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name PutDynamicDbTableId
+         * @summary Update Master Table
+         * @request PUT:/admin/api/dynamic-db/table/{id}
+         */
+        putDynamicDbTableId: (id: string, data: TableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTableDTO, any>({
+                path: `/admin/api/dynamic-db/table/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name DeleteDynamicDbTableId
+         * @summary Delete Master Table (physical delete)
+         * @request DELETE:/admin/api/dynamic-db/table/{id}
+         */
+        deleteDynamicDbTableId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/admin/api/dynamic-db/table/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name PutDynamicDbTableFieldsFieldid
+         * @summary Update Field
+         * @request PUT:/admin/api/dynamic-db/table/fields/{fieldId}
+         */
+        putDynamicDbTableFieldsFieldid: (fieldId: string, data: FieldRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTableFieldDTO, any>({
+                path: `/admin/api/dynamic-db/table/fields/${fieldId}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name DeleteDynamicDbTableFieldsFieldid
+         * @summary Delete Field
+         * @request DELETE:/admin/api/dynamic-db/table/fields/{fieldId}
+         */
+        deleteDynamicDbTableFieldsFieldid: (fieldId: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/admin/api/dynamic-db/table/fields/${fieldId}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBMenuController
+         * @name GetDynamicDbMenusId
+         * @summary Get Menu info
+         * @request GET:/admin/api/dynamic-db/menus/{id}
+         */
+        getDynamicDbMenusId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultMenuDTO, any>({
+                path: `/admin/api/dynamic-db/menus/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBMenuController
+         * @name PutDynamicDbMenusId
+         * @summary Update Menu item
+         * @request PUT:/admin/api/dynamic-db/menus/{id}
+         */
+        putDynamicDbMenusId: (id: string, data: MenuRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMenuDTO, any>({
+                path: `/admin/api/dynamic-db/menus/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBMenuController
+         * @name DeleteDynamicDbMenusId
+         * @summary Delete Menu item (physical delete, must delete children first)
+         * @request DELETE:/admin/api/dynamic-db/menus/{id}
+         */
+        deleteDynamicDbMenusId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/admin/api/dynamic-db/menus/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBMenuController
+         * @name PutDynamicDbMenusIdMove
+         * @summary Move Menu item to new position
+         * @request PUT:/admin/api/dynamic-db/menus/{id}/move
+         */
+        putDynamicDbMenusIdMove: (id: string, data: MenuMoveRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMenuDTO, any>({
+                path: `/admin/api/dynamic-db/menus/${id}/move`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBCaseTypeController
+         * @name GetDynamicDbCaseTypesId
+         * @summary Get Case Type details
+         * @request GET:/admin/api/dynamic-db/case-types/{id}
+         */
+        getDynamicDbCaseTypesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultCaseTypeDTO, any>({
+                path: `/admin/api/dynamic-db/case-types/${id}`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBCaseTypeController
+         * @name PutDynamicDbCaseTypesId
+         * @summary Update Case Type
+         * @request PUT:/admin/api/dynamic-db/case-types/{id}
+         */
+        putDynamicDbCaseTypesId: (id: string, data: CaseTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCaseTypeDTO, any>({
+                path: `/admin/api/dynamic-db/case-types/${id}`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBCaseTypeController
+         * @name DeleteDynamicDbCaseTypesId
+         * @summary Delete Case Type (soft delete, set status to D)
+         * @request DELETE:/admin/api/dynamic-db/case-types/{id}
+         */
+        deleteDynamicDbCaseTypesId: (id: string, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/admin/api/dynamic-db/case-types/${id}`,
+                method: "DELETE",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-ocr-controller
+         * @name GetDsbAzureOcrSetting
+         * @request GET:/admin/api/dsb/azure/ocr/setting
+         */
+        getDsbAzureOcrSetting: (params: RequestParams = {}) =>
+            this.request<ResultAzureSettingDTO, any>({
+                path: `/admin/api/dsb/azure/ocr/setting`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-ocr-controller
+         * @name PutDsbAzureOcrSetting
+         * @request PUT:/admin/api/dsb/azure/ocr/setting
+         */
+        putDsbAzureOcrSetting: (data: AzureOcrSettingDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, any>({
+                path: `/admin/api/dsb/azure/ocr/setting`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-ocr-controller
+         * @name PutDsbAzureOcrSettingApiKey
+         * @request PUT:/admin/api/dsb/azure/ocr/setting/api-key
+         */
+        putDsbAzureOcrSettingApiKey: (data: AzureOcrApiKeyDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, any>({
+                path: `/admin/api/dsb/azure/ocr/setting/api-key`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-ocr-controller
+         * @name PutDsbAzureOcrProfileMapping
+         * @request PUT:/admin/api/dsb/azure/ocr/profile/mapping
+         */
+        putDsbAzureOcrProfileMapping: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, any>({
+                path: `/admin/api/dsb/azure/ocr/profile/mapping`,
+                method: "PUT",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-ocr-controller
+         * @name PostDsbAzureOcrProfileMapping
+         * @request POST:/admin/api/dsb/azure/ocr/profile/mapping
+         */
+        postDsbAzureOcrProfileMapping: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultVoid, any>({
+                path: `/admin/api/dsb/azure/ocr/profile/mapping`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags ValidationRuleController
-         * @name GetAdmindocpalValidationRulesVersiondraftid
+         * @name GetDocpalValidationRulesVersiondraftid
          * @summary Get validation rule by version:draftId
          * @request GET:/admin/api/docpal/validation-rules/{versionDraftId}
          */
-        getAdmindocpalValidationRulesVersiondraftid: (versionDraftId: string, params: RequestParams = {}) =>
+        getDocpalValidationRulesVersiondraftid: (versionDraftId: string, params: RequestParams = {}) =>
             this.request<ResultValidationRuleResponseDTO, any>({
                 path: `/admin/api/docpal/validation-rules/${versionDraftId}`,
                 method: "GET",
@@ -35163,11 +37829,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ValidationRuleController
-         * @name PutAdmindocpalValidationRulesVersiondraftid
+         * @name PutDocpalValidationRulesVersiondraftid
          * @summary Update validation rule by version:draftId
          * @request PUT:/admin/api/docpal/validation-rules/{versionDraftId}
          */
-        putAdmindocpalValidationRulesVersiondraftid: (
+        putDocpalValidationRulesVersiondraftid: (
             versionDraftId: string,
             data: ValidationRuleRequestDTO,
             params: RequestParams = {},
@@ -35184,10 +37850,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags PersonalDashboardController
-         * @name PutAdmindocpalPersonalDashboardUpdate
+         * @name PutDocpalPersonalDashboardUpdate
          * @request PUT:/admin/api/docpal/personal/dashboard/update
          */
-        putAdmindocpalPersonalDashboardUpdate: (data: PersonalDashboardRequestDTO, params: RequestParams = {}) =>
+        putDocpalPersonalDashboardUpdate: (data: PersonalDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultVoid, any>({
                 path: `/admin/api/docpal/personal/dashboard/update`,
                 method: "PUT",
@@ -35200,11 +37866,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags IdTemplateController(Admin Page)
-         * @name GetAdmindocpalIdTemplatesId
+         * @name GetDocpalIdTemplatesId
          * @summary Get detail of ID template
          * @request GET:/admin/api/docpal/id-templates/{id}
          */
-        getAdmindocpalIdTemplatesId: (id: string, params: RequestParams = {}) =>
+        getDocpalIdTemplatesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultIdTemplate, any>({
                 path: `/admin/api/docpal/id-templates/${id}`,
                 method: "GET",
@@ -35215,11 +37881,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags IdTemplateController(Admin Page)
-         * @name PutAdmindocpalIdTemplatesId
+         * @name PutDocpalIdTemplatesId
          * @summary Update ID template
          * @request PUT:/admin/api/docpal/id-templates/{id}
          */
-        putAdmindocpalIdTemplatesId: (id: string, data: IdTemplate, params: RequestParams = {}) =>
+        putDocpalIdTemplatesId: (id: string, data: IdTemplate, params: RequestParams = {}) =>
             this.request<ResultIdTemplate, any>({
                 path: `/admin/api/docpal/id-templates/${id}`,
                 method: "PUT",
@@ -35232,11 +37898,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags IdTemplateController(Admin Page)
-         * @name DeleteAdmindocpalIdTemplatesId
+         * @name DeleteDocpalIdTemplatesId
          * @summary Delete ID template
          * @request DELETE:/admin/api/docpal/id-templates/{id}
          */
-        deleteAdmindocpalIdTemplatesId: (id: string, params: RequestParams = {}) =>
+        deleteDocpalIdTemplatesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/id-templates/${id}`,
                 method: "DELETE",
@@ -35244,62 +37910,14 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
             }),
 
         /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name PutAdmindocpalAzureOcrUpdateocrsetting
-         * @request PUT:/admin/api/docpal/azure/ocr/updateOcrSetting
-         */
-        putAdmindocpalAzureOcrUpdateocrsetting: (data: AzureOcrSettingDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, any>({
-                path: `/admin/api/docpal/azure/ocr/updateOcrSetting`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name PutAdmindocpalAzureOcrUpdateocrprofilemapping
-         * @request PUT:/admin/api/docpal/azure/ocr/updateOcrProfileMapping
-         */
-        putAdmindocpalAzureOcrUpdateocrprofilemapping: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, any>({
-                path: `/admin/api/docpal/azure/ocr/updateOcrProfileMapping`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name PutAdmindocpalAzureOcrUpdateapisetting
-         * @request PUT:/admin/api/docpal/azure/ocr/updateApiSetting
-         */
-        putAdmindocpalAzureOcrUpdateapisetting: (data: AzureOcrApiKeyDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, any>({
-                path: `/admin/api/docpal/azure/ocr/updateApiSetting`,
-                method: "PUT",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
          * @description Update specified role information
          *
          * @tags Role Permission Management
-         * @name PutAdmindocpalAclRole
+         * @name PutDocpalAclRole
          * @summary Update Role
          * @request PUT:/admin/api/docpal/acl/role
          */
-        putAdmindocpalAclRole: (data: RoleRequest, params: RequestParams = {}) =>
+        putDocpalAclRole: (data: RoleRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/acl/role`,
                 method: "PUT",
@@ -35312,11 +37930,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Create a new role
          *
          * @tags Role Permission Management
-         * @name PostAdmindocpalAclRole
+         * @name PostDocpalAclRole
          * @summary Add Role
          * @request POST:/admin/api/docpal/acl/role
          */
-        postAdmindocpalAclRole: (data: RoleRequest, params: RequestParams = {}) =>
+        postDocpalAclRole: (data: RoleRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/acl/role`,
                 method: "POST",
@@ -35329,11 +37947,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description get resource-permission detail by resource-permission.id
          *
          * @tags Resource Permission Management
-         * @name GetAdmindocpalAclResourcePermissionsId
+         * @name GetDocpalAclResourcePermissionsId
          * @summary get resource-permission detail by resource-permission.id
          * @request GET:/admin/api/docpal/acl/resource-permissions/{id}
          */
-        getAdmindocpalAclResourcePermissionsId: (id: string, params: RequestParams = {}) =>
+        getDocpalAclResourcePermissionsId: (id: string, params: RequestParams = {}) =>
             this.request<ResourcePermissionVO, any>({
                 path: `/admin/api/docpal/acl/resource-permissions/${id}`,
                 method: "GET",
@@ -35344,15 +37962,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update existing resource permission information
          *
          * @tags Resource Permission Management
-         * @name PutAdmindocpalAclResourcePermissionsId
+         * @name PutDocpalAclResourcePermissionsId
          * @summary Update Resource Permission
          * @request PUT:/admin/api/docpal/acl/resource-permissions/{id}
          */
-        putAdmindocpalAclResourcePermissionsId: (
-            id: string,
-            data: ResourcePermissionRequest,
-            params: RequestParams = {},
-        ) =>
+        putDocpalAclResourcePermissionsId: (id: string, data: ResourcePermissionRequest, params: RequestParams = {}) =>
             this.request<ResourcePermissionDTO, any>({
                 path: `/admin/api/docpal/acl/resource-permissions/${id}`,
                 method: "PUT",
@@ -35365,11 +37979,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description unbind permission from resource by resource-permission.id
          *
          * @tags Resource Permission Management
-         * @name DeleteAdmindocpalAclResourcePermissionsId
+         * @name DeleteDocpalAclResourcePermissionsId
          * @summary unbind permission from resource
          * @request DELETE:/admin/api/docpal/acl/resource-permissions/{id}
          */
-        deleteAdmindocpalAclResourcePermissionsId: (id: string, params: RequestParams = {}) =>
+        deleteDocpalAclResourcePermissionsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/acl/resource-permissions/${id}`,
                 method: "DELETE",
@@ -35380,11 +37994,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update the permission level and permission ID list of a resource permission
          *
          * @tags Resource Permission Management
-         * @name PutAdmindocpalAclResourcePermissionsLevelId
+         * @name PutDocpalAclResourcePermissionsLevelId
          * @summary Update Permission Level
          * @request PUT:/admin/api/docpal/acl/resource-permissions/level/{id}
          */
-        putAdmindocpalAclResourcePermissionsLevelId: (
+        putDocpalAclResourcePermissionsLevelId: (
             id: string,
             query: {
                 /**
@@ -35408,11 +38022,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UserSettingController(Admin Page)
-         * @name GetAdmindmsUserSetting
+         * @name GetDmsUserSetting
          * @summary Get User Setting
          * @request GET:/admin/api/dms/user/setting
          */
-        getAdmindmsUserSetting: (params: RequestParams = {}) =>
+        getDmsUserSetting: (params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/dms/user/setting`,
                 method: "GET",
@@ -35423,10 +38037,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UserSettingController(Admin Page)
-         * @name PutAdmindmsUserSetting
+         * @name PutDmsUserSetting
          * @request PUT:/admin/api/dms/user/setting
          */
-        putAdmindmsUserSetting: (data: string, params: RequestParams = {}) =>
+        putDmsUserSetting: (data: string, params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/dms/user/setting`,
                 method: "PUT",
@@ -35439,10 +38053,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UserSettingController(Admin Page)
-         * @name PatchAdmindmsUserSetting
+         * @name PatchDmsUserSetting
          * @request PATCH:/admin/api/dms/user/setting
          */
-        patchAdmindmsUserSetting: (data: string, params: RequestParams = {}) =>
+        patchDmsUserSetting: (data: string, params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/dms/user/setting`,
                 method: "PATCH",
@@ -35455,11 +38069,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UserSettingController(Admin Page)
-         * @name GetAdmindmsUserProfileSetting
+         * @name GetDmsUserProfileSetting
          * @summary Get Global User Profile Setting
          * @request GET:/admin/api/dms/user/profile/setting
          */
-        getAdmindmsUserProfileSetting: (params: RequestParams = {}) =>
+        getDmsUserProfileSetting: (params: RequestParams = {}) =>
             this.request<ResultUserProfileSettingDTO, any>({
                 path: `/admin/api/dms/user/profile/setting`,
                 method: "GET",
@@ -35470,11 +38084,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UserSettingController(Admin Page)
-         * @name PutAdmindmsUserProfileSetting
+         * @name PutDmsUserProfileSetting
          * @summary Save Global User Profile Setting
          * @request PUT:/admin/api/dms/user/profile/setting
          */
-        putAdmindmsUserProfileSetting: (data: UserProfileSettingDTO, params: RequestParams = {}) =>
+        putDmsUserProfileSetting: (data: UserProfileSettingDTO, params: RequestParams = {}) =>
             this.request<ResultUserProfileSettingDTO, any>({
                 path: `/admin/api/dms/user/profile/setting`,
                 method: "PUT",
@@ -35487,11 +38101,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UserSettingController(Admin Page)
-         * @name PostAdmindmsUserProfileSetting
+         * @name PostDmsUserProfileSetting
          * @summary Save Global User Profile Setting
          * @request POST:/admin/api/dms/user/profile/setting
          */
-        postAdmindmsUserProfileSetting: (data: UserProfileSettingDTO, params: RequestParams = {}) =>
+        postDmsUserProfileSetting: (data: UserProfileSettingDTO, params: RequestParams = {}) =>
             this.request<ResultUserProfileSettingDTO, any>({
                 path: `/admin/api/dms/user/profile/setting`,
                 method: "POST",
@@ -35504,11 +38118,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name PutAdmindmsTemplateEmail
+         * @name PutDmsTemplateEmail
          * @summary Modify (Email Template)
          * @request PUT:/admin/api/dms/template/email
          */
-        putAdmindmsTemplateEmail: (data: EmailTemplate, params: RequestParams = {}) =>
+        putDmsTemplateEmail: (data: EmailTemplate, params: RequestParams = {}) =>
             this.request<ResultEmailTemplateResponseDTO, any>({
                 path: `/admin/api/dms/template/email`,
                 method: "PUT",
@@ -35521,11 +38135,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name PostAdmindmsTemplateEmail
+         * @name PostDmsTemplateEmail
          * @summary Create Email Template
          * @request POST:/admin/api/dms/template/email
          */
-        postAdmindmsTemplateEmail: (data: EmailTemplate, params: RequestParams = {}) =>
+        postDmsTemplateEmail: (data: EmailTemplate, params: RequestParams = {}) =>
             this.request<ResultEmailTemplateResponseDTO, any>({
                 path: `/admin/api/dms/template/email`,
                 method: "POST",
@@ -35538,11 +38152,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name DeleteAdmindmsTemplateEmail
+         * @name DeleteDmsTemplateEmail
          * @summary Delete email template by id
          * @request DELETE:/admin/api/dms/template/email
          */
-        deleteAdmindmsTemplateEmail: (params: RequestParams = {}) =>
+        deleteDmsTemplateEmail: (params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/template/email`,
                 method: "DELETE",
@@ -35553,11 +38167,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name PutAdmindmsTemplateEmailTemplate
+         * @name PutDmsTemplateEmailTemplate
          * @summary Modify (Email Template)
          * @request PUT:/admin/api/dms/template/email/template
          */
-        putAdmindmsTemplateEmailTemplate: (data: EmailTemplate, params: RequestParams = {}) =>
+        putDmsTemplateEmailTemplate: (data: EmailTemplate, params: RequestParams = {}) =>
             this.request<ResultEmailTemplateResponseDTO, any>({
                 path: `/admin/api/dms/template/email/template`,
                 method: "PUT",
@@ -35570,11 +38184,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name PostAdmindmsTemplateEmailTemplate
+         * @name PostDmsTemplateEmailTemplate
          * @summary Create Email Template
          * @request POST:/admin/api/dms/template/email/template
          */
-        postAdmindmsTemplateEmailTemplate: (data: EmailTemplate, params: RequestParams = {}) =>
+        postDmsTemplateEmailTemplate: (data: EmailTemplate, params: RequestParams = {}) =>
             this.request<ResultEmailTemplateResponseDTO, any>({
                 path: `/admin/api/dms/template/email/template`,
                 method: "POST",
@@ -35587,11 +38201,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name PutAdmindmsTemplateEmailLayout
+         * @name PutDmsTemplateEmailLayout
          * @summary Update (Email Layout)
          * @request PUT:/admin/api/dms/template/email/layout
          */
-        putAdmindmsTemplateEmailLayout: (data: EmailLayout, params: RequestParams = {}) =>
+        putDmsTemplateEmailLayout: (data: EmailLayout, params: RequestParams = {}) =>
             this.request<ResultEmailLayout, any>({
                 path: `/admin/api/dms/template/email/layout`,
                 method: "PUT",
@@ -35604,11 +38218,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name PostAdmindmsTemplateEmailLayout
+         * @name PostDmsTemplateEmailLayout
          * @summary Create (Email Layout)
          * @request POST:/admin/api/dms/template/email/layout
          */
-        postAdmindmsTemplateEmailLayout: (data: EmailLayout, params: RequestParams = {}) =>
+        postDmsTemplateEmailLayout: (data: EmailLayout, params: RequestParams = {}) =>
             this.request<ResultEmailLayout, any>({
                 path: `/admin/api/dms/template/email/layout`,
                 method: "POST",
@@ -35621,11 +38235,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocumentTemplateController
-         * @name GetAdmindmsTemplateDocument
+         * @name GetDmsTemplateDocument
          * @summary Get All Document Template
          * @request GET:/admin/api/dms/template/document
          */
-        getAdmindmsTemplateDocument: (params: RequestParams = {}) =>
+        getDmsTemplateDocument: (params: RequestParams = {}) =>
             this.request<ResultListDocumentTemplate, any>({
                 path: `/admin/api/dms/template/document`,
                 method: "GET",
@@ -35636,11 +38250,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocumentTemplateController
-         * @name PutAdmindmsTemplateDocument
+         * @name PutDmsTemplateDocument
          * @summary Update (Document Template)
          * @request PUT:/admin/api/dms/template/document
          */
-        putAdmindmsTemplateDocument: (data: DocumentTemplateRequestDTO, params: RequestParams = {}) =>
+        putDmsTemplateDocument: (data: DocumentTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentTemplateResponseDTO, any>({
                 path: `/admin/api/dms/template/document`,
                 method: "PUT",
@@ -35653,11 +38267,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocumentTemplateController
-         * @name PostAdmindmsTemplateDocument
+         * @name PostDmsTemplateDocument
          * @summary Create (Document Template)
          * @request POST:/admin/api/dms/template/document
          */
-        postAdmindmsTemplateDocument: (
+        postDmsTemplateDocument: (
             data: {
                 /** @format binary */
                 file?: File;
@@ -35686,11 +38300,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocumentTemplateController
-         * @name PutAdmindmsTemplateDocumentUpload
+         * @name PutDmsTemplateDocumentUpload
          * @summary Upload File (Document Template)
          * @request PUT:/admin/api/dms/template/document/upload
          */
-        putAdmindmsTemplateDocumentUpload: (
+        putDmsTemplateDocumentUpload: (
             data: {
                 /** @format binary */
                 file?: File;
@@ -35711,10 +38325,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name GetAdmindmsSettingVirtualFolder
+         * @name GetDmsSettingVirtualFolder
          * @request GET:/admin/api/dms/setting/virtual-folder
          */
-        getAdmindmsSettingVirtualFolder: (params: RequestParams = {}) =>
+        getDmsSettingVirtualFolder: (params: RequestParams = {}) =>
             this.request<ResultListVirtualFolderSettingResponseDTO, any>({
                 path: `/admin/api/dms/setting/virtual-folder`,
                 method: "GET",
@@ -35725,10 +38339,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name PutAdmindmsSettingVirtualFolder
+         * @name PutDmsSettingVirtualFolder
          * @request PUT:/admin/api/dms/setting/virtual-folder
          */
-        putAdmindmsSettingVirtualFolder: (data: VirtualFolderSettingRequestDTO, params: RequestParams = {}) =>
+        putDmsSettingVirtualFolder: (data: VirtualFolderSettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultVirtualFolderSettingResponseDTO, any>({
                 path: `/admin/api/dms/setting/virtual-folder`,
                 method: "PUT",
@@ -35741,10 +38355,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name PostAdmindmsSettingVirtualFolder
+         * @name PostDmsSettingVirtualFolder
          * @request POST:/admin/api/dms/setting/virtual-folder
          */
-        postAdmindmsSettingVirtualFolder: (data: VirtualFolderSettingRequestDTO, params: RequestParams = {}) =>
+        postDmsSettingVirtualFolder: (data: VirtualFolderSettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListVirtualFolderSettingResponseDTO, any>({
                 path: `/admin/api/dms/setting/virtual-folder`,
                 method: "POST",
@@ -35757,10 +38371,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name GetAdmindmsSettingSystemSystemid
+         * @name GetDmsSettingSystemSystemid
          * @request GET:/admin/api/dms/setting/system/{systemId}
          */
-        getAdmindmsSettingSystemSystemid: (systemId: string, params: RequestParams = {}) =>
+        getDmsSettingSystemSystemid: (systemId: string, params: RequestParams = {}) =>
             this.request<ResultMap, any>({
                 path: `/admin/api/dms/setting/system/${systemId}`,
                 method: "GET",
@@ -35771,10 +38385,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name PutAdmindmsSettingSystemSystemid
+         * @name PutDmsSettingSystemSystemid
          * @request PUT:/admin/api/dms/setting/system/{systemId}
          */
-        putAdmindmsSettingSystemSystemid: (systemId: string, data: string, params: RequestParams = {}) =>
+        putDmsSettingSystemSystemid: (systemId: string, data: string, params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/dms/setting/system/${systemId}`,
                 method: "PUT",
@@ -35787,10 +38401,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name GetAdmindmsSettingSystem
+         * @name GetDmsSettingSystem
          * @request GET:/admin/api/dms/setting/system
          */
-        getAdmindmsSettingSystem: (params: RequestParams = {}) =>
+        getDmsSettingSystem: (params: RequestParams = {}) =>
             this.request<ResultMap, any>({
                 path: `/admin/api/dms/setting/system`,
                 method: "GET",
@@ -35801,10 +38415,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name PutAdmindmsSettingSystem
+         * @name PutDmsSettingSystem
          * @request PUT:/admin/api/dms/setting/system
          */
-        putAdmindmsSettingSystem: (data: string, params: RequestParams = {}) =>
+        putDmsSettingSystem: (data: string, params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/dms/setting/system`,
                 method: "PUT",
@@ -35817,10 +38431,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name PostAdmindmsSettingSystem
+         * @name PostDmsSettingSystem
          * @request POST:/admin/api/dms/setting/system
          */
-        postAdmindmsSettingSystem: (data: SystemSetting, params: RequestParams = {}) =>
+        postDmsSettingSystem: (data: SystemSetting, params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/dms/setting/system`,
                 method: "POST",
@@ -35833,10 +38447,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name GetAdmindmsSettingIcon
+         * @name GetDmsSettingIcon
          * @request GET:/admin/api/dms/setting/icon
          */
-        getAdmindmsSettingIcon: (
+        getDmsSettingIcon: (
             query: {
                 docTypeId: string;
             },
@@ -35854,10 +38468,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name PutAdmindmsSettingIcon
+         * @name PutDmsSettingIcon
          * @request PUT:/admin/api/dms/setting/icon
          */
-        putAdmindmsSettingIcon: (
+        putDmsSettingIcon: (
             data: {
                 id: string;
                 /** @format byte */
@@ -35877,11 +38491,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminRetentionPolicyController
-         * @name PutAdmindmsPolicyRetention
+         * @name PutDmsPolicyRetention
          * @summary Modify retention policy
          * @request PUT:/admin/api/dms/policy/retention
          */
-        putAdmindmsPolicyRetention: (data: RetentionPolicyRequestDTO, params: RequestParams = {}) =>
+        putDmsPolicyRetention: (data: RetentionPolicyRequestDTO, params: RequestParams = {}) =>
             this.request<ResultRetentionPolicyResponseDTO, any>({
                 path: `/admin/api/dms/policy/retention`,
                 method: "PUT",
@@ -35894,11 +38508,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminRetentionPolicyController
-         * @name PostAdmindmsPolicyRetention
+         * @name PostDmsPolicyRetention
          * @summary Create a new retention policy
          * @request POST:/admin/api/dms/policy/retention
          */
-        postAdmindmsPolicyRetention: (data: RetentionPolicyRequestDTO, params: RequestParams = {}) =>
+        postDmsPolicyRetention: (data: RetentionPolicyRequestDTO, params: RequestParams = {}) =>
             this.request<ResultRetentionPolicyResponseDTO, any>({
                 path: `/admin/api/dms/policy/retention`,
                 method: "POST",
@@ -35911,11 +38525,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags HoldPolicyController
-         * @name PutAdmindmsPolicyHold
+         * @name PutDmsPolicyHold
          * @summary Update hold policy
          * @request PUT:/admin/api/dms/policy/hold
          */
-        putAdmindmsPolicyHold: (data: HoldPolicy, params: RequestParams = {}) =>
+        putDmsPolicyHold: (data: HoldPolicy, params: RequestParams = {}) =>
             this.request<ResultHoldPolicy, any>({
                 path: `/admin/api/dms/policy/hold`,
                 method: "PUT",
@@ -35928,11 +38542,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags HoldPolicyController
-         * @name PostAdmindmsPolicyHold
+         * @name PostDmsPolicyHold
          * @summary Create a new hold policy
          * @request POST:/admin/api/dms/policy/hold
          */
-        postAdmindmsPolicyHold: (data: HoldPolicy, params: RequestParams = {}) =>
+        postDmsPolicyHold: (data: HoldPolicy, params: RequestParams = {}) =>
             this.request<ResultHoldPolicy, any>({
                 path: `/admin/api/dms/policy/hold`,
                 method: "POST",
@@ -35945,11 +38559,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name GetAdmindmsMasterTable
+         * @name GetDmsMasterTable
          * @summary Get all master tables
          * @request GET:/admin/api/dms/master-table
          */
-        getAdmindmsMasterTable: (params: RequestParams = {}) =>
+        getDmsMasterTable: (params: RequestParams = {}) =>
             this.request<ResultListMasterTableResponseDTO, any>({
                 path: `/admin/api/dms/master-table`,
                 method: "GET",
@@ -35960,11 +38574,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PutAdmindmsMasterTable
+         * @name PutDmsMasterTable
          * @summary Update information (Master Table)
          * @request PUT:/admin/api/dms/master-table
          */
-        putAdmindmsMasterTable: (data: MasterTable, params: RequestParams = {}) =>
+        putDmsMasterTable: (data: MasterTable, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/master-table`,
                 method: "PUT",
@@ -35977,11 +38591,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTable
+         * @name PostDmsMasterTable
          * @summary Creation (Master Table)
          * @request POST:/admin/api/dms/master-table
          */
-        postAdmindmsMasterTable: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
+        postDmsMasterTable: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, any>({
                 path: `/admin/api/dms/master-table`,
                 method: "POST",
@@ -35994,11 +38608,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PutAdmindmsMasterTableIdRecord
+         * @name PutDmsMasterTableIdRecord
          * @summary update data (master table)
          * @request PUT:/admin/api/dms/master-table/{id}/record
          */
-        putAdmindmsMasterTableIdRecord: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
+        putDmsMasterTableIdRecord: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/master-table/${id}/record`,
                 method: "PUT",
@@ -36011,11 +38625,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name DeleteAdmindmsMasterTableIdRecord
+         * @name DeleteDmsMasterTableIdRecord
          * @summary Delete record
          * @request DELETE:/admin/api/dms/master-table/{id}/record
          */
-        deleteAdmindmsMasterTableIdRecord: (
+        deleteDmsMasterTableIdRecord: (
             id: string,
             query: {
                 recordId: string;
@@ -36036,10 +38650,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name GetAdmindmsFormPropertiesLanguage
+         * @name GetDmsFormPropertiesLanguage
          * @request GET:/admin/api/dms/form-properties/language
          */
-        getAdmindmsFormPropertiesLanguage: (
+        getDmsFormPropertiesLanguage: (
             query: {
                 language: LanguageEntity;
             },
@@ -36056,10 +38670,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name PutAdmindmsFormPropertiesLanguage
+         * @name PutDmsFormPropertiesLanguage
          * @request PUT:/admin/api/dms/form-properties/language
          */
-        putAdmindmsFormPropertiesLanguage: (
+        putDmsFormPropertiesLanguage: (
             query: {
                 language: LanguageEntity;
             },
@@ -36079,10 +38693,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name PostAdmindmsFormPropertiesLanguage
+         * @name PostDmsFormPropertiesLanguage
          * @request POST:/admin/api/dms/form-properties/language
          */
-        postAdmindmsFormPropertiesLanguage: (
+        postDmsFormPropertiesLanguage: (
             query: {
                 language: LanguageEntity;
             },
@@ -36102,10 +38716,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name DeleteAdmindmsFormPropertiesLanguage
+         * @name DeleteDmsFormPropertiesLanguage
          * @request DELETE:/admin/api/dms/form-properties/language
          */
-        deleteAdmindmsFormPropertiesLanguage: (
+        deleteDmsFormPropertiesLanguage: (
             query: {
                 /** @format int64 */
                 id: number;
@@ -36124,10 +38738,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name OptionsAdmindmsFormPropertiesLanguage
+         * @name OptionsDmsFormPropertiesLanguage
          * @request OPTIONS:/admin/api/dms/form-properties/language
          */
-        optionsAdmindmsFormPropertiesLanguage: (
+        optionsDmsFormPropertiesLanguage: (
             query: {
                 language: LanguageEntity;
             },
@@ -36144,10 +38758,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name HeadAdmindmsFormPropertiesLanguage
+         * @name HeadDmsFormPropertiesLanguage
          * @request HEAD:/admin/api/dms/form-properties/language
          */
-        headAdmindmsFormPropertiesLanguage: (
+        headDmsFormPropertiesLanguage: (
             query: {
                 language: LanguageEntity;
             },
@@ -36164,10 +38778,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name PatchAdmindmsFormPropertiesLanguage
+         * @name PatchDmsFormPropertiesLanguage
          * @request PATCH:/admin/api/dms/form-properties/language
          */
-        patchAdmindmsFormPropertiesLanguage: (
+        patchDmsFormPropertiesLanguage: (
             query: {
                 language: LanguageEntity;
             },
@@ -36184,10 +38798,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-feature-controller
-         * @name PutAdmindmsFeatureUser
+         * @name PutDmsFeatureUser
          * @request PUT:/admin/api/dms/feature/user
          */
-        putAdmindmsFeatureUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        putDmsFeatureUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<Result, any>({
                 path: `/admin/api/dms/feature/user`,
                 method: "PUT",
@@ -36200,14 +38814,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PutAdmindmsEasyFormDraftidFormresultStatus
+         * @name PutDmsEasyFormDraftidFormresultStatus
          * @request PUT:/admin/api/dms/easy-form/{draftId}/formResult/status
          */
-        putAdmindmsEasyFormDraftidFormresultStatus: (
-            draftId: string,
-            data: EasyFormResult,
-            params: RequestParams = {},
-        ) =>
+        putDmsEasyFormDraftidFormresultStatus: (draftId: string, data: EasyFormResult, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/easy-form/${draftId}/formResult/status`,
                 method: "PUT",
@@ -36220,11 +38830,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name PutAdmindmsDocpalTypeDocpaltypeidMetadata
+         * @name PutDmsDocpalTypeDocpaltypeidMetadata
          * @summary Update a metadata into docpal type
          * @request PUT:/admin/api/dms/docpal-type/{docpalTypeId}/metadata
          */
-        putAdmindmsDocpalTypeDocpaltypeidMetadata: (
+        putDmsDocpalTypeDocpaltypeidMetadata: (
             docpalTypeId: string,
             data: AddMetadataRequestDTO,
             params: RequestParams = {},
@@ -36241,11 +38851,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name PostAdmindmsDocpalTypeDocpaltypeidMetadata
+         * @name PostDmsDocpalTypeDocpaltypeidMetadata
          * @summary Adding a new metadata into the docpal type
          * @request POST:/admin/api/dms/docpal-type/{docpalTypeId}/metadata
          */
-        postAdmindmsDocpalTypeDocpaltypeidMetadata: (
+        postDmsDocpalTypeDocpaltypeidMetadata: (
             docpalTypeId: string,
             data: AddMetadataRequestDTO,
             params: RequestParams = {},
@@ -36262,11 +38872,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name DeleteAdmindmsDocpalTypeDocpaltypeidMetadata
+         * @name DeleteDmsDocpalTypeDocpaltypeidMetadata
          * @summary Remove a exist metadata from docpal type
          * @request DELETE:/admin/api/dms/docpal-type/{docpalTypeId}/metadata
          */
-        deleteAdmindmsDocpalTypeDocpaltypeidMetadata: (
+        deleteDmsDocpalTypeDocpaltypeidMetadata: (
             docpalTypeId: string,
             data: AddMetadataRequestDTO,
             params: RequestParams = {},
@@ -36283,11 +38893,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name GetAdmindmsContactGroupId
+         * @name GetDmsContactGroupId
          * @summary Get contact group by id
          * @request GET:/admin/api/dms/contact-group/{id}
          */
-        getAdmindmsContactGroupId: (id: string, params: RequestParams = {}) =>
+        getDmsContactGroupId: (id: string, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, any>({
                 path: `/admin/api/dms/contact-group/${id}`,
                 method: "GET",
@@ -36298,11 +38908,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update contact group with the specified information
          *
          * @tags AdminContactController
-         * @name PutAdmindmsContactGroupId
+         * @name PutDmsContactGroupId
          * @summary Update contact group
          * @request PUT:/admin/api/dms/contact-group/{id}
          */
-        putAdmindmsContactGroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
+        putDmsContactGroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, any>({
                 path: `/admin/api/dms/contact-group/${id}`,
                 method: "PUT",
@@ -36315,11 +38925,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Delete a contact group by ContactGroupId
          *
          * @tags AdminContactController
-         * @name DeleteAdmindmsContactGroupId
+         * @name DeleteDmsContactGroupId
          * @summary Delete contact group by id
          * @request DELETE:/admin/api/dms/contact-group/{id}
          */
-        deleteAdmindmsContactGroupId: (id: string, params: RequestParams = {}) =>
+        deleteDmsContactGroupId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/contact-group/${id}`,
                 method: "DELETE",
@@ -36330,11 +38940,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update contact group with the specified information
          *
          * @tags AdminContactController
-         * @name PatchAdmindmsContactGroupId
+         * @name PatchDmsContactGroupId
          * @summary Reference to update contact group
          * @request PATCH:/admin/api/dms/contact-group/{id}
          */
-        patchAdmindmsContactGroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
+        patchDmsContactGroupId: (id: string, data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, any>({
                 path: `/admin/api/dms/contact-group/${id}`,
                 method: "PATCH",
@@ -36347,11 +38957,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name GetAdmindmsContactGroupIdContactdetailContactdetailid
+         * @name GetDmsContactGroupIdContactdetailContactdetailid
          * @summary Get contact detail by id
          * @request GET:/admin/api/dms/contact-group/{id}/contactDetail/{contactDetailId}
          */
-        getAdmindmsContactGroupIdContactdetailContactdetailid: (
+        getDmsContactGroupIdContactdetailContactdetailid: (
             id: string,
             contactDetailId: string,
             params: RequestParams = {},
@@ -36366,10 +38976,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name PutAdmindmsContactGroupIdContactdetailContactdetailid
+         * @name PutDmsContactGroupIdContactdetailContactdetailid
          * @request PUT:/admin/api/dms/contact-group/{id}/contactDetail/{contactDetailId}
          */
-        putAdmindmsContactGroupIdContactdetailContactdetailid: (
+        putDmsContactGroupIdContactdetailContactdetailid: (
             id: string,
             contactDetailId: string,
             data: Record<string, any>,
@@ -36387,11 +38997,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name DeleteAdmindmsContactGroupIdContactdetailContactdetailid
+         * @name DeleteDmsContactGroupIdContactdetailContactdetailid
          * @summary Delete contact record
          * @request DELETE:/admin/api/dms/contact-group/{id}/contactDetail/{contactDetailId}
          */
-        deleteAdmindmsContactGroupIdContactdetailContactdetailid: (
+        deleteDmsContactGroupIdContactdetailContactdetailid: (
             id: string,
             contactDetailId: string,
             data: any,
@@ -36409,11 +39019,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name PatchAdmindmsContactGroupIdContactdetailContactdetailid
+         * @name PatchDmsContactGroupIdContactdetailContactdetailid
          * @summary Edit contact record with the specified information
          * @request PATCH:/admin/api/dms/contact-group/{id}/contactDetail/{contactDetailId}
          */
-        patchAdmindmsContactGroupIdContactdetailContactdetailid: (
+        patchDmsContactGroupIdContactdetailContactdetailid: (
             id: string,
             contactDetailId: string,
             data: Record<string, any>,
@@ -36431,11 +39041,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Profile APIs(Admin Page)
-         * @name GetAdmindmsCompanyprofilesCompanyid
+         * @name GetDmsCompanyprofilesCompanyid
          * @summary Get company details
          * @request GET:/admin/api/dms/companyProfiles/{companyId}
          */
-        getAdmindmsCompanyprofilesCompanyid: (companyId: string, params: RequestParams = {}) =>
+        getDmsCompanyprofilesCompanyid: (companyId: string, params: RequestParams = {}) =>
             this.request<ResultCompany, any>({
                 path: `/admin/api/dms/companyProfiles/${companyId}`,
                 method: "GET",
@@ -36446,11 +39056,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Profile APIs(Admin Page)
-         * @name PutAdmindmsCompanyprofilesCompanyid
+         * @name PutDmsCompanyprofilesCompanyid
          * @summary Update existing company profile
          * @request PUT:/admin/api/dms/companyProfiles/{companyId}
          */
-        putAdmindmsCompanyprofilesCompanyid: (companyId: string, data: Company, params: RequestParams = {}) =>
+        putDmsCompanyprofilesCompanyid: (companyId: string, data: Company, params: RequestParams = {}) =>
             this.request<ResultCompany, any>({
                 path: `/admin/api/dms/companyProfiles/${companyId}`,
                 method: "PUT",
@@ -36463,11 +39073,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Profile APIs(Admin Page)
-         * @name DeleteAdmindmsCompanyprofilesCompanyid
+         * @name DeleteDmsCompanyprofilesCompanyid
          * @summary Remove a company profile (logical deletion)
          * @request DELETE:/admin/api/dms/companyProfiles/{companyId}
          */
-        deleteAdmindmsCompanyprofilesCompanyid: (companyId: string, params: RequestParams = {}) =>
+        deleteDmsCompanyprofilesCompanyid: (companyId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/companyProfiles/${companyId}`,
                 method: "DELETE",
@@ -36478,11 +39088,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Profile APIs(Admin Page)
-         * @name GetAdmindmsCompanyprofilesCompanyidChopsCompanychopid
+         * @name GetDmsCompanyprofilesCompanyidChopsCompanychopid
          * @summary Retrieve details of a single chop
          * @request GET:/admin/api/dms/companyProfiles/{companyId}/chops/{companyChopId}
          */
-        getAdmindmsCompanyprofilesCompanyidChopsCompanychopid: (
+        getDmsCompanyprofilesCompanyidChopsCompanychopid: (
             companyId: string,
             companyChopId: string,
             params: RequestParams = {},
@@ -36497,11 +39107,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Profile APIs(Admin Page)
-         * @name PutAdmindmsCompanyprofilesCompanyidChopsCompanychopid
+         * @name PutDmsCompanyprofilesCompanyidChopsCompanychopid
          * @summary Update existing chop details
          * @request PUT:/admin/api/dms/companyProfiles/{companyId}/chops/{companyChopId}
          */
-        putAdmindmsCompanyprofilesCompanyidChopsCompanychopid: (
+        putDmsCompanyprofilesCompanyidChopsCompanychopid: (
             companyId: string,
             companyChopId: string,
             data: {
@@ -36539,11 +39149,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Profile APIs(Admin Page)
-         * @name DeleteAdmindmsCompanyprofilesCompanyidChopsCompanychopid
+         * @name DeleteDmsCompanyprofilesCompanyidChopsCompanychopid
          * @summary Remove a company chop
          * @request DELETE:/admin/api/dms/companyProfiles/{companyId}/chops/{companyChopId}
          */
-        deleteAdmindmsCompanyprofilesCompanyidChopsCompanychopid: (
+        deleteDmsCompanyprofilesCompanyidChopsCompanychopid: (
             companyId: string,
             companyChopId: string,
             params: RequestParams = {},
@@ -36558,11 +39168,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Profile APIs(Admin Page)
-         * @name PutAdmindmsCompanyprofilesCompanyidChopsCompanychopidStatus
+         * @name PutDmsCompanyprofilesCompanyidChopsCompanychopidStatus
          * @summary Change status of a chop
          * @request PUT:/admin/api/dms/companyProfiles/{companyId}/chops/{companyChopId}/status
          */
-        putAdmindmsCompanyprofilesCompanyidChopsCompanychopidStatus: (
+        putDmsCompanyprofilesCompanyidChopsCompanychopidStatus: (
             companyId: string,
             companyChopId: string,
             data: CompanyChop,
@@ -36580,11 +39190,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CalendarController(Admin Page)
-         * @name PutAdmindmsCalendars
+         * @name PutDmsCalendars
          * @summary Update Event Task
          * @request PUT:/admin/api/dms/calendars
          */
-        putAdmindmsCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
+        putDmsCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
             this.request<ResultCalendarTaskRespDTO, any>({
                 path: `/admin/api/dms/calendars`,
                 method: "PUT",
@@ -36597,11 +39207,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CalendarController(Admin Page)
-         * @name PostAdmindmsCalendars
+         * @name PostDmsCalendars
          * @summary Create a new event task
          * @request POST:/admin/api/dms/calendars
          */
-        postAdmindmsCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
+        postDmsCalendars: (data: CalendarTaskReq, params: RequestParams = {}) =>
             this.request<ResultCalendarTaskRespDTO, any>({
                 path: `/admin/api/dms/calendars`,
                 method: "POST",
@@ -36614,11 +39224,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EventCalendarController(Admin Page)
-         * @name GetAdmindmsCalendarsEventSettingId
+         * @name GetDmsCalendarsEventSettingId
          * @summary Get Event Calendar Setting by ID
          * @request GET:/admin/api/dms/calendars/event/setting/{id}
          */
-        getAdmindmsCalendarsEventSettingId: (id: string, params: RequestParams = {}) =>
+        getDmsCalendarsEventSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultEventCalendarSetting, any>({
                 path: `/admin/api/dms/calendars/event/setting/${id}`,
                 method: "GET",
@@ -36629,11 +39239,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EventCalendarController(Admin Page)
-         * @name PutAdmindmsCalendarsEventSettingId
+         * @name PutDmsCalendarsEventSettingId
          * @summary Update Event Calendar Setting
          * @request PUT:/admin/api/dms/calendars/event/setting/{id}
          */
-        putAdmindmsCalendarsEventSettingId: (id: string, data: EventCalendarSetting, params: RequestParams = {}) =>
+        putDmsCalendarsEventSettingId: (id: string, data: EventCalendarSetting, params: RequestParams = {}) =>
             this.request<ResultEventCalendarSetting, any>({
                 path: `/admin/api/dms/calendars/event/setting/${id}`,
                 method: "PUT",
@@ -36646,11 +39256,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EventCalendarController(Admin Page)
-         * @name DeleteAdmindmsCalendarsEventSettingId
+         * @name DeleteDmsCalendarsEventSettingId
          * @summary Remove Event Calendar Setting
          * @request DELETE:/admin/api/dms/calendars/event/setting/{id}
          */
-        deleteAdmindmsCalendarsEventSettingId: (id: string, params: RequestParams = {}) =>
+        deleteDmsCalendarsEventSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/calendars/event/setting/${id}`,
                 method: "DELETE",
@@ -36661,11 +39271,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name GetAdmincaseTypes
+         * @name GetCaseTypes
          * @summary Retrieve all case types
          * @request GET:/admin/api/case/types
          */
-        getAdmincaseTypes: (
+        getCaseTypes: (
             query?: {
                 name?: string;
                 deployed?: boolean;
@@ -36683,11 +39293,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PutAdmincaseTypes
+         * @name PutCaseTypes
          * @summary Update case type
          * @request PUT:/admin/api/case/types
          */
-        putAdmincaseTypes: (data: CaseType, params: RequestParams = {}) =>
+        putCaseTypes: (data: CaseType, params: RequestParams = {}) =>
             this.request<ResultCaseType, any>({
                 path: `/admin/api/case/types`,
                 method: "PUT",
@@ -36700,11 +39310,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PostAdmincaseTypes
+         * @name PostCaseTypes
          * @summary Create a new case type
          * @request POST:/admin/api/case/types
          */
-        postAdmincaseTypes: (data: CaseType, params: RequestParams = {}) =>
+        postCaseTypes: (data: CaseType, params: RequestParams = {}) =>
             this.request<ResultCaseType, any>({
                 path: `/admin/api/case/types`,
                 method: "POST",
@@ -36717,11 +39327,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PutAdmincaseTypesEnable
+         * @name PutCaseTypesEnable
          * @summary Enable or Disable case type
          * @request PUT:/admin/api/case/types/enable
          */
-        putAdmincaseTypesEnable: (data: CaseType, params: RequestParams = {}) =>
+        putCaseTypesEnable: (data: CaseType, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/case/types/enable`,
                 method: "PUT",
@@ -36734,11 +39344,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name PutAdmincaseDashboard
+         * @name PutCaseDashboard
          * @summary Update case dashboard
          * @request PUT:/admin/api/case/dashboard
          */
-        putAdmincaseDashboard: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+        putCaseDashboard: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCmmnDashboardResponseDTO, any>({
                 path: `/admin/api/case/dashboard`,
                 method: "PUT",
@@ -36751,11 +39361,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name PostAdmincaseDashboard
+         * @name PostCaseDashboard
          * @summary Create a new case dashboard
          * @request POST:/admin/api/case/dashboard
          */
-        postAdmincaseDashboard: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+        postCaseDashboard: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCmmnDashboardResponseDTO, any>({
                 path: `/admin/api/case/dashboard`,
                 method: "POST",
@@ -36768,11 +39378,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name PutAdmincaseDashboardStatus
+         * @name PutCaseDashboardStatus
          * @summary Update status of case dashboard
          * @request PUT:/admin/api/case/dashboard/status
          */
-        putAdmincaseDashboardStatus: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+        putCaseDashboardStatus: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/case/dashboard/status`,
                 method: "PUT",
@@ -36785,10 +39395,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name PostAdminworkflowInstance
+         * @name PostWorkflowInstance
          * @request POST:/admin/api/workflow/instance
          */
-        postAdminworkflowInstance: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postWorkflowInstance: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListInstanceDTO, any>({
                 path: `/admin/api/workflow/instance`,
                 method: "POST",
@@ -36801,11 +39411,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name DeleteAdminworkflowInstance
+         * @name DeleteWorkflowInstance
          * @summary Delete process instance by user id
          * @request DELETE:/admin/api/workflow/instance
          */
-        deleteAdminworkflowInstance: (data: DeleteWorkflowReq, params: RequestParams = {}) =>
+        deleteWorkflowInstance: (data: DeleteWorkflowReq, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/workflow/instance`,
                 method: "DELETE",
@@ -36818,10 +39428,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name PostAdminworkflowInstanceTasks
+         * @name PostWorkflowInstanceTasks
          * @request POST:/admin/api/workflow/instance/tasks
          */
-        postAdminworkflowInstanceTasks: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postWorkflowInstanceTasks: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListTaskDTO, any>({
                 path: `/admin/api/workflow/instance/tasks`,
                 method: "POST",
@@ -36834,10 +39444,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name PostAdminworkflowInstanceTasksUser
+         * @name PostWorkflowInstanceTasksUser
          * @request POST:/admin/api/workflow/instance/tasks/user
          */
-        postAdminworkflowInstanceTasksUser: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postWorkflowInstanceTasksUser: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOTaskDTO, any>({
                 path: `/admin/api/workflow/instance/tasks/user`,
                 method: "POST",
@@ -36850,10 +39460,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name PostAdminworkflowInstanceTaskUnclaim
+         * @name PostWorkflowInstanceTaskUnclaim
          * @request POST:/admin/api/workflow/instance/task/unclaim
          */
-        postAdminworkflowInstanceTaskUnclaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postWorkflowInstanceTaskUnclaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultTaskDTO, any>({
                 path: `/admin/api/workflow/instance/task/unclaim`,
                 method: "POST",
@@ -36866,10 +39476,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name PostAdminworkflowInstanceTaskMove
+         * @name PostWorkflowInstanceTaskMove
          * @request POST:/admin/api/workflow/instance/task/move
          */
-        postAdminworkflowInstanceTaskMove: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postWorkflowInstanceTaskMove: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/workflow/instance/task/move`,
                 method: "POST",
@@ -36882,10 +39492,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name PostAdminworkflowInstanceTaskClaim
+         * @name PostWorkflowInstanceTaskClaim
          * @request POST:/admin/api/workflow/instance/task/claim
          */
-        postAdminworkflowInstanceTaskClaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postWorkflowInstanceTaskClaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultTaskDTO, any>({
                 path: `/admin/api/workflow/instance/task/claim`,
                 method: "POST",
@@ -36898,10 +39508,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name PostAdminworkflowInstanceConditionValidate
+         * @name PostWorkflowInstanceConditionValidate
          * @request POST:/admin/api/workflow/instance/condition/validate
          */
-        postAdminworkflowInstanceConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
+        postWorkflowInstanceConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/workflow/instance/condition/validate`,
                 method: "POST",
@@ -36914,10 +39524,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name PostAdminworkflowInstanceProcessConditionValidate
+         * @name PostWorkflowInstanceProcessConditionValidate
          * @request POST:/admin/api/workflow/instance/process/condition/validate
          */
-        postAdminworkflowInstanceProcessConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
+        postWorkflowInstanceProcessConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/workflow/instance/process/condition/validate`,
                 method: "POST",
@@ -36930,10 +39540,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name PostAdminworkflowInstanceJobsIdRetry
+         * @name PostWorkflowInstanceJobsIdRetry
          * @request POST:/admin/api/workflow/instance/jobs/{id}/retry
          */
-        postAdminworkflowInstanceJobsIdRetry: (id: number, params: RequestParams = {}) =>
+        postWorkflowInstanceJobsIdRetry: (id: number, params: RequestParams = {}) =>
             this.request<ResultVoid, any>({
                 path: `/admin/api/workflow/instance/jobs/${id}/retry`,
                 method: "POST",
@@ -36944,10 +39554,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name PostAdminworkflowInstanceJobsPage
+         * @name PostWorkflowInstanceJobsPage
          * @request POST:/admin/api/workflow/instance/jobs/page
          */
-        postAdminworkflowInstanceJobsPage: (data: QueryWorkflowJobRequest, params: RequestParams = {}) =>
+        postWorkflowInstanceJobsPage: (data: QueryWorkflowJobRequest, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOWorkflowRetryManagerDTO, any>({
                 path: `/admin/api/workflow/instance/jobs/page`,
                 method: "POST",
@@ -36960,11 +39570,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name PostAdminworkflowDefinitionVersionVersionidDeploy
+         * @name PostWorkflowDefinitionVersionVersionidDeploy
          * @summary Promote to Production - Deploy the current version to production for used it
          * @request POST:/admin/api/workflow/definition/version/{versionId}/deploy
          */
-        postAdminworkflowDefinitionVersionVersionidDeploy: (
+        postWorkflowDefinitionVersionVersionidDeploy: (
             versionId: string,
             data: {
                 /** @format binary */
@@ -36986,11 +39596,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name PostAdminworkflowDefinitionVersionReplaceDraft
+         * @name PostWorkflowDefinitionVersionReplaceDraft
          * @summary Save to Draft
          * @request POST:/admin/api/workflow/definition/version/replace/draft
          */
-        postAdminworkflowDefinitionVersionReplaceDraft: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
+        postWorkflowDefinitionVersionReplaceDraft: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/workflow/definition/version/replace/draft`,
                 method: "POST",
@@ -37003,11 +39613,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name PostAdminworkflowDefinitionVersionPage
+         * @name PostWorkflowDefinitionVersionPage
          * @summary Pagination search of process definition version
          * @request POST:/admin/api/workflow/definition/version/page
          */
-        postAdminworkflowDefinitionVersionPage: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
+        postWorkflowDefinitionVersionPage: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOProcessDefinitionVersion, any>({
                 path: `/admin/api/workflow/definition/version/page`,
                 method: "POST",
@@ -37020,11 +39630,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name PostAdminworkflowDefinitionVersionNew
+         * @name PostWorkflowDefinitionVersionNew
          * @summary Save New Version of process definition
          * @request POST:/admin/api/workflow/definition/version/new
          */
-        postAdminworkflowDefinitionVersionNew: (
+        postWorkflowDefinitionVersionNew: (
             data: {
                 /** @format binary */
                 file?: File;
@@ -37047,11 +39657,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name PostAdminworkflowDefinitionValidate
+         * @name PostWorkflowDefinitionValidate
          * @summary Validate BPMN 2.0 XML file whether process definition grammatical
          * @request POST:/admin/api/workflow/definition/validate
          */
-        postAdminworkflowDefinitionValidate: (
+        postWorkflowDefinitionValidate: (
             query: {
                 /** @format binary */
                 file: File;
@@ -37069,11 +39679,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name PostAdminworkflowDefinitionUpload
+         * @name PostWorkflowDefinitionUpload
          * @summary Create new workflow (process definition)
          * @request POST:/admin/api/workflow/definition/upload
          */
-        postAdminworkflowDefinitionUpload: (
+        postWorkflowDefinitionUpload: (
             data: {
                 /** @format binary */
                 file?: File;
@@ -37107,11 +39717,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name PostAdminworkflowDefinitionSave
+         * @name PostWorkflowDefinitionSave
          * @summary Save workflow of someone version
          * @request POST:/admin/api/workflow/definition/save
          */
-        postAdminworkflowDefinitionSave: (
+        postWorkflowDefinitionSave: (
             data: {
                 /** @format binary */
                 file?: File;
@@ -37142,11 +39752,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name PostAdminworkflowDefinitionParse
+         * @name PostWorkflowDefinitionParse
          * @summary Validate BPMN 2.0 XML file whether process definition grammatical
          * @request POST:/admin/api/workflow/definition/parse
          */
-        postAdminworkflowDefinitionParse: (
+        postWorkflowDefinitionParse: (
             query: {
                 /** @format binary */
                 file: File;
@@ -37164,11 +39774,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name PostAdminworkflowDefinitionModel
+         * @name PostWorkflowDefinitionModel
          * @summary Retrieve process model (BPMN) XML by ID or Key
          * @request POST:/admin/api/workflow/definition/model
          */
-        postAdminworkflowDefinitionModel: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postWorkflowDefinitionModel: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<string, any>({
                 path: `/admin/api/workflow/definition/model`,
                 method: "POST",
@@ -37181,11 +39791,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name PostAdminworkflowDefinitionList
+         * @name PostWorkflowDefinitionList
          * @summary Retrieve process definition
          * @request POST:/admin/api/workflow/definition/list
          */
-        postAdminworkflowDefinitionList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postWorkflowDefinitionList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListProcessDTO, any>({
                 path: `/admin/api/workflow/definition/list`,
                 method: "POST",
@@ -37198,11 +39808,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionDraftDraftidJson
+         * @name GetWorkflowDefinitionDraftDraftidJson
          * @summary Get json of process definition
          * @request GET:/admin/api/workflow/definition/draft/{draftId}/json
          */
-        getAdminworkflowDefinitionDraftDraftidJson: (draftId: string, params: RequestParams = {}) =>
+        getWorkflowDefinitionDraftDraftidJson: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/workflow/definition/draft/${draftId}/json`,
                 method: "GET",
@@ -37213,11 +39823,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name PostAdminworkflowDefinitionDraftDraftidJson
+         * @name PostWorkflowDefinitionDraftDraftidJson
          * @summary Update json of process definition, please use string json
          * @request POST:/admin/api/workflow/definition/draft/{draftId}/json
          */
-        postAdminworkflowDefinitionDraftDraftidJson: (
+        postWorkflowDefinitionDraftDraftidJson: (
             draftId: string,
             data: ProcessDefinitionDraft,
             params: RequestParams = {},
@@ -37234,11 +39844,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name PostAdminworkflowDefinitionDraftDraftidImport
+         * @name PostWorkflowDefinitionDraftDraftidImport
          * @summary Import zip file for create new process definition
          * @request POST:/admin/api/workflow/definition/draft/{draftId}/import
          */
-        postAdminworkflowDefinitionDraftDraftidImport: (
+        postWorkflowDefinitionDraftDraftidImport: (
             draftId: string,
             data: {
                 /** @format string */
@@ -37265,11 +39875,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name PostAdminworkflowDefinitionDraftDraftidExport
+         * @name PostWorkflowDefinitionDraftDraftidExport
          * @summary Export process definition
          * @request POST:/admin/api/workflow/definition/draft/{draftId}/export
          */
-        postAdminworkflowDefinitionDraftDraftidExport: (
+        postWorkflowDefinitionDraftDraftidExport: (
             draftId: string,
             query?: {
                 versionNumber?: string;
@@ -37287,11 +39897,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name PostAdminworkflowDefinitionDraftPage
+         * @name PostWorkflowDefinitionDraftPage
          * @summary Pagination search of process definition model
          * @request POST:/admin/api/workflow/definition/draft/page
          */
-        postAdminworkflowDefinitionDraftPage: (data: ProcessDefinitionRequestDTO, params: RequestParams = {}) =>
+        postWorkflowDefinitionDraftPage: (data: ProcessDefinitionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOProcessDefinitionDraft, any>({
                 path: `/admin/api/workflow/definition/draft/page`,
                 method: "POST",
@@ -37304,11 +39914,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name PostAdminworkflowDefinitionCopyCopiedkey
+         * @name PostWorkflowDefinitionCopyCopiedkey
          * @summary Copy workflow (process definition)
          * @request POST:/admin/api/workflow/definition/copy/{copiedKey}
          */
-        postAdminworkflowDefinitionCopyCopiedkey: (
+        postWorkflowDefinitionCopyCopiedkey: (
             copiedKey: string,
             data: WorkflowDraftRequestDTO,
             params: RequestParams = {},
@@ -37325,10 +39935,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name PostAdminworkflowDefinitionActiveDraftid
+         * @name PostWorkflowDefinitionActiveDraftid
          * @request POST:/admin/api/workflow/definition/active/{draftId}
          */
-        postAdminworkflowDefinitionActiveDraftid: (draftId: string, params: RequestParams = {}) =>
+        postWorkflowDefinitionActiveDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/workflow/definition/active/${draftId}`,
                 method: "POST",
@@ -37339,10 +39949,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UcenterController
-         * @name GetAdminucenterUsers
+         * @name GetUcenterUsers
          * @request GET:/admin/api/ucenter/users
          */
-        getAdminucenterUsers: (params: RequestParams = {}) =>
+        getUcenterUsers: (params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/ucenter/users`,
                 method: "GET",
@@ -37353,11 +39963,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterUsers
+         * @name PostUcenterUsers
          * @summary List users
          * @request POST:/admin/api/ucenter/users
          */
-        postAdminucenterUsers: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postUcenterUsers: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListUserDTO, any>({
                 path: `/admin/api/ucenter/users`,
                 method: "POST",
@@ -37370,11 +39980,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterUsersBatchDelete
+         * @name PostUcenterUsersBatchDelete
          * @summary Batch delete users
          * @request POST:/admin/api/ucenter/users/batch/delete
          */
-        postAdminucenterUsersBatchDelete: (data: BatchDeleteUserDTO, params: RequestParams = {}) =>
+        postUcenterUsersBatchDelete: (data: BatchDeleteUserDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/ucenter/users/batch/delete`,
                 method: "POST",
@@ -37387,11 +39997,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterUsersBatchAddGroups
+         * @name PostUcenterUsersBatchAddGroups
          * @summary Batch add groups to users
          * @request POST:/admin/api/ucenter/users/batch/add/groups
          */
-        postAdminucenterUsersBatchAddGroups: (data: BatchAddUsersToGroupsDTO, params: RequestParams = {}) =>
+        postUcenterUsersBatchAddGroups: (data: BatchAddUsersToGroupsDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/ucenter/users/batch/add/groups`,
                 method: "POST",
@@ -37404,10 +40014,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterUser
+         * @name PostUcenterUser
          * @request POST:/admin/api/ucenter/user
          */
-        postAdminucenterUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postUcenterUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, any>({
                 path: `/admin/api/ucenter/user`,
                 method: "POST",
@@ -37420,10 +40030,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name DeleteAdminucenterUser
+         * @name DeleteUcenterUser
          * @request DELETE:/admin/api/ucenter/user
          */
-        deleteAdminucenterUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        deleteUcenterUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, any>({
                 path: `/admin/api/ucenter/user`,
                 method: "DELETE",
@@ -37436,11 +40046,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PatchAdminucenterUser
+         * @name PatchUcenterUser
          * @summary Update User
          * @request PATCH:/admin/api/ucenter/user
          */
-        patchAdminucenterUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        patchUcenterUser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, any>({
                 path: `/admin/api/ucenter/user`,
                 method: "PATCH",
@@ -37453,10 +40063,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UcenterController, Identity
-         * @name PostAdminucenterUserPage
+         * @name PostUcenterUserPage
          * @request POST:/admin/api/ucenter/user/page
          */
-        postAdminucenterUserPage: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postUcenterUserPage: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, any>({
                 path: `/admin/api/ucenter/user/page`,
                 method: "POST",
@@ -37469,11 +40079,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterUserBatchRemoveGroups
+         * @name PostUcenterUserBatchRemoveGroups
          * @summary Batch remove groups from user
          * @request POST:/admin/api/ucenter/user/batch/remove/groups
          */
-        postAdminucenterUserBatchRemoveGroups: (data: UserBatchAddGroupsDTO, params: RequestParams = {}) =>
+        postUcenterUserBatchRemoveGroups: (data: UserBatchAddGroupsDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/ucenter/user/batch/remove/groups`,
                 method: "POST",
@@ -37486,11 +40096,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterUserBatchAddGroups
+         * @name PostUcenterUserBatchAddGroups
          * @summary Batch add groups to user
          * @request POST:/admin/api/ucenter/user/batch/add/groups
          */
-        postAdminucenterUserBatchAddGroups: (data: UserBatchAddGroupsDTO, params: RequestParams = {}) =>
+        postUcenterUserBatchAddGroups: (data: UserBatchAddGroupsDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/ucenter/user/batch/add/groups`,
                 method: "POST",
@@ -37503,11 +40113,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UcenterController
-         * @name PostAdminucenterUserBatchActive
+         * @name PostUcenterUserBatchActive
          * @summary Batch update user active status
          * @request POST:/admin/api/ucenter/user/batch/active
          */
-        postAdminucenterUserBatchActive: (data: UserBatchActiveDTO, params: RequestParams = {}) =>
+        postUcenterUserBatchActive: (data: UserBatchActiveDTO, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/ucenter/user/batch/active`,
                 method: "POST",
@@ -37520,10 +40130,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name PostAdminucenterPasswordSaveConfig
+         * @name PostUcenterPasswordSaveConfig
          * @request POST:/admin/api/ucenter/password/save-config
          */
-        postAdminucenterPasswordSaveConfig: (data: PasswordConfigDTO, params: RequestParams = {}) =>
+        postUcenterPasswordSaveConfig: (data: PasswordConfigDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/ucenter/password/save-config`,
                 method: "POST",
@@ -37536,10 +40146,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterMembership
+         * @name PostUcenterMembership
          * @request POST:/admin/api/ucenter/membership
          */
-        postAdminucenterMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postUcenterMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultUserDTO, any>({
                 path: `/admin/api/ucenter/membership`,
                 method: "POST",
@@ -37552,11 +40162,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name DeleteAdminucenterMembership
+         * @name DeleteUcenterMembership
          * @summary Remove user from group
          * @request DELETE:/admin/api/ucenter/membership
          */
-        deleteAdminucenterMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        deleteUcenterMembership: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultIdentityRequestDTO, any>({
                 path: `/admin/api/ucenter/membership`,
                 method: "DELETE",
@@ -37569,10 +40179,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterMember
+         * @name PostUcenterMember
          * @request POST:/admin/api/ucenter/member
          */
-        postAdminucenterMember: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postUcenterMember: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListUserDTO, any>({
                 path: `/admin/api/ucenter/member`,
                 method: "POST",
@@ -37585,10 +40195,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterMemberGroup
+         * @name PostUcenterMemberGroup
          * @request POST:/admin/api/ucenter/member-group
          */
-        postAdminucenterMemberGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postUcenterMemberGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListGroupDTO, any>({
                 path: `/admin/api/ucenter/member-group`,
                 method: "POST",
@@ -37601,10 +40211,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterGroups
+         * @name PostUcenterGroups
          * @request POST:/admin/api/ucenter/groups
          */
-        postAdminucenterGroups: (params: RequestParams = {}) =>
+        postUcenterGroups: (params: RequestParams = {}) =>
             this.request<ResultListGroupDTO, any>({
                 path: `/admin/api/ucenter/groups`,
                 method: "POST",
@@ -37615,10 +40225,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterGroupsActive
+         * @name PostUcenterGroupsActive
          * @request POST:/admin/api/ucenter/groups/active
          */
-        postAdminucenterGroupsActive: (params: RequestParams = {}) =>
+        postUcenterGroupsActive: (params: RequestParams = {}) =>
             this.request<ResultListGroupDTO, any>({
                 path: `/admin/api/ucenter/groups/active`,
                 method: "POST",
@@ -37629,10 +40239,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterGroup
+         * @name PostUcenterGroup
          * @request POST:/admin/api/ucenter/group
          */
-        postAdminucenterGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postUcenterGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultGroupDTO, any>({
                 path: `/admin/api/ucenter/group`,
                 method: "POST",
@@ -37645,10 +40255,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name DeleteAdminucenterGroup
+         * @name DeleteUcenterGroup
          * @request DELETE:/admin/api/ucenter/group
          */
-        deleteAdminucenterGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        deleteUcenterGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultGroupDTO, any>({
                 path: `/admin/api/ucenter/group`,
                 method: "DELETE",
@@ -37661,11 +40271,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PatchAdminucenterGroup
+         * @name PatchUcenterGroup
          * @summary Update group
          * @request PATCH:/admin/api/ucenter/group
          */
-        patchAdminucenterGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        patchUcenterGroup: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultGroupDTO, any>({
                 path: `/admin/api/ucenter/group`,
                 method: "PATCH",
@@ -37678,11 +40288,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterGroupBatchRemoveUsers
+         * @name PostUcenterGroupBatchRemoveUsers
          * @summary Batch remove users from group
          * @request POST:/admin/api/ucenter/group/batch/remove/users
          */
-        postAdminucenterGroupBatchRemoveUsers: (data: GroupBatchAddUsersDTO, params: RequestParams = {}) =>
+        postUcenterGroupBatchRemoveUsers: (data: GroupBatchAddUsersDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/ucenter/group/batch/remove/users`,
                 method: "POST",
@@ -37695,11 +40305,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterGroupBatchAddUsers
+         * @name PostUcenterGroupBatchAddUsers
          * @summary Batch add users to group
          * @request POST:/admin/api/ucenter/group/batch/add/users
          */
-        postAdminucenterGroupBatchAddUsers: (data: GroupBatchAddUsersDTO, params: RequestParams = {}) =>
+        postUcenterGroupBatchAddUsers: (data: GroupBatchAddUsersDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/ucenter/group/batch/add/users`,
                 method: "POST",
@@ -37712,10 +40322,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterGetLicenseUserNumAndActiveCount
+         * @name PostUcenterGetLicenseUserNumAndActiveCount
          * @request POST:/admin/api/ucenter/get-license-user-num-and-active-count
          */
-        postAdminucenterGetLicenseUserNumAndActiveCount: (params: RequestParams = {}) =>
+        postUcenterGetLicenseUserNumAndActiveCount: (params: RequestParams = {}) =>
             this.request<ResultMap, any>({
                 path: `/admin/api/ucenter/get-license-user-num-and-active-count`,
                 method: "POST",
@@ -37726,11 +40336,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterGetKeycloakAllUsers
+         * @name PostUcenterGetKeycloakAllUsers
          * @summary Find all active user list
          * @request POST:/admin/api/ucenter/get-keycloak-all-users
          */
-        postAdminucenterGetKeycloakAllUsers: (params: RequestParams = {}) =>
+        postUcenterGetKeycloakAllUsers: (params: RequestParams = {}) =>
             this.request<ResultListUserDTO, any>({
                 path: `/admin/api/ucenter/get-keycloak-all-users`,
                 method: "POST",
@@ -37741,10 +40351,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterGetAllUsers
+         * @name PostUcenterGetAllUsers
          * @request POST:/admin/api/ucenter/get-all-users
          */
-        postAdminucenterGetAllUsers: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postUcenterGetAllUsers: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, any>({
                 path: `/admin/api/ucenter/get-all-users`,
                 method: "POST",
@@ -37757,10 +40367,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterCopyUsers
+         * @name PostUcenterCopyUsers
          * @request POST:/admin/api/ucenter/copy-users
          */
-        postAdminucenterCopyUsers: (params: RequestParams = {}) =>
+        postUcenterCopyUsers: (params: RequestParams = {}) =>
             this.request<ResultListUserDTO, any>({
                 path: `/admin/api/ucenter/copy-users`,
                 method: "POST",
@@ -37771,11 +40381,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MessageQueue
-         * @name PostAdminmessageQueueMessageidResubmit
+         * @name PostMessageQueueMessageidResubmit
          * @summary ReInvoke business
          * @request POST:/admin/api/message/queue/{messageId}/reSubmit
          */
-        postAdminmessageQueueMessageidResubmit: (
+        postMessageQueueMessageidResubmit: (
             messageId: string,
             query?: {
                 businessId?: string;
@@ -37793,11 +40403,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MessageQueue
-         * @name PostAdminmessageQueuePage
+         * @name PostMessageQueuePage
          * @summary The Page of BusinessResultRecord
          * @request POST:/admin/api/message/queue/page
          */
-        postAdminmessageQueuePage: (data: BusinessResultRecord, params: RequestParams = {}) =>
+        postMessageQueuePage: (data: BusinessResultRecord, params: RequestParams = {}) =>
             this.request<ResultPageBusinessResultRecord, any>({
                 path: `/admin/api/message/queue/page`,
                 method: "POST",
@@ -37810,11 +40420,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Create a new external storage configuration
          *
          * @tags ExternalStorageController
-         * @name PostAdminext3Rdstorage
+         * @name PostExt3Rdstorage
          * @summary Create a new external storage
          * @request POST:/admin/api/ext3rdStorage
          */
-        postAdminext3rdstorage: (data: ExternalStorageDTO, params: RequestParams = {}) =>
+        postExt3rdstorage: (data: ExternalStorageDTO, params: RequestParams = {}) =>
             this.request<ExternalStorageDTO, any>({
                 path: `/admin/api/ext3rdStorage`,
                 method: "POST",
@@ -37827,11 +40437,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Create a new external profile for a specific external storage
          *
          * @tags ExternalStorageController
-         * @name PostAdminext3RdstorageIdProfiles
+         * @name PostExt3RdstorageIdProfiles
          * @summary Create a new external profile in external storage id
          * @request POST:/admin/api/ext3rdStorage/{id}/profiles
          */
-        postAdminext3rdstorageIdProfiles: (id: string, data: ExternalProfileDTO, params: RequestParams = {}) =>
+        postExt3rdstorageIdProfiles: (id: string, data: ExternalProfileDTO, params: RequestParams = {}) =>
             this.request<ExternalProfileDTO, any>({
                 path: `/admin/api/ext3rdStorage/${id}/profiles`,
                 method: "POST",
@@ -37844,15 +40454,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PostAdminext3RdstorageIdProfilesPage
+         * @name PostExt3RdstorageIdProfilesPage
          * @summary Paging query external storage profiles by external storage id
          * @request POST:/admin/api/ext3rdStorage/{id}/profiles/page
          */
-        postAdminext3rdstorageIdProfilesPage: (
-            id: string,
-            data: ExternalProfileRequestDTO,
-            params: RequestParams = {},
-        ) =>
+        postExt3rdstorageIdProfilesPage: (id: string, data: ExternalProfileRequestDTO, params: RequestParams = {}) =>
             this.request<ExternalProfileDTO, any>({
                 path: `/admin/api/ext3rdStorage/${id}/profiles/page`,
                 method: "POST",
@@ -37865,15 +40471,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PostAdminext3RdstorageIdConnectionTest
+         * @name PostExt3RdstorageIdConnectionTest
          * @summary Testing SMB connection is correct
          * @request POST:/admin/api/ext3rdStorage/{id}/connection/test
          */
-        postAdminext3rdstorageIdConnectionTest: (
-            id: string,
-            data: Record<string, string>,
-            params: RequestParams = {},
-        ) =>
+        postExt3rdstorageIdConnectionTest: (id: string, data: Record<string, string>, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/ext3rdStorage/${id}/connection/test`,
                 method: "POST",
@@ -37886,11 +40488,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Create a new external profile output record
          *
          * @tags ExternalStorageController
-         * @name PostAdminext3RdstorageProfilesProfileidOutputrecord
+         * @name PostExt3RdstorageProfilesProfileidOutputrecord
          * @summary Create External Profile Output
          * @request POST:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord
          */
-        postAdminext3rdstorageProfilesProfileidOutputrecord: (
+        postExt3rdstorageProfilesProfileidOutputrecord: (
             profileId: string,
             data: Record<string, any>,
             params: RequestParams = {},
@@ -37907,11 +40509,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PostAdminext3RdstorageProfilesProfileidDuplicateOutputrecordOutputrecordid
+         * @name PostExt3RdstorageProfilesProfileidDuplicateOutputrecordOutputrecordid
          * @summary Duplicate (Copy) a exist External Profile Output
          * @request POST:/admin/api/ext3rdStorage/profiles/{profileId}/duplicate-outputRecord/{outputRecordId}
          */
-        postAdminext3rdstorageProfilesProfileidDuplicateOutputrecordOutputrecordid: (
+        postExt3rdstorageProfilesProfileidDuplicateOutputrecordOutputrecordid: (
             profileId: string,
             outputRecordId: string,
             params: RequestParams = {},
@@ -37926,11 +40528,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PostAdminext3RdstoragePage
+         * @name PostExt3RdstoragePage
          * @summary Paging query External Storage
          * @request POST:/admin/api/ext3rdStorage/page
          */
-        postAdminext3rdstoragePage: (data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
+        postExt3rdstoragePage: (data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
             this.request<ExternalStorageDTO, any>({
                 path: `/admin/api/ext3rdStorage/page`,
                 method: "POST",
@@ -37943,11 +40545,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageImportJobController
-         * @name PostAdminext3RdstorageImportjobsPage
+         * @name PostExt3RdstorageImportjobsPage
          * @summary Paginated query for import jobs
          * @request POST:/admin/api/ext3rdStorage/importJobs/page
          */
-        postAdminext3rdstorageImportjobsPage: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
+        postExt3rdstorageImportjobsPage: (data: ExternalStorageImportJobRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOExternalStorageImportJobDTO, any>({
                 path: `/admin/api/ext3rdStorage/importJobs/page`,
                 method: "POST",
@@ -37960,11 +40562,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageImportJobController
-         * @name PostAdminext3RdstorageImportjobsJobqueueFirst
+         * @name PostExt3RdstorageImportjobsJobqueueFirst
          * @summary Place a task in the first queue
          * @request POST:/admin/api/ext3rdStorage/importJobs/jobQueue/first
          */
-        postAdminext3rdstorageImportjobsJobqueueFirst: (
+        postExt3rdstorageImportjobsJobqueueFirst: (
             data: ExternalStorageImportJobRequestDTO,
             params: RequestParams = {},
         ) =>
@@ -37980,11 +40582,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Save a external storage import job
          *
          * @tags ExternalStorageImportJobController
-         * @name PostAdminext3RdstorageImportjobsAdd
+         * @name PostExt3RdstorageImportjobsAdd
          * @summary Save import job record
          * @request POST:/admin/api/ext3rdStorage/importJobs/add
          */
-        postAdminext3rdstorageImportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
+        postExt3rdstorageImportjobsAdd: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ExternalStorageImportJob, any>({
                 path: `/admin/api/ext3rdStorage/importJobs/add`,
                 method: "POST",
@@ -37997,11 +40599,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Save a external storage import job
          *
          * @tags ExternalStorageImportJobController
-         * @name PostAdminext3RdstorageImportjobs
+         * @name PostExt3RdstorageImportjobs
          * @summary Save import job record
          * @request POST:/admin/api/ext3rdStorage/importJobs
          */
-        postAdminext3rdstorageImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
+        postExt3rdstorageImportjobs: (data: ExternalStorageImportJobDTO, params: RequestParams = {}) =>
             this.request<ExternalStorageImportJob, any>({
                 path: `/admin/api/ext3rdStorage/importJobs`,
                 method: "POST",
@@ -38014,10 +40616,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-whats-app-controller
-         * @name PostAdminext3RdmessageWhatsappOverview
+         * @name PostExt3RdmessageWhatsappOverview
          * @request POST:/admin/api/ext3rdMessage/whatsapp/overview
          */
-        postAdminext3rdmessageWhatsappOverview: (data: BasePageRequest, params: RequestParams = {}) =>
+        postExt3rdmessageWhatsappOverview: (data: BasePageRequest, params: RequestParams = {}) =>
             this.request<ResultWhatsAppOverviewResponse, any>({
                 path: `/admin/api/ext3rdMessage/whatsapp/overview`,
                 method: "POST",
@@ -38030,10 +40632,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-whats-app-controller
-         * @name PostAdminext3RdmessageWhatsappLogsQuery
+         * @name PostExt3RdmessageWhatsappLogsQuery
          * @request POST:/admin/api/ext3rdMessage/whatsapp/logs/query
          */
-        postAdminext3rdmessageWhatsappLogsQuery: (data: BasePageRequest, params: RequestParams = {}) =>
+        postExt3rdmessageWhatsappLogsQuery: (data: BasePageRequest, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOWhatsAppLogDTO, any>({
                 path: `/admin/api/ext3rdMessage/whatsapp/logs/query`,
                 method: "POST",
@@ -38045,12 +40647,179 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags AdminDynamicDBTableController
+         * @name PostDynamicDbTable
+         * @summary Create Master Table
+         * @request POST:/admin/api/dynamic-db/table
+         */
+        postDynamicDbTable: (data: TableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTableDTO, any>({
+                path: `/admin/api/dynamic-db/table`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name GetDynamicDbTableTableidFields
+         * @summary List Fields for Master Table
+         * @request GET:/admin/api/dynamic-db/table/{tableId}/fields
+         */
+        getDynamicDbTableTableidFields: (tableId: string, params: RequestParams = {}) =>
+            this.request<ResultListTableFieldDTO, any>({
+                path: `/admin/api/dynamic-db/table/${tableId}/fields`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name PostDynamicDbTableTableidFields
+         * @summary Create Field(s) for Master Table
+         * @request POST:/admin/api/dynamic-db/table/{tableId}/fields
+         */
+        postDynamicDbTableTableidFields: (tableId: string, data: FieldRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultBoolean, any>({
+                path: `/admin/api/dynamic-db/table/${tableId}/fields`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name PostDynamicDbTableTableidData
+         * @summary Create Data for Master Table
+         * @request POST:/admin/api/dynamic-db/table/{tableId}/data
+         */
+        postDynamicDbTableTableidData: (tableId: string, data: TableDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultTableDataDTO, any>({
+                path: `/admin/api/dynamic-db/table/${tableId}/data`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name PostDynamicDbTableTableidDataPage
+         * @summary List Data for Master Table
+         * @request POST:/admin/api/dynamic-db/table/{tableId}/data/page
+         */
+        postDynamicDbTableTableidDataPage: (tableId: string, data: TableDataRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOTableDataDTO, any>({
+                path: `/admin/api/dynamic-db/table/${tableId}/data/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBTableController
+         * @name PostDynamicDbTablePage
+         * @summary Paginated query for Table list
+         * @request POST:/admin/api/dynamic-db/table/page
+         */
+        postDynamicDbTablePage: (data: TableRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOTableDTO, any>({
+                path: `/admin/api/dynamic-db/table/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBMenuController
+         * @name PostDynamicDbMenus
+         * @summary Create Menu item
+         * @request POST:/admin/api/dynamic-db/menus
+         */
+        postDynamicDbMenus: (data: MenuRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultMenuDTO, any>({
+                path: `/admin/api/dynamic-db/menus`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBCaseTypeController
+         * @name PostDynamicDbCaseTypes
+         * @summary Create Case Type
+         * @request POST:/admin/api/dynamic-db/case-types
+         */
+        postDynamicDbCaseTypes: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultCaseTypeDTO, any>({
+                path: `/admin/api/dynamic-db/case-types`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBCaseTypeController
+         * @name PostDynamicDbCaseTypesPage
+         * @summary Paginated query for Case Type list
+         * @request POST:/admin/api/dynamic-db/case-types/page
+         */
+        postDynamicDbCaseTypesPage: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOCaseTypeDTO, any>({
+                path: `/admin/api/dynamic-db/case-types/page`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-ocr-controller
+         * @name PostDsbAzureOcrTransactionLogs
+         * @request POST:/admin/api/dsb/azure/ocr/transaction/logs
+         */
+        postDsbAzureOcrTransactionLogs: (data: OcrTransactionLogRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultPaginationDTOOcrTransactionLogDTO, any>({
+                path: `/admin/api/dsb/azure/ocr/transaction/logs`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags AdminWorkflowVersionController(Admin Page)
-         * @name PostAdmindocpalWorkflowVersionVersionidDeploy
+         * @name PostDocpalWorkflowVersionVersionidDeploy
          * @summary Promote to Production - Deploy the current version to production for used it
          * @request POST:/admin/api/docpal/workflow/version/{versionId}/deploy
          */
-        postAdmindocpalWorkflowVersionVersionidDeploy: (
+        postDocpalWorkflowVersionVersionidDeploy: (
             versionId: string,
             data: {
                 /** @format binary */
@@ -38072,11 +40841,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowVersionController(Admin Page)
-         * @name PostAdmindocpalWorkflowVersionReplaceDraft
+         * @name PostDocpalWorkflowVersionReplaceDraft
          * @summary Save to Draft
          * @request POST:/admin/api/docpal/workflow/version/replace/draft
          */
-        postAdmindocpalWorkflowVersionReplaceDraft: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowVersionReplaceDraft: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/workflow/version/replace/draft`,
                 method: "POST",
@@ -38089,11 +40858,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowVersionController(Admin Page)
-         * @name PostAdmindocpalWorkflowVersionPage
+         * @name PostDocpalWorkflowVersionPage
          * @summary Pagination search of process definition version
          * @request POST:/admin/api/docpal/workflow/version/page
          */
-        postAdmindocpalWorkflowVersionPage: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowVersionPage: (data: ProcessVersionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOProcessDefinitionVersion, any>({
                 path: `/admin/api/docpal/workflow/version/page`,
                 method: "POST",
@@ -38106,11 +40875,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowVersionController(Admin Page)
-         * @name PostAdmindocpalWorkflowVersionNew
+         * @name PostDocpalWorkflowVersionNew
          * @summary Save New Version of process definition
          * @request POST:/admin/api/docpal/workflow/version/new
          */
-        postAdmindocpalWorkflowVersionNew: (
+        postDocpalWorkflowVersionNew: (
             data: {
                 /** @format binary */
                 file?: File;
@@ -38133,10 +40902,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowConfigController
-         * @name PostAdmindocpalWorkflowUpdatemetadatamapping
+         * @name PostDocpalWorkflowUpdatemetadatamapping
          * @request POST:/admin/api/docpal/workflow/updateMetadataMapping
          */
-        postAdmindocpalWorkflowUpdatemetadatamapping: (data: DocumentTypeMetadataMapping, params: RequestParams = {}) =>
+        postDocpalWorkflowUpdatemetadatamapping: (data: DocumentTypeMetadataMapping, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/workflow/updateMetadataMapping`,
                 method: "POST",
@@ -38149,10 +40918,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name PostAdmindocpalWorkflowTasks
+         * @name PostDocpalWorkflowTasks
          * @request POST:/admin/api/docpal/workflow/tasks
          */
-        postAdmindocpalWorkflowTasks: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowTasks: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListTaskDTO, any>({
                 path: `/admin/api/docpal/workflow/tasks`,
                 method: "POST",
@@ -38165,10 +40934,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name PostAdmindocpalWorkflowTasksUser
+         * @name PostDocpalWorkflowTasksUser
          * @request POST:/admin/api/docpal/workflow/tasks/user
          */
-        postAdmindocpalWorkflowTasksUser: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowTasksUser: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOTaskDTO, any>({
                 path: `/admin/api/docpal/workflow/tasks/user`,
                 method: "POST",
@@ -38181,10 +40950,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name PostAdmindocpalWorkflowTaskUnclaim
+         * @name PostDocpalWorkflowTaskUnclaim
          * @request POST:/admin/api/docpal/workflow/task/unclaim
          */
-        postAdmindocpalWorkflowTaskUnclaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowTaskUnclaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultTaskDTO, any>({
                 path: `/admin/api/docpal/workflow/task/unclaim`,
                 method: "POST",
@@ -38197,10 +40966,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name PostAdmindocpalWorkflowTaskMove
+         * @name PostDocpalWorkflowTaskMove
          * @request POST:/admin/api/docpal/workflow/task/move
          */
-        postAdmindocpalWorkflowTaskMove: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowTaskMove: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/workflow/task/move`,
                 method: "POST",
@@ -38213,10 +40982,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name PostAdmindocpalWorkflowTaskClaim
+         * @name PostDocpalWorkflowTaskClaim
          * @request POST:/admin/api/docpal/workflow/task/claim
          */
-        postAdmindocpalWorkflowTaskClaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowTaskClaim: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultTaskDTO, any>({
                 path: `/admin/api/docpal/workflow/task/claim`,
                 method: "POST",
@@ -38229,10 +40998,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowConfigController
-         * @name PostAdmindocpalWorkflowSavemetadatamapping
+         * @name PostDocpalWorkflowSavemetadatamapping
          * @request POST:/admin/api/docpal/workflow/saveMetadataMapping
          */
-        postAdmindocpalWorkflowSavemetadatamapping: (data: DocPalDocumentTypeMapping, params: RequestParams = {}) =>
+        postDocpalWorkflowSavemetadatamapping: (data: DocPalDocumentTypeMapping, params: RequestParams = {}) =>
             this.request<ResultListDocumentTypeMetadataMapping, any>({
                 path: `/admin/api/docpal/workflow/saveMetadataMapping`,
                 method: "POST",
@@ -38245,10 +41014,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowConfigController
-         * @name PostAdmindocpalWorkflowSavedocumenttypeprofile
+         * @name PostDocpalWorkflowSavedocumenttypeprofile
          * @request POST:/admin/api/docpal/workflow/saveDocumentTypeProfile
          */
-        postAdmindocpalWorkflowSavedocumenttypeprofile: (
+        postDocpalWorkflowSavedocumenttypeprofile: (
             data: DocumentTypeProfileSettingRequest,
             params: RequestParams = {},
         ) =>
@@ -38264,10 +41033,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name PostAdmindocpalWorkflowRetryFailWorkflow
+         * @name PostDocpalWorkflowRetryFailWorkflow
          * @request POST:/admin/api/docpal/workflow/retry_fail_workflow
          */
-        postAdmindocpalWorkflowRetryFailWorkflow: (data: WorkflowRetryManagerDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowRetryFailWorkflow: (data: WorkflowRetryManagerDTO, params: RequestParams = {}) =>
             this.request<Result, any>({
                 path: `/admin/api/docpal/workflow/retry_fail_workflow`,
                 method: "POST",
@@ -38280,10 +41049,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name PostAdmindocpalWorkflowQueryWorkflowRetryPage
+         * @name PostDocpalWorkflowQueryWorkflowRetryPage
          * @request POST:/admin/api/docpal/workflow/query_workflow_retry_page
          */
-        postAdmindocpalWorkflowQueryWorkflowRetryPage: (data: QueryWorkflowJobRequest, params: RequestParams = {}) =>
+        postDocpalWorkflowQueryWorkflowRetryPage: (data: QueryWorkflowJobRequest, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOWorkflowRetryManagerDTO, any>({
                 path: `/admin/api/docpal/workflow/query_workflow_retry_page`,
                 method: "POST",
@@ -38296,10 +41065,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name PostAdmindocpalWorkflowProperties
+         * @name PostDocpalWorkflowProperties
          * @request POST:/admin/api/docpal/workflow/properties
          */
-        postAdmindocpalWorkflowProperties: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowProperties: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListFormPropertyDTO, any>({
                 path: `/admin/api/docpal/workflow/properties`,
                 method: "POST",
@@ -38312,11 +41081,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name PostAdmindocpalWorkflowProcessModel
+         * @name PostDocpalWorkflowProcessModel
          * @summary Retrieve process model (BPMN) XML
          * @request POST:/admin/api/docpal/workflow/process/model
          */
-        postAdmindocpalWorkflowProcessModel: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowProcessModel: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<string, any>({
                 path: `/admin/api/docpal/workflow/process/model`,
                 method: "POST",
@@ -38329,11 +41098,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name PostAdmindocpalWorkflowProcessList
+         * @name PostDocpalWorkflowProcessList
          * @summary Retrieve process definition
          * @request POST:/admin/api/docpal/workflow/process/list
          */
-        postAdmindocpalWorkflowProcessList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowProcessList: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListProcessDTO, any>({
                 path: `/admin/api/docpal/workflow/process/list`,
                 method: "POST",
@@ -38346,10 +41115,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name PostAdmindocpalWorkflowProcessInstance
+         * @name PostDocpalWorkflowProcessInstance
          * @request POST:/admin/api/docpal/workflow/process/instance
          */
-        postAdmindocpalWorkflowProcessInstance: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
+        postDocpalWorkflowProcessInstance: (data: WorkflowRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListInstanceDTO, any>({
                 path: `/admin/api/docpal/workflow/process/instance`,
                 method: "POST",
@@ -38362,11 +41131,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name PostAdmindocpalWorkflowProcessDefinitionValidate
+         * @name PostDocpalWorkflowProcessDefinitionValidate
          * @summary Validate BPMN 2.0 XML file whether process definition grammatical
          * @request POST:/admin/api/docpal/workflow/process/definition/validate
          */
-        postAdmindocpalWorkflowProcessDefinitionValidate: (
+        postDocpalWorkflowProcessDefinitionValidate: (
             query: {
                 /** @format binary */
                 file: File;
@@ -38384,11 +41153,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name PostAdmindocpalWorkflowProcessDefinitionUpload
+         * @name PostDocpalWorkflowProcessDefinitionUpload
          * @summary Create new workflow (process definition)
          * @request POST:/admin/api/docpal/workflow/process/definition/upload
          */
-        postAdmindocpalWorkflowProcessDefinitionUpload: (
+        postDocpalWorkflowProcessDefinitionUpload: (
             data: {
                 /** @format binary */
                 file?: File;
@@ -38422,11 +41191,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name PostAdmindocpalWorkflowProcessDefinitionSave
+         * @name PostDocpalWorkflowProcessDefinitionSave
          * @summary Save workflow of someone version
          * @request POST:/admin/api/docpal/workflow/process/definition/save
          */
-        postAdmindocpalWorkflowProcessDefinitionSave: (
+        postDocpalWorkflowProcessDefinitionSave: (
             data: {
                 /** @format binary */
                 file?: File;
@@ -38457,11 +41226,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name PostAdmindocpalWorkflowProcessDefinitionParse
+         * @name PostDocpalWorkflowProcessDefinitionParse
          * @summary Validate BPMN 2.0 XML file whether process definition grammatical
          * @request POST:/admin/api/docpal/workflow/process/definition/parse
          */
-        postAdmindocpalWorkflowProcessDefinitionParse: (
+        postDocpalWorkflowProcessDefinitionParse: (
             query: {
                 /** @format binary */
                 file: File;
@@ -38479,11 +41248,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name GetAdmindocpalWorkflowProcessDefinitionDraftDraftidJson
+         * @name GetDocpalWorkflowProcessDefinitionDraftDraftidJson
          * @summary Get json of process definition
          * @request GET:/admin/api/docpal/workflow/process/definition/draft/{draftId}/json
          */
-        getAdmindocpalWorkflowProcessDefinitionDraftDraftidJson: (draftId: string, params: RequestParams = {}) =>
+        getDocpalWorkflowProcessDefinitionDraftDraftidJson: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/docpal/workflow/process/definition/draft/${draftId}/json`,
                 method: "GET",
@@ -38494,11 +41263,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name PostAdmindocpalWorkflowProcessDefinitionDraftDraftidJson
+         * @name PostDocpalWorkflowProcessDefinitionDraftDraftidJson
          * @summary Update json of process definition, please use string json
          * @request POST:/admin/api/docpal/workflow/process/definition/draft/{draftId}/json
          */
-        postAdmindocpalWorkflowProcessDefinitionDraftDraftidJson: (
+        postDocpalWorkflowProcessDefinitionDraftDraftidJson: (
             draftId: string,
             data: ProcessDefinitionDraft,
             params: RequestParams = {},
@@ -38515,11 +41284,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name PostAdmindocpalWorkflowProcessDefinitionDraftDraftidImport
+         * @name PostDocpalWorkflowProcessDefinitionDraftDraftidImport
          * @summary Import zip file for create new process definition
          * @request POST:/admin/api/docpal/workflow/process/definition/draft/{draftId}/import
          */
-        postAdmindocpalWorkflowProcessDefinitionDraftDraftidImport: (
+        postDocpalWorkflowProcessDefinitionDraftDraftidImport: (
             draftId: string,
             data: {
                 /** @format string */
@@ -38546,11 +41315,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name PostAdmindocpalWorkflowProcessDefinitionDraftDraftidExport
+         * @name PostDocpalWorkflowProcessDefinitionDraftDraftidExport
          * @summary Export process definition
          * @request POST:/admin/api/docpal/workflow/process/definition/draft/{draftId}/export
          */
-        postAdmindocpalWorkflowProcessDefinitionDraftDraftidExport: (
+        postDocpalWorkflowProcessDefinitionDraftDraftidExport: (
             draftId: string,
             query?: {
                 versionNumber?: string;
@@ -38568,14 +41337,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name PostAdmindocpalWorkflowProcessDefinitionDraftPage
+         * @name PostDocpalWorkflowProcessDefinitionDraftPage
          * @summary Pagination search of process definition model
          * @request POST:/admin/api/docpal/workflow/process/definition/draft/page
          */
-        postAdmindocpalWorkflowProcessDefinitionDraftPage: (
-            data: ProcessDefinitionRequestDTO,
-            params: RequestParams = {},
-        ) =>
+        postDocpalWorkflowProcessDefinitionDraftPage: (data: ProcessDefinitionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOProcessDefinitionDraft, any>({
                 path: `/admin/api/docpal/workflow/process/definition/draft/page`,
                 method: "POST",
@@ -38588,11 +41354,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name PostAdmindocpalWorkflowProcessDefinitionCopyCopiedkey
+         * @name PostDocpalWorkflowProcessDefinitionCopyCopiedkey
          * @summary Copy workflow (process definition)
          * @request POST:/admin/api/docpal/workflow/process/definition/copy/{copiedKey}
          */
-        postAdmindocpalWorkflowProcessDefinitionCopyCopiedkey: (
+        postDocpalWorkflowProcessDefinitionCopyCopiedkey: (
             copiedKey: string,
             data: WorkflowDraftRequestDTO,
             params: RequestParams = {},
@@ -38609,11 +41375,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name PostAdmindocpalWorkflowProcessDefinitionCopyFromFlowable
+         * @name PostDocpalWorkflowProcessDefinitionCopyFromFlowable
          * @summary Data Patch API
          * @request POST:/admin/api/docpal/workflow/process/definition/copy/from/flowable
          */
-        postAdmindocpalWorkflowProcessDefinitionCopyFromFlowable: (data: string[], params: RequestParams = {}) =>
+        postDocpalWorkflowProcessDefinitionCopyFromFlowable: (data: string[], params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/docpal/workflow/process/definition/copy/from/flowable`,
                 method: "POST",
@@ -38626,10 +41392,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name PostAdmindocpalWorkflowProcessDefinitionActiveDraftid
+         * @name PostDocpalWorkflowProcessDefinitionActiveDraftid
          * @request POST:/admin/api/docpal/workflow/process/definition/active/{draftId}
          */
-        postAdmindocpalWorkflowProcessDefinitionActiveDraftid: (draftId: string, params: RequestParams = {}) =>
+        postDocpalWorkflowProcessDefinitionActiveDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/workflow/process/definition/active/${draftId}`,
                 method: "POST",
@@ -38640,10 +41406,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name PostAdmindocpalWorkflowProcessConditionValidate
+         * @name PostDocpalWorkflowProcessConditionValidate
          * @request POST:/admin/api/docpal/workflow/process/condition/validate
          */
-        postAdmindocpalWorkflowProcessConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
+        postDocpalWorkflowProcessConditionValidate: (data: ConditionValidationReq, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/workflow/process/condition/validate`,
                 method: "POST",
@@ -38656,10 +41422,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowConfigController
-         * @name PostAdmindocpalWorkflowDeletemetadatamapping
+         * @name PostDocpalWorkflowDeletemetadatamapping
          * @request POST:/admin/api/docpal/workflow/deleteMetadataMapping
          */
-        postAdmindocpalWorkflowDeletemetadatamapping: (data: DocumentTypeMetadataMapping, params: RequestParams = {}) =>
+        postDocpalWorkflowDeletemetadatamapping: (data: DocumentTypeMetadataMapping, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/workflow/deleteMetadataMapping`,
                 method: "POST",
@@ -38672,10 +41438,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowConfigController
-         * @name PostAdmindocpalWorkflowChecknameortitle
+         * @name PostDocpalWorkflowChecknameortitle
          * @request POST:/admin/api/docpal/workflow/checkNameOrTitle
          */
-        postAdmindocpalWorkflowChecknameortitle: (data: Record<string, string>, params: RequestParams = {}) =>
+        postDocpalWorkflowChecknameortitle: (data: Record<string, string>, params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/docpal/workflow/checkNameOrTitle`,
                 method: "POST",
@@ -38688,11 +41454,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Watermark Settings APIs(Admin Page)
-         * @name PostAdmindocpalWatermarkTemplates
+         * @name PostDocpalWatermarkTemplates
          * @summary Create watermark template and watermark setting list
          * @request POST:/admin/api/docpal/watermark/templates
          */
-        postAdmindocpalWatermarkTemplates: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
+        postDocpalWatermarkTemplates: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultWMKTemplateRequestDTO, any>({
                 path: `/admin/api/docpal/watermark/templates`,
                 method: "POST",
@@ -38705,11 +41471,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Watermark Settings APIs(Admin Page)
-         * @name PatchAdmindocpalWatermarkTemplates
+         * @name PatchDocpalWatermarkTemplates
          * @summary Modify watermark template and watermark setting list
          * @request PATCH:/admin/api/docpal/watermark/templates
          */
-        patchAdmindocpalWatermarkTemplates: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
+        patchDocpalWatermarkTemplates: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultWMKTemplateRequestDTO, any>({
                 path: `/admin/api/docpal/watermark/templates`,
                 method: "PATCH",
@@ -38722,11 +41488,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Watermark Settings APIs(Admin Page)
-         * @name PostAdmindocpalWatermarkTemplatesPage
+         * @name PostDocpalWatermarkTemplatesPage
          * @summary Watermark template page query
          * @request POST:/admin/api/docpal/watermark/templates/page
          */
-        postAdmindocpalWatermarkTemplatesPage: (
+        postDocpalWatermarkTemplatesPage: (
             query: {
                 /** @format int32 */
                 pageNum: number;
@@ -38749,10 +41515,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Watermark Settings APIs(Admin Page)
-         * @name PostAdmindocpalWatermarkTemplatesAppend
+         * @name PostDocpalWatermarkTemplatesAppend
          * @request POST:/admin/api/docpal/watermark/templates/append
          */
-        postAdmindocpalWatermarkTemplatesAppend: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
+        postDocpalWatermarkTemplatesAppend: (data: WMKTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/watermark/templates/append`,
                 method: "POST",
@@ -38765,11 +41531,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Watermark Settings APIs(Admin Page)
-         * @name PostAdmindocpalWatermarkSettings
+         * @name PostDocpalWatermarkSettings
          * @summary create single watermark settings
          * @request POST:/admin/api/docpal/watermark/settings
          */
-        postAdmindocpalWatermarkSettings: (data: WatermarkSettingsDTO, params: RequestParams = {}) =>
+        postDocpalWatermarkSettings: (data: WatermarkSettingsDTO, params: RequestParams = {}) =>
             this.request<ResultWatermarkSettingsDTO, any>({
                 path: `/admin/api/docpal/watermark/settings`,
                 method: "POST",
@@ -38782,11 +41548,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Watermark Settings APIs(Admin Page)
-         * @name PatchAdmindocpalWatermarkSettings
+         * @name PatchDocpalWatermarkSettings
          * @summary update single watermark settings
          * @request PATCH:/admin/api/docpal/watermark/settings
          */
-        patchAdmindocpalWatermarkSettings: (data: WatermarkSettingsDTO, params: RequestParams = {}) =>
+        patchDocpalWatermarkSettings: (data: WatermarkSettingsDTO, params: RequestParams = {}) =>
             this.request<ResultWatermarkSettingsDTO, any>({
                 path: `/admin/api/docpal/watermark/settings`,
                 method: "PATCH",
@@ -38799,11 +41565,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ValidationRuleController
-         * @name PostAdmindocpalValidationRules
+         * @name PostDocpalValidationRules
          * @summary Create validation rule
          * @request POST:/admin/api/docpal/validation-rules
          */
-        postAdmindocpalValidationRules: (data: ValidationRuleRequestDTO, params: RequestParams = {}) =>
+        postDocpalValidationRules: (data: ValidationRuleRequestDTO, params: RequestParams = {}) =>
             this.request<ResultValidationRuleResponseDTO, any>({
                 path: `/admin/api/docpal/validation-rules`,
                 method: "POST",
@@ -38816,10 +41582,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags PersonalDashboardController
-         * @name PostAdmindocpalPersonalDashboard
+         * @name PostDocpalPersonalDashboard
          * @request POST:/admin/api/docpal/personal/dashboard
          */
-        postAdmindocpalPersonalDashboard: (data: PersonalDashboardRequestDTO, params: RequestParams = {}) =>
+        postDocpalPersonalDashboard: (data: PersonalDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOPersonalDashboard, any>({
                 path: `/admin/api/docpal/personal/dashboard`,
                 method: "POST",
@@ -38832,10 +41598,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags PersonalDashboardController
-         * @name PostAdmindocpalPersonalDashboardSave
+         * @name PostDocpalPersonalDashboardSave
          * @request POST:/admin/api/docpal/personal/dashboard/save
          */
-        postAdmindocpalPersonalDashboardSave: (data: PersonalDashboardRequestDTO, params: RequestParams = {}) =>
+        postDocpalPersonalDashboardSave: (data: PersonalDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPersonalDashboard, any>({
                 path: `/admin/api/docpal/personal/dashboard/save`,
                 method: "POST",
@@ -38848,11 +41614,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags OAuth2SettingController
-         * @name GetAdmindocpalOauth2Setting
+         * @name GetDocpalOauth2Setting
          * @summary Query mail OAuth2.0 Setting of current login user
          * @request GET:/admin/api/docpal/oauth2/setting
          */
-        getAdmindocpalOauth2Setting: (params: RequestParams = {}) =>
+        getDocpalOauth2Setting: (params: RequestParams = {}) =>
             this.request<ResultOAuth2SettingRequestDTO, any>({
                 path: `/admin/api/docpal/oauth2/setting`,
                 method: "GET",
@@ -38863,11 +41629,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags OAuth2SettingController
-         * @name PostAdmindocpalOauth2Setting
+         * @name PostDocpalOauth2Setting
          * @summary Obtain authorization url of OAuth2.0
          * @request POST:/admin/api/docpal/oauth2/setting
          */
-        postAdmindocpalOauth2Setting: (data: OAuth2SettingRequestDTO, params: RequestParams = {}) =>
+        postDocpalOauth2Setting: (data: OAuth2SettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/docpal/oauth2/setting`,
                 method: "POST",
@@ -38880,11 +41646,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags OAuth2SettingController
-         * @name PostAdmindocpalOauth2Refresh
+         * @name PostDocpalOauth2Refresh
          * @summary Refresh the credential of OAuth2.0
          * @request POST:/admin/api/docpal/oauth2/refresh
          */
-        postAdmindocpalOauth2Refresh: (data: OAuth2SettingRequestDTO, params: RequestParams = {}) =>
+        postDocpalOauth2Refresh: (data: OAuth2SettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/docpal/oauth2/refresh`,
                 method: "POST",
@@ -38897,11 +41663,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags OAuth2SettingController
-         * @name GetAdmindocpalOauth2Code
+         * @name GetDocpalOauth2Code
          * @request GET:/admin/api/docpal/oauth2/code
          * @deprecated
          */
-        getAdmindocpalOauth2Code: (
+        getDocpalOauth2Code: (
             query: {
                 code: string;
                 scope: string;
@@ -38920,11 +41686,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags OAuth2SettingController
-         * @name PostAdmindocpalOauth2Code
+         * @name PostDocpalOauth2Code
          * @summary Get the credential of OAuth2.0 by code and state
          * @request POST:/admin/api/docpal/oauth2/code
          */
-        postAdmindocpalOauth2Code: (data: OAuth2SettingRequestDTO, params: RequestParams = {}) =>
+        postDocpalOauth2Code: (data: OAuth2SettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/docpal/oauth2/code`,
                 method: "POST",
@@ -38937,10 +41703,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-template-message-controller
-         * @name PostAdmindocpalMessageTemplateList
+         * @name PostDocpalMessageTemplateList
          * @request POST:/admin/api/docpal/message/template/list
          */
-        postAdmindocpalMessageTemplateList: (data: MessageTemplateRequestDTO, params: RequestParams = {}) =>
+        postDocpalMessageTemplateList: (data: MessageTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOMessageTemplateVO, any>({
                 path: `/admin/api/docpal/message/template/list`,
                 method: "POST",
@@ -38953,10 +41719,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-template-message-controller
-         * @name PostAdmindocpalMessageTemplateEdit
+         * @name PostDocpalMessageTemplateEdit
          * @request POST:/admin/api/docpal/message/template/edit
          */
-        postAdmindocpalMessageTemplateEdit: (data: TemplateMsgManageDTO, params: RequestParams = {}) =>
+        postDocpalMessageTemplateEdit: (data: TemplateMsgManageDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/message/template/edit`,
                 method: "POST",
@@ -38969,10 +41735,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-template-message-controller
-         * @name PostAdmindocpalMessageTemplateCreate
+         * @name PostDocpalMessageTemplateCreate
          * @request POST:/admin/api/docpal/message/template/create
          */
-        postAdmindocpalMessageTemplateCreate: (data: TemplateMsgManageDTO, params: RequestParams = {}) =>
+        postDocpalMessageTemplateCreate: (data: TemplateMsgManageDTO, params: RequestParams = {}) =>
             this.request<ResultCreateMessageResponseDTO, any>({
                 path: `/admin/api/docpal/message/template/create`,
                 method: "POST",
@@ -38985,11 +41751,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Management
-         * @name GetAdmindocpalManagementLoggers
+         * @name GetDocpalManagementLoggers
          * @summary Retrieve the available loggers of the services
          * @request GET:/admin/api/docpal/management/loggers
          */
-        getAdmindocpalManagementLoggers: (
+        getDocpalManagementLoggers: (
             query?: {
                 service?: string;
                 logger?: string;
@@ -39007,11 +41773,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Management
-         * @name PostAdmindocpalManagementLoggers
+         * @name PostDocpalManagementLoggers
          * @summary Change the log level of services' loggers
          * @request POST:/admin/api/docpal/management/loggers
          */
-        postAdmindocpalManagementLoggers: (
+        postDocpalManagementLoggers: (
             query?: {
                 service?: string;
                 logger?: string;
@@ -39030,11 +41796,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags IdTemplateController(Admin Page)
-         * @name GetAdmindocpalIdTemplates
+         * @name GetDocpalIdTemplates
          * @summary Get all ID templates
          * @request GET:/admin/api/docpal/id-templates
          */
-        getAdmindocpalIdTemplates: (params: RequestParams = {}) =>
+        getDocpalIdTemplates: (params: RequestParams = {}) =>
             this.request<ResultListIdTemplate, any>({
                 path: `/admin/api/docpal/id-templates`,
                 method: "GET",
@@ -39045,11 +41811,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags IdTemplateController(Admin Page)
-         * @name PostAdmindocpalIdTemplates
+         * @name PostDocpalIdTemplates
          * @summary Create a ID template
          * @request POST:/admin/api/docpal/id-templates
          */
-        postAdmindocpalIdTemplates: (data: IdTemplate, params: RequestParams = {}) =>
+        postDocpalIdTemplates: (data: IdTemplate, params: RequestParams = {}) =>
             this.request<ResultIdTemplate, any>({
                 path: `/admin/api/docpal/id-templates`,
                 method: "POST",
@@ -39062,11 +41828,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags IdTemplateController(Admin Page)
-         * @name PostAdmindocpalIdTemplatesValidate
+         * @name PostDocpalIdTemplatesValidate
          * @summary Verify id templates
          * @request POST:/admin/api/docpal/id-templates/validate
          */
-        postAdmindocpalIdTemplatesValidate: (data: IdTemplate, params: RequestParams = {}) =>
+        postDocpalIdTemplatesValidate: (data: IdTemplate, params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/docpal/id-templates/validate`,
                 method: "POST",
@@ -39079,11 +41845,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags IdTemplateController(Admin Page)
-         * @name PostAdmindocpalIdTemplatesPage
+         * @name PostDocpalIdTemplatesPage
          * @summary Paging query id templates
          * @request POST:/admin/api/docpal/id-templates/page
          */
-        postAdmindocpalIdTemplatesPage: (data: IdTemplateRequestDTO, params: RequestParams = {}) =>
+        postDocpalIdTemplatesPage: (data: IdTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOIdTemplate, any>({
                 path: `/admin/api/docpal/id-templates/page`,
                 method: "POST",
@@ -39096,11 +41862,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags IdTemplateController(Admin Page)
-         * @name PostAdmindocpalIdTemplatesGenerate
+         * @name PostDocpalIdTemplatesGenerate
          * @summary Generated ID using id template
          * @request POST:/admin/api/docpal/id-templates/generate
          */
-        postAdmindocpalIdTemplatesGenerate: (data: GenerateIdReq, params: RequestParams = {}) =>
+        postDocpalIdTemplatesGenerate: (data: GenerateIdReq, params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/docpal/id-templates/generate`,
                 method: "POST",
@@ -39113,47 +41879,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-data-statistics-controller
-         * @name PostAdmindocpalDataStatisticsExecuteDailyStatistics
+         * @name PostDocpalDataStatisticsExecuteDailyStatistics
          * @request POST:/admin/api/docpal/data_statistics/execute_daily_statistics
          */
-        postAdmindocpalDataStatisticsExecuteDailyStatistics: (data: ExecuteSqlDTO, params: RequestParams = {}) =>
+        postDocpalDataStatisticsExecuteDailyStatistics: (data: ExecuteSqlDTO, params: RequestParams = {}) =>
             this.request<Result, any>({
                 path: `/admin/api/docpal/data_statistics/execute_daily_statistics`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name PostAdmindocpalAzureOcrQueryocrtransactionlogs
-         * @request POST:/admin/api/docpal/azure/ocr/queryOcrTransactionLogs
-         */
-        postAdmindocpalAzureOcrQueryocrtransactionlogs: (
-            data: OcrTransactionLogRequestDTO,
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultPaginationDTOOcrTransactionLogDTO, any>({
-                path: `/admin/api/docpal/azure/ocr/queryOcrTransactionLogs`,
-                method: "POST",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name PostAdmindocpalAzureOcrCreateocrprofilemapping
-         * @request POST:/admin/api/docpal/azure/ocr/createOcrProfileMapping
-         */
-        postAdmindocpalAzureOcrCreateocrprofilemapping: (data: ProfileMappingRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultVoid, any>({
-                path: `/admin/api/docpal/azure/ocr/createOcrProfileMapping`,
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
@@ -39164,11 +41895,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Batch retrieve roles and group information for multiple users
          *
          * @tags User Management
-         * @name PostAdmindocpalAclUserRolesAndGroups
+         * @name PostDocpalAclUserRolesAndGroups
          * @summary Batch Get User Roles and Groups
          * @request POST:/admin/api/docpal/acl/user/roles-and-groups
          */
-        postAdmindocpalAclUserRolesAndGroups: (data: string[], params: RequestParams = {}) =>
+        postDocpalAclUserRolesAndGroups: (data: string[], params: RequestParams = {}) =>
             this.request<UserRoleGroupDTO, any>({
                 path: `/admin/api/docpal/acl/user/roles-and-groups`,
                 method: "POST",
@@ -39181,11 +41912,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Add specified users to a specific role
          *
          * @tags Role-User Management
-         * @name PostAdmindocpalAclRoleUsers
+         * @name PostDocpalAclRoleUsers
          * @summary Add Users to Role
          * @request POST:/admin/api/docpal/acl/role/users
          */
-        postAdmindocpalAclRoleUsers: (data: RoleUsersRequest, params: RequestParams = {}) =>
+        postDocpalAclRoleUsers: (data: RoleUsersRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/acl/role/users`,
                 method: "POST",
@@ -39198,11 +41929,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Remove specified users from a specific role
          *
          * @tags Role-User Management
-         * @name DeleteAdmindocpalAclRoleUsers
+         * @name DeleteDocpalAclRoleUsers
          * @summary Remove Users from Role
          * @request DELETE:/admin/api/docpal/acl/role/users
          */
-        deleteAdmindocpalAclRoleUsers: (data: number[], params: RequestParams = {}) =>
+        deleteDocpalAclRoleUsers: (data: number[], params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/acl/role/users`,
                 method: "DELETE",
@@ -39215,11 +41946,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Get paginated list of role to users relationships
          *
          * @tags Role-User Management
-         * @name PostAdmindocpalAclRoleUsersPage
+         * @name PostDocpalAclRoleUsersPage
          * @summary Get Role to Users Relationship Page
          * @request POST:/admin/api/docpal/acl/role/users/page
          */
-        postAdmindocpalAclRoleUsersPage: (data: BasePageDTO, params: RequestParams = {}) =>
+        postDocpalAclRoleUsersPage: (data: BasePageDTO, params: RequestParams = {}) =>
             this.request<RoleUserDTO, any>({
                 path: `/admin/api/docpal/acl/role/users/page`,
                 method: "POST",
@@ -39232,11 +41963,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Get user list grouped by role IDs
          *
          * @tags Role-User Management
-         * @name PostAdmindocpalAclRoleUsersByRoles
+         * @name PostDocpalAclRoleUsersByRoles
          * @summary Get Users by Role IDs
          * @request POST:/admin/api/docpal/acl/role/users/by-roles
          */
-        postAdmindocpalAclRoleUsersByRoles: (data: string[], params: RequestParams = {}) =>
+        postDocpalAclRoleUsersByRoles: (data: string[], params: RequestParams = {}) =>
             this.request<string, any>({
                 path: `/admin/api/docpal/acl/role/users/by-roles`,
                 method: "POST",
@@ -39249,11 +41980,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Get paginated role list
          *
          * @tags Role Permission Management
-         * @name PostAdmindocpalAclRolePage
+         * @name PostDocpalAclRolePage
          * @summary Role Page
          * @request POST:/admin/api/docpal/acl/role/page
          */
-        postAdmindocpalAclRolePage: (data: BasePageDTO, params: RequestParams = {}) =>
+        postDocpalAclRolePage: (data: BasePageDTO, params: RequestParams = {}) =>
             this.request<RoleUserDTO, any>({
                 path: `/admin/api/docpal/acl/role/page`,
                 method: "POST",
@@ -39266,11 +41997,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Get role list
          *
          * @tags Role Permission Management
-         * @name PostAdmindocpalAclRoleList
+         * @name PostDocpalAclRoleList
          * @summary Role List
          * @request POST:/admin/api/docpal/acl/role/list
          */
-        postAdmindocpalAclRoleList: (data: BaseQueryConditionDTO[], params: RequestParams = {}) =>
+        postDocpalAclRoleList: (data: BaseQueryConditionDTO[], params: RequestParams = {}) =>
             this.request<RoleUserDTO, any>({
                 path: `/admin/api/docpal/acl/role/list`,
                 method: "POST",
@@ -39283,11 +42014,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Batch retrieve role hierarchies by role ID list
          *
          * @tags Role Permission Management
-         * @name PostAdmindocpalAclRoleHierarchy
+         * @name PostDocpalAclRoleHierarchy
          * @summary Get Multiple Role Hierarchies
          * @request POST:/admin/api/docpal/acl/role/hierarchy
          */
-        postAdmindocpalAclRoleHierarchy: (data: string[], params: RequestParams = {}) =>
+        postDocpalAclRoleHierarchy: (data: string[], params: RequestParams = {}) =>
             this.request<ResultListRoleDTO, any>({
                 path: `/admin/api/docpal/acl/role/hierarchy`,
                 method: "POST",
@@ -39300,11 +42031,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Create a new resource permission
          *
          * @tags Resource Permission Management
-         * @name PostAdmindocpalAclResourcePermissions
+         * @name PostDocpalAclResourcePermissions
          * @summary Create Resource Permission
          * @request POST:/admin/api/docpal/acl/resource-permissions
          */
-        postAdmindocpalAclResourcePermissions: (data: ResourcePermissionRequest, params: RequestParams = {}) =>
+        postDocpalAclResourcePermissions: (data: ResourcePermissionRequest, params: RequestParams = {}) =>
             this.request<ResourcePermissionDTO, any>({
                 path: `/admin/api/docpal/acl/resource-permissions`,
                 method: "POST",
@@ -39317,14 +42048,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Include parent permission to current resource(document)
          *
          * @tags Resource Permission Management
-         * @name PostAdmindocpalAclResourcePermissionsIncludeInheritResourceid
+         * @name PostDocpalAclResourcePermissionsIncludeInheritResourceid
          * @summary Include inherit permission to current resource by resource id
          * @request POST:/admin/api/docpal/acl/resource-permissions/include-inherit/{resourceId}
          */
-        postAdmindocpalAclResourcePermissionsIncludeInheritResourceid: (
-            resourceId: string,
-            params: RequestParams = {},
-        ) =>
+        postDocpalAclResourcePermissionsIncludeInheritResourceid: (resourceId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/acl/resource-permissions/include-inherit/${resourceId}`,
                 method: "POST",
@@ -39335,11 +42063,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Copy parent permission to current resource(document)
          *
          * @tags Resource Permission Management
-         * @name PostAdmindocpalAclResourcePermissionsCopyInheritResourceid
+         * @name PostDocpalAclResourcePermissionsCopyInheritResourceid
          * @summary Copy inherit permission to current resource by resource id
          * @request POST:/admin/api/docpal/acl/resource-permissions/copy-inherit/{resourceId}
          */
-        postAdmindocpalAclResourcePermissionsCopyInheritResourceid: (resourceId: string, params: RequestParams = {}) =>
+        postDocpalAclResourcePermissionsCopyInheritResourceid: (resourceId: string, params: RequestParams = {}) =>
             this.request<ResultListResourcePermissionVO, any>({
                 path: `/admin/api/docpal/acl/resource-permissions/copy-inherit/${resourceId}`,
                 method: "POST",
@@ -39350,11 +42078,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description This endpoint retrieves a list of ACL documents based on the provided request parameters.
          *
          * @tags Document Management
-         * @name PostAdmindocpalAclDocumentList
+         * @name PostDocpalAclDocumentList
          * @summary Retrieve a list of ACL documents
          * @request POST:/admin/api/docpal/acl/document/list
          */
-        postAdmindocpalAclDocumentList: (data: AclDocumentListRequest, params: RequestParams = {}) =>
+        postDocpalAclDocumentList: (data: AclDocumentListRequest, params: RequestParams = {}) =>
             this.request<ResultListAclDocumentVO, ResultListAclDocumentVO>({
                 path: `/admin/api/docpal/acl/document/list`,
                 method: "POST",
@@ -39367,11 +42095,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name PostAdmindmsTemplateEmailTemplatePage
+         * @name PostDmsTemplateEmailTemplatePage
          * @summary Pagination search (Email Template)
          * @request POST:/admin/api/dms/template/email/template/page
          */
-        postAdmindmsTemplateEmailTemplatePage: (data: EmailTemplateRequestDTO, params: RequestParams = {}) =>
+        postDmsTemplateEmailTemplatePage: (data: EmailTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEmailTemplate, any>({
                 path: `/admin/api/dms/template/email/template/page`,
                 method: "POST",
@@ -39384,11 +42112,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name PostAdmindmsTemplateEmailPage
+         * @name PostDmsTemplateEmailPage
          * @summary Pagination search (Email Template)
          * @request POST:/admin/api/dms/template/email/page
          */
-        postAdmindmsTemplateEmailPage: (data: EmailTemplateRequestDTO, params: RequestParams = {}) =>
+        postDmsTemplateEmailPage: (data: EmailTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEmailTemplate, any>({
                 path: `/admin/api/dms/template/email/page`,
                 method: "POST",
@@ -39401,11 +42129,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name PostAdmindmsTemplateEmailSend
+         * @name PostDmsTemplateEmailSend
          * @summary Send test email using email template
          * @request POST:/admin/api/dms/template/email/send
          */
-        postAdmindmsTemplateEmailSend: (data: MailSendRequest, params: RequestParams = {}) =>
+        postDmsTemplateEmailSend: (data: MailSendRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/template/email/send`,
                 method: "POST",
@@ -39418,11 +42146,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name PostAdmindmsTemplateEmailSendCustomize
+         * @name PostDmsTemplateEmailSendCustomize
          * @summary Send Customize Email
          * @request POST:/admin/api/dms/template/email/send/customize
          */
-        postAdmindmsTemplateEmailSendCustomize: (data: MailSendRequest, params: RequestParams = {}) =>
+        postDmsTemplateEmailSendCustomize: (data: MailSendRequest, params: RequestParams = {}) =>
             this.request<ResultSendEmailResponseDTO, any>({
                 path: `/admin/api/dms/template/email/send/customize`,
                 method: "POST",
@@ -39435,11 +42163,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name PostAdmindmsTemplateEmailLayoutPage
+         * @name PostDmsTemplateEmailLayoutPage
          * @summary Pagination search (Email Layout)
          * @request POST:/admin/api/dms/template/email/layout/page
          */
-        postAdmindmsTemplateEmailLayoutPage: (data: EmailLayoutRequestDTO, params: RequestParams = {}) =>
+        postDmsTemplateEmailLayoutPage: (data: EmailLayoutRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEmailLayout, any>({
                 path: `/admin/api/dms/template/email/layout/page`,
                 method: "POST",
@@ -39452,11 +42180,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocumentTemplateController
-         * @name PostAdmindmsTemplateDocumentParse
+         * @name PostDmsTemplateDocumentParse
          * @summary Parsing PDF File for get data
          * @request POST:/admin/api/dms/template/document/parse
          */
-        postAdmindmsTemplateDocumentParse: (
+        postDmsTemplateDocumentParse: (
             data: {
                 /** @format binary */
                 file?: File;
@@ -39490,11 +42218,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocumentTemplateController
-         * @name PostAdmindmsTemplateDocumentPage
+         * @name PostDmsTemplateDocumentPage
          * @summary Pagination search (Document Template)
          * @request POST:/admin/api/dms/template/document/page
          */
-        postAdmindmsTemplateDocumentPage: (data: DocumentTemplateRequestDTO, params: RequestParams = {}) =>
+        postDmsTemplateDocumentPage: (data: DocumentTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTODocumentTemplate, any>({
                 path: `/admin/api/dms/template/document/page`,
                 method: "POST",
@@ -39507,11 +42235,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocumentTemplateController
-         * @name PostAdmindmsTemplateDocumentGenerateFile
+         * @name PostDmsTemplateDocumentGenerateFile
          * @summary Download Test File (Use Document Template)
          * @request POST:/admin/api/dms/template/document/generate/file
          */
-        postAdmindmsTemplateDocumentGenerateFile: (data: DocumentTemplateRequestDTO, params: RequestParams = {}) =>
+        postDmsTemplateDocumentGenerateFile: (data: DocumentTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<string, any>({
                 path: `/admin/api/dms/template/document/generate/file`,
                 method: "POST",
@@ -39524,10 +42252,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocumentTemplateController
-         * @name PostAdmindmsTemplateDocumentGeneratePdf
+         * @name PostDmsTemplateDocumentGeneratePdf
          * @request POST:/admin/api/dms/template/document/generate/PDF
          */
-        postAdmindmsTemplateDocumentGeneratePdf: (data: DocumentTemplateRequestDTO, params: RequestParams = {}) =>
+        postDmsTemplateDocumentGeneratePdf: (data: DocumentTemplateRequestDTO, params: RequestParams = {}) =>
             this.request<string, any>({
                 path: `/admin/api/dms/template/document/generate/PDF`,
                 method: "POST",
@@ -39540,11 +42268,66 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags SmartFolderController(Admin Page)
-         * @name PostAdmindmsSmartFolderPage
+         * @name GetDmsSmartFolder
+         * @request GET:/admin/api/dms/smart-folder
+         */
+        getDmsSmartFolder: (
+            query?: {
+                name?: string;
+                userGroupIds?: string[];
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListSmartFolderResponseDTO, any>({
+                path: `/admin/api/dms/smart-folder`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SmartFolderController(Admin Page)
+         * @name PostDmsSmartFolder
+         * @summary Create Smart Folder Setting
+         * @request POST:/admin/api/dms/smart-folder
+         */
+        postDmsSmartFolder: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultSmartFolderResponseDTO, any>({
+                path: `/admin/api/dms/smart-folder`,
+                method: "POST",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SmartFolderController(Admin Page)
+         * @name PatchDmsSmartFolder
+         * @summary Save Smart Folder
+         * @request PATCH:/admin/api/dms/smart-folder
+         */
+        patchDmsSmartFolder: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
+            this.request<ResultSmartFolderResponseDTO, any>({
+                path: `/admin/api/dms/smart-folder`,
+                method: "PATCH",
+                body: data,
+                type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags SmartFolderController(Admin Page)
+         * @name PostDmsSmartFolderPage
          * @summary Pagination Search (Smart Folder)
          * @request POST:/admin/api/dms/smart-folder/page
          */
-        postAdmindmsSmartFolderPage: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
+        postDmsSmartFolderPage: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOSmartFolderResponseDTO, any>({
                 path: `/admin/api/dms/smart-folder/page`,
                 method: "POST",
@@ -39557,10 +42340,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags External Share
-         * @name PostAdmindmsSharePage
+         * @name PostDmsSharePage
          * @request POST:/admin/api/dms/share/page
          */
-        postAdmindmsSharePage: (data: SharePageRequestDTO, params: RequestParams = {}) =>
+        postDmsSharePage: (data: SharePageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMap, any>({
                 path: `/admin/api/dms/share/page`,
                 method: "POST",
@@ -39573,10 +42356,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags External Share
-         * @name PostAdmindmsShareGet
+         * @name PostDmsShareGet
          * @request POST:/admin/api/dms/share/get
          */
-        postAdmindmsShareGet: (data: SharePageRequestDTO, params: RequestParams = {}) =>
+        postDmsShareGet: (data: SharePageRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMap, any>({
                 path: `/admin/api/dms/share/get`,
                 method: "POST",
@@ -39589,10 +42372,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name PostAdmindmsSettingInitworkflowdefinition
+         * @name PostDmsSettingInitworkflowdefinition
          * @request POST:/admin/api/dms/setting/initWorkflowDefinition
          */
-        postAdmindmsSettingInitworkflowdefinition: (params: RequestParams = {}) =>
+        postDmsSettingInitworkflowdefinition: (params: RequestParams = {}) =>
             this.request<ResultVoid, any>({
                 path: `/admin/api/dms/setting/initWorkflowDefinition`,
                 method: "POST",
@@ -39603,10 +42386,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name PostAdmindmsSettingGenerateXApiKey
+         * @name PostDmsSettingGenerateXApiKey
          * @request POST:/admin/api/dms/setting/generate/x-api-key
          */
-        postAdmindmsSettingGenerateXApiKey: (data: GenerateXApiKeyRequestDTO, params: RequestParams = {}) =>
+        postDmsSettingGenerateXApiKey: (data: GenerateXApiKeyRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/dms/setting/generate/x-api-key`,
                 method: "POST",
@@ -39619,10 +42402,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name GetAdmindmsSettingFeature
+         * @name GetDmsSettingFeature
          * @request GET:/admin/api/dms/setting/feature
          */
-        getAdmindmsSettingFeature: (
+        getDmsSettingFeature: (
             query: {
                 tenantId: string;
                 terminalName?: string;
@@ -39640,10 +42423,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name PostAdmindmsSettingFeature
+         * @name PostDmsSettingFeature
          * @request POST:/admin/api/dms/setting/feature
          */
-        postAdmindmsSettingFeature: (data: FeatureSaveRequestDTO, params: RequestParams = {}) =>
+        postDmsSettingFeature: (data: FeatureSaveRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringMapStringBoolean, any>({
                 path: `/admin/api/dms/setting/feature`,
                 method: "POST",
@@ -39656,11 +42439,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name GetAdmindmsSettingActiveUsersConfiguration
+         * @name GetDmsSettingActiveUsersConfiguration
          * @summary Query active users configuration
          * @request GET:/admin/api/dms/setting/active-users/configuration
          */
-        getAdmindmsSettingActiveUsersConfiguration: (
+        getDmsSettingActiveUsersConfiguration: (
             query: {
                 tenantId: string;
             },
@@ -39677,11 +42460,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name PostAdmindmsSettingActiveUsersConfiguration
+         * @name PostDmsSettingActiveUsersConfiguration
          * @summary Save active users configuration
          * @request POST:/admin/api/dms/setting/active-users/configuration
          */
-        postAdmindmsSettingActiveUsersConfiguration: (data: ActiveUserConfigDTO, params: RequestParams = {}) =>
+        postDmsSettingActiveUsersConfiguration: (data: ActiveUserConfigDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/setting/active-users/configuration`,
                 method: "POST",
@@ -39694,11 +42477,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminRetentionPolicyController
-         * @name PostAdmindmsPolicyRetentionRetentionpolicyidStatusStatus
+         * @name PostDmsPolicyRetentionRetentionpolicyidStatusStatus
          * @summary Modify status by retention policy id
          * @request POST:/admin/api/dms/policy/retention/{retentionPolicyId}/status/{status}
          */
-        postAdmindmsPolicyRetentionRetentionpolicyidStatusStatus: (
+        postDmsPolicyRetentionRetentionpolicyidStatusStatus: (
             retentionPolicyId: string,
             status: string,
             params: RequestParams = {},
@@ -39713,10 +42496,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminRetentionPolicyController
-         * @name PostAdmindmsPolicyRetentionWorkflowInit
+         * @name PostDmsPolicyRetentionWorkflowInit
          * @request POST:/admin/api/dms/policy/retention/workflow/init
          */
-        postAdmindmsPolicyRetentionWorkflowInit: (params: RequestParams = {}) =>
+        postDmsPolicyRetentionWorkflowInit: (params: RequestParams = {}) =>
             this.request<ResultVoid, any>({
                 path: `/admin/api/dms/policy/retention/workflow/init`,
                 method: "POST",
@@ -39727,11 +42510,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminRetentionPolicyController
-         * @name PostAdmindmsPolicyRetentionListQuery
+         * @name PostDmsPolicyRetentionListQuery
          * @summary Pagination search
          * @request POST:/admin/api/dms/policy/retention/list/query
          */
-        postAdmindmsPolicyRetentionListQuery: (data: RetentionPolicyRequestDTO, params: RequestParams = {}) =>
+        postDmsPolicyRetentionListQuery: (data: RetentionPolicyRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTORetentionPolicy, any>({
                 path: `/admin/api/dms/policy/retention/list/query`,
                 method: "POST",
@@ -39744,10 +42527,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags HoldPolicyController
-         * @name PostAdmindmsPolicyHoldWorkflowInit
+         * @name PostDmsPolicyHoldWorkflowInit
          * @request POST:/admin/api/dms/policy/hold/workflow/init
          */
-        postAdmindmsPolicyHoldWorkflowInit: (params: RequestParams = {}) =>
+        postDmsPolicyHoldWorkflowInit: (params: RequestParams = {}) =>
             this.request<ResultVoid, any>({
                 path: `/admin/api/dms/policy/hold/workflow/init`,
                 method: "POST",
@@ -39758,11 +42541,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags HoldPolicyController
-         * @name PostAdmindmsPolicyHoldListQuery
+         * @name PostDmsPolicyHoldListQuery
          * @summary Pagination search
          * @request POST:/admin/api/dms/policy/hold/list/query
          */
-        postAdmindmsPolicyHoldListQuery: (data: HoldPolicyRequestDTO, params: RequestParams = {}) =>
+        postDmsPolicyHoldListQuery: (data: HoldPolicyRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOHoldPolicy, any>({
                 path: `/admin/api/dms/policy/hold/list/query`,
                 method: "POST",
@@ -39775,11 +42558,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminMetadataSettingController
-         * @name PostAdmindmsMetadata
+         * @name PostDmsMetadata
          * @summary Create a new metadata
          * @request POST:/admin/api/dms/metadata
          */
-        postAdmindmsMetadata: (data: MetaDataDefinitionRequestDTO, params: RequestParams = {}) =>
+        postDmsMetadata: (data: MetaDataDefinitionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/metadata`,
                 method: "POST",
@@ -39792,10 +42575,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminMetadataSettingController
-         * @name PatchAdmindmsMetadata
+         * @name PatchDmsMetadata
          * @request PATCH:/admin/api/dms/metadata
          */
-        patchAdmindmsMetadata: (data: MetaDataDefinitionRequestDTO, params: RequestParams = {}) =>
+        patchDmsMetadata: (data: MetaDataDefinitionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/metadata`,
                 method: "PATCH",
@@ -39808,10 +42591,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminMetadataSettingController
-         * @name PostAdmindmsMetadataQuery
+         * @name PostDmsMetadataQuery
          * @request POST:/admin/api/dms/metadata/query
          */
-        postAdmindmsMetadataQuery: (data: QueryMetadataRequestDTO, params: RequestParams = {}) =>
+        postDmsMetadataQuery: (data: QueryMetadataRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOMetadataResponseVO, any>({
                 path: `/admin/api/dms/metadata/query`,
                 method: "POST",
@@ -39824,11 +42607,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminMetadataSettingController
-         * @name PostAdmindmsMetadataPage
+         * @name PostDmsMetadataPage
          * @summary Pagination search of process definition version
          * @request POST:/admin/api/dms/metadata/page
          */
-        postAdmindmsMetadataPage: (data: QueryMetadataRequestDTO, params: RequestParams = {}) =>
+        postDmsMetadataPage: (data: QueryMetadataRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOMetadataResponseVO, any>({
                 path: `/admin/api/dms/metadata/page`,
                 method: "POST",
@@ -39841,10 +42624,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminMetadataSettingController
-         * @name PostAdmindmsMetadataListQuery
+         * @name PostDmsMetadataListQuery
          * @request POST:/admin/api/dms/metadata/list/query
          */
-        postAdmindmsMetadataListQuery: (data: MetadataRequestDTO, params: RequestParams = {}) =>
+        postDmsMetadataListQuery: (data: MetadataRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/metadata/list/query`,
                 method: "POST",
@@ -39857,10 +42640,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminMetadataSettingController
-         * @name PostAdmindmsMetadataExport
+         * @name PostDmsMetadataExport
          * @request POST:/admin/api/dms/metadata/export
          */
-        postAdmindmsMetadataExport: (data: QueryMetadataRequestDTO, params: RequestParams = {}) =>
+        postDmsMetadataExport: (data: QueryMetadataRequestDTO, params: RequestParams = {}) =>
             this.request<void, any>({
                 path: `/admin/api/dms/metadata/export`,
                 method: "POST",
@@ -39873,10 +42656,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminMetadataSettingController
-         * @name PostAdmindmsMetadataExportMetadataCvs
+         * @name PostDmsMetadataExportMetadataCvs
          * @request POST:/admin/api/dms/metadata/export-metadata-cvs
          */
-        postAdmindmsMetadataExportMetadataCvs: (data: QueryMetadataRequestDTO, params: RequestParams = {}) =>
+        postDmsMetadataExportMetadataCvs: (data: QueryMetadataRequestDTO, params: RequestParams = {}) =>
             this.request<void, any>({
                 path: `/admin/api/dms/metadata/export-metadata-cvs`,
                 method: "POST",
@@ -39889,10 +42672,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminMetadataSettingController
-         * @name PostAdmindmsMetadataDuplicate
+         * @name PostDmsMetadataDuplicate
          * @request POST:/admin/api/dms/metadata/duplicate
          */
-        postAdmindmsMetadataDuplicate: (data: MetaDataDefinitionRequestDTO, params: RequestParams = {}) =>
+        postDmsMetadataDuplicate: (data: MetaDataDefinitionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/metadata/duplicate`,
                 method: "POST",
@@ -39905,11 +42688,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableIdStructureExport
+         * @name PostDmsMasterTableIdStructureExport
          * @summary Export table structure
          * @request POST:/admin/api/dms/master-table/{id}/structure/export
          */
-        postAdmindmsMasterTableIdStructureExport: (
+        postDmsMasterTableIdStructureExport: (
             id: string,
             data: any,
             query?: {
@@ -39931,11 +42714,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableIdRecordExport
+         * @name PostDmsMasterTableIdRecordExport
          * @summary Export data of a master table
          * @request POST:/admin/api/dms/master-table/{id}/record/export
          */
-        postAdmindmsMasterTableIdRecordExport: (
+        postDmsMasterTableIdRecordExport: (
             id: string,
             query?: {
                 operation?: string;
@@ -39953,11 +42736,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableIdField
+         * @name PostDmsMasterTableIdField
          * @summary Add single field to master table
          * @request POST:/admin/api/dms/master-table/{id}/field
          */
-        postAdmindmsMasterTableIdField: (id: string, data: MTFieldInfo, params: RequestParams = {}) =>
+        postDmsMasterTableIdField: (id: string, data: MTFieldInfo, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, any>({
                 path: `/admin/api/dms/master-table/${id}/field`,
                 method: "POST",
@@ -39970,11 +42753,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableStructureImport
+         * @name PostDmsMasterTableStructureImport
          * @summary Import Excel to create master table
          * @request POST:/admin/api/dms/master-table/structure/import
          */
-        postAdmindmsMasterTableStructureImport: (
+        postDmsMasterTableStructureImport: (
             data: {
                 /** @format binary */
                 file?: File;
@@ -39998,11 +42781,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name GetAdmindmsMasterTableRecords
+         * @name GetDmsMasterTableRecords
          * @summary query records with related fields of master table
          * @request GET:/admin/api/dms/master-table/records
          */
-        getAdmindmsMasterTableRecords: (
+        getDmsMasterTableRecords: (
             query: {
                 relationTable: string;
                 relationField: string;
@@ -40021,11 +42804,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableRecords
+         * @name PostDmsMasterTableRecords
          * @summary Query all records of master table
          * @request POST:/admin/api/dms/master-table/records
          */
-        postAdmindmsMasterTableRecords: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
+        postDmsMasterTableRecords: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/master-table/records`,
                 method: "POST",
@@ -40038,11 +42821,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableRecord
+         * @name PostDmsMasterTableRecord
          * @summary Insert data into a master table
          * @request POST:/admin/api/dms/master-table/record
          */
-        postAdmindmsMasterTableRecord: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
+        postDmsMasterTableRecord: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/master-table/record`,
                 method: "POST",
@@ -40055,10 +42838,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableRecordPageNonpermission
+         * @name PostDmsMasterTableRecordPageNonpermission
          * @request POST:/admin/api/dms/master-table/record/page/nonPermission
          */
-        postAdmindmsMasterTableRecordPageNonpermission: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
+        postDmsMasterTableRecordPageNonpermission: (data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, any>({
                 path: `/admin/api/dms/master-table/record/page/nonPermission`,
                 method: "POST",
@@ -40071,11 +42854,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableRecordImport
+         * @name PostDmsMasterTableRecordImport
          * @summary Upload json for import data into a master table
          * @request POST:/admin/api/dms/master-table/record/import
          */
-        postAdmindmsMasterTableRecordImport: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
+        postDmsMasterTableRecordImport: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/master-table/record/import`,
                 method: "POST",
@@ -40088,11 +42871,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableRecordImportFile
+         * @name PostDmsMasterTableRecordImportFile
          * @summary Upload .csv file for import data into a master table
          * @request POST:/admin/api/dms/master-table/record/import/file
          */
-        postAdmindmsMasterTableRecordImportFile: (
+        postDmsMasterTableRecordImportFile: (
             data: {
                 /** @format binary */
                 file?: File;
@@ -40113,11 +42896,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTablePage
+         * @name PostDmsMasterTablePage
          * @summary Pagination search (Master Table)
          * @request POST:/admin/api/dms/master-table/page
          */
-        postAdmindmsMasterTablePage: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
+        postDmsMasterTablePage: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOMasterTableResponseDTO, any>({
                 path: `/admin/api/dms/master-table/page`,
                 method: "POST",
@@ -40130,11 +42913,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableLogs
+         * @name PostDmsMasterTableLogs
          * @summary Pagination Search (Audit Logs of master table)
          * @request POST:/admin/api/dms/master-table/logs
          */
-        postAdmindmsMasterTableLogs: (data: MTAuditLogRequestDTO, params: RequestParams = {}) =>
+        postDmsMasterTableLogs: (data: MTAuditLogRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOAuditTemplateResponseExtendDTO, any>({
                 path: `/admin/api/dms/master-table/logs`,
                 method: "POST",
@@ -40147,10 +42930,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableLogsPageConditions
+         * @name PostDmsMasterTableLogsPageConditions
          * @request POST:/admin/api/dms/master-table/logs/page/conditions
          */
-        postAdmindmsMasterTableLogsPageConditions: (data: MTAuditLogRequestDTO, params: RequestParams = {}) =>
+        postDmsMasterTableLogsPageConditions: (data: MTAuditLogRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/master-table/logs/page/conditions`,
                 method: "POST",
@@ -40163,10 +42946,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableInit
+         * @name PostDmsMasterTableInit
          * @request POST:/admin/api/dms/master-table/init
          */
-        postAdmindmsMasterTableInit: (params: RequestParams = {}) =>
+        postDmsMasterTableInit: (params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/master-table/init`,
                 method: "POST",
@@ -40177,11 +42960,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableFields
+         * @name PostDmsMasterTableFields
          * @summary Add multiple fields to master table
          * @request POST:/admin/api/dms/master-table/fields
          */
-        postAdmindmsMasterTableFields: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
+        postDmsMasterTableFields: (data: MasterTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, any>({
                 path: `/admin/api/dms/master-table/fields`,
                 method: "POST",
@@ -40194,11 +42977,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableColumnAdd
+         * @name PostDmsMasterTableColumnAdd
          * @summary For master table adding column
          * @request POST:/admin/api/dms/master-table/column/add
          */
-        postAdmindmsMasterTableColumnAdd: (data: MTAddColumnRequestDTO, params: RequestParams = {}) =>
+        postDmsMasterTableColumnAdd: (data: MTAddColumnRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, any>({
                 path: `/admin/api/dms/master-table/column/add`,
                 method: "POST",
@@ -40211,11 +42994,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableBatchDelete
+         * @name PostDmsMasterTableBatchDelete
          * @summary delete master table record
          * @request POST:/admin/api/dms/master-table/batch/delete
          */
-        postAdmindmsMasterTableBatchDelete: (data: DeleteMTRecordRequestDTO, params: RequestParams = {}) =>
+        postDmsMasterTableBatchDelete: (data: DeleteMTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/master-table/batch/delete`,
                 method: "POST",
@@ -40228,11 +43011,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableAclsUpdate
+         * @name PostDmsMasterTableAclsUpdate
          * @summary Remove permission of current master table
          * @request POST:/admin/api/dms/master-table/acls/update
          */
-        postAdmindmsMasterTableAclsUpdate: (data: MTPermissionDTO, params: RequestParams = {}) =>
+        postDmsMasterTableAclsUpdate: (data: MTPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/master-table/acls/update`,
                 method: "POST",
@@ -40245,11 +43028,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableAclsRemove
+         * @name PostDmsMasterTableAclsRemove
          * @summary Remove permission of current master table
          * @request POST:/admin/api/dms/master-table/acls/remove
          */
-        postAdmindmsMasterTableAclsRemove: (data: MTPermissionDTO, params: RequestParams = {}) =>
+        postDmsMasterTableAclsRemove: (data: MTPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/master-table/acls/remove`,
                 method: "POST",
@@ -40262,11 +43045,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableAclsDelete
+         * @name PostDmsMasterTableAclsDelete
          * @summary Delete permission of current master table
          * @request POST:/admin/api/dms/master-table/acls/delete
          */
-        postAdmindmsMasterTableAclsDelete: (data: MTPermissionDTO, params: RequestParams = {}) =>
+        postDmsMasterTableAclsDelete: (data: MTPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/master-table/acls/delete`,
                 method: "POST",
@@ -40279,11 +43062,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PostAdmindmsMasterTableAclsAdd
+         * @name PostDmsMasterTableAclsAdd
          * @summary Add permission of current master table
          * @request POST:/admin/api/dms/master-table/acls/add
          */
-        postAdmindmsMasterTableAclsAdd: (data: MTPermissionDTO, params: RequestParams = {}) =>
+        postDmsMasterTableAclsAdd: (data: MTPermissionDTO, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/master-table/acls/add`,
                 method: "POST",
@@ -40296,10 +43079,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags InternalShareController
-         * @name PostAdmindmsInternalsharePage
+         * @name PostDmsInternalsharePage
          * @request POST:/admin/api/dms/internalShare/page
          */
-        postAdmindmsInternalsharePage: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+        postDmsInternalsharePage: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOInternalShareQueryDTO, any>({
                 path: `/admin/api/dms/internalShare/page`,
                 method: "POST",
@@ -40312,10 +43095,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags InternalShareController
-         * @name PostAdmindmsInternalshareCheckDocumentIsInShare
+         * @name PostDmsInternalshareCheckDocumentIsInShare
          * @request POST:/admin/api/dms/internalShare/check-document-is-in-share
          */
-        postAdmindmsInternalshareCheckDocumentIsInShare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+        postDmsInternalshareCheckDocumentIsInShare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/internalShare/check-document-is-in-share`,
                 method: "POST",
@@ -40328,10 +43111,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name PostAdmindmsFormPropertiesSave
+         * @name PostDmsFormPropertiesSave
          * @request POST:/admin/api/dms/form-properties/save
          */
-        postAdmindmsFormPropertiesSave: (data: FormPropertiesRelation, params: RequestParams = {}) =>
+        postDmsFormPropertiesSave: (data: FormPropertiesRelation, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/form-properties/save`,
                 method: "POST",
@@ -40344,10 +43127,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-feature-controller
-         * @name PostAdmindmsFeatureUsersMembers
+         * @name PostDmsFeatureUsersMembers
          * @request POST:/admin/api/dms/feature/users/members
          */
-        postAdmindmsFeatureUsersMembers: (data: UserDTO, params: RequestParams = {}) =>
+        postDmsFeatureUsersMembers: (data: UserDTO, params: RequestParams = {}) =>
             this.request<Result, any>({
                 path: `/admin/api/dms/feature/users/members`,
                 method: "POST",
@@ -40360,10 +43143,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-feature-controller
-         * @name PostAdmindmsFeatureCreateuser
+         * @name PostDmsFeatureCreateuser
          * @request POST:/admin/api/dms/feature/createUser
          */
-        postAdmindmsFeatureCreateuser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
+        postDmsFeatureCreateuser: (data: IdentityRequestDTO, params: RequestParams = {}) =>
             this.request<Result, any>({
                 path: `/admin/api/dms/feature/createUser`,
                 method: "POST",
@@ -40376,11 +43159,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name GetAdmindmsEasyForm
+         * @name GetDmsEasyForm
          * @summary Query form design
          * @request GET:/admin/api/dms/easy-form
          */
-        getAdmindmsEasyForm: (
+        getDmsEasyForm: (
             query?: {
                 name?: string;
             },
@@ -40397,11 +43180,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PostAdmindmsEasyForm
+         * @name PostDmsEasyForm
          * @summary Create a form design
          * @request POST:/admin/api/dms/easy-form
          */
-        postAdmindmsEasyForm: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+        postDmsEasyForm: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFormDesignResponseDTO, any>({
                 path: `/admin/api/dms/easy-form`,
                 method: "POST",
@@ -40414,10 +43197,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name DeleteAdmindmsEasyForm
+         * @name DeleteDmsEasyForm
          * @request DELETE:/admin/api/dms/easy-form
          */
-        deleteAdmindmsEasyForm: (
+        deleteDmsEasyForm: (
             query: {
                 tableName: string;
                 caseId: string;
@@ -40435,11 +43218,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PostAdmindmsEasyFormSubmitData
+         * @name PostDmsEasyFormSubmitData
          * @summary Submit form data
          * @request POST:/admin/api/dms/easy-form/submit/data
          */
-        postAdmindmsEasyFormSubmitData: (data: FormDesignDataDTO, params: RequestParams = {}) =>
+        postDmsEasyFormSubmitData: (data: FormDesignDataDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/easy-form/submit/data`,
                 method: "POST",
@@ -40452,11 +43235,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PostAdmindmsEasyFormSavePreview
+         * @name PostDmsEasyFormSavePreview
          * @summary Save preview style
          * @request POST:/admin/api/dms/easy-form/save/preview
          */
-        postAdmindmsEasyFormSavePreview: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+        postDmsEasyFormSavePreview: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/easy-form/save/preview`,
                 method: "POST",
@@ -40469,11 +43252,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PostAdmindmsEasyFormSavePermission
+         * @name PostDmsEasyFormSavePermission
          * @summary Save Permission
          * @request POST:/admin/api/dms/easy-form/save/permission
          */
-        postAdmindmsEasyFormSavePermission: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+        postDmsEasyFormSavePermission: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/easy-form/save/permission`,
                 method: "POST",
@@ -40486,11 +43269,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PostAdmindmsEasyFormSaveInformation
+         * @name PostDmsEasyFormSaveInformation
          * @summary Save information
          * @request POST:/admin/api/dms/easy-form/save/information
          */
-        postAdmindmsEasyFormSaveInformation: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+        postDmsEasyFormSaveInformation: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/easy-form/save/information`,
                 method: "POST",
@@ -40503,11 +43286,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PostAdmindmsEasyFormSaveFormresult
+         * @name PostDmsEasyFormSaveFormresult
          * @summary Save Form Result
          * @request POST:/admin/api/dms/easy-form/save/formResult
          */
-        postAdmindmsEasyFormSaveFormresult: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+        postDmsEasyFormSaveFormresult: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/easy-form/save/formResult`,
                 method: "POST",
@@ -40520,10 +43303,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PostAdmindmsEasyFormSaveFormresultAppend
+         * @name PostDmsEasyFormSaveFormresultAppend
          * @request POST:/admin/api/dms/easy-form/save/formResult/append
          */
-        postAdmindmsEasyFormSaveFormresultAppend: (data: EasyFormResultRequestDTO, params: RequestParams = {}) =>
+        postDmsEasyFormSaveFormresultAppend: (data: EasyFormResultRequestDTO, params: RequestParams = {}) =>
             this.request<ResultEasyFormResult, any>({
                 path: `/admin/api/dms/easy-form/save/formResult/append`,
                 method: "POST",
@@ -40536,10 +43319,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PostAdmindmsEasyFormRecords
+         * @name PostDmsEasyFormRecords
          * @request POST:/admin/api/dms/easy-form/records
          */
-        postAdmindmsEasyFormRecords: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+        postDmsEasyFormRecords: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListLinkedHashMapStringObject, any>({
                 path: `/admin/api/dms/easy-form/records`,
                 method: "POST",
@@ -40552,11 +43335,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PostAdmindmsEasyFormRecordPage
+         * @name PostDmsEasyFormRecordPage
          * @summary Paging search form data
          * @request POST:/admin/api/dms/easy-form/record/page
          */
-        postAdmindmsEasyFormRecordPage: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+        postDmsEasyFormRecordPage: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/easy-form/record/page`,
                 method: "POST",
@@ -40569,11 +43352,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PostAdmindmsEasyFormPublish
+         * @name PostDmsEasyFormPublish
          * @summary Publish Form Design
          * @request POST:/admin/api/dms/easy-form/publish
          */
-        postAdmindmsEasyFormPublish: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+        postDmsEasyFormPublish: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/easy-form/publish`,
                 method: "POST",
@@ -40586,11 +43369,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PostAdmindmsEasyFormPage
+         * @name PostDmsEasyFormPage
          * @summary Paging query form design list
          * @request POST:/admin/api/dms/easy-form/page
          */
-        postAdmindmsEasyFormPage: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+        postDmsEasyFormPage: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOFormDesignResponseDTO, any>({
                 path: `/admin/api/dms/easy-form/page`,
                 method: "POST",
@@ -40603,10 +43386,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PostAdmindmsEasyFormEmailSend
+         * @name PostDmsEasyFormEmailSend
          * @request POST:/admin/api/dms/easy-form/email/send
          */
-        postAdmindmsEasyFormEmailSend: (data: EasyFormEmailDTO, params: RequestParams = {}) =>
+        postDmsEasyFormEmailSend: (data: EasyFormEmailDTO, params: RequestParams = {}) =>
             this.request<ResultVoid, any>({
                 path: `/admin/api/dms/easy-form/email/send`,
                 method: "POST",
@@ -40619,10 +43402,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PostAdmindmsEasyFormEmailLogPage
+         * @name PostDmsEasyFormEmailLogPage
          * @request POST:/admin/api/dms/easy-form/email-log/page
          */
-        postAdmindmsEasyFormEmailLogPage: (data: EasyFormEmailQueryRequestDTO, params: RequestParams = {}) =>
+        postDmsEasyFormEmailLogPage: (data: EasyFormEmailQueryRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEasyFormEmailLogDTO, any>({
                 path: `/admin/api/dms/easy-form/email-log/page`,
                 method: "POST",
@@ -40635,10 +43418,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PostAdmindmsEasyFormEmaillogPage
+         * @name PostDmsEasyFormEmaillogPage
          * @request POST:/admin/api/dms/easy-form/emailLog/page
          */
-        postAdmindmsEasyFormEmaillogPage: (data: EasyFormEmailQueryRequestDTO, params: RequestParams = {}) =>
+        postDmsEasyFormEmaillogPage: (data: EasyFormEmailQueryRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEasyFormEmailLogDTO, any>({
                 path: `/admin/api/dms/easy-form/emailLog/page`,
                 method: "POST",
@@ -40651,11 +43434,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Admin Document
-         * @name GetAdmindmsDocument
+         * @name GetDmsDocument
          * @summary Get document information
          * @request GET:/admin/api/dms/document
          */
-        getAdmindmsDocument: (
+        getDmsDocument: (
             query: {
                 idOrPath: string;
             },
@@ -40672,11 +43455,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Admin Document
-         * @name PostAdmindmsDocument
+         * @name PostDmsDocument
          * @summary Create a document
          * @request POST:/admin/api/dms/document
          */
-        postAdmindmsDocument: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+        postDmsDocument: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, any>({
                 path: `/admin/api/dms/document`,
                 method: "POST",
@@ -40689,11 +43472,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Versioning Controller
-         * @name PostAdmindmsDocumentVersionRetrieve
+         * @name PostDmsDocumentVersionRetrieve
          * @summary Get Specific Version by Document ID/Path and version number
          * @request POST:/admin/api/dms/document/version/retrieve
          */
-        postAdmindmsDocumentVersionRetrieve: (data: VersioningRequestDTO, params: RequestParams = {}) =>
+        postDmsDocumentVersionRetrieve: (data: VersioningRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, any>({
                 path: `/admin/api/dms/document/version/retrieve`,
                 method: "POST",
@@ -40706,11 +43489,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Versioning Controller
-         * @name PostAdmindmsDocumentVersionRestore
+         * @name PostDmsDocumentVersionRestore
          * @summary Restores a document to the input version document
          * @request POST:/admin/api/dms/document/version/restore
          */
-        postAdmindmsDocumentVersionRestore: (data: VersioningRequestDTO, params: RequestParams = {}) =>
+        postDmsDocumentVersionRestore: (data: VersioningRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, any>({
                 path: `/admin/api/dms/document/version/restore`,
                 method: "POST",
@@ -40723,11 +43506,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Versioning Controller
-         * @name PostAdmindmsDocumentVersionNumber
+         * @name PostDmsDocumentVersionNumber
          * @summary Get Version Number by Document ID or Path
          * @request POST:/admin/api/dms/document/version/number
          */
-        postAdmindmsDocumentVersionNumber: (data: VersioningRequestDTO, params: RequestParams = {}) =>
+        postDmsDocumentVersionNumber: (data: VersioningRequestDTO, params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/dms/document/version/number`,
                 method: "POST",
@@ -40740,11 +43523,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Versioning Controller
-         * @name PostAdmindmsDocumentVersionList
+         * @name PostDmsDocumentVersionList
          * @summary Get All Versions by Document ID or Path
          * @request POST:/admin/api/dms/document/version/list
          */
-        postAdmindmsDocumentVersionList: (data: VersioningRequestDTO, params: RequestParams = {}) =>
+        postDmsDocumentVersionList: (data: VersioningRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringInstant, any>({
                 path: `/admin/api/dms/document/version/list`,
                 method: "POST",
@@ -40757,11 +43540,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Versioning Controller
-         * @name PostAdmindmsDocumentVersionLatest
+         * @name PostDmsDocumentVersionLatest
          * @summary Get Latest Version by Document ID or Path
          * @request POST:/admin/api/dms/document/version/latest
          */
-        postAdmindmsDocumentVersionLatest: (data: VersioningRequestDTO, params: RequestParams = {}) =>
+        postDmsDocumentVersionLatest: (data: VersioningRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, any>({
                 path: `/admin/api/dms/document/version/latest`,
                 method: "POST",
@@ -40774,10 +43557,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Admin Document
-         * @name PostAdmindmsDocumentStructure
+         * @name PostDmsDocumentStructure
          * @request POST:/admin/api/dms/document/structure
          */
-        postAdmindmsDocumentStructure: (data: DocStructureRequestDTO, params: RequestParams = {}) =>
+        postDmsDocumentStructure: (data: DocStructureRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocStructureResponseDTO, any>({
                 path: `/admin/api/dms/document/structure`,
                 method: "POST",
@@ -40790,10 +43573,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Admin Document
-         * @name PostAdmindmsDocumentQueryauditevent
+         * @name PostDmsDocumentQueryauditevent
          * @request POST:/admin/api/dms/document/queryAuditEvent
          */
-        postAdmindmsDocumentQueryauditevent: (data: OpenObserveAuditLogSearchRequest, params: RequestParams = {}) =>
+        postDmsDocumentQueryauditevent: (data: OpenObserveAuditLogSearchRequest, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOAuditTemplateResponseExtendDTO, any>({
                 path: `/admin/api/dms/document/queryAuditEvent`,
                 method: "POST",
@@ -40806,11 +43589,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Admin Document
-         * @name PostAdmindmsDocumentPreview
+         * @name PostDmsDocumentPreview
          * @summary Preview document content
          * @request POST:/admin/api/dms/document/preview
          */
-        postAdmindmsDocumentPreview: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+        postDmsDocumentPreview: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<string, any>({
                 path: `/admin/api/dms/document/preview`,
                 method: "POST",
@@ -40823,10 +43606,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Admin Document
-         * @name PostAdmindmsDocumentOffice
+         * @name PostDmsDocumentOffice
          * @request POST:/admin/api/dms/document/office
          */
-        postAdmindmsDocumentOffice: (data: OfficeFileCreateDTO, params: RequestParams = {}) =>
+        postDmsDocumentOffice: (data: OfficeFileCreateDTO, params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/dms/document/office`,
                 method: "POST",
@@ -40839,11 +43622,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Admin Document
-         * @name PostAdmindmsDocumentFolder
+         * @name PostDmsDocumentFolder
          * @summary Create folders
          * @request POST:/admin/api/dms/document/folder
          */
-        postAdmindmsDocumentFolder: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+        postDmsDocumentFolder: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, any>({
                 path: `/admin/api/dms/document/folder`,
                 method: "POST",
@@ -40856,11 +43639,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Admin Document
-         * @name PostAdmindmsDocumentFetch
+         * @name PostDmsDocumentFetch
          * @summary Get a document
          * @request POST:/admin/api/dms/document/fetch
          */
-        postAdmindmsDocumentFetch: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+        postDmsDocumentFetch: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, any>({
                 path: `/admin/api/dms/document/fetch`,
                 method: "POST",
@@ -40873,11 +43656,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Admin Document
-         * @name PostAdmindmsDocumentDownload
+         * @name PostDmsDocumentDownload
          * @summary Download a document file
          * @request POST:/admin/api/dms/document/download
          */
-        postAdmindmsDocumentDownload: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+        postDmsDocumentDownload: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<string, any>({
                 path: `/admin/api/dms/document/download`,
                 method: "POST",
@@ -40890,11 +43673,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Admin Document
-         * @name PostAdmindmsDocumentCollections
+         * @name PostDmsDocumentCollections
          * @summary Get collections of a document is in
          * @request POST:/admin/api/dms/document/collections
          */
-        postAdmindmsDocumentCollections: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+        postDmsDocumentCollections: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListDocumentDTO, any>({
                 path: `/admin/api/dms/document/collections`,
                 method: "POST",
@@ -40907,11 +43690,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Admin Document
-         * @name PostAdmindmsDocumentChildrenThumbnail
+         * @name PostDmsDocumentChildrenThumbnail
          * @summary Get children of thumbnail Result
          * @request POST:/admin/api/dms/document/children/thumbnail
          */
-        postAdmindmsDocumentChildrenThumbnail: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+        postDmsDocumentChildrenThumbnail: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTODocumentThumbnailDTO, any>({
                 path: `/admin/api/dms/document/children/thumbnail`,
                 method: "POST",
@@ -40924,11 +43707,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Admin Document
-         * @name PostAdmindmsDocumentBreadcrumb
+         * @name PostDmsDocumentBreadcrumb
          * @summary Get document breadcrumb
          * @request POST:/admin/api/dms/document/breadcrumb
          */
-        postAdmindmsDocumentBreadcrumb: (data: DocumentRequestDTO, params: RequestParams = {}) =>
+        postDmsDocumentBreadcrumb: (data: DocumentRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListDocumentDTO, any>({
                 path: `/admin/api/dms/document/breadcrumb`,
                 method: "POST",
@@ -40941,10 +43724,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name PostAdmindmsDocpalTypeUpdate
+         * @name PostDmsDocpalTypeUpdate
          * @request POST:/admin/api/dms/docpal-type/update
          */
-        postAdmindmsDocpalTypeUpdate: (data: DocpalTypeRequestV2DTO, params: RequestParams = {}) =>
+        postDmsDocpalTypeUpdate: (data: DocpalTypeRequestV2DTO, params: RequestParams = {}) =>
             this.request<ResultDocPalTypeResponseDTO, any>({
                 path: `/admin/api/dms/docpal-type/update`,
                 method: "POST",
@@ -40957,11 +43740,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name PostAdmindmsDocpalTypePage
+         * @name PostDmsDocpalTypePage
          * @summary Pagination search of process definition version
          * @request POST:/admin/api/dms/docpal-type/page
          */
-        postAdmindmsDocpalTypePage: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
+        postDmsDocpalTypePage: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTODocumentTypeResponseVO, any>({
                 path: `/admin/api/dms/docpal-type/page`,
                 method: "POST",
@@ -40974,11 +43757,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name PostAdmindmsDocpalTypeMetadata
+         * @name PostDmsDocpalTypeMetadata
          * @summary Obtain metadata list of docpal type
          * @request POST:/admin/api/dms/docpal-type/metadata
          */
-        postAdmindmsDocpalTypeMetadata: (data: QueryMetadataRequestDTO, params: RequestParams = {}) =>
+        postDmsDocpalTypeMetadata: (data: QueryMetadataRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocpalTypeResponseVO, any>({
                 path: `/admin/api/dms/docpal-type/metadata`,
                 method: "POST",
@@ -40991,11 +43774,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name PostAdmindmsDocpalTypeMetadataSort
+         * @name PostDmsDocpalTypeMetadataSort
          * @summary Modified metadata sort of docpal type
          * @request POST:/admin/api/dms/docpal-type/metadata/sort
          */
-        postAdmindmsDocpalTypeMetadataSort: (data: MoveMetadataRequestDTO, params: RequestParams = {}) =>
+        postDmsDocpalTypeMetadataSort: (data: MoveMetadataRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/docpal-type/metadata/sort`,
                 method: "POST",
@@ -41008,11 +43791,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name PostAdmindmsDocpalTypeExportCvs
+         * @name PostDmsDocpalTypeExportCvs
          * @summary Export docpal type
          * @request POST:/admin/api/dms/docpal-type/export-cvs
          */
-        postAdmindmsDocpalTypeExportCvs: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
+        postDmsDocpalTypeExportCvs: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
             this.request<void, any>({
                 path: `/admin/api/dms/docpal-type/export-cvs`,
                 method: "POST",
@@ -41025,11 +43808,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name PostAdmindmsDocpalTypeDuplicate
+         * @name PostDmsDocpalTypeDuplicate
          * @summary Check duplicate name of docpal type
          * @request POST:/admin/api/dms/docpal-type/duplicate
          */
-        postAdmindmsDocpalTypeDuplicate: (data: DocpalTypeRequestV2DTO, params: RequestParams = {}) =>
+        postDmsDocpalTypeDuplicate: (data: DocpalTypeRequestV2DTO, params: RequestParams = {}) =>
             this.request<ResultDocPalTypeResponseDTO, any>({
                 path: `/admin/api/dms/docpal-type/duplicate`,
                 method: "POST",
@@ -41042,11 +43825,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name PostAdmindmsDocpalTypeCreate
+         * @name PostDmsDocpalTypeCreate
          * @summary Create a new DocPalType
          * @request POST:/admin/api/dms/docpal-type/create
          */
-        postAdmindmsDocpalTypeCreate: (data: DocpalTypeRequestV2DTO, params: RequestParams = {}) =>
+        postDmsDocpalTypeCreate: (data: DocpalTypeRequestV2DTO, params: RequestParams = {}) =>
             this.request<ResultDocPalTypeResponseDTO, any>({
                 path: `/admin/api/dms/docpal-type/create`,
                 method: "POST",
@@ -41059,11 +43842,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name PostAdmindmsDocpalTypeCheckDuplicate
+         * @name PostDmsDocpalTypeCheckDuplicate
          * @summary Check duplicate name of docpal type
          * @request POST:/admin/api/dms/docpal-type/check/duplicate
          */
-        postAdmindmsDocpalTypeCheckDuplicate: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
+        postDmsDocpalTypeCheckDuplicate: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/docpal-type/check/duplicate`,
                 method: "POST",
@@ -41076,11 +43859,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Create a new contact group with the specified information
          *
          * @tags AdminContactController
-         * @name PostAdmindmsContactGroup
+         * @name PostDmsContactGroup
          * @summary Create a new contact group
          * @request POST:/admin/api/dms/contact-group
          */
-        postAdmindmsContactGroup: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
+        postDmsContactGroup: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultContactGroupResponseDTO, any>({
                 path: `/admin/api/dms/contact-group`,
                 method: "POST",
@@ -41093,11 +43876,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name PostAdmindmsContactGroupIdPermission
+         * @name PostDmsContactGroupIdPermission
          * @summary Add the contact permission
          * @request POST:/admin/api/dms/contact-group/{id}/permission
          */
-        postAdmindmsContactGroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
+        postDmsContactGroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
             this.request<ResultListBasicField, any>({
                 path: `/admin/api/dms/contact-group/${id}/permission`,
                 method: "POST",
@@ -41110,11 +43893,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name PatchAdmindmsContactGroupIdPermission
+         * @name PatchDmsContactGroupIdPermission
          * @summary Remove the contact permission
          * @request PATCH:/admin/api/dms/contact-group/{id}/permission
          */
-        patchAdmindmsContactGroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
+        patchDmsContactGroupIdPermission: (id: string, data: BasicField, params: RequestParams = {}) =>
             this.request<ResultListBasicField, any>({
                 path: `/admin/api/dms/contact-group/${id}/permission`,
                 method: "PATCH",
@@ -41127,11 +43910,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name PostAdmindmsContactGroupIdNewfields
+         * @name PostDmsContactGroupIdNewfields
          * @summary Add new field to contact Group
          * @request POST:/admin/api/dms/contact-group/{id}/newFields
          */
-        postAdmindmsContactGroupIdNewfields: (id: string, data: ContactAttribute, params: RequestParams = {}) =>
+        postDmsContactGroupIdNewfields: (id: string, data: ContactAttribute, params: RequestParams = {}) =>
             this.request<ResultListContactAttribute, any>({
                 path: `/admin/api/dms/contact-group/${id}/newFields`,
                 method: "POST",
@@ -41144,11 +43927,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name PostAdmindmsContactGroupIdContactdetail
+         * @name PostDmsContactGroupIdContactdetail
          * @summary Adding a new contact record
          * @request POST:/admin/api/dms/contact-group/{id}/contactDetail
          */
-        postAdmindmsContactGroupIdContactdetail: (id: string, data: Record<string, any>, params: RequestParams = {}) =>
+        postDmsContactGroupIdContactdetail: (id: string, data: Record<string, any>, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, any>({
                 path: `/admin/api/dms/contact-group/${id}/contactDetail`,
                 method: "POST",
@@ -41161,15 +43944,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name PostAdmindmsContactGroupIdContactdetailPage
+         * @name PostDmsContactGroupIdContactdetailPage
          * @summary Page query contact detail list
          * @request POST:/admin/api/dms/contact-group/{id}/contactDetail/page
          */
-        postAdmindmsContactGroupIdContactdetailPage: (
-            id: string,
-            data: ContactRequestDTO,
-            params: RequestParams = {},
-        ) =>
+        postDmsContactGroupIdContactdetailPage: (id: string, data: ContactRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOMapStringObject, any>({
                 path: `/admin/api/dms/contact-group/${id}/contactDetail/page`,
                 method: "POST",
@@ -41182,11 +43961,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Import contacts from Excel or CSV file into the specified contact group
          *
          * @tags AdminContactController
-         * @name PostAdmindmsContactGroupIdContactdetailImport
+         * @name PostDmsContactGroupIdContactdetailImport
          * @summary Import contacts from file
          * @request POST:/admin/api/dms/contact-group/{id}/contactDetail/import
          */
-        postAdmindmsContactGroupIdContactdetailImport: (
+        postDmsContactGroupIdContactdetailImport: (
             id: string,
             data: {
                 /** @format binary */
@@ -41213,11 +43992,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name PostAdmindmsContactGroupIdContactdetailExport
+         * @name PostDmsContactGroupIdContactdetailExport
          * @summary Export contact record for file type include excel, csv, vcf
          * @request POST:/admin/api/dms/contact-group/{id}/contactDetail/export
          */
-        postAdmindmsContactGroupIdContactdetailExport: (
+        postDmsContactGroupIdContactdetailExport: (
             id: string,
             query: {
                 /** File Type */
@@ -41236,11 +44015,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name PostAdmindmsContactGroupReadTitle
+         * @name PostDmsContactGroupReadTitle
          * @summary Get header list through read the file
          * @request POST:/admin/api/dms/contact-group/read/title
          */
-        postAdmindmsContactGroupReadTitle: (
+        postDmsContactGroupReadTitle: (
             data: {
                 /** @format binary */
                 file?: File;
@@ -41259,11 +44038,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name PostAdmindmsContactGroupPage
+         * @name PostDmsContactGroupPage
          * @summary Page query contact group
          * @request POST:/admin/api/dms/contact-group/page
          */
-        postAdmindmsContactGroupPage: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
+        postDmsContactGroupPage: (data: ContactGroupRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOContactGroupResponseDTO, any>({
                 path: `/admin/api/dms/contact-group/page`,
                 method: "POST",
@@ -41276,11 +44055,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Profile APIs(Admin Page)
-         * @name PostAdmindmsCompanyprofiles
+         * @name PostDmsCompanyprofiles
          * @summary Create a new company profile by filling out required fields
          * @request POST:/admin/api/dms/companyProfiles
          */
-        postAdmindmsCompanyprofiles: (data: Company, params: RequestParams = {}) =>
+        postDmsCompanyprofiles: (data: Company, params: RequestParams = {}) =>
             this.request<ResultCompany, any>({
                 path: `/admin/api/dms/companyProfiles`,
                 method: "POST",
@@ -41293,11 +44072,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Profile APIs(Admin Page)
-         * @name GetAdmindmsCompanyprofilesCompanyidChops
+         * @name GetDmsCompanyprofilesCompanyidChops
          * @summary Retrieve list of all chops in one company
          * @request GET:/admin/api/dms/companyProfiles/{companyId}/chops
          */
-        getAdmindmsCompanyprofilesCompanyidChops: (
+        getDmsCompanyprofilesCompanyidChops: (
             companyId: string,
             query: {
                 /** Company Chop (Request) */
@@ -41316,11 +44095,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Profile APIs(Admin Page)
-         * @name PostAdmindmsCompanyprofilesCompanyidChops
+         * @name PostDmsCompanyprofilesCompanyidChops
          * @summary Create a new company chop
          * @request POST:/admin/api/dms/companyProfiles/{companyId}/chops
          */
-        postAdmindmsCompanyprofilesCompanyidChops: (
+        postDmsCompanyprofilesCompanyidChops: (
             companyId: string,
             data: {
                 /** @format binary */
@@ -41357,11 +44136,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Profile APIs(Admin Page)
-         * @name PostAdmindmsCompanyprofilesCompanyidChopsPage
+         * @name PostDmsCompanyprofilesCompanyidChopsPage
          * @summary Retrieve list of all chops in one company
          * @request POST:/admin/api/dms/companyProfiles/{companyId}/chops/page
          */
-        postAdmindmsCompanyprofilesCompanyidChopsPage: (
+        postDmsCompanyprofilesCompanyidChopsPage: (
             companyId: string,
             data: CompanyChopRequestDTO,
             params: RequestParams = {},
@@ -41378,11 +44157,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Profile APIs(Admin Page)
-         * @name PostAdmindmsCompanyprofilesPage
+         * @name PostDmsCompanyprofilesPage
          * @summary Paginated query for fetch list of all company Profiles
          * @request POST:/admin/api/dms/companyProfiles/page
          */
-        postAdmindmsCompanyprofilesPage: (data: CompanyRequestDTO, params: RequestParams = {}) =>
+        postDmsCompanyprofilesPage: (data: CompanyRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOCompany, any>({
                 path: `/admin/api/dms/companyProfiles/page`,
                 method: "POST",
@@ -41395,11 +44174,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CalendarController(Admin Page)
-         * @name GetAdmindmsCalendarsWidgetSetting
+         * @name GetDmsCalendarsWidgetSetting
          * @summary Obtain calendar widget settings
          * @request GET:/admin/api/dms/calendars/widget/setting
          */
-        getAdmindmsCalendarsWidgetSetting: (params: RequestParams = {}) =>
+        getDmsCalendarsWidgetSetting: (params: RequestParams = {}) =>
             this.request<ResultMapStringObject, any>({
                 path: `/admin/api/dms/calendars/widget/setting`,
                 method: "GET",
@@ -41410,11 +44189,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CalendarController(Admin Page)
-         * @name PostAdmindmsCalendarsWidgetSetting
+         * @name PostDmsCalendarsWidgetSetting
          * @summary Save calendar settings
          * @request POST:/admin/api/dms/calendars/widget/setting
          */
-        postAdmindmsCalendarsWidgetSetting: (data: Record<string, any>, params: RequestParams = {}) =>
+        postDmsCalendarsWidgetSetting: (data: Record<string, any>, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, any>({
                 path: `/admin/api/dms/calendars/widget/setting`,
                 method: "POST",
@@ -41427,10 +44206,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CalendarController(Admin Page)
-         * @name PostAdmindmsCalendarsValidate
+         * @name PostDmsCalendarsValidate
          * @request POST:/admin/api/dms/calendars/validate
          */
-        postAdmindmsCalendarsValidate: (params: RequestParams = {}) =>
+        postDmsCalendarsValidate: (params: RequestParams = {}) =>
             this.request<ResultVoid, any>({
                 path: `/admin/api/dms/calendars/validate`,
                 method: "POST",
@@ -41441,11 +44220,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CalendarController(Admin Page)
-         * @name GetAdmindmsCalendarsSetting
+         * @name GetDmsCalendarsSetting
          * @summary Obtain calendar settings
          * @request GET:/admin/api/dms/calendars/setting
          */
-        getAdmindmsCalendarsSetting: (params: RequestParams = {}) =>
+        getDmsCalendarsSetting: (params: RequestParams = {}) =>
             this.request<ResultMapStringObject, any>({
                 path: `/admin/api/dms/calendars/setting`,
                 method: "GET",
@@ -41456,11 +44235,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CalendarController(Admin Page)
-         * @name PostAdmindmsCalendarsSetting
+         * @name PostDmsCalendarsSetting
          * @summary Save calendar settings
          * @request POST:/admin/api/dms/calendars/setting
          */
-        postAdmindmsCalendarsSetting: (data: Record<string, any>, params: RequestParams = {}) =>
+        postDmsCalendarsSetting: (data: Record<string, any>, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, any>({
                 path: `/admin/api/dms/calendars/setting`,
                 method: "POST",
@@ -41473,11 +44252,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CalendarController(Admin Page)
-         * @name PostAdmindmsCalendarsList
+         * @name PostDmsCalendarsList
          * @summary Query list
          * @request POST:/admin/api/dms/calendars/list
          */
-        postAdmindmsCalendarsList: (data: CalendarTaskReq, params: RequestParams = {}) =>
+        postDmsCalendarsList: (data: CalendarTaskReq, params: RequestParams = {}) =>
             this.request<ResultListCalendarTaskRespDTO, any>({
                 path: `/admin/api/dms/calendars/list`,
                 method: "POST",
@@ -41490,11 +44269,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EventCalendarController(Admin Page)
-         * @name PostAdmindmsCalendarsEventSetting
+         * @name PostDmsCalendarsEventSetting
          * @summary Create Event Calendar Setting
          * @request POST:/admin/api/dms/calendars/event/setting
          */
-        postAdmindmsCalendarsEventSetting: (data: EventCalendarSetting, params: RequestParams = {}) =>
+        postDmsCalendarsEventSetting: (data: EventCalendarSetting, params: RequestParams = {}) =>
             this.request<ResultEventCalendarSetting, any>({
                 path: `/admin/api/dms/calendars/event/setting`,
                 method: "POST",
@@ -41507,11 +44286,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EventCalendarController(Admin Page)
-         * @name PostAdmindmsCalendarsEventSettingPage
+         * @name PostDmsCalendarsEventSettingPage
          * @summary Paging query Event Calendar Settings
          * @request POST:/admin/api/dms/calendars/event/setting/page
          */
-        postAdmindmsCalendarsEventSettingPage: (data: BasePageRequest, params: RequestParams = {}) =>
+        postDmsCalendarsEventSettingPage: (data: BasePageRequest, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOEventCalendarSetting, any>({
                 path: `/admin/api/dms/calendars/event/setting/page`,
                 method: "POST",
@@ -41524,11 +44303,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name PostAdmindmsCabinetVerificationComplete
+         * @name PostDmsCabinetVerificationComplete
          * @summary verification complete of folder cabinet
          * @request POST:/admin/api/dms/cabinet/verification/complete
          */
-        postAdmindmsCabinetVerificationComplete: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
+        postDmsCabinetVerificationComplete: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocFolderCabinetResponseDTO, any>({
                 path: `/admin/api/dms/cabinet/verification/complete`,
                 method: "POST",
@@ -41541,11 +44320,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name PostAdmindmsCabinetUploadFile
+         * @name PostDmsCabinetUploadFile
          * @summary Upload file of folder cabinet
          * @request POST:/admin/api/dms/cabinet/upload/file
          */
-        postAdmindmsCabinetUploadFile: (
+        postDmsCabinetUploadFile: (
             data: {
                 id: string;
                 path: string;
@@ -41567,11 +44346,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name PostAdmindmsCabinetTemplate
+         * @name PostDmsCabinetTemplate
          * @summary create folder cabinet template
          * @request POST:/admin/api/dms/cabinet/template
          */
-        postAdmindmsCabinetTemplate: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
+        postDmsCabinetTemplate: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFolderCabinetResponseDTO, any>({
                 path: `/admin/api/dms/cabinet/template`,
                 method: "POST",
@@ -41584,11 +44363,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name PatchAdmindmsCabinetTemplate
+         * @name PatchDmsCabinetTemplate
          * @summary Modify folder/file into exist folder cabinet template
          * @request PATCH:/admin/api/dms/cabinet/template
          */
-        patchAdmindmsCabinetTemplate: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
+        patchDmsCabinetTemplate: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFolderCabinetResponseDTO, any>({
                 path: `/admin/api/dms/cabinet/template`,
                 method: "PATCH",
@@ -41601,10 +44380,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetTemplatePermission
+         * @name GetDmsCabinetTemplatePermission
          * @request GET:/admin/api/dms/cabinet/template/permission
          */
-        getAdmindmsCabinetTemplatePermission: (
+        getDmsCabinetTemplatePermission: (
             query: {
                 id: string;
             },
@@ -41621,11 +44400,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name PostAdmindmsCabinetTemplatePermission
+         * @name PostDmsCabinetTemplatePermission
          * @summary Add permission for folder cabinet template
          * @request POST:/admin/api/dms/cabinet/template/permission
          */
-        postAdmindmsCabinetTemplatePermission: (data: DocumentACLEntryDTO, params: RequestParams = {}) =>
+        postDmsCabinetTemplatePermission: (data: DocumentACLEntryDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/cabinet/template/permission`,
                 method: "POST",
@@ -41638,11 +44417,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name DeleteAdmindmsCabinetTemplatePermission
+         * @name DeleteDmsCabinetTemplatePermission
          * @summary Delete permission from folder cabinet template
          * @request DELETE:/admin/api/dms/cabinet/template/permission
          */
-        deleteAdmindmsCabinetTemplatePermission: (
+        deleteDmsCabinetTemplatePermission: (
             query: {
                 id: string;
                 userId: string;
@@ -41664,11 +44443,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name PostAdmindmsCabinetTemplatePage
+         * @name PostDmsCabinetTemplatePage
          * @summary Pagination search folder cabinet
          * @request POST:/admin/api/dms/cabinet/template/page
          */
-        postAdmindmsCabinetTemplatePage: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
+        postDmsCabinetTemplatePage: (data: FolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOFolderCabinetResponseDTO, any>({
                 path: `/admin/api/dms/cabinet/template/page`,
                 method: "POST",
@@ -41681,11 +44460,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name PostAdmindmsCabinetTemplateDuplicateName
+         * @name PostDmsCabinetTemplateDuplicateName
          * @summary Checking duplicate name
          * @request POST:/admin/api/dms/cabinet/template/duplicate/name
          */
-        postAdmindmsCabinetTemplateDuplicateName: (data: FolderCabinet, params: RequestParams = {}) =>
+        postDmsCabinetTemplateDuplicateName: (data: FolderCabinet, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/cabinet/template/duplicate/name`,
                 method: "POST",
@@ -41698,11 +44477,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name PostAdmindmsCabinetPage
+         * @name PostDmsCabinetPage
          * @summary Pagination search of document folder cabinet
          * @request POST:/admin/api/dms/cabinet/page
          */
-        postAdmindmsCabinetPage: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
+        postDmsCabinetPage: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, any>({
                 path: `/admin/api/dms/cabinet/page`,
                 method: "POST",
@@ -41715,11 +44494,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name PostAdmindmsCabinetItem
+         * @name PostDmsCabinetItem
          * @summary New Item
          * @request POST:/admin/api/dms/cabinet/item
          */
-        postAdmindmsCabinetItem: (data: DFCRequestDTO, params: RequestParams = {}) =>
+        postDmsCabinetItem: (data: DFCRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentFolderCabinet, any>({
                 path: `/admin/api/dms/cabinet/item`,
                 method: "POST",
@@ -41732,11 +44511,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name PostAdmindmsCabinetImport
+         * @name PostDmsCabinetImport
          * @summary Import a folder cabinet
          * @request POST:/admin/api/dms/cabinet/import
          */
-        postAdmindmsCabinetImport: (
+        postDmsCabinetImport: (
             query: {
                 documentPath: string;
                 /** @format binary */
@@ -41755,10 +44534,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name PostAdmindmsCabinetGenerateDocument
+         * @name PostDmsCabinetGenerateDocument
          * @request POST:/admin/api/dms/cabinet/generate/document
          */
-        postAdmindmsCabinetGenerateDocument: (
+        postDmsCabinetGenerateDocument: (
             query: {
                 processDefinitionKey: string;
             },
@@ -41778,10 +44557,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name PostAdmindmsCabinetExport
+         * @name PostDmsCabinetExport
          * @request POST:/admin/api/dms/cabinet/export
          */
-        postAdmindmsCabinetExport: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
+        postDmsCabinetExport: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<void, any>({
                 path: `/admin/api/dms/cabinet/export`,
                 method: "POST",
@@ -41794,11 +44573,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name PostAdmindmsCabinetExporttojson
+         * @name PostDmsCabinetExporttojson
          * @summary Export a folder cabinet
          * @request POST:/admin/api/dms/cabinet/exportToJson
          */
-        postAdmindmsCabinetExporttojson: (
+        postDmsCabinetExporttojson: (
             query: {
                 folderCabinetId: string;
             },
@@ -41815,11 +44594,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name PostAdmindmsCabinetCreate
+         * @name PostDmsCabinetCreate
          * @summary Create Top folder cabinet
          * @request POST:/admin/api/dms/cabinet/create
          */
-        postAdmindmsCabinetCreate: (data: DFCRequestDTO, params: RequestParams = {}) =>
+        postDmsCabinetCreate: (data: DFCRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocumentDTO, any>({
                 path: `/admin/api/dms/cabinet/create`,
                 method: "POST",
@@ -41832,12 +44611,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PostAdmincaseTypesIdPublish
+         * @name PostCaseTypesIdPublish
          * @summary Publish CMMN file to workflow application
          * @request POST:/admin/api/case/types/{id}/publish
          * @deprecated
          */
-        postAdmincaseTypesIdPublish: (
+        postCaseTypesIdPublish: (
             id: string,
             data: {
                 /**
@@ -41860,11 +44639,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PostAdmincaseTypesIdDraftSave
+         * @name PostCaseTypesIdDraftSave
          * @summary Save draft cmmn xml
          * @request POST:/admin/api/case/types/{id}/draft/save
          */
-        postAdmincaseTypesIdDraftSave: (
+        postCaseTypesIdDraftSave: (
             id: string,
             data: {
                 /**
@@ -41887,11 +44666,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PostAdmincaseTypesIdDraftDownload
+         * @name PostCaseTypesIdDraftDownload
          * @summary Download draft cmmn xml (case model definition)
          * @request POST:/admin/api/case/types/{id}/draft/download
          */
-        postAdmincaseTypesIdDraftDownload: (id: string, params: RequestParams = {}) =>
+        postCaseTypesIdDraftDownload: (id: string, params: RequestParams = {}) =>
             this.request<string, any>({
                 path: `/admin/api/case/types/${id}/draft/download`,
                 method: "POST",
@@ -41902,11 +44681,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PostAdmincaseTypesIdDownloadDraft
+         * @name PostCaseTypesIdDownloadDraft
          * @summary Download draft cmmn xml (case model definition)
          * @request POST:/admin/api/case/types/{id}/download/draft
          */
-        postAdmincaseTypesIdDownloadDraft: (id: string, params: RequestParams = {}) =>
+        postCaseTypesIdDownloadDraft: (id: string, params: RequestParams = {}) =>
             this.request<string, any>({
                 path: `/admin/api/case/types/${id}/download/draft`,
                 method: "POST",
@@ -41917,11 +44696,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PostAdmincaseTypesIdCopy
+         * @name PostCaseTypesIdCopy
          * @summary New Case for new case type
          * @request POST:/admin/api/case/types/{id}/copy
          */
-        postAdmincaseTypesIdCopy: (id: string, data: CopyCaseTypeRequest, params: RequestParams = {}) =>
+        postCaseTypesIdCopy: (id: string, data: CopyCaseTypeRequest, params: RequestParams = {}) =>
             this.request<ResultCaseTypeResponseDTO, any>({
                 path: `/admin/api/case/types/${id}/copy`,
                 method: "POST",
@@ -41934,10 +44713,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PostAdmincaseTypesVersionVersionidRefresh
+         * @name PostCaseTypesVersionVersionidRefresh
          * @request POST:/admin/api/case/types/version/{versionId}/refresh
          */
-        postAdmincaseTypesVersionVersionidRefresh: (versionId: string, params: RequestParams = {}) =>
+        postCaseTypesVersionVersionidRefresh: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/case/types/version/${versionId}/refresh`,
                 method: "POST",
@@ -41948,11 +44727,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PostAdmincaseTypesVersionVersionidNew
+         * @name PostCaseTypesVersionVersionidNew
          * @summary Create a new version of case type
          * @request POST:/admin/api/case/types/version/{versionId}/new
          */
-        postAdmincaseTypesVersionVersionidNew: (versionId: string, params: RequestParams = {}) =>
+        postCaseTypesVersionVersionidNew: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultCmmnVersion, any>({
                 path: `/admin/api/case/types/version/${versionId}/new`,
                 method: "POST",
@@ -41963,11 +44742,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PostAdmincaseTypesVersionVersionidActive
+         * @name PostCaseTypesVersionVersionidActive
          * @summary Deploy a version case type
          * @request POST:/admin/api/case/types/version/{versionId}/active
          */
-        postAdmincaseTypesVersionVersionidActive: (versionId: string, params: RequestParams = {}) =>
+        postCaseTypesVersionVersionidActive: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/case/types/version/${versionId}/active`,
                 method: "POST",
@@ -41978,11 +44757,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PostAdmincaseTypesVersionPage
+         * @name PostCaseTypesVersionPage
          * @summary Paging query case-model version
          * @request POST:/admin/api/case/types/version/page
          */
-        postAdmincaseTypesVersionPage: (data: CmmnVersionRequestDTO, params: RequestParams = {}) =>
+        postCaseTypesVersionPage: (data: CmmnVersionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOCmmnVersion, any>({
                 path: `/admin/api/case/types/version/page`,
                 method: "POST",
@@ -41995,11 +44774,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PostAdmincaseTypesStylejsonSave
+         * @name PostCaseTypesStylejsonSave
          * @summary Save style json of cmmn xml
          * @request POST:/admin/api/case/types/styleJson/save
          */
-        postAdmincaseTypesStylejsonSave: (data: CmmnVersionRequestDTO, params: RequestParams = {}) =>
+        postCaseTypesStylejsonSave: (data: CmmnVersionRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCmmnVersion, any>({
                 path: `/admin/api/case/types/styleJson/save`,
                 method: "POST",
@@ -42012,10 +44791,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PostAdmincaseTypesRefresh
+         * @name PostCaseTypesRefresh
          * @request POST:/admin/api/case/types/refresh
          */
-        postAdmincaseTypesRefresh: (
+        postCaseTypesRefresh: (
             query: {
                 id: string;
             },
@@ -42032,11 +44811,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name PostAdmincaseTypesRecordsList
+         * @name PostCaseTypesRecordsList
          * @summary Get all case instance data of deployed case type without permission
          * @request POST:/admin/api/case/types/records/list
          */
-        postAdmincaseTypesRecordsList: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+        postCaseTypesRecordsList: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListLinkedHashMapStringObject, any>({
                 path: `/admin/api/case/types/records/list`,
                 method: "POST",
@@ -42049,11 +44828,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PostAdmincaseTypesPage
+         * @name PostCaseTypesPage
          * @summary Pagination search (Case Type)
          * @request POST:/admin/api/case/types/page
          */
-        postAdmincaseTypesPage: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
+        postCaseTypesPage: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOCaseType, any>({
                 path: `/admin/api/case/types/page`,
                 method: "POST",
@@ -42066,11 +44845,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PostAdmincaseTypesList
+         * @name PostCaseTypesList
          * @summary Retrieve case list through the list of case id
          * @request POST:/admin/api/case/types/list
          */
-        postAdmincaseTypesList: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
+        postCaseTypesList: (data: CaseTypeRequestDTO, params: RequestParams = {}) =>
             this.request<ResultListCaseTypeResponseDTO, any>({
                 path: `/admin/api/case/types/list`,
                 method: "POST",
@@ -42083,11 +44862,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name PostAdmincaseTriggerEvent
+         * @name PostCaseTriggerEvent
          * @summary Trigger event for completed
          * @request POST:/admin/api/case/trigger/event
          */
-        postAdmincaseTriggerEvent: (data: CmmnTriggerEventReqDTO, params: RequestParams = {}) =>
+        postCaseTriggerEvent: (data: CmmnTriggerEventReqDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/case/trigger/event`,
                 method: "POST",
@@ -42100,11 +44879,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTableController(Admin Page)
-         * @name GetAdmincaseTables
+         * @name GetCaseTables
          * @summary Retrieve all case tables
          * @request GET:/admin/api/case/tables
          */
-        getAdmincaseTables: (params: RequestParams = {}) =>
+        getCaseTables: (params: RequestParams = {}) =>
             this.request<ResultListCaseTable, any>({
                 path: `/admin/api/case/tables`,
                 method: "GET",
@@ -42115,11 +44894,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTableController(Admin Page)
-         * @name PostAdmincaseTables
+         * @name PostCaseTables
          * @summary Create (Case Table)
          * @request POST:/admin/api/case/tables
          */
-        postAdmincaseTables: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
+        postCaseTables: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCaseTable, any>({
                 path: `/admin/api/case/tables`,
                 method: "POST",
@@ -42132,11 +44911,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTableController(Admin Page)
-         * @name PostAdmincaseTablesIdField
+         * @name PostCaseTablesIdField
          * @summary Add single field to Case Table
          * @request POST:/admin/api/case/tables/{id}/field
          */
-        postAdmincaseTablesIdField: (id: string, data: MTFieldInfo, params: RequestParams = {}) =>
+        postCaseTablesIdField: (id: string, data: MTFieldInfo, params: RequestParams = {}) =>
             this.request<ResultCaseTableResponseDTO, any>({
                 path: `/admin/api/case/tables/${id}/field`,
                 method: "POST",
@@ -42149,11 +44928,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTableController(Admin Page)
-         * @name DeleteAdmincaseTablesIdField
+         * @name DeleteCaseTablesIdField
          * @summary Delete field when not data (Case Table)
          * @request DELETE:/admin/api/case/tables/{id}/field
          */
-        deleteAdmincaseTablesIdField: (
+        deleteCaseTablesIdField: (
             id: string,
             query: {
                 columnName: string;
@@ -42171,11 +44950,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTableController(Admin Page)
-         * @name PostAdmincaseTablesRecord
+         * @name PostCaseTablesRecord
          * @summary Insert data into a Case Table
          * @request POST:/admin/api/case/tables/record
          */
-        postAdmincaseTablesRecord: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
+        postCaseTablesRecord: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/case/tables/record`,
                 method: "POST",
@@ -42188,11 +44967,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTableController(Admin Page)
-         * @name PostAdmincaseTablesRecordPage
+         * @name PostCaseTablesRecordPage
          * @summary Pagination Search (Case Table Record)
          * @request POST:/admin/api/case/tables/record/page
          */
-        postAdmincaseTablesRecordPage: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
+        postCaseTablesRecordPage: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/case/tables/record/page`,
                 method: "POST",
@@ -42205,11 +44984,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name PostAdmincaseInstanceTasks
+         * @name PostCaseInstanceTasks
          * @summary Retrieve all tasks of this case instance
          * @request POST:/admin/api/case/instance/tasks
          */
-        postAdmincaseInstanceTasks: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
+        postCaseInstanceTasks: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
             this.request<ResultListCmmnTaskDTO, any>({
                 path: `/admin/api/case/instance/tasks`,
                 method: "POST",
@@ -42222,11 +45001,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name PostAdmincaseInstanceTasksComplete
+         * @name PostCaseInstanceTasksComplete
          * @summary Complete task
          * @request POST:/admin/api/case/instance/tasks/complete
          */
-        postAdmincaseInstanceTasksComplete: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
+        postCaseInstanceTasksComplete: (data: CaseInstanceTaskDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/case/instance/tasks/complete`,
                 method: "POST",
@@ -42239,11 +45018,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name PostAdmincaseInstanceStart
+         * @name PostCaseInstanceStart
          * @summary Start a case model definition to get a case instance
          * @request POST:/admin/api/case/instance/start
          */
-        postAdmincaseInstanceStart: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
+        postCaseInstanceStart: (data: CaseInstanceRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCaseInstanceDTO, any>({
                 path: `/admin/api/case/instance/start`,
                 method: "POST",
@@ -42256,11 +45035,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name PostAdmincaseInstancePlanitems
+         * @name PostCaseInstancePlanitems
          * @summary Retrieve all or activated planItem instances of this case instance
          * @request POST:/admin/api/case/instance/planItems
          */
-        postAdmincaseInstancePlanitems: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
+        postCaseInstancePlanitems: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, any>({
                 path: `/admin/api/case/instance/planItems`,
                 method: "POST",
@@ -42273,11 +45052,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name PostAdmincaseInstancePlanitemsPlanitemidEnable
+         * @name PostCaseInstancePlanitemsPlanitemidEnable
          * @summary Enable plan item instance
          * @request POST:/admin/api/case/instance/planItems/{planItemId}/enable
          */
-        postAdmincaseInstancePlanitemsPlanitemidEnable: (planItemId: string, params: RequestParams = {}) =>
+        postCaseInstancePlanitemsPlanitemidEnable: (planItemId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/case/instance/planItems/${planItemId}/enable`,
                 method: "POST",
@@ -42288,11 +45067,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name PostAdmincaseInstancePlanitemsComplete
+         * @name PostCaseInstancePlanitemsComplete
          * @summary Complete PlanItem instance
          * @request POST:/admin/api/case/instance/planItems/complete
          */
-        postAdmincaseInstancePlanitemsComplete: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
+        postCaseInstancePlanitemsComplete: (data: PlanItemInstanceDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/case/instance/planItems/complete`,
                 method: "POST",
@@ -42305,11 +45084,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name PostAdmincaseDashboardSaveStyle
+         * @name PostCaseDashboardSaveStyle
          * @summary Save dashboard Json
          * @request POST:/admin/api/case/dashboard/save/style
          */
-        postAdmincaseDashboardSaveStyle: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+        postCaseDashboardSaveStyle: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCmmnDashboard, any>({
                 path: `/admin/api/case/dashboard/save/style`,
                 method: "POST",
@@ -42322,11 +45101,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name PostAdmincaseDashboardPage
+         * @name PostCaseDashboardPage
          * @summary Pagination search (Case Dashboard)
          * @request POST:/admin/api/case/dashboard/page
          */
-        postAdmincaseDashboardPage: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
+        postCaseDashboardPage: (data: CmmnDashboardRequestDTO, params: RequestParams = {}) =>
             this.request<ResultPaginationDTOCmmnDashboardResponseDTO, any>({
                 path: `/admin/api/case/dashboard/page`,
                 method: "POST",
@@ -42339,11 +45118,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name PostAdmincaseDashboardInstanceCaseidProcessInstanceTasks
+         * @name PostCaseDashboardInstanceCaseidProcessInstanceTasks
          * @summary Query sub-process tasks of this case instance
          * @request POST:/admin/api/case/dashboard/instance/{caseId}/process/instance/tasks
          */
-        postAdmincaseDashboardInstanceCaseidProcessInstanceTasks: (
+        postCaseDashboardInstanceCaseidProcessInstanceTasks: (
             caseId: string,
             data: CmmnProcessRequestDTO,
             params: RequestParams = {},
@@ -42360,11 +45139,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name PostAdmincaseDashboardInstanceCaseidProcessInstancePage
+         * @name PostCaseDashboardInstanceCaseidProcessInstancePage
          * @summary Pagination Search process instance of this case instance
          * @request POST:/admin/api/case/dashboard/instance/{caseId}/process/instance/page
          */
-        postAdmincaseDashboardInstanceCaseidProcessInstancePage: (
+        postCaseDashboardInstanceCaseidProcessInstancePage: (
             caseId: string,
             data: CmmnDashboardRequestDTO,
             params: RequestParams = {},
@@ -42381,10 +45160,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name PostAdmincaseDashboardDatapatchRolepermission
+         * @name PostCaseDashboardDatapatchRolepermission
          * @request POST:/admin/api/case/dashboard/dataPatch/rolePermission
          */
-        postAdmincaseDashboardDatapatchRolepermission: (params: RequestParams = {}) =>
+        postCaseDashboardDatapatchRolepermission: (params: RequestParams = {}) =>
             this.request<void, any>({
                 path: `/admin/api/case/dashboard/dataPatch/rolePermission`,
                 method: "POST",
@@ -42395,11 +45174,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PatchAdminucenterUserPassword
+         * @name PatchUcenterUserPassword
          * @summary Update user password
          * @request PATCH:/admin/api/ucenter/user/password
          */
-        patchAdminucenterUserPassword: (
+        patchUcenterUserPassword: (
             query: {
                 userId: string;
                 password: string;
@@ -42417,10 +45196,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name PatchAdminucenterPasswordUpdatePassword
+         * @name PatchUcenterPasswordUpdatePassword
          * @request PATCH:/admin/api/ucenter/password/update-password
          */
-        patchAdminucenterPasswordUpdatePassword: (data: UpdatePasswordDTO, params: RequestParams = {}) =>
+        patchUcenterPasswordUpdatePassword: (data: UpdatePasswordDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/ucenter/password/update-password`,
                 method: "PATCH",
@@ -42433,10 +45212,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name PatchAdminucenterPasswordUnlockUserid
+         * @name PatchUcenterPasswordUnlockUserid
          * @request PATCH:/admin/api/ucenter/password/unlock/{userId}
          */
-        patchAdminucenterPasswordUnlockUserid: (userId: string, params: RequestParams = {}) =>
+        patchUcenterPasswordUnlockUserid: (userId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/ucenter/password/unlock/${userId}`,
                 method: "PATCH",
@@ -42447,15 +45226,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Change the status of an external storage (A/D)
          *
          * @tags ExternalStorageController
-         * @name PatchAdminext3RdstorageIdUpdateStatus
+         * @name PatchExt3RdstorageIdUpdateStatus
          * @summary Active/Inactive a external storage
          * @request PATCH:/admin/api/ext3rdStorage/{id}/update-status
          */
-        patchAdminext3rdstorageIdUpdateStatus: (
-            id: string,
-            data: ExternalStorageRequestDTO,
-            params: RequestParams = {},
-        ) =>
+        patchExt3rdstorageIdUpdateStatus: (id: string, data: ExternalStorageRequestDTO, params: RequestParams = {}) =>
             this.request<boolean, any>({
                 path: `/admin/api/ext3rdStorage/${id}/update-status`,
                 method: "PATCH",
@@ -42468,11 +45243,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update profile status of a specific external storage, status value=[A/D]
          *
          * @tags ExternalStorageController
-         * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateStatus
+         * @name PatchExt3RdstorageIdProfilesProfileidUpdateStatus
          * @summary Active/Inactive a external profile
          * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-status
          */
-        patchAdminext3rdstorageIdProfilesProfileidUpdateStatus: (
+        patchExt3rdstorageIdProfilesProfileidUpdateStatus: (
             id: string,
             profileId: string,
             data: ExternalProfileDTO,
@@ -42490,11 +45265,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateProcess
+         * @name PatchExt3RdstorageIdProfilesProfileidUpdateProcess
          * @summary Update an setting of existing external profile for a specific external storage
          * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-process
          */
-        patchAdminext3rdstorageIdProfilesProfileidUpdateProcess: (
+        patchExt3rdstorageIdProfilesProfileidUpdateProcess: (
             id: string,
             profileId: string,
             data: Record<string, any>,
@@ -42512,11 +45287,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateImport
+         * @name PatchExt3RdstorageIdProfilesProfileidUpdateImport
          * @summary Update an import setting of existing external profile for a specific external storage
          * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-import
          */
-        patchAdminext3rdstorageIdProfilesProfileidUpdateImport: (
+        patchExt3rdstorageIdProfilesProfileidUpdateImport: (
             id: string,
             profileId: string,
             data: Record<string, any>,
@@ -42534,11 +45309,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateGeneral
+         * @name PatchExt3RdstorageIdProfilesProfileidUpdateGeneral
          * @summary Update an general setting of existing external profile for a specific external storage
          * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-general
          */
-        patchAdminext3rdstorageIdProfilesProfileidUpdateGeneral: (
+        patchExt3rdstorageIdProfilesProfileidUpdateGeneral: (
             id: string,
             profileId: string,
             data: ExternalProfileDTO,
@@ -42556,11 +45331,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminext3RdstorageIdProfilesProfileidUpdateCapture
+         * @name PatchExt3RdstorageIdProfilesProfileidUpdateCapture
          * @summary Update an capture setting of existing external profile for a specific external storage
          * @request PATCH:/admin/api/ext3rdStorage/{id}/profiles/{profileId}/update-capture
          */
-        patchAdminext3rdstorageIdProfilesProfileidUpdateCapture: (
+        patchExt3rdstorageIdProfilesProfileidUpdateCapture: (
             id: string,
             profileId: string,
             data: Record<string, any>,
@@ -42578,11 +45353,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminext3RdstorageProfilesProfileidUpdateOutputrecordOutputrecordid
+         * @name PatchExt3RdstorageProfilesProfileidUpdateOutputrecordOutputrecordid
          * @summary Update a external profile output record
          * @request PATCH:/admin/api/ext3rdStorage/profiles/{profileId}/update-outputRecord/{outputRecordId}
          */
-        patchAdminext3rdstorageProfilesProfileidUpdateOutputrecordOutputrecordid: (
+        patchExt3rdstorageProfilesProfileidUpdateOutputrecordOutputrecordid: (
             profileId: string,
             outputRecordId: string,
             data: Record<string, any>,
@@ -42600,11 +45375,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name PatchAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus
+         * @name PatchExt3RdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus
          * @summary Active/Inactive a external profile output record
          * @request PATCH:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}/update-status
          */
-        patchAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus: (
+        patchExt3rdstorageProfilesProfileidOutputrecordOutputrecordidUpdateStatus: (
             profileId: string,
             outputRecordId: string,
             data: ExternalProfileOutputDTO,
@@ -42622,11 +45397,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Update the status of an import job
          *
          * @tags ExternalStorageImportJobController
-         * @name PatchAdminext3RdstorageImportjobsIdUpdateStatus
+         * @name PatchExt3RdstorageImportjobsIdUpdateStatus
          * @summary Update import job status
          * @request PATCH:/admin/api/ext3rdStorage/importJobs/{id}/update-status
          */
-        patchAdminext3rdstorageImportjobsIdUpdateStatus: (
+        patchExt3rdstorageImportjobsIdUpdateStatus: (
             id: string,
             data: ExternalStorageImportJobRequestDTO,
             params: RequestParams = {},
@@ -42643,11 +45418,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocumentTemplateController
-         * @name PatchAdmindmsTemplateDocumentUpdatetemplatevariable
+         * @name PatchDmsTemplateDocumentUpdatetemplatevariable
          * @summary Update document template variables
          * @request PATCH:/admin/api/dms/template/document/updateTemplateVariable
          */
-        patchAdmindmsTemplateDocumentUpdatetemplatevariable: (
+        patchDmsTemplateDocumentUpdatetemplatevariable: (
             data: {
                 /** @format string */
                 id?: string;
@@ -42667,49 +45442,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
-         * @tags SmartFolderController(Admin Page)
-         * @name GetAdmindmsSmartFolder
-         * @request GET:/admin/api/dms/smart-folder
-         */
-        getAdmindmsSmartFolder: (
-            query?: {
-                name?: string;
-                userGroupIds?: string[];
-            },
-            params: RequestParams = {},
-        ) =>
-            this.request<ResultListSmartFolderResponseDTO, any>({
-                path: `/admin/api/dms/smart-folder`,
-                method: "GET",
-                query: query,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags SmartFolderController(Admin Page)
-         * @name PatchAdmindmsSmartFolder
-         * @summary Save Smart Folder
-         * @request PATCH:/admin/api/dms/smart-folder
-         */
-        patchAdmindmsSmartFolder: (data: SmartFolderRequestDTO, params: RequestParams = {}) =>
-            this.request<ResultSmartFolderResponseDTO, any>({
-                path: `/admin/api/dms/smart-folder`,
-                method: "PATCH",
-                body: data,
-                type: ContentType.Json,
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
          * @tags External Share
-         * @name PatchAdmindmsShareSave
+         * @name PatchDmsShareSave
          * @request PATCH:/admin/api/dms/share/save
          */
-        patchAdmindmsShareSave: (data: ShareSaveRequestDTO, params: RequestParams = {}) =>
+        patchDmsShareSave: (data: ShareSaveRequestDTO, params: RequestParams = {}) =>
             this.request<ResultEasyShareDTO, any>({
                 path: `/admin/api/dms/share/save`,
                 method: "PATCH",
@@ -42722,11 +45459,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name GetAdmindmsSettingView
+         * @name GetDmsSettingView
          * @summary Gets view setting.
          * @request GET:/admin/api/dms/setting/view
          */
-        getAdmindmsSettingView: (params: RequestParams = {}) =>
+        getDmsSettingView: (params: RequestParams = {}) =>
             this.request<ResultViewSettingResponseDTO, any>({
                 path: `/admin/api/dms/setting/view`,
                 method: "GET",
@@ -42737,10 +45474,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name PatchAdmindmsSettingView
+         * @name PatchDmsSettingView
          * @request PATCH:/admin/api/dms/setting/view
          */
-        patchAdmindmsSettingView: (data: ViewSettingRequestDTO, params: RequestParams = {}) =>
+        patchDmsSettingView: (data: ViewSettingRequestDTO, params: RequestParams = {}) =>
             this.request<ResultViewSettingResponseDTO, any>({
                 path: `/admin/api/dms/setting/view`,
                 method: "PATCH",
@@ -42753,11 +45490,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags HoldPolicyController
-         * @name PatchAdmindmsPolicyHoldHoldpolicyidStatusStatus
+         * @name PatchDmsPolicyHoldHoldpolicyidStatusStatus
          * @summary Modify status by id
          * @request PATCH:/admin/api/dms/policy/hold/{holdPolicyId}/status/{status}
          */
-        patchAdmindmsPolicyHoldHoldpolicyidStatusStatus: (
+        patchDmsPolicyHoldHoldpolicyidStatusStatus: (
             holdPolicyId: string,
             status: string,
             params: RequestParams = {},
@@ -42772,11 +45509,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminMetadataSettingController
-         * @name DeleteAdmindmsMetadataMetadataid
+         * @name DeleteDmsMetadataMetadataid
          * @summary Delete a metadata
          * @request DELETE:/admin/api/dms/metadata/{metadataId}
          */
-        deleteAdmindmsMetadataMetadataid: (metadataId: string, params: RequestParams = {}) =>
+        deleteDmsMetadataMetadataid: (metadataId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/metadata/${metadataId}`,
                 method: "DELETE",
@@ -42787,11 +45524,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminMetadataSettingController
-         * @name PatchAdmindmsMetadataMetadataid
+         * @name PatchDmsMetadataMetadataid
          * @summary Modified metadata information
          * @request PATCH:/admin/api/dms/metadata/{metadataId}
          */
-        patchAdmindmsMetadataMetadataid: (
+        patchDmsMetadataMetadataid: (
             metadataId: string,
             data: MetaDataDefinitionRequestDTO,
             params: RequestParams = {},
@@ -42808,11 +45545,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name PatchAdmindmsMasterTableIdRecordStatus
+         * @name PatchDmsMasterTableIdRecordStatus
          * @summary Enable or Disable Record
          * @request PATCH:/admin/api/dms/master-table/{id}/record/status
          */
-        patchAdmindmsMasterTableIdRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
+        patchDmsMasterTableIdRecordStatus: (id: string, data: MTRecordRequestDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/master-table/${id}/record/status`,
                 method: "PATCH",
@@ -42825,11 +45562,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PatchAdmindmsEasyFormName
+         * @name PatchDmsEasyFormName
          * @summary Update name of form design
          * @request PATCH:/admin/api/dms/easy-form/name
          */
-        patchAdmindmsEasyFormName: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
+        patchDmsEasyFormName: (data: FormDesignRequestDTO, params: RequestParams = {}) =>
             this.request<ResultFormDesignResponseDTO, any>({
                 path: `/admin/api/dms/easy-form/name`,
                 method: "PATCH",
@@ -42842,11 +45579,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PatchAdmindmsEasyFormEnableId
+         * @name PatchDmsEasyFormEnableId
          * @summary Enable a form design
          * @request PATCH:/admin/api/dms/easy-form/enable/{id}
          */
-        patchAdmindmsEasyFormEnableId: (id: string, params: RequestParams = {}) =>
+        patchDmsEasyFormEnableId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/easy-form/enable/${id}`,
                 method: "PATCH",
@@ -42857,11 +45594,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name PatchAdmindmsEasyFormDisableId
+         * @name PatchDmsEasyFormDisableId
          * @summary Disable a form design
          * @request PATCH:/admin/api/dms/easy-form/disable/{id}
          */
-        patchAdmindmsEasyFormDisableId: (id: string, params: RequestParams = {}) =>
+        patchDmsEasyFormDisableId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/easy-form/disable/${id}`,
                 method: "PATCH",
@@ -42872,11 +45609,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name PatchAdmindmsDocpalTypeActive
+         * @name PatchDmsDocpalTypeActive
          * @summary Active or UnActive DocPal Type
          * @request PATCH:/admin/api/dms/docpal-type/active
          */
-        patchAdmindmsDocpalTypeActive: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
+        patchDmsDocpalTypeActive: (data: DocPalTypeRequestDTO, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/docpal-type/active`,
                 method: "PATCH",
@@ -42889,11 +45626,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Profile APIs(Admin Page)
-         * @name PatchAdmindmsCompanyprofilesCompanyidStatus
+         * @name PatchDmsCompanyprofilesCompanyidStatus
          * @summary Update company status [Active or Unactive]
          * @request PATCH:/admin/api/dms/companyProfiles/{companyId}/status
          */
-        patchAdmindmsCompanyprofilesCompanyidStatus: (companyId: string, data: Company, params: RequestParams = {}) =>
+        patchDmsCompanyprofilesCompanyidStatus: (companyId: string, data: Company, params: RequestParams = {}) =>
             this.request<ResultCompany, any>({
                 path: `/admin/api/dms/companyProfiles/${companyId}/status`,
                 method: "PATCH",
@@ -42906,11 +45643,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CalendarController(Admin Page)
-         * @name PatchAdmindmsCalendarsIdStatusStatus
+         * @name PatchDmsCalendarsIdStatusStatus
          * @summary Modify status by id
          * @request PATCH:/admin/api/dms/calendars/{id}/status/{status}
          */
-        patchAdmindmsCalendarsIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
+        patchDmsCalendarsIdStatusStatus: (id: string, status: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/calendars/${id}/status/${status}`,
                 method: "PATCH",
@@ -42921,11 +45658,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EventCalendarController(Admin Page)
-         * @name PatchAdmindmsCalendarsEventSettingIdStatus
+         * @name PatchDmsCalendarsEventSettingIdStatus
          * @summary Update Event Calendar Setting Status
          * @request PATCH:/admin/api/dms/calendars/event/setting/{id}/status
          */
-        patchAdmindmsCalendarsEventSettingIdStatus: (id: string, data: StatusRequest, params: RequestParams = {}) =>
+        patchDmsCalendarsEventSettingIdStatus: (id: string, data: StatusRequest, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/calendars/event/setting/${id}/status`,
                 method: "PATCH",
@@ -42938,11 +45675,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name PatchAdmindmsCabinet
+         * @name PatchDmsCabinet
          * @summary Update Document Folder Cabinet
          * @request PATCH:/admin/api/dms/cabinet
          */
-        patchAdmindmsCabinet: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
+        patchDmsCabinet: (data: DocFolderCabinetRequestDTO, params: RequestParams = {}) =>
             this.request<ResultDocFolderCabinetResponseDTO, any>({
                 path: `/admin/api/dms/cabinet`,
                 method: "PATCH",
@@ -42955,11 +45692,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PatchAdmincaseTypesVersionVersionidSave
+         * @name PatchCaseTypesVersionVersionidSave
          * @summary Edit XML file [cmmn.xml] of version
          * @request PATCH:/admin/api/case/types/version/{versionId}/save
          */
-        patchAdmincaseTypesVersionVersionidSave: (
+        patchCaseTypesVersionVersionidSave: (
             versionId: string,
             data: {
                 /** @format binary */
@@ -42979,12 +45716,12 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name PatchAdmincaseTypesVersionVersionidSaveall
+         * @name PatchCaseTypesVersionVersionidSaveall
          * @summary [Test API] Save XML file for all version of case definition
          * @request PATCH:/admin/api/case/types/version/{versionId}/saveAll
          * @deprecated
          */
-        patchAdmincaseTypesVersionVersionidSaveall: (
+        patchCaseTypesVersionVersionidSaveall: (
             versionId: string,
             data: {
                 /** @format binary */
@@ -43004,11 +45741,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTableController(Admin Page)
-         * @name PatchAdmincaseTablesFields
+         * @name PatchCaseTablesFields
          * @summary The Case Table has been augmented with the addition of multiple columns.
          * @request PATCH:/admin/api/case/tables/fields
          */
-        patchAdmincaseTablesFields: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
+        patchCaseTablesFields: (data: CaseTableRequestDTO, params: RequestParams = {}) =>
             this.request<ResultCaseTableResponseDTO, any>({
                 path: `/admin/api/case/tables/fields`,
                 method: "PATCH",
@@ -43021,10 +45758,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name GetAdminworkflowInstanceProcessinstanceid
+         * @name GetWorkflowInstanceProcessinstanceid
          * @request GET:/admin/api/workflow/instance/{processInstanceId}
          */
-        getAdminworkflowInstanceProcessinstanceid: (processInstanceId: string, params: RequestParams = {}) =>
+        getWorkflowInstanceProcessinstanceid: (processInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultProcessInstanceDTO, any>({
                 path: `/admin/api/workflow/instance/${processInstanceId}`,
                 method: "GET",
@@ -43035,10 +45772,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name GetAdminworkflowInstanceVariablesInstanceid
+         * @name GetWorkflowInstanceVariablesInstanceid
          * @request GET:/admin/api/workflow/instance/variables/{instanceId}
          */
-        getAdminworkflowInstanceVariablesInstanceid: (instanceId: string, params: RequestParams = {}) =>
+        getWorkflowInstanceVariablesInstanceid: (instanceId: string, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, any>({
                 path: `/admin/api/workflow/instance/variables/${instanceId}`,
                 method: "GET",
@@ -43049,11 +45786,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name GetAdminworkflowInstanceForms
+         * @name GetWorkflowInstanceForms
          * @summary Get the list of form properties associated with the process definition
          * @request GET:/admin/api/workflow/instance/forms
          */
-        getAdminworkflowInstanceForms: (
+        getWorkflowInstanceForms: (
             query?: {
                 processDefinitionKey?: string;
                 processDefinitionId?: string;
@@ -43071,11 +45808,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name GetAdminworkflowInstanceFormsElementkey
+         * @name GetWorkflowInstanceFormsElementkey
          * @summary Get form properties of single element associated with the process definition
          * @request GET:/admin/api/workflow/instance/forms/{elementKey}
          */
-        getAdminworkflowInstanceFormsElementkey: (
+        getWorkflowInstanceFormsElementkey: (
             elementKey: string,
             query?: {
                 processDefinitionKey?: string;
@@ -43094,11 +45831,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionProcessdefinitionkey
+         * @name GetWorkflowDefinitionProcessdefinitionkey
          * @summary Get deployed process definition through process definition key
          * @request GET:/admin/api/workflow/definition/{processDefinitionKey}
          */
-        getAdminworkflowDefinitionProcessdefinitionkey: (processDefinitionKey: string, params: RequestParams = {}) =>
+        getWorkflowDefinitionProcessdefinitionkey: (processDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultProcessDefinitionDTO, any>({
                 path: `/admin/api/workflow/definition/${processDefinitionKey}`,
                 method: "GET",
@@ -43109,14 +45846,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionProcessdefinitionkeyHistory
+         * @name GetWorkflowDefinitionProcessdefinitionkeyHistory
          * @summary Find historical process definitions through process definition key
          * @request GET:/admin/api/workflow/definition/{processDefinitionKey}/history
          */
-        getAdminworkflowDefinitionProcessdefinitionkeyHistory: (
-            processDefinitionKey: string,
-            params: RequestParams = {},
-        ) =>
+        getWorkflowDefinitionProcessdefinitionkeyHistory: (processDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultListProcessDefinitionDTO, any>({
                 path: `/admin/api/workflow/definition/${processDefinitionKey}/history`,
                 method: "GET",
@@ -43127,11 +45861,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionVersion
+         * @name GetWorkflowDefinitionVersion
          * @summary Get Version Data
          * @request GET:/admin/api/workflow/definition/version
          */
-        getAdminworkflowDefinitionVersion: (
+        getWorkflowDefinitionVersion: (
             query: {
                 draftId: string;
                 versionNumber: string;
@@ -43149,11 +45883,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionVersionVersionid
+         * @name GetWorkflowDefinitionVersionVersionid
          * @summary Get Version Data
          * @request GET:/admin/api/workflow/definition/version/{versionId}
          */
-        getAdminworkflowDefinitionVersionVersionid: (versionId: string, params: RequestParams = {}) =>
+        getWorkflowDefinitionVersionVersionid: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultProcessDefinitionVersion, any>({
                 path: `/admin/api/workflow/definition/version/${versionId}`,
                 method: "GET",
@@ -43164,10 +45898,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name DeleteAdminworkflowDefinitionVersionVersionid
+         * @name DeleteWorkflowDefinitionVersionVersionid
          * @request DELETE:/admin/api/workflow/definition/version/{versionId}
          */
-        deleteAdminworkflowDefinitionVersionVersionid: (versionId: string, params: RequestParams = {}) =>
+        deleteWorkflowDefinitionVersionVersionid: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/workflow/definition/version/${versionId}`,
                 method: "DELETE",
@@ -43178,11 +45912,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionVersionVersionidBpmnxml
+         * @name GetWorkflowDefinitionVersionVersionidBpmnxml
          * @summary Download BPMN20.xml through version id of a workflow
          * @request GET:/admin/api/workflow/definition/version/{versionId}/bpmnXml
          */
-        getAdminworkflowDefinitionVersionVersionidBpmnxml: (versionId: string, params: RequestParams = {}) =>
+        getWorkflowDefinitionVersionVersionidBpmnxml: (versionId: string, params: RequestParams = {}) =>
             this.request<string, any>({
                 path: `/admin/api/workflow/definition/version/${versionId}/bpmnXml`,
                 method: "GET",
@@ -43193,11 +45927,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionVersionKeyProcessdefinitionkey
+         * @name GetWorkflowDefinitionVersionKeyProcessdefinitionkey
          * @summary Get Latest Version Data by process definition key
          * @request GET:/admin/api/workflow/definition/version/key/{processDefinitionKey}
          */
-        getAdminworkflowDefinitionVersionKeyProcessdefinitionkey: (
+        getWorkflowDefinitionVersionKeyProcessdefinitionkey: (
             processDefinitionKey: string,
             params: RequestParams = {},
         ) =>
@@ -43211,14 +45945,15 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionVersionJson
+         * @name GetWorkflowDefinitionVersionJson
          * @summary Download Json through version number and draft id
          * @request GET:/admin/api/workflow/definition/version/json
          */
-        getAdminworkflowDefinitionVersionJson: (
-            query: {
-                draftId: string;
-                versionNumber: string;
+        getWorkflowDefinitionVersionJson: (
+            query?: {
+                draftId?: string;
+                versionNumber?: string;
+                versionId?: string;
             },
             params: RequestParams = {},
         ) =>
@@ -43233,11 +45968,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionVersionBpmnxml
+         * @name GetWorkflowDefinitionVersionBpmnxml
          * @summary Download BPMN20.xml through version number and draft id
          * @request GET:/admin/api/workflow/definition/version/bpmnXml
          */
-        getAdminworkflowDefinitionVersionBpmnxml: (
+        getWorkflowDefinitionVersionBpmnxml: (
             query: {
                 draftId: string;
                 versionNumber?: string;
@@ -43256,10 +45991,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionStartFormProperties
+         * @name GetWorkflowDefinitionStartFormProperties
          * @request GET:/admin/api/workflow/definition/start-form/properties
          */
-        getAdminworkflowDefinitionStartFormProperties: (
+        getWorkflowDefinitionStartFormProperties: (
             query: {
                 processKey: string;
             },
@@ -43276,10 +46011,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionListUserTasks
+         * @name GetWorkflowDefinitionListUserTasks
          * @request GET:/admin/api/workflow/definition/list/user-tasks
          */
-        getAdminworkflowDefinitionListUserTasks: (
+        getWorkflowDefinitionListUserTasks: (
             query?: {
                 processKey?: string;
             },
@@ -43296,11 +46031,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionForms
+         * @name GetWorkflowDefinitionForms
          * @summary Get the list of form properties associated with the process definition
          * @request GET:/admin/api/workflow/definition/forms
          */
-        getAdminworkflowDefinitionForms: (
+        getWorkflowDefinitionForms: (
             query?: {
                 processDefinitionKey?: string;
                 processDefinitionId?: string;
@@ -43318,11 +46053,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionFormsElementkey
+         * @name GetWorkflowDefinitionFormsElementkey
          * @summary Get form properties of single element associated with the process definition
          * @request GET:/admin/api/workflow/definition/forms/{elementKey}
          */
-        getAdminworkflowDefinitionFormsElementkey: (
+        getWorkflowDefinitionFormsElementkey: (
             elementKey: string,
             query?: {
                 processDefinitionKey?: string;
@@ -43341,11 +46076,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionFormsStart
+         * @name GetWorkflowDefinitionFormsStart
          * @summary Get start-form properties associated with the process definition
          * @request GET:/admin/api/workflow/definition/forms/start
          */
-        getAdminworkflowDefinitionFormsStart: (
+        getWorkflowDefinitionFormsStart: (
             query: {
                 /** Workflow Process Definition RequestDTO */
                 requestDTO: ProcessDefinitionRequestDTO;
@@ -43363,11 +46098,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionDraftDraftid
+         * @name GetWorkflowDefinitionDraftDraftid
          * @summary Get draft through process definition key
          * @request GET:/admin/api/workflow/definition/draft/{draftId}
          */
-        getAdminworkflowDefinitionDraftDraftid: (draftId: string, params: RequestParams = {}) =>
+        getWorkflowDefinitionDraftDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultProcessDefinitionResponseDTO, any>({
                 path: `/admin/api/workflow/definition/draft/${draftId}`,
                 method: "GET",
@@ -43378,11 +46113,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name DeleteAdminworkflowDefinitionDraftDraftid
+         * @name DeleteWorkflowDefinitionDraftDraftid
          * @summary Delete process definition through process definition draft id
          * @request DELETE:/admin/api/workflow/definition/draft/{draftId}
          */
-        deleteAdminworkflowDefinitionDraftDraftid: (
+        deleteWorkflowDefinitionDraftDraftid: (
             draftId: string,
             query?: {
                 enforce?: boolean;
@@ -43400,11 +46135,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionDraftDraftidDownloadXml
+         * @name GetWorkflowDefinitionDraftDraftidDownloadXml
          * @summary Get draft BPMN2.0 XML file through draft id
          * @request GET:/admin/api/workflow/definition/draft/{draftId}/download/xml
          */
-        getAdminworkflowDefinitionDraftDraftidDownloadXml: (draftId: string, params: RequestParams = {}) =>
+        getWorkflowDefinitionDraftDraftidDownloadXml: (draftId: string, params: RequestParams = {}) =>
             this.request<string, any>({
                 path: `/admin/api/workflow/definition/draft/${draftId}/download/xml`,
                 method: "GET",
@@ -43415,10 +46150,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionDraftAll
+         * @name GetWorkflowDefinitionDraftAll
          * @request GET:/admin/api/workflow/definition/draft/all
          */
-        getAdminworkflowDefinitionDraftAll: (params: RequestParams = {}) =>
+        getWorkflowDefinitionDraftAll: (params: RequestParams = {}) =>
             this.request<ResultListProcessDefinitionDraft, any>({
                 path: `/admin/api/workflow/definition/draft/all`,
                 method: "GET",
@@ -43429,11 +46164,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name GetAdminworkflowDefinitionDownloadXml
+         * @name GetWorkflowDefinitionDownloadXml
          * @summary Download BPMN2.0 XML file through process definition ID
          * @request GET:/admin/api/workflow/definition/download/xml
          */
-        getAdminworkflowDefinitionDownloadXml: (
+        getWorkflowDefinitionDownloadXml: (
             query: {
                 processDefinitionId: string;
             },
@@ -43450,11 +46185,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UcenterController
-         * @name GetAdminucenterUserUserid
+         * @name GetUcenterUserUserid
          * @summary Get User information through user-id
          * @request GET:/admin/api/ucenter/user/{userId}
          */
-        getAdminucenterUserUserid: (userId: string, params: RequestParams = {}) =>
+        getUcenterUserUserid: (userId: string, params: RequestParams = {}) =>
             this.request<ResultUserDTO, any>({
                 path: `/admin/api/ucenter/user/${userId}`,
                 method: "GET",
@@ -43465,11 +46200,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UcenterController
-         * @name GetAdminucenterUserKeycloakKeycloakuserid
+         * @name GetUcenterUserKeycloakKeycloakuserid
          * @summary Get keycloak user through keycloak user id
          * @request GET:/admin/api/ucenter/user/keycloak/{keycloakUserId}
          */
-        getAdminucenterUserKeycloakKeycloakuserid: (keycloakUserId: string, params: RequestParams = {}) =>
+        getUcenterUserKeycloakKeycloakuserid: (keycloakUserId: string, params: RequestParams = {}) =>
             this.request<ResultUserDTO, any>({
                 path: `/admin/api/ucenter/user/keycloak/${keycloakUserId}`,
                 method: "GET",
@@ -43480,10 +46215,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name GetAdminucenterSendInitPasswordEmailUserid
+         * @name GetUcenterSendInitPasswordEmailUserid
          * @request GET:/admin/api/ucenter/send-init-password-email/{userId}
          */
-        getAdminucenterSendInitPasswordEmailUserid: (userId: string, params: RequestParams = {}) =>
+        getUcenterSendInitPasswordEmailUserid: (userId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/ucenter/send-init-password-email/${userId}`,
                 method: "GET",
@@ -43494,10 +46229,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name GetAdminucenterPasswordUserStatus
+         * @name GetUcenterPasswordUserStatus
          * @request GET:/admin/api/ucenter/password/user-status
          */
-        getAdminucenterPasswordUserStatus: (params: RequestParams = {}) =>
+        getUcenterPasswordUserStatus: (params: RequestParams = {}) =>
             this.request<ResultUserStatusDTO, any>({
                 path: `/admin/api/ucenter/password/user-status`,
                 method: "GET",
@@ -43508,10 +46243,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name GetAdminucenterPasswordHasLockUserid
+         * @name GetUcenterPasswordHasLockUserid
          * @request GET:/admin/api/ucenter/password/has-lock/{userId}
          */
-        getAdminucenterPasswordHasLockUserid: (userId: string, params: RequestParams = {}) =>
+        getUcenterPasswordHasLockUserid: (userId: string, params: RequestParams = {}) =>
             this.request<ResultLockUserDTO, any>({
                 path: `/admin/api/ucenter/password/has-lock/${userId}`,
                 method: "GET",
@@ -43522,10 +46257,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name GetAdminucenterPasswordConfig
+         * @name GetUcenterPasswordConfig
          * @request GET:/admin/api/ucenter/password/config
          */
-        getAdminucenterPasswordConfig: (params: RequestParams = {}) =>
+        getUcenterPasswordConfig: (params: RequestParams = {}) =>
             this.request<ResultPasswordConfigDTO, any>({
                 path: `/admin/api/ucenter/password/config`,
                 method: "GET",
@@ -43536,10 +46271,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name GetAdminucenterPasswordCheckLockUserUserid
+         * @name GetUcenterPasswordCheckLockUserUserid
          * @request GET:/admin/api/ucenter/password/check-lock-user/{userId}
          */
-        getAdminucenterPasswordCheckLockUserUserid: (
+        getUcenterPasswordCheckLockUserUserid: (
             userId: string,
             query?: {
                 skipAddLoginCount?: boolean;
@@ -43557,10 +46292,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Password Controller
-         * @name GetAdminucenterPasswordCheckExpire
+         * @name GetUcenterPasswordCheckExpire
          * @request GET:/admin/api/ucenter/password/check-expire
          */
-        getAdminucenterPasswordCheckExpire: (params: RequestParams = {}) =>
+        getUcenterPasswordCheckExpire: (params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/ucenter/password/check-expire`,
                 method: "GET",
@@ -43571,10 +46306,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UcenterController
-         * @name GetAdminucenterDocpalRoles
+         * @name GetUcenterDocpalRoles
          * @request GET:/admin/api/ucenter/docpal/roles
          */
-        getAdminucenterDocpalRoles: (params: RequestParams = {}) =>
+        getUcenterDocpalRoles: (params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/ucenter/docpal/roles`,
                 method: "GET",
@@ -43585,10 +46320,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UcenterController
-         * @name GetAdminucenterDocpalGroups
+         * @name GetUcenterDocpalGroups
          * @request GET:/admin/api/ucenter/docpal/groups
          */
-        getAdminucenterDocpalGroups: (params: RequestParams = {}) =>
+        getUcenterDocpalGroups: (params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/ucenter/docpal/groups`,
                 method: "GET",
@@ -43599,11 +46334,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UcenterController
-         * @name GetAdminucenterDeprecate
+         * @name GetUcenterDeprecate
          * @summary Get current user information
          * @request GET:/admin/api/ucenter/
          */
-        getAdminucenterDeprecate: (params: RequestParams = {}) =>
+        getUcenterDeprecate: (params: RequestParams = {}) =>
             this.request<ResultUserDTO, any>({
                 path: `/admin/api/ucenter/`,
                 method: "GET",
@@ -43614,11 +46349,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MessageQueue
-         * @name GetAdminmessageQueueDocumentidMessage
+         * @name GetMessageQueueDocumentidMessage
          * @summary Query record By documentId
          * @request GET:/admin/api/message/queue/{documentId}/message
          */
-        getAdminmessageQueueDocumentidMessage: (documentId: string, params: RequestParams = {}) =>
+        getMessageQueueDocumentidMessage: (documentId: string, params: RequestParams = {}) =>
             this.request<ResultListBusinessResultRecord, any>({
                 path: `/admin/api/message/queue/${documentId}/message`,
                 method: "GET",
@@ -43629,11 +46364,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MessageQueue
-         * @name GetAdminmessageQueueTotal
+         * @name GetMessageQueueTotal
          * @summary message total of every message queue
          * @request GET:/admin/api/message/queue/total
          */
-        getAdminmessageQueueTotal: (
+        getMessageQueueTotal: (
             query?: {
                 messageQueueName?: string;
             },
@@ -43650,11 +46385,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MessageQueue
-         * @name GetAdminmessageQueueReportStatusgroup
+         * @name GetMessageQueueReportStatusgroup
          * @summary Statistics by state
          * @request GET:/admin/api/message/queue/report/statusGroup
          */
-        getAdminmessageQueueReportStatusgroup: (
+        getMessageQueueReportStatusgroup: (
             query?: {
                 mqName?: string;
             },
@@ -43671,11 +46406,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MessageQueue
-         * @name GetAdminmessageQueueReportHoursgroup
+         * @name GetMessageQueueReportHoursgroup
          * @summary Statistics by per hours
          * @request GET:/admin/api/message/queue/report/hoursGroup
          */
-        getAdminmessageQueueReportHoursgroup: (
+        getMessageQueueReportHoursgroup: (
             query: {
                 mqName: string;
                 date: string;
@@ -43693,11 +46428,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MessageQueue
-         * @name GetAdminmessageQueueReportDaygroup
+         * @name GetMessageQueueReportDaygroup
          * @summary Statistics by per day
          * @request GET:/admin/api/message/queue/report/dayGroup
          */
-        getAdminmessageQueueReportDaygroup: (
+        getMessageQueueReportDaygroup: (
             query?: {
                 mqName?: string;
             },
@@ -43714,11 +46449,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MessageQueue
-         * @name GetAdminmessageQueueConsumes
+         * @name GetMessageQueueConsumes
          * @summary The configuration of message queue
          * @request GET:/admin/api/message/queue/consumes
          */
-        getAdminmessageQueueConsumes: (params: RequestParams = {}) =>
+        getMessageQueueConsumes: (params: RequestParams = {}) =>
             this.request<void, any>({
                 path: `/admin/api/message/queue/consumes`,
                 method: "GET",
@@ -43730,11 +46465,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Retrieve detailed information of a specific external storage
          *
          * @tags ExternalStorageController
-         * @name GetAdminext3RdstorageId
+         * @name GetExt3RdstorageId
          * @summary Get External Storage Detail
          * @request GET:/admin/api/ext3rdStorage/{id}
          */
-        getAdminext3rdstorageId: (id: string, params: RequestParams = {}) =>
+        getExt3rdstorageId: (id: string, params: RequestParams = {}) =>
             this.request<ResultExternalStorageDTO, any>({
                 path: `/admin/api/ext3rdStorage/${id}`,
                 method: "GET",
@@ -43745,11 +46480,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name DeleteAdminext3RdstorageId
+         * @name DeleteExt3RdstorageId
          * @summary Delete External Storage
          * @request DELETE:/admin/api/ext3rdStorage/{id}
          */
-        deleteAdminext3rdstorageId: (id: string, params: RequestParams = {}) =>
+        deleteExt3rdstorageId: (id: string, params: RequestParams = {}) =>
             this.request<boolean, any>({
                 path: `/admin/api/ext3rdStorage/${id}`,
                 method: "DELETE",
@@ -43760,11 +46495,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name GetAdminext3RdstorageIdProfilesProfileid
+         * @name GetExt3RdstorageIdProfilesProfileid
          * @summary Get a external profile in external storage id
          * @request GET:/admin/api/ext3rdStorage/{id}/profiles/{profileId}
          */
-        getAdminext3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
+        getExt3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
             this.request<ExternalProfileDTO, any>({
                 path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}`,
                 method: "GET",
@@ -43775,11 +46510,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name DeleteAdminext3RdstorageIdProfilesProfileid
+         * @name DeleteExt3RdstorageIdProfilesProfileid
          * @summary Delete a external profile in external storage id
          * @request DELETE:/admin/api/ext3rdStorage/{id}/profiles/{profileId}
          */
-        deleteAdminext3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
+        deleteExt3rdstorageIdProfilesProfileid: (id: string, profileId: string, params: RequestParams = {}) =>
             this.request<boolean, any>({
                 path: `/admin/api/ext3rdStorage/${id}/profiles/${profileId}`,
                 method: "DELETE",
@@ -43790,11 +46525,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Retrieve all profiles for a specific external storage
          *
          * @tags ExternalStorageController
-         * @name GetAdminext3RdstorageIdProfilesList
+         * @name GetExt3RdstorageIdProfilesList
          * @summary Get all profile by external storage id
          * @request GET:/admin/api/ext3rdStorage/{id}/profiles/list
          */
-        getAdminext3rdstorageIdProfilesList: (id: string, params: RequestParams = {}) =>
+        getExt3rdstorageIdProfilesList: (id: string, params: RequestParams = {}) =>
             this.request<ExternalProfileDTO, any>({
                 path: `/admin/api/ext3rdStorage/${id}/profiles/list`,
                 method: "GET",
@@ -43805,10 +46540,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name GetAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordid
+         * @name GetExt3RdstorageProfilesProfileidOutputrecordOutputrecordid
          * @request GET:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
          */
-        getAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
+        getExt3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
             profileId: string,
             outputRecordId: string,
             params: RequestParams = {},
@@ -43823,10 +46558,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name DeleteAdminext3RdstorageProfilesProfileidOutputrecordOutputrecordid
+         * @name DeleteExt3RdstorageProfilesProfileidOutputrecordOutputrecordid
          * @request DELETE:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/{outputRecordId}
          */
-        deleteAdminext3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
+        deleteExt3rdstorageProfilesProfileidOutputrecordOutputrecordid: (
             profileId: string,
             outputRecordId: string,
             params: RequestParams = {},
@@ -43841,11 +46576,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name GetAdminext3RdstorageProfilesProfileidOutputrecordList
+         * @name GetExt3RdstorageProfilesProfileidOutputrecordList
          * @summary Retrieve all output settings of specific profile
          * @request GET:/admin/api/ext3rdStorage/profiles/{profileId}/outputRecord/list
          */
-        getAdminext3rdstorageProfilesProfileidOutputrecordList: (profileId: string, params: RequestParams = {}) =>
+        getExt3rdstorageProfilesProfileidOutputrecordList: (profileId: string, params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, any>({
                 path: `/admin/api/ext3rdStorage/profiles/${profileId}/outputRecord/list`,
                 method: "GET",
@@ -43856,11 +46591,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageController
-         * @name GetAdminext3RdstorageList
+         * @name GetExt3RdstorageList
          * @summary Get External Storage Detail List
          * @request GET:/admin/api/ext3rdStorage/list
          */
-        getAdminext3rdstorageList: (
+        getExt3rdstorageList: (
             query: {
                 /** External Storage Request DTO */
                 externalStorageVO: ExternalStorageRequestDTO;
@@ -43878,11 +46613,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Get detailed information of an import job by ID
          *
          * @tags ExternalStorageImportJobController
-         * @name GetAdminext3RdstorageImportjobsId
+         * @name GetExt3RdstorageImportjobsId
          * @summary Get import job details
          * @request GET:/admin/api/ext3rdStorage/importJobs/{id}
          */
-        getAdminext3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
+        getExt3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultExternalStorageImportJobDTO, any>({
                 path: `/admin/api/ext3rdStorage/importJobs/${id}`,
                 method: "GET",
@@ -43893,11 +46628,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageImportJobController
-         * @name DeleteAdminext3RdstorageImportjobsId
+         * @name DeleteExt3RdstorageImportjobsId
          * @summary Delete import job
          * @request DELETE:/admin/api/ext3rdStorage/importJobs/{id}
          */
-        deleteAdminext3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
+        deleteExt3rdstorageImportjobsId: (id: string, params: RequestParams = {}) =>
             this.request<boolean, any>({
                 path: `/admin/api/ext3rdStorage/importJobs/${id}`,
                 method: "DELETE",
@@ -43908,10 +46643,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageImportJobController
-         * @name GetAdminext3RdstorageImportjobsPageConditions
+         * @name GetExt3RdstorageImportjobsPageConditions
          * @request GET:/admin/api/ext3rdStorage/importJobs/page/conditions
          */
-        getAdminext3rdstorageImportjobsPageConditions: (params: RequestParams = {}) =>
+        getExt3rdstorageImportjobsPageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, any>({
                 path: `/admin/api/ext3rdStorage/importJobs/page/conditions`,
                 method: "GET",
@@ -43922,11 +46657,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags ExternalStorageImportJobController
-         * @name GetAdminext3RdstorageImportjobsList
+         * @name GetExt3RdstorageImportjobsList
          * @summary Get all import jobs list
          * @request GET:/admin/api/ext3rdStorage/importJobs/list
          */
-        getAdminext3rdstorageImportjobsList: (
+        getExt3rdstorageImportjobsList: (
             query: {
                 /** External Storage Import Job Request */
                 requestDTO: ExternalStorageImportJobRequestDTO;
@@ -43944,10 +46679,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-whats-app-controller
-         * @name GetAdminext3RdmessageWhatsappLanguages
+         * @name GetExt3RdmessageWhatsappLanguages
          * @request GET:/admin/api/ext3rdMessage/whatsapp/languages
          */
-        getAdminext3rdmessageWhatsappLanguages: (params: RequestParams = {}) =>
+        getExt3rdmessageWhatsappLanguages: (params: RequestParams = {}) =>
             this.request<ResultListLanguageDTO, any>({
                 path: `/admin/api/ext3rdMessage/whatsapp/languages`,
                 method: "GET",
@@ -43958,10 +46693,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-whats-app-controller
-         * @name GetAdminext3RdmessageWhatsappConnectionStatus
+         * @name GetExt3RdmessageWhatsappConnectionStatus
          * @request GET:/admin/api/ext3rdMessage/whatsapp/connection/status
          */
-        getAdminext3rdmessageWhatsappConnectionStatus: (params: RequestParams = {}) =>
+        getExt3rdmessageWhatsappConnectionStatus: (params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/ext3rdMessage/whatsapp/connection/status`,
                 method: "GET",
@@ -43971,12 +46706,92 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags AdminDynamicDBMenuController
+         * @name GetDynamicDbMenusIdTree
+         * @summary Get Menu Tree by parent menu ID
+         * @request GET:/admin/api/dynamic-db/menus/{id}/tree
+         */
+        getDynamicDbMenusIdTree: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListMenuDTO, any>({
+                path: `/admin/api/dynamic-db/menus/${id}/tree`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBMenuController
+         * @name GetDynamicDbMenusTree
+         * @summary Get Menu tree by reference entity (e.g., case type)
+         * @request GET:/admin/api/dynamic-db/menus/tree
+         */
+        getDynamicDbMenusTree: (
+            query: {
+                referenceEntityType: string;
+                referenceEntityId: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListMenuDTO, any>({
+                path: `/admin/api/dynamic-db/menus/tree`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDynamicDBCaseTypeController
+         * @name GetDynamicDbCaseTypesIdItemsTree
+         * @summary Get Case Type menu tree (folders, tables, views, etc.)
+         * @request GET:/admin/api/dynamic-db/case-types/{id}/items-tree
+         */
+        getDynamicDbCaseTypesIdItemsTree: (id: string, params: RequestParams = {}) =>
+            this.request<ResultListCaseTypeMenuItemDTO, any>({
+                path: `/admin/api/dynamic-db/case-types/${id}/items-tree`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-ocr-controller
+         * @name GetDsbAzureOcrModels
+         * @request GET:/admin/api/dsb/azure/ocr/models
+         */
+        getDsbAzureOcrModels: (params: RequestParams = {}) =>
+            this.request<ResultListString, any>({
+                path: `/admin/api/dsb/azure/ocr/models`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags admin-azure-ocr-controller
+         * @name GetDsbAzureOcrConditions
+         * @request GET:/admin/api/dsb/azure/ocr/conditions
+         */
+        getDsbAzureOcrConditions: (params: RequestParams = {}) =>
+            this.request<ResultListConditionResponseDTO, any>({
+                path: `/admin/api/dsb/azure/ocr/conditions`,
+                method: "GET",
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags AdminWorkflowVersionController(Admin Page)
-         * @name GetAdmindocpalWorkflowVersion
+         * @name GetDocpalWorkflowVersion
          * @summary Get Version Data
          * @request GET:/admin/api/docpal/workflow/version
          */
-        getAdmindocpalWorkflowVersion: (
+        getDocpalWorkflowVersion: (
             query: {
                 draftId: string;
                 versionNumber: string;
@@ -43994,11 +46809,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowVersionController(Admin Page)
-         * @name GetAdmindocpalWorkflowVersionVersionid
+         * @name GetDocpalWorkflowVersionVersionid
          * @summary Get Version Data
          * @request GET:/admin/api/docpal/workflow/version/{versionId}
          */
-        getAdmindocpalWorkflowVersionVersionid: (versionId: string, params: RequestParams = {}) =>
+        getDocpalWorkflowVersionVersionid: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultProcessDefinitionVersion, any>({
                 path: `/admin/api/docpal/workflow/version/${versionId}`,
                 method: "GET",
@@ -44009,10 +46824,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowVersionController(Admin Page)
-         * @name DeleteAdmindocpalWorkflowVersionVersionid
+         * @name DeleteDocpalWorkflowVersionVersionid
          * @request DELETE:/admin/api/docpal/workflow/version/{versionId}
          */
-        deleteAdmindocpalWorkflowVersionVersionid: (versionId: string, params: RequestParams = {}) =>
+        deleteDocpalWorkflowVersionVersionid: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/workflow/version/${versionId}`,
                 method: "DELETE",
@@ -44023,11 +46838,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowVersionController(Admin Page)
-         * @name GetAdmindocpalWorkflowVersionVersionidBpmnxml
+         * @name GetDocpalWorkflowVersionVersionidBpmnxml
          * @summary Download BPMN20.xml through version id of a workflow
          * @request GET:/admin/api/docpal/workflow/version/{versionId}/bpmnXml
          */
-        getAdmindocpalWorkflowVersionVersionidBpmnxml: (versionId: string, params: RequestParams = {}) =>
+        getDocpalWorkflowVersionVersionidBpmnxml: (versionId: string, params: RequestParams = {}) =>
             this.request<string, any>({
                 path: `/admin/api/docpal/workflow/version/${versionId}/bpmnXml`,
                 method: "GET",
@@ -44038,14 +46853,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowVersionController(Admin Page)
-         * @name GetAdmindocpalWorkflowVersionKeyProcessdefinitionkey
+         * @name GetDocpalWorkflowVersionKeyProcessdefinitionkey
          * @summary Get Latest Version Data by process definition key
          * @request GET:/admin/api/docpal/workflow/version/key/{processDefinitionKey}
          */
-        getAdmindocpalWorkflowVersionKeyProcessdefinitionkey: (
-            processDefinitionKey: string,
-            params: RequestParams = {},
-        ) =>
+        getDocpalWorkflowVersionKeyProcessdefinitionkey: (processDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultProcessDefinitionVersion, any>({
                 path: `/admin/api/docpal/workflow/version/key/${processDefinitionKey}`,
                 method: "GET",
@@ -44056,14 +46868,15 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowVersionController(Admin Page)
-         * @name GetAdmindocpalWorkflowVersionJson
+         * @name GetDocpalWorkflowVersionJson
          * @summary Download Json through version number and draft id
          * @request GET:/admin/api/docpal/workflow/version/json
          */
-        getAdmindocpalWorkflowVersionJson: (
-            query: {
-                draftId: string;
-                versionNumber: string;
+        getDocpalWorkflowVersionJson: (
+            query?: {
+                draftId?: string;
+                versionNumber?: string;
+                versionId?: string;
             },
             params: RequestParams = {},
         ) =>
@@ -44078,11 +46891,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowVersionController(Admin Page)
-         * @name GetAdmindocpalWorkflowVersionBpmnxml
+         * @name GetDocpalWorkflowVersionBpmnxml
          * @summary Download BPMN20.xml through version number and draft id
          * @request GET:/admin/api/docpal/workflow/version/bpmnXml
          */
-        getAdmindocpalWorkflowVersionBpmnxml: (
+        getDocpalWorkflowVersionBpmnxml: (
             query: {
                 draftId: string;
                 versionNumber?: string;
@@ -44101,10 +46914,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name GetAdmindocpalWorkflowVariablesInstanceid
+         * @name GetDocpalWorkflowVariablesInstanceid
          * @request GET:/admin/api/docpal/workflow/variables/{instanceId}
          */
-        getAdmindocpalWorkflowVariablesInstanceid: (instanceId: string, params: RequestParams = {}) =>
+        getDocpalWorkflowVariablesInstanceid: (instanceId: string, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, any>({
                 path: `/admin/api/docpal/workflow/variables/${instanceId}`,
                 method: "GET",
@@ -44115,10 +46928,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name GetAdmindocpalWorkflowStartFormProperties
+         * @name GetDocpalWorkflowStartFormProperties
          * @request GET:/admin/api/docpal/workflow/start-form/properties
          */
-        getAdmindocpalWorkflowStartFormProperties: (
+        getDocpalWorkflowStartFormProperties: (
             query: {
                 processKey: string;
             },
@@ -44135,10 +46948,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowConfigController
-         * @name GetAdmindocpalWorkflowQuerydocumenttypeprofileid
+         * @name GetDocpalWorkflowQuerydocumenttypeprofileid
          * @request GET:/admin/api/docpal/workflow/querydocumentTypeProFileId
          */
-        getAdmindocpalWorkflowQuerydocumenttypeprofileid: (
+        getDocpalWorkflowQuerydocumenttypeprofileid: (
             query: {
                 documentType: string;
             },
@@ -44155,10 +46968,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowConfigController
-         * @name GetAdmindocpalWorkflowQuerymetadatamapping
+         * @name GetDocpalWorkflowQuerymetadatamapping
          * @request GET:/admin/api/docpal/workflow/queryMetadataMapping
          */
-        getAdmindocpalWorkflowQuerymetadatamapping: (
+        getDocpalWorkflowQuerymetadatamapping: (
             query: {
                 request: DocumentTypeMetadataMapping;
             },
@@ -44175,10 +46988,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowConfigController
-         * @name GetAdmindocpalWorkflowQuerymetadatamappingnames
+         * @name GetDocpalWorkflowQuerymetadatamappingnames
          * @request GET:/admin/api/docpal/workflow/queryMetadataMappingNames
          */
-        getAdmindocpalWorkflowQuerymetadatamappingnames: (params: RequestParams = {}) =>
+        getDocpalWorkflowQuerymetadatamappingnames: (params: RequestParams = {}) =>
             this.request<ResultListString, any>({
                 path: `/admin/api/docpal/workflow/queryMetadataMappingNames`,
                 method: "GET",
@@ -44189,10 +47002,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowConfigController
-         * @name GetAdmindocpalWorkflowQuerydocumenttypeprofile
+         * @name GetDocpalWorkflowQuerydocumenttypeprofile
          * @request GET:/admin/api/docpal/workflow/queryDocumentTypeProfile
          */
-        getAdmindocpalWorkflowQuerydocumenttypeprofile: (
+        getDocpalWorkflowQuerydocumenttypeprofile: (
             query: {
                 request: DocumentTypeProfileSetting;
             },
@@ -44209,10 +47022,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowConfigController
-         * @name GetAdmindocpalWorkflowQuerydocumenttypeprofilesettings
+         * @name GetDocpalWorkflowQuerydocumenttypeprofilesettings
          * @request GET:/admin/api/docpal/workflow/queryDocumentTypeProFileSettings
          */
-        getAdmindocpalWorkflowQuerydocumenttypeprofilesettings: (params: RequestParams = {}) =>
+        getDocpalWorkflowQuerydocumenttypeprofilesettings: (params: RequestParams = {}) =>
             this.request<ResultMapStringListMapStringString, any>({
                 path: `/admin/api/docpal/workflow/queryDocumentTypeProFileSettings`,
                 method: "GET",
@@ -44223,13 +47036,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name GetAdmindocpalWorkflowProcessInstanceProcessinstanceid
+         * @name GetDocpalWorkflowProcessInstanceProcessinstanceid
          * @request GET:/admin/api/docpal/workflow/process/instance/{processInstanceId}
          */
-        getAdmindocpalWorkflowProcessInstanceProcessinstanceid: (
-            processInstanceId: string,
-            params: RequestParams = {},
-        ) =>
+        getDocpalWorkflowProcessInstanceProcessinstanceid: (processInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultProcessInstanceDTO, any>({
                 path: `/admin/api/docpal/workflow/process/instance/${processInstanceId}`,
                 method: "GET",
@@ -44240,10 +47050,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name GetAdmindocpalWorkflowProcessGetprocessdefinitionlist
+         * @name GetDocpalWorkflowProcessGetprocessdefinitionlist
          * @request GET:/admin/api/docpal/workflow/process/getProcessDefinitionList
          */
-        getAdmindocpalWorkflowProcessGetprocessdefinitionlist: (
+        getDocpalWorkflowProcessGetprocessdefinitionlist: (
             query?: {
                 processKey?: string;
             },
@@ -44260,11 +47070,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name GetAdmindocpalWorkflowProcessDefinitionProcessdefinitionkey
+         * @name GetDocpalWorkflowProcessDefinitionProcessdefinitionkey
          * @summary Get deployed process definition through process definition key
          * @request GET:/admin/api/docpal/workflow/process/definition/{processDefinitionKey}
          */
-        getAdmindocpalWorkflowProcessDefinitionProcessdefinitionkey: (
+        getDocpalWorkflowProcessDefinitionProcessdefinitionkey: (
             processDefinitionKey: string,
             params: RequestParams = {},
         ) =>
@@ -44278,11 +47088,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name GetAdmindocpalWorkflowProcessDefinitionProcessdefinitionkeyHistory
+         * @name GetDocpalWorkflowProcessDefinitionProcessdefinitionkeyHistory
          * @summary Find historical process definitions through process definition key
          * @request GET:/admin/api/docpal/workflow/process/definition/{processDefinitionKey}/history
          */
-        getAdmindocpalWorkflowProcessDefinitionProcessdefinitionkeyHistory: (
+        getDocpalWorkflowProcessDefinitionProcessdefinitionkeyHistory: (
             processDefinitionKey: string,
             params: RequestParams = {},
         ) =>
@@ -44296,11 +47106,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name GetAdmindocpalWorkflowProcessDefinitionForms
+         * @name GetDocpalWorkflowProcessDefinitionForms
          * @summary Get the list of form properties associated with the process definition
          * @request GET:/admin/api/docpal/workflow/process/definition/forms
          */
-        getAdmindocpalWorkflowProcessDefinitionForms: (
+        getDocpalWorkflowProcessDefinitionForms: (
             query?: {
                 processDefinitionKey?: string;
                 processDefinitionId?: string;
@@ -44318,11 +47128,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name GetAdmindocpalWorkflowProcessDefinitionFormsElementkey
+         * @name GetDocpalWorkflowProcessDefinitionFormsElementkey
          * @summary Get form properties of single element associated with the process definition
          * @request GET:/admin/api/docpal/workflow/process/definition/forms/{elementKey}
          */
-        getAdmindocpalWorkflowProcessDefinitionFormsElementkey: (
+        getDocpalWorkflowProcessDefinitionFormsElementkey: (
             elementKey: string,
             query?: {
                 processDefinitionKey?: string;
@@ -44341,11 +47151,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name GetAdmindocpalWorkflowProcessDefinitionFormsStart
+         * @name GetDocpalWorkflowProcessDefinitionFormsStart
          * @summary Get start-form properties associated with the process definition
          * @request GET:/admin/api/docpal/workflow/process/definition/forms/start
          */
-        getAdmindocpalWorkflowProcessDefinitionFormsStart: (
+        getDocpalWorkflowProcessDefinitionFormsStart: (
             query: {
                 /** Workflow Process Definition RequestDTO */
                 requestDTO: ProcessDefinitionRequestDTO;
@@ -44363,11 +47173,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name GetAdmindocpalWorkflowProcessDefinitionDraftDraftid
+         * @name GetDocpalWorkflowProcessDefinitionDraftDraftid
          * @summary Get draft through process definition key
          * @request GET:/admin/api/docpal/workflow/process/definition/draft/{draftId}
          */
-        getAdmindocpalWorkflowProcessDefinitionDraftDraftid: (draftId: string, params: RequestParams = {}) =>
+        getDocpalWorkflowProcessDefinitionDraftDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultProcessDefinitionResponseDTO, any>({
                 path: `/admin/api/docpal/workflow/process/definition/draft/${draftId}`,
                 method: "GET",
@@ -44378,11 +47188,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name DeleteAdmindocpalWorkflowProcessDefinitionDraftDraftid
+         * @name DeleteDocpalWorkflowProcessDefinitionDraftDraftid
          * @summary Delete process definition through process definition draft id
          * @request DELETE:/admin/api/docpal/workflow/process/definition/draft/{draftId}
          */
-        deleteAdmindocpalWorkflowProcessDefinitionDraftDraftid: (
+        deleteDocpalWorkflowProcessDefinitionDraftDraftid: (
             draftId: string,
             query?: {
                 enforce?: boolean;
@@ -44400,11 +47210,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name GetAdmindocpalWorkflowProcessDefinitionDraftDraftidDownloadXml
+         * @name GetDocpalWorkflowProcessDefinitionDraftDraftidDownloadXml
          * @summary Get draft BPMN2.0 XML file through draft id
          * @request GET:/admin/api/docpal/workflow/process/definition/draft/{draftId}/download/xml
          */
-        getAdmindocpalWorkflowProcessDefinitionDraftDraftidDownloadXml: (draftId: string, params: RequestParams = {}) =>
+        getDocpalWorkflowProcessDefinitionDraftDraftidDownloadXml: (draftId: string, params: RequestParams = {}) =>
             this.request<string, any>({
                 path: `/admin/api/docpal/workflow/process/definition/draft/${draftId}/download/xml`,
                 method: "GET",
@@ -44415,10 +47225,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name GetAdmindocpalWorkflowProcessDefinitionDraftAll
+         * @name GetDocpalWorkflowProcessDefinitionDraftAll
          * @request GET:/admin/api/docpal/workflow/process/definition/draft/all
          */
-        getAdmindocpalWorkflowProcessDefinitionDraftAll: (params: RequestParams = {}) =>
+        getDocpalWorkflowProcessDefinitionDraftAll: (params: RequestParams = {}) =>
             this.request<ResultListProcessDefinitionDraft, any>({
                 path: `/admin/api/docpal/workflow/process/definition/draft/all`,
                 method: "GET",
@@ -44429,11 +47239,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name GetAdmindocpalWorkflowProcessDefinitionDownloadXml
+         * @name GetDocpalWorkflowProcessDefinitionDownloadXml
          * @summary Download BPMN2.0 XML file through process definition ID
          * @request GET:/admin/api/docpal/workflow/process/definition/download/xml
          */
-        getAdmindocpalWorkflowProcessDefinitionDownloadXml: (
+        getDocpalWorkflowProcessDefinitionDownloadXml: (
             query: {
                 processDefinitionId: string;
             },
@@ -44450,11 +47260,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name GetAdmindocpalWorkflowForms
+         * @name GetDocpalWorkflowForms
          * @summary Get the list of form properties associated with the process definition
          * @request GET:/admin/api/docpal/workflow/forms
          */
-        getAdmindocpalWorkflowForms: (
+        getDocpalWorkflowForms: (
             query?: {
                 processDefinitionKey?: string;
                 processDefinitionId?: string;
@@ -44472,11 +47282,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name GetAdmindocpalWorkflowFormsElementkey
+         * @name GetDocpalWorkflowFormsElementkey
          * @summary Get form properties of single element associated with the process definition
          * @request GET:/admin/api/docpal/workflow/forms/{elementKey}
          */
-        getAdmindocpalWorkflowFormsElementkey: (
+        getDocpalWorkflowFormsElementkey: (
             elementKey: string,
             query?: {
                 processDefinitionKey?: string;
@@ -44495,11 +47305,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Watermark Settings APIs(Admin Page)
-         * @name GetAdmindocpalWatermarkTemplatesId
+         * @name GetDocpalWatermarkTemplatesId
          * @summary Query watermark template by ID
          * @request GET:/admin/api/docpal/watermark/templates/{id}
          */
-        getAdmindocpalWatermarkTemplatesId: (id: string, params: RequestParams = {}) =>
+        getDocpalWatermarkTemplatesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultWMKTemplateRequestDTO, any>({
                 path: `/admin/api/docpal/watermark/templates/${id}`,
                 method: "GET",
@@ -44510,11 +47320,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Watermark Settings APIs(Admin Page)
-         * @name DeleteAdmindocpalWatermarkTemplatesId
+         * @name DeleteDocpalWatermarkTemplatesId
          * @summary Delete watermark template by id
          * @request DELETE:/admin/api/docpal/watermark/templates/{id}
          */
-        deleteAdmindocpalWatermarkTemplatesId: (id: string, params: RequestParams = {}) =>
+        deleteDocpalWatermarkTemplatesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/watermark/templates/${id}`,
                 method: "DELETE",
@@ -44525,11 +47335,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Watermark Settings APIs(Admin Page)
-         * @name GetAdmindocpalWatermarkTemplatesNameName
+         * @name GetDocpalWatermarkTemplatesNameName
          * @summary Query watermark template by name
          * @request GET:/admin/api/docpal/watermark/templates/name/{name}
          */
-        getAdmindocpalWatermarkTemplatesNameName: (name: string, params: RequestParams = {}) =>
+        getDocpalWatermarkTemplatesNameName: (name: string, params: RequestParams = {}) =>
             this.request<ResultWMKTemplateRequestDTO, any>({
                 path: `/admin/api/docpal/watermark/templates/name/${name}`,
                 method: "GET",
@@ -44540,11 +47350,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Watermark Settings APIs(Admin Page)
-         * @name DeleteAdmindocpalWatermarkTemplatesNameName
+         * @name DeleteDocpalWatermarkTemplatesNameName
          * @summary Delete watermark template by name
          * @request DELETE:/admin/api/docpal/watermark/templates/name/{name}
          */
-        deleteAdmindocpalWatermarkTemplatesNameName: (name: string, params: RequestParams = {}) =>
+        deleteDocpalWatermarkTemplatesNameName: (name: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/watermark/templates/name/${name}`,
                 method: "DELETE",
@@ -44555,11 +47365,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Watermark Settings APIs(Admin Page)
-         * @name GetAdmindocpalWatermarkTemplatesAll
+         * @name GetDocpalWatermarkTemplatesAll
          * @summary Query all watermark template
          * @request GET:/admin/api/docpal/watermark/templates/all
          */
-        getAdmindocpalWatermarkTemplatesAll: (params: RequestParams = {}) =>
+        getDocpalWatermarkTemplatesAll: (params: RequestParams = {}) =>
             this.request<ResultListWatermarkSettingsTemplate, any>({
                 path: `/admin/api/docpal/watermark/templates/all`,
                 method: "GET",
@@ -44570,11 +47380,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Watermark Settings APIs(Admin Page)
-         * @name GetAdmindocpalWatermarkSettingsId
+         * @name GetDocpalWatermarkSettingsId
          * @summary query watermark settings
          * @request GET:/admin/api/docpal/watermark/settings/{id}
          */
-        getAdmindocpalWatermarkSettingsId: (id: string, params: RequestParams = {}) =>
+        getDocpalWatermarkSettingsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultWatermarkSettingsDTO, any>({
                 path: `/admin/api/docpal/watermark/settings/${id}`,
                 method: "GET",
@@ -44585,11 +47395,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Watermark Settings APIs(Admin Page)
-         * @name DeleteAdmindocpalWatermarkSettingsId
+         * @name DeleteDocpalWatermarkSettingsId
          * @summary Delete watermark settings by id
          * @request DELETE:/admin/api/docpal/watermark/settings/{id}
          */
-        deleteAdmindocpalWatermarkSettingsId: (id: string, params: RequestParams = {}) =>
+        deleteDocpalWatermarkSettingsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/watermark/settings/${id}`,
                 method: "DELETE",
@@ -44600,11 +47410,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Watermark Settings APIs(Admin Page)
-         * @name GetAdmindocpalWatermarkSettingsTemplateTemplateid
+         * @name GetDocpalWatermarkSettingsTemplateTemplateid
          * @summary Query list of watermark settings by template id
          * @request GET:/admin/api/docpal/watermark/settings/template/{templateId}
          */
-        getAdmindocpalWatermarkSettingsTemplateTemplateid: (templateId: string, params: RequestParams = {}) =>
+        getDocpalWatermarkSettingsTemplateTemplateid: (templateId: string, params: RequestParams = {}) =>
             this.request<ResultListWatermarkSettingsDTO, any>({
                 path: `/admin/api/docpal/watermark/settings/template/${templateId}`,
                 method: "GET",
@@ -44615,11 +47425,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Watermark Settings APIs(Admin Page)
-         * @name GetAdmindocpalWatermarkSettingsPreviewId
+         * @name GetDocpalWatermarkSettingsPreviewId
          * @summary preview watermark settings to return byte array
          * @request GET:/admin/api/docpal/watermark/settings/preview/{id}
          */
-        getAdmindocpalWatermarkSettingsPreviewId: (id: string, params: RequestParams = {}) =>
+        getDocpalWatermarkSettingsPreviewId: (id: string, params: RequestParams = {}) =>
             this.request<string, any>({
                 path: `/admin/api/docpal/watermark/settings/preview/${id}`,
                 method: "GET",
@@ -44630,11 +47440,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Watermark Settings APIs(Admin Page)
-         * @name GetAdmindocpalWatermarkSettingsContenttype
+         * @name GetDocpalWatermarkSettingsContenttype
          * @summary Get list of content type of watermark setting
          * @request GET:/admin/api/docpal/watermark/settings/contentType
          */
-        getAdmindocpalWatermarkSettingsContenttype: (params: RequestParams = {}) =>
+        getDocpalWatermarkSettingsContenttype: (params: RequestParams = {}) =>
             this.request<ResultListWMContentTypeDTO, any>({
                 path: `/admin/api/docpal/watermark/settings/contentType`,
                 method: "GET",
@@ -44645,11 +47455,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags PersonalDashboardController
-         * @name GetAdmindocpalPersonalDashboardId
+         * @name GetDocpalPersonalDashboardId
          * @summary Obtain a dashboard detail
          * @request GET:/admin/api/docpal/personal/dashboard/{id}
          */
-        getAdmindocpalPersonalDashboardId: (id: number, params: RequestParams = {}) =>
+        getDocpalPersonalDashboardId: (id: number, params: RequestParams = {}) =>
             this.request<ResultPersonalDashboard, any>({
                 path: `/admin/api/docpal/personal/dashboard/${id}`,
                 method: "GET",
@@ -44660,10 +47470,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags PersonalDashboardController
-         * @name DeleteAdmindocpalPersonalDashboardId
+         * @name DeleteDocpalPersonalDashboardId
          * @request DELETE:/admin/api/docpal/personal/dashboard/{id}
          */
-        deleteAdmindocpalPersonalDashboardId: (id: number, params: RequestParams = {}) =>
+        deleteDocpalPersonalDashboardId: (id: number, params: RequestParams = {}) =>
             this.request<ResultVoid, any>({
                 path: `/admin/api/docpal/personal/dashboard/${id}`,
                 method: "DELETE",
@@ -44674,11 +47484,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags OAuth2SettingController
-         * @name GetAdmindocpalOauth2Authenticationmethod
+         * @name GetDocpalOauth2Authenticationmethod
          * @summary Get all authentication way of OAuth2.0
          * @request GET:/admin/api/docpal/oauth2/authenticationMethod
          */
-        getAdmindocpalOauth2Authenticationmethod: (params: RequestParams = {}) =>
+        getDocpalOauth2Authenticationmethod: (params: RequestParams = {}) =>
             this.request<ResultOAuth2AuthenticationMethod, any>({
                 path: `/admin/api/docpal/oauth2/authenticationMethod`,
                 method: "GET",
@@ -44689,14 +47499,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags OAuth2SettingController
-         * @name GetAdmindocpalOauth2AccesstokenSenderaddressSenderaddress
+         * @name GetDocpalOauth2AccesstokenSenderaddressSenderaddress
          * @request GET:/admin/api/docpal/oauth2/accessToken/senderAddress/{senderAddress}
          * @deprecated
          */
-        getAdmindocpalOauth2AccesstokenSenderaddressSenderaddress: (
-            senderAddress: string,
-            params: RequestParams = {},
-        ) =>
+        getDocpalOauth2AccesstokenSenderaddressSenderaddress: (senderAddress: string, params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/docpal/oauth2/accessToken/senderAddress/${senderAddress}`,
                 method: "GET",
@@ -44707,10 +47514,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-template-message-controller
-         * @name GetAdmindocpalMessageTemplateQueryMessageTemplates
+         * @name GetDocpalMessageTemplateQueryMessageTemplates
          * @request GET:/admin/api/docpal/message/template/query_message_templates
          */
-        getAdmindocpalMessageTemplateQueryMessageTemplates: (params: RequestParams = {}) =>
+        getDocpalMessageTemplateQueryMessageTemplates: (params: RequestParams = {}) =>
             this.request<ResultListMessageTemplateDTO, any>({
                 path: `/admin/api/docpal/message/template/query_message_templates`,
                 method: "GET",
@@ -44721,13 +47528,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-template-message-controller
-         * @name GetAdmindocpalMessageTemplateQueryMessageTemplateTemplatename
+         * @name GetDocpalMessageTemplateQueryMessageTemplateTemplatename
          * @request GET:/admin/api/docpal/message/template/query_message_template/{templateName}
          */
-        getAdmindocpalMessageTemplateQueryMessageTemplateTemplatename: (
-            templateName: string,
-            params: RequestParams = {},
-        ) =>
+        getDocpalMessageTemplateQueryMessageTemplateTemplatename: (templateName: string, params: RequestParams = {}) =>
             this.request<ResultMessageTemplateDTO, any>({
                 path: `/admin/api/docpal/message/template/query_message_template/${templateName}`,
                 method: "GET",
@@ -44738,10 +47542,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-template-message-controller
-         * @name GetAdmindocpalMessageTemplateFindTemplateNameList
+         * @name GetDocpalMessageTemplateFindTemplateNameList
          * @request GET:/admin/api/docpal/message/template/find_template_name_list
          */
-        getAdmindocpalMessageTemplateFindTemplateNameList: (params: RequestParams = {}) =>
+        getDocpalMessageTemplateFindTemplateNameList: (params: RequestParams = {}) =>
             this.request<ResultMessageTemplateListDTO, any>({
                 path: `/admin/api/docpal/message/template/find_template_name_list`,
                 method: "GET",
@@ -44752,10 +47556,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-template-message-controller
-         * @name GetAdmindocpalMessageTemplateFindTemplateInfoTemplatename
+         * @name GetDocpalMessageTemplateFindTemplateInfoTemplatename
          * @request GET:/admin/api/docpal/message/template/find_template_info/{templateName}
          */
-        getAdmindocpalMessageTemplateFindTemplateInfoTemplatename: (templateName: string, params: RequestParams = {}) =>
+        getDocpalMessageTemplateFindTemplateInfoTemplatename: (templateName: string, params: RequestParams = {}) =>
             this.request<ResultMessageTemplateDTO, any>({
                 path: `/admin/api/docpal/message/template/find_template_info/${templateName}`,
                 method: "GET",
@@ -44766,10 +47570,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-template-message-controller
-         * @name GetAdmindocpalMessageTemplateDetailsId
+         * @name GetDocpalMessageTemplateDetailsId
          * @request GET:/admin/api/docpal/message/template/details/{id}
          */
-        getAdmindocpalMessageTemplateDetailsId: (id: string, params: RequestParams = {}) =>
+        getDocpalMessageTemplateDetailsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultMessageTemplateDetailDTO, any>({
                 path: `/admin/api/docpal/message/template/details/${id}`,
                 method: "GET",
@@ -44780,11 +47584,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Management
-         * @name GetAdmindocpalManagementServices
+         * @name GetDocpalManagementServices
          * @summary Retrieve available services
          * @request GET:/admin/api/docpal/management/services
          */
-        getAdmindocpalManagementServices: (params: RequestParams = {}) =>
+        getDocpalManagementServices: (params: RequestParams = {}) =>
             this.request<ResultListString, any>({
                 path: `/admin/api/docpal/management/services`,
                 method: "GET",
@@ -44795,11 +47599,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Management
-         * @name GetAdmindocpalManagementLoggersLevels
+         * @name GetDocpalManagementLoggersLevels
          * @summary Retrieve the available logger levels of the services
          * @request GET:/admin/api/docpal/management/loggers/levels
          */
-        getAdmindocpalManagementLoggersLevels: (params: RequestParams = {}) =>
+        getDocpalManagementLoggersLevels: (params: RequestParams = {}) =>
             this.request<ResultMapStringObject, any>({
                 path: `/admin/api/docpal/management/loggers/levels`,
                 method: "GET",
@@ -44810,11 +47614,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Management
-         * @name GetAdmindocpalManagementLoggersServiceLevels
+         * @name GetDocpalManagementLoggersServiceLevels
          * @summary Retrieve the available logger levels of the services
          * @request GET:/admin/api/docpal/management/loggers/{service}/levels
          */
-        getAdmindocpalManagementLoggersServiceLevels: (service: string, params: RequestParams = {}) =>
+        getDocpalManagementLoggersServiceLevels: (service: string, params: RequestParams = {}) =>
             this.request<ResultMapStringObject, any>({
                 path: `/admin/api/docpal/management/loggers/${service}/levels`,
                 method: "GET",
@@ -44825,11 +47629,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Management
-         * @name GetAdmindocpalManagementInfo
+         * @name GetDocpalManagementInfo
          * @summary Retrieve the services' Java and build information
          * @request GET:/admin/api/docpal/management/info
          */
-        getAdmindocpalManagementInfo: (params: RequestParams = {}) =>
+        getDocpalManagementInfo: (params: RequestParams = {}) =>
             this.request<ResultMapStringMapStringObject, any>({
                 path: `/admin/api/docpal/management/info`,
                 method: "GET",
@@ -44840,11 +47644,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Management
-         * @name GetAdmindocpalManagementInfoService
+         * @name GetDocpalManagementInfoService
          * @summary Retrieve the services' Java and build information
          * @request GET:/admin/api/docpal/management/info/{service}
          */
-        getAdmindocpalManagementInfoService: (service: string, params: RequestParams = {}) =>
+        getDocpalManagementInfoService: (service: string, params: RequestParams = {}) =>
             this.request<ResultMapStringMapStringObject, any>({
                 path: `/admin/api/docpal/management/info/${service}`,
                 method: "GET",
@@ -44855,11 +47659,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Management
-         * @name GetAdmindocpalManagementHealthService
+         * @name GetDocpalManagementHealthService
          * @summary Retrieve the health, whether it is up or down, of the services
          * @request GET:/admin/api/docpal/management/health/{service}
          */
-        getAdmindocpalManagementHealthService: (service: string, params: RequestParams = {}) =>
+        getDocpalManagementHealthService: (service: string, params: RequestParams = {}) =>
             this.request<ResultMapStringMapStringObject, any>({
                 path: `/admin/api/docpal/management/health/${service}`,
                 method: "GET",
@@ -44870,11 +47674,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Management
-         * @name GetAdmindocpalManagementHealth
+         * @name GetDocpalManagementHealth
          * @summary Retrieve the health, whether it is up or down, of the services
          * @request GET:/admin/api/docpal/management/health
          */
-        getAdmindocpalManagementHealth: (params: RequestParams = {}) =>
+        getDocpalManagementHealth: (params: RequestParams = {}) =>
             this.request<ResultMapStringMapStringObject, any>({
                 path: `/admin/api/docpal/management/health`,
                 method: "GET",
@@ -44885,11 +47689,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags IdTemplateController(Admin Page)
-         * @name GetAdmindocpalIdTemplatesNameName
+         * @name GetDocpalIdTemplatesNameName
          * @summary Find ID template by name
          * @request GET:/admin/api/docpal/id-templates/name/{name}
          */
-        getAdmindocpalIdTemplatesNameName: (name: string, params: RequestParams = {}) =>
+        getDocpalIdTemplatesNameName: (name: string, params: RequestParams = {}) =>
             this.request<ResultIdTemplate, any>({
                 path: `/admin/api/docpal/id-templates/name/${name}`,
                 method: "GET",
@@ -44900,55 +47704,13 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags IdTemplateController(Admin Page)
-         * @name GetAdmindocpalIdTemplatesList
+         * @name GetDocpalIdTemplatesList
          * @summary Find all id templates
          * @request GET:/admin/api/docpal/id-templates/list
          */
-        getAdmindocpalIdTemplatesList: (params: RequestParams = {}) =>
+        getDocpalIdTemplatesList: (params: RequestParams = {}) =>
             this.request<ResultListIdTemplate, any>({
                 path: `/admin/api/docpal/id-templates/list`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name GetAdmindocpalAzureOcrQueryazuresetting
-         * @request GET:/admin/api/docpal/azure/ocr/queryAzureSetting
-         */
-        getAdmindocpalAzureOcrQueryazuresetting: (params: RequestParams = {}) =>
-            this.request<ResultAzureSettingDTO, any>({
-                path: `/admin/api/docpal/azure/ocr/queryAzureSetting`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name GetAdmindocpalAzureOcrQueryazureocrmodels
-         * @request GET:/admin/api/docpal/azure/ocr/queryAzureOcrModels
-         */
-        getAdmindocpalAzureOcrQueryazureocrmodels: (params: RequestParams = {}) =>
-            this.request<ResultListString, any>({
-                path: `/admin/api/docpal/azure/ocr/queryAzureOcrModels`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags admin-azure-ocr-controller
-         * @name GetAdmindocpalAzureOcrConditions
-         * @request GET:/admin/api/docpal/azure/ocr/conditions
-         */
-        getAdmindocpalAzureOcrConditions: (params: RequestParams = {}) =>
-            this.request<ResultListConditionResponseDTO, any>({
-                path: `/admin/api/docpal/azure/ocr/conditions`,
                 method: "GET",
                 ...params,
             }),
@@ -44957,11 +47719,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Get detailed information about a specific user, including roles, groups, and configuration rules
          *
          * @tags User Management
-         * @name GetAdmindocpalAclUserUserid
+         * @name GetDocpalAclUserUserid
          * @summary Get User Details
          * @request GET:/admin/api/docpal/acl/user/{userId}
          */
-        getAdmindocpalAclUserUserid: (userId: string, params: RequestParams = {}) =>
+        getDocpalAclUserUserid: (userId: string, params: RequestParams = {}) =>
             this.request<UserDetailDTO, any>({
                 path: `/admin/api/docpal/acl/user/${userId}`,
                 method: "GET",
@@ -44972,11 +47734,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Get dropdown list of users in roles
          *
          * @tags Role-User Management
-         * @name GetAdmindocpalAclRoleUsersDropdown
+         * @name GetDocpalAclRoleUsersDropdown
          * @summary Get Role Users Dropdown List
          * @request GET:/admin/api/docpal/acl/role/users/dropdown
          */
-        getAdmindocpalAclRoleUsersDropdown: (params: RequestParams = {}) =>
+        getDocpalAclRoleUsersDropdown: (params: RequestParams = {}) =>
             this.request<RoleUserDTO, any>({
                 path: `/admin/api/docpal/acl/role/users/dropdown`,
                 method: "GET",
@@ -44987,11 +47749,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Get hierarchy structure of all roles in the system
          *
          * @tags Role Permission Management
-         * @name GetAdmindocpalAclRoleRoot
+         * @name GetDocpalAclRoleRoot
          * @summary Get All Role Structure for Admin
          * @request GET:/admin/api/docpal/acl/role/root
          */
-        getAdmindocpalAclRoleRoot: (params: RequestParams = {}) =>
+        getDocpalAclRoleRoot: (params: RequestParams = {}) =>
             this.request<RoleDTO, any>({
                 path: `/admin/api/docpal/acl/role/root`,
                 method: "GET",
@@ -45002,11 +47764,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Get role hierarchy structure by role ID
          *
          * @tags Role Permission Management
-         * @name GetAdmindocpalAclRoleHierarchyRoleid
+         * @name GetDocpalAclRoleHierarchyRoleid
          * @summary Get Role Hierarchy
          * @request GET:/admin/api/docpal/acl/role/hierarchy/{roleId}
          */
-        getAdmindocpalAclRoleHierarchyRoleid: (roleId: string, params: RequestParams = {}) =>
+        getDocpalAclRoleHierarchyRoleid: (roleId: string, params: RequestParams = {}) =>
             this.request<RoleDTO, any>({
                 path: `/admin/api/docpal/acl/role/hierarchy/${roleId}`,
                 method: "GET",
@@ -45017,11 +47779,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Get permission list by resource ID
          *
          * @tags Resource Permission Management
-         * @name GetAdmindocpalAclResourcePermissionsResourceResourceid
+         * @name GetDocpalAclResourcePermissionsResourceResourceid
          * @summary Get Resource Permission List
          * @request GET:/admin/api/docpal/acl/resource-permissions/resource/{resourceId}
          */
-        getAdmindocpalAclResourcePermissionsResourceResourceid: (resourceId: string, params: RequestParams = {}) =>
+        getDocpalAclResourcePermissionsResourceResourceid: (resourceId: string, params: RequestParams = {}) =>
             this.request<ResourcePermissionDTO, any>({
                 path: `/admin/api/docpal/acl/resource-permissions/resource/${resourceId}`,
                 method: "GET",
@@ -45032,11 +47794,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Retrieve all documents under the specified document ID. If no ID is provided, returns root directory documents
          *
          * @tags Document Management
-         * @name GetAdmindocpalAclDocument
+         * @name GetDocpalAclDocument
          * @summary Get Document Details
          * @request GET:/admin/api/docpal/acl/document
          */
-        getAdmindocpalAclDocument: (params: RequestParams = {}) =>
+        getDocpalAclDocument: (params: RequestParams = {}) =>
             this.request<DocumentDTO, void>({
                 path: `/admin/api/docpal/acl/document`,
                 method: "GET",
@@ -45047,11 +47809,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * @description Retrieve all documents under the specified document ID. If no ID is provided, returns root directory documents
          *
          * @tags Document Management
-         * @name GetAdmindocpalAclDocumentDocumentid
+         * @name GetDocpalAclDocumentDocumentid
          * @summary Get Document Details
          * @request GET:/admin/api/docpal/acl/document/{documentId}
          */
-        getAdmindocpalAclDocumentDocumentid: (documentId: string, params: RequestParams = {}) =>
+        getDocpalAclDocumentDocumentid: (documentId: string, params: RequestParams = {}) =>
             this.request<DocumentDTO, void>({
                 path: `/admin/api/docpal/acl/document/${documentId}`,
                 method: "GET",
@@ -45062,11 +47824,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UserSettingController(Admin Page)
-         * @name GetAdmindmsUserUserid
+         * @name GetDmsUserUserid
          * @summary Get User Information
          * @request GET:/admin/api/dms/user/{userId}
          */
-        getAdmindmsUserUserid: (userId: string, params: RequestParams = {}) =>
+        getDmsUserUserid: (userId: string, params: RequestParams = {}) =>
             this.request<ResultUserDTO, any>({
                 path: `/admin/api/dms/user/${userId}`,
                 method: "GET",
@@ -45077,11 +47839,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UserSettingController(Admin Page)
-         * @name GetAdmindmsUserSystemFields
+         * @name GetDmsUserSystemFields
          * @summary Get system fields
          * @request GET:/admin/api/dms/user/system/fields
          */
-        getAdmindmsUserSystemFields: (params: RequestParams = {}) =>
+        getDmsUserSystemFields: (params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/user/system/fields`,
                 method: "GET",
@@ -45092,11 +47854,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags UserSettingController(Admin Page)
-         * @name GetAdmindmsUserGetapplication
+         * @name GetDmsUserGetapplication
          * @summary Get current user information
          * @request GET:/admin/api/dms/user/getApplication
          */
-        getAdmindmsUserGetapplication: (params: RequestParams = {}) =>
+        getDmsUserGetapplication: (params: RequestParams = {}) =>
             this.request<ResultUserDTO, any>({
                 path: `/admin/api/dms/user/getApplication`,
                 method: "GET",
@@ -45107,11 +47869,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name GetAdmindmsTemplateEmailTemplateId
+         * @name GetDmsTemplateEmailTemplateId
          * @summary Obtain email template detail
          * @request GET:/admin/api/dms/template/email/template/{id}
          */
-        getAdmindmsTemplateEmailTemplateId: (id: string, params: RequestParams = {}) =>
+        getDmsTemplateEmailTemplateId: (id: string, params: RequestParams = {}) =>
             this.request<ResultEmailTemplate, any>({
                 path: `/admin/api/dms/template/email/template/${id}`,
                 method: "GET",
@@ -45122,11 +47884,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name DeleteAdmindmsTemplateEmailTemplateId
+         * @name DeleteDmsTemplateEmailTemplateId
          * @summary Delete email template by id
          * @request DELETE:/admin/api/dms/template/email/template/{id}
          */
-        deleteAdmindmsTemplateEmailTemplateId: (id: string, params: RequestParams = {}) =>
+        deleteDmsTemplateEmailTemplateId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/template/email/template/${id}`,
                 method: "DELETE",
@@ -45137,11 +47899,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name GetAdmindmsTemplateEmailId
+         * @name GetDmsTemplateEmailId
          * @summary Obtain email template detail
          * @request GET:/admin/api/dms/template/email/{id}
          */
-        getAdmindmsTemplateEmailId: (id: string, params: RequestParams = {}) =>
+        getDmsTemplateEmailId: (id: string, params: RequestParams = {}) =>
             this.request<ResultEmailTemplate, any>({
                 path: `/admin/api/dms/template/email/${id}`,
                 method: "GET",
@@ -45152,11 +47914,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name GetAdmindmsTemplateEmailTemplateLayouts
+         * @name GetDmsTemplateEmailTemplateLayouts
          * @summary Obtain all layouts used by email template
          * @request GET:/admin/api/dms/template/email/template/layouts
          */
-        getAdmindmsTemplateEmailTemplateLayouts: (params: RequestParams = {}) =>
+        getDmsTemplateEmailTemplateLayouts: (params: RequestParams = {}) =>
             this.request<ResultListEmailLayout, any>({
                 path: `/admin/api/dms/template/email/template/layouts`,
                 method: "GET",
@@ -45167,11 +47929,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name GetAdmindmsTemplateEmailLayouts
+         * @name GetDmsTemplateEmailLayouts
          * @summary Obtain all layouts used by email template
          * @request GET:/admin/api/dms/template/email/layouts
          */
-        getAdmindmsTemplateEmailLayouts: (params: RequestParams = {}) =>
+        getDmsTemplateEmailLayouts: (params: RequestParams = {}) =>
             this.request<ResultListEmailLayout, any>({
                 path: `/admin/api/dms/template/email/layouts`,
                 method: "GET",
@@ -45182,11 +47944,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name GetAdmindmsTemplateEmailLayoutId
+         * @name GetDmsTemplateEmailLayoutId
          * @summary Obtain email layout by id
          * @request GET:/admin/api/dms/template/email/layout/{id}
          */
-        getAdmindmsTemplateEmailLayoutId: (id: number, params: RequestParams = {}) =>
+        getDmsTemplateEmailLayoutId: (id: number, params: RequestParams = {}) =>
             this.request<ResultEmailLayout, any>({
                 path: `/admin/api/dms/template/email/layout/${id}`,
                 method: "GET",
@@ -45197,11 +47959,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name DeleteAdmindmsTemplateEmailLayoutId
+         * @name DeleteDmsTemplateEmailLayoutId
          * @summary Delete email layout by id
          * @request DELETE:/admin/api/dms/template/email/layout/{id}
          */
-        deleteAdmindmsTemplateEmailLayoutId: (id: number, params: RequestParams = {}) =>
+        deleteDmsTemplateEmailLayoutId: (id: number, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/template/email/layout/${id}`,
                 method: "DELETE",
@@ -45212,11 +47974,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name GetAdmindmsTemplateEmailLayoutAll
+         * @name GetDmsTemplateEmailLayoutAll
          * @summary Obtain all email layout
          * @request GET:/admin/api/dms/template/email/layout/all
          */
-        getAdmindmsTemplateEmailLayoutAll: (params: RequestParams = {}) =>
+        getDmsTemplateEmailLayoutAll: (params: RequestParams = {}) =>
             this.request<ResultListEmailLayout, any>({
                 path: `/admin/api/dms/template/email/layout/all`,
                 method: "GET",
@@ -45227,10 +47989,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminEmailController
-         * @name GetAdmindmsTemplateEmailAll
+         * @name GetDmsTemplateEmailAll
          * @request GET:/admin/api/dms/template/email/all
          */
-        getAdmindmsTemplateEmailAll: (params: RequestParams = {}) =>
+        getDmsTemplateEmailAll: (params: RequestParams = {}) =>
             this.request<ResultListEmailTemplate, any>({
                 path: `/admin/api/dms/template/email/all`,
                 method: "GET",
@@ -45241,11 +48003,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocumentTemplateController
-         * @name GetAdmindmsTemplateDocumentId
+         * @name GetDmsTemplateDocumentId
          * @summary Get Document Template Detail By ID
          * @request GET:/admin/api/dms/template/document/{id}
          */
-        getAdmindmsTemplateDocumentId: (id: string, params: RequestParams = {}) =>
+        getDmsTemplateDocumentId: (id: string, params: RequestParams = {}) =>
             this.request<ResultDocumentTemplate, any>({
                 path: `/admin/api/dms/template/document/${id}`,
                 method: "GET",
@@ -45256,11 +48018,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocumentTemplateController
-         * @name DeleteAdmindmsTemplateDocumentId
+         * @name DeleteDmsTemplateDocumentId
          * @summary Delete Document Template by id
          * @request DELETE:/admin/api/dms/template/document/{id}
          */
-        deleteAdmindmsTemplateDocumentId: (id: string, params: RequestParams = {}) =>
+        deleteDmsTemplateDocumentId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/template/document/${id}`,
                 method: "DELETE",
@@ -45271,10 +48033,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocumentTemplateController
-         * @name GetAdmindmsTemplateDocumentSupportFiletype
+         * @name GetDmsTemplateDocumentSupportFiletype
          * @request GET:/admin/api/dms/template/document/support/fileType
          */
-        getAdmindmsTemplateDocumentSupportFiletype: (params: RequestParams = {}) =>
+        getDmsTemplateDocumentSupportFiletype: (params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/template/document/support/fileType`,
                 method: "GET",
@@ -45285,11 +48047,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocumentTemplateController
-         * @name GetAdmindmsTemplateDocumentRefreshId
+         * @name GetDmsTemplateDocumentRefreshId
          * @summary Refresh document template variables
          * @request GET:/admin/api/dms/template/document/refresh/{id}
          */
-        getAdmindmsTemplateDocumentRefreshId: (id: string, params: RequestParams = {}) =>
+        getDmsTemplateDocumentRefreshId: (id: string, params: RequestParams = {}) =>
             this.request<ResultDocumentTemplateResponseDTO, any>({
                 path: `/admin/api/dms/template/document/refresh/${id}`,
                 method: "GET",
@@ -45300,11 +48062,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags DocumentTemplateController
-         * @name GetAdmindmsTemplateDocumentPageConditions
+         * @name GetDmsTemplateDocumentPageConditions
          * @summary Obtain all conditions that has been used
          * @request GET:/admin/api/dms/template/document/page/conditions
          */
-        getAdmindmsTemplateDocumentPageConditions: (params: RequestParams = {}) =>
+        getDmsTemplateDocumentPageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, any>({
                 path: `/admin/api/dms/template/document/page/conditions`,
                 method: "GET",
@@ -45315,10 +48077,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags SmartFolderController(Admin Page)
-         * @name GetAdmindmsSmartFolderId
+         * @name GetDmsSmartFolderId
          * @request GET:/admin/api/dms/smart-folder/{id}
          */
-        getAdmindmsSmartFolderId: (id: string, params: RequestParams = {}) =>
+        getDmsSmartFolderId: (id: string, params: RequestParams = {}) =>
             this.request<ResultSmartFolderResponseDTO, any>({
                 path: `/admin/api/dms/smart-folder/${id}`,
                 method: "GET",
@@ -45329,10 +48091,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags SmartFolderController(Admin Page)
-         * @name DeleteAdmindmsSmartFolderId
+         * @name DeleteDmsSmartFolderId
          * @request DELETE:/admin/api/dms/smart-folder/{id}
          */
-        deleteAdmindmsSmartFolderId: (id: string, params: RequestParams = {}) =>
+        deleteDmsSmartFolderId: (id: string, params: RequestParams = {}) =>
             this.request<ResultSmartFolderResponseDTO, any>({
                 path: `/admin/api/dms/smart-folder/${id}`,
                 method: "DELETE",
@@ -45343,11 +48105,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags SmartFolderController(Admin Page)
-         * @name GetAdmindmsSmartFolderPageConditions
+         * @name GetDmsSmartFolderPageConditions
          * @summary Obtain all conditions that has been used
          * @request GET:/admin/api/dms/smart-folder/page/conditions
          */
-        getAdmindmsSmartFolderPageConditions: (params: RequestParams = {}) =>
+        getDmsSmartFolderPageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, any>({
                 path: `/admin/api/dms/smart-folder/page/conditions`,
                 method: "GET",
@@ -45358,11 +48120,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name GetAdmindmsSettingWorkflowCondition
+         * @name GetDmsSettingWorkflowCondition
          * @summary Gets workflow condition setting.
          * @request GET:/admin/api/dms/setting/workflow/condition
          */
-        getAdmindmsSettingWorkflowCondition: (params: RequestParams = {}) =>
+        getDmsSettingWorkflowCondition: (params: RequestParams = {}) =>
             this.request<ResultListMapStringObject, any>({
                 path: `/admin/api/dms/setting/workflow/condition`,
                 method: "GET",
@@ -45373,10 +48135,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name GetAdmindmsSettingVirtualFolderId
+         * @name GetDmsSettingVirtualFolderId
          * @request GET:/admin/api/dms/setting/virtual-folder/{id}
          */
-        getAdmindmsSettingVirtualFolderId: (id: string, params: RequestParams = {}) =>
+        getDmsSettingVirtualFolderId: (id: string, params: RequestParams = {}) =>
             this.request<ResultVirtualFolderSettingResponseDTO, any>({
                 path: `/admin/api/dms/setting/virtual-folder/${id}`,
                 method: "GET",
@@ -45387,11 +48149,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name GetAdmindmsSettingSystemLanguage
+         * @name GetDmsSettingSystemLanguage
          * @summary Gets language setting.(Public end point)
          * @request GET:/admin/api/dms/setting/system/language
          */
-        getAdmindmsSettingSystemLanguage: (params: RequestParams = {}) =>
+        getDmsSettingSystemLanguage: (params: RequestParams = {}) =>
             this.request<ResultString, any>({
                 path: `/admin/api/dms/setting/system/language`,
                 method: "GET",
@@ -45402,10 +48164,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name GetAdmindmsSettingIcons
+         * @name GetDmsSettingIcons
          * @request GET:/admin/api/dms/setting/icons
          */
-        getAdmindmsSettingIcons: (params: RequestParams = {}) =>
+        getDmsSettingIcons: (params: RequestParams = {}) =>
             this.request<ResultListCustomIconDTO, any>({
                 path: `/admin/api/dms/setting/icons`,
                 method: "GET",
@@ -45416,11 +48178,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name GetAdmindmsSettingConcurrentSession
+         * @name GetDmsSettingConcurrentSession
          * @summary Query concurrent session configuration
          * @request GET:/admin/api/dms/setting/concurrent-session
          */
-        getAdmindmsSettingConcurrentSession: (
+        getDmsSettingConcurrentSession: (
             query: {
                 tenantId: string;
             },
@@ -45437,11 +48199,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminRetentionPolicyController
-         * @name GetAdmindmsPolicyRetentionRetentionpolicyid
+         * @name GetDmsPolicyRetentionRetentionpolicyid
          * @summary Obtain RetentionPolicy detail
          * @request GET:/admin/api/dms/policy/retention/{retentionPolicyId}
          */
-        getAdmindmsPolicyRetentionRetentionpolicyid: (retentionPolicyId: string, params: RequestParams = {}) =>
+        getDmsPolicyRetentionRetentionpolicyid: (retentionPolicyId: string, params: RequestParams = {}) =>
             this.request<ResultRetentionPolicyResponseDTO, any>({
                 path: `/admin/api/dms/policy/retention/${retentionPolicyId}`,
                 method: "GET",
@@ -45452,11 +48214,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminRetentionPolicyController
-         * @name DeleteAdmindmsPolicyRetentionRetentionpolicyid
+         * @name DeleteDmsPolicyRetentionRetentionpolicyid
          * @summary Delete the retention policy it must not have been used yet
          * @request DELETE:/admin/api/dms/policy/retention/{retentionPolicyId}
          */
-        deleteAdmindmsPolicyRetentionRetentionpolicyid: (retentionPolicyId: string, params: RequestParams = {}) =>
+        deleteDmsPolicyRetentionRetentionpolicyid: (retentionPolicyId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/policy/retention/${retentionPolicyId}`,
                 method: "DELETE",
@@ -45467,11 +48229,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminRetentionPolicyController
-         * @name GetAdmindmsPolicyRetentionListConditions
+         * @name GetDmsPolicyRetentionListConditions
          * @summary Obtain all conditions that has been used
          * @request GET:/admin/api/dms/policy/retention/list/conditions
          */
-        getAdmindmsPolicyRetentionListConditions: (params: RequestParams = {}) =>
+        getDmsPolicyRetentionListConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, any>({
                 path: `/admin/api/dms/policy/retention/list/conditions`,
                 method: "GET",
@@ -45482,11 +48244,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminRetentionPolicyController
-         * @name GetAdmindmsPolicyRetentionDocumentTypeUsed
+         * @name GetDmsPolicyRetentionDocumentTypeUsed
          * @summary Query used document-type of retention policies
          * @request GET:/admin/api/dms/policy/retention/document-type/used
          */
-        getAdmindmsPolicyRetentionDocumentTypeUsed: (
+        getDmsPolicyRetentionDocumentTypeUsed: (
             query: {
                 documentType: string;
                 /** @format int64 */
@@ -45505,11 +48267,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags HoldPolicyController
-         * @name GetAdmindmsPolicyHoldHoldpolicyid
+         * @name GetDmsPolicyHoldHoldpolicyid
          * @summary Obtain hold policy detail by id
          * @request GET:/admin/api/dms/policy/hold/{holdPolicyId}
          */
-        getAdmindmsPolicyHoldHoldpolicyid: (holdPolicyId: string, params: RequestParams = {}) =>
+        getDmsPolicyHoldHoldpolicyid: (holdPolicyId: string, params: RequestParams = {}) =>
             this.request<ResultHoldPolicy, any>({
                 path: `/admin/api/dms/policy/hold/${holdPolicyId}`,
                 method: "GET",
@@ -45520,11 +48282,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags HoldPolicyController
-         * @name DeleteAdmindmsPolicyHoldHoldpolicyid
+         * @name DeleteDmsPolicyHoldHoldpolicyid
          * @summary Delete the hold policy it must not have been used yet
          * @request DELETE:/admin/api/dms/policy/hold/{holdPolicyId}
          */
-        deleteAdmindmsPolicyHoldHoldpolicyid: (holdPolicyId: string, params: RequestParams = {}) =>
+        deleteDmsPolicyHoldHoldpolicyid: (holdPolicyId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/policy/hold/${holdPolicyId}`,
                 method: "DELETE",
@@ -45535,10 +48297,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminMetadataSettingController
-         * @name GetAdmindmsMetadataName
+         * @name GetDmsMetadataName
          * @request GET:/admin/api/dms/metadata/{name}
          */
-        getAdmindmsMetadataName: (name: string, params: RequestParams = {}) =>
+        getDmsMetadataName: (name: string, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/metadata/${name}`,
                 method: "GET",
@@ -45549,10 +48311,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminMetadataSettingController
-         * @name GetAdmindmsMetadataQueryCache
+         * @name GetDmsMetadataQueryCache
          * @request GET:/admin/api/dms/metadata/query-cache
          */
-        getAdmindmsMetadataQueryCache: (params: RequestParams = {}) =>
+        getDmsMetadataQueryCache: (params: RequestParams = {}) =>
             this.request<ResultListMetadataResponseVO, any>({
                 path: `/admin/api/dms/metadata/query-cache`,
                 method: "GET",
@@ -45563,10 +48325,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminMetadataSettingController
-         * @name GetAdmindmsMetadataListAll
+         * @name GetDmsMetadataListAll
          * @request GET:/admin/api/dms/metadata/list/all
          */
-        getAdmindmsMetadataListAll: (params: RequestParams = {}) =>
+        getDmsMetadataListAll: (params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/metadata/list/all`,
                 method: "GET",
@@ -45577,11 +48339,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name GetAdmindmsMasterTableId
+         * @name GetDmsMasterTableId
          * @summary Get all fields of master table and include associated data structures
          * @request GET:/admin/api/dms/master-table/{id}
          */
-        getAdmindmsMasterTableId: (id: string, params: RequestParams = {}) =>
+        getDmsMasterTableId: (id: string, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, any>({
                 path: `/admin/api/dms/master-table/${id}`,
                 method: "GET",
@@ -45592,10 +48354,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name DeleteAdmindmsMasterTableId
+         * @name DeleteDmsMasterTableId
          * @request DELETE:/admin/api/dms/master-table/{id}
          */
-        deleteAdmindmsMasterTableId: (
+        deleteDmsMasterTableId: (
             id: string,
             query?: {
                 enforceable?: boolean;
@@ -45613,11 +48375,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name GetAdmindmsMasterTableIdStructure
+         * @name GetDmsMasterTableIdStructure
          * @summary Get data structure of master table，but not relation fields
          * @request GET:/admin/api/dms/master-table/{id}/structure
          */
-        getAdmindmsMasterTableIdStructure: (id: string, params: RequestParams = {}) =>
+        getDmsMasterTableIdStructure: (id: string, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, any>({
                 path: `/admin/api/dms/master-table/${id}/structure`,
                 method: "GET",
@@ -45628,11 +48390,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name GetAdmindmsMasterTableIdRecordRecordid
+         * @name GetDmsMasterTableIdRecordRecordid
          * @summary Query row data record in single master table
          * @request GET:/admin/api/dms/master-table/{id}/record/{recordId}
          */
-        getAdmindmsMasterTableIdRecordRecordid: (id: string, recordId: string, params: RequestParams = {}) =>
+        getDmsMasterTableIdRecordRecordid: (id: string, recordId: string, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/master-table/${id}/record/${recordId}`,
                 method: "GET",
@@ -45643,11 +48405,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name GetAdmindmsMasterTableIdRecordTemplate
+         * @name GetDmsMasterTableIdRecordTemplate
          * @summary Download excel template file of master table for use import data
          * @request GET:/admin/api/dms/master-table/{id}/record/template
          */
-        getAdmindmsMasterTableIdRecordTemplate: (
+        getDmsMasterTableIdRecordTemplate: (
             id: string,
             query?: {
                 operation?: string;
@@ -45665,11 +48427,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name GetAdmindmsMasterTableIdAcls
+         * @name GetDmsMasterTableIdAcls
          * @summary Obtain all permission of current master table
          * @request GET:/admin/api/dms/master-table/{id}/acls
          */
-        getAdmindmsMasterTableIdAcls: (id: string, params: RequestParams = {}) =>
+        getDmsMasterTableIdAcls: (id: string, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/dms/master-table/${id}/acls`,
                 method: "GET",
@@ -45680,10 +48442,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name GetAdmindmsMasterTablePageConditions
+         * @name GetDmsMasterTablePageConditions
          * @request GET:/admin/api/dms/master-table/page/conditions
          */
-        getAdmindmsMasterTablePageConditions: (params: RequestParams = {}) =>
+        getDmsMasterTablePageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, any>({
                 path: `/admin/api/dms/master-table/page/conditions`,
                 method: "GET",
@@ -45694,11 +48456,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name GetAdmindmsMasterTableNameName
+         * @name GetDmsMasterTableNameName
          * @summary Obtain structure of master table through table label
          * @request GET:/admin/api/dms/master-table/name/{name}
          */
-        getAdmindmsMasterTableNameName: (name: string, params: RequestParams = {}) =>
+        getDmsMasterTableNameName: (name: string, params: RequestParams = {}) =>
             this.request<ResultMasterTableResponseDTO, any>({
                 path: `/admin/api/dms/master-table/name/${name}`,
                 method: "GET",
@@ -45709,11 +48471,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name GetAdmindmsMasterTableDownloadFailure
+         * @name GetDmsMasterTableDownloadFailure
          * @summary Download data that failed to upload .csv file
          * @request GET:/admin/api/dms/master-table/download/failure
          */
-        getAdmindmsMasterTableDownloadFailure: (
+        getDmsMasterTableDownloadFailure: (
             query: {
                 id: string;
             },
@@ -45730,11 +48492,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name GetAdmindmsMasterTableDatatypeMapping
+         * @name GetDmsMasterTableDatatypeMapping
          * @summary Obtain dataType mapping of master table
          * @request GET:/admin/api/dms/master-table/dataType/mapping
          */
-        getAdmindmsMasterTableDatatypeMapping: (params: RequestParams = {}) =>
+        getDmsMasterTableDatatypeMapping: (params: RequestParams = {}) =>
             this.request<ResultListMTFieldTypeMapping, any>({
                 path: `/admin/api/dms/master-table/dataType/mapping`,
                 method: "GET",
@@ -45745,11 +48507,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name GetAdmindmsFormPropertiesLanguageLocale
+         * @name GetDmsFormPropertiesLanguageLocale
          * @request GET:/admin/api/dms/form-properties/language/locale
          * @deprecated
          */
-        getAdmindmsFormPropertiesLanguageLocale: (params: RequestParams = {}) =>
+        getDmsFormPropertiesLanguageLocale: (params: RequestParams = {}) =>
             this.request<ResultSetString, any>({
                 path: `/admin/api/dms/form-properties/language/locale`,
                 method: "GET",
@@ -45760,10 +48522,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name GetAdmindmsFormPropertiesKeycloakProperty
+         * @name GetDmsFormPropertiesKeycloakProperty
          * @request GET:/admin/api/dms/form-properties/keycloak/property
          */
-        getAdmindmsFormPropertiesKeycloakProperty: (params: RequestParams = {}) =>
+        getDmsFormPropertiesKeycloakProperty: (params: RequestParams = {}) =>
             this.request<ResultKeyCloakPropertyVO, any>({
                 path: `/admin/api/dms/form-properties/keycloak/property`,
                 method: "GET",
@@ -45774,10 +48536,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-feature-controller
-         * @name GetAdmindmsFeatureUsers
+         * @name GetDmsFeatureUsers
          * @request GET:/admin/api/dms/feature/users
          */
-        getAdmindmsFeatureUsers: (params: RequestParams = {}) =>
+        getDmsFeatureUsers: (params: RequestParams = {}) =>
             this.request<Result, any>({
                 path: `/admin/api/dms/feature/users`,
                 method: "GET",
@@ -45788,10 +48550,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-feature-controller
-         * @name GetAdmindmsFeatureUsersNameUsername
+         * @name GetDmsFeatureUsersNameUsername
          * @request GET:/admin/api/dms/feature/users/name/{username}
          */
-        getAdmindmsFeatureUsersNameUsername: (username: string, params: RequestParams = {}) =>
+        getDmsFeatureUsersNameUsername: (username: string, params: RequestParams = {}) =>
             this.request<Result, any>({
                 path: `/admin/api/dms/feature/users/name/${username}`,
                 method: "GET",
@@ -45802,10 +48564,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-feature-controller
-         * @name GetAdmindmsFeatureKeycloakTokenVerification
+         * @name GetDmsFeatureKeycloakTokenVerification
          * @request GET:/admin/api/dms/feature/keycloak-token-verification
          */
-        getAdmindmsFeatureKeycloakTokenVerification: (params: RequestParams = {}) =>
+        getDmsFeatureKeycloakTokenVerification: (params: RequestParams = {}) =>
             this.request<ResultMapStringString, any>({
                 path: `/admin/api/dms/feature/keycloak-token-verification`,
                 method: "GET",
@@ -45816,10 +48578,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-feature-controller
-         * @name GetAdmindmsFeatureGetfeatures
+         * @name GetDmsFeatureGetfeatures
          * @request GET:/admin/api/dms/feature/getFeatures
          */
-        getAdmindmsFeatureGetfeatures: (params: RequestParams = {}) =>
+        getDmsFeatureGetfeatures: (params: RequestParams = {}) =>
             this.request<ResultMapStringBoolean, any>({
                 path: `/admin/api/dms/feature/getFeatures`,
                 method: "GET",
@@ -45830,11 +48592,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name GetAdmindmsEasyFormIdDetail
+         * @name GetDmsEasyFormIdDetail
          * @summary Retrieve form design
          * @request GET:/admin/api/dms/easy-form/{id}/detail
          */
-        getAdmindmsEasyFormIdDetail: (id: string, params: RequestParams = {}) =>
+        getDmsEasyFormIdDetail: (id: string, params: RequestParams = {}) =>
             this.request<ResultFormDesignResponseDTO, any>({
                 path: `/admin/api/dms/easy-form/${id}/detail`,
                 method: "GET",
@@ -45845,10 +48607,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name GetAdmindmsEasyFormProcessDefinitions
+         * @name GetDmsEasyFormProcessDefinitions
          * @request GET:/admin/api/dms/easy-form/process/definitions
          */
-        getAdmindmsEasyFormProcessDefinitions: (params: RequestParams = {}) =>
+        getDmsEasyFormProcessDefinitions: (params: RequestParams = {}) =>
             this.request<ResultListPDResponseDTO, any>({
                 path: `/admin/api/dms/easy-form/process/definitions`,
                 method: "GET",
@@ -45859,10 +48621,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name GetAdmindmsEasyFormEmailId
+         * @name GetDmsEasyFormEmailId
          * @request GET:/admin/api/dms/easy-form/email/{id}
          */
-        getAdmindmsEasyFormEmailId: (id: string, params: RequestParams = {}) =>
+        getDmsEasyFormEmailId: (id: string, params: RequestParams = {}) =>
             this.request<ResultEasyFormBaseEmailDTO, any>({
                 path: `/admin/api/dms/easy-form/email/${id}`,
                 method: "GET",
@@ -45873,10 +48635,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name GetAdmindmsEasyFormEmailLogId
+         * @name GetDmsEasyFormEmailLogId
          * @request GET:/admin/api/dms/easy-form/email-log/{id}
          */
-        getAdmindmsEasyFormEmailLogId: (id: string, params: RequestParams = {}) =>
+        getDmsEasyFormEmailLogId: (id: string, params: RequestParams = {}) =>
             this.request<ResultEasyFormBaseEmailDTO, any>({
                 path: `/admin/api/dms/easy-form/email-log/${id}`,
                 method: "GET",
@@ -45887,11 +48649,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name GetAdmindmsEasyFormDraftId
+         * @name GetDmsEasyFormDraftId
          * @summary Retrieve form design draft
          * @request GET:/admin/api/dms/easy-form/draft/{id}
          */
-        getAdmindmsEasyFormDraftId: (id: string, params: RequestParams = {}) =>
+        getDmsEasyFormDraftId: (id: string, params: RequestParams = {}) =>
             this.request<ResultFormDesignResponseDTO, any>({
                 path: `/admin/api/dms/easy-form/draft/${id}`,
                 method: "GET",
@@ -45902,11 +48664,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name GetAdmindmsEasyFormDatatypeMapping
+         * @name GetDmsEasyFormDatatypeMapping
          * @summary Obtain dataType mapping of form design
          * @request GET:/admin/api/dms/easy-form/dataType/mapping
          */
-        getAdmindmsEasyFormDatatypeMapping: (params: RequestParams = {}) =>
+        getDmsEasyFormDatatypeMapping: (params: RequestParams = {}) =>
             this.request<ResultListMTFieldTypeMapping, any>({
                 path: `/admin/api/dms/easy-form/dataType/mapping`,
                 method: "GET",
@@ -45917,10 +48679,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Admin Document
-         * @name GetAdmindmsDocumentQueryaudittemplate
+         * @name GetDmsDocumentQueryaudittemplate
          * @request GET:/admin/api/dms/document/queryAuditTemplate
          */
-        getAdmindmsDocumentQueryaudittemplate: (params: RequestParams = {}) =>
+        getDmsDocumentQueryaudittemplate: (params: RequestParams = {}) =>
             this.request<ResultListAuditTemplate, any>({
                 path: `/admin/api/dms/document/queryAuditTemplate`,
                 method: "GET",
@@ -45931,11 +48693,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name GetAdmindmsDocpalTypeDocumenttypeMetadata
+         * @name GetDmsDocpalTypeDocumenttypeMetadata
          * @summary Obtain all docpal type metadata list
          * @request GET:/admin/api/dms/docpal-type/{documentType}/metadata
          */
-        getAdmindmsDocpalTypeDocumenttypeMetadata: (documentType: string, data: any, params: RequestParams = {}) =>
+        getDmsDocpalTypeDocumenttypeMetadata: (documentType: string, data: any, params: RequestParams = {}) =>
             this.request<ResultDocPalTypeDTO, any>({
                 path: `/admin/api/dms/docpal-type/${documentType}/metadata`,
                 method: "GET",
@@ -45948,11 +48710,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name GetAdmindmsDocpalTypePageConditions
+         * @name GetDmsDocpalTypePageConditions
          * @summary Obtain all conditions that has been used
          * @request GET:/admin/api/dms/docpal-type/page/conditions
          */
-        getAdmindmsDocpalTypePageConditions: (params: RequestParams = {}) =>
+        getDmsDocpalTypePageConditions: (params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, any>({
                 path: `/admin/api/dms/docpal-type/page/conditions`,
                 method: "GET",
@@ -45963,11 +48725,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name GetAdmindmsDocpalTypeCache
+         * @name GetDmsDocpalTypeCache
          * @summary Query all metadata information list
          * @request GET:/admin/api/dms/docpal-type/cache
          */
-        getAdmindmsDocpalTypeCache: (params: RequestParams = {}) =>
+        getDmsDocpalTypeCache: (params: RequestParams = {}) =>
             this.request<ResultListMetadataResponseVO, any>({
                 path: `/admin/api/dms/docpal-type/cache`,
                 method: "GET",
@@ -45978,11 +48740,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name GetAdmindmsDocpalTypeMetadataList
+         * @name GetDmsDocpalTypeMetadataList
          * @summary Query all metadata information list
          * @request GET:/admin/api/dms/docpal-type/metadata/list
          */
-        getAdmindmsDocpalTypeMetadataList: (params: RequestParams = {}) =>
+        getDmsDocpalTypeMetadataList: (params: RequestParams = {}) =>
             this.request<ResultListMetadataResponseVO, any>({
                 path: `/admin/api/dms/docpal-type/metadata/list`,
                 method: "GET",
@@ -45993,11 +48755,32 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminDocPalTypeManagementController
-         * @name GetAdmindmsDocpalTypeCategories
+         * @name GetDmsDocpalTypeList
+         * @summary Obtain all docpal type
+         * @request GET:/admin/api/dms/docpal-type/list
+         */
+        getDmsDocpalTypeList: (
+            query?: {
+                active?: boolean;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultListDocumentTypeDTO, any>({
+                path: `/admin/api/dms/docpal-type/list`,
+                method: "GET",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags AdminDocPalTypeManagementController
+         * @name GetDmsDocpalTypeCategories
          * @summary Obtain all docpal type categories
          * @request GET:/admin/api/dms/docpal-type/categories
          */
-        getAdmindmsDocpalTypeCategories: (params: RequestParams = {}) =>
+        getDmsDocpalTypeCategories: (params: RequestParams = {}) =>
             this.request<ResultListString, any>({
                 path: `/admin/api/dms/docpal-type/categories`,
                 method: "GET",
@@ -46008,11 +48791,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name GetAdmindmsContactGroupIdUserUseridPermission
+         * @name GetDmsContactGroupIdUserUseridPermission
          * @summary Get permission of contact group
          * @request GET:/admin/api/dms/contact-group/{id}/user/{userId}/permission
          */
-        getAdmindmsContactGroupIdUserUseridPermission: (id: string, userId: string, params: RequestParams = {}) =>
+        getDmsContactGroupIdUserUseridPermission: (id: string, userId: string, params: RequestParams = {}) =>
             this.request<ResultListString, any>({
                 path: `/admin/api/dms/contact-group/${id}/user/${userId}/permission`,
                 method: "GET",
@@ -46023,11 +48806,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Profile APIs(Admin Page)
-         * @name GetAdmindmsCompanyprofilesCompanyidChopsCompanychopidFile
+         * @name GetDmsCompanyprofilesCompanyidChopsCompanychopidFile
          * @summary Download company chop file
          * @request GET:/admin/api/dms/companyProfiles/{companyId}/chops/{companyChopId}/file
          */
-        getAdmindmsCompanyprofilesCompanyidChopsCompanychopidFile: (
+        getDmsCompanyprofilesCompanyidChopsCompanychopidFile: (
             companyId: string,
             companyChopId: string,
             params: RequestParams = {},
@@ -46042,10 +48825,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CalendarController(Admin Page)
-         * @name GetAdmindmsCalendarsId
+         * @name GetDmsCalendarsId
          * @request GET:/admin/api/dms/calendars/{id}
          */
-        getAdmindmsCalendarsId: (id: string, params: RequestParams = {}) =>
+        getDmsCalendarsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultCalendarTaskRespDTO, any>({
                 path: `/admin/api/dms/calendars/${id}`,
                 method: "GET",
@@ -46056,11 +48839,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CalendarController(Admin Page)
-         * @name DeleteAdmindmsCalendarsId
+         * @name DeleteDmsCalendarsId
          * @summary Delete the Task  it must not have been used yet
          * @request DELETE:/admin/api/dms/calendars/{id}
          */
-        deleteAdmindmsCalendarsId: (id: string, params: RequestParams = {}) =>
+        deleteDmsCalendarsId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/calendars/${id}`,
                 method: "DELETE",
@@ -46071,11 +48854,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CalendarController(Admin Page)
-         * @name GetAdmindmsCalendarsSettingTables
+         * @name GetDmsCalendarsSettingTables
          * @summary Obtain calendar tables
          * @request GET:/admin/api/dms/calendars/setting/tables
          */
-        getAdmindmsCalendarsSettingTables: (params: RequestParams = {}) =>
+        getDmsCalendarsSettingTables: (params: RequestParams = {}) =>
             this.request<ResultMapStringString, any>({
                 path: `/admin/api/dms/calendars/setting/tables`,
                 method: "GET",
@@ -46086,11 +48869,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EventCalendarController(Admin Page)
-         * @name GetAdmindmsCalendarsEventSettings
+         * @name GetDmsCalendarsEventSettings
          * @summary Get All Event Calendar Settings
          * @request GET:/admin/api/dms/calendars/event/settings
          */
-        getAdmindmsCalendarsEventSettings: (
+        getDmsCalendarsEventSettings: (
             query: {
                 /** Event Calendar Setting */
                 eventCalendarSetting: EventCalendarSetting;
@@ -46108,11 +48891,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EventCalendarController(Admin Page)
-         * @name GetAdmindmsCalendarsEventSettingsIdUsers
+         * @name GetDmsCalendarsEventSettingsIdUsers
          * @summary Retrieve user list by calendar id
          * @request GET:/admin/api/dms/calendars/event/settings/{id}/users
          */
-        getAdmindmsCalendarsEventSettingsIdUsers: (id: string, params: RequestParams = {}) =>
+        getDmsCalendarsEventSettingsIdUsers: (id: string, params: RequestParams = {}) =>
             this.request<ResultListUserDTO, any>({
                 path: `/admin/api/dms/calendars/event/settings/${id}/users`,
                 method: "GET",
@@ -46123,10 +48906,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CalendarController(Admin Page)
-         * @name GetAdmindmsCalendarsActive
+         * @name GetDmsCalendarsActive
          * @request GET:/admin/api/dms/calendars/active
          */
-        getAdmindmsCalendarsActive: (params: RequestParams = {}) =>
+        getDmsCalendarsActive: (params: RequestParams = {}) =>
             this.request<ResultListCalendarTaskRespDTO, any>({
                 path: `/admin/api/dms/calendars/active`,
                 method: "GET",
@@ -46137,11 +48920,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetTemplateidPageConditions
+         * @name GetDmsCabinetTemplateidPageConditions
          * @summary Obtain conditions of pagination search
          * @request GET:/admin/api/dms/cabinet/{templateId}/page/conditions
          */
-        getAdmindmsCabinetTemplateidPageConditions: (templateId: string, params: RequestParams = {}) =>
+        getDmsCabinetTemplateidPageConditions: (templateId: string, params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, any>({
                 path: `/admin/api/dms/cabinet/${templateId}/page/conditions`,
                 method: "GET",
@@ -46152,11 +48935,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetId
+         * @name GetDmsCabinetId
          * @summary get folder cabinet template tree
          * @request GET:/admin/api/dms/cabinet/{id}
          */
-        getAdmindmsCabinetId: (id: string, params: RequestParams = {}) =>
+        getDmsCabinetId: (id: string, params: RequestParams = {}) =>
             this.request<ResultDocFolderCabinetResponseDTO, any>({
                 path: `/admin/api/dms/cabinet/${id}`,
                 method: "GET",
@@ -46167,11 +48950,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name DeleteAdmindmsCabinetId
+         * @name DeleteDmsCabinetId
          * @summary Delete folder cabinet
          * @request DELETE:/admin/api/dms/cabinet/{id}
          */
-        deleteAdmindmsCabinetId: (id: string, params: RequestParams = {}) =>
+        deleteDmsCabinetId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/cabinet/${id}`,
                 method: "DELETE",
@@ -46182,11 +48965,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetIdUseWorkflow
+         * @name GetDmsCabinetIdUseWorkflow
          * @summary Query workflow list of use this folder cabinet
          * @request GET:/admin/api/dms/cabinet/{id}/use/workflow
          */
-        getAdmindmsCabinetIdUseWorkflow: (id: string, params: RequestParams = {}) =>
+        getDmsCabinetIdUseWorkflow: (id: string, params: RequestParams = {}) =>
             this.request<ResultListConditionResponseDTO, any>({
                 path: `/admin/api/dms/cabinet/${id}/use/workflow`,
                 method: "GET",
@@ -46197,11 +48980,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetIdTree
+         * @name GetDmsCabinetIdTree
          * @summary Get template details for tree structure
          * @request GET:/admin/api/dms/cabinet/{id}/tree
          */
-        getAdmindmsCabinetIdTree: (id: string, params: RequestParams = {}) =>
+        getDmsCabinetIdTree: (id: string, params: RequestParams = {}) =>
             this.request<ResultDocumentFolderCabinet, any>({
                 path: `/admin/api/dms/cabinet/${id}/tree`,
                 method: "GET",
@@ -46212,10 +48995,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetIdPrefix
+         * @name GetDmsCabinetIdPrefix
          * @request GET:/admin/api/dms/cabinet/{id}/prefix
          */
-        getAdmindmsCabinetIdPrefix: (
+        getDmsCabinetIdPrefix: (
             id: string,
             query: {
                 id: string;
@@ -46233,10 +49016,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetIdList
+         * @name GetDmsCabinetIdList
          * @request GET:/admin/api/dms/cabinet/{id}/list
          */
-        getAdmindmsCabinetIdList: (id: string, params: RequestParams = {}) =>
+        getDmsCabinetIdList: (id: string, params: RequestParams = {}) =>
             this.request<ResultListDocumentFolderCabinet, any>({
                 path: `/admin/api/dms/cabinet/${id}/list`,
                 method: "GET",
@@ -46247,10 +49030,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetIdDownloadSummaryReport
+         * @name GetDmsCabinetIdDownloadSummaryReport
          * @request GET:/admin/api/dms/cabinet/{id}/download/summary/report
          */
-        getAdmindmsCabinetIdDownloadSummaryReport: (id: string, params: RequestParams = {}) =>
+        getDmsCabinetIdDownloadSummaryReport: (id: string, params: RequestParams = {}) =>
             this.request<string, any>({
                 path: `/admin/api/dms/cabinet/${id}/download/summary/report`,
                 method: "GET",
@@ -46261,11 +49044,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetTemplateId
+         * @name GetDmsCabinetTemplateId
          * @summary get folder cabinet template tree
          * @request GET:/admin/api/dms/cabinet/template/{id}
          */
-        getAdmindmsCabinetTemplateId: (id: string, params: RequestParams = {}) =>
+        getDmsCabinetTemplateId: (id: string, params: RequestParams = {}) =>
             this.request<ResultFolderCabinetResponseDTO, any>({
                 path: `/admin/api/dms/cabinet/template/${id}`,
                 method: "GET",
@@ -46276,11 +49059,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name DeleteAdmindmsCabinetTemplateId
+         * @name DeleteDmsCabinetTemplateId
          * @summary Delete folder cabinet template and all sub folder cabinet
          * @request DELETE:/admin/api/dms/cabinet/template/{id}
          */
-        deleteAdmindmsCabinetTemplateId: (id: string, params: RequestParams = {}) =>
+        deleteDmsCabinetTemplateId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/cabinet/template/${id}`,
                 method: "DELETE",
@@ -46291,11 +49074,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetTemplateIdTree
+         * @name GetDmsCabinetTemplateIdTree
          * @summary Get template details for tree structure
          * @request GET:/admin/api/dms/cabinet/template/{id}/tree
          */
-        getAdmindmsCabinetTemplateIdTree: (id: string, params: RequestParams = {}) =>
+        getDmsCabinetTemplateIdTree: (id: string, params: RequestParams = {}) =>
             this.request<ResultListFolderCabinetResponseDTO, any>({
                 path: `/admin/api/dms/cabinet/template/${id}/tree`,
                 method: "GET",
@@ -46306,10 +49089,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetTemplateIdInformation
+         * @name GetDmsCabinetTemplateIdInformation
          * @request GET:/admin/api/dms/cabinet/template/{id}/information
          */
-        getAdmindmsCabinetTemplateIdInformation: (id: string, params: RequestParams = {}) =>
+        getDmsCabinetTemplateIdInformation: (id: string, params: RequestParams = {}) =>
             this.request<ResultFolderCabinet, any>({
                 path: `/admin/api/dms/cabinet/template/${id}/information`,
                 method: "GET",
@@ -46320,11 +49103,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetTemplateIdDetail
+         * @name GetDmsCabinetTemplateIdDetail
          * @summary Get detail of folder cabinet template
          * @request GET:/admin/api/dms/cabinet/template/{id}/detail
          */
-        getAdmindmsCabinetTemplateIdDetail: (id: string, params: RequestParams = {}) =>
+        getDmsCabinetTemplateIdDetail: (id: string, params: RequestParams = {}) =>
             this.request<ResultFolderCabinetResponseDTO, any>({
                 path: `/admin/api/dms/cabinet/template/${id}/detail`,
                 method: "GET",
@@ -46335,11 +49118,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetTemplateList
+         * @name GetDmsCabinetTemplateList
          * @summary Query all Top-level folder cabinet template
          * @request GET:/admin/api/dms/cabinet/template/list
          */
-        getAdmindmsCabinetTemplateList: (
+        getDmsCabinetTemplateList: (
             query?: {
                 label?: string;
             },
@@ -46356,10 +49139,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetRefreshStatusDocumentid
+         * @name GetDmsCabinetRefreshStatusDocumentid
          * @request GET:/admin/api/dms/cabinet/refresh/status/{documentId}
          */
-        getAdmindmsCabinetRefreshStatusDocumentid: (documentId: string, params: RequestParams = {}) =>
+        getDmsCabinetRefreshStatusDocumentid: (documentId: string, params: RequestParams = {}) =>
             this.request<void, any>({
                 path: `/admin/api/dms/cabinet/refresh/status/${documentId}`,
                 method: "GET",
@@ -46370,10 +49153,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetRefreshCompletestatusFoldercabinetid
+         * @name GetDmsCabinetRefreshCompletestatusFoldercabinetid
          * @request GET:/admin/api/dms/cabinet/refresh/completeStatus/{folderCabinetId}
          */
-        getAdmindmsCabinetRefreshCompletestatusFoldercabinetid: (folderCabinetId: string, params: RequestParams = {}) =>
+        getDmsCabinetRefreshCompletestatusFoldercabinetid: (folderCabinetId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/cabinet/refresh/completeStatus/${folderCabinetId}`,
                 method: "GET",
@@ -46384,10 +49167,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetRefreshCompleteStatusId
+         * @name GetDmsCabinetRefreshCompleteStatusId
          * @request GET:/admin/api/dms/cabinet/refresh/complete/status/{id}
          */
-        getAdmindmsCabinetRefreshCompleteStatusId: (id: string, params: RequestParams = {}) =>
+        getDmsCabinetRefreshCompleteStatusId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/cabinet/refresh/complete/status/${id}`,
                 method: "GET",
@@ -46398,10 +49181,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetRefreshcompletestatusId
+         * @name GetDmsCabinetRefreshcompletestatusId
          * @request GET:/admin/api/dms/cabinet/refreshCompleteStatus/{id}
          */
-        getAdmindmsCabinetRefreshcompletestatusId: (id: string, params: RequestParams = {}) =>
+        getDmsCabinetRefreshcompletestatusId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/cabinet/refreshCompleteStatus/${id}`,
                 method: "GET",
@@ -46412,11 +49195,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetLoginuserList
+         * @name GetDmsCabinetLoginuserList
          * @summary Query template list of Top-level folder cabinet that belong to current logged-in user
          * @request GET:/admin/api/dms/cabinet/loginUser/list
          */
-        getAdmindmsCabinetLoginuserList: (
+        getDmsCabinetLoginuserList: (
             query?: {
                 label?: string;
             },
@@ -46433,11 +49216,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetList
+         * @name GetDmsCabinetList
          * @summary query all folder cabinet list of top level
          * @request GET:/admin/api/dms/cabinet/list
          */
-        getAdmindmsCabinetList: (params: RequestParams = {}) =>
+        getDmsCabinetList: (params: RequestParams = {}) =>
             this.request<ResultListFolderCabinetResponseDTO, any>({
                 path: `/admin/api/dms/cabinet/list`,
                 method: "GET",
@@ -46448,11 +49231,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name GetAdmindmsCabinetHeaderList
+         * @name GetDmsCabinetHeaderList
          * @summary Get export header list
          * @request GET:/admin/api/dms/cabinet/header/list
          */
-        getAdmindmsCabinetHeaderList: (
+        getDmsCabinetHeaderList: (
             query: {
                 templateId: string;
             },
@@ -46469,11 +49252,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name GetAdmincaseTypesIdVersions
+         * @name GetCaseTypesIdVersions
          * @summary Create a new version case type
          * @request GET:/admin/api/case/types/{id}/versions
          */
-        getAdmincaseTypesIdVersions: (id: string, params: RequestParams = {}) =>
+        getCaseTypesIdVersions: (id: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnVersion, any>({
                 path: `/admin/api/case/types/${id}/versions`,
                 method: "GET",
@@ -46484,11 +49267,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name GetAdmincaseTypesIdStylejson
+         * @name GetCaseTypesIdStylejson
          * @summary Query style json of cmmn xml
          * @request GET:/admin/api/case/types/{id}/styleJson
          */
-        getAdmincaseTypesIdStylejson: (
+        getCaseTypesIdStylejson: (
             id: string,
             query?: {
                 versionNumber?: string;
@@ -46506,11 +49289,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name GetAdmincaseTypesIdStarttask
+         * @name GetCaseTypesIdStarttask
          * @summary Retrieve startup task for the case definition of the latest version
          * @request GET:/admin/api/case/types/{id}/startTask
          */
-        getAdmincaseTypesIdStarttask: (
+        getCaseTypesIdStarttask: (
             id: string,
             query?: {
                 startMatchSign?: string;
@@ -46528,11 +49311,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name GetAdmincaseTypesIdExport
+         * @name GetCaseTypesIdExport
          * @summary 导出Case数据，包含CaseType、CaseModelDraft、CmmnVersion和cmmn.xml文件
          * @request GET:/admin/api/case/types/{id}/export
          */
-        getAdmincaseTypesIdExport: (
+        getCaseTypesIdExport: (
             id: string,
             query?: {
                 versionNumber?: string;
@@ -46550,11 +49333,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name GetAdmincaseTypesIdDownloadXml
+         * @name GetCaseTypesIdDownloadXml
          * @summary Download cmmn.xml of version (case model definition)
          * @request GET:/admin/api/case/types/{id}/download/xml
          */
-        getAdmincaseTypesIdDownloadXml: (
+        getCaseTypesIdDownloadXml: (
             id: string,
             query?: {
                 versionNumber?: string;
@@ -46572,11 +49355,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name GetAdmincaseTypesIdDownloadDeployVersion
+         * @name GetCaseTypesIdDownloadDeployVersion
          * @summary Download latest version cmmn xml (case model definition)
          * @request GET:/admin/api/case/types/{id}/download/deploy/version
          */
-        getAdmincaseTypesIdDownloadDeployVersion: (id: string, params: RequestParams = {}) =>
+        getCaseTypesIdDownloadDeployVersion: (id: string, params: RequestParams = {}) =>
             this.request<string, any>({
                 path: `/admin/api/case/types/${id}/download/deploy/version`,
                 method: "GET",
@@ -46587,11 +49370,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name GetAdmincaseTypesIdCaseinfo
+         * @name GetCaseTypesIdCaseinfo
          * @summary Get form fields of deployed version based on this case type
          * @request GET:/admin/api/case/types/{id}/caseInfo
          */
-        getAdmincaseTypesIdCaseinfo: (id: string, params: RequestParams = {}) =>
+        getCaseTypesIdCaseinfo: (id: string, params: RequestParams = {}) =>
             this.request<ResultListPlanTableFieldDTO, any>({
                 path: `/admin/api/case/types/${id}/caseInfo`,
                 method: "GET",
@@ -46602,11 +49385,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name GetAdmincaseTypesCasetypeid
+         * @name GetCaseTypesCasetypeid
          * @summary Retrieve case type detail
          * @request GET:/admin/api/case/types/{caseTypeId}
          */
-        getAdmincaseTypesCasetypeid: (
+        getCaseTypesCasetypeid: (
             caseTypeId: string,
             query?: {
                 versionNumber?: string;
@@ -46624,10 +49407,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name GetAdmincaseTypesCasetypeidPermissions
+         * @name GetCaseTypesCasetypeidPermissions
          * @request GET:/admin/api/case/types/{caseTypeId}/permissions
          */
-        getAdmincaseTypesCasetypeidPermissions: (caseTypeId: string, params: RequestParams = {}) =>
+        getCaseTypesCasetypeidPermissions: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/case/types/${caseTypeId}/permissions`,
                 method: "GET",
@@ -46638,14 +49421,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name GetAdmincaseTypesCasetypeidPermissionsUserid
+         * @name GetCaseTypesCasetypeidPermissionsUserid
          * @request GET:/admin/api/case/types/{caseTypeId}/permissions/{userId}
          */
-        getAdmincaseTypesCasetypeidPermissionsUserid: (
-            caseTypeId: string,
-            userId: string,
-            params: RequestParams = {},
-        ) =>
+        getCaseTypesCasetypeidPermissionsUserid: (caseTypeId: string, userId: string, params: RequestParams = {}) =>
             this.request<ResultMapStringString, any>({
                 path: `/admin/api/case/types/${caseTypeId}/permissions/${userId}`,
                 method: "GET",
@@ -46656,11 +49435,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name GetAdmincaseTypesCasetypeidInstances
+         * @name GetCaseTypesCasetypeidInstances
          * @summary Retrieve all case instances of this case type
          * @request GET:/admin/api/case/types/{caseTypeId}/instances
          */
-        getAdmincaseTypesCasetypeidInstances: (caseTypeId: string, params: RequestParams = {}) =>
+        getCaseTypesCasetypeidInstances: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnInstance, any>({
                 path: `/admin/api/case/types/${caseTypeId}/instances`,
                 method: "GET",
@@ -46671,10 +49450,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name GetAdmincaseTypesCasedefinitionkeyDeployment
+         * @name GetCaseTypesCasedefinitionkeyDeployment
          * @request GET:/admin/api/case/types/{caseDefinitionKey}/deployment
          */
-        getAdmincaseTypesCasedefinitionkeyDeployment: (caseDefinitionKey: string, params: RequestParams = {}) =>
+        getCaseTypesCasedefinitionkeyDeployment: (caseDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultCmmnDeploymentDTO, any>({
                 path: `/admin/api/case/types/${caseDefinitionKey}/deployment`,
                 method: "GET",
@@ -46685,11 +49464,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name GetAdmincaseTypesVersionVersionid
+         * @name GetCaseTypesVersionVersionid
          * @summary Retrieve detail of case model version
          * @request GET:/admin/api/case/types/version/{versionId}
          */
-        getAdmincaseTypesVersionVersionid: (versionId: string, params: RequestParams = {}) =>
+        getCaseTypesVersionVersionid: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultCmmnVersion, any>({
                 path: `/admin/api/case/types/version/${versionId}`,
                 method: "GET",
@@ -46700,11 +49479,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name GetAdmincaseTypesVersionVersionidStarttask
+         * @name GetCaseTypesVersionVersionidStarttask
          * @summary Retrieve startup task for the case definition of the specified version
          * @request GET:/admin/api/case/types/version/{versionId}/startTask
          */
-        getAdmincaseTypesVersionVersionidStarttask: (versionId: string, params: RequestParams = {}) =>
+        getCaseTypesVersionVersionidStarttask: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemDefinitionDTO, any>({
                 path: `/admin/api/case/types/version/${versionId}/startTask`,
                 method: "GET",
@@ -46715,11 +49494,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name GetAdmincaseTypesPermissionsRules
+         * @name GetCaseTypesPermissionsRules
          * @summary Retrieve case type permission rules
          * @request GET:/admin/api/case/types/permissions/rules
          */
-        getAdmincaseTypesPermissionsRules: (params: RequestParams = {}) =>
+        getCaseTypesPermissionsRules: (params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/case/types/permissions/rules`,
                 method: "GET",
@@ -46730,11 +49509,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name GetAdmincaseTypesDatatypeMapping
+         * @name GetCaseTypesDatatypeMapping
          * @summary Obtain support column mapping
          * @request GET:/admin/api/case/types/dataType/mapping
          */
-        getAdmincaseTypesDatatypeMapping: (params: RequestParams = {}) =>
+        getCaseTypesDatatypeMapping: (params: RequestParams = {}) =>
             this.request<ResultListMTFieldTypeMapping, any>({
                 path: `/admin/api/case/types/dataType/mapping`,
                 method: "GET",
@@ -46745,11 +49524,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTableController(Admin Page)
-         * @name GetAdmincaseTablesId
+         * @name GetCaseTablesId
          * @summary Retrieve detail of case table and include associated data structures
          * @request GET:/admin/api/case/tables/{id}
          */
-        getAdmincaseTablesId: (id: string, params: RequestParams = {}) =>
+        getCaseTablesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultCaseTableResponseDTO, any>({
                 path: `/admin/api/case/tables/${id}`,
                 method: "GET",
@@ -46760,10 +49539,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTableController(Admin Page)
-         * @name DeleteAdmincaseTablesId
+         * @name DeleteCaseTablesId
          * @request DELETE:/admin/api/case/tables/{id}
          */
-        deleteAdmincaseTablesId: (id: string, params: RequestParams = {}) =>
+        deleteCaseTablesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/case/tables/${id}`,
                 method: "DELETE",
@@ -46774,10 +49553,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTableController(Admin Page)
-         * @name GetAdmincaseTablesNameExist
+         * @name GetCaseTablesNameExist
          * @request GET:/admin/api/case/tables/name/exist
          */
-        getAdmincaseTablesNameExist: (
+        getCaseTablesNameExist: (
             query: {
                 tablename: string;
             },
@@ -46794,11 +49573,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTableController(Admin Page)
-         * @name GetAdmincaseTablesCasetypeCasetypeid
+         * @name GetCaseTablesCasetypeCasetypeid
          * @summary Retrieve a list of case tables that belong to the specified case type
          * @request GET:/admin/api/case/tables/caseType/{caseTypeId}
          */
-        getAdmincaseTablesCasetypeCasetypeid: (caseTypeId: string, params: RequestParams = {}) =>
+        getCaseTablesCasetypeCasetypeid: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListCaseTable, any>({
                 path: `/admin/api/case/tables/caseType/${caseTypeId}`,
                 method: "GET",
@@ -46809,10 +49588,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTableController(Admin Page)
-         * @name GetAdmincaseTablesCasequery
+         * @name GetCaseTablesCasequery
          * @request GET:/admin/api/case/tables/caseQuery
          */
-        getAdmincaseTablesCasequery: (
+        getCaseTablesCasequery: (
             query: {
                 tableName: string;
             },
@@ -46829,11 +49608,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name GetAdmincaseSupportSubcase
+         * @name GetCaseSupportSubcase
          * @summary Filter case definition to select as sub-case
          * @request GET:/admin/api/case/support/subCase
          */
-        getAdmincaseSupportSubcase: (params: RequestParams = {}) =>
+        getCaseSupportSubcase: (params: RequestParams = {}) =>
             this.request<ResultListCaseDefinitionDTO, any>({
                 path: `/admin/api/case/support/subCase`,
                 method: "GET",
@@ -46844,11 +49623,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name GetAdmincaseSupportSubcaseFields
+         * @name GetCaseSupportSubcaseFields
          * @summary Extract input field list of sub-case definition
          * @request GET:/admin/api/case/support/subCase/fields
          */
-        getAdmincaseSupportSubcaseFields: (
+        getCaseSupportSubcaseFields: (
             query: {
                 caseDefinitionId: string;
             },
@@ -46865,10 +49644,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name GetAdmincaseInstanceCaseinstanceidForms
+         * @name GetCaseInstanceCaseinstanceidForms
          * @request GET:/admin/api/case/instance/{caseInstanceId}/forms
          */
-        getAdmincaseInstanceCaseinstanceidForms: (caseInstanceId: string, params: RequestParams = {}) =>
+        getCaseInstanceCaseinstanceidForms: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnPlanFormDTO, any>({
                 path: `/admin/api/case/instance/${caseInstanceId}/forms`,
                 method: "GET",
@@ -46879,10 +49658,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name GetAdmincaseInstanceCaseinstanceidEvents
+         * @name GetCaseInstanceCaseinstanceidEvents
          * @request GET:/admin/api/case/instance/{caseInstanceId}/events
          */
-        getAdmincaseInstanceCaseinstanceidEvents: (caseInstanceId: string, params: RequestParams = {}) =>
+        getCaseInstanceCaseinstanceidEvents: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultListUserEventInstanceDTO, any>({
                 path: `/admin/api/case/instance/${caseInstanceId}/events`,
                 method: "GET",
@@ -46893,11 +49672,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name GetAdmincaseInstanceTasksTaskidForm
+         * @name GetCaseInstanceTasksTaskidForm
          * @summary Retrieve form information of task
          * @request GET:/admin/api/case/instance/tasks/{taskId}/form
          */
-        getAdmincaseInstanceTasksTaskidForm: (taskId: string, params: RequestParams = {}) =>
+        getCaseInstanceTasksTaskidForm: (taskId: string, params: RequestParams = {}) =>
             this.request<ResultCaseInstanceFormDataDTO, any>({
                 path: `/admin/api/case/instance/tasks/${taskId}/form`,
                 method: "GET",
@@ -46908,11 +49687,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name GetAdmincaseInstanceProcessDefinitions
+         * @name GetCaseInstanceProcessDefinitions
          * @summary Retrieve process definition of this case instance through case definition key
          * @request GET:/admin/api/case/instance/process/definitions
          */
-        getAdmincaseInstanceProcessDefinitions: (
+        getCaseInstanceProcessDefinitions: (
             query: {
                 businessKey: string;
             },
@@ -46929,11 +49708,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name GetAdmincaseInstancePlanitemsPlanitemidForm
+         * @name GetCaseInstancePlanitemsPlanitemidForm
          * @summary Retrieve form information of plan item instance
          * @request GET:/admin/api/case/instance/planItems/{planItemId}/form
          */
-        getAdmincaseInstancePlanitemsPlanitemidForm: (
+        getCaseInstancePlanitemsPlanitemidForm: (
             planItemId: string,
             query?: {
                 caseDefinitionId?: string;
@@ -46951,11 +49730,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name GetAdmincaseDefinitions
+         * @name GetCaseDefinitions
          * @summary Retrieve all case model definitions
          * @request GET:/admin/api/case/definitions
          */
-        getAdmincaseDefinitions: (params: RequestParams = {}) =>
+        getCaseDefinitions: (params: RequestParams = {}) =>
             this.request<ResultListCaseDefinitionDTO, any>({
                 path: `/admin/api/case/definitions`,
                 method: "GET",
@@ -46966,11 +49745,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name GetAdmincaseDefinitionsCasedefinitionkeyInstances
+         * @name GetCaseDefinitionsCasedefinitionkeyInstances
          * @summary Retrieve case instances of this case model
          * @request GET:/admin/api/case/definitions/{caseDefinitionKey}/instances
          */
-        getAdmincaseDefinitionsCasedefinitionkeyInstances: (caseDefinitionKey: string, params: RequestParams = {}) =>
+        getCaseDefinitionsCasedefinitionkeyInstances: (caseDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultListCaseInstanceDTO, any>({
                 path: `/admin/api/case/definitions/${caseDefinitionKey}/instances`,
                 method: "GET",
@@ -46981,14 +49760,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name GetAdmincaseDefinitionCasedefinitionkeyProcessDefinitions
+         * @name GetCaseDefinitionCasedefinitionkeyProcessDefinitions
          * @summary Retrieve process definition of this case instance through case definition key
          * @request GET:/admin/api/case/definition/{caseDefinitionKey}/process/definitions
          */
-        getAdmincaseDefinitionCasedefinitionkeyProcessDefinitions: (
-            caseDefinitionKey: string,
-            params: RequestParams = {},
-        ) =>
+        getCaseDefinitionCasedefinitionkeyProcessDefinitions: (caseDefinitionKey: string, params: RequestParams = {}) =>
             this.request<ResultListProcessDefinitionDTO, any>({
                 path: `/admin/api/case/definition/${caseDefinitionKey}/process/definitions`,
                 method: "GET",
@@ -46999,11 +49775,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardId
+         * @name GetCaseDashboardId
          * @summary Retrieve case dashboard detail
          * @request GET:/admin/api/case/dashboard/{id}
          */
-        getAdmincaseDashboardId: (id: string, params: RequestParams = {}) =>
+        getCaseDashboardId: (id: string, params: RequestParams = {}) =>
             this.request<ResultCmmnDashboardResponseDTO, any>({
                 path: `/admin/api/case/dashboard/${id}`,
                 method: "GET",
@@ -47014,11 +49790,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name DeleteAdmincaseDashboardId
+         * @name DeleteCaseDashboardId
          * @summary Delete the case dashboard it must not have been used yet
          * @request DELETE:/admin/api/case/dashboard/{id}
          */
-        deleteAdmincaseDashboardId: (id: string, params: RequestParams = {}) =>
+        deleteCaseDashboardId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/case/dashboard/${id}`,
                 method: "DELETE",
@@ -47029,11 +49805,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardVersionVersionidStages
+         * @name GetCaseDashboardVersionVersionidStages
          * @summary Get stages of the current version that it is case definition
          * @request GET:/admin/api/case/dashboard/version/{versionId}/stages
          */
-        getAdmincaseDashboardVersionVersionidStages: (versionId: string, params: RequestParams = {}) =>
+        getCaseDashboardVersionVersionidStages: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, any>({
                 path: `/admin/api/case/dashboard/version/${versionId}/stages`,
                 method: "GET",
@@ -47044,11 +49820,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardVersionVersionidPrimaryform
+         * @name GetCaseDashboardVersionVersionidPrimaryform
          * @summary Get primary form of the current version that it is case definition
          * @request GET:/admin/api/case/dashboard/version/{versionId}/primaryForm
          */
-        getAdmincaseDashboardVersionVersionidPrimaryform: (versionId: string, params: RequestParams = {}) =>
+        getCaseDashboardVersionVersionidPrimaryform: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultCmmnPlanFormDTO, any>({
                 path: `/admin/api/case/dashboard/version/${versionId}/primaryForm`,
                 method: "GET",
@@ -47059,11 +49835,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardVersionVersionidPrimaryformData
+         * @name GetCaseDashboardVersionVersionidPrimaryformData
          * @summary Retrieve information and information data of this case version
          * @request GET:/admin/api/case/dashboard/version/{versionId}/primaryForm/data
          */
-        getAdmincaseDashboardVersionVersionidPrimaryformData: (versionId: string, params: RequestParams = {}) =>
+        getCaseDashboardVersionVersionidPrimaryformData: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultCaseInstanceFormDataDTO, any>({
                 path: `/admin/api/case/dashboard/version/${versionId}/primaryForm/data`,
                 method: "GET",
@@ -47074,11 +49850,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardVersionVersionidActivity
+         * @name GetCaseDashboardVersionVersionidActivity
          * @summary Get all activity of the current version that it is case definition
          * @request GET:/admin/api/case/dashboard/version/{versionId}/activity
          */
-        getAdmincaseDashboardVersionVersionidActivity: (versionId: string, params: RequestParams = {}) =>
+        getCaseDashboardVersionVersionidActivity: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, any>({
                 path: `/admin/api/case/dashboard/version/${versionId}/activity`,
                 method: "GET",
@@ -47089,10 +49865,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardVersionVersionidActions
+         * @name GetCaseDashboardVersionVersionidActions
          * @request GET:/admin/api/case/dashboard/version/{versionId}/actions
          */
-        getAdmincaseDashboardVersionVersionidActions: (versionId: string, params: RequestParams = {}) =>
+        getCaseDashboardVersionVersionidActions: (versionId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, any>({
                 path: `/admin/api/case/dashboard/version/${versionId}/actions`,
                 method: "GET",
@@ -47103,14 +49879,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardInstanceCaseinstanceidMilestoneStatus
+         * @name GetCaseDashboardInstanceCaseinstanceidMilestoneStatus
          * @summary Obtain Milestone Status of a case instance
          * @request GET:/admin/api/case/dashboard/instance/{caseInstanceId}/milestone/status
          */
-        getAdmincaseDashboardInstanceCaseinstanceidMilestoneStatus: (
-            caseInstanceId: string,
-            params: RequestParams = {},
-        ) =>
+        getCaseDashboardInstanceCaseinstanceidMilestoneStatus: (caseInstanceId: string, params: RequestParams = {}) =>
             this.request<ResultObject, any>({
                 path: `/admin/api/case/dashboard/instance/${caseInstanceId}/milestone/status`,
                 method: "GET",
@@ -47121,11 +49894,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardInstanceCaseidTasks
+         * @name GetCaseDashboardInstanceCaseidTasks
          * @summary Retrieve all tasks of this case instance
          * @request GET:/admin/api/case/dashboard/instance/{caseId}/tasks
          */
-        getAdmincaseDashboardInstanceCaseidTasks: (caseId: string, params: RequestParams = {}) =>
+        getCaseDashboardInstanceCaseidTasks: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnTaskDTO, any>({
                 path: `/admin/api/case/dashboard/instance/${caseId}/tasks`,
                 method: "GET",
@@ -47136,11 +49909,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardInstanceCaseidStages
+         * @name GetCaseDashboardInstanceCaseidStages
          * @summary Retrieve stages of current case instance
          * @request GET:/admin/api/case/dashboard/instance/{caseId}/stages
          */
-        getAdmincaseDashboardInstanceCaseidStages: (caseId: string, params: RequestParams = {}) =>
+        getCaseDashboardInstanceCaseidStages: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, any>({
                 path: `/admin/api/case/dashboard/instance/${caseId}/stages`,
                 method: "GET",
@@ -47151,11 +49924,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardInstanceCaseidPrimaryformData
+         * @name GetCaseDashboardInstanceCaseidPrimaryformData
          * @summary Retrieve primary form data (Case Dashboard) structure
          * @request GET:/admin/api/case/dashboard/instance/{caseId}/primaryForm/data
          */
-        getAdmincaseDashboardInstanceCaseidPrimaryformData: (caseId: string, params: RequestParams = {}) =>
+        getCaseDashboardInstanceCaseidPrimaryformData: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultCaseInstanceFormDataDTO, any>({
                 path: `/admin/api/case/dashboard/instance/${caseId}/primaryForm/data`,
                 method: "GET",
@@ -47166,11 +49939,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardInstanceCaseidPlanitems
+         * @name GetCaseDashboardInstanceCaseidPlanitems
          * @summary Retrieve planItems
          * @request GET:/admin/api/case/dashboard/instance/{caseId}/planItems
          */
-        getAdmincaseDashboardInstanceCaseidPlanitems: (
+        getCaseDashboardInstanceCaseidPlanitems: (
             caseId: string,
             query: {
                 type: string;
@@ -47188,11 +49961,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardInstanceCaseidPersonalTasks
+         * @name GetCaseDashboardInstanceCaseidPersonalTasks
          * @summary Retrieve personal tasks of this case instance
          * @request GET:/admin/api/case/dashboard/instance/{caseId}/personal/tasks
          */
-        getAdmincaseDashboardInstanceCaseidPersonalTasks: (caseId: string, params: RequestParams = {}) =>
+        getCaseDashboardInstanceCaseidPersonalTasks: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnTaskDTO, any>({
                 path: `/admin/api/case/dashboard/instance/${caseId}/personal/tasks`,
                 method: "GET",
@@ -47203,11 +49976,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardInstanceCaseidEvents
+         * @name GetCaseDashboardInstanceCaseidEvents
          * @summary Retrieve all events of this case instance
          * @request GET:/admin/api/case/dashboard/instance/{caseId}/events
          */
-        getAdmincaseDashboardInstanceCaseidEvents: (caseId: string, params: RequestParams = {}) =>
+        getCaseDashboardInstanceCaseidEvents: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, any>({
                 path: `/admin/api/case/dashboard/instance/${caseId}/events`,
                 method: "GET",
@@ -47218,11 +49991,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardInstanceCaseidActivity
+         * @name GetCaseDashboardInstanceCaseidActivity
          * @summary Retrieve activities of this case instance
          * @request GET:/admin/api/case/dashboard/instance/{caseId}/activity
          */
-        getAdmincaseDashboardInstanceCaseidActivity: (caseId: string, params: RequestParams = {}) =>
+        getCaseDashboardInstanceCaseidActivity: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnActivityItem, any>({
                 path: `/admin/api/case/dashboard/instance/${caseId}/activity`,
                 method: "GET",
@@ -47233,11 +50006,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardInstanceCaseidActions
+         * @name GetCaseDashboardInstanceCaseidActions
          * @summary Retrieve activities of this case instance
          * @request GET:/admin/api/case/dashboard/instance/{caseId}/actions
          */
-        getAdmincaseDashboardInstanceCaseidActions: (
+        getCaseDashboardInstanceCaseidActions: (
             caseId: string,
             query: {
                 userId: string;
@@ -47255,11 +50028,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardInstanceStagePlanitems
+         * @name GetCaseDashboardInstanceStagePlanitems
          * @summary Retrieve all planItem instance of this case instance
          * @request GET:/admin/api/case/dashboard/instance/stage/planItems
          */
-        getAdmincaseDashboardInstanceStagePlanitems: (
+        getCaseDashboardInstanceStagePlanitems: (
             query: {
                 /** Case Instance Id */
                 caseInstanceId: any;
@@ -47281,11 +50054,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardCasetypeCasetypeid
+         * @name GetCaseDashboardCasetypeCasetypeid
          * @summary Retrieve all Case View Dashboard
          * @request GET:/admin/api/case/dashboard/caseType/{caseTypeId}
          */
-        getAdmincaseDashboardCasetypeCasetypeid: (caseTypeId: string, params: RequestParams = {}) =>
+        getCaseDashboardCasetypeCasetypeid: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListCmmnDashboard, any>({
                 path: `/admin/api/case/dashboard/caseType/${caseTypeId}`,
                 method: "GET",
@@ -47296,11 +50069,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardCasetypeCasetypeidVersionnumberVersionnumber
+         * @name GetCaseDashboardCasetypeCasetypeidVersionnumberVersionnumber
          * @summary Retrieve case dashboard detail
          * @request GET:/admin/api/case/dashboard/caseType/{caseTypeId}/versionNumber/{versionNumber}
          */
-        getAdmincaseDashboardCasetypeCasetypeidVersionnumberVersionnumber: (
+        getCaseDashboardCasetypeCasetypeidVersionnumberVersionnumber: (
             caseTypeId: string,
             versionNumber: string,
             params: RequestParams = {},
@@ -47315,11 +50088,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardCasetypeCasetypeidStages
+         * @name GetCaseDashboardCasetypeCasetypeidStages
          * @summary Retrieve stages of current case instance
          * @request GET:/admin/api/case/dashboard/caseType/{caseTypeId}/stages
          */
-        getAdmincaseDashboardCasetypeCasetypeidStages: (caseTypeId: string, params: RequestParams = {}) =>
+        getCaseDashboardCasetypeCasetypeidStages: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, any>({
                 path: `/admin/api/case/dashboard/caseType/${caseTypeId}/stages`,
                 method: "GET",
@@ -47330,11 +50103,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardCasetypeCasetypeidPrimaryform
+         * @name GetCaseDashboardCasetypeCasetypeidPrimaryform
          * @summary Retrieve primary form (Case Dashboard)
          * @request GET:/admin/api/case/dashboard/caseType/{caseTypeId}/primaryForm
          */
-        getAdmincaseDashboardCasetypeCasetypeidPrimaryform: (caseTypeId: string, params: RequestParams = {}) =>
+        getCaseDashboardCasetypeCasetypeidPrimaryform: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultCmmnPlanFormDTO, any>({
                 path: `/admin/api/case/dashboard/caseType/${caseTypeId}/primaryForm`,
                 method: "GET",
@@ -47345,10 +50118,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardCasetypeCasetypeidActivity
+         * @name GetCaseDashboardCasetypeCasetypeidActivity
          * @request GET:/admin/api/case/dashboard/caseType/{caseTypeId}/activity
          */
-        getAdmincaseDashboardCasetypeCasetypeidActivity: (caseTypeId: string, params: RequestParams = {}) =>
+        getCaseDashboardCasetypeCasetypeidActivity: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, any>({
                 path: `/admin/api/case/dashboard/caseType/${caseTypeId}/activity`,
                 method: "GET",
@@ -47359,10 +50132,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CmmnDashboardController(Admin Page)
-         * @name GetAdmincaseDashboardCasetypeCasetypeidActions
+         * @name GetCaseDashboardCasetypeCasetypeidActions
          * @request GET:/admin/api/case/dashboard/caseType/{caseTypeId}/actions
          */
-        getAdmincaseDashboardCasetypeCasetypeidActions: (caseTypeId: string, params: RequestParams = {}) =>
+        getCaseDashboardCasetypeCasetypeidActions: (caseTypeId: string, params: RequestParams = {}) =>
             this.request<ResultListPlanItemInstanceDTO, any>({
                 path: `/admin/api/case/dashboard/caseType/${caseTypeId}/actions`,
                 method: "GET",
@@ -47373,10 +50146,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminProcessInstanceController
-         * @name DeleteAdminworkflowInstanceWithoutValidation
+         * @name DeleteWorkflowInstanceWithoutValidation
          * @request DELETE:/admin/api/workflow/instance/without/validation
          */
-        deleteAdminworkflowInstanceWithoutValidation: (
+        deleteWorkflowInstanceWithoutValidation: (
             query?: {
                 processInstanceId?: string;
                 /** @format date-time */
@@ -47398,11 +50171,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name DeleteAdminworkflowDefinitionSuspendDraftid
+         * @name DeleteWorkflowDefinitionSuspendDraftid
          * @summary Suspend a process definition
          * @request DELETE:/admin/api/workflow/definition/suspend/{draftId}
          */
-        deleteAdminworkflowDefinitionSuspendDraftid: (draftId: string, params: RequestParams = {}) =>
+        deleteWorkflowDefinitionSuspendDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/workflow/definition/suspend/${draftId}`,
                 method: "DELETE",
@@ -47413,11 +50186,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags WorkflowDefinitionController
-         * @name DeleteAdminworkflowDefinitionRemoveDraftid
+         * @name DeleteWorkflowDefinitionRemoveDraftid
          * @summary Remove process definition from workflow list
          * @request DELETE:/admin/api/workflow/definition/remove/{draftId}
          */
-        deleteAdminworkflowDefinitionRemoveDraftid: (draftId: string, params: RequestParams = {}) =>
+        deleteWorkflowDefinitionRemoveDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/workflow/definition/remove/${draftId}`,
                 method: "DELETE",
@@ -47428,10 +50201,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowVersionController(Admin Page)
-         * @name DeleteAdmindocpalWorkflowVersionDraftidDraftid
+         * @name DeleteDocpalWorkflowVersionDraftidDraftid
          * @request DELETE:/admin/api/docpal/workflow/version/draftId/{draftId}
          */
-        deleteAdmindocpalWorkflowVersionDraftidDraftid: (draftId: string, params: RequestParams = {}) =>
+        deleteDocpalWorkflowVersionDraftidDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/workflow/version/draftId/${draftId}`,
                 method: "DELETE",
@@ -47442,10 +50215,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name DeleteAdmindocpalWorkflowProcess
+         * @name DeleteDocpalWorkflowProcess
          * @request DELETE:/admin/api/docpal/workflow/process
          */
-        deleteAdmindocpalWorkflowProcess: (
+        deleteDocpalWorkflowProcess: (
             query?: {
                 processInstanceId?: string;
                 /** @format date-time */
@@ -47467,11 +50240,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowInstanceController
-         * @name DeleteAdmindocpalWorkflowProcessUser
+         * @name DeleteDocpalWorkflowProcessUser
          * @summary Delete process instance by user id
          * @request DELETE:/admin/api/docpal/workflow/process/user
          */
-        deleteAdmindocpalWorkflowProcessUser: (data: DeleteWorkflowReq, params: RequestParams = {}) =>
+        deleteDocpalWorkflowProcessUser: (data: DeleteWorkflowReq, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/workflow/process/user`,
                 method: "DELETE",
@@ -47484,11 +50257,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name DeleteAdmindocpalWorkflowProcessDefinitionSuspendDraftid
+         * @name DeleteDocpalWorkflowProcessDefinitionSuspendDraftid
          * @summary Suspend a process definition
          * @request DELETE:/admin/api/docpal/workflow/process/definition/suspend/{draftId}
          */
-        deleteAdmindocpalWorkflowProcessDefinitionSuspendDraftid: (draftId: string, params: RequestParams = {}) =>
+        deleteDocpalWorkflowProcessDefinitionSuspendDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/workflow/process/definition/suspend/${draftId}`,
                 method: "DELETE",
@@ -47499,11 +50272,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Workflow Process Definition Controller
-         * @name DeleteAdmindocpalWorkflowProcessDefinitionRemoveDraftid
+         * @name DeleteDocpalWorkflowProcessDefinitionRemoveDraftid
          * @summary Remove process definition from workflow list
          * @request DELETE:/admin/api/docpal/workflow/process/definition/remove/{draftId}
          */
-        deleteAdmindocpalWorkflowProcessDefinitionRemoveDraftid: (draftId: string, params: RequestParams = {}) =>
+        deleteDocpalWorkflowProcessDefinitionRemoveDraftid: (draftId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/workflow/process/definition/remove/${draftId}`,
                 method: "DELETE",
@@ -47514,10 +50287,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminWorkflowConfigController
-         * @name DeleteAdmindocpalWorkflowDeletedocumenttypeprofile
+         * @name DeleteDocpalWorkflowDeletedocumenttypeprofile
          * @request DELETE:/admin/api/docpal/workflow/deleteDocumentTypeProfile
          */
-        deleteAdmindocpalWorkflowDeletedocumenttypeprofile: (
+        deleteDocpalWorkflowDeletedocumenttypeprofile: (
             query: {
                 /** @format int64 */
                 profileID: number;
@@ -47535,10 +50308,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-template-message-controller
-         * @name DeleteAdmindocpalMessageTemplateId
+         * @name DeleteDocpalMessageTemplateId
          * @request DELETE:/admin/api/docpal/message/template/{id}
          */
-        deleteAdmindocpalMessageTemplateId: (id: string, params: RequestParams = {}) =>
+        deleteDocpalMessageTemplateId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/docpal/message/template/${id}`,
                 method: "DELETE",
@@ -47549,10 +50322,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags External Share
-         * @name DeleteAdmindmsShare
+         * @name DeleteDmsShare
          * @request DELETE:/admin/api/dms/share
          */
-        deleteAdmindmsShare: (data: string[], params: RequestParams = {}) =>
+        deleteDmsShare: (data: string[], params: RequestParams = {}) =>
             this.request<Result, any>({
                 path: `/admin/api/dms/share`,
                 method: "DELETE",
@@ -47565,10 +50338,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminSettingController
-         * @name DeleteAdmindmsSettingVirtualFolderSettingId
+         * @name DeleteDmsSettingVirtualFolderSettingId
          * @request DELETE:/admin/api/dms/setting/virtual-folder/setting/{id}
          */
-        deleteAdmindmsSettingVirtualFolderSettingId: (id: string, params: RequestParams = {}) =>
+        deleteDmsSettingVirtualFolderSettingId: (id: string, params: RequestParams = {}) =>
             this.request<ResultVirtualFolderSettingResponseDTO, any>({
                 path: `/admin/api/dms/setting/virtual-folder/setting/${id}`,
                 method: "DELETE",
@@ -47579,11 +50352,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name DeleteAdmindmsMasterTableIdRecordBatch
+         * @name DeleteDmsMasterTableIdRecordBatch
          * @summary Batch delete record by id array
          * @request DELETE:/admin/api/dms/master-table/{id}/record/batch
          */
-        deleteAdmindmsMasterTableIdRecordBatch: (
+        deleteDmsMasterTableIdRecordBatch: (
             id: string,
             query: {
                 recordIds: string[];
@@ -47604,11 +50377,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags MasterTableController(Admin Page)
-         * @name DeleteAdmindmsMasterTableIdFields
+         * @name DeleteDmsMasterTableIdFields
          * @summary Delete field when not data (Master Table)
          * @request DELETE:/admin/api/dms/master-table/{id}/fields
          */
-        deleteAdmindmsMasterTableIdFields: (
+        deleteDmsMasterTableIdFields: (
             id: string,
             query: {
                 columnName: string;
@@ -47626,10 +50399,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags InternalShareController
-         * @name DeleteAdmindmsInternalshare
+         * @name DeleteDmsInternalshare
          * @request DELETE:/admin/api/dms/internalShare
          */
-        deleteAdmindmsInternalshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
+        deleteDmsInternalshare: (data: InternalShareQueryDTO, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/internalShare`,
                 method: "DELETE",
@@ -47642,10 +50415,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name DeleteAdmindmsEasyFormId
+         * @name DeleteDmsEasyFormId
          * @request DELETE:/admin/api/dms/easy-form/{id}
          */
-        deleteAdmindmsEasyFormId: (id: string, params: RequestParams = {}) =>
+        deleteDmsEasyFormId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/easy-form/${id}`,
                 method: "DELETE",
@@ -47656,10 +50429,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags EasyFormController (Admin Page)
-         * @name DeleteAdmindmsEasyFormDraftidFormresultFormresultid
+         * @name DeleteDmsEasyFormDraftidFormresultFormresultid
          * @request DELETE:/admin/api/dms/easy-form/{draftId}/formResult/{formResultId}
          */
-        deleteAdmindmsEasyFormDraftidFormresultFormresultid: (
+        deleteDmsEasyFormDraftidFormresultFormresultid: (
             draftId: string,
             formResultId: string,
             params: RequestParams = {},
@@ -47674,11 +50447,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name DeleteAdmindmsContactGroupIdFieldsFieldname
+         * @name DeleteDmsContactGroupIdFieldsFieldname
          * @summary Add new field to contact Group
          * @request DELETE:/admin/api/dms/contact-group/{id}/fields/{fieldName}
          */
-        deleteAdmindmsContactGroupIdFieldsFieldname: (
+        deleteDmsContactGroupIdFieldsFieldname: (
             id: string,
             fieldName: string,
             data: any,
@@ -47696,11 +50469,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags AdminContactController
-         * @name DeleteAdmindmsContactGroupIdContactContactdetailid
+         * @name DeleteDmsContactGroupIdContactContactdetailid
          * @summary Physically delete contact records
          * @request DELETE:/admin/api/dms/contact-group/{id}/contact/{contactDetailId}
          */
-        deleteAdmindmsContactGroupIdContactContactdetailid: (
+        deleteDmsContactGroupIdContactContactdetailid: (
             id: string,
             contactDetailId: string,
             params: RequestParams = {},
@@ -47715,11 +50488,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CabinetController(Admin Page)
-         * @name DeleteAdmindmsCabinetAll
+         * @name DeleteDmsCabinetAll
          * @summary Delete folder cabinet template and all sub folder cabinet
          * @request DELETE:/admin/api/dms/cabinet/all
          */
-        deleteAdmindmsCabinetAll: (params: RequestParams = {}) =>
+        deleteDmsCabinetAll: (params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/cabinet/all`,
                 method: "DELETE",
@@ -47730,11 +50503,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseTypeController(Admin Page)
-         * @name DeleteAdmincaseTypesId
+         * @name DeleteCaseTypesId
          * @summary Delete the case type it must not have been used yet
          * @request DELETE:/admin/api/case/types/{id}
          */
-        deleteAdmincaseTypesId: (id: string, params: RequestParams = {}) =>
+        deleteCaseTypesId: (id: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/case/types/${id}`,
                 method: "DELETE",
@@ -47745,10 +50518,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name DeleteAdmincaseInstance
+         * @name DeleteCaseInstance
          * @request DELETE:/admin/api/case/instance
          */
-        deleteAdmincaseInstance: (
+        deleteCaseInstance: (
             query?: {
                 caseId?: string;
                 caseInstanceId?: string;
@@ -47766,10 +50539,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags CaseInstanceController(Admin Page)
-         * @name DeleteAdmincaseInstanceCaseid
+         * @name DeleteCaseInstanceCaseid
          * @request DELETE:/admin/api/case/instance/{caseId}
          */
-        deleteAdmincaseInstanceCaseid: (caseId: string, params: RequestParams = {}) =>
+        deleteCaseInstanceCaseid: (caseId: string, params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/case/instance/${caseId}`,
                 method: "DELETE",
@@ -47780,11 +50553,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name GetAdminucenterIsCanModified
+         * @name GetUcenterIsCanModified
          * @summary group is can modified ?
          * @request GET:/admin/api/ucenter/is-can-modified
          */
-        getAdminucenterIsCanModified: (
+        getUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
@@ -47801,11 +50574,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PutAdminucenterIsCanModified
+         * @name PutUcenterIsCanModified
          * @summary group is can modified ?
          * @request PUT:/admin/api/ucenter/is-can-modified
          */
-        putAdminucenterIsCanModified: (
+        putUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
@@ -47822,11 +50595,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PostAdminucenterIsCanModified
+         * @name PostUcenterIsCanModified
          * @summary group is can modified ?
          * @request POST:/admin/api/ucenter/is-can-modified
          */
-        postAdminucenterIsCanModified: (
+        postUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
@@ -47843,11 +50616,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name DeleteAdminucenterIsCanModified
+         * @name DeleteUcenterIsCanModified
          * @summary group is can modified ?
          * @request DELETE:/admin/api/ucenter/is-can-modified
          */
-        deleteAdminucenterIsCanModified: (
+        deleteUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
@@ -47864,11 +50637,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name OptionsAdminucenterIsCanModified
+         * @name OptionsUcenterIsCanModified
          * @summary group is can modified ?
          * @request OPTIONS:/admin/api/ucenter/is-can-modified
          */
-        optionsAdminucenterIsCanModified: (
+        optionsUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
@@ -47885,11 +50658,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name HeadAdminucenterIsCanModified
+         * @name HeadUcenterIsCanModified
          * @summary group is can modified ?
          * @request HEAD:/admin/api/ucenter/is-can-modified
          */
-        headAdminucenterIsCanModified: (
+        headUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
@@ -47906,11 +50679,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags Identity
-         * @name PatchAdminucenterIsCanModified
+         * @name PatchUcenterIsCanModified
          * @summary group is can modified ?
          * @request PATCH:/admin/api/ucenter/is-can-modified
          */
-        patchAdminucenterIsCanModified: (
+        patchUcenterIsCanModified: (
             query: {
                 groupId: string;
             },
@@ -47927,10 +50700,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name GetAdmindmsFormPropertiesQuery
+         * @name GetDmsFormPropertiesQuery
          * @request GET:/admin/api/dms/form-properties/query
          */
-        getAdmindmsFormPropertiesQuery: (
+        getDmsFormPropertiesQuery: (
             query: {
                 relation: FormPropertiesRelation;
             },
@@ -47947,10 +50720,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name PutAdmindmsFormPropertiesQuery
+         * @name PutDmsFormPropertiesQuery
          * @request PUT:/admin/api/dms/form-properties/query
          */
-        putAdmindmsFormPropertiesQuery: (
+        putDmsFormPropertiesQuery: (
             query: {
                 relation: FormPropertiesRelation;
             },
@@ -47967,10 +50740,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name PostAdmindmsFormPropertiesQuery
+         * @name PostDmsFormPropertiesQuery
          * @request POST:/admin/api/dms/form-properties/query
          */
-        postAdmindmsFormPropertiesQuery: (
+        postDmsFormPropertiesQuery: (
             query: {
                 relation: FormPropertiesRelation;
             },
@@ -47987,10 +50760,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name DeleteAdmindmsFormPropertiesQuery
+         * @name DeleteDmsFormPropertiesQuery
          * @request DELETE:/admin/api/dms/form-properties/query
          */
-        deleteAdmindmsFormPropertiesQuery: (
+        deleteDmsFormPropertiesQuery: (
             query: {
                 relation: FormPropertiesRelation;
             },
@@ -48007,10 +50780,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name OptionsAdmindmsFormPropertiesQuery
+         * @name OptionsDmsFormPropertiesQuery
          * @request OPTIONS:/admin/api/dms/form-properties/query
          */
-        optionsAdmindmsFormPropertiesQuery: (
+        optionsDmsFormPropertiesQuery: (
             query: {
                 relation: FormPropertiesRelation;
             },
@@ -48027,10 +50800,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name HeadAdmindmsFormPropertiesQuery
+         * @name HeadDmsFormPropertiesQuery
          * @request HEAD:/admin/api/dms/form-properties/query
          */
-        headAdmindmsFormPropertiesQuery: (
+        headDmsFormPropertiesQuery: (
             query: {
                 relation: FormPropertiesRelation;
             },
@@ -48047,10 +50820,10 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name PatchAdmindmsFormPropertiesQuery
+         * @name PatchDmsFormPropertiesQuery
          * @request PATCH:/admin/api/dms/form-properties/query
          */
-        patchAdmindmsFormPropertiesQuery: (
+        patchDmsFormPropertiesQuery: (
             query: {
                 relation: FormPropertiesRelation;
             },
@@ -48067,11 +50840,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name GetAdmindmsFormPropertiesIsldapmode
+         * @name GetDmsFormPropertiesIsldapmode
          * @summary is Ldap Mode
          * @request GET:/admin/api/dms/form-properties/isLdapMode
          */
-        getAdmindmsFormPropertiesIsldapmode: (params: RequestParams = {}) =>
+        getDmsFormPropertiesIsldapmode: (params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/form-properties/isLdapMode`,
                 method: "GET",
@@ -48082,11 +50855,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name PutAdmindmsFormPropertiesIsldapmode
+         * @name PutDmsFormPropertiesIsldapmode
          * @summary is Ldap Mode
          * @request PUT:/admin/api/dms/form-properties/isLdapMode
          */
-        putAdmindmsFormPropertiesIsldapmode: (params: RequestParams = {}) =>
+        putDmsFormPropertiesIsldapmode: (params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/form-properties/isLdapMode`,
                 method: "PUT",
@@ -48097,11 +50870,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name PostAdmindmsFormPropertiesIsldapmode
+         * @name PostDmsFormPropertiesIsldapmode
          * @summary is Ldap Mode
          * @request POST:/admin/api/dms/form-properties/isLdapMode
          */
-        postAdmindmsFormPropertiesIsldapmode: (params: RequestParams = {}) =>
+        postDmsFormPropertiesIsldapmode: (params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/form-properties/isLdapMode`,
                 method: "POST",
@@ -48112,11 +50885,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name DeleteAdmindmsFormPropertiesIsldapmode
+         * @name DeleteDmsFormPropertiesIsldapmode
          * @summary is Ldap Mode
          * @request DELETE:/admin/api/dms/form-properties/isLdapMode
          */
-        deleteAdmindmsFormPropertiesIsldapmode: (params: RequestParams = {}) =>
+        deleteDmsFormPropertiesIsldapmode: (params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/form-properties/isLdapMode`,
                 method: "DELETE",
@@ -48127,11 +50900,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name OptionsAdmindmsFormPropertiesIsldapmode
+         * @name OptionsDmsFormPropertiesIsldapmode
          * @summary is Ldap Mode
          * @request OPTIONS:/admin/api/dms/form-properties/isLdapMode
          */
-        optionsAdmindmsFormPropertiesIsldapmode: (params: RequestParams = {}) =>
+        optionsDmsFormPropertiesIsldapmode: (params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/form-properties/isLdapMode`,
                 method: "OPTIONS",
@@ -48142,11 +50915,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name HeadAdmindmsFormPropertiesIsldapmode
+         * @name HeadDmsFormPropertiesIsldapmode
          * @summary is Ldap Mode
          * @request HEAD:/admin/api/dms/form-properties/isLdapMode
          */
-        headAdmindmsFormPropertiesIsldapmode: (params: RequestParams = {}) =>
+        headDmsFormPropertiesIsldapmode: (params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/form-properties/isLdapMode`,
                 method: "HEAD",
@@ -48157,11 +50930,11 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
          * No description
          *
          * @tags admin-form-properties-relation-controller
-         * @name PatchAdmindmsFormPropertiesIsldapmode
+         * @name PatchDmsFormPropertiesIsldapmode
          * @summary is Ldap Mode
          * @request PATCH:/admin/api/dms/form-properties/isLdapMode
          */
-        patchAdmindmsFormPropertiesIsldapmode: (params: RequestParams = {}) =>
+        patchDmsFormPropertiesIsldapmode: (params: RequestParams = {}) =>
             this.request<ResultBoolean, any>({
                 path: `/admin/api/dms/form-properties/isLdapMode`,
                 method: "PATCH",

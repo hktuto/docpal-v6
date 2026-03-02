@@ -38,11 +38,11 @@ function goClientPath(path: string) {
   window.open(protocol + '//' + host + '/browse?path=' + path, '_blank')
 }
 async function GetAzureSetting() {
-  const res = await newAdminApi.getAdmindsbAzureOcrSetting()
+  const res = await newAdminApi.getDsbAzureOcrSetting()
   return res.data
 }
 async function GetOCRConditions() {
-  const res = await newAdminApi.getAdmindsbAzureOcrConditions()
+  const res = await newAdminApi.getDsbAzureOcrConditions()
   return res.data
 }
 const logTableRef = ref()
@@ -52,19 +52,19 @@ function handleFilterFormChange(formData: any) {
 }
 provide(AzureProviderKey, {
   UpdateAzureApiKeyApi: (params: any) => {
-    return newAdminApi.putAdmindsbAzureOcrSettingApiKey(params)
+    return newAdminApi.putDsbAzureOcrSettingApiKey(params)
   },
   UpdateAzureOcrSettingApi: (params: any) => {
-    return newAdminApi.getAdmindsbAzureOcrSetting(params)
+    return newAdminApi.getDsbAzureOcrSetting(params)
   },
   CreateAzureOcrMappingApi: (params: any) => {
-    return newAdminApi.postAdmindsbAzureOcrProfileMapping(params)
+    return newAdminApi.postDsbAzureOcrProfileMapping(params)
   },
   UpdateAzureOcrMappingApi: (params: any) => {
-    return newAdminApi.putAdmindsbAzureOcrProfileMapping(params)
+    return newAdminApi.putDsbAzureOcrProfileMapping(params)
   },
   GetAzureOcrModelsApi: (params: any) => {
-    return newAdminApi.getAdmindsbAzureOcrModels(params)
+    return newAdminApi.getDsbAzureOcrModels(params)
   },
   GetOCRTransactionLogApi: (params: any) => {
     const filter: any = filterFormdata
@@ -73,7 +73,7 @@ provide(AzureProviderKey, {
         if (filter[key]) params[key] = filter[key]
       })
     }
-    return newAdminApi.postAdmindsbAzureOcrTransactionLogs(params)
+    return newAdminApi.postDsbAzureOcrTransactionLogs(params)
   },
   goClientPath
 })

@@ -35,9 +35,9 @@
   <FolderCabinetCreateNextDialog ref="NextDialogRef" @refresh="emits('refresh')" />
 </template>
 <script lang="ts" setup>
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import formJson from './dialog.vform.json'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 
 const emits = defineEmits(['refresh'])
 const { t } = useI18n()
@@ -81,7 +81,7 @@ async function handleSubmit() {
     // getUniqueName has bug, will return same name,
     // we need to implement inline function to check if the name is unique
 
-    // const hasSameName = await clientApi.api.postDmsDocumentIsduplicatename({
+    // const hasSameName = await newClientApi.postDmsDocumentIsduplicatename({
     //   path: state.cabinetTemplate.documentPath,
     //   titles: [fileName]
     // }).then(res => !!res.data.hasDuplicateTitle)
@@ -92,15 +92,15 @@ async function handleSubmit() {
 
     const idOrPath = `${state.cabinetTemplate.documentPath}/${fileName}`
     // 上传最上层数据
-    const res = await clientApi.api.postDmsCabinetCreate({
-        ...formData,
-        title: fileName,
-        type: state.cabinetTemplate.documentType,
-        idOrPath,
-        properties: metaFormData,
-        templateId: state.cabinetTemplate.id,
-        parentId: state.cabinetTemplate.rootId
-      })
+    const res = await newClientApi.postDmsCabinetCreate({
+      ...formData,
+      title: fileName,
+      type: state.cabinetTemplate.documentType,
+      idOrPath,
+      properties: metaFormData,
+      templateId: state.cabinetTemplate.id,
+      parentId: state.cabinetTemplate.rootId
+    })
       .then((res) => res.data)
     if (res?.id) {
       NextDialogRef.value.handleOpen(state.cabinetTemplate, res)
@@ -146,7 +146,7 @@ async function handleOpen(id: string) {
   state.visible = true
   try {
     let defaultValue = {}
-    state.cabinetTemplate = await clientApi.api.getDmsCabinetTemplateId(id).then((res) => res.data)
+    state.cabinetTemplate = await newClientApi.getDmsCabinetTemplateId(id).then((res) => res.data)
     if (state.cabinetTemplate.metadataValue) {
       defaultValue = JSON.parse(state.cabinetTemplate.metadataValue)
     }
@@ -212,13 +212,16 @@ main {
     padding: var(--app-space-xs) 0;
   }
 }
-:deep(.static-content-item){
+
+:deep(.static-content-item) {
   min-height: unset !important;
 }
+
 :deep(.static-content-item) {
   // margin-bottom: 10px;
 }
-.el-text{
+
+.el-text {
   display: block;
   margin-bottom: var(--app-space-m);
 }

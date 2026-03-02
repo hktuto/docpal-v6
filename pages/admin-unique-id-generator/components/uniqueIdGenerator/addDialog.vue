@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import formJson from './addDialog.vform.json'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { routeUniqueIdGeneratorDetail } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
-const FormRendererRef = ref()
-
 const state = reactive<{
   loading: boolean
   visible: boolean
@@ -15,20 +12,35 @@ const state = reactive<{
   visible: false
 })
 
+const name = ref('')
+
 function handleOpen() {
   state.visible = true
 }
 
+const rules = reactive([
+  { required: true, message: t('render.hint.fieldRequired', { name: t('dpTable_name') }), trigger: 'blur' }
+])
+
+const formRef = ref()
+
 async function handleSubmit() {
   try {
-    let { name } = await FormRendererRef.value.getFormData()
+    await formRef.value.validate()
+  } catch (e) {
+    return
+  }
+
+  try {
     state.loading = true
-    const data = await clientApi.admin.postAdmindocpalIdTemplates({ name: name }).then((res) => res.data)
+    if (name.value.trim() === '') return
+
+    const data = await newAdminApi.postDocpalIdTemplates({ name: name.value }).then((res) => res.data)
     state.visible = false
     routerProvider?.message.success(
       t('tip_createdSuccessMsg', {
         modelName: t('adminMenu.uniqueIdGenerator'),
-        name: name
+        name: name.value
       })
     )
     routerProvider?.navigateTo(routeUniqueIdGeneratorDetail(data), false)
@@ -41,12 +53,16 @@ async function handleSubmit() {
 
 defineExpose({ handleOpen })
 </script>
-
 <template>
   <el-dialog v-model="state.visible" :title="t('uniQueIdGenerator_duplicate')" width="500">
-    <FormRenderer ref="FormRendererRef" :form-json="formJson" />
+    <el-form ref="formRef" label-position="top">
+      <el-form-item prop="name" :label="t('dpTable_name')" :rules="rules">
+        <el-input v-model="name" />
+      </el-form-item>
+    </el-form>
     <template #footer>
-      <el-button :disabled="state.loading" :loading="state.loading" id="UniqueId__Add__Confirm" type="primary" @click="handleSubmit">
+      <el-button :disabled="state.loading" :loading="state.loading" id="UniqueId__Add__Confirm" type="primary"
+                 @click="handleSubmit">
         {{ t('dpButtom_confirm') }}
       </el-button>
     </template>

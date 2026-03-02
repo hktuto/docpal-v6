@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { newMessageTemplateTemplatePageRoute } from '~/utils/messageTemplateHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -11,7 +11,7 @@ const detailData = ref()
 
 async function getData() {
   loading.value = true
-  detailData.value = await clientApi.admin.getAdmindocpalMessageTemplateDetailsId(id).then(r => r.data)
+  detailData.value = await newAdminApi.getDocpalMessageTemplateDetailsId(id).then(r => r.data)
   loading.value = false
 }
 

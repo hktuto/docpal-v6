@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import formJson from './index.vform.json'
 const routerProvider = inject(MenuRouterKey)
 const { t } = useI18n()
@@ -8,14 +8,14 @@ const FormRendererRef = ref()
 function handleFormChange() {}
 
 async function handleGet() {
-  const res = await clientApi.admin.getAdmindocpalOauth2Setting().then((res) => res.data)
+  const res = await newAdminApi.getDocpalOauth2Setting().then((res) => res.data)
   FormRendererRef.value.vFormRenderRef.setFormData(res)
 }
 
 async function handleSubmit() {
   try {
     const data = await FormRendererRef.value.getFormData()
-    const res = await clientApi.admin.postAdmindocpalOauth2Setting(data)
+    const res = await newAdminApi.postDocpalOauth2Setting(data)
     if (data.authenticationMethod === 'DEFAULT') {
       routerProvider?.message.success(t('msg_successfullyModified'))
     } else {

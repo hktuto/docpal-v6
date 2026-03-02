@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElNotification } from 'element-plus'
 
 const dialogVisible = ref(false)
@@ -10,7 +10,7 @@ const oldTemplate = ref()
 const { t } = useI18n()
 
 async function getOldTemplate(row: any) {
-  const res = await clientApi.admin.getAdmindocpalMessageTemplateDetailsId(row.id)
+  const res = await newAdminApi.getDocpalMessageTemplateDetailsId(row.id)
   oldTemplate.value = res.data
 }
 
@@ -25,7 +25,7 @@ async function submit() {
     ...oldTemplate.value,
     name: newTempalteName.value
   }
-  const res = await adminApi.api.postMessageTemplateCreateMessageTemplate(newTemplate)
+  const res = await newAdminApi.postMessageTemplateCreateMessageTemplate(newTemplate)
   ElNotification.success('Success')
   emits('success', res.data)
   dialogVisible.value = false

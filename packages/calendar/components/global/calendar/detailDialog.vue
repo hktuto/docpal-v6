@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import dayjs from 'dayjs'
 import type { CalendarEventExternal } from '@schedule-x/calendar'
-import {clientApi} from 'api'
+import { newClientApi } from 'api'
 import { ElDialog, ElMessage } from 'element-plus'
 import { displayTimeFn } from '../../../utils/calendarHelper'
 const opened = ref(false)
@@ -41,7 +40,7 @@ async function getCaseData() {
     try{
         const caseInstanceId = eventDetail.value.detail.relatedCases.caseDefinitionId
         if(!caseInstanceId) return
-        const res = await clientApi.api.getCaseDashboardInstanceCaseidPrimaryformData(caseInstanceId,{
+        const res = await newClientApi.getCaseDashboardInstanceCaseidPrimaryformData(caseInstanceId,{
             headers:{
                 "noThrowError":"true"
             }
@@ -71,7 +70,7 @@ async function openWorkflow(){
   if(!routeWorkflowDetail) return
   const workflow = eventDetail.value.detail.relatedWorkflows
   const processInstanceId = workflow.processInstanceId
-  const taskList = await clientApi.api.getWorkflowTasks({processInstanceId}).then(res => res.data)
+  const taskList = await newClientApi.postDocpalWorkflowTasks({processInstanceId}).then(res => res.data)
   try {
     if(taskList && taskList.length > 0) {
         const task = taskList[0]

@@ -3,7 +3,9 @@
     <template v-if="roleData.length === 0">
       <el-empty :description="$t('orgChart.noData')"></el-empty>
       <div class="flex-x-center">
-        <el-button v-if="platform === 'admin'" type="primary" @click="openCreateDialog">{{ $t('orgChart.add') }}</el-button>
+        <el-button v-if="platform === 'admin'" type="primary" @click="openCreateDialog">
+          {{ $t('orgChart.add') }}
+        </el-button>
       </div>
       <RbacCreateDialog ref="createDialogRef" :roleOptions="flatRole" @success="initData" />
     </template>
@@ -23,22 +25,22 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, provide } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { ElNotification } from 'element-plus'
 import type { OrgNode } from './X6/types'
-import { clientApi } from 'api'
+import { globalApi } from 'api'
 import { useRBAC } from '../../../composables/useRBAC'
 
 interface Props {
   roleId?: string
 }
+
 const platform = useAppPlatform()
 const props = defineProps<Props>()
 
 const { t } = useI18n()
 
 const createDialogRef = ref()
+
 function openCreateDialog() {
   createDialogRef.value?.open()
 }
@@ -76,11 +78,11 @@ function findNodeById(nodes: OrgNode[], targetId: string): OrgNode | null {
 
 async function handleDelete(selectedNode: any) {
   try {
-    await clientApi.admin.putAdmindocpalAclRole({
+    await globalApi.putDocpalAclRole({
       id: selectedNode.value.id,
       status: 3 // status:3-逻辑删除
     })
-    
+
     ElNotification({
       title: t('commons_success'),
       message: t('common_deleteSuccess'),
@@ -104,11 +106,11 @@ async function handleEdit(formData: OrgNode, selectedNodeId: string) {
       throw new Error('Node not found: ' + selectedNodeId)
     }
 
-    await clientApi.admin.putAdmindocpalAclRole({
+    await globalApi.putDocpalAclRole({
       ...formData,
       id: selectedNodeId
     })
-    
+
     Object.assign(dataNode, formData)
     ElNotification({
       title: t('commons_success'),
@@ -138,12 +140,12 @@ async function handleAdd(formData: OrgNode, selectedNodeId?: string) {
     }
 
     if (selectedNodeId) {
-      await clientApi.admin.postAdmindocpalAclRole({
+      await globalApi.postDocpalAclRole({
         ...roleData,
         parentId: selectedNodeId
       })
     } else {
-      await clientApi.admin.postAdmindocpalAclRole(roleData)
+      await globalApi.postDocpalAclRole(roleData)
     }
 
     await initData()
@@ -162,19 +164,20 @@ async function handleAdd(formData: OrgNode, selectedNodeId?: string) {
     })
   }
 }
+
 async function setStatus(selectedNode: string, status: number) {
   try {
-    await clientApi.admin.putAdmindocpalAclRole({
+    await globalApi.putDocpalAclRole({
       id: selectedNode.value.id,
-      status: status 
+      status: status
     })
-
     initData()
   } catch (error) {
     console.error('Failed to delete role:', error)
   }
   console.log('setStatus', selectedNode.value, status)
 }
+
 function handleNodeClick(node: OrgNode) {
   console.log('Clicked node:', node)
 }
@@ -182,7 +185,9 @@ function handleNodeClick(node: OrgNode) {
 function handleDataUpdate(newData: OrgNode[]) {
   roleData.value = newData
 }
+
 const { getRoleTree, roleTree, flatRole } = useRBAC(props.roleId)
+
 async function initData() {
   try {
     loading.value = true
@@ -195,7 +200,7 @@ async function initData() {
       title: t('commons_error'),
       type: 'error'
     })
-    throw error;
+    throw error
   } finally {
     loading.value = false
   }

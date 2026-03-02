@@ -105,7 +105,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
 
 const routerProvider = inject(MenuRouterKey)
@@ -204,7 +204,7 @@ async function handleSubmit() {
     if (state.editMode) {
       params.formResult.id = state.setting.id
     }
-    const action = await clientApi.admin.postAdmindmsEasyFormSaveFormresultAppend(params).then((res) => res.data)
+    const action = await newAdminApi.postDmsEasyFormSaveFormresultAppend(params).then((res) => res.data)
     ElMessage.success(t('tip_createdMsg', { modelName: t('tip_newMsg') + t('easyForm_formAction'), name: null }))
     emits('refresh', action)
   } catch (error) {
@@ -256,7 +256,7 @@ async function handleChange(key, isInit = false) {
 
 async function getWorkflow() {
   if (workflowList.length === 0) {
-    const res = await clientApi.admin.getAdmindmsEasyFormProcessDefinitions().then((res) => res.data)
+    const res = await newAdminApi.getDmsEasyFormProcessDefinitions().then((res) => res.data)
     workflowList = res.map((item) => ({
       label: item.label,
       value: item.key
@@ -266,7 +266,7 @@ async function getWorkflow() {
 
 async function getCase() {
   if (caseList.length === 0) {
-    const res = await clientApi.admin.postAdmincaseTypesPage({ pageSize: 9999 }).then((res) => res.data)
+    const res = await newAdminApi.postCaseTypesPage({ pageSize: 9999 }).then((res) => res.data)
     caseList = res.entryList.map((item) => ({
       label: item.name,
       value: item.id,
@@ -277,7 +277,7 @@ async function getCase() {
 
 async function getEmail() {
   if (emailList.length === 0) {
-    const res = await clientApi.admin.getAdmindmsTemplateEmailAll().then((res) => res.data)
+    const res = await newAdminApi.getDmsTemplateEmailAll().then((res) => res.data)
     emailList = res.map((item) => ({
       label: item.label,
       value: item.id
@@ -317,7 +317,7 @@ async function handleKeyChange(value: string, isInit = false) {
 }
 
 async function getWorkflowProps(processKey: string) {
-  const options = await clientApi.admin.postAdmindocpalWorkflowProperties({ processKey }).then((res) => res.data)
+  const options = await newAdminApi.postDocpalWorkflowProperties({ processKey }).then((res) => res.data)
   console.log('getWorkflowProps', options)
   if (!options || options.length == 0) {
     return []
@@ -330,7 +330,7 @@ async function getWorkflowProps(processKey: string) {
 
 async function getEmailProps(id: string) {
   try {
-    const options = await clientApi.admin.getAdmindmsTemplateEmailTemplateId(id).then((res) => res.data)
+    const options = await newAdminApi.getDmsTemplateEmailTemplateId(id).then((res) => res.data)
     if (!options || options.length == 0) {
       return []
     }
@@ -349,7 +349,7 @@ async function getCaseProps(key: string) {
   try {
     const caseItem = caseList.find((item) => item.value === key)
 
-    const options: any = await clientApi.admin.getAdmincaseDashboardVersionVersionidPrimaryform(caseItem.productionVersionId).then((res) => res.data)
+    const options: any = await newAdminApi.getCaseDashboardVersionVersionidPrimaryform(caseItem.productionVersionId).then((res) => res.data)
     if (!options || options.length == 0) {
       return []
     }
@@ -370,7 +370,7 @@ async function getUserList() {
     state.userList = userListStore.value
     return
   }
-  const userList = await clientApi.admin.postAdminucenterUsers({}).then((res) => res.data)
+  const userList = await newAdminApi.postUcenterUsers({}).then((res) => res.data)
   const _userList = userList
     .map((item) => ({
       label: (item.firstName && item.lastName && item.firstName !== item.lastName ? `${item.firstName} ${item.lastName}` : item.username) + ` <${item.email}>`,

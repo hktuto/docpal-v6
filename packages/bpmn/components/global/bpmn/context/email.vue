@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
-import { clientApi } from 'api'
+import { newAdminApi } from 'api'
 
 const { node } = defineProps<{
   node: Node
@@ -118,8 +118,7 @@ function fieldMappingUpdate(name: string, newVal: string[]) {
 
 async function initForm() {
   if (allEmailTemplates.value.length === 0) {
-    const response = await clientApi.admin.getAdmindmsTemplateEmailAll()
-    allEmailTemplates.value = response.data
+    allEmailTemplates.value = await newAdminApi.getDmsTemplateEmailAll().then(r => r.data)
   }
   const notificationTypeField = node.data.data.extensionElements['flowable:field'].find((el: any) => el.attr_name === 'notificationType')
   emailTemplateId.value = notificationTypeField ? notificationTypeField['flowable:string'].__cdata : ''
@@ -137,7 +136,7 @@ function generateFieldList() {
 }
 
 async function getContactBookFieldList() {
-  contactBookFieldList.value = await clientApi.admin.getAdmindmsContactGroupList().then(r => r.data)
+  contactBookFieldList.value = await newAdminApi.getDmsContactGroupList().then(r => r.data)
 }
 
 onMounted(async () => {

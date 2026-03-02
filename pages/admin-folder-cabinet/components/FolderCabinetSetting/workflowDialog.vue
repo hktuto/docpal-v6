@@ -29,7 +29,7 @@ function handleOpen() {
 
 async function handleCheck() {
   try {
-    const res = await newAdminApi.getAdmindmsCabinetIdUseWorkflow(props.id).then((res) => res.data)
+    const res = await newAdminApi.getDmsCabinetIdUseWorkflow(props.id).then((res) => res.data)
     if (!!res) state.list = res
   } catch (error) {
   } finally {

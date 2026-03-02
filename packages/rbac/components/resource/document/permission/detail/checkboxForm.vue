@@ -1,5 +1,3 @@
-
-
 <template>
   <div>
     <el-divider content-position="left">{{ $t('rbac.permissions', {type: $t('permission.read')}) }}</el-divider>
@@ -65,7 +63,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
 const props = defineProps<{
     isUserSet: boolean,
 }>();

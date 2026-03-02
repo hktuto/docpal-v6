@@ -4,7 +4,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 const routerProvider = inject(MenuRouterKey)
 const platform = useAppPlatform()
 const { t } = useI18n()
@@ -32,7 +32,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
 })
 async function getData(params: any = {}) {
   if (platform.value === 'admin') return
-  const res = await clientApi.api.postDmsInternalshareOthers({ ...params, ...extraParams }).then((res) => res.data)
+  const res = await newClientApi.postDmsInternalshareOthers({ ...params, ...extraParams }).then((res) => res.data)
   return {
     data: {
       entryList: res?.entryList,
