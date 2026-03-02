@@ -37,7 +37,7 @@ function goBackList() {
   <div class="header">
     <Icon class="backIcon" name="lucide:chevron-left" @click="goBackList" />
     <div class="iconContainer" @click="navigateToItem()">
-      <UiIconPicker class="workspaceIcon" iconSize="var(--app-font-size-m)" :modelValue="workspace.icon || ''" @update:modelValue="handleIconSelected">
+      <UiIconPicker class="workspaceIcon" iconSize="var(--app-font-size-m)" :modelValue="workspace.metadata.icon || ''" @update:modelValue="handleIconSelected">
         {{ workspace?.name.slice(0, 1).toUpperCase() }}
       </UiIconPicker>
     </div>

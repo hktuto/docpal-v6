@@ -1,5 +1,6 @@
 import type { CaseTypeRecord } from '../utils/db/schema/newTableSchema'
 import { getCurrentUserId } from './useCurrentUser'
+import { newClientApi } from 'api'
 
 export function useWorkspaces() {
   const { query, search, removeAllTables } = usePglite()
@@ -9,13 +10,15 @@ export function useWorkspaces() {
   /**
    * Get all workspaces (case types)
    */
-  async function getWorkspaces(): Promise<CaseTypeRecord[]> {
+  async function getWorkspaces(params: any = { pageNum: 0, pageSize: 100 }): Promise<CaseTypeRecord[]> {
     loading.value = true
+    // TODO: need to add pagination
     try {
-      const data = await query<CaseTypeRecord>(`SELECT * FROM case_type ORDER BY name ASC`)
-      workspaces.value = data
-      console.log('workspaces', data)
-      return data
+      const {
+        data: { entryList, totalSize }
+      }: any = await newClientApi.postDynamicDbCaseTypesPage(params)
+      workspaces.value = entryList
+      return entryList
     } finally {
       loading.value = false
     }
@@ -32,6 +35,7 @@ export function useWorkspaces() {
     sortOrder?: 'asc' | 'desc'
     isFilterStage?: boolean
   }): Promise<CaseTypeRecord[]> {
+    // TODO: may be merge with getWorkspaces
     const data = await search<CaseTypeRecord>({
       table: 'case_type',
       searchKeys: ['name', 'description'],
@@ -41,100 +45,40 @@ export function useWorkspaces() {
   }
 
   /**
-   * Get workspace by ID
-   */
-  async function getWorkspaceById(id: string): Promise<CaseTypeRecord | null> {
-    const data = await query<CaseTypeRecord>(`SELECT * FROM case_type WHERE id = $1`, [id])
-    return data[0] || null
-  }
-
-  /**
    * Create a new workspace
    */
   async function createWorkspace(workspace: Partial<CaseTypeRecord>): Promise<CaseTypeRecord> {
     const now = new Date().toISOString()
     const currentUserId = workspace.createdBy || getCurrentUserId()
-    const data = await query<CaseTypeRecord>(
-      `INSERT INTO case_type (name, description, icon, "entityType", "createdBy", "createdAt", "updatedBy", "updatedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING *`,
-      [workspace.name, workspace.description || null, workspace.icon || null, workspace.entityType || 'case', currentUserId, now, currentUserId, now]
-    )
-    // Update local state
-    workspaces.value = [...workspaces.value, data[0]]
-    return data[0]
-  }
+    if (workspace.name == null || workspace.name === '') {
+      throw new Error('Workspace name is required')
+    }
+    const dto: any = {
+      name: workspace.name,
+      description: workspace.description ?? undefined,
+    }
+    if (workspace.icon) {
+      dto.metadata = {
+        icon: workspace.icon
+      }
+    }
+    const { data }: any = await newClientApi.postDynamicDbCaseTypes(dto)
+    console.log('data', data)
+    workspaces.value = [...workspaces.value, data]
 
-  /**
-   * Update a workspace
-   */
-  async function updateWorkspace(id: string, updates: Partial<CaseTypeRecord>): Promise<void> {
-    const now = new Date().toISOString()
-    const currentUserId = getCurrentUserId()
-    await query(
-      `UPDATE case_type
-       SET name = COALESCE($1, name),
-           description = COALESCE($2, description),
-           icon = COALESCE($3, icon),
-           "updatedAt" = $4,
-           "updatedBy" = $5
-       WHERE id = $6`,
-      [updates.name, updates.description, updates.icon, now, currentUserId, id]
-    )
-    // Update local state
-    getWorkspaces()
+    return data
   }
 
   /**
    * Delete workspace by ID and all related tables
    */
-  async function deleteWorkspace(id: string): Promise<void> {
-    // First, get all case tables related to this workspace
-    const caseTables = await query<{ tableName: string }>(`SELECT "tableName" FROM case_tables WHERE "entityId" = $1`, [id])
-
-    // Delete all physical tables created for this workspace
-    for (const table of caseTables) {
-      try {
-        await query(`DROP TABLE IF EXISTS "${table.tableName}" CASCADE`)
-      } catch (error) {
-        console.warn(`Failed to drop table ${table.tableName}:`, error)
-      }
+  async function deleteWorkspace(id: string): Promise<boolean> {
+    const { data }: any = await newClientApi.deleteDynamicDbCaseTypesId(id)
+    if(!data) {
+      throw new Error('Failed to delete workspace')
     }
-
-    // Delete all related records in case_tree
-    await query(`DELETE FROM case_tree WHERE "entityId" = $1`, [id])
-
-    // Delete all related records in case_views
-    await query(`DELETE FROM case_views WHERE "entityId" = $1`, [id])
-
-    // Delete relation suggestions for tables in this workspace
-    // (CASCADE should handle this, but explicit cleanup for clarity)
-    await query(
-      `DELETE FROM relation_suggestions WHERE "sourceTableId" IN (
-        SELECT id FROM case_tables WHERE "entityId" = $1
-      )`,
-      [id]
-    )
-
-    // Delete all related records in case_fields
-    // Note: case_fields are linked through case_tables, but we'll clean them up too
-    await query(
-      `DELETE FROM case_fields WHERE id IN (
-        SELECT cf.id FROM case_fields cf
-        JOIN case_tables ct ON cf."tableId" = ct.id
-        WHERE ct."entityId" = $1
-      )`,
-      [id]
-    )
-
-    // Delete all related records in case_tables
-    await query(`DELETE FROM case_tables WHERE "entityId" = $1`, [id])
-
-    // Finally, delete the workspace itself
-    await query(`DELETE FROM case_type WHERE id = $1`, [id])
-
-    // Update local state
-    getWorkspaces()
+    workspaces.value = workspaces.value.filter((workspace) => workspace.id !== id)
+    return data
   }
 
   /**
@@ -150,9 +94,7 @@ export function useWorkspaces() {
     loading,
     getWorkspaces,
     searchWorkspaces,
-    getWorkspaceById,
     createWorkspace,
-    updateWorkspace,
     deleteWorkspace,
     clearAllWorkspaces
   }

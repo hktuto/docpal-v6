@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CaseTypeRecord } from '../../utils/db/schema/newTableSchema'
 import { VirtGrid } from 'vue-virt-list'
-import { ElMessageBox } from 'element-plus'
+import { ElMessageBox, ElMessage } from 'element-plus'
 
 const createWorkspacePopover = ref()
 const viewMode = ref<'grid' | 'table'>('grid')
@@ -99,7 +99,12 @@ async function handleWorkspaceDelete(workspace: CaseTypeRecord) {
       }
     )
 
-    await deleteWorkspace(workspace.id)
+    const success = await deleteWorkspace(workspace.id)
+    if(success) {
+      ElMessage.success(`${workspace.name} deleted successfully`)
+    } else {
+      ElMessage.error(`Failed to delete ${workspace.name}`)
+    }
     // Workspace list will be automatically refreshed by deleteWorkspace
   } catch (error) {
     if (error !== 'cancel' && error !== 'close') {

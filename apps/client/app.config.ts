@@ -288,5 +288,11 @@ export default defineAppConfig({
     {
       name: 'admin-calendar-setting'
     },
+    // {
+    //   name: 'admin-database-list'
+    // },
+    {
+      name: 'demo-workspaces'
+    },
   ]
 })

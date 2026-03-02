@@ -65,14 +65,17 @@ export default defineNuxtConfig({
     '../../pages/admin-company-profile',
     '../../pages/admin-external-storage',
     '../../pages/admin-import-jobs',
+    '../../packages/dp-mdTable',
 
     // public pages
     '../../pages/public-share',
     '../../pages/public-upload',
     '../../pages/public-easy-form',
-    '../../packages/dp-contact'
+    '../../packages/dp-contact',
 
     // demo packages
+    // "../../demo/database",
+    "../../demo/workspaces"
   ],
   features: {
     inlineStyles: true

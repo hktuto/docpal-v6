@@ -4,7 +4,7 @@ import { getCurrentUserId } from './useCurrentUser'
 import { usePermission } from './usePermission'
 export type { CaseTreeItemType }
 import { v7 as uuidv7 } from 'uuid'
-
+import { newClientApi } from 'api'
 // View creation data passed from CreateViewDialog
 export interface ViewCreationData {
   name: string
@@ -99,28 +99,28 @@ export function useSingleWorkspace() {
   }
 
   async function getWorkspaceById(id: string) {
-    const data = await query(`SELECT * FROM case_type WHERE id = $1`, [id])
-    if (!data || data.length === 0) {
+    const { data }: any = await newClientApi.getDynamicDbCaseTypesId(id)
+    if (!data) {
       workspace.value = null
       return
     }
-    workspace.value = data[0] as CaseTypeRecord
+    workspace.value = data as CaseTypeRecord
   }
 
   async function saveWorkspaceToDb(newWorkspaceData?: CaseTypeRecord) {
     if (!newWorkspaceData && !workspace.value) return
     newWorkspaceData ||= workspace.value as CaseTypeRecord
     const { name, description, icon, id } = newWorkspaceData
-    const now = new Date().toISOString()
-    const currentUserId = getCurrentUserId()
-    await query(`UPDATE case_type SET name = $1, icon = $2, description = $3, "updatedAt" = $4, "updatedBy" = $5 WHERE id = $6`, [
+    const dto: any = {
       name,
-      icon,
       description,
-      now,
-      currentUserId,
-      id
-    ])
+      metadata: {
+        icon
+      }
+    }
+
+    const { data }: any = await newClientApi.putDynamicDbCaseTypesId(id, dto)
+    workspace.value = data as CaseTypeRecord
   }
 
   /**

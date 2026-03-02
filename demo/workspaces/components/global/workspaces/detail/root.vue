@@ -28,7 +28,7 @@ function handleDescriptionSave(description: string) {
 
 <template>
   <div class="rootDetailContainer">
-    <UiIconPicker :style="{ '--icon-size': 'var(--app-font-size-xxl)' }" :modelValue="workspace?.icon || ''" @update:modelValue="handleIconSelected">
+    <UiIconPicker :style="{ '--icon-size': 'var(--app-font-size-xxl)' }" :modelValue="workspace?.metadata.icon || ''" @update:modelValue="handleIconSelected">
       {{ workspace?.name.slice(0, 1).toUpperCase() }}
     </UiIconPicker>
     <UiInlineEditor :model-value="workspace?.name || ''" wrapper="h1" :editable="isAdmin" @save="handleLabelSave" />

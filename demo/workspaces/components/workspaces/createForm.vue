@@ -21,8 +21,6 @@
 import type { CaseTypeRecord } from '../../utils/db/schema/newTableSchema'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 
-const { query } = usePglite()
-
 const formRef = ref<FormInstance>()
 const loading = ref(false)
 const form = ref({
@@ -31,6 +29,7 @@ const form = ref({
   icon: ''
 })
 
+const { createWorkspace } = useWorkspaces()
 const rules = reactive<FormRules>({
   name: [{ required: true, message: 'Please enter Database name', trigger: 'blur' }]
 })
@@ -50,25 +49,12 @@ async function handleCreateWorkspace() {
     const name = form.value.name.trim()
     const description = form.value.description.trim()
     const icon = form.value.icon.trim()
-
-    // Check if name already exists
-    const existing = await query(`SELECT id FROM case_type WHERE name = $1`, [name])
-    if (existing && existing.length > 0) {
-      ElMessage.error('Database name already exists')
-      return
+    const data: any = await createWorkspace({ name, description, icon })
+    if(!data || !data.id) {
+      throw new Error('Failed to create database')
     }
-
-    // Create workspace - let database handle id (defaultRandom) and timestamps (defaultNow)
-    const result = await query<CaseTypeRecord>(`INSERT INTO case_type (name, description, icon) VALUES ($1, $2, $3) RETURNING *`, [
-      name,
-      description || null,
-      icon || null
-    ])
-
-    console.log('Created workspace:', result[0])
     ElMessage.success('Database created successfully')
-    emits('created', result[0])
-
+    emits('created', data)
     // Reset form
     form.value = { name: '', description: '', icon: '' }
   } catch (error) {
