@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { newClientApi } from 'api'
-import userSignature from '~/components/setting/userSignature.vue'
 
 const platform = useAppPlatform()
 const router = useRouter()
@@ -223,7 +222,7 @@ onMounted(() => {
     </div>
   </div>
 
-  <userSignature ref="userSignatureRef" :userId="userId" />
+  <SettingUserSignature ref="userSignatureRef" :userId="userId" />
 
 </template>
 
