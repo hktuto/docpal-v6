@@ -1159,30 +1159,6 @@ importers:
         specifier: 3.1.4
         version: 3.1.4(@types/debug@4.1.12)(@types/node@24.10.1)(@vitest/ui@3.1.4)(happy-dom@17.6.3)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.1)(yaml@2.8.2)
 
-  pages/admin-dashboard:
-    devDependencies:
-      '@nuxt/test-utils':
-        specifier: 3.18.0
-        version: 3.18.0(@types/node@24.10.1)(@vitest/ui@3.1.4)(@vue/test-utils@2.4.6)(happy-dom@17.6.3)(jiti@2.6.1)(magicast@0.5.1)(playwright-core@1.57.0)(sass@1.94.2)(terser@5.44.1)(typescript@5.9.3)(vitest@3.1.4)(yaml@2.8.2)
-      '@vitest/ui':
-        specifier: 3.1.4
-        version: 3.1.4(vitest@3.1.4)
-      '@vue/test-utils':
-        specifier: ^2.4.6
-        version: 2.4.6
-      eventbus:
-        specifier: workspace:^
-        version: link:../../libraries/eventbus
-      happy-dom:
-        specifier: ^17.4.7
-        version: 17.6.3
-      vite-tsconfig-paths:
-        specifier: ^5.1.4
-        version: 5.1.4(typescript@5.9.3)(vite@7.2.7(@types/node@24.10.1)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.1)(yaml@2.8.2))
-      vitest:
-        specifier: 3.1.4
-        version: 3.1.4(@types/debug@4.1.12)(@types/node@24.10.1)(@vitest/ui@3.1.4)(happy-dom@17.6.3)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.1)(yaml@2.8.2)
-
   pages/admin-document-type:
     devDependencies:
       '@nuxt/test-utils':
@@ -1491,30 +1467,6 @@ importers:
       splitpanes:
         specifier: ^3.2.0
         version: 3.2.0(vue@3.5.25(typescript@5.9.3))
-      vite-tsconfig-paths:
-        specifier: ^5.1.4
-        version: 5.1.4(typescript@5.9.3)(vite@7.2.7(@types/node@24.10.1)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.1)(yaml@2.8.2))
-      vitest:
-        specifier: 3.1.4
-        version: 3.1.4(@types/debug@4.1.12)(@types/node@24.10.1)(@vitest/ui@3.1.4)(happy-dom@17.6.3)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.1)(yaml@2.8.2)
-
-  pages/client-dashboard:
-    devDependencies:
-      '@nuxt/test-utils':
-        specifier: 3.18.0
-        version: 3.18.0(@types/node@24.10.1)(@vitest/ui@3.1.4)(@vue/test-utils@2.4.6)(happy-dom@17.6.3)(jiti@2.6.1)(magicast@0.5.1)(playwright-core@1.57.0)(sass@1.94.2)(terser@5.44.1)(typescript@5.9.3)(vitest@3.1.4)(yaml@2.8.2)
-      '@vitest/ui':
-        specifier: 3.1.4
-        version: 3.1.4(vitest@3.1.4)
-      '@vue/test-utils':
-        specifier: ^2.4.6
-        version: 2.4.6
-      eventbus:
-        specifier: workspace:^
-        version: link:../../libraries/eventbus
-      happy-dom:
-        specifier: ^17.4.7
-        version: 17.6.3
       vite-tsconfig-paths:
         specifier: ^5.1.4
         version: 5.1.4(typescript@5.9.3)(vite@7.2.7(@types/node@24.10.1)(jiti@2.6.1)(sass@1.94.2)(terser@5.44.1)(yaml@2.8.2))
