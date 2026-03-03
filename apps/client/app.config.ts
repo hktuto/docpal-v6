@@ -1,6 +1,9 @@
 export default defineAppConfig({
   appMenu: [
     {
+      name: 'client-scan'
+    },
+    {
       name: 'client-work-panel',
       children: [
         {
@@ -94,6 +97,9 @@ export default defineAppConfig({
     },
     {
       name: 'contact-book'
+    },
+    {
+      name: 'client-client-scan'
     }
   ],
   adminMenu: [
@@ -272,6 +278,9 @@ export default defineAppConfig({
     },
     {
       name: 'admin-calendar-setting'
+    },
+    {
+      name: 'admin-scan'
     }
   ]
 })

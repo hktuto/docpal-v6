@@ -27,11 +27,12 @@ export default defineNuxtConfig({
     // '../../pages/client-easy-form',
     // '../../pages/client-rbac',
     // '../../pages/client-user-setting',
+    '../../pages/client-client-scan',
 
     // '../../pages/admin-workflow-editor',
     '../../pages/admin-user',
     // '../../pages/admin-acl',
-    '../../pages/admin-setting'
+    '../../pages/admin-setting',
     // '../../pages/admin-audit',
     // '../../pages/admin-azure',
     // '../../pages/admin-masterTable',
@@ -73,6 +74,8 @@ export default defineNuxtConfig({
     // '../../packages/dp-contact'
 
     // demo packages
+    '../../packages/dp-scan',
+    '../../pages/client-scan'
   ],
   features: {
     inlineStyles: true

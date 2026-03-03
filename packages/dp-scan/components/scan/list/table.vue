@@ -1,0 +1,147 @@
+<script lang="ts" setup>
+import { useVxeTable } from '#imports'
+import { clientApi } from 'api'
+import { ScanTableColumns } from '../../../utils/scanHelper'
+import { ElMessageBox } from 'element-plus'
+const routerProvider = inject(MenuRouterKey)
+if (!routerProvider) {
+  throw new Error('MenuRouterKey not found')
+}
+const selectedRow = ref<any[]>([])
+const { filter } = useScanClient()
+
+function cleanSelected() {
+  console.log('clear selected')
+  cleanSelectedRows()
+  // selectedRow.value = []
+}
+
+async function cancelBatchs(ids: string[]) {
+  await clientApi.api.postCaptureBatchCancel({ batchIds: ids })
+  routerProvider.message.success('Batch cancelled successfully')
+}
+
+async function downloadBatchs(ids: string[]) {
+  // TODO: waiting api
+}
+
+const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeTable({
+  id: 'scan-table',
+  api: async (params: any) => {
+    cleanSelectedRows()
+    const p = {
+      ...params,
+      ...filter.value
+    }
+    console.log('table api params', p)
+    return clientApi.api.postCaptureBatchList(p)
+  },
+  customeToolBar: false,
+  saveColumnOrder: false,
+  zoom: false,
+  refresh: false,
+  columns: [
+    {
+      type: 'checkbox',
+      width: 60,
+      fixed: 'left'
+    },
+    ...ScanTableColumns
+  ],
+  bodyActions: [
+    [
+      {
+        code: 'view',
+        name: 'Open',
+        action: ({ row }) => {
+          const newTab = createBatchDetailPageTab(row.batchNo)
+          routerProvider?.navigateTo(newTab)
+        }
+      },
+      {
+        code: 'cancel',
+        name: 'Cancel Batch',
+        action: async ({ row }) => {
+          ElMessageBox.alert('Are you sure you want to cancel this batch?', '', {
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            type: 'warning',
+            callback: async (action: string) => {
+              if (action === 'cancel') return
+              try {
+                await cancelBatchs([row.id])
+              } catch (error) {
+                routerProvider.message.error('Failed to cancel batch')
+              } finally {
+                reload()
+              }
+            }
+          })
+          // TODO : show confirm dialog and then call api to cancel batch
+        }
+      }
+    ]
+  ],
+  permissionMethod: ({ code, row }) => {
+    if (!row) {
+      return {
+        visible: false,
+        disabled: true
+      }
+    }
+    if (code === 'cancel') {
+      const gorupStatus = statusToGroupStatus(row.status)
+      return {
+        visible: !gorupStatus || (gorupStatus.key !== 'cancelled' && gorupStatus.key !== 'completed'),
+        disabled: false
+      }
+    }
+    return {
+      visible: true,
+      disabled: false
+    }
+  },
+  selectChangeHander: (newSelectedRows) => {
+    selectedRow.value = newSelectedRows
+  }
+})
+</script>
+
+<template>
+  <div class="tableContainer">
+    <vxe-grid ref="tableRef" v-bind="tableConfig" v-on="tableEvent" width="100%">
+      <template #toolbar_buttons>
+        <template v-if="!selectedRow.length">
+          <ScanListFilter @search="reload" />
+        </template>
+        <template v-else>
+          <ScanListMultipleSelect :selectedRow="selectedRow" @cancel="cleanSelected" />
+        </template>
+      </template>
+    </vxe-grid>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.tableContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+</style>
+
+<style>
+.table-status {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--app-space-xs);
+}
+.status-dot {
+  width: var(--app-space-s);
+  height: var(--app-space-s);
+  border-radius: 50%;
+  background-color: var(--status-color);
+}
+</style>
