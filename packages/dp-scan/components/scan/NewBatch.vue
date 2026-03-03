@@ -2,7 +2,7 @@
 const { projects } = useScanClient()
 
 const isDisable = computed(() => {
-  return !projects || projects.value.length === 0
+  return !projects.value || projects.value.length === 0
 })
 </script>
 
