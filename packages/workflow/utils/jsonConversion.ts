@@ -1,4 +1,3 @@
-import { ElMessage } from 'element-plus'
 import { workflowElement } from './workflowElement'
 
 interface Flow {
@@ -26,37 +25,33 @@ interface Markup {
 
 /**
  * node Style
+ * @const tags 子類型  User Task => [User Task, Signature Task]. Server Task => ['Document Task', 'Email Task', ...]
+ * @const x X坐標
+ * @const y Y坐標
+ * @const width graph的寬度
+ * @const height graph的高度
+ * @const icon graph的包含的Icon
  */
 interface Metadata {
-  x?: string
-  y?: string
-  width: string
-  height: string
-  icon: string
-  attrs: {
-    body: any
-    image: any
-    title: any
-    text: any
-  }
-  markup: Markup[]
-  shape: 'bpmn-node'
-  ports: {
-    items: []
-  }
+  tags?: 'signature' | 'document',
+  x: number
+  y: number
+  width: number
+  height: number
+  icon?: string
 }
 
-interface Node {
+export type NodeItem = {
   id: string
   name: string
   type: string
   flow: Flow
   execution: Execution
   config: Config
-  metadata?: Metadata
+  metadata: Metadata
 }
 
-interface Edge {
+interface EdgeItem {
   id: string
   source_node_id: string
   target_node_id: string
@@ -88,8 +83,8 @@ interface WorkflowJson {
   type: string
   version: number
   description: string
-  nodes: Node[]
-  edges: Edge[]
+  nodes: NodeItem[]
+  edges: EdgeItem[]
   variables: Variable
   metadata: MetadataDetails
 }
@@ -104,7 +99,7 @@ export const workflowJsonToX6Node = function(workflowJson: WorkflowJson) {
   }
   const cells: any = []
 
-  workflowJson.nodes.forEach((nodeItem: Node) => {
+  workflowJson.nodes.forEach((nodeItem: NodeItem) => {
     const type: string = nodeItem.type
     const graphData = workflowElement[type].workflowDataToGraphData(nodeItem)
     cells.push(graphData)
