@@ -72,6 +72,7 @@ export default defineNuxtConfig({
     // '../../pages/public-easy-form',
     // '../../packages/dp-contact'
 
+    '../../packages/bpmn',
     // demo packages
     '../../packages/dp-scan',
     '../../pages/client-scan',
