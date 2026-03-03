@@ -1,14 +1,15 @@
 import { Cell, CellView, Graph } from '@antv/x6'
+import { NodeItem } from './jsonConversion'
 
 export enum WorkflowElementType {
   StartEvent = 'StartEvent',
   EndEvent = 'EndEvent',
   UserTask = 'UserTask',
-  exclusiveGateway = 'exclusiveGateway',
-  serviceTask = 'serviceTask',
-  boundaryEvent = 'boundaryEvent',
-  scriptTask = 'scriptTask',
-  sequenceFlow = 'sequenceFlow'
+  // exclusiveGateway = 'exclusiveGateway',
+  // ServiceTask = 'serviceTask',
+  // boundaryEvent = 'boundaryEvent',
+  // scriptTask = 'scriptTask',
+  // sequenceFlow = 'sequenceFlow'
 }
 
 export type WorkflowElement = {
@@ -24,7 +25,7 @@ export type WorkflowElement = {
       order: number
       dropData: any
     }[]
-    workflowDataToGraphData: (workflowNodeItem: any) => {}
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {}
     clickHandler: (args: { node: Cell; view: Cell }) => void
     contextMenuComponent?: string | Function
     validator?: (args: {
@@ -114,7 +115,7 @@ interface Graph {
  * @param textAnchor 副標題
  * @param icon 圖標
  */
-function GenAttrs(title: string, textAnchor: string, icon: string) {
+function GenAttrs(title: string, textAnchor: string, icon?: string) {
   return {
     text: {
       fontSize: 12,
@@ -168,7 +169,7 @@ export const workflowElement: WorkflowElement = {
   StartEvent: {
     embed: false,
     toolbar: [],
-    workflowDataToGraphData: (workflowNodeItem: any) => {
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
       const graph: Graph = {
         id: workflowNodeItem.id,
         markup: [
@@ -207,7 +208,7 @@ export const workflowElement: WorkflowElement = {
   EndEvent: {
     embed: false,
     toolbar: [],
-    workflowDataToGraphData: (workflowNodeItem: any) => {
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
       const graph: Graph = {
         id: workflowNodeItem.id,
         markup: [
@@ -241,6 +242,57 @@ export const workflowElement: WorkflowElement = {
     clickHandler: () => {
     },
     contextMenuComponent: 'LazyContextEndEvent'
+  },
+  UserTask: {
+    embed: false,
+    toolbar: [],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
+      let title = 'User Task'
+      if (!!workflowNodeItem.metadata.tags && workflowNodeItem.metadata.tags === 'signature') {
+        title = 'Signature User Task'
+      }
+      const attrs = GenAttrs(title, workflowNodeItem.name, workflowNodeItem.metadata.icon)
+
+      const graph: Graph = {
+        id: workflowNodeItem.id,
+        markup: [
+          { tagName: 'rect', selector: 'body' },
+          { tagName: 'image', selector: 'image' },
+          { tagName: 'text', selector: 'title' },
+          { tagName: 'text', selector: 'text' }
+        ],
+        attrs: attrs,
+        shape: 'bpmn-node',
+        zIndex: 1,
+        visible: true,
+        position: {
+          x: workflowNodeItem.metadata.x || 60,
+          y: workflowNodeItem.metadata.y || 60
+        },
+        size: {
+          width: workflowNodeItem.metadata.width || 120,
+          height: workflowNodeItem.metadata.height || 64
+        },
+        data: {
+          id: workflowNodeItem.id,
+          name: workflowNodeItem.name,
+          type: workflowNodeItem.type,
+          version: 0
+        },
+        _order: 0
+      }
+      return graph
+    },
+    clickHandler: () => {
+    },
+    contextMenuComponent: (workflowNodeItem: NodeItem) => {
+      if (!!workflowNodeItem.metadata.tags && workflowNodeItem.metadata.tags === 'signature') {
+        return 'LazyContextSignature'
+      }
+      return 'LazyContextUserTask'
+    }
   }
-  // UserTask: {}
+  // ServiceTask: {
+  //
+  // }
 }
