@@ -97,9 +97,6 @@ export default defineAppConfig({
     },
     {
       name: 'contact-book'
-    },
-    {
-      name: 'client-client-scan'
     }
   ],
   adminMenu: [
