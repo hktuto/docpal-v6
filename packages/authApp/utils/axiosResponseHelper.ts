@@ -56,15 +56,6 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
     return
   }
 
-  if (error.response.status >= 500) {
-    if (error.config.headers.noThrowError) return
-
-    if (error.config.headers.noErrorMessage) return Promise.reject(error)
-
-    const message = error.response.data.message || error.message
-    ElMessage.error(message)
-    return Promise.reject(error)
-  }
   if (error.response.status === 403) {
     console.log('token expired, clear token and redirect to login page')
     localStorage.removeItem('access_token')
@@ -75,7 +66,11 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
   }
   console.log('error', error, this)
   const refreshToken = localStorage.getItem('refresh_token')
-  if (error.response.status === 401 && !originalRequest._retry && refreshToken) {
+  if (error.response.status === 401 && !originalRequest._retry) {
+    if (!refreshToken) {
+      logout()
+      return Promise.reject(error)
+    }
     originalRequest._retry = true
 
     try {
@@ -120,8 +115,13 @@ export const responseErrorHelper = async (error: any, axiosInstance: AxiosInstan
       return Promise.reject(refreshError)
     }
   } else {
-    // 如果没有 refresh token，则直接退出登录
-    logout()
+    if (error.config.headers.noThrowError) return
+
+    if (error.config.headers.noErrorMessage) return Promise.reject(error)
+
+    const message = error.response.data.message || error.message
+    ElMessage.error(message)
+    return Promise.reject(error)
   }
 
   return Promise.reject(error)
