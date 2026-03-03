@@ -4,6 +4,7 @@ import { Transform } from '@antv/x6-plugin-transform'
 import { Selection } from '@antv/x6-plugin-selection'
 import { Dnd } from '@antv/x6-plugin-dnd'
 import { History } from '@antv/x6-plugin-history'
+import { workflowElement } from '../../utils/workflowElement'
 
 const viewerRef = ref()
 const graphOptions = ref()
@@ -67,7 +68,7 @@ function init(workflowJson: any) {
 }
 
 const dropActionsItems = computed(() => {
-  return Object.values(WorkflowElement).reduce((acc: any, cur: any) => {
+  return Object.values(workflowElement).reduce((acc: any, cur: any) => {
     if (cur.toolbar.length > 0) {
       acc.push(...cur.toolbar)
     }
@@ -126,13 +127,9 @@ function graphReady() {
   })
 }
 
-function openInfo() {
+function openInfo() {}
 
-}
-
-function openPermission() {
-
-}
+function openPermission() {}
 
 defineExpose({ init })
 </script>
@@ -144,17 +141,16 @@ defineExpose({ init })
         <div class="group">
           <!--          <WorkflowHistory />-->
           <WorkflowInfo @click="openInfo" />
-<!--          <WorkflowPermission @click="openPermission" />-->
+          <!--          <WorkflowPermission @click="openPermission" />-->
         </div>
-        <!--        <div v-if="!readonly" class="group">-->
-        <!--          <div v-for="(item, index) in dropActionsItems" :key="index" class="icon handlers"-->
-        <!--               @mousedown.native="(ev) => itemDrop(item, ev)">-->
-        <!--            <Icon :name="item.icon" />-->
-        <!--            <div class="label">{{ item.label }}</div>-->
-        <!--          </div>-->
-        <!--        </div>-->
+        <div v-if="!readonly" class="group">
+          <div v-for="(item, index) in dropActionsItems" :key="index" class="icon handlers" @mousedown.native="(ev) => itemDrop(item, ev)">
+            <Icon :name="item.icon" />
+            <div class="label">{{ item.label }}</div>
+          </div>
+        </div>
       </div>
-<!--      <WorkflowSidebar ref="sidebarRef" />-->
+      <!--      <WorkflowSidebar ref="sidebarRef" />-->
       <!--      <BpmnEdge v-if="ready" ref="edgeEl" />-->
       <!--      <BpmnNode v-if="ready" ref="nodeEl" @openForm="openForm" />-->
       <!--      <BpmnXmlEditor-->

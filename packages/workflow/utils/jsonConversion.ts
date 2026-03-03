@@ -41,7 +41,7 @@ interface Metadata {
   icon?: string
 }
 
-export type NodeItem = {
+export interface NodeItem {
   id: string
   name: string
   type: string

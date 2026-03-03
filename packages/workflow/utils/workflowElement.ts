@@ -1,10 +1,10 @@
 import { Cell, CellView, Graph } from '@antv/x6'
-import { NodeItem } from './jsonConversion'
+import type { NodeItem } from './jsonConversion'
 
 export enum WorkflowElementType {
   StartEvent = 'StartEvent',
   EndEvent = 'EndEvent',
-  UserTask = 'UserTask',
+  UserTask = 'UserTask'
   // exclusiveGateway = 'exclusiveGateway',
   // ServiceTask = 'serviceTask',
   // boundaryEvent = 'boundaryEvent',
@@ -28,85 +28,80 @@ export type WorkflowElement = {
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {}
     clickHandler: (args: { node: Cell; view: Cell }) => void
     contextMenuComponent?: string | Function
-    validator?: (args: {
-      attr_name: string,
-      attr_id: string,
-      extensionElements?: any,
-      [key: string]: any
-    }) => Promise<boolean>
+    validator?: (args: { attr_name: string; attr_id: string; extensionElements?: any; [key: string]: any }) => Promise<boolean>
   }
 }
 
 interface Markup {
-  tagName: string;
-  selector: string;
+  tagName: string
+  selector: string
 }
 
 interface Attrs {
   text: {
-    fontSize: number;
-    fill: string;
-    refX: number;
-    refY: number;
-    textAnchor: string;
-    textVerticalAnchor: string;
+    fontSize: number
+    fill: string
+    refX: number
+    refY: number
+    textAnchor: string
+    textVerticalAnchor: string
     textWrap: {
-      width: number | string;
-      height: number | string;
-      ellipsis: boolean;
+      width: number | string
+      height: number | string
+      ellipsis: boolean
       breakWord: boolean
-    };
-    text: string;
-  };
+    }
+    text: string
+  }
   body: {
-    refWidth: number;
-    refHeight: number;
-    stroke: string;
-    strokeWidth: number;
-    fill: string;
-    rx: number;
-    ry: number;
-    filter: string;
+    refWidth: number
+    refHeight: number
+    stroke: string
+    strokeWidth: number
+    fill: string
+    rx: number
+    ry: number
+    filter: string
   }
   image: {
-    'xlink:href': string;
-    width: number;
-    height: number;
-    x: number;
-    y: number;
+    'xlink:href': string
+    width: number
+    height: number
+    x: number
+    y: number
   }
   title: {
-    text: string;
-    refX: number;
-    refY: number;
-    fill: string;
-    fontSize: number;
-    fontWeight: string;
-    textAnchor: string;
+    text: string
+    refX: number
+    refY: number
+    fill: string
+    fontSize: number
+    fontWeight: string
+    textAnchor: string
   }
 }
 
 interface Position {
-  x: number;
-  y: number;
+  x: number
+  y: number
 }
 
 interface Size {
-  width: number;
-  height: number;
+  width: number
+  height: number
 }
 
 interface Graph {
-  id: string;
-  markup: Markup[];
-  attrs: Attrs;
-  shape: string;
-  zIndex: number;
-  visible: boolean;
-  position: Position;
-  size: Size;
-  data: any;
-  _order: number;
+  id: string
+  markup: Markup[]
+  attrs: Attrs
+  shape: string
+  zIndex: number
+  visible: boolean
+  position: Position
+  size: Size
+  data: any
+  _order: number
 }
 
 /**
@@ -201,8 +196,7 @@ export const workflowElement: WorkflowElement = {
 
       return graph
     },
-    clickHandler: () => {
-    },
+    clickHandler: () => {},
     contextMenuComponent: 'LazyContextStartEvent'
   },
   EndEvent: {
@@ -239,17 +233,39 @@ export const workflowElement: WorkflowElement = {
       }
       return graph
     },
-    clickHandler: () => {
-    },
+    clickHandler: () => {},
     contextMenuComponent: 'LazyContextEndEvent'
   },
   UserTask: {
     embed: false,
-    toolbar: [],
+    toolbar: [
+      {
+        icon: 'bpmn:form',
+        label: 'UserForm',
+        group: '',
+        order: 0,
+        dropData: (id: string) => ({
+          id,
+          label: 'New User Task',
+          data: {}
+        })
+      },
+      {
+        icon: 'bpmn:signature',
+        label: 'User Signature Task',
+        group: '',
+        order: 0,
+        dropData: (id: string) => ({
+          id,
+          label: 'New Signature',
+          data: {}
+        })
+      }
+    ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
       let title = 'User Task'
       if (!!workflowNodeItem.metadata.tags && workflowNodeItem.metadata.tags === 'signature') {
-        title = 'Signature User Task'
+        title = 'User Signature Task'
       }
       const attrs = GenAttrs(title, workflowNodeItem.name, workflowNodeItem.metadata.icon)
 
@@ -283,8 +299,7 @@ export const workflowElement: WorkflowElement = {
       }
       return graph
     },
-    clickHandler: () => {
-    },
+    clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
       if (!!workflowNodeItem.metadata.tags && workflowNodeItem.metadata.tags === 'signature') {
         return 'LazyContextSignature'
