@@ -102,14 +102,18 @@ export const workflowJsonToX6Node = function(workflowJson: WorkflowJson) {
     nodes: any[]
     edges: any[]
   }
+  const cells: any = []
 
   workflowJson.nodes.forEach((nodeItem: Node) => {
-    const type = nodeItem.type
+    const type: string = nodeItem.type
     const graphData = workflowElement[type].workflowDataToGraphData(nodeItem)
+    cells.push(graphData)
     result.nodes.push(graphData)
   })
-  // Set edges
-  result.edges = workflowJson.edges
+  // // Set edges
+  // result.edges = workflowJson.edges
 
-  return result
+  return {
+    cells
+  }
 }

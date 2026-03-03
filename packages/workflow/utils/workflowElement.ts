@@ -36,153 +36,211 @@ export type WorkflowElement = {
   }
 }
 
+interface Markup {
+  tagName: string;
+  selector: string;
+}
 
+interface Attrs {
+  text: {
+    fontSize: number;
+    fill: string;
+    refX: number;
+    refY: number;
+    textAnchor: string;
+    textVerticalAnchor: string;
+    textWrap: {
+      width: number | string;
+      height: number | string;
+      ellipsis: boolean;
+      breakWord: boolean
+    };
+    text: string;
+  };
+  body: {
+    refWidth: number;
+    refHeight: number;
+    stroke: string;
+    strokeWidth: number;
+    fill: string;
+    rx: number;
+    ry: number;
+    filter: string;
+  }
+  image: {
+    'xlink:href': string;
+    width: number;
+    height: number;
+    x: number;
+    y: number;
+  }
+  title: {
+    text: string;
+    refX: number;
+    refY: number;
+    fill: string;
+    fontSize: number;
+    fontWeight: string;
+    textAnchor: string;
+  }
+}
+
+interface Position {
+  x: number;
+  y: number;
+}
+
+interface Size {
+  width: number;
+  height: number;
+}
+
+interface Graph {
+  id: string;
+  markup: Markup[];
+  attrs: Attrs;
+  shape: string;
+  zIndex: number;
+  visible: boolean;
+  position: Position;
+  size: Size;
+  data: any;
+  _order: number;
+}
+
+/**
+ * Generate graph styles
+ * @param title 標題
+ * @param textAnchor 副標題
+ * @param icon 圖標
+ */
+function GenAttrs(title: string, textAnchor: string, icon: string) {
+  return {
+    text: {
+      fontSize: 12,
+      fill: '#000',
+      refX: 46,
+      refY: 30,
+      textAnchor: textAnchor,
+      textVerticalAnchor: 'top',
+      textWrap: {
+        width: -52,
+        height: '70%',
+        ellipsis: true,
+        breakWord: false
+      },
+      text: textAnchor
+    },
+    body: {
+      refWidth: 1,
+      refHeight: 1,
+      stroke: '#ddd',
+      strokeWidth: 1,
+      fill: '#fff',
+      rx: 8,
+      ry: 8,
+      filter: 'drop-shadow(0px 2px 5px rgba(0,0,0,0.2))'
+    },
+    image: {
+      'xlink:href': icon,
+      width: 24,
+      height: 24,
+      x: 12,
+      y: 12
+    },
+    title: {
+      text: title,
+      refX: 46,
+      refY: 12,
+      fill: '#000',
+      fontSize: 14,
+      fontWeight: 'bold',
+      textAnchor: textAnchor
+    }
+  } as Attrs
+}
+
+/**
+ * Node => workflowElement
+ * Cell => Element Item
+ */
 export const workflowElement: WorkflowElement = {
   StartEvent: {
     embed: false,
     toolbar: [],
     workflowDataToGraphData: (workflowNodeItem: any) => {
-      const graph = {
+      const graph: Graph = {
         id: workflowNodeItem.id,
-        type: workflowNodeItem.type,
         markup: [
           { tagName: 'rect', selector: 'body' },
           { tagName: 'image', selector: 'image' },
           { tagName: 'text', selector: 'title' },
           { tagName: 'text', selector: 'text' }
         ],
-        attrs: {
-          body: {
-            stroke: '#ddd',
-            strokeWidth: 1,
-            fill: '#fff',
-            rx: 8,
-            ry: 8,
-            refWidth: 1,
-            refHeight: 1,
-            filter: 'drop-shadow(0px 2px 5px rgba(0,0,0,0.2))'
-          },
-          image: {
-            'xlink:href': '/bpmn/icons/close.svg',
-            width: 24,
-            height: 24,
-            x: 12,
-            y: 12
-          },
-          title: {
-            text: workflowNodeItem.name.split(/(?=[A-Z])/).join(' '),
-            refX: 46,
-            refY: 12,
-            fill: '#000',
-            fontSize: 14,
-            fontWeight: 'bold',
-            'text-anchor': 'start'
-          },
-          text: {
-            refX: 46,
-            refY: 30,
-            fontSize: 12,
-            fill: '#000',
-            textAnchor: 'start',
-            textVerticalAnchor: 'top',
-            textWrap: {
-              width: -52, // 宽度减少 10px
-              height: '70%', // 高度减少 10px
-              ellipsis: true,  // 文本超出显示范围时，自动添加省略号
-              breakWord: false // 是否截断单词
-            }
-          }
-        },
-        shape: '',
-        view: '',
+        attrs: GenAttrs('Start Event', workflowNodeItem.name, workflowNodeItem.metadata.icon),
+        shape: 'bpmn-node',
         zIndex: 1,
         visible: true,
-        parent: '',
-        children: [],
-        tools: [],
-        data: {}
+        position: {
+          x: workflowNodeItem.metadata.x || 60,
+          y: workflowNodeItem.metadata.y || 60
+        },
+        size: {
+          width: workflowNodeItem.metadata.width || 120,
+          height: workflowNodeItem.metadata.height || 64
+        },
+        data: {
+          id: workflowNodeItem.id,
+          name: workflowNodeItem.name,
+          type: workflowNodeItem.type,
+          version: 0
+        },
+        _order: 0
       }
-
-      // if (!!workflowNodeItem.metadata) {
-      //   graph
-      // }
-
 
       return graph
     },
     clickHandler: () => {
     },
-    contextMenuComponent: 'LazyBpmnContextStartEvent'
+    contextMenuComponent: 'LazyContextStartEvent'
   },
   EndEvent: {
     embed: false,
     toolbar: [],
     workflowDataToGraphData: (workflowNodeItem: any) => {
-      const graph = {
+      const graph: Graph = {
         id: workflowNodeItem.id,
-        type: workflowNodeItem.type,
         markup: [
           { tagName: 'rect', selector: 'body' },
           { tagName: 'image', selector: 'image' },
           { tagName: 'text', selector: 'title' },
           { tagName: 'text', selector: 'text' }
         ],
-        attrs: {
-          body: {
-            stroke: '#ddd',
-            strokeWidth: 1,
-            fill: '#fff',
-            rx: 8,
-            ry: 8,
-            refWidth: 1,
-            refHeight: 1,
-            filter: 'drop-shadow(0px 2px 5px rgba(0,0,0,0.2))'
-          },
-          image: {
-            'xlink:href': '/bpmn/icons/close.svg',
-            width: 24,
-            height: 24,
-            x: 12,
-            y: 12
-          },
-          title: {
-            text: workflowNodeItem.name.split(/(?=[A-Z])/).join(' '),
-            refX: 46,
-            refY: 12,
-            fill: '#000',
-            fontSize: 14,
-            fontWeight: 'bold',
-            'text-anchor': 'start'
-          },
-          text: {
-            refX: 46,
-            refY: 30,
-            fontSize: 12,
-            fill: '#000',
-            textAnchor: 'start',
-            textVerticalAnchor: 'top',
-            textWrap: {
-              width: -52, // 宽度减少 10px
-              height: '70%', // 高度减少 10px
-              ellipsis: true,  // 文本超出显示范围时，自动添加省略号
-              breakWord: false // 是否截断单词
-            }
-          }
-        },
-        shape: '',
-        view: '',
+        attrs: GenAttrs('End Event', workflowNodeItem.name, workflowNodeItem.metadata.icon),
+        shape: 'bpmn-node',
         zIndex: 1,
         visible: true,
-        parent: '',
-        children: [],
-        tools: [],
-        data: {}
+        position: {
+          x: workflowNodeItem.metadata.x || 60,
+          y: workflowNodeItem.metadata.y || 60
+        },
+        size: {
+          width: workflowNodeItem.metadata.width || 120,
+          height: workflowNodeItem.metadata.height || 64
+        },
+        data: {
+          id: workflowNodeItem.id,
+          name: workflowNodeItem.name,
+          type: workflowNodeItem.type,
+          version: 0
+        },
+        _order: 0
       }
       return graph
     },
     clickHandler: () => {
     },
-    contextMenuComponent: 'LazyBpmnContextEndEvent'
+    contextMenuComponent: 'LazyContextEndEvent'
   }
   // UserTask: {}
 }

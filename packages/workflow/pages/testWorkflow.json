@@ -1,0 +1,94 @@
+{
+  "id": "process_1770090138471",
+  "key": "process_1770090138471",
+  "name": "New Process",
+  "type": "process",
+  "version": 1,
+  "description": "Process definition created with JSON modeler",
+  "nodes": [
+    {
+      "id": "start_po",
+      "name": "Start Event",
+      "type": "StartEvent",
+      "flow": {
+        "incoming": [],
+        "outgoing": [
+          "validate_budget"
+        ],
+        "join_type": "XOR",
+        "split_type": "XOR"
+      },
+      "execution": {
+        "async": false,
+        "timeout_ms": 1000,
+        "priority": 0
+      },
+      "config": {
+        "trigger_type": "message"
+      },
+      "metadata": {
+        "x": 60,
+        "y": 60,
+        "width": 140,
+        "height": 64,
+        "icon": "/icons/browse.svg"
+      }
+    },
+    {
+      "id": "end_approved",
+      "name": "End Event",
+      "type": "EndEvent",
+      "flow": {
+        "incoming": [
+          "notify_requester"
+        ],
+        "outgoing": [],
+        "join_type": "XOR",
+        "split_type": "XOR"
+      },
+      "execution": {
+        "async": false,
+        "timeout_ms": 100,
+        "priority": 0
+      },
+      "config": {
+        "result": "APPROVED"
+      },
+      "metadata": {
+        "x": 220,
+        "y": 60,
+        "width": 140,
+        "height": 64,
+        "icon": "icons/close.svg"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source_node_id": "start_po",
+      "target_node_id": "end_approved",
+      "flow_control": {
+        "type": "sequence"
+      }
+    }
+  ],
+  "variables": {
+    "username": {
+      "type": "string",
+      "required": false
+    }
+  },
+  "metadata": {
+    "created_date": "2026-02-03",
+    "version": "2.0-array-execution-tracking",
+    "author": "System",
+    "purpose": "Unified BPMN schema with nodes as array",
+    "status": "active",
+    "tags": [
+      "bpmn",
+      "unified_schema",
+      "execution_tracking"
+    ]
+  }
+}

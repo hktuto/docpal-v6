@@ -67,10 +67,8 @@ function init(workflowJson: any) {
   })
 
   const json = workflowJsonToX6Node(workflowJson)
-  console.log(123,json)
   graphJson.value = json
 
-  // TODO 無法寫入
   graph.value.fromJSON(json)
   // remove all tools
   graph.value.getNodes().forEach((node: any) => {
@@ -247,7 +245,6 @@ const allFormField = ref({})
 
 provide(BPMN_PROVIDER, {
   init,
-
   graph,
   graphJson,
   flatGraphObject,
