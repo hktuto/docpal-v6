@@ -2035,9 +2035,9 @@ export interface MTColumnInfo {
     nullRelation?: boolean;
     /** @format int32 */
     sort?: number;
-    required?: boolean;
-    unique?: boolean;
     primaryKey?: boolean;
+    unique?: boolean;
+    required?: boolean;
 }
 
 export interface ResultCaseType {
@@ -2712,8 +2712,8 @@ export interface HoldPolicy {
     createdDate?: string;
     /** @format date-time */
     modifiedDate?: string;
-    removeAuto?: boolean;
     holdAuto?: boolean;
+    removeAuto?: boolean;
     holdReasonReq?: boolean;
     removeReasonReq?: boolean;
 }
@@ -2863,8 +2863,8 @@ export interface MetadataPermissionRuleDTO {
 }
 
 export interface MetadataValidation {
-    isMultiple?: boolean;
     validationRuleName?: string;
+    isMultiple?: boolean;
 }
 
 export type NumberValidation = MetadataValidation & {
@@ -3200,6 +3200,8 @@ export interface DocumentDTO {
     comeFrom?: string;
     drivePreviewLink?: string;
     originalPath?: string;
+    fileContentMimeType?: string;
+    fileContentName?: string;
     fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
     fileContentExtension?: string;
@@ -3207,8 +3209,6 @@ export interface DocumentDTO {
     fileContentData?: string;
     /** @format int64 */
     fileContentLength?: number;
-    fileContentMimeType?: string;
-    fileContentName?: string;
 }
 
 export interface FileContentDTO {
@@ -4588,10 +4588,10 @@ export interface PageableObject {
     paged?: boolean;
     /** @format int32 */
     pageSize?: number;
-    unpaged?: boolean;
     /** @format int64 */
     offset?: number;
     sort?: SortObject;
+    unpaged?: boolean;
 }
 
 export interface ResultPageNotificationRecord {
@@ -6404,8 +6404,8 @@ export interface PlanItemInstanceDTO {
     subItems?: PlanItemInstanceDTO[];
     /** Workflow PlanItem Form */
     planForm?: CmmnPlanFormDTO;
-    processInstanceId?: string;
     humanTaskId?: string;
+    processInstanceId?: string;
 }
 
 export interface PlanTableFieldDTO {
@@ -7087,13 +7087,13 @@ export interface EasyShareDocumentDetails {
     readOnly?: boolean;
     watermarkData?: WatermarkData;
     createdBy?: string;
-    originFilePath?: string;
     conversionId?: string;
     watermarkTemplateId?: string;
     watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
     watermarkedLocalPath?: string;
+    originFilePath?: string;
 }
 
 /** EasyShare (Request) */
@@ -7398,8 +7398,8 @@ export interface SearchDocumentVO {
     id?: string;
     properties?: Record<string, any>;
     updateChildName?: boolean;
-    folder?: boolean;
     ocr?: boolean;
+    folder?: boolean;
     be_index?: boolean;
     create_by?: string;
     /** @format date-time */
@@ -7717,10 +7717,10 @@ export interface MasterTableResponseDTO {
     fields?: MTColumnInfo[];
     userId?: string;
     aces?: string;
-    enable?: boolean;
     create?: boolean;
     edit?: boolean;
     read?: boolean;
+    enable?: boolean;
 }
 
 export interface ResultMasterTableResponseDTO {
@@ -7864,10 +7864,10 @@ export interface MTPermissionDTO {
     userId?: string;
     userName?: string;
     userType?: string;
-    enable?: boolean;
     create?: boolean;
     edit?: boolean;
     read?: boolean;
+    enable?: boolean;
 }
 
 export interface InternalShareQueryDTO {
@@ -9011,6 +9011,8 @@ export interface DocumentResponseDTO {
     isCollectionMember?: boolean;
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
+    fileContentMimeType?: string;
+    fileContentName?: string;
     fileContentMinioFileVersion?: string;
     fileContentDigestAlgorithm?: string;
     fileContentExtension?: string;
@@ -9018,8 +9020,6 @@ export interface DocumentResponseDTO {
     fileContentData?: string;
     /** @format int64 */
     fileContentLength?: number;
-    fileContentMimeType?: string;
-    fileContentName?: string;
 }
 
 export interface ResultDocumentResponseDTO {
@@ -9501,9 +9501,9 @@ export interface FolderCabinetRequestDTO {
     emailReminder?: FCReminder;
     /** The default value list of label rule */
     metadataValue?: string;
-    delayEmail?: FCNotificationConfig;
     systemReminderConfig?: FCNotificationConfig;
     summaryReportEmail?: FCNotificationConfig;
+    delayEmail?: FCNotificationConfig;
     descSort?: SortObject;
     /** @format int32 */
     pageIndex?: number;
@@ -10473,6 +10473,39 @@ export interface CaptureProjPermissionSettingSaveRequestDTO {
     permission?: Record<string, string[]>;
 }
 
+/** Split info response DTO */
+export interface CaptureProjFormSettingSplitInfoResponseDTO {
+    /**
+     * Total pages
+     * @format int32
+     */
+    total_pages?: number;
+    /**
+     * Split count
+     * @format int32
+     */
+    split_count?: number;
+    /** Image directory path */
+    image_dir?: string;
+}
+
+export interface CaptureProjFormSettingTestFormResponseDTO {
+    /** split info */
+    splitInfo?: CaptureProjFormSettingSplitInfoResponseDTO;
+    /** ocr result */
+    ocrResult?: string;
+}
+
+export interface ResultCaptureProjFormSettingTestFormResponseDTO {
+    result?: boolean;
+    /** @format int32 */
+    code?: number;
+    message?: string;
+    data?: CaptureProjFormSettingTestFormResponseDTO;
+    messageKey?: string;
+    locale?: string;
+}
+
 /** Capture save proj Form Setting info */
 export interface CaptureProjFormSettingSplitPageRequestDTO {
     /**
@@ -10718,6 +10751,8 @@ export interface DocumentInfo {
 export interface CaptureDocUpdateRequestDTO {
     /** User-edited OCR result JSON */
     newResultJson?: any;
+    /** Original value before editing */
+    oldValue?: string;
     /** User-verified new value */
     newValue?: string;
     /** Form source classification */
@@ -28235,6 +28270,35 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
                 method: "POST",
                 body: data,
                 type: ContentType.Json,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
+         * @tags CaptureProjFormSettingController
+         * @name PostCaptureProjformsettingTestform
+         * @summary Test Form
+         * @request POST:/api/capture/projFormSetting/testForm
+         */
+        postCaptureProjformsettingTestform: (
+            data: {
+                /** @format binary */
+                file?: File;
+                /** @format string */
+                projId?: string;
+                /** @format string */
+                formId?: string;
+                /** @format string */
+                fieldsSettingJson?: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultCaptureProjFormSettingTestFormResponseDTO, any>({
+                path: `/api/capture/projFormSetting/testForm`,
+                method: "POST",
+                body: data,
+                type: ContentType.FormData,
                 ...params,
             }),
 

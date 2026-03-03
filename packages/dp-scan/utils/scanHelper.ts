@@ -35,22 +35,23 @@ export const StatusMap: {
 
 export const ScanTableColumns: any[] = [
   {
+    field: 'projectName',
+    title: 'Project',
+    fixed: 'left'
+  },
+  {
     field: 'batchNo',
-    title: 'batchNo',
-    fixed: 'left',
+    title: 'Batch Name',
     width: 200
   },
-  {
-    field: 'projectName',
-    title: 'projectName'
-  },
+
   {
     field: 'formId',
-    title: 'formId'
+    title: 'Form'
   },
   {
     field: 'status',
-    title: 'status',
+    title: 'Status',
     type: 'html',
     formatter({ cellValue }: any) {
       if (!cellValue) return ''
@@ -64,14 +65,14 @@ export const ScanTableColumns: any[] = [
   },
   {
     field: 'createdAt',
-    title: 'createdAt',
+    title: 'Created At',
     formatter({ cellValue }: any) {
       return formatDate(cellValue)
     }
   },
   {
     field: 'updatedAt',
-    title: 'updatedAt',
+    title: 'Updated At',
     formatter({ cellValue }: any) {
       return formatDate(cellValue)
     }

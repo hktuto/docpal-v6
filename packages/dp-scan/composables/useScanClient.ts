@@ -1,3 +1,5 @@
+import { clientApi } from 'api'
+
 const useUsetProject = () => useState('use-scan-project', () => [])
 const useUserListFilter = () =>
   useState('use-scan-user-list-filter', () => ({
@@ -14,9 +16,13 @@ const useUserListFilter = () =>
 export const useScanClient = () => {
   const projects = useUsetProject()
   const filter = useUserListFilter()
-
+  const userId = useUserId()
   async function getUserProject() {
     // TODO: wait for api
+    // const { data } = await clientApi.api.postCaptureProjUser({
+    //   userId: userId.value
+    // })
+    projects.value = []
   }
 
   onMounted(() => {

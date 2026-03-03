@@ -27,7 +27,6 @@ export default defineNuxtConfig({
     // '../../pages/client-easy-form',
     // '../../pages/client-rbac',
     // '../../pages/client-user-setting',
-    '../../pages/client-client-scan',
 
     // '../../pages/admin-workflow-editor',
     '../../pages/admin-user',
@@ -75,7 +74,8 @@ export default defineNuxtConfig({
 
     // demo packages
     '../../packages/dp-scan',
-    '../../pages/client-scan'
+    '../../pages/client-scan',
+    '../../pages/admin-scan'
   ],
   features: {
     inlineStyles: true

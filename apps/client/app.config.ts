@@ -104,6 +104,9 @@ export default defineAppConfig({
   ],
   adminMenu: [
     {
+      name: 'admin-scan'
+    },
+    {
       name: '',
       icon: 'tabler:align-box-right-bottom',
       hoverIcon: 'tabler:align-box-right-bottom-filled',
