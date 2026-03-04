@@ -33,7 +33,7 @@ interface Markup {
  * @const icon graph的包含的Icon
  */
 interface Metadata {
-  tags?: 'signature' | 'document',
+  tags?: 'signature' | 'document'
   x: number
   y: number
   width: number
@@ -89,25 +89,16 @@ interface WorkflowJson {
   metadata: MetadataDetails
 }
 
-export const workflowJsonToX6Node = function(workflowJson: WorkflowJson) {
-  const result = {
-    nodes: [],
-    edges: []
-  } as {
-    nodes: any[]
-    edges: any[]
-  }
+export const x6NodeToWorkflowJson = function (x6NodeJson: any) {}
+
+export const workflowJsonToX6Node = function (workflowJson: WorkflowJson) {
   const cells: any = []
 
   workflowJson.nodes.forEach((nodeItem: NodeItem) => {
     const type: string = nodeItem.type
-    const graphData = workflowElement[type].workflowDataToGraphData(nodeItem)
+    const graphData = workflowElement[type as keyof WorkflowElement].workflowDataToGraphData(nodeItem)
     cells.push(graphData)
-    result.nodes.push(graphData)
   })
-  // // Set edges
-  // result.edges = workflowJson.edges
-
   return {
     cells
   }

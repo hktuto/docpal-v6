@@ -10,6 +10,36 @@ export enum WorkflowElementType {
   // boundaryEvent = 'boundaryEvent',
   // scriptTask = 'scriptTask',
   // sequenceFlow = 'sequenceFlow'
+  // httpTask: 'httpTask'
+}
+
+/**
+ * Render Workflow Toolbar Chart Types
+ */
+export enum CellType {
+  userTask = 'UserTask',
+  signatureTask = 'SignatureTask'
+}
+
+interface portsItems {
+  id: string
+  group: string
+}
+
+export type CellTypeItem = {
+  [key in CellType]: {
+    id: string
+    label: string
+    width: number
+    height: number
+    shape: string
+    attrs: Attrs
+    markup: Markup[]
+    ports: {
+      items: portsItems[]
+    }
+    data: {}
+  }
 }
 
 export type WorkflowElement = {
@@ -19,11 +49,11 @@ export type WorkflowElement = {
     connectable?: boolean
     connectRule?: (args: { child: Cell; parent: Cell; childView: CellView; parentView: CellView }) => boolean
     toolbar: {
-      icon: string
+      id: CellType
       label: string
+      icon: string
       group: string
       order: number
-      dropData: any
     }[]
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {}
     clickHandler: (args: { node: Cell; view: Cell }) => void
@@ -91,7 +121,7 @@ interface Size {
   height: number
 }
 
-interface Graph {
+interface GraphItem {
   id: string
   markup: Markup[]
   attrs: Attrs
@@ -165,7 +195,7 @@ export const workflowElement: WorkflowElement = {
     embed: false,
     toolbar: [],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      const graph: Graph = {
+      const graph: GraphItem = {
         id: workflowNodeItem.id,
         markup: [
           { tagName: 'rect', selector: 'body' },
@@ -203,7 +233,7 @@ export const workflowElement: WorkflowElement = {
     embed: false,
     toolbar: [],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      const graph: Graph = {
+      const graph: GraphItem = {
         id: workflowNodeItem.id,
         markup: [
           { tagName: 'rect', selector: 'body' },
@@ -240,26 +270,18 @@ export const workflowElement: WorkflowElement = {
     embed: false,
     toolbar: [
       {
+        id: CellType.userTask,
         icon: 'bpmn:form',
-        label: 'UserForm',
+        label: 'User Form',
         group: '',
-        order: 0,
-        dropData: (id: string) => ({
-          id,
-          label: 'New User Task',
-          data: {}
-        })
+        order: 0
       },
       {
-        icon: 'bpmn:signature',
+        id: CellType.signatureTask,
         label: 'User Signature Task',
+        icon: 'bpmn:signature',
         group: '',
-        order: 0,
-        dropData: (id: string) => ({
-          id,
-          label: 'New Signature',
-          data: {}
-        })
+        order: 0
       }
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
@@ -269,7 +291,7 @@ export const workflowElement: WorkflowElement = {
       }
       const attrs = GenAttrs(title, workflowNodeItem.name, workflowNodeItem.metadata.icon)
 
-      const graph: Graph = {
+      const graph: GraphItem = {
         id: workflowNodeItem.id,
         markup: [
           { tagName: 'rect', selector: 'body' },
@@ -311,3 +333,74 @@ export const workflowElement: WorkflowElement = {
   //
   // }
 }
+
+// #region toolbar
+/**
+ * Default graph element template.
+ */
+const workflowCellElementTemplate: CellTypeItem = {
+  UserTask: {
+    id: `New_UserTask_${Date.now()}`,
+    label: 'User Task',
+    width: 200,
+    height: 64,
+    shape: 'bpmn-node',
+    attrs: GenAttrs('User Task', 'User Task', '/icons/form.svg'),
+    markup: [
+      { tagName: 'rect', selector: 'body' },
+      { tagName: 'image', selector: 'image' },
+      { tagName: 'text', selector: 'title' },
+      { tagName: 'text', selector: 'text' }
+    ],
+    ports: {
+      items: [
+        { id: 'from', group: 'from' },
+        { id: 'to', group: 'to' },
+        { id: 'left', group: 'left' },
+        { id: 'right', group: 'right' }
+      ]
+    },
+    data: {
+
+    }
+  },
+  SignatureTask: {
+    id: `New_SignatureTask_${Date.now()}`,
+    label: 'Signature Task',
+    shape: 'bpmn-node',
+    width: 200,
+    height: 64,
+    attrs: GenAttrs('Signature Task', 'Signature Task', '/icons/form.svg'),
+    markup: [
+      { tagName: 'rect', selector: 'body' },
+      { tagName: 'image', selector: 'image' },
+      { tagName: 'text', selector: 'title' },
+      { tagName: 'text', selector: 'text' }
+    ],
+    ports: {
+      items: [
+        { id: 'from', group: 'from' },
+        { id: 'to', group: 'to' },
+        { id: 'left', group: 'left' },
+        { id: 'right', group: 'right' }
+      ]
+    },
+    data: {}
+  }
+}
+
+/**
+ * Get the Workflow component.
+ * 根據組件模板生成一個新的graph
+ */
+export const workflowCellElement = {
+  ...workflowCellElementTemplate,
+  getCellItem<K extends CellType>(key: K): CellTypeItem[K] {
+    const id = `New_${key}_${Date.now()}`
+    return {
+      ...workflowCellElementTemplate[key],
+      id: `New_${key}_${Date.now()}`
+    } as CellTypeItem[K]
+  }
+}
+// #endregion

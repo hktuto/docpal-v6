@@ -4,7 +4,7 @@ import { Transform } from '@antv/x6-plugin-transform'
 import { Selection } from '@antv/x6-plugin-selection'
 import { Dnd } from '@antv/x6-plugin-dnd'
 import { History } from '@antv/x6-plugin-history'
-import { workflowElement } from '../../utils/workflowElement'
+import { workflowCellElement, workflowElement } from '../../utils/workflowElement'
 
 const viewerRef = ref()
 const graphOptions = ref()
@@ -78,8 +78,8 @@ const dropActionsItems = computed(() => {
 
 function itemDrop(item: any, ev: any) {
   if (readonly.value) return
-  const id = 'new_' + new Date().getTime()
-  const newData = item.dropData(id)
+  console.log(222, item, ev)
+  const newData = workflowCellElement.getCellItem(item.id)
   const newNode = graph.value.createNode(newData)
   dnd.value.options.getDragNode = (node: Node) => node
   dnd.value.options.getDropNode = (node: Node) => node.clone({ keepId: true })
