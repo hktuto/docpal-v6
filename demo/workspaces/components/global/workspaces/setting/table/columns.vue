@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { useSingleWorkspaceContext } from '../../../../../composables/useSingleWorkspace'
+import { useSingleWorkspaceContext } from '../../../../../composables/workspace/useSingleWorkspace'
 import type { CaseFieldRecord } from '../../../../../utils/db/schema/newTableSchema'
 import draggable from 'vuedraggable'
 

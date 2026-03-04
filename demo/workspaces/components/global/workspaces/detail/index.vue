@@ -1,11 +1,10 @@
 <script lang="ts" setup>
-import { useSingleWorkspace } from '../../../../composables/useSingleWorkspace'
-import type { ImportReport } from '../../../../composables/useImportQueue'
+import type { ImportReport } from '../../../../composables/import/useImportQueue'
 
 const props = defineProps<{
   id: string
   detailId: string | null
-  detailType: 'root' | 'folder' | 'table' | 'view' | 'dashboard'
+  detailType: 'root' | 'folder' | 'master_table' | 'view' | 'dashboard'
 }>()
 const { workspace, menuActionsRef, getWorkspaceById, workspaceRouteParams } = useSingleWorkspace()
 
@@ -86,7 +85,7 @@ const detailComponent = computed(() => {
       }
     case 'folder':
       return 'LazyWorkspacesDetailFolder'
-    case 'table':
+    case 'master_table':
       if (workspaceRouteParams.value.pageType === 'setting') {
         return 'LazyWorkspacesSettingTable'
       }

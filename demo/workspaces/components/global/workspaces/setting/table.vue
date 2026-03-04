@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TreeItem } from '../../../../composables/useSingleWorkspace'
+import type { TreeItem } from '../../../../composables/workspace/useSingleWorkspace'
 
 // Get current menu item from workspace context
 const { workspaceRouteParams, menuState, findItemById } = useSingleWorkspaceContext()

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import { useSingleWorkspaceContext } from '../../../../../composables/useSingleWorkspace'
+import { useSingleWorkspaceContext } from '../../../../../composables/workspace/useSingleWorkspace'
 import type { CaseTableRecord } from '../../../../../utils/db/schema/newTableSchema'
 
 const props = defineProps<{

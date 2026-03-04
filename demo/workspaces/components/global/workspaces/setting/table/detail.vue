@@ -6,7 +6,7 @@
  * Uses mock record data for preview.
  */
 import { ElMessage } from 'element-plus'
-import { useSingleWorkspaceContext } from '../../../../../composables/useSingleWorkspace'
+import { useSingleWorkspaceContext } from '../../../../../composables/workspace/useSingleWorkspace'
 import type { CaseTableRecord, CaseFieldRecord } from '../../../../../utils/db/schema/newTableSchema'
 import { DetailViewLayout } from '#components'
 import { generateDefaultDetailLayout, getDetailWidgetsByType, detailWidgetSettings, detailWidgetComponent } from '#imports'

@@ -57,7 +57,7 @@ watch(() => workspaceRouteParams.value.detailId, () => {
       </div>
     </template>
     
-    <template v-else-if="!currentTable.itemId">
+    <template v-else-if="!currentTable.item_id">
       <!-- Table not properly created - show error state -->
       <div class="error-state">
         <Icon name="material-symbols:error-outline" class="error-icon" />
@@ -73,7 +73,7 @@ watch(() => workspaceRouteParams.value.detailId, () => {
       <!-- Table Detail View -->
       <WorkspacesTableDetailView
         :menu-item="currentTable"
-        :data-table-id="currentTable.itemId"
+        :data-table-id="currentTable.item_id"
       />
     </template>
   </div>

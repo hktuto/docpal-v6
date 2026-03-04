@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import type { TreeItem } from '../../../composables/useSingleWorkspace'
+import type { TreeItem } from '../../../composables/workspace/useSingleWorkspace'
 import type { CaseTableRecord, CaseFieldRecord, CaseViewRecord } from '../../../utils/db/schema/newTableSchema'
 
 const props = defineProps<{

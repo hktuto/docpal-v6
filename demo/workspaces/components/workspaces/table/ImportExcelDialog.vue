@@ -52,9 +52,6 @@
 
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import { useImportBatch, isExcelFile, type DuplicateSheetInfo } from '../../../composables/useImportBatch'
-import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspace'
-import { usePglite } from '../../../composables/usePglite'
 import type { CaseFieldRecord } from '../../../utils/db/schema/newTableSchema'
 
 const props = defineProps<{

@@ -3,6 +3,8 @@ import { Admin } from './generate/admin'
 import { Template } from './generate/template'
 import { Standard } from './generate/newClient'
 
+export type { MenuDTO, MenuRequestDTO, ResultListMenuDTO } from './generate/newClient'
+
 let clientBaseURL = '/'
 // let publicBaseURL = '/public-api/report/v1/api'
 let templateBaseURL = '/open-api/template'

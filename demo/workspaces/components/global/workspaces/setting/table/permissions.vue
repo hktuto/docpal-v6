@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from 'element-plus'
-import type { PermissionRole, PermissionWithUser } from '../../../../../composables/usePermission'
-import { usePermission } from '../../../../../composables/usePermission'
 const props = defineProps<{
   menuItem?: { id: string; itemId?: string; label: string; itemType: string }
 }>()

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import { useSingleWorkspaceContext } from '../../../../../composables/useSingleWorkspace'
+import { useSingleWorkspaceContext } from '../../../../../composables/workspace/useSingleWorkspace'
 import type { CaseFieldRecord, FieldDisplayStructure } from '../../../../../utils/db/schema/newTableSchema'
 import { v7 as uuidv7 } from 'uuid'
 

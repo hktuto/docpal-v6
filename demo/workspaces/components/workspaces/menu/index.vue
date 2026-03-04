@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import type { TreeItem } from '../../../composables/useSingleWorkspace'
-import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspace'
-import { useImportBatch, isExcelFile, type DuplicateSheetInfo } from '../../../composables/useImportBatch'
-import { usePglite } from '../../../composables/usePglite'
 import type { CaseFieldRecord } from '../../../utils/db/schema/newTableSchema'
 import { ElMessage } from 'element-plus'
 import { useDebounceFn } from '@vueuse/core'
@@ -20,9 +16,8 @@ const props = withDefaults(defineProps<Props>(), {
   isAdmin: true
 })
 
-const { menuState: state, addItem, openMenuItemActions, getMenuFromDb, workspace } = useSingleWorkspaceContext()
+const { menuState: state, openMenuItemActions, getMenuFromDb, workspace } = useSingleWorkspaceContext()
 const { importExcelFile } = useImportBatch()
-const { query } = usePglite()
 
 // File upload input ref
 const fileInputRef = ref<HTMLInputElement>()
@@ -277,35 +272,6 @@ provide('isExcelFile', isExcelFile)
 
 const { saveMenuItemToDb } = useSingleWorkspaceContext()
 
-const debouncedSave = useDebounceFn(async (items: TreeItem[]) => {
-  // Save each item to the database
-  for (const item of flattenTree(items)) {
-    await saveMenuItemToDb(item)
-  }
-}, 1000)
-
-// Helper: Flatten tree to array for saving
-function flattenTree(items: TreeItem[], parentId: string | null = null): Partial<TreeItem>[] {
-  const result: Partial<TreeItem>[] = []
-  items.forEach((item, index) => {
-    result.push({
-      id: item.id,
-      entityId: item.entityId,
-      label: item.label,
-      slug: item.slug,
-      description: item.description,
-      itemType: item.itemType,
-      itemId: item.itemId,
-      parentId: parentId,
-      order: index
-    })
-    if (item.children && item.children.length > 0) {
-      result.push(...flattenTree(item.children, item.id))
-    }
-  })
-  return result
-}
-
 // Helper: Update order numbers
 function updateOrderNumbers(items: TreeItem[]): TreeItem[] {
   return items.map((item, index) => ({
@@ -318,17 +284,7 @@ const editIconRef = ref()
 function handleOpenActions() {
   openMenuItemActions({ item: null, isAdmin: true }, editIconRef.value || undefined)
 }
-// Handle menu changes from draggable list (v-model update)
-async function handleMenuChange(newItems: TreeItem[]) {
-  console.log('[Menu] Menu changed from drag:', newItems.length, 'items')
 
-  // Update order numbers
-  const orderedMenu = updateOrderNumbers(newItems)
-  state.value.items = orderedMenu
-
-  // Debounced save to server
-  debouncedSave(orderedMenu)
-}
 
 onMounted(async () => {
   await getMenuFromDb()
@@ -379,7 +335,7 @@ onUnmounted(() => {
       </div>
 
       <!-- Draggable Menu Items -->
-      <WorkspacesMenuDraggableList v-else v-model="state.items" :level="0" :parent-id="null" :is-admin="isAdmin" @update:model-value="handleMenuChange" />
+      <WorkspacesMenuDraggableList v-else v-model="state.items" :level="0" :parent-id="null" :is-admin="isAdmin" />
     </div>
 
     <!-- Hidden file input for Excel upload -->
@@ -461,19 +417,6 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-.menu-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--app-space-xs);
-  border-bottom: 1px solid var(--app-border-color);
-
-  h3 {
-    margin: 0;
-    font-size: var(--app-font-size-m);
-    font-weight: 600;
-  }
-}
 
 .menu-content {
   flex: 1;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TreeItem } from '../../../composables/useSingleWorkspace'
+import type { TreeItem } from '../../../composables/workspace/useSingleWorkspace'
 
 interface Props {
   item: TreeItem
@@ -8,7 +8,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const { menuState, toggleFolder, startEdit, saveEdit, cancelEdit, navigateToItem, openMenuItemActions, workspaceRouteParams, getMenuIcon } =
+const { menuState, startEdit, saveEdit, cancelEdit, navigateToItem, openMenuItemActions, workspaceRouteParams, getMenuIcon } =
   useSingleWorkspaceContext()
 
 const isHovered = ref(false)
@@ -29,15 +29,9 @@ const isExpanded = computed(() => {
   return menuState.value.expandedFolders.has(props.item.id)
 })
 
-// Toggle folder expand/collapse
-function handleToggle() {
-  if (props.item.itemType === 'folder') {
-    toggleFolder(props.item.id)
-  }
-}
-
 // Handle item click - navigate to the item
 function handleItemClick() {
+  console.log('handleItemClick', props.item)
   setTimeout(() => {
     if (isEditing.value) return
     navigateToItem(props.item)
@@ -53,10 +47,14 @@ function handleActionsClick(event: MouseEvent) {
 
 // Handle save from label editor
 async function handleSaveEdit(newLabel: string) {
-  await saveEdit(props.item.id, newLabel)
-  nextTick(() => {
-    navigateToItem(props.item)
-  })
+  console.log('handleSaveEdit', JSON.stringify(props.item),props.item.id, newLabel)
+  const success = await saveEdit(props.item.id, newLabel)
+  if (success) {
+    props.item.name = newLabel
+    nextTick(() => {
+      navigateToItem(props.item)
+    })
+  }
 }
 
 const calItemIcon = computed(() => {
@@ -133,9 +131,9 @@ async function onFolderDrop(event: DragEvent) {
   >
     <div ref="itemContentRef" class="item-content" @click="handleItemClick">
       <!-- Drag Handle (admin only, shown on hover) -->
-      <div v-if="isAdmin" class="drag-handle" :class="{ visible: isHovered }" @mousedown.stop @click.stop>
+      <!-- <div v-if="isAdmin" class="drag-handle" :class="{ visible: isHovered }" @mousedown.stop @click.stop>
         <Icon name="material-symbols:drag-indicator" />
-      </div>
+      </div> -->
 
       <!-- Item Icon -->
       <div class="item-icon">
@@ -144,7 +142,7 @@ async function onFolderDrop(event: DragEvent) {
       <!-- Label or Label Editor -->
       <div class="item-label">
         <UiInlineEditor
-          :model-value="item.label"
+          :model-value="item.name"
           :editing="isEditing"
           :editable="isAdmin"
           wrapper="span"
@@ -172,18 +170,13 @@ async function onFolderDrop(event: DragEvent) {
 .menu-item {
   position: relative;
   user-select: none;
-  &.is-selected {
-    border-radius: var(--app-border-radius-s);
-    background: var(--el-fill-color-light);
-    box-shadow: var(--app-shadow-s);
-  }
 }
 
 .item-content {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 8px;
+  padding: 4px 0px;
   border-radius: var(--app-border-radius-s);
   cursor: pointer;
   transition: background-color 0.2s ease;

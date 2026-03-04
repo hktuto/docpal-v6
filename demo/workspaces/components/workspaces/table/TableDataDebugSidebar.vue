@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TreeItem } from '../../../composables/useSingleWorkspace'
+import type { TreeItem } from '../../../composables/workspace/useSingleWorkspace'
 import type { CaseTableRecord, CaseFieldRecord, CaseViewRecord } from '../../../utils/db/schema/newTableSchema'
 
 const props = defineProps<{

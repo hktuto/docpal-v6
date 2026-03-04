@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import type { WorkspaceRouteParams, TreeItem } from '../../../composables/useSingleWorkspace'
+import type { WorkspaceRouteParams, TreeItem } from '../../../composables/workspace/useSingleWorkspace'
 import type { CaseTableRecord } from '../../../utils/db/schema/newTableSchema'
+import type { MenuDTO } from 'api'
 import { ArrowDown, Folder, Grid, Postcard, DataAnalysis, Document } from '@element-plus/icons-vue'
 
 const { workspaceRouteParams, workspace, menuState, navigateToItem, findItemById, goBackFromRecord } = useSingleWorkspaceContext()
@@ -14,6 +15,7 @@ defineSlots<{
 
 type BreadcrumbItem = {
   label: string
+  name?: string // 展示用，与 label 一致，供模板 item.name 使用
   params: WorkspaceRouteParams
   isFolder: boolean
   isRecord?: boolean // Flag for record items
@@ -26,194 +28,118 @@ const recordTitle = ref<string>('')
 
 const breadcrumbList = ref<BreadcrumbItem[]>([])
 
-/**
- * Recursively find the path from root to the target item
- * Returns true if target is found, path will be built in result array
- */
-function findPathToItem(items: TreeItem[], targetId: string, path: BreadcrumbItem[]): boolean {
-  for (const item of items) {
-    // Add current item to path
-    const breadcrumbItem: BreadcrumbItem = {
-      label: item.label,
-      params: {
-        detailId: item.id,
-        detailType: item.itemType,
-        pageType: 'detail'
-      },
-      isFolder: item.itemType === 'folder',
-      itemId: item.id,
-      children: item.itemType === 'folder' ? item.children : undefined
-    }
-    path.push(breadcrumbItem)
-
-    // Check if this is the target
-    if (item.id === targetId) {
-      return true
-    }
-
-    // Search in children if exists
-    if (item.children && item.children.length > 0) {
-      if (findPathToItem(item.children, targetId, path)) {
-        return true
-      }
-    }
-
-    // Not found in this branch, remove from path
-    path.pop()
-  }
-  return false
-}
 
 async function createBreadcrumb() {
-  // Always start with root (workspace)
   const rootItem: BreadcrumbItem = {
-    label: workspace.value?.name || '',
+    name: workspace.value?.name,
     params: {
       detailId: null,
       detailType: 'root',
       pageType: 'detail'
     },
-    isFolder: true, // Workspace root acts like a folder
-    itemId: null,
-    children: menuState.value.items // Root children are the top-level items
+    isFolder: false
   }
 
-  // Handle record detail view
-  if (workspaceRouteParams.value.detailType === 'record' && workspaceRouteParams.value.tableId) {
-    const tableId = workspaceRouteParams.value.tableId
-    const recordId = workspaceRouteParams.value.recordId
-    
-    // Find the table's menu item to get the path
-    const tableMenuItem = findTableMenuItemById(menuState.value.items, tableId)
-    
-    if (tableMenuItem) {
-      // Build path to table
-      const path: BreadcrumbItem[] = []
-      findPathToItem(menuState.value.items, tableMenuItem.id, path)
-      
-      // Load record title if not already loaded
-      if (recordId && !recordTitle.value) {
-        await loadRecordTitle(tableId, recordId)
+  const params = workspaceRouteParams.value
+  let itemId: string | null = params.detailId ?? null
+  // record 视图下没有 detailId，用 tableId 在树中查找对应菜单节点
+  if (params.detailType === 'record' && params.tableId) {
+    const menuNode = findMenuNodeByIdOrItemId(menuState.value.items, params.tableId)
+    itemId = menuNode?.id ?? null
+  }
+  const path = getFullPathFromMenuItems(menuState.value.items, itemId)
+
+  if (params.detailType === 'record' && path.length > 0) {
+    // 在路径末尾追加“当前记录”节点，展示 recordTitle
+    const last = path[path.length - 1]
+    breadcrumbList.value = [
+      rootItem,
+      ...path.slice(0, -1),
+      {
+        ...last,
+        label: recordTitle.value || last.label,
+        name: recordTitle.value || last.label,
+        isRecord: true
       }
-      
-      // Add record item to breadcrumb
-      const recordItem: BreadcrumbItem = {
-        label: recordTitle.value || `Record`,
-        params: {
-          detailId: null,
-          detailType: 'record',
-          pageType: 'detail'
-        },
-        isFolder: false,
-        isRecord: true,
-        itemId: recordId
-      }
-      
-      breadcrumbList.value = [rootItem, ...path, recordItem]
-    } else {
-      // Fallback if table not found in menu
-      const recordItem: BreadcrumbItem = {
-        label: recordTitle.value || `Record`,
-        params: {
-          detailId: null,
-          detailType: 'record',
-          pageType: 'detail'
-        },
-        isFolder: false,
-        isRecord: true,
-        itemId: recordId
-      }
-      breadcrumbList.value = [rootItem, recordItem]
+    ]
+  } else {
+    breadcrumbList.value = [rootItem, ...path]
+  }
+}
+/**
+ * 在树形菜单中根据节点 id 或 item_id 查找节点
+ */
+function findMenuNodeByIdOrItemId(nodes: MenuDTO[], idOrItemId: string): MenuDTO | undefined {
+    for (const node of nodes) {
+        if (node.id === idOrItemId || node.item_id === idOrItemId) return node;
+        const found = node.children?.length
+            ? findMenuNodeByIdOrItemId(node.children, idOrItemId)
+            : undefined;
+        if (found) return found;
     }
-    return
-  }
-
-  if (workspaceRouteParams.value.detailType === 'root' || !workspaceRouteParams.value.detailId) {
-    breadcrumbList.value = [rootItem]
-    return
-  }
-
-  // Build path to current item
-  const path: BreadcrumbItem[] = []
-  findPathToItem(menuState.value.items, workspaceRouteParams.value.detailId, path)
-
-  breadcrumbList.value = [rootItem, ...path]
+    return undefined;
 }
 
 /**
- * Find menu item by table ID (itemId)
+ * 在树形菜单中查找从根到目标 itemId 的路径，并转换为面包屑项
+ * @param items - 菜单树（根级 MenuDTO 数组）
+ * @param itemId - 目标节点 ID（菜单节点 id），为 null 时返回空路径（仅 root）
+ * @returns 从根到目标节点（含）的 BreadcrumbItem 数组
  */
-function findTableMenuItemById(items: TreeItem[], tableId: string): TreeItem | undefined {
-  for (const item of items) {
-    if (item.itemType === 'table' && item.itemId === tableId) {
-      return item
+function getFullPathFromMenuItems(items: MenuDTO[], itemId: string | null): BreadcrumbItem[] {
+    if (!itemId) return [];
+
+    const path: MenuDTO[] = [];
+
+    function findPath(nodes: MenuDTO[], targetId: string): boolean {
+        for (const node of nodes) {
+            path.push(node);
+            if (node.id === targetId) return true;
+            if (node.children?.length && findPath(node.children, targetId)) return true;
+            path.pop();
+        }
+        return false;
     }
-    if (item.children && item.children.length > 0) {
-      const found = findTableMenuItemById(item.children, tableId)
-      if (found) return found
-    }
-  }
-  return undefined
+
+    if (!findPath(items, itemId)) return [];
+
+    return path.map((node) => menuNodeToBreadcrumbItem(node));
 }
 
-/**
- * Load record title from database
- */
-async function loadRecordTitle(tableId: string, recordId: string) {
-  try {
-    // Get table info to find physical table name
-    const tableData = await query<CaseTableRecord>(
-      `SELECT * FROM case_tables WHERE id = $1`,
-      [tableId]
-    )
-    
-    if (tableData.length === 0) {
-      recordTitle.value = `Record ${recordId.slice(0, 8)}...`
-      return
-    }
-    
-    const table = tableData[0]
-    const physicalTableName = table.tableName
-    
-    // Get record data
-    const records = await query<Record<string, any>>(
-      `SELECT * FROM "${physicalTableName}" WHERE id = $1`,
-      [recordId]
-    )
-    
-    if (records.length === 0) {
-      recordTitle.value = `Record ${recordId.slice(0, 8)}...`
-      return
-    }
-    
-    const record = records[0]
-    
-    // Try to find a suitable title field
-    // First try common title field names
-    const titleFieldNames = ['name', 'title', 'label', 'subject', 'display_name']
-    for (const fieldName of titleFieldNames) {
-      if (record[fieldName] && typeof record[fieldName] === 'string') {
-        recordTitle.value = record[fieldName]
-        return
-      }
-    }
-    
-    // Otherwise use the first non-id string field
-    for (const [key, value] of Object.entries(record)) {
-      if (key !== 'id' && typeof value === 'string' && value.length > 0 && !key.startsWith('_')) {
-        recordTitle.value = value.length > 50 ? value.slice(0, 50) + '...' : value
-        return
-      }
-    }
-    
-    // Fallback to truncated ID
-    recordTitle.value = `Record ${recordId.slice(0, 8)}...`
-  } catch (error) {
-    console.error('Error loading record title:', error)
-    recordTitle.value = `Record ${recordId.slice(0, 8)}...`
-  }
+/** 将 MenuDTO 转为 BreadcrumbItem，用于面包屑与下拉 */
+function menuNodeToBreadcrumbItem(node: MenuDTO): BreadcrumbItem {
+    const detailType = mapItemTypeToDetailType(node.item_type);
+    const label = node.name ?? node.id ?? '';
+    return {
+        label,
+        name: label,
+        params: {
+            detailId: node.id ?? null,
+            detailType,
+            pageType: 'detail'
+        },
+        isFolder: node.item_type === 'folder',
+        isRecord: false,
+        children: node.children as TreeItem[] | undefined,
+        itemId: node.item_id ?? null
+    };
 }
 
+/** API item_type 映射为 WorkspaceRouteParams.detailType */
+function mapItemTypeToDetailType(itemType?: string): WorkspaceRouteParams['detailType'] {
+    switch (itemType) {
+        case 'folder':
+            return 'folder';
+        case 'master_table':
+            return 'table';
+        case 'view':
+            return 'view';
+        case 'dashboard':
+            return 'dashboard';
+        default:
+            return 'folder';
+    }
+}
 function handleBreadcrumbClick(item: BreadcrumbItem) {
   // Clear record title when navigating away
   recordTitle.value = ''
@@ -319,7 +245,7 @@ watch(
                     <el-icon v-else-if="child.itemType === 'dashboard'" class="dashboard-icon">
                       <DataAnalysis />
                     </el-icon>
-                    <span class="dropdown-label">{{ child.label }}</span>
+                    <span class="dropdown-label">{{ child.name }}</span>
                     <span v-if="child.children && child.children.length > 0" class="dropdown-child-count"> ({{ child.children.length }}) </span>
                   </div>
                 </el-dropdown-item>
@@ -345,13 +271,13 @@ watch(
             @click="handleBreadcrumbClick(item)"
             @keydown.enter="handleBreadcrumbClick(item)"
           >
-            {{ item.label }}
+            {{ item.name }}
           </span>
 
           <!-- Current (last) item - not clickable -->
           <span v-else class="breadcrumb-current" :class="{ 'is-record': item.isRecord }">
             <el-icon v-if="item.isRecord" class="record-icon"><Document /></el-icon>
-            {{ item.label }}
+            {{ item.name }}
           </span>
         </el-breadcrumb-item>
       </el-breadcrumb>

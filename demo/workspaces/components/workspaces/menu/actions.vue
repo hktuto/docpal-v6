@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { TreeItem, CaseTreeItemType } from '../../../composables/useSingleWorkspace'
-import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspace'
+import type { TreeItem, CaseTreeItemType } from '../../../composables/workspace/useSingleWorkspace'
+import { useSingleWorkspaceContext } from '../../../composables/workspace/useSingleWorkspace'
 import { ElMessageBox } from 'element-plus'
 import type { ViewType, ViewSettings } from '../../../utils/db/schema/newTableSchema'
 const targetRef = ref()
@@ -35,14 +35,14 @@ async function handleEdit() {
 async function handleDelete() {
   if (!item.value) return
   // Customize message based on item type
-  let message = `Are you sure you want to delete "${item.value.label}"?`
+  let message = `Are you sure you want to delete "${item.value.name}"?`
   let confirmText = 'Delete'
 
-  if (item.value?.itemType === 'table') {
-    message = `Are you sure you want to delete the table "${item.value.label}"?\n\nThis will permanently delete:\n• The physical database table\n• All fields\n• All data records\n\nThis action cannot be undone.`
+  if (item.value?.itemType === 'master_table') {
+    message = `Are you sure you want to delete the table "${item.value.name}"?\n\nThis will permanently delete:\n• The physical database table\n• All fields\n• All data records\n\nThis action cannot be undone.`
     confirmText = 'Delete Table'
   } else if (item.value?.itemType === 'folder' && item.value?.children && item.value?.children.length > 0) {
-    message = `Are you sure you want to delete the folder "${item.value.label}" and all its contents?`
+    message = `Are you sure you want to delete the folder "${item.value.name}" and all its contents?`
   }
 
   ElMessageBox.confirm(message, 'Delete Item', {
@@ -131,7 +131,7 @@ defineExpose({ open, close })
           <Icon name="material-symbols:folder-outline" />
           <span>Add Folder</span>
         </div>
-        <div class="action-item" @click="handleAddItem('table')">
+        <div class="action-item" @click="handleAddItem('master_table')">
           <Icon name="material-symbols:table-outline" />
           <span>Add Table</span>
         </div>
@@ -167,7 +167,7 @@ defineExpose({ open, close })
             <Icon name="material-symbols:folder-outline" />
             <span>Add Folder</span>
           </div>
-          <div class="action-item" @click="handleAddItem('table')">
+          <div class="action-item" @click="handleAddItem('master_table')">
             <Icon name="material-symbols:table-outline" />
             <span>Add Table</span>
           </div>
@@ -185,8 +185,8 @@ defineExpose({ open, close })
             <span>Import from Excel</span>
           </div>
         </template>
-        <template v-if="item.itemType === 'table'">
-          <div class="action-item" @click="handleEditSetting('table')">
+        <template v-if="item.itemType === 'master_table'">
+          <div class="action-item" @click="handleEditSetting('master_table')">
             <Icon name="material-symbols:settings-outline" />
             <span>Table Settings</span>
           </div>

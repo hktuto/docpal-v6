@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { useSingleWorkspaceContext } from '../../../../../composables/useSingleWorkspace'
+import { useSingleWorkspaceContext } from '../../../../../composables/workspace/useSingleWorkspace'
 
 const { workspace, saveWorkspaceToDb } = useSingleWorkspaceContext()
 

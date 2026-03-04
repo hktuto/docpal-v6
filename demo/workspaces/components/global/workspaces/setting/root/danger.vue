@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { useSingleWorkspaceContext } from '../../../../../composables/useSingleWorkspace'
 
 const { workspace } = useSingleWorkspaceContext()
 const router = useRouter()

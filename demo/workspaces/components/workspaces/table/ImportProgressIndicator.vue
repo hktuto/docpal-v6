@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { importQueueState, useImportQueue, type ImportReport, type ImportJob } from '../../../composables/useImportQueue'
+import { importQueueState, useImportQueue, type ImportReport, type ImportJob } from '../../../composables/import/useImportQueue'
 import type { AnalysisResult } from '../../../composables/useRelationAnalyzer'
 import { ElMessage } from 'element-plus'
 const emit = defineEmits<{

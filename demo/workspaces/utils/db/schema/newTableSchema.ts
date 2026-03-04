@@ -10,7 +10,7 @@ import { view } from 'drizzle-orm/sqlite-core'
 /**
  * Item types for the case tree navigation
  */
-export type CaseTreeItemType = 'folder' | 'table' | 'view' | 'dashboard'
+export type CaseTreeItemType = 'folder' | 'master_table' | 'view' | 'dashboard'
 
 /**
  * Status for tables
@@ -141,13 +141,13 @@ export const caseType = pgTable('case_type', {
 
 export const caseTree = pgTable('case_tree', {
   id: uuid('id').primaryKey().defaultRandom(),
-  entityId: uuid('entityId').references(() => caseType.id),
+  reference_entity_id: uuid('reference_entity_id').references(() => caseType.id),
   label: text('label').notNull(),
   slug: text('slug').notNull(),
   description: text('description'),
-  itemType: text('itemType').$type<CaseTreeItemType>().notNull().default('folder'),
+  item_type: text('item_type').$type<CaseTreeItemType>().notNull().default('folder'),
   itemId: text('itemId'),
-  parentId: uuid('parentId'),
+  parent_id: uuid('parent_id'),
   order: integer('order').notNull().default(0),
   createdBy: uuid('createdBy').references(() => users.id),
   createdAt: timestamp('createdAt').notNull().defaultNow(),
@@ -162,7 +162,7 @@ export const caseTable = pgTable('case_tables', {
   description: text('description'),
   tableName: text('tableName').notNull().unique(),
   viewName: uuid('viewName'),
-  entityId: uuid('entityId')
+  reference_entity_id: uuid('reference_entity_id')
     .notNull()
     .references(() => caseType.id),
   formStructure: jsonb('formStructure').$type<FormStructure>(),
@@ -218,7 +218,7 @@ export const caseView = pgTable('case_views', {
     .notNull()
     .references(() => caseTable.id),
   isDefault: boolean('isDefault').notNull().default(false),
-  entityId: uuid('entityId')
+  reference_entity_id: uuid('reference_entity_id')
     .notNull()
     .references(() => caseType.id),
   fields: text('fields').array().notNull().default([]),
@@ -290,7 +290,7 @@ export const auditLog = pgTable('audit_logs', {
   rollbackAuditId: uuid('rollbackAuditId'), // Reference to the audit log that rolled this back
   
   // Context
-  entityId: uuid('entityId').references(() => caseType.id), // Workspace context
+  reference_entity_id: uuid('reference_entity_id').references(() => caseType.id), // Workspace context
   caseTableId: uuid('caseTableId').references(() => caseTable.id), // For dynamic table changes
   
   // Metadata

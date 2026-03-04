@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import type { TreeItem } from '../../../composables/useSingleWorkspace'
-import { useSingleWorkspaceContext } from '../../../composables/useSingleWorkspace'
-import draggable from 'vuedraggable'
+import type { TreeItem } from '../../../composables/workspace/useSingleWorkspace'
+import { useSingleWorkspaceContext } from '../../../composables/workspace/useSingleWorkspace'
+import type { ElTree } from 'element-plus'
+import { newClientApi } from 'api'
+import { ElMessage } from 'element-plus'
 
 interface Props {
   modelValue: TreeItem[]
@@ -13,7 +15,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   level: 0,
   parentId: null,
-  isAdmin: true,
+  isAdmin: true
 })
 
 const emit = defineEmits<{
@@ -22,146 +24,122 @@ const emit = defineEmits<{
 
 const menuContext = useSingleWorkspaceContext()
 
-// Local copy that vuedraggable can mutate
-const localItems = ref<TreeItem[]>([...props.modelValue])
+const treeRef = ref<InstanceType<typeof ElTree>>()
 
-// Track if we're syncing from props to prevent emit loop
-const isSyncingFromProps = ref(false)
-
-// Helper to compare arrays
-function areItemsEqual(a: TreeItem[], b: TreeItem[]): boolean {
-  return JSON.stringify(a) === JSON.stringify(b)
+const treeProps = {
+  label: 'name',
+  children: 'children'
 }
 
-// Sync from parent when props change (but not during drag)
-watch(() => props.modelValue, (newItems) => {
-  if (menuContext.menuState.value.isDragging) {
-    return
+// 深拷贝树节点（不含 children 引用），用于拖拽后生成新树
+function cloneTreeNode(node: TreeItem): TreeItem {
+  const { children, ...rest } = node
+  const cloned: TreeItem = { ...rest } as TreeItem
+  if (children && children.length > 0) {
+    cloned.children = children.map(cloneTreeNode)
   }
-  
-  // Skip if items are the same (prevents unnecessary updates)
-  if (areItemsEqual(localItems.value, newItems)) {
-    return
-  }
-  
-  isSyncingFromProps.value = true
-  localItems.value = [...newItems]
-  nextTick(() => {
-    isSyncingFromProps.value = false
-  })
-}, { deep: true })
-
-// Emit changes when local items change (but not when syncing from props)
-watch(localItems, (newItems) => {
-  // Skip emit if we're just syncing from props
-  if (isSyncingFromProps.value) {
-    return
-  }
-  
-  // Skip if items are the same as props (no real change)
-  if (areItemsEqual(newItems, props.modelValue)) {
-    return
-  }
-  
-  emit('update:modelValue', [...newItems])
-}, { deep: true })
-
-// Handle drag start
-function handleDragStart() {
-  menuContext.menuState.value.isDragging = true
+  return cloned
 }
 
-// Handle drag end
-function handleDragEnd() {
-  menuContext.menuState.value.isDragging = false
+
+// 在树中查找节点所在父级与下标（父为 null 表示根）
+function findParentAndIndex(items: TreeItem[], nodeId: string, parent: TreeItem[] | null = null): { parentList: TreeItem[]; index: number } | null {
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].id === nodeId) {
+      return { parentList: parent || items, index: i }
+    }
+    const child = items[i].children
+    if (child?.length) {
+      const found = findParentAndIndex(child, nodeId, child)
+      if (found) return found
+    }
+  }
+  return null
 }
 
-// Handle child folder items change (v-model from nested list)
-function handleChildUpdate(folderId: string, newChildren: TreeItem[]) {
-  const index = localItems.value.findIndex(item => item.id === folderId)
-  if (index !== -1) {
-    const item = localItems.value[index]
-    localItems.value[index] = {
-      ...item,
-      children: newChildren,
-    } as TreeItem
+// 在树中查找节点的父节点 id（根节点返回 null，未找到返回 undefined）
+function findParentId(items: TreeItem[], nodeId: string, parentId: string | null = null): string | null | undefined {
+  for (const item of items) {
+    if (item.id === nodeId) return parentId
+    if (item.children?.length) {
+      const found = findParentId(item.children, nodeId, item.id)
+      if (found !== undefined) return found
+    }
+  }
+  return undefined
+}
+
+// 获取节点在父级中的下一个兄弟节点 id（无则返回 undefined）
+function getNextSiblingId(items: TreeItem[], nodeId: string): string | undefined {
+  const pos = findParentAndIndex(items, nodeId)
+  if (!pos) return undefined
+  const { parentList, index } = pos
+  const next = parentList[index + 1]
+  return next?.id
+}
+
+async function handleNodeDrop(draggingNode: { data: TreeItem; key: string }, dropNode: { data: TreeItem; key: string }, dropType: 'inner' | 'prev' | 'next', event: Event) {
+  console.log('handleNodeDrop', draggingNode, dropNode, dropType, event)
+  return
+  const moveId = draggingNode.data.id
+  let moveToParentId: string | null
+  let insertBeforeMenuId: string | undefined
+
+  moveToParentId = dropNode.data.id
+
+  insertBeforeMenuId = getNextSiblingId(dropNode.parent.data, dropNode.data.id)
+
+  const body: { move_to_parent_id?: string | null; insert_before_menu_id?: string } = {
+    move_to_parent_id: moveToParentId ?? null
+  }
+  if (insertBeforeMenuId !== undefined) {
+    body.insert_before_menu_id = insertBeforeMenuId
+  }
+
+  try {
+    await newClientApi.putDynamicDbMenusIdMove(moveId, body)
+    ElMessage.success('菜单已移动')
+  } catch (err: any) {
+    console.error('move menu failed', err)
+    await menuContext.getMenuFromDb()
+    ElMessage.error(err?.message ?? '移动菜单失败')
   }
 }
 
-// Check if folder is expanded
-function isExpanded(itemId: string): boolean {
-  return menuContext.menuState.value.expandedFolders.has(itemId)
+function allowDrop(_draggingNode: any, dropNode: any, _type: string) {
+  return dropNode?.data?.item_type === 'folder'
 }
 </script>
 
 <template>
-  <draggable
-    v-model="localItems"
-    :disabled="!isAdmin"
-    item-key="id"
-    class="draggable-list"
+  <el-tree
+    ref="treeRef"
+    :data="modelValue"
+    :props="treeProps"
+    node-key="id"
+    default-expand-all
+    :draggable="isAdmin"
+    :allow-drop="allowDrop"
+    :allow-drag="isAdmin"
+    :expand-on-click-node="false"
+    class="menu-tree"
     :class="{ [`level-${level}`]: true }"
-    group="menu-items"
-    ghost-class="ghost"
-    drag-class="dragging"
-    handle=".drag-handle"
-    :animation="200"
-    @start="handleDragStart"
-    @end="handleDragEnd"
+    @node-drop="handleNodeDrop"
   >
-    <template #item="{ element, index }">
-      <div class="draggable-item">
-        <!-- Menu Item -->
-        <WorkspacesMenuItem
-          :item="element"
-          :is-admin="isAdmin"
-        />
-
-        <!-- Nested Children (if folder and expanded) -->
-        <div
-          v-if="element.itemType === 'folder' && isExpanded(element.id)"
-          class="nested-children"
-        >
-          <WorkspacesMenuDraggableList
-            :model-value="element.children || []"
-            :level="level + 1"
-            :parent-id="element.id"
-            :is-admin="isAdmin"
-            @update:model-value="(children: TreeItem[]) => handleChildUpdate(element.id, children)"
-          />
-        </div>
-      </div>
+    <template #default="{ node, data }">
+      <WorkspacesMenuItem :item="data" :is-admin="isAdmin" />
     </template>
-  </draggable>
+  </el-tree>
 </template>
 
 <style scoped lang="scss">
-.draggable-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
+.menu-tree {
+  background: transparent;
 
-.draggable-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.nested-children {
-  padding-left: var(--app-space-s);
-  margin-top: 2px;
-}
-
-// Drag states
-:deep(.ghost) {
-  opacity: 0.5;
-  background: var(--el-color-primary-light-9);
-  border: 1px dashed var(--el-color-primary);
-  border-radius: var(--app-border-radius-s);
-}
-
-:deep(.dragging) {
-  opacity: 0.8;
-  transform: rotate(2deg);
+  :deep(.el-tree-node__content) {
+    height: auto;
+    min-height: 32px;
+    padding: 0;
+  }
 }
 </style>

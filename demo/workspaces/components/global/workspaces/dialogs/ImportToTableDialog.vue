@@ -325,13 +325,6 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
 import type { CaseFieldRecord } from '../../../../utils/db/schema/newTableSchema'
-import {
-  useImportToTable,
-  isExcelFile,
-  type SheetInfo,
-  type ColumnMapping,
-  type ImportResult
-} from '../../../../composables/useImportToTable'
 
 const emit = defineEmits<{
   complete: [result: ImportResult]

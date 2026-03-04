@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import type { PermissionRole, PermissionWithUser } from '../../../composables/usePermission'
-import { usePermission } from '../../../composables/usePermission'
-import type { TreeItem } from '../../../composables/useSingleWorkspace'
-
 import { ElMessage, ElMessageBox } from 'element-plus'
 interface Props {
   itemId: string

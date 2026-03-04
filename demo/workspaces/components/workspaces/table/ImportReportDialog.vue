@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ImportReport, ImportJob, ImportRowError } from '../../../composables/useImportQueue'
+import type { ImportReport, ImportJob, ImportRowError } from '../../../composables/import/useImportQueue'
 import { formatErrorForDisplay, generateErrorSummary, type ParsedImportError } from '../../../utils/importErrorParser'
 
 const dialogVisible = ref(false)
