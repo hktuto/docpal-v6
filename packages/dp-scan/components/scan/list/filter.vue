@@ -80,7 +80,7 @@ const search = useDebounceFn(() => {
   emit('search', filter)
 }, 500)
 
-watch(filter, search, { deep: true })
+watchThrottled(filter, search, { throttle: 300 })
 </script>
 
 <template>

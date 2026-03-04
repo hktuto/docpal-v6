@@ -1,9 +1,6 @@
 export default defineAppConfig({
   appMenu: [
     {
-      name: 'client-scan'
-    },
-    {
       name: 'client-work-panel',
       children: [
         {
@@ -11,7 +8,9 @@ export default defineAppConfig({
         }
       ]
     },
-
+    {
+      name: 'client-scan'
+    },
     // browse
     {
       name: 'client-browse',
@@ -39,21 +38,21 @@ export default defineAppConfig({
     {
       name: 'client-search'
     },
-    {
-      label: 'share.share',
-      icon: 'lucide:share-2',
-      children: [
-        {
-          name: 'client-share'
-        },
-        {
-          name: 'client-share-me'
-        },
-        {
-          name: 'client-share-other'
-        }
-      ]
-    },
+    // {
+    //   label: 'share.share',
+    //   icon: 'lucide:share-2',
+    //   children: [
+    //     {
+    //       name: 'client-share'
+    //     },
+    //     {
+    //       name: 'client-share-me'
+    //     },
+    //     {
+    //       name: 'client-share-other'
+    //     }
+    //   ]
+    // },
     {
       name: 'client-trash'
     },
@@ -64,18 +63,18 @@ export default defineAppConfig({
     {
       name: 'client-workflow'
     },
-    {
-      label: 'client_retention_item',
-      icon: 'ic:outline-lock-clock',
-      children: [
-        {
-          name: 'client-retention'
-        },
-        {
-          name: 'client-holdPolicies'
-        }
-      ]
-    },
+    // {
+    //   label: 'client_retention_item',
+    //   icon: 'ic:outline-lock-clock',
+    //   children: [
+    //     {
+    //       name: 'client-retention'
+    //     },
+    //     {
+    //       name: 'client-holdPolicies'
+    //     }
+    //   ]
+    // },
     {
       name: 'client-case-manage'
     },
@@ -100,9 +99,6 @@ export default defineAppConfig({
     }
   ],
   adminMenu: [
-    {
-      name: 'admin-scan'
-    },
     {
       name: '',
       icon: 'tabler:align-box-right-bottom',
