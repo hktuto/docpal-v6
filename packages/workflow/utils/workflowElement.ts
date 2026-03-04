@@ -361,7 +361,10 @@ const workflowCellElementTemplate: CellTypeItem = {
       ]
     },
     data: {
-
+      id:'',
+      name:'New User Task',
+      type: 'UserTask',
+      assignee: '',
     }
   },
   SignatureTask: {
@@ -399,7 +402,10 @@ export const workflowCellElement = {
     const id = `New_${key}_${Date.now()}`
     return {
       ...workflowCellElementTemplate[key],
-      id: `New_${key}_${Date.now()}`
+      id: id,
+      data: {
+        id: id
+      }
     } as CellTypeItem[K]
   }
 }

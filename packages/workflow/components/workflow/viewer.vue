@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { ref, BPMN_PROVIDER, provide, workflowJsonToX6Node } from '#imports'
-import { Graph } from '@antv/x6'
-import type { Node } from '@antv/x6'
+import { workflowJsonToX6Node, WORKFLOW_PROVIDER } from '#imports'
+import { Graph, type Node } from '@antv/x6'
 import { DagreLayout } from '@antv/layout'
 
 const containerEl = ref()
@@ -26,41 +25,45 @@ function init(workflowJson: any) {
   }
 
   // step 4 - init graph
-  const graphOptions = Object.assign({
-    container: containerEl.value,
-    grid: {
-      visible: true,
-      type: 'mesh',
-      args: {
-        color: '#eee',
-        thickness: 1
-      }
+  const graphOptions = Object.assign(
+    {
+      container: containerEl.value,
+      grid: {
+        visible: true,
+        type: 'mesh',
+        args: {
+          color: '#eee',
+          thickness: 1
+        }
+      },
+      scaling: {
+        min: 0.005,
+        max: 2
+      },
+      background: {
+        color: 'var(--app-grey-9000)'
+      },
+      autoResize: true,
+      panning: {
+        enabled: true,
+        eventTypes: ['leftMouseDown', 'mouseWheel']
+      },
+      embedding: {
+        enabled: false
+      },
+      mousewheel: {
+        enabled: true,
+        factor: 1.05,
+        modifiers: ['ctrl', 'meta']
+      },
+      connecting: {
+        connector: 'rounded',
+        allowMulti: false
+      },
+      interacting: false
     },
-    scaling: {
-      min: 0.005, max: 2
-    },
-    background: {
-      color: 'var(--app-grey-9000)'
-    },
-    autoResize: true,
-    panning: {
-      enabled: true,
-      eventTypes: ['leftMouseDown', 'mouseWheel']
-    },
-    embedding: {
-      enabled: false
-    },
-    mousewheel: {
-      enabled: true,
-      factor: 1.05,
-      modifiers: ['ctrl', 'meta']
-    },
-    connecting: {
-      connector: 'rounded',
-      allowMulti: false
-    },
-    interacting: false
-  }, options)
+    options
+  )
   graph.value = new Graph({
     container: containerEl,
     ...graphOptions
@@ -110,7 +113,6 @@ function dim(cellIds: string[]) {
             if (!cellIds.includes(connectedEdge.target.cell)) {
               isAllConnectedNodeDone = false
             }
-
           } else if (connectedEdge.target.cell === node.id) {
             if (!cellIds.includes(connectedEdge.source.cell)) {
               isAllConnectedNodeDone = false
@@ -127,7 +129,6 @@ function dim(cellIds: string[]) {
           node.attr('body/stroke', '#ccc')
         }
       } else {
-
         node.attr('body/fill', '#ccc')
         node.attr('body/stroke', '#ccc')
         // dim connection
@@ -152,13 +153,12 @@ function dim(cellIds: string[]) {
       })
     }
   })
-
 }
 
 function highlightCell(cellIds: string[], allNodes: string[]) {
   dim(allNodes)
   if (cellIds && cellIds.length > 0) {
-    cellIds.forEach(id => {
+    cellIds.forEach((id) => {
       const node: any = graph.value?.getCellById(id)
       const view = graph.value?.findView(node)
       view?.highlight(null, {
@@ -177,9 +177,7 @@ function highlightCell(cellIds: string[], allNodes: string[]) {
         // check if edge source is exclusive gateway or boundary event
         const sourceNode = graph.value?.getCellById(edge.source.cell)
         const targetNode = graph.value?.getCellById(edge.target.cell)
-        if (
-          sourceNode?.data.type === 'exclusiveGateway' ||
-          sourceNode?.data.type === 'boundaryEvent') {
+        if (sourceNode?.data.type === 'exclusiveGateway' || sourceNode?.data.type === 'boundaryEvent') {
           // find edge connected to this source
           const allNodeConnectedToExclusiveGateway = graph.value?.getConnectedEdges(sourceNode)
           allNodeConnectedToExclusiveGateway?.forEach((connectedEdge: any) => {
@@ -191,9 +189,7 @@ function highlightCell(cellIds: string[], allNodes: string[]) {
               }
             }
           })
-
-        } else if (targetNode?.data.type === 'exclusiveGateway' ||
-          targetNode?.data.type === 'boundaryEvent') {
+        } else if (targetNode?.data.type === 'exclusiveGateway' || targetNode?.data.type === 'boundaryEvent') {
           // if sourceNode is include in allNodes
           const allNodeConnectedToExclusiveGateway: any = graph.value?.getConnectedEdges(targetNode)
           allNodeConnectedToExclusiveGateway.forEach((connectedEdge: any) => {
@@ -207,7 +203,6 @@ function highlightCell(cellIds: string[], allNodes: string[]) {
           })
         }
       })
-
     })
   }
 }
@@ -243,13 +238,22 @@ function fitIn() {
 
 const allFormField = ref({})
 
-provide(BPMN_PROVIDER, {
+function handleSave() {
+  try {
+    let nodes = graph.value?.getNodes()
+    console.log(123, nodes)
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+provide(WORKFLOW_PROVIDER, {
   init,
   graph,
   graphJson,
   flatGraphObject,
   allFormField,
-  key: Symbol('BPMN_PROVIDER_KEY')
+  key: Symbol('WORKFLOW_PROVIDER_KEY')
 })
 
 defineExpose({
@@ -261,11 +265,11 @@ defineExpose({
   highlightCell,
   dim
 })
-
 </script>
 
 <template>
   <div class="bpmnViewerContainer">
+    <el-button @click="handleSave">Save</el-button>
     <div class="bpmnGraphContainer" ref="containerEl"></div>
     <slot />
   </div>

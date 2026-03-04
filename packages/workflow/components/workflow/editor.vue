@@ -5,16 +5,18 @@ import { Selection } from '@antv/x6-plugin-selection'
 import { Dnd } from '@antv/x6-plugin-dnd'
 import { History } from '@antv/x6-plugin-history'
 import { workflowCellElement, workflowElement } from '../../utils/workflowElement'
+import { WORKFLOW_EDITOR_PROVIDER } from '#imports'
 
 const viewerRef = ref()
 const graphOptions = ref()
 const sidebarRef = ref()
 const ready = ref()
 const readonly = ref(false)
+const variables = ref({})
 
 // const { readonly } = toRefs()
-const nodeEl = ref()
-const edgeEl = ref()
+const nodeRef = ref()
+const edgeRef = ref()
 const graph = ref()
 const dnd = ref()
 
@@ -62,6 +64,8 @@ function init(workflowJson: any) {
       }
     }
   }
+  variables.value = workflowJson.variables
+
   nextTick(() => {
     viewerRef.value?.init(workflowJson)
   })
@@ -78,7 +82,6 @@ const dropActionsItems = computed(() => {
 
 function itemDrop(item: any, ev: any) {
   if (readonly.value) return
-  console.log(222, item, ev)
   const newData = workflowCellElement.getCellItem(item.id)
   const newNode = graph.value.createNode(newData)
   dnd.value.options.getDragNode = (node: Node) => node
@@ -127,9 +130,25 @@ function graphReady() {
   })
 }
 
-function openInfo() {}
+function openSidebar(component: string, node: Node | Edge | Cell) {
+  sidebarRef.value.openSidebar(component, node)
+}
+
+function openForm() {
+
+}
+
+function openInfo() {
+  sidebarRef.value.openInfo()
+}
 
 function openPermission() {}
+
+provide(WORKFLOW_EDITOR_PROVIDER, {
+  openSidebar,
+  variables,
+  readonly
+})
 
 defineExpose({ init })
 </script>
@@ -150,17 +169,9 @@ defineExpose({ init })
           </div>
         </div>
       </div>
-      <!--      <WorkflowSidebar ref="sidebarRef" />-->
-      <!--      <BpmnEdge v-if="ready" ref="edgeEl" />-->
-      <!--      <BpmnNode v-if="ready" ref="nodeEl" @openForm="openForm" />-->
-      <!--      <BpmnXmlEditor-->
-      <!--        v-if="ready"-->
-      <!--        ref="xmlEl"-->
-      <!--        :bpmnXml="bpmn"-->
-      <!--        :readonly="readonly"-->
-      <!--        @save="handleXmlSave"-->
-      <!--        @refresh="handleXmlRefresh"-->
-      <!--      />-->
+      <WorkflowSidebar ref="sidebarRef" />
+      <!--            <WorkflowEdge v-if="ready" ref="edgeRef" />-->
+      <WorkflowNode v-if="ready" ref="nodeRef" @openForm="openForm" />
     </WorkflowViewer>
   </div>
 </template>

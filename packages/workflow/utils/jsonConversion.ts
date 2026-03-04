@@ -89,7 +89,16 @@ interface WorkflowJson {
   metadata: MetadataDetails
 }
 
-export const x6NodeToWorkflowJson = function (x6NodeJson: any) {}
+export const x6NodeToWorkflowJson = function (x6NodeJson: any) {
+  const workflowJson = {
+    id:'',
+    name: '',
+    type:''
+  }
+
+
+  return workflowJson
+}
 
 export const workflowJsonToX6Node = function (workflowJson: WorkflowJson) {
   const cells: any = []

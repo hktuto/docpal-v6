@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import type { Node, Edge, Cell } from '@antv/x6'
+import { WORKFLOW_PROVIDER, WORKFLOW_EDITOR_PROVIDER } from '#imports'
 
 const opened = ref(false)
 const editComponent = ref()
 const selectedNode = ref()
 
-const graphProvider = inject(BPMN_PROVIDER)
-const editorProvider = inject(EDITOR_PROVIDER)
+const graphProvider = inject(WORKFLOW_PROVIDER)
+const editorProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 const activeTab = ref('properties')
 if (!graphProvider || !editorProvider) {
   throw createError('graph provider not found')
@@ -15,16 +16,17 @@ if (!graphProvider || !editorProvider) {
 function openInfo() {
   console.log('open Info in sidebar')
   // get process node
-  const id = graphProvider?.bpmnJson.value.definitions.process.attr_id
-  const cell = graphProvider?.graph.value?.getCellById(id)
+  const id = graphProvider?.graphJson.value.id
+  const cell = graphProvider?.graph.value?.getCellById("start_po")
   if (!cell) {
     throw createError('Process node not found')
   }
-  openSidebar('LazyBpmnContextInfo', cell)
+
+  openSidebar('LazyWorkflowContextInfo', cell)
 }
 
 function openPermission() {
-  const id = graphProvider?.bpmnJson.value.definitions.process.attr_id
+  const id = graphProvider?.graphJson.value.id
   const cell = graphProvider?.graph.value?.getCellById(id)
   if (!cell) {
     throw createError('Process node not found')
@@ -53,7 +55,7 @@ defineExpose({
 </script>
 
 <template>
-  <div :class="{contextHandler:true, opened}">
+  <div :class="{ contextHandler: true, opened }">
     <div class="propertiesHeader" @click="opened = false">
       <Icon name="lucide:settings-2" />
       Properties
@@ -84,7 +86,7 @@ defineExpose({
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
   transform: translateX(100%);
-  transition: all .2s ease-in-out;
+  transition: all 0.2s ease-in-out;
   display: grid;
   grid-template-rows: min-content 1fr;
   gap: var(--app-space-xs);
