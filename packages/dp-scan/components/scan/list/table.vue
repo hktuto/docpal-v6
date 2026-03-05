@@ -24,6 +24,7 @@ async function cancelBatchs(ids: string[]) {
   if (!batchIds || batchIds.length === 0) return
   await clientApi.api.postCaptureBatchCancel({ batchIds })
   routerProvider?.message.success('Batch cancelled successfully')
+  cleanSelectedRows()
 }
 
 const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeTable({

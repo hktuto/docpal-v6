@@ -27,7 +27,7 @@ const canDownload = computed(() => {
       <el-button type="text" @click="$emit('cancel')">Clear</el-button>
     </div>
     <div class="right">
-      <el-button :type="canCancel ? 'error' : 'info'" :disabled="!canCancel" @click="$emit('batchCancel')">Batch Cancel</el-button>
+      <el-button :type="canCancel ? 'warning' : 'info'" :disabled="!canCancel" @click="$emit('batchCancel')">Batch Cancel</el-button>
       <el-button :type="canDownload ? 'primary' : 'info'" :disabled="!canDownload" @click="$emit('batchExport')">Batch Export</el-button>
     </div>
   </div>
@@ -37,7 +37,7 @@ const canDownload = computed(() => {
 .multiple-selected {
   width: 100%;
   padding: var(--app-space-xs) var(--app-space-s);
-  background-color: var(--app-info-alpha-30);
+  background-color: #eee;
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;

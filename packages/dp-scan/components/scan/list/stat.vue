@@ -5,12 +5,12 @@ const { projects } = useScanClient()
 const stat = ref()
 const getStats = async () => {
   const { data } = (await clientApi.api.postCaptureBatchStatusCount({
-    projectId: projects.value
+    projectId: projects.value.map((project) => project.id)
   })) as any
   stat.value = data
 }
 onMounted(() => {
-  // getStats()
+  getStats()
 })
 </script>
 
