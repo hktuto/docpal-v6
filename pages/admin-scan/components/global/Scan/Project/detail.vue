@@ -54,7 +54,7 @@ watch(
     </div>
     <ElSplitter>
       <ElSplitterPanel size="200px" min="120">
-        <ScanProjectLifo :info="projectDetail" />
+        <ScanProjectInfo :info="projectDetail" @updated="getProjetDetail" />
       </ElSplitterPanel>
       <ElSplitterPanel> </ElSplitterPanel>
       <ElSplitterPanel size="200px">
