@@ -8,7 +8,7 @@ if (!routerProvider) {
   throw new Error('MenuRouterKey not found')
 }
 const selectedRow = ref<any[]>([])
-const { filter } = useScanClient()
+const { filter, projects } = useScanClient()
 
 function cleanSelected() {
   console.log('clear selected')
@@ -18,14 +18,13 @@ function cleanSelected() {
 async function batchExport(ids: string[]) {
   const batchIds = ids ? ids : selectedRow.value.map((row) => row.id)
   if (!batchIds || batchIds.length === 0) return
-  console.log('batch export ids', batchIds)
-  routerProvider.message.info('Waiting Api to be ready')
+  routerProvider?.message.info('Waiting Api to be ready')
 }
 async function cancelBatchs(ids: string[]) {
   const batchIds = ids ? ids : selectedRow.value.map((row) => row.id)
   if (!batchIds || batchIds.length === 0) return
   await clientApi.api.postCaptureBatchCancel({ batchIds })
-  routerProvider.message.success('Batch cancelled successfully')
+  routerProvider?.message.success('Batch cancelled successfully')
 }
 
 const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeTable({
@@ -36,7 +35,6 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
       ...params,
       ...filter.value
     }
-    console.log('table api params', p)
     return clientApi.api.postCaptureBatchList(p)
   },
   customeToolBar: false,
@@ -51,6 +49,10 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     },
     ...ScanTableColumns
   ],
+  dblClickAction: ({ row }) => {
+    const newTab = createBatchDetailPageTab(row.batchNo)
+    routerProvider?.navigateTo(newTab)
+  },
   bodyActions: [
     [
       {
@@ -108,6 +110,11 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     selectedRow.value = newSelectedRows
   }
 })
+
+watchThrottled(filter, reload, {
+  throttle: 300,
+  deep: true
+})
 </script>
 
 <template>
@@ -115,7 +122,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     <vxe-grid ref="tableRef" v-bind="tableConfig" v-on="tableEvent" width="100%">
       <template #toolbar_buttons>
         <template v-if="!selectedRow.length">
-          <ScanListFilter @search="reload" />
+          <ScanListFilter />
         </template>
         <template v-else>
           <ScanListMultipleSelect :selectedRow="selectedRow" @cancel="cleanSelected" @batchCancel="cancelBatchs" @batchExpor="batchExport" />

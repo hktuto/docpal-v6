@@ -124,3 +124,31 @@ export const createBatchDetailPageTab = (batchId: string) => {
     }
   }
 }
+
+export const createProjectTableTab = () => {
+  return {
+    id: 'admin-scan',
+    name: 'admin-scan',
+    label: 'Project List',
+    icon: 'lucide:scan-text',
+    hoverIcon: 'lucide:scan-text',
+    component: 'LazyScanProjectPage',
+    feature: 'CORE',
+    props: {}
+  }
+}
+
+export const createScanDetailPageTab = (projectId: string) => {
+  return {
+    id: 'scan-detail',
+    name: 'scan-detail',
+    label: 'Scan Detail',
+    icon: 'lucide:file-text',
+    hoverIcon: 'lucide:file-text',
+    component: 'LazyScanProjectDetail',
+    feature: 'CORE',
+    props: {
+      projectId
+    }
+  }
+}

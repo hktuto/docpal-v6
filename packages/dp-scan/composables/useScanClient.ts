@@ -1,6 +1,7 @@
 import { clientApi } from 'api'
 
 const useUsetProject = () => useState<any[]>('use-scan-project', () => [])
+const useProjectLoading = () => useState<boolean>('use-scan-project-loading', () => false)
 const useUserProjectPremission = () =>
   useState('use-scan-project-permission', () => ({
     creator: [],
@@ -25,8 +26,10 @@ export const useScanClient = () => {
   const projectsPermissions = useUserProjectPremission()
   const filter = useUserListFilter()
   const userId = useUserId()
+  const projectLoading = useProjectLoading()
   async function getUserProject() {
     // TODO: wait for api
+    projectLoading.value = true
     const { data } = (await clientApi.api.getCaptureProjUserUserid(userId.value)) as any
 
     projectsPermissions.value = data
@@ -37,10 +40,15 @@ export const useScanClient = () => {
       })
     })
     projects.value = Array.from(allProjects.values())
+    // filter.value.projectId = projects.value.map((p) => p.id)
+    projectLoading.value = false
+    console.log('filter.value', filter.value)
   }
 
   onMounted(() => {
-    getUserProject()
+    if (!projectLoading.value) {
+      getUserProject()
+    }
   })
 
   return {

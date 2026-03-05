@@ -20,7 +20,7 @@ export default defineNuxtConfig({
     // '../../pages/client-share',
     // '../../pages/client-trash',
     // '../../pages/client-dashboard',
-    // '../../pages/client-home',
+    '../../pages/client-home',
     // '../../pages/client-file-policies',
     '../../packages/dp-cmmn-x6',
     // '../../pages/client-case-manage',

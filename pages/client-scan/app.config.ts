@@ -7,8 +7,8 @@ export default defineAppConfig({
       id: 'client-scan',
       name: 'client-scan',
       label: 'Batch List',
-      icon: 'lucide:file',
-      hoverIcon: 'lucide:file',
+      icon: 'lucide:scan-line',
+      hoverIcon: 'lucide:scan-line',
       component: 'LazyClientScanPage',
       feature: 'CORE',
       props: {}

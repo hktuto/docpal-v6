@@ -7,9 +7,9 @@ export default defineAppConfig({
       id: 'admin-scan',
       name: 'admin-scan',
       label: 'Project List',
-      icon: 'lucide:file',
-      hoverIcon: 'lucide:file',
-      component: 'LazyScanPage',
+      icon: 'lucide:scan-text',
+      hoverIcon: 'lucide:scan-text',
+      component: 'LazyScanProjectPage',
       feature: 'CORE',
       props: {}
     }
