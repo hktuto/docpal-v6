@@ -59,7 +59,7 @@ export default defineNuxtConfig({
     '../../pages/admin-message-template',
     '../../pages/admin-unique-id-generator',
     '../../pages/admin-config-migration',
-    "../../pages/admin-share",
+    '../../pages/admin-share',
     '../../pages/admin-rbac',
     '../../pages/admin-password-policy',
     '../../pages/admin-company-profile',
@@ -70,7 +70,7 @@ export default defineNuxtConfig({
     '../../pages/public-share',
     '../../pages/public-upload',
     '../../pages/public-easy-form',
-    '../../packages/dp-contact'
+    '../../packages/dp-contact',
 
     '../../packages/bpmn',
     // demo packages
