@@ -7,7 +7,7 @@ const btnEl = ref()
 const dialogEl = ref()
 const loading = ref(false)
 type PermissionResponse = {
-  permission: { user: string[]; userGroup: string[] }
+  permission: { user: string[]; group: string[] }
   projectId: string
   roleName: 'Creator' | 'Exporter' | 'Verifier' | 'Admin'
 }
@@ -25,15 +25,13 @@ const permissionData = ref({
 })
 
 const dropdownOptions = ref([])
-
+const useOptions = ref<any[]>([])
+const groupOptions = ref<any[]>([])
 async function getUserAndUserGroup() {
   const { data: userData } = await clientApi.admin.postUcenterGetAllUsers({})
   const { data: groupData } = await clientApi.admin.postUcenterGroups({})
-  console.log(userData, groupData)
-  dropdownOptions.value = [
-    ...userData.page.entryList.map((u) => ({ label: u.username, value: `user:${u.userId}` })),
-    ...groupData.map((g) => ({ label: g.name, value: `group:${g.id}` }))
-  ]
+  useOptions.value = userData.page.entryList.map((u) => ({ label: u.username, value: `user:${u.userId}` }))
+  groupOptions.value = groupData.map((g) => ({ label: g.name, value: `group:${g.id}` }))
 }
 
 async function getPremission() {
@@ -45,7 +43,7 @@ async function getPremission() {
     for (const item of data) {
       const convertedItem = {
         ...item,
-        permission: [...(item.permission.user || []).map((u) => `user:${u}`), ...(item?.permission?.userGrou || []).map((g) => `group:${g}`)]
+        permission: [...(item.permission.user || []).map((u) => `user:${u}`), ...(item?.permission?.group || []).map((g) => `group:${g}`)]
       }
       console.log(convertedItem)
       permissionData.value[item.roleName] = convertedItem
@@ -65,7 +63,7 @@ const convertStateToSubmitData = (data) => {
     projectId: props.projectId,
     permission: {
       user: data.permission.filter((p) => p.startsWith('user:')).map((p) => p.replace('user:', '')),
-      userGroup: data.permission.filter((p) => p.startsWith('group:')).map((p) => p.replace('group:', ''))
+      group: data.permission.filter((p) => p.startsWith('group:')).map((p) => p.replace('group:', ''))
     }
   }
 }
@@ -97,22 +95,42 @@ async function open() {
     <ElForm label-position="top">
       <ElFormItem label="Creator (User / User Group)">
         <ElSelect v-model="permissionData.Creator.permission" placeholder="Select Creator" multiple cleanable>
-          <ElOption v-for="option in dropdownOptions" :key="option.value" :label="option.label" :value="option.value"></ElOption>
+          <ElOptionGroup label="Users">
+            <ElOption v-for="option in useOptions" :key="option.value" :label="option.label" :value="option.value"></ElOption>
+          </ElOptionGroup>
+          <ElOptionGroup label="Groups">
+            <ElOption v-for="option in groupOptions" :key="option.value" :label="option.label" :value="option.value"></ElOption>
+          </ElOptionGroup>
         </ElSelect>
       </ElFormItem>
       <ElFormItem label="Verifier (User / User Group)">
         <ElSelect v-model="permissionData.Verifier.permission" placeholder="Select Creator" multiple cleanable>
-          <ElOption v-for="option in dropdownOptions" :key="option.value" :label="option.label" :value="option.value"></ElOption>
+          <ElOptionGroup label="Users">
+            <ElOption v-for="option in useOptions" :key="option.value" :label="option.label" :value="option.value"></ElOption>
+          </ElOptionGroup>
+          <ElOptionGroup label="Groups">
+            <ElOption v-for="option in groupOptions" :key="option.value" :label="option.label" :value="option.value"></ElOption>
+          </ElOptionGroup>
         </ElSelect>
       </ElFormItem>
       <ElFormItem label="Exporter (User / User Group)">
         <ElSelect v-model="permissionData.Exporter.permission" placeholder="Select Creator" multiple cleanable>
-          <ElOption v-for="option in dropdownOptions" :key="option.value" :label="option.label" :value="option.value"></ElOption>
+          <ElOptionGroup label="Users">
+            <ElOption v-for="option in useOptions" :key="option.value" :label="option.label" :value="option.value"></ElOption>
+          </ElOptionGroup>
+          <ElOptionGroup label="Groups">
+            <ElOption v-for="option in groupOptions" :key="option.value" :label="option.label" :value="option.value"></ElOption>
+          </ElOptionGroup>
         </ElSelect>
       </ElFormItem>
       <ElFormItem label="Admin (User / User Group)">
         <ElSelect v-model="permissionData.Admin.permission" placeholder="Select Creator" multiple cleanable>
-          <ElOption v-for="option in dropdownOptions" :key="option.value" :label="option.label" :value="option.value"></ElOption>
+          <ElOptionGroup label="Users">
+            <ElOption v-for="option in useOptions" :key="option.value" :label="option.label" :value="option.value"></ElOption>
+          </ElOptionGroup>
+          <ElOptionGroup label="Groups">
+            <ElOption v-for="option in groupOptions" :key="option.value" :label="option.label" :value="option.value"></ElOption>
+          </ElOptionGroup>
         </ElSelect>
       </ElFormItem>
       <ElFormItem label="">

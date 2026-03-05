@@ -11,7 +11,6 @@ const selectedRow = ref<any[]>([])
 const { filter, projects } = useScanClient()
 
 function cleanSelected() {
-  console.log('clear selected')
   cleanSelectedRows()
   // selectedRow.value = []
 }

@@ -40,7 +40,7 @@ export const useScanClient = () => {
       })
     })
     projects.value = Array.from(allProjects.values())
-    // filter.value.projectId = projects.value.map((p) => p.id)
+    filter.value.projectId = projects.value.map((p) => p.id)
     projectLoading.value = false
     console.log('filter.value', filter.value)
   }
