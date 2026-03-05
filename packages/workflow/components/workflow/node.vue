@@ -1,13 +1,15 @@
 <script lang="ts" setup>
-import { createError, bpmnElement, WORKFLOW_PROVIDER, WORKFLOW_EDITOR_PROVIDER } from '#imports'
+import { createError, WORKFLOW_PROVIDER, WORKFLOW_EDITOR_PROVIDER, workflowElement } from '#imports'
 import { onClickOutside } from '@vueuse/core'
 import { ElPopconfirm } from 'element-plus'
 
 const graphProvider = inject(WORKFLOW_PROVIDER)
 const editorProvider = inject(WORKFLOW_EDITOR_PROVIDER)
-const routerProvider = inject(MenuRouterKey)
-if (!graphProvider || !editorProvider || !routerProvider) {
+if (!graphProvider) {
   throw createError('graph provider not found')
+}
+if (!editorProvider) {
+  throw createError('editor provider not found')
 }
 
 const opened = ref(false)
@@ -102,15 +104,16 @@ function handleNodeClick({ node }: any) {
   // if(ignoreTypeList.includes(node.data.type || "")) {
   //     return
   // }
-  const type = node.data.type as BpmnElementType
+  console.log(22, node)
+  const type = node.data.type as WorkflowElementType
   if (type) {
-    const bpmnElementType = bpmnElement[type]
-    if (bpmnElementType.contextMenuComponent) {
-      let element = ''
-      if (typeof bpmnElementType.contextMenuComponent === 'string') {
-        element = bpmnElementType.contextMenuComponent
+    const workflowElementType = workflowElement[type]
+    if (workflowElementType.contextMenuComponent) {
+      let element
+      if (typeof workflowElementType.contextMenuComponent === 'string') {
+        element = workflowElementType.contextMenuComponent
       } else {
-        element = bpmnElementType.contextMenuComponent(node.data.data)
+        element = workflowElementType.contextMenuComponent(node.data.data)
       }
       if (element) {
         editorProvider?.openSidebar(element, node)
