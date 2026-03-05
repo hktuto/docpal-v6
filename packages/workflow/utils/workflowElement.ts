@@ -216,9 +216,7 @@ export const workflowElement: WorkflowElement = {
           height: workflowNodeItem.metadata.height || 64
         },
         data: {
-          id: workflowNodeItem.id,
-          name: workflowNodeItem.name,
-          type: workflowNodeItem.type,
+          ...workflowNodeItem,
           version: 0
         },
         _order: 0

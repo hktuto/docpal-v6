@@ -43,6 +43,7 @@ interface Metadata {
 
 export interface NodeItem {
   id: string
+  label: string
   name: string
   type: string
   flow: Flow

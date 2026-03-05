@@ -99,12 +99,6 @@ onClickOutside(rightClickEl, () => {
 // #endregion
 
 function handleNodeClick({ node }: any) {
-  // graphProvider?.graph.value?.zoomTo(2);
-  // graphProvider?.graph.value?.centerCell(node)
-  // if(ignoreTypeList.includes(node.data.type || "")) {
-  //     return
-  // }
-  console.log(22, node)
   const type = node.data.type as WorkflowElementType
   if (type) {
     const workflowElementType = workflowElement[type]
@@ -113,9 +107,9 @@ function handleNodeClick({ node }: any) {
       if (typeof workflowElementType.contextMenuComponent === 'string') {
         element = workflowElementType.contextMenuComponent
       } else {
-        element = workflowElementType.contextMenuComponent(node.data.data)
+        element = workflowElementType.contextMenuComponent(node.data)
       }
-      if (element) {
+      if (!!element) {
         editorProvider?.openSidebar(element, node)
       }
     }

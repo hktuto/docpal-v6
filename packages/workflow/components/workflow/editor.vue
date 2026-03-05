@@ -5,14 +5,14 @@ import { Selection } from '@antv/x6-plugin-selection'
 import { Dnd } from '@antv/x6-plugin-dnd'
 import { History } from '@antv/x6-plugin-history'
 import { workflowCellElement, workflowElement } from '../../utils/workflowElement'
-import { WORKFLOW_EDITOR_PROVIDER } from '#imports'
+import { useVariables, WORKFLOW_EDITOR_PROVIDER } from '#imports'
 
+const { setVariables } = useVariables()
 const viewerRef = ref()
 const graphOptions = ref()
 const sidebarRef = ref()
 const ready = ref()
 const readonly = ref(false)
-const variables = ref({})
 
 // const { readonly } = toRefs()
 const nodeRef = ref()
@@ -64,7 +64,7 @@ function init(workflowJson: any) {
       }
     }
   }
-  variables.value = workflowJson.variables
+  setVariables(workflowJson.variables)
 
   nextTick(() => {
     viewerRef.value?.init(workflowJson)
@@ -131,12 +131,11 @@ function graphReady() {
 }
 
 function openSidebar(component: string, node: Node | Edge | Cell) {
+  console.log('openSidebar', component, node)
   sidebarRef.value.openSidebar(component, node)
 }
 
-function openForm() {
-
-}
+function openForm() {}
 
 function openInfo() {
   sidebarRef.value.openInfo()
@@ -144,9 +143,11 @@ function openInfo() {
 
 function openPermission() {}
 
+const copyKey = useState('copy-key', () => "")
+
 provide(WORKFLOW_EDITOR_PROVIDER, {
   openSidebar,
-  variables,
+  copyKey,
   readonly
 })
 

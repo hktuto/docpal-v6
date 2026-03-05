@@ -8,6 +8,7 @@
   "nodes": [
     {
       "id": "start_po",
+      "label": "Start Event",
       "name": "Start Event",
       "type": "StartEvent",
       "flow": {

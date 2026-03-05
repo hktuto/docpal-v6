@@ -13,6 +13,6 @@ export interface WorkflowProvider {
 export const WORKFLOW_EDITOR_PROVIDER: InjectionKey<EditorProvider> = Symbol('Workflow_EDITOR_PROVIDER_KEY')
 export interface EditorProvider {
   openSidebar: (component: string, node: Node | Edge | Cell) => void
-  variables: Ref<any>
+  copyKey: Ref<string | undefined>
   readonly: Ref<boolean>
 }
