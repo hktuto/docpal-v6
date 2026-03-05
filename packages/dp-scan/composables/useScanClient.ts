@@ -2,14 +2,14 @@ import { clientApi } from 'api'
 
 const useUsetProject = () => useState<any[]>('use-scan-project', () => [])
 const useProjectLoading = () => useState<boolean>('use-scan-project-loading', () => false)
-const useUserProjectPremission = () =>
+export const useUserProjectPremission = () =>
   useState('use-scan-project-permission', () => ({
     creator: [],
     verifier: [],
     exporter: [],
     admin: []
   }))
-const useUserListFilter = () =>
+export const useUserListFilter = () =>
   useState('use-scan-user-list-filter', () => ({
     filter: '',
     projectId: [],
@@ -41,8 +41,8 @@ export const useScanClient = () => {
     })
     projects.value = Array.from(allProjects.values())
     filter.value.projectId = projects.value.map((p) => p.id)
+    console.log('projects.value', projects.value, filter.value)
     projectLoading.value = false
-    console.log('filter.value', filter.value)
   }
 
   onMounted(() => {

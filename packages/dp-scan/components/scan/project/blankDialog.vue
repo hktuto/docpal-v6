@@ -41,7 +41,7 @@ async function submit() {
     }
     const pjResponse = await clientApi.api.postCaptureProj(formState.value)
     if (!pjResponse || !pjResponse?.data) return
-    const tab = createScanDetailPageTab(pjResponse.data.id)
+    const tab = createScanDetailPageTab(pjResponse.data)
     routerProvider?.navigateTo(tab)
     routerProvider?.message.success('Project created successfully')
     dialogEl.value?.close()

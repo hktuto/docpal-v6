@@ -49,7 +49,7 @@ watch(
       <div class="actions">
         <ScanProjectPremissionDialog :projectId="projectId" />
         <ElButton type="primary">Export Project</ElButton>
-        <ElButton type="warning">Delete Project</ElButton>
+        <ScanProjectDeleteButton :projectId="projectId" />
       </div>
     </div>
     <ElSplitter>
