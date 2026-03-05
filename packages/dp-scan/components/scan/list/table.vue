@@ -8,10 +8,9 @@ if (!routerProvider) {
   throw new Error('MenuRouterKey not found')
 }
 const selectedRow = ref<any[]>([])
-const { filter, projects } = useScanClient()
-
+const { projects } = useScanClient()
+const filter = useUserListFilter()
 function cleanSelected() {
-  console.log('clear selected')
   cleanSelectedRows()
   // selectedRow.value = []
 }
@@ -31,6 +30,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
   id: 'scan-table',
   api: async (params: any) => {
     cleanSelectedRows()
+    console.log('get table data')
     const p = {
       ...params,
       ...filter.value
@@ -110,9 +110,8 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     selectedRow.value = newSelectedRows
   }
 })
-
-watchThrottled(filter, reload, {
-  throttle: 300,
+const debounceReload = useDebounceFn(reload, 300)
+watch(filter, debounceReload, {
   deep: true
 })
 </script>
