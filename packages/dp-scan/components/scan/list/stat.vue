@@ -3,19 +3,34 @@ import { clientApi } from 'api'
 import { StatusMap } from '../../../utils/scanHelper'
 const { projects } = useScanClient()
 const stat = ref()
+const loading = ref(true)
 const getStats = async () => {
-  const { data } = (await clientApi.api.postCaptureBatchStatusCount({
-    projectId: projects.value.map((project) => project.id)
-  })) as any
-  stat.value = data
+  loading.value = true
+  try {
+    const { data } = (await clientApi.api.postCaptureBatchStatusCount({
+      projectId: projects.value.map((project) => project.id)
+    })) as any
+    stat.value = data
+  } catch (err) {
+    stat.value = undefined
+  } finally {
+    loading.value = false
+  }
 }
-onMounted(() => {
-  getStats()
-})
+
+watch(
+  projects,
+  () => {
+    getStats()
+  },
+  {
+    immediate: true
+  }
+)
 </script>
 
 <template>
-  <div class="StatusSection">
+  <div v-loading="loading" class="StatusSection">
     <div class="sectionTitle">Batch Status</div>
     <div class="statusContainer">
       <div v-for="(item, key) in StatusMap" :key="key" class="statItem" :style="{ backgroundColor: item.color }">
