@@ -2,6 +2,7 @@
 import { ref, type Ref } from 'vue'
 import { ColumnFieldType } from '../types/column-types'
 import type { VxeTableDefines } from 'vxe-table'
+import { newClientApi } from 'api'
 export type OrdersParam = {
   newColumn: VxeTableDefines.ColumnInfo
   oldColumn: VxeTableDefines.ColumnInfo
@@ -35,7 +36,6 @@ export interface ColumnContext {
   columnFilterRules: Ref<any[]>
   columnSortRules: Ref<any[]>
   addColumnPopoverRef: Ref<any>
-  gridRef: Ref<any>
   // Relation helpers
   getAvailableTablesForRelation?: (excludeCurrentTable?: boolean) => Promise<any[]>
   getFieldsForTable?: (tableId: string) => Promise<any[]>
@@ -51,31 +51,15 @@ export interface ColumnContext {
   queryRelatedTable?: (tableId: string, options?: QueryRelatedTableOptions) => Promise<QueryRelatedTableResult>
 }
 
-export const ColumnContextKey: InjectionKey<ColumnContext> = Symbol('ColumnContextKey')
+export const ColumnContextKey: InjectionKey<ColumnContext> = Symbol('ColumnInject')
 
 export interface ColumnConfig {
   id?: string
-  dataTableId?: string // id of the data table
-  workspaceId?: string // id of the workspace
-  field: string
-  title: string
-  width?: number | string
-  minWidth?: number | string
-  // visible?: boolean // deprecated
-  //sortable?: boolean // deprecated
-  // filterable?: boolean // deprecated
-  type: ColumnFieldType
-  /** 只读模式渲染器配置 */
-  // cellRender?: any // deprecated
-  /** 编辑模式渲染器配置 */
-  // editRender?: any // deprecated
-  // slots?: Record<string, string> // this will add in rea; table render
-  fixed?: 'left' | 'right'
-  /** 列设置，用于传递额外的配置参数给渲染器 */
-  properties?: Record<string, any>
+  field_name: string
+  business_type: ColumnFieldType
+  display_structure?: Record<string, any>
   /** 统计方法 */
-  countMethod?: 'sum' | 'max' | 'min' | 'avg' | 'count' | 'empty' | 'filled' | 'unique' | 'emptyPercent' | 'filledPercent' | 'none'
-
+  // countMethod?: 'sum' | 'max' | 'min' | 'avg' | 'count' | 'empty' | 'filled' | 'unique' | 'emptyPercent' | 'filledPercent' | 'none'
   [key: string]: any
 }
 
@@ -85,8 +69,7 @@ export interface UseColumnsOptions {
   onColumnUpdate?: (field: string, column: ColumnConfig) => void
 }
 
-
-function createMockColumns(tableName: string) {
+function createMockColumns(tableId: string) {
   const mockColumns = []
   mockColumns.push({
     field: 'startDate',
@@ -201,8 +184,8 @@ function createMockColumns(tableName: string) {
  * 列管理 Composable
  * 提供列的增删改查功能，支持从数据自动推断列配置
  */
-export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
-  const gridRef = ref<any>()
+export function useColumns(tableId: string, options: UseColumnsOptions = {}) {
+  console.log('useColumns', tableId)
   const columns = ref<ColumnConfig[]>([])
   const columnGroupRules = ref<any[]>([])
   const columnFilterRules = ref<any[]>([])
@@ -213,8 +196,8 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
    * @param field 字段名
    * @returns 列配置或 undefined
    */
-  const getColumn = (field: string): ColumnConfig | undefined => {
-    return columns.value.find((col) => col.field === field)
+  const getColumn = (id: string): ColumnConfig | undefined => {
+    return columns.value.find((col) => col.id === id)
   }
 
   /**
@@ -222,8 +205,9 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
    * @returns 所有列配置
    */
   const getAllColumns = async (): Promise<ColumnConfig[]> => {
-    if (tableName) {
-      columns.value = createMockColumns(tableName)
+    if (tableId) {
+      const { data }: any = await newClientApi.getDynamicDbTableTableidFields(tableId)
+      columns.value = data ?? []
       return columns.value
     }
     return [...columns.value]
@@ -234,21 +218,19 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
    * @param column 列配置
    * @returns 是否添加成功
    */
-  const addColumn = async (column: ColumnConfig): Promise<void> => {
-    // 验证必填字段
-    if (!column.field || !column.title) {
-      console.error('添加列失败: title 是必填项')
-      throw new Error('添加列失败: title 是必填项')
+  const addColumn = async (column: ColumnConfig | ColumnConfig[]): Promise<void> => {
+    let newColumns: any[] = []
+    if (Array.isArray(column)) {
+      for (const item of column) {
+        newColumns.push(item)
+      }
+    } else {
+      newColumns.push(column)
     }
-
-    // 设置默认值
-    const newColumn: ColumnConfig = {
-      visible: true,
-      type: ColumnFieldType.Text,
-      width: 150,
-      ...column
-    }
-
+    console.log('newColumns', newColumns)
+    const { data }: any = await newClientApi.postDynamicDbTableTableidFields(tableId, { fields: newColumns })
+    console.log('postDynamicDbTableTableidFieldsdata', data)
+    if(!!data) getAllColumns()
     // // 根据类型设置编辑配置
     // if (newColumn.type === 'number' || newColumn.type === 'integer') {
     //   newColumn.editRender = newColumn.editRender || { name: 'VxeInput', props: { type: 'number' } }
@@ -257,7 +239,7 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
     // }
 
     // 添加到列数组
-    columns.value.push(newColumn)
+    // columns.value.push(newColumn)
 
     // // 触发回调
     // options?.onColumnAdd?.(newColumn)
@@ -265,22 +247,17 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
 
   /**
    * 删除列
-   * @param field 字段名
+   * @param field 字段id
    * @returns 是否删除成功
    */
   const deleteColumn = async (field: string): Promise<void> => {
-    const index = columns.value.findIndex((col) => col.field === field)
-
-    if (index === -1) {
+    try {
+      const index = columns.value.findIndex((col) => col.field_name === field)
+      const { data }: any = await newClientApi.deleteDynamicDbTableFieldsFieldid(columns.value[index].id as string)
+      if(!!data) columns.value.splice(index, 1)
+    } catch (error) {
       console.error(`删除列失败: 字段名 "${field}" 不存在`)
-      throw new Error(`删除列失败: 字段名 "${field}" 不存在`)
     }
-
-    // 删除列
-    columns.value.splice(index, 1)
-
-    // 触发回调
-    // options?.onColumnDelete?.(field)
   }
 
   function saveColumnOrder(newOrder: OrdersParam) {
@@ -289,28 +266,30 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
 
   /**
    * 更新列
-   * @param field 字段名
+   * @param id 字段id
    * @param updates 要更新的列配置
    * @returns 是否更新成功
    */
   const updateColumn = async (field: string, updates: Partial<ColumnConfig>): Promise<void> => {
-    console.log('updateColumn', field, updates)
-    const index = columns.value.findIndex((col) => col.field === field)
-
-    if (index === -1) {
-      console.error(`更新列失败: 字段名 "${field}" 不存在`)
-      throw new Error(`更新列失败: 字段名 "${field}" 不存在`)
+    try {
+      const index = columns.value.findIndex((col) => col.field_name === field)
+      if (index === -1) {
+        console.error(`更新列失败: 字段名 "${columns.value[index].field_name_alias}" 不存在`)
+      }
+      const { data }: any = await newClientApi.putDynamicDbTableFieldsFieldid(columns.value[index].id as string, updates)
+      if(!!data) columns.value[index] = {
+        ...columns.value[index],
+        field_name_alias: updates.field_name,
+        business_type: updates.business_type as ColumnFieldType,
+        display_structure: updates.display_structure
+      }
+    } catch (error) {
+      console.error('更新列失败:', error)
     }
-    // 更新列配置
-    const updatedColumn = {
-      ...columns.value[index],
-      ...updates
-    }
-    columns.value[index] = updatedColumn
-    console.log('columns', columns.value)
   }
 
   onMounted(() => {
+    console.log('onMounted', tableId)
     getAllColumns()
   })
 
@@ -325,8 +304,7 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
     columns,
     columnGroupRules,
     columnFilterRules,
-    columnSortRules,
-    gridRef
+    columnSortRules
   })
   return {
     // 基础方法
@@ -336,21 +314,21 @@ export function useColumns(tableName: string, options: UseColumnsOptions = {}) {
     deleteColumn,
     updateColumn,
     addColumnPopoverRef,
-    gridRef,
     // 批量方法
 
     // 原始引用（只读）
     columns: columns as Readonly<Ref<ColumnConfig[]>>,
     columnGroupRules,
     columnFilterRules,
-    columnSortRules,
+    columnSortRules
   }
 }
 
-export const useColumnsContext = () => {
+export const useColumnsInject = () => {
+  console.log('useColumnsInject', ColumnContextKey)
   const columnContext = inject(ColumnContextKey)
   if (!columnContext) {
-    throw new Error('ColumnContext not found')
+    throw new Error(`ColumnInject not found: ${String(ColumnContextKey)}`)
   }
   return columnContext
 }

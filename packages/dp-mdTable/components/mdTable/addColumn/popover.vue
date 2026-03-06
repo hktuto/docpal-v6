@@ -2,12 +2,12 @@
   <UiPopoverDialog ref="popoverRef" :width="width" :close-on-click-outside="closeOnClickOutside" @close="resetForm">
     <div class="add-column-popover">
       <el-form ref="formRef" :model="formData" :rules="rules" label-position="top" @submit.prevent>
-        <el-form-item label="列标题" prop="title">
-          <el-input v-model="formData.title" placeholder="请输入列标题" @keydown.enter.prevent="handleSubmit" />
+        <el-form-item label="列标题" prop="field_name">
+          <el-input v-model="formData.field_name" placeholder="请输入列标题" @keydown.enter.prevent="handleSubmit" />
         </el-form-item>
-        <el-form-item label="数据类型" prop="type">
+        <el-form-item label="数据类型" prop="business_type">
           <el-select-v2
-            v-model="formData.type"
+            v-model="formData.business_type"
             placeholder="请选择数据类型"
             style="width: 100%"
             :options="displayColumnFieldOptions"
@@ -18,7 +18,7 @@
           </el-select-v2>
         </el-form-item>
         <component :is="AsyncComponent" v-if="AsyncComponent" :column="state.column" :form-data="formData" />
-        <el-form-item v-if="[ColumnFieldType.Text, ColumnFieldType.MultiText].includes(formData.type)" label="Default Value" prop="defaultValue">
+        <el-form-item v-if="[ColumnFieldType.Text, ColumnFieldType.MultiText].includes(formData.business_type)" label="Default Value" prop="defaultValue">
           <el-input v-model="formData.defaultValue" />
         </el-form-item>
         <el-form-item>
@@ -59,7 +59,7 @@ const props = withDefaults(defineProps<Props>(), {
   placement: 'left-start',
   popperClass: ''
 })
-const { updateColumn, deleteColumn } = useColumnsContext()
+const { addColumn, updateColumn, deleteColumn } = useColumnsInject()
 
 const emit = defineEmits<{
   submit: [column: ColumnConfig]
@@ -74,9 +74,8 @@ const triggerRef = ref()
 const closeOnClickOutside = ref(true)
 const openSelectCount = ref(0)
 const formData = ref<ColumnConfig>({
-  field: '',
-  title: '',
-  type: ColumnFieldType.MultiText
+  field_name: '',
+  business_type: ColumnFieldType.MultiText
 })
 function show(targetParams: any, column: any) {
   console.log('show', targetParams, JSON.stringify(column))
@@ -85,17 +84,17 @@ function show(targetParams: any, column: any) {
   state.column = null
   state.isEdit = false
   if (!!column) {
-    // 优先从 column.properties 读取，如果没有则从 cellRender?.props 或 editRender?.props 读取
-    const properties = column.properties || column.cellRender?.props || column.editRender?.props || {}
+    // 优先从 column.display_structure 读取，如果没有则从 cellRender?.props 或 editRender?.props 读取
+    const display_structure = column.properties || column.cellRender?.props || column.editRender?.props || {}
     state.column = column
     state.isEdit = true
     formData.value = {
-      field: column.field,
-      title: column.title,
-      type: column.type,
-      ...properties
+      field_name: column.title,
+      business_type: column.business_type,
+      ...display_structure
     }
-    loadComponent(column.type)
+    console.log('formData', formData.value)
+    loadComponent(column.business_type)
   }
 }
 const formRef = ref<FormInstance>()
@@ -129,7 +128,6 @@ const loadComponent = (value: any) => {
     return acc
   }, [])
   const fieldSetting = options.find((item: any) => item.value === value)
-  console.log('fieldSetting', fieldSetting)
   if (fieldSetting?.component) {
     AsyncComponent.value = defineAsyncComponent(() => import(`./field/${fieldSetting.component}.vue`))
   } else {
@@ -139,12 +137,11 @@ const loadComponent = (value: any) => {
 // 重置表单
 const resetForm = () => {
   formData.value = {
-    field: '',
-    title: '',
-    type: ColumnFieldType.MultiText
+    field_name: '',
+    business_type: ColumnFieldType.MultiText
   }
   formRef.value?.clearValidate()
-  loadComponent(formData.value.type)
+  loadComponent(formData.value.business_type)
 }
 
 // 提交
@@ -152,33 +149,29 @@ const handleSubmit = async () => {
   if (!formRef.value) return
   try {
     await formRef.value.validate()
-
     // 基本字段
-    const basicFields = ['field', 'title', 'type']
+    const basicFields = [ 'field_name', 'business_type']
     const columnConfig: ColumnConfig = {
-      field: formData.value.field || createFieldId(),
-      title: formData.value.title,
-      type: formData.value.type as ColumnFieldType
+      business_type: formData.value.business_type as ColumnFieldType
     }
 
-    // 将其他字段保存到 properties 中
-    const properties: Record<string, any> = {}
+    // 将其他字段保存到 display_structure 中
+    const display_structure: Record<string, any> = {}
     Object.keys(formData.value).forEach((key) => {
       if (!basicFields.includes(key)) {
-        properties[key] = formData.value[key]
+        display_structure[key] = formData.value[key]
       }
     })
 
     // 如果有 properties，则添加到 columnConfig 中
-    if (Object.keys(properties).length > 0) {
-      columnConfig.properties = properties
+    if (Object.keys(display_structure).length > 0) {
+      columnConfig.display_structure = display_structure
     }
 
-    console.log('columnConfig', columnConfig)
     if (state.isEdit) {
-      const oldType = (state.column as any)?.type
-      const newType = formData.value.type
-
+      const oldType = (state.column as any)?.business_type
+      const newType = formData.value.business_type
+      columnConfig.field_name = formData.value.field_name
       // Type changed - warn user about potential data loss
       if (oldType !== newType) {
         try {
@@ -192,12 +185,14 @@ const handleSubmit = async () => {
           return
         }
       }
-
+      console.log('state.column', state.column)
       // Let useTableView handle type changes properly (including relation columns)
       // This preserves relation data when only changing display field
-      updateColumn(columnConfig.field, columnConfig as any)
+      updateColumn(state.column?.field, columnConfig as any)
     } else {
-      emit('submit', columnConfig)
+      columnConfig.field_name = formData.value.field_name
+      console.log('addColumn', columnConfig)
+      addColumn(columnConfig)
     }
     resetForm()
     handleClose()

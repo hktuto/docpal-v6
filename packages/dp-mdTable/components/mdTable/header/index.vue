@@ -122,8 +122,7 @@ function getFullColumnConfig() {
   }
 
   // 从 columns 中查找对应的列配置
-  const fullColumn = mdTable.columns.value.find((col: any) => col.field === props.column.field)
-
+  const fullColumn = mdTable.columns.value.find((col: any) => col.field_name === props.column.field)
   if (fullColumn) {
     // 合并 vxe-table 传递的 column 和完整的列配置
     // 优先使用 fullColumn 的 properties，确保获取到完整的自定义属性

@@ -36,7 +36,7 @@ const emits = defineEmits<{
 const buttonRef = ref<HTMLElement>()
 const popoverRef = ref<InstanceType<typeof FilterConfigPopover>>()
 
-const { columnFilterRules : filterRules  } = useColumnsContext()
+const { columnFilterRules : filterRules  } = useColumnsInject()
 
 // 获取可用列（自动响应 tableRef 变化）
 const availableColumns = computed<ColumnConfig[]>(() => {

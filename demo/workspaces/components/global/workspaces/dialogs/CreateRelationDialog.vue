@@ -184,9 +184,8 @@ interface MatchPreview {
     targetValue: string
   }>
 }
-
 const { query } = usePglite()
-const { getAvailableTablesForRelation, getFieldsForTable } = useColumnsContext()
+const { getAvailableTablesForRelation, getFieldsForTable } = useColumnsInject()
 const { getSuggestionsForField, dismissSuggestion } = useRelationSuggestions()
 
 const emit = defineEmits<{

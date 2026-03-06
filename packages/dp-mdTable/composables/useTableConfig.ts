@@ -101,17 +101,26 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     })
     return _columns.map((col) => {
       if (col.type === 'checkbox') return col
-      if (!col.type) col.type = ColumnFieldType.Text
-      if (col.field === 'name') col.rowGroupNode = true
-      const colConfig = { ...col, aggFunc: true, ...rendererManager.getColumnConfig(col.type as ColumnFieldType, col.properties, col.properties) }
+
+      if (!col.business_type) col.business_type = ColumnFieldType.Text
+      // if (col.field === 'name') col.rowGroupNode = true
+      const colConfig = {
+        ...col,
+        field: col.field_name,
+        title: col.field_name_alias,
+        aggFunc: true,
+        ...rendererManager.getColumnConfig(col.business_type as ColumnFieldType, col.display_structure, col.display_structure)
+      }
+      console.log('colConfig', colConfig)
       colConfig.slots = {
         footer: 'footerCount',
         header: 'header'
       }
       // 数字类型默认右对齐
-      if (col.type === ColumnFieldType.Number || col.type === ColumnFieldType.Currency || col.type === ColumnFieldType.Percent) {
+      if (col.business_type === ColumnFieldType.Number) {
         colConfig.align = 'right'
       }
+      console.log('colConfig', colConfig)
       return colConfig
     })
   })
@@ -248,8 +257,8 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
 
     // 如果显式传递了 editConfig 或者有列配置了 editRender，则启用编辑功能
     if (!!editConfig || hasEditRender) {
-      const systemFieldsTypes = [ ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy ]
-      const disabledFields = [ ...systemFieldsTypes, ColumnFieldType.VirtualColumn, ColumnFieldType.Formula, ColumnFieldType.Checkbox, ColumnFieldType.Rating]
+      const systemFieldsTypes = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime, ColumnFieldType.CreatedBy, ColumnFieldType.LastModifiedBy]
+      const disabledFields = [...systemFieldsTypes, ColumnFieldType.VirtualColumn, ColumnFieldType.Formula, ColumnFieldType.Checkbox, ColumnFieldType.Rating]
       options.editConfig = {
         trigger: 'dblclick',
         mode: 'cell',

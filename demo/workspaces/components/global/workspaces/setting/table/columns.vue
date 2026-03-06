@@ -153,16 +153,16 @@ function getColumnDescription(field: CaseFieldRecord): string {
   return parts.join(' • ')
 }
 
-onMounted(() => {
-  initializeTable()
-})
+// onMounted(() => {
+//   initializeTable()
+// })
 
-watch(
-  () => workspaceRouteParams.value.detailId,
-  () => {
-    initializeTable()
-  }
-)
+// watch(
+//   () => workspaceRouteParams.value.detailId,
+//   () => {
+//     initializeTable()
+//   }
+// )
 </script>
 
 <template>

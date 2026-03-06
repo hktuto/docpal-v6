@@ -79,19 +79,17 @@ export const columnBasic: any = {
   }
 }
 export function getColumnFieldOptions() {
-  const ColumnFieldTypeMap = Object.fromEntries(Object.entries(ColumnFieldType).filter(([key, value]) => typeof value === 'number'))
+  const uniqueFieldValues = [...new Set(Object.values(ColumnFieldType))]
   const basicOptions: any[] = []
   const advancedOptions: any[] = []
-  Object.entries(ColumnFieldTypeMap).forEach(([key, value]) => {
+  uniqueFieldValues.forEach((value) => {
     const fieldSetting: any = columnBasic[value]
-    // Skip hidden types (like VirtualColumn which is created via different UI)
     if (fieldSetting?.hidden) {
       return
     }
-    
     if (fieldSetting?.isBasic) {
       const item: any = {
-        label: fieldSetting.label || key,
+        label: fieldSetting.label || (ColumnFieldType as unknown as Record<ColumnFieldType, string>)[value],
         disableCreate: fieldSetting.disableCreate || false,
         value: value
       }
@@ -102,7 +100,7 @@ export function getColumnFieldOptions() {
       basicOptions.push(item)
     } else {
       const item: any = {
-        label: fieldSetting?.label ||key,
+        label: fieldSetting?.label || (ColumnFieldType as unknown as Record<ColumnFieldType, string>)[value],
         disableCreate: fieldSetting?.disableCreate || false,
         value: value
       }
@@ -113,6 +111,7 @@ export function getColumnFieldOptions() {
       advancedOptions.push(item)
     }
   })
+
   return [
     {
       label: 'Basic',

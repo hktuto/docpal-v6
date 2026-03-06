@@ -100,7 +100,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const { queryRelatedTable, getTableCardConfig, getFieldsForTable, getRecordById } = useColumnsContext()
+const { queryRelatedTable, getTableCardConfig, getFieldsForTable, getRecordById } = useColumnsInject()
 
 const displayTableLabel = computed(() => props.tableLabel || t('mdTable.relationPicker.defaultTableLabel'))
 

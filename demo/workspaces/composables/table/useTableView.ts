@@ -1,9 +1,4 @@
-import type {
-  CaseFieldRecord,
-  CaseViewRecord,
-  CaseTableRecord,
-  FieldDisplayStructure
-} from '../../utils/db/schema/newTableSchema'
+import type { CaseFieldRecord, CaseViewRecord, CaseTableRecord, FieldDisplayStructure } from '../../utils/db/schema/newTableSchema'
 import { ElMessage } from 'element-plus'
 import { getCurrentUserId } from '../useCurrentUser'
 
@@ -11,14 +6,14 @@ import { getCurrentUserId } from '../useCurrentUser'
 import { useTableFields, ensurePlainArray } from './useTableFields'
 import { useTableViews, ViewContextKey, type ViewContext } from './useTableViews'
 import { useTableDataProvider } from './useTableDataProvider'
-import { useTableColumns } from './useTableColumns'
+import { newClientApi } from 'api'
 
 // Re-export ViewContext for backwards compatibility
 // export { ViewContextKey, type ViewContext }
 
 /**
  * Main orchestrator composable for dynamic table view
- * 
+ *
  * This composable coordinates all table-related functionality:
  * - Fields: Schema definition and management
  * - Views: Display configurations (columns, filters, sorts, groups)
@@ -48,24 +43,6 @@ export const useTableView = () => {
     query
   })
 
-  // Initialize column management (depends on fields and views)
-  const columnComposable = useTableColumns({
-    tableId,
-    reference_entity_id,
-    physicalTableName,
-    fields: fieldComposable.fields,
-    currentView: viewComposable.currentView,
-    columnFilterRules: viewComposable.columnFilterRules,
-    columnSortRules: viewComposable.columnSortRules,
-    columnGroupRules: viewComposable.columnGroupRules,
-    query,
-    exec,
-    getField: fieldComposable.getField,
-    updateView: viewComposable.updateView,
-    addField: fieldComposable.addField,
-    updateFieldFn: fieldComposable.updateField,
-    deleteField: fieldComposable.deleteField
-  })
 
   // Initialize data provider (depends on fields, views, columns)
   const dataComposable = useTableDataProvider({
@@ -90,7 +67,8 @@ export const useTableView = () => {
     tableId.value = caseTableId
 
     // Get table info
-    const tableData = await query<CaseTableRecord>(`SELECT * FROM case_tables WHERE id = $1`, [caseTableId])
+    const tableData = await newClientApi.postDynamicDbTableTableidDataPage(caseTableId, { pageNum: 0, pageSize: 9999 })
+    console.log(tableData)
     if (tableData.length === 0) {
       throw new Error('Table not found')
     }
@@ -106,7 +84,6 @@ export const useTableView = () => {
     // Load fields and view
     await fieldComposable.getAllFields()
     await viewComposable.getViewById(table.viewName)
-    await columnComposable.getAllColumns()
   }
 
   /**
@@ -140,7 +117,6 @@ export const useTableView = () => {
     await viewComposable.getViewById(viewId)
 
     // Load columns
-    await columnComposable.getAllColumns()
   }
 
   /**
@@ -201,10 +177,10 @@ export const useTableView = () => {
       relationFieldName = relationField.fieldName
 
       const currentDisplayFieldNames = relationField.displayFieldNames || []
-      
+
       // Add only new field names that don't already exist
-      const newFieldNames = displayFieldNames.filter(name => !currentDisplayFieldNames.includes(name))
-      
+      const newFieldNames = displayFieldNames.filter((name) => !currentDisplayFieldNames.includes(name))
+
       if (newFieldNames.length === 0) {
         throw new Error(`All selected display fields are already in the relation to table "${targetTable.name}".`)
       }
@@ -232,10 +208,10 @@ export const useTableView = () => {
       relationFieldName = `rel_${sourceFieldName}_to_${sanitizedTargetName}`
 
       // Check if a field with this name already exists
-      const existingFieldWithName = await query<CaseFieldRecord>(
-        `SELECT * FROM case_fields WHERE "tableId" = $1 AND "fieldName" = $2`,
-        [tableId.value, relationFieldName]
-      )
+      const existingFieldWithName = await query<CaseFieldRecord>(`SELECT * FROM case_fields WHERE "tableId" = $1 AND "fieldName" = $2`, [
+        tableId.value,
+        relationFieldName
+      ])
 
       if (existingFieldWithName.length > 0) {
         throw new Error(`A relation field "${relationFieldName}" already exists.`)
@@ -394,7 +370,6 @@ export const useTableView = () => {
       }
 
       await initializeTableView(tableId.value)
-      await columnComposable.gridRef.value?.commitProxy('reload')
     }
   }
 
@@ -425,20 +400,9 @@ export const useTableView = () => {
     updateField: fieldComposable.updateField,
     deleteField: fieldComposable.deleteField,
 
-    // Columns (from columnComposable)
-    columns: columnComposable.columns,
     columnGroupRules: viewComposable.columnGroupRules,
-    getColumn: columnComposable.getColumn,
-    getAllColumns: columnComposable.getAllColumns,
-    addColumn: columnComposable.addColumn,
-    updateColumn: columnComposable.updateColumn,
-    deleteColumn: columnComposable.deleteColumn,
-    saveColumnOrder: columnComposable.saveColumnOrder,
-    getAvailableTablesForRelation: columnComposable.getAvailableTablesForRelation,
-    
+
     // Virtual columns (new!)
-    addVirtualColumn: columnComposable.addVirtualColumn,
-    removeVirtualColumn: columnComposable.removeVirtualColumn,
 
     // Views (from viewComposable)
     currentView: viewComposable.currentView,

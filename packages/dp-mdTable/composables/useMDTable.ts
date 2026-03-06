@@ -3,36 +3,23 @@ import { provide, inject, ref, type Ref } from 'vue'
 import type { VxeGridInstance } from 'vxe-table'
 import { useUpdateStatus } from './useUpdateStatus'
 import { clientApi } from 'api'
+import { newClientApi } from 'api'
 export interface mdTable {
   columns: any
-  addColumn: any
-  updateColumn: any
-  deleteRow: any,
-  columnGroupRules: any
   gridRef: Ref<VxeGridInstance | undefined>
   getOptionsFromTableData: (column: any) => any[]
-  clearCheckboxRow: () => void,
-  updateRow: (row: any) => void,
-  getUserList: () => Promise<any[]>,
+  clearCheckboxRow: () => void
+  updateRow: (row: any) => void
+  getUserList: () => Promise<any[]>
   userList: Ref<any[]>
 }
 export const MdTableContextKey: InjectionKey<mdTable> = Symbol('MdTableContextKey')
 export function useMDTable(props: any) {
+  console.log('useMDTable', props)
   const editable = ref(props.editable)
+  const gridRef = ref<any>()
+  const { columns, columnGroupRules, columnFilterRules, columnSortRules, addColumnPopoverRef, deleteColumn } = useColumns(props.tableId)
 
-  const {
-    gridRef,
-    columns,
-    addColumn,
-    updateColumn,
-    deleteColumn,
-    columnGroupRules,
-    columnFilterRules,
-    columnSortRules,
-    saveColumnOrder,
-    addColumnPopoverRef,
-    addVirtualColumn
-  } = useColumnsContext()
   const {
     loading,
     queryParams,
@@ -44,7 +31,7 @@ export function useMDTable(props: any) {
     getTableData,
     getAggChildData
   } = useTableDataContext()
-  
+
   // Get update status helper for cell styling
   const { getCellClass } = useUpdateStatus()
   const { gridOptions } = useTableConfig(
@@ -85,7 +72,7 @@ export function useMDTable(props: any) {
       return userList.value
     }
     try {
-      const data: any = await clientApi.api.postNuxeoIdentityUsers()
+      const data: any = await newClientApi.postUcenterUsers()
       userList.value = data.data.map((item: any) => ({
         label: item.username,
         id: item.userId
@@ -115,10 +102,7 @@ export function useMDTable(props: any) {
 
   provide(MdTableContextKey, {
     columns,
-    addColumn,
-    updateColumn,
-    deleteRow,
-    columnGroupRules,
+
     gridRef,
     clearCheckboxRow,
     // helper functions
@@ -130,9 +114,8 @@ export function useMDTable(props: any) {
 
   return {
     columns,
-    addColumn,
+    addColumnPopoverRef,
     deleteColumn,
-    updateColumn,
     columnGroupRules,
     columnFilterRules,
     columnSortRules,
@@ -142,17 +125,14 @@ export function useMDTable(props: any) {
     refreshTableData,
     tableData,
     editable,
-    saveColumnOrder,
-    addColumnPopoverRef,
-    clearCheckboxRow,
-    addVirtualColumn
+    clearCheckboxRow
   }
 }
 
-export function useMDTableInject(): mdTable {
+export function useMDTableInject() {
   const MDTableReJect = inject(MdTableContextKey)
   if (!MDTableReJect) {
-    throw new Error('useMdTableConsumer must be used within a component that calls useMDTableProvider')
+    console.error('useMdTableConsumer must be used within a component that calls useMDTableProvider')
   }
   return MDTableReJect
 }

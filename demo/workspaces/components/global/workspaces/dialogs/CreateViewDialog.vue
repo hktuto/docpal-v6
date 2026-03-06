@@ -60,7 +60,7 @@ const dateFields = computed(() => {
   return tableFields.value.filter(f => 
     f.businessType === 'date' || 
     f.fieldType === 'timestamp' ||
-    f.displayStructure?.type === 6 // ColumnFieldType.Date
+    f.displayStructure?.type === ColumnFieldType.DateTime
   )
 })
 
@@ -70,15 +70,15 @@ const numberFields = computed(() => {
     f.businessType === 'number' || 
     f.fieldType === 'integer' ||
     f.fieldType === 'numeric' ||
-    f.displayStructure?.type === 2 // ColumnFieldType.Number
+    f.displayStructure?.type === ColumnFieldType.Number
   )
 })
 
 // Get all fields for kanban grouping (typically select/status fields)
 const groupableFields = computed(() => {
   return tableFields.value.filter(f => 
-    f.displayStructure?.type === 3 || // ColumnFieldType.Select
-    f.displayStructure?.type === 4 || // ColumnFieldType.MultiSelect
+    f.displayStructure?.type === ColumnFieldType.SingleSelect ||
+    f.displayStructure?.type === ColumnFieldType.MultiSelect ||
     f.businessType === 'text' // Also allow text fields
   )
 })

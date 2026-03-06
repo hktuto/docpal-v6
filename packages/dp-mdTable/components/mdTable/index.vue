@@ -53,7 +53,7 @@
           </slot>
         </div>
         
-        <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" @submit="addColumn" />
+        <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" />
       </div>
       <MdFormPopover ref="MdFormPopoverRef" showMoveButtons @submit="handleAddRowSubmit" />
 
@@ -69,7 +69,6 @@
 import type { VxeGridProps, VxeGridListeners, VxeGridInstance } from 'vxe-table'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import { useTableConfig } from '../../composables/useTableConfig'
 import Toolbar from './Toolbar.vue'
 import VirtualColumnDialog from './addColumn/VirtualColumnDialog.vue'
 import RecordCardDialog from './RecordCardDialog.vue'
@@ -82,12 +81,12 @@ import { createFieldId } from '../../utils/mdTableHelper'
 const slots = useSlots()
 
 interface Props {
-  tableName?: string
+  tableId?: string
   editable?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  tableName: '',
+  tableId: '',
   editable: false
 })
 
@@ -112,22 +111,21 @@ const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
 const {
   tableData,
-  addColumnPopoverRef,
   columns,
-  addColumn,
   columnGroupRules,
   columnFilterRules,
   columnSortRules,
   gridOptions,
   gridRef,
   refreshTableData,
-  deleteColumn,
   saveColumnOrder,
   updateTableRow,
-  addVirtualColumn
+  addVirtualColumn,
+  addColumnPopoverRef,
+  deleteColumn
 } = useMDTable(props)
-
 // Import update status composable
+await new Promise((resolve) => setTimeout(resolve, 1000))
 const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
 const rightClickCellPopoverRef = ref()
 const recordCardDialogRef = ref()
@@ -278,6 +276,7 @@ const handleCreateRelation = inject<((column: any) => void) | undefined>('handle
 const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) => {
   switch (type) {
     case 'edit':
+      console.log('handleHeaderClick', type, triggerEl, column)
       addColumnPopoverRef.value.show(triggerEl, column)
       break
     case 'sortAz':

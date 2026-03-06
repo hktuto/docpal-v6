@@ -2,31 +2,31 @@
 
 // 字段类型枚举
 export enum ColumnFieldType {
-  MultiText = 1, // 多行文本
-  Number = 2, // 数字
-  SingleSelect = 3, // 单选
-  MultiSelect = 4, // 多选
-  DateTime = 5, // 日期
-  Document = 6, // 附件
+  MultiText = '1', // 多行文本
+  Number = '2', // 数字
+  SingleSelect = '3', // 单选
+  MultiSelect = '4', // 多选
+  DateTime = '5', // 日期
+  Document = '6', // 附件
   //TwoWayLink = 7,      // 双向关联
-  URL = 8, // 网址
-  Email = 9, // 邮箱
-  Phone = 10, // 电话
-  Checkbox = 11, // 勾选
-  Rating = 12, // 评分
-  User = 13, // 成员
-  Relation = 14, // 关联
-  VirtualColumn = 15,    // 关联字段所在行的其他字段
-  Formula = 16, // 智能公式 number only
+  URL = '8', // 网址
+  Email = '9', // 邮箱
+  Phone = '10', // 电话
+  Checkbox = '11', // 勾选
+  Rating = '12', // 评分
+  User = '13', // 成员
+  Relation = '14', // 关联
+  VirtualColumn = '15',    // 关联字段所在行的其他字段
+  Formula = '16', // 智能公式 number only
   // Aggregation = 15, // sum, avg ,min, max of multiple related records ( all line item total amount in a quotation )
   // Currency = 17,       // 货币
   // Percent = 18,        // 百分比
-  Text = 19, // 标题/单行文本
+  Text = '19', // 标题/单行文本
   // AutoNumber = 20,     // 自增数字
-  CreatedTime = 21, // 创建时间
-  LastModifiedTime = 22, // 修改时间
-  CreatedBy = 23, // 创建人
-  LastModifiedBy = 24 // 修改人
+  CreatedTime = '21', // 创建时间
+  LastModifiedTime = '22', // 修改时间
+  CreatedBy = '23', // 创建人
+  LastModifiedBy = '24', // 修改人
   //OneWayLink = 26,     // 单向关联
 }
 export interface FieldOption {

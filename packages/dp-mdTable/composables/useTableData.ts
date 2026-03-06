@@ -1,6 +1,6 @@
 // composables/useTableData.ts
 import { ref, computed, watch, provide, inject, type Ref, type InjectionKey } from 'vue'
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 // import { createGroupTree } from '../utils/treeDataHelper'
 export interface UseTableDataOptions {
   /** 查询参数（SQL字符串或对象） */
@@ -10,7 +10,7 @@ export interface UseTableDataOptions {
   /** 数据转换函数 */
   transform?: (data: any[]) => any[]
 }
-function createMockData({ page }: any, tableName: string) {
+function createMockData({ page }: any, tableId: string) {
   const mockData = []
   for (let i = 0; i < 10; i++) {
     mockData.push({
@@ -40,7 +40,7 @@ function createMockData({ page }: any, tableName: string) {
   }
   return mockData
 }
-function createMockAggregateData({ page }: any, tableName: string) {
+function createMockAggregateData({ page }: any, tableId: string) {
   const mockAggregateData = []
   for (let i = 0; i < 8; i++) {
     mockAggregateData.push({
@@ -51,8 +51,8 @@ function createMockAggregateData({ page }: any, tableName: string) {
   }
   return mockAggregateData
 }
-function createMockAggChildData(page: any, tableName: string) {
-  return createMockData(page, tableName)
+function createMockAggChildData(page: any, tableId: string) {
+  return createMockData(page, tableId)
 }
 export interface TableDataContext {
   tableData: Ref<any[]>
@@ -75,12 +75,12 @@ export interface TableDataContext {
   /**
    * Query any table by name with keyword search and pagination
    * Used for relation field selection (e.g., choosing related records)
-   * @param tableName - The physical table name to query
+   * @param tableId - The physical table name to query
    * @param options - Query options including keyword search and pagination
    * @returns Query result with rows and total count
    */
   queryTableByName?: (
-    tableName: string,
+    tableId: string,
     options?: {
       keyword?: string
       searchFields?: string[]
@@ -101,9 +101,9 @@ export const TableDataContextKey: InjectionKey<TableDataContext> = Symbol('Table
 
 /**
  * 表格数据管理 Composable
- * 通过 tableName 获取和管理表格数据
+ * 通过 tableId 获取和管理表格数据
  */
-export function useTableData(tableName: string, gridRef: any, options: UseTableDataOptions = {}) {
+export function useTableData(tableId: string, gridRef: any, options: UseTableDataOptions = {}) {
   const { autoLoad = true, transform } = options
 
   const tableData = ref<any[]>([])
@@ -119,21 +119,28 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
   /**
    * 获取表格数据
    */
-  const getTableData = async (params: any = {}, aggregate: any = {}) => {
+  const getTableData = async (
+    params: any = {
+      pageSize: 9999
+    },
+    aggregate: any = {}
+  ) => {
     console.log('params', params)
     console.log('aggregate', aggregate)
     if (aggregate?.length > 0) {
       tableData.value = getAggregateData(params)
       return tableData.value
     }
-    if (tableName) {
-      tableData.value = createMockData(tableName, params)
+    if (tableId) {
+      const { data } = await newClientApi.postDynamicDbTableTableidDataPage(tableId, params)
+      console.log('data', data)
+      tableData.value = data?.entryList ?? []
       // const data = createGroupTree(tableData.value, groupOptions.value)
       // console.log('data', data)
       return tableData.value
     }
-    if (!!tableName) {
-      console.warn('tableName 不能为空')
+    if (!!tableId) {
+      console.warn('tableId 不能为空')
       return
     }
 
@@ -141,11 +148,11 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
     error.value = null
   }
   function getAggregateData(params?: any) {
-    return createMockAggregateData(params, tableName)
+    return createMockAggregateData(params, tableId)
   }
   function getAggChildData(params?: any) {
     console.log('getAggChildData', params)
-    return createMockAggChildData(params, tableName)
+    return createMockAggChildData(params, tableId)
   }
   /**
    * 刷新数据
@@ -196,9 +203,9 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
     rawData.value = rawData.value.filter((item) => item?.id == null || !idSet.has(String(item.id)))
   }
 
-  // 监听 tableName 变化，自动重新加载数据
+  // 监听 tableId 变化，自动重新加载数据
   watch(
-    () => tableName,
+    () => tableId,
     (newTableName) => {
       if (newTableName && autoLoad) {
         getTableData()
@@ -207,7 +214,7 @@ export function useTableData(tableName: string, gridRef: any, options: UseTableD
     { immediate: false }
   )
   // 如果 autoLoad 为 true，初始化时加载数据
-  if (autoLoad && tableName) {
+  if (autoLoad && tableId) {
     getTableData()
   }
 

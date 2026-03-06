@@ -34,7 +34,7 @@ const emits = defineEmits<{
 
 const buttonRef = ref<HTMLElement>()
 const popoverRef = ref()
-const { columnSortRules: sortRules } = useColumnsContext()
+const { columnSortRules: sortRules } = useColumnsInject()
 
 // 获取可用列（自动响应 tableRef 变化）
 const availableColumns = computed<ColumnConfig[]>(() => {
