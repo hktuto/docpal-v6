@@ -21,7 +21,21 @@ node docpal.js task edit id=TK-XXXX status=in-progress assignee="[[Name]]"
 
 **If you need to document something that doesn't fit the Obsidian structure → ASK first.**
 
-### 2. Obsidian Writing Guidelines
+### 2. Agent Rules
+All development rules and guidelines are in:
+```
+docpal-documentation/docpal-document/98-agent-rules/
+```
+
+**Key rule files:**
+- `98-agent-rules/00-index.md` - Rules dashboard and index
+- `98-agent-rules/frontend/` - Frontend development rules
+- `98-agent-rules/agent/documentation.md` - Documentation guidelines
+- `98-agent-rules/agent/communication.md` - Communication style
+
+**Always check relevant rules before starting work.**
+
+### 3. Obsidian Writing Guidelines
 When writing in `docpal-documentation/docpal-document/`:
 
 - Use `[[Wiki Links]]` to connect related documents
@@ -31,24 +45,46 @@ When writing in `docpal-documentation/docpal-document/`:
 - Task files are in `02-features/{FEAT-XXX - Name}/04-tasks/TK-XXXX - Name.md`
 - Keep daily notes in `04-journal/` with date prefix: `YYYY-MM-DD - Description.md`
 
-### 3. Failure Stop Rule
+### 4. Failure Stop Rule
 **If the same feature/bug fix fails 2 times → STOP and ASK.**
 
 - First failure: Try alternate approach
 - Second failure: Stop, document what you tried in `04-journal/`, ask for help
 - Do not attempt a third time without discussion
 
-### 4. Module Dependency Rule
+### 5. Module Dependency Rule
 Before working on add-ons, check their `depend-on` metadata.
 
 If core dependency is not stable → focus on core first or ask.
 
 ## Quick Start
 
-1. Read `docpal-documentation/docpal-document/00-meta/Dashboard.md` for current status
-2. Read `.agent/documentation-guide.md` for structure & naming rules
+1. Read `98-agent-rules/00-index.md` for development rules
+2. Read `docpal-documentation/docpal-document/00-meta/Dashboard.md` for project status
 3. Check module dependencies before proposing changes
-4. Update module status when completing work
+4. Use CLI tools for creating/updating documentation
+5. Update module/feature/task status when completing work
+
+## Documentation Structure
+
+```
+docpal-document/
+├── 98-agent-rules/        ← Development rules and guidelines
+│   ├── 00-index.md
+│   ├── frontend/
+│   ├── agent/
+│   └── backend/
+├── 00-meta/               ← Dashboard and guides
+├── 01-modules/            ← Module files: MOD-XXX - Name.md
+├── 02-features/           ← Feature folders
+│   └── FEAT-XXX - Name/
+│       ├── FEAT-XXX.md
+│       └── 04-tasks/
+│           └── TK-XXXX - Name.md
+├── 03-orphan-tasks/       ← Tasks without features
+├── 04-journal/            ← Daily notes
+└── 12-team/               ← Team member profiles
+```
 
 ## Git Workflow
 
