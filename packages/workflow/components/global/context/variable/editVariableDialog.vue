@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
-import { METADATA_OPTIONS, type VariableItem } from '#imports'
+import { METADATA_OPTIONS, type VariableItem, type VariableSelectItem } from '#imports'
 
 const { addVariableItem, updateVariableItem, getVariablesByType } = useVariablesProvide()
 const { node } = defineProps<{
@@ -11,22 +11,15 @@ const emits = defineEmits(['reload'])
 
 let exitRules = []
 const idFieldRef = ref()
-function handleOpen(variables: any) {
-  if (!!variables) {
+function handleOpen(variable: VariableSelectItem) {
+  if (!!variable) {
+    formData.value = { ...variable }
     isEdit.value = true
-    return
-  }
-
-  formData.value = editField.type ? { ...editField } : { ...initData, ...editField }
-  if (!!editField.type) {
-    formData.value = { ...editField }
-    isEdit.value = editField.type
   } else {
-    formData.value = { ...initData, ...editField }
+    formData.value = { ...initData, ...variable }
     isEdit.value = false
   }
-
-  exitRules = isEdit.value ? bpmnGlobalRules.value.filter((item: any) => item.id !== editField.id) : bpmnGlobalRules.value
+  exitRules = isEdit.value ? getVariablesByType().filter((item: any) => item.id !== variable.id) : getVariablesByType()
   opened.value = true
   setTimeout(() => {
     if (idFieldRef.value) {
@@ -146,7 +139,7 @@ defineExpose({
           </el-option-group>
         </el-select>
       </ElFormItem>
-      <DataTypeText v-if="formData.type === 'text'" :form="formData" />
+      <DataTypeText v-if="formData.type === 'string'" :form="formData" />
       <DataTypeNumber v-else-if="formData.type === 'number'" :form="formData" />
       <DataTypeBoolean v-else-if="formData.type === 'boolean'" :form="formData" />
       <DataTypeSelect v-else-if="formData.type === 'select'" :form="formData" />
