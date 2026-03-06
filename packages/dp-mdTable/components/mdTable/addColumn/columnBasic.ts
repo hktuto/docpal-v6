@@ -54,7 +54,7 @@ export const columnBasic: any = {
     isBasic: true,
     component: 'Checkbox'
   },
-  [ColumnFieldType.Member]: {
+  [ColumnFieldType.User]: {
     label: 'Member',
     isBasic: true,
     component: 'Member'
@@ -65,7 +65,7 @@ export const columnBasic: any = {
     component: 'Formula',
     order: 1
   },
-  [ColumnFieldType.MagicLink]: {
+  [ColumnFieldType.Relation]: {
     label: 'Relation',
     isBasic: false,
     component: 'Relation'
@@ -78,8 +78,14 @@ export const columnBasic: any = {
     component: 'VirtualColumn'
   }
 }
+
+const reverseColumnFieldTypeMapping = Object.fromEntries(
+  Object.entries(ColumnFieldType).map(([key, value]) => [value, key])
+);
+
 export function getColumnFieldOptions() {
   const uniqueFieldValues = [...new Set(Object.values(ColumnFieldType))]
+  console.log('uniqueFieldValues', uniqueFieldValues)
   const basicOptions: any[] = []
   const advancedOptions: any[] = []
   uniqueFieldValues.forEach((value) => {
@@ -88,8 +94,9 @@ export function getColumnFieldOptions() {
       return
     }
     if (fieldSetting?.isBasic) {
+
       const item: any = {
-        label: fieldSetting.label || (ColumnFieldType as unknown as Record<ColumnFieldType, string>)[value],
+        label: fieldSetting.label || reverseColumnFieldTypeMapping[value],
         disableCreate: fieldSetting.disableCreate || false,
         value: value
       }
@@ -99,8 +106,9 @@ export function getColumnFieldOptions() {
       item.order = fieldSetting.order || 999
       basicOptions.push(item)
     } else {
+      console.log('fieldSetting', fieldSetting, value)
       const item: any = {
-        label: fieldSetting?.label || (ColumnFieldType as unknown as Record<ColumnFieldType, string>)[value],
+        label: fieldSetting?.label || reverseColumnFieldTypeMapping[value],
         disableCreate: fieldSetting?.disableCreate || false,
         value: value
       }
