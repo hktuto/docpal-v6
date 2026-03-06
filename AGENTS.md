@@ -3,21 +3,32 @@
 ## Critical Rules (MUST FOLLOW)
 
 ### 1. Documentation Rule
-**ALL documentation MUST go in the Obsidian vault (`/docs/`).**
+**ALL documentation MUST go in the Obsidian vault (`docpal-documentation/docpal-document/`).**
 
-- ✅ Use existing docs structure
-- ✅ Update module/feature/task files in `/docs/`
-- ❌ NEVER create new markdown files outside `/docs/`
+- ✅ Use existing docs structure in `docpal-documentation/docpal-document/`
+- ✅ Update module/feature/task files via CLI or directly in vault
+- ❌ NEVER create new markdown files outside `docpal-documentation/`
 - ❌ NEVER create README files, notes, or docs in code folders
+
+**Documentation CLI:**
+```bash
+cd docpal-documentation/skills/docpal-docs/bin
+node docpal.js module create name="Module Name"
+node docpal.js feature create name="Feature Name" module=MOD-XXX
+node docpal.js task create feature=FEAT-XXX name="Task Name" step=10
+node docpal.js task edit id=TK-XXXX status=in-progress assignee="[[Name]]"
+```
 
 **If you need to document something that doesn't fit the Obsidian structure → ASK first.**
 
 ### 2. Obsidian Writing Guidelines
-When writing in `/docs/`:
+When writing in `docpal-documentation/docpal-document/`:
 
 - Use `[[Wiki Links]]` to connect related documents
 - Follow existing metadata format in module files
-- Use templates from `00-templates/` for new features/tasks
+- Module files are in `01-modules/`
+- Feature folders are in `02-features/{FEAT-XXX - Name}/{FEAT-XXX}.md`
+- Task files are in `02-features/{FEAT-XXX - Name}/04-tasks/TK-XXXX - Name.md`
 - Keep daily notes in `04-journal/` with date prefix: `YYYY-MM-DD - Description.md`
 
 ### 3. Failure Stop Rule
@@ -34,8 +45,8 @@ If core dependency is not stable → focus on core first or ask.
 
 ## Quick Start
 
-1. Read `docs/00-meta/Dashboard.md` for current status
-2. Read `docs/00-meta/Documentation Guide.md` for structure & naming rules
+1. Read `docpal-documentation/docpal-document/00-meta/Dashboard.md` for current status
+2. Read `.agent/documentation-guide.md` for structure & naming rules
 3. Check module dependencies before proposing changes
 4. Update module status when completing work
 
@@ -47,6 +58,7 @@ If core dependency is not stable → focus on core first or ask.
 | `master` | Production-ready, stable releases |
 | `dev` | Integration branch, active development |
 | `feature/*` | Individual feature development |
+| `project/*` | Project-specific branches (e.g., project/HKHS) |
 
 ### Sprint Workflow
 
@@ -63,7 +75,7 @@ git checkout -b feature/FEAT-001-name
 **2. During Sprint - Develop & Commit**
 - Work on your feature branch
 - Make regular commits
-- Keep docs updated in `/docs/`
+- Keep docs updated via CLI or directly in `docpal-documentation/`
 
 **3. Sprint End - Merge to Dev**
 ```bash
