@@ -17,10 +17,16 @@ const getStats = async () => {
     loading.value = false
   }
 }
-
+function foundStat(item: any) {
+  const possibleKeys = item.key.split(',').map((key) => key.trim())
+  const possibleStat = Object.keys(stat.value || {}).find((key) => possibleKeys.includes(key))
+  const result = possibleStat ? stat.value[possibleStat] : 0
+  return result
+}
 watch(
   projects,
-  () => {
+  (projectList) => {
+    if (projectList.length === 0) return
     getStats()
   },
   {
@@ -33,9 +39,13 @@ watch(
   <div v-loading="loading" class="StatusSection">
     <div class="sectionTitle">Batch Status</div>
     <div class="statusContainer">
+      <div class="statItem" style="background-color: var(--app-info-color)">
+        <div class="statKey">Total</div>
+        <div class="statValue">{{ stat?.total || 0 }}</div>
+      </div>
       <div v-for="(item, key) in StatusMap" :key="key" class="statItem" :style="{ backgroundColor: item.color }">
         <div class="statKey">{{ key }}</div>
-        <div class="statValue">{{ stat?.[key] || 0 }}</div>
+        <div class="statValue">{{ foundStat(item) || 0 }}</div>
       </div>
     </div>
   </div>

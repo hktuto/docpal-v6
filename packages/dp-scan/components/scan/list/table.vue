@@ -30,8 +30,9 @@ async function cancelBatchs(ids: string[]) {
 const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeTable({
   id: 'scan-table',
   api: async (params: any) => {
+    if (filter.value.projectId.length === 0) return []
     cleanSelectedRows()
-    console.log('get table data')
+
     const p = {
       ...params,
       ...filter.value
