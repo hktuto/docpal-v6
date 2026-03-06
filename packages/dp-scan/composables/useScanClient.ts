@@ -10,7 +10,7 @@ export const useUserProjectPremission = () =>
     admin: []
   }))
 export const useUserListFilter = () =>
-  useState('use-scan-user-list-filter', () => ({
+  useState<any>('use-scan-user-list-filter', () => ({
     filter: '',
     projectId: [],
     status: [],
@@ -39,7 +39,7 @@ export const useScanClient = () => {
         allProjects.set(project.id, project)
       })
     })
-    projects.value = Array.from(allProjects.values())
+    projects.value = Array.from(allProjects.values()) as any[]
     filter.value.projectId = projects.value.map((p) => p.id)
     console.log('projects.value', projects.value, filter.value)
     projectLoading.value = false
