@@ -7,6 +7,7 @@ const loading = ref(false)
 const { info } = toRefs(props)
 const routerProvider = inject(MenuRouterKey)
 const emits = defineEmits(['updated'])
+const additionFieldsSettingEl = ref()
 if (!routerProvider) {
   throw new Error('MenuRouterKey not found')
 }
@@ -42,6 +43,10 @@ async function publish() {
   }
 }
 
+function addAdditionField() {
+  additionFieldsSettingEl.value.add()
+}
+
 function addProjectField() {}
 </script>
 
@@ -56,7 +61,7 @@ function addProjectField() {}
         <ElInput type="textarea" v-model="info.description" />
       </ElFormItem>
       <div class="section">Project Fields <Icon class="cursor-pointer" name="lucide:plus" @click="addProjectField" /></div>
-
+      <ScanProjectInfoProjectField ref="additionFieldsSettingEl" :additionFieldsSetting="info.additionFieldsSetting" />
       <div class="section">Batch Naming Rules</div>
       <ElFormItem label="Prefix">
         <ElInput v-model="info.prefix" />

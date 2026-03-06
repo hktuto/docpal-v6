@@ -14,6 +14,7 @@ async function getProjetDetail() {
   loading.value = true
   try {
     const res = await clientApi.api.getCaptureProjId(projectId.value)
+    res.data.additionFieldsSetting = JSON.parse(res.data.additionFieldsSetting) || []
     projectDetail.value = res.data
   } catch (error) {
   } finally {
@@ -56,7 +57,9 @@ watch(
       <ElSplitterPanel size="200px" min="120">
         <ScanProjectInfo :info="projectDetail" @updated="getProjetDetail" />
       </ElSplitterPanel>
-      <ElSplitterPanel> </ElSplitterPanel>
+      <ElSplitterPanel>
+        <ScanProjectFormList />
+      </ElSplitterPanel>
       <ElSplitterPanel size="200px">
         <ScanProjectAuditList :projectId="projectId" />
       </ElSplitterPanel>

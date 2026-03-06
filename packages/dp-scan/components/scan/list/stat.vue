@@ -59,7 +59,7 @@ watch(
 }
 .statusContainer {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
   gap: var(--app-space-s);
 }
 .statItem {
