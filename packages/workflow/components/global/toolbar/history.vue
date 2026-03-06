@@ -26,7 +26,7 @@ function setupHistory() {
     state.value.canRedo = graphProvider?.graph.value?.canRedo() || false
     // check if workflow is empty
     if (graphProvider?.graph.value?.getNodes() && graphProvider?.graph.value?.getNodes().length > 0) {
-      // workflowDetail?.saveDraft()
+      // save()
     }
   })
 }
