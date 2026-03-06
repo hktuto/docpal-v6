@@ -12,13 +12,14 @@ const { options = {} } = defineProps<{
 const emits = defineEmits(['graphReady'])
 const flatGraphObject = ref<any>({})
 const graphJson = ref<any>({})
+const workflowJson = ref<any>({})
 
-function init(workflowJson: any) {
+function init(workflowJsonObject: any) {
   if (!containerEl.value) {
     throw new Error('Container is not found')
   }
-  if (!workflowJson) {
-    throw new Error('workflowJson is not found')
+  if (!workflowJsonObject) {
+    throw new Error('workflowJsonObject is not found')
   }
   if (graph.value) {
     graph.value.dispose()
@@ -69,7 +70,8 @@ function init(workflowJson: any) {
     ...graphOptions
   })
 
-  const json = workflowJsonToX6Node(workflowJson)
+  workflowJson.value = workflowJsonObject
+  const json = workflowJsonToX6Node(workflowJsonObject)
   graphJson.value = json
 
   graph.value.fromJSON(json)
@@ -97,7 +99,7 @@ function init(workflowJson: any) {
     allFormField.value = getAllFormFieldFromGraph(graph.value as any)
   })
 
-  emits('graphReady', workflowJson)
+  emits('graphReady', workflowJsonObject)
 }
 
 function dim(cellIds: string[]) {
@@ -238,19 +240,11 @@ function fitIn() {
 
 const allFormField = ref({})
 
-function handleSave() {
-  try {
-    let nodes = graph.value?.getNodes()
-    console.log(123, nodes)
-  } catch (e) {
-    console.log(e)
-  }
-}
-
 provide(WORKFLOW_PROVIDER, {
   init,
   graph,
   graphJson,
+  workflowJson,
   flatGraphObject,
   allFormField,
   key: Symbol('WORKFLOW_PROVIDER_KEY')
@@ -269,7 +263,7 @@ defineExpose({
 
 <template>
   <div class="bpmnViewerContainer">
-    <el-button @click="handleSave">Save</el-button>
+    {{}}
     <div class="bpmnGraphContainer" ref="containerEl"></div>
     <slot />
   </div>

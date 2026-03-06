@@ -14,15 +14,13 @@ if (!graphProvider || !editorProvider) {
 }
 
 function openInfo() {
-  console.log('open Info in sidebar')
   // get process node
-  const id = graphProvider?.graphJson.value.id
-  const cell = graphProvider?.graph.value?.getCellById("start_po")
+  const id = graphProvider?.workflowJson.value.id
+  const cell = graphProvider?.graph.value?.getCellById(id)
   if (!cell) {
     throw createError('Process node not found')
   }
-
-  openSidebar('LazyWorkflowContextInfo', cell)
+  openSidebar('LazyContextInfo', cell)
 }
 
 function openPermission() {
@@ -61,11 +59,11 @@ defineExpose({
       Properties
     </div>
     <!-- tabs container -->
-    <ElTabs v-model="activeTab" type="card">
-      <ElTabPane label="Properties" name="properties">
+    <el-tabs v-model="activeTab" type="card">
+      <el-tab-pane label="Properties" name="properties">
         <component v-if="editComponent" :is="editComponent" :node="selectedNode" />
-      </ElTabPane>
-    </ElTabs>
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
 

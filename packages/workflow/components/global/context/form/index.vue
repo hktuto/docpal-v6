@@ -128,7 +128,7 @@ watch(
       <ElButton type="primary" id="Workflow__UserTask__EditForm" @click="handleOpenForm">Edit Form</ElButton>
       <ElButton type="primary" id="Workflow__UserTask__PreviewForm" @click="previewForm">Preview Form</ElButton>
     </div>
-    
+
     <div class="actionsContainer">
       <ElButton type="link" size="small" @click="copyFormAndFieldSetting" :disabled="editorProvider.readonly.value">Copy Form and Field setting</ElButton>
       <ElButton v-if="editorProvider.copyKey.value" type="link" size="small" :disabled="editorProvider.readonly.value" @click="pasteForm">
@@ -137,57 +137,14 @@ watch(
     </div>
   </div>
 
-  <LazyWorkflowVariableManageDialog ref="RuleManageDialogRef" />
-  <LazyWorkflowFormDialog ref="formDialogRef" />
+  <LazyContextVariableManageDialog ref="RuleManageDialogRef" />
+  <LazyContextFormDialog ref="formDialogRef" />
   <ElDialog v-model="formRenderVisible" class="big" distory-on-close draggable>
-    <LazyWorkflowFormRender ref="fromRenderRef" />
+    <LazyContextFormRender ref="fromRenderRef" />
   </ElDialog>
 </template>
 
 <style lang="scss" scoped>
-.formItemListContainer {
-  padding: 0;
-  margin: var(--app-space-s) 0;
-}
-
-.formFieldItem {
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  align-items: flex-start;
-  padding-block: var(--app-space-s);
-  gap: calc(var(--app-space-s) / 2);
-  font-size: var(--app-font-size-s);
-  transition: all 0.2s ease-in-out;
-
-  &.opened {
-    background: var(--app-grey-950);
-  }
-
-  .header {
-    width: 100%;
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: flex-start;
-    align-items: center;
-
-    .label {
-      cursor: pointer;
-      flex: 1 0 auto;
-    }
-  }
-
-  .body {
-    width: 100%;
-    padding: var(--app-space-xs);
-    border-top: 1px solid var(--app-grey-900);
-  }
-}
-
-.formFieldItem + .formFieldItem {
-  border-top: 1px solid var(--app-grey-900);
-}
-
 .actions {
   cursor: pointer;
 }

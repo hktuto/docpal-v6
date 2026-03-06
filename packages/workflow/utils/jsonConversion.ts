@@ -1,4 +1,5 @@
 import { workflowElement } from './workflowElement'
+import node from '@packages/workflow/components/global/toolbar/node.vue'
 
 interface Flow {
   incoming: string[]
@@ -92,11 +93,10 @@ interface WorkflowJson {
 
 export const x6NodeToWorkflowJson = function (x6NodeJson: any) {
   const workflowJson = {
-    id:'',
+    id: '',
     name: '',
-    type:''
+    type: ''
   }
-
 
   return workflowJson
 }
@@ -105,10 +105,25 @@ export const workflowJsonToX6Node = function (workflowJson: WorkflowJson) {
   const cells: any = []
 
   workflowJson.nodes.forEach((nodeItem: NodeItem) => {
-    const type: string = nodeItem.type
-    const graphData = workflowElement[type as keyof WorkflowElement].workflowDataToGraphData(nodeItem)
+    const type: WorkflowElement = nodeItem.type
+    const graphData = workflowElement[type].workflowDataToGraphData(nodeItem)
     cells.push(graphData)
   })
+
+  // 不包含workflow id的node時創建, 該node用於存放variables
+  if (!cells.find((node: any) => node.id === workflowElement.id)) {
+    cells.push({
+      id: workflowJson.id,
+      shape: 'invisible-node',
+      label: workflowJson.name,
+      type: 'process',
+      data: {
+        version: 0,
+        variables: workflowJson.variables
+      }
+    })
+  }
+
   return {
     cells
   }

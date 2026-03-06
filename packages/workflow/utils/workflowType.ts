@@ -5,6 +5,7 @@ export interface WorkflowProvider {
   init: (workflowJson: any) => void
   graph: Ref<Graph | undefined>
   graphJson: Ref<any | {}>
+  workflowJson: Ref<any | {}>
   flatGraphObject: any
   allFormField: Ref<any>
   key: symbol

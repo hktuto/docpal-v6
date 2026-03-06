@@ -49,23 +49,26 @@ function handleSwitch() {
   node.setData(newData, { overwrite: true, deep: true, silent: false })
 }
 
-watch(() => node, () => {
-  if (node) {
-    switchRef.value = 'attr_flowable:candidateGroups' in node.data.data
+watch(
+  () => node,
+  () => {
+    if (node) {
+      switchRef.value = 'attr_flowable:candidateGroups' in node.data.data
+    }
+  },
+  {
+    immediate: true,
+    deep: true
   }
-}, {
-  immediate: true,
-  deep: true
-})
+)
 </script>
 
 <template>
   <div class="fromContainer">
-<!--    <BpmnSidebarEditLabel :node="node" />
-    <BpmnSidebarEditAssignee :node="node" />-->
-    <el-switch :disabled="editorProvider.readonly.value" v-model="switchRef" size="small" active-text="Group"
-               inactive-text="Roles" @change="handleSwitch" />
-<!--    <BpmnSidebarEditCandidateGroup v-if="switchRef" :node="node" />
+    <SidebarLabel :node="node" />
+    <!--     <BpmnSidebarEditAssignee :node="node" />-->
+    <el-switch :disabled="editorProvider.readonly.value" v-model="switchRef" size="small" active-text="Group" inactive-text="Roles" @change="handleSwitch" />
+    <!--    <BpmnSidebarEditCandidateGroup v-if="switchRef" :node="node" />
     <BpmnSidebarEditCandidateRoles v-else :node="node" />
     <BpmnSidebarEditForm :node="node" />
     <BpmnSidebarPreviewDocument :node="node" />

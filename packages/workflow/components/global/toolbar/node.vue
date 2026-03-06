@@ -159,7 +159,7 @@ onMounted(() => {
       <Icon name="lucide:clipboard-paste" />
       <div class="label">Paste</div>
     </div>
-    <ElPopconfirm
+    <el-popconfirm
       v-if="contextSelectedNode && !['start', 'end'].includes(contextSelectedNode.data.id.toLowerCase())"
       title="Are you sure to delete this item?"
       @confirm="deleteItem"
@@ -170,7 +170,7 @@ onMounted(() => {
           <div class="label">Delete</div>
         </div>
       </template>
-    </ElPopconfirm>
+    </el-popconfirm>
   </div>
 </template>
 

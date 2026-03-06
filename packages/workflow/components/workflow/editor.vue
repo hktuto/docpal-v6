@@ -21,7 +21,6 @@ const graph = ref()
 const dnd = ref()
 
 function init(workflowJson: any) {
-  console.log('init editor', workflowJson)
   // check if ready
   if (ready.value && graph.value) {
     // reset graph
@@ -111,16 +110,15 @@ function graphReady() {
       modifiers: ['shift']
     })
   )
-  /*
-    graph.value.use(
-      new History({
-        enabled: !readonly.value,
-        beforeAddCommand: (event: any, args: any) => {
-          const ignoreKeys = ['tools', 'ports']
-          if (ignoreKeys.includes(args.key)) return false
-        }
-      })
-    )*/
+  graph.value.use(
+    new History({
+      enabled: !readonly.value,
+      beforeAddCommand: (event: any, args: any) => {
+        const ignoreKeys = ['tools', 'ports']
+        if (ignoreKeys.includes(args.key)) return false
+      }
+    })
+  )
   graph.value.cleanHistory()
   dnd.value = new Dnd({
     target: graph.value,
@@ -130,6 +128,10 @@ function graphReady() {
   })
 }
 
+function openInfo() {
+  sidebarRef.value.openInfo()
+}
+
 function openSidebar(component: string, node: Node | Edge | Cell) {
   console.log('openSidebar', component, node)
   sidebarRef.value.openSidebar(component, node)
@@ -137,13 +139,9 @@ function openSidebar(component: string, node: Node | Edge | Cell) {
 
 function openForm() {}
 
-function openInfo() {
-  sidebarRef.value.openInfo()
-}
-
 function openPermission() {}
 
-const copyKey = useState('copy-key', () => "")
+const copyKey = useState('copy-key', () => '')
 
 provide(WORKFLOW_EDITOR_PROVIDER, {
   openSidebar,
@@ -159,9 +157,9 @@ defineExpose({ init })
     <WorkflowViewer ref="viewerRef" :options="graphOptions" @graph-ready="graphReady">
       <div v-if="ready" class="toolbar">
         <div class="group">
-          <!--          <WorkflowHistory />-->
-          <WorkflowInfo @click="openInfo" />
-          <!--          <WorkflowPermission @click="openPermission" />-->
+          <ToolbarHistory />
+          <ToolbarInfo @click="openInfo" />
+          <!--          <WorkflowToolbarPermission @click="openPermission" />-->
         </div>
         <div v-if="!readonly" class="group">
           <div v-for="(item, index) in dropActionsItems" :key="index" class="icon handlers" @mousedown.native="(ev) => itemDrop(item, ev)">
@@ -170,9 +168,9 @@ defineExpose({ init })
           </div>
         </div>
       </div>
-      <WorkflowSidebar ref="sidebarRef" />
-      <!--            <WorkflowEdge v-if="ready" ref="edgeRef" />-->
-      <WorkflowNode v-if="ready" ref="nodeRef" @openForm="openForm" />
+      <Sidebar ref="sidebarRef" />
+      <!--            <WorkflowToolbarEdge v-if="ready" ref="edgeRef" />-->
+      <ToolbarNode v-if="ready" ref="nodeRef" @openForm="openForm" />
     </WorkflowViewer>
   </div>
 </template>

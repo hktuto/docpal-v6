@@ -1,10 +1,19 @@
 <script lang="ts" setup>
+import type { Node } from '@antv/x6'
 import { ElMessageBox } from 'element-plus'
+import { WORKFLOW_PROVIDER } from '@packages/workflow/utils/workflowType'
+
+const graphProvider = inject(WORKFLOW_PROVIDER)
+if (!graphProvider) {
+  throw createError('graph provider not found')
+}
+const props = defineProps<{ node: Node }>()
+const { node } = toRefs(props)
 
 const { t } = useI18n()
 const opened = ref(false)
 const FormDialogRef = ref()
-const { getVariablesByType } = useVariablesProvide()
+const { getVariablesByType, deleteVariableItem } = useVariablesProvide()
 
 function open() {
   opened.value = true
@@ -22,7 +31,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   id: 'WorkflowVariableManage',
   zoom: false,
   virtualScroll: true,
-  api: (pageParams: any) => {
+  api: () => {
     return getVariablesByType()
   },
   columns: [
@@ -47,7 +56,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
         action: async ({ row }) => {
           const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete', { tip: t('bpmn.globalRuleTip') + ', ' })}`).catch((action) => action)
           if (action !== 'confirm') return
-          deleteVariableItem(row.id)
+          deleteVariableItem(node, row.id)
           reload()
         }
       }
@@ -60,6 +69,18 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   },
   saveColumnOrder: false
 })
+
+watch(
+  () => node,
+  () => {
+    if (!node) {
+      node.value = graphProvider.graph.value?.getNodes().find((nodeItem: any) => nodeItem.type === 'process')
+      if (!node.value) {
+        throw new Error('find process node does not exist')
+      }
+    }
+  }
+)
 
 defineExpose({
   open
@@ -86,7 +107,7 @@ defineExpose({
       </div>
     </template>
   </ElDialog>
-  <WorkflowVariableEditVariableDialog ref="FormDialogRef" @reload="reload" />
+  <LazyContextVariableEditVariableDialog :node="node" ref="FormDialogRef" @reload="reload" />
 </template>
 
 <style lang="scss" scoped>

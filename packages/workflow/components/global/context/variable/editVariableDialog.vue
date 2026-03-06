@@ -1,24 +1,27 @@
 <script lang="ts" setup>
-import { METADATA_OPTIONS, type MetadataOption } from '#imports'
-const props = defineProps<{
-  mode?: 'global' | 'task'
+import type { Node } from '@antv/x6'
+import { METADATA_OPTIONS, type VariableItem } from '#imports'
+
+const { addVariableItem, updateVariableItem, getVariablesByType } = useVariablesProvide()
+const { node } = defineProps<{
+  node: Node
 }>()
 const opened = ref(false)
-const emits = defineEmits(['created', 'updated'])
+const emits = defineEmits(['reload'])
 
-const editorProvider = inject(EDITOR_PROVIDER)
-if (!editorProvider) {
-  throw createError('editor provider not found')
-}
-const { bpmnGlobalRules } = editorProvider.BpmnRule
 let exitRules = []
 const idFieldRef = ref()
-function handleOpen(editField: any = {}) {
+function handleOpen(variables: any) {
+  if (!!variables) {
+    isEdit.value = true
+    return
+  }
+
   formData.value = editField.type ? { ...editField } : { ...initData, ...editField }
-  if(!!editField.type){
+  if (!!editField.type) {
     formData.value = { ...editField }
     isEdit.value = editField.type
-  } else{
+  } else {
     formData.value = { ...initData, ...editField }
     isEdit.value = false
   }
@@ -40,10 +43,9 @@ const initData = {
   type: 'text',
   maxLength: 200
 }
-const formData = ref({
+const formData = ref<VariableItem>({
   ...initData
 })
-const ruleForm = ref<any>({})
 const newFieldRules = reactive({
   id: [
     {
@@ -60,6 +62,7 @@ const newFieldRules = reactive({
     }
   ]
 })
+
 function idChanged(rule: any, value: any, callback: any) {
   if (!value) {
     return callback(new Error('Please input id'))
@@ -68,12 +71,13 @@ function idChanged(rule: any, value: any, callback: any) {
   if (!/^[a-zA-Z0-9_]+$/.test(value)) {
     return callback(new Error('Id can only contain letters, numbers and underscores'))
   }
-  const isDuplicatedItem = exitRules.find((item: any) => item.id === value)
+  const isDuplicatedItem = getVariablesByType().find((item: any) => item.id === value)
   if (isDuplicatedItem) {
     return callback(new Error('Id is duplicated'))
   }
   callback()
 }
+
 function typeChanged(value: any) {
   const options = METADATA_OPTIONS.reduce((acc: any, item: any) => {
     acc.push(...item.options)
@@ -104,13 +108,12 @@ async function confirmHandler() {
   try {
     await FormRef.value.validate()
     if (isEdit.value) {
-      emits('updated', { ...formData.value })
+      updateVariableItem(node, formData.value)
     } else {
-      emits('created', { ...formData.value })
+      addVariableItem(node, formData.value)
     }
-  
+    emits('reload')
     opened.value = false
-    // FormRef.value.resetFields()
   } catch (error) {
     console.error(error)
   }
@@ -156,7 +159,7 @@ defineExpose({
       <DataTypeUserRoleUserGroup v-else-if="formData.type === 'user_role_user_group'" :form="formData" />
       <!-- 根据type显示不同的表单项 -->
       <ElFormItem>
-        <ElButton id="Workflow__EditField__AddField__Confirm" type="primary" @click="confirmHandler">{{ $t('dpButtom_confirm')}}</ElButton>
+        <ElButton id="Workflow__EditField__AddField__Confirm" type="primary" @click="confirmHandler">{{ $t('dpButtom_confirm') }}</ElButton>
       </ElFormItem>
     </ElForm>
   </ElDialog>

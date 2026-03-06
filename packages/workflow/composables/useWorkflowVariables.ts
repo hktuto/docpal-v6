@@ -1,14 +1,7 @@
-import {} from '#imports'
 /**
  * 動態變量的數據類型
  */
-interface VariableItemType {
-  string: 'string'
-  number: 'number'
-  boolean: 'boolean'
-  date: 'date'
-  select: 'select'
-}
+export type VariableItemType = 'string' | 'number' | 'boolean' | 'date' | 'select'
 
 export type VariableItem = {
   id: string
@@ -21,8 +14,28 @@ export type VariableItem = {
   maximum?: number
 }
 
+export type VariableSelectItem = {
+  id: string
+  name: string
+  type: string
+}
+
+export type WorkflowVariablesObj = Record<string, Omit<VariableItem, 'id'>>
+
+export type WorkflowVariablesProvideContext = {
+  variables: ReturnType<typeof ref<VariableItem[]>>
+  addVariableItem: (node: any, variableItem: VariableItem) => void
+  updateVariableItem: (node: any, variableItem: VariableItem) => void
+  deleteVariableItem: (node: any, variableItemId: string) => void
+  getVariablesByType: (type?: VariableItemType) => VariableSelectItem[]
+}
+
 export const useVariablesProvide = () => {
-  const { variables, addVariableItem, updateVariableItem, deleteVariableItem, getVariablesByType } = inject('WorkflowVariablesProvide')
+  const ctx = inject<WorkflowVariablesProvideContext>('WorkflowVariablesProvide')
+  if (!ctx) {
+    throw new Error('WorkflowVariablesProvide is not provided')
+  }
+  const { variables, addVariableItem, updateVariableItem, deleteVariableItem, getVariablesByType } = ctx
   return {
     variables,
     addVariableItem,
@@ -40,7 +53,7 @@ export const useVariables = () => {
    * @param variablesObj workflowJson.variables
    */
   function setVariables(variablesObj: any) {
-    if (!!variables) {
+    if (!!variablesObj) {
       variables.value = Object.keys(variablesObj).map((key) => ({
         id: key,
         ...variablesObj[key]
@@ -51,55 +64,60 @@ export const useVariables = () => {
   /**
    * Add variable to variables and workflowJson variables
    * @param variableItem 變量對象
+   * @param node node
    */
-  function addVariableItem(variableItem: VariableItem) {
+  function addVariableItem(node: any, variableItem: VariableItem) {
     variables.value.push(variableItem)
-    // update 回 workflowJson的 variables
-    const variablesObj = toWorkflowVariablesObj(variables.value)
+    updateNode(node, toWorkflowVariablesObj(variables.value))
   }
 
   /**
    * Update variable to variables and workflowJson variables
    * @param variableItem 變量對象
+   * @param node node
    */
-  function updateVariableItem(variableItem: VariableItem) {
+  function updateVariableItem(node: any, variableItem: VariableItem) {
     const index = variables.value.findIndex((item: VariableItem) => item.id === variableItem.id)
     if (index !== -1) {
       variables.value[index] = variableItem
     }
-
-    // update 回 workflowJson的 variables
-    const variablesObj = toWorkflowVariablesObj(variables.value)
+    updateNode(node, toWorkflowVariablesObj(variables.value))
   }
 
   /**
    * Delete variable from variables and workflowJson variables
    * @param variableItemId 變量ID
+   * @param node node
    */
-  function deleteVariableItem(variableItemId: string) {
+  function deleteVariableItem(node: any, variableItemId: string) {
     const index = variables.value.findIndex((item: VariableItem) => item.id === variableItemId)
     if (index !== -1) {
       variables.value.splice(index, 1)
     }
-
-    // update 回 workflowJson的 variables
-    const variablesObj = toWorkflowVariablesObj(variables.value)
+    updateNode(node, toWorkflowVariablesObj(variables.value))
   }
 
   /**
    * 根據數據類型返回對應的數據類型
    * @param type 變量的數據類型
    */
-  function getVariablesByType(type?: VariableItemType) {
-    return variables.value
-      .filter((item: VariableItem) => item.type === type)
-      .map((item: VariableItem) => {
-        return {
-          id: item.id,
-          name: item.name,
-          type: item.type
-        }
-      })
+  function getVariablesByType(type?: VariableItemType): VariableSelectItem[] {
+    const list = type ? variables.value.filter((item: VariableItem) => item.type === type) : variables.value
+    return list.map((item: VariableItem) => ({
+      id: item.id,
+      name: item.name,
+      type: item.type
+    }))
+  }
+
+  function updateNode(node: any, variables: WorkflowVariablesObj) {
+    const data = node.getData()
+    const newData = {
+      ...data,
+      variables,
+      version: (data.version || 0) + 1
+    }
+    node.setData(newData, { overwrite: true, deep: true, silent: false })
   }
 
   provide('WorkflowVariablesProvide', {
@@ -115,8 +133,8 @@ export const useVariables = () => {
   }
 }
 
-function toWorkflowVariablesObj(variables: VariableItem[]) {
-  return variables.reduce((acc: any, curr: VariableItem) => {
+function toWorkflowVariablesObj(variables: VariableItem[]): WorkflowVariablesObj {
+  return variables.reduce((acc: WorkflowVariablesObj, curr: VariableItem) => {
     const { id, ...rest } = curr
     acc[id] = rest
     return acc

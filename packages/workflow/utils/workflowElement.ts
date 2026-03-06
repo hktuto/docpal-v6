@@ -221,7 +221,6 @@ export const workflowElement: WorkflowElement = {
         },
         _order: 0
       }
-
       return graph
     },
     clickHandler: () => {},
@@ -269,7 +268,7 @@ export const workflowElement: WorkflowElement = {
     toolbar: [
       {
         id: CellType.userTask,
-        icon: 'bpmn:form',
+        icon: 'lucide:file-pen-line',
         label: 'User Form',
         group: '',
         order: 0
@@ -277,7 +276,7 @@ export const workflowElement: WorkflowElement = {
       {
         id: CellType.signatureTask,
         label: 'User Signature Task',
-        icon: 'bpmn:signature',
+        icon: 'lucide:user-round-pen',
         group: '',
         order: 0
       }
