@@ -3,7 +3,7 @@ export const StatusMap: {
 } = {
   processing: {
     color: '#67C23A',
-    key: 'processing',
+    key: 'processing,proces ',
     status: ['processing', 'uploaded', 'classification', 'page-split', 'ratio-resize', 'ocr', 'exporting', 'combine-document']
   },
   verification: {
@@ -13,22 +13,22 @@ export const StatusMap: {
   },
   exportReady: {
     color: '#5DC9D3',
-    key: 'exportReady',
+    key: 'exportReady, export',
     status: ['exportReady']
   },
   completed: {
     color: '#15D5B9',
-    key: 'completed',
+    key: 'completed, complete',
     status: ['completed']
   },
   failed: {
     color: '#F56C6C',
-    key: 'failed',
+    key: 'failed, fail',
     status: ['failed-to-process', 'failed-to-export']
   },
   cancelled: {
     color: '#909399',
-    key: 'cancelled',
+    key: 'cancelled, cancel',
     status: ['cancelled']
   }
 }
