@@ -53,6 +53,7 @@ export const useScanClient = () => {
 
   return {
     projects,
+    projectsPermissions,
     filter
   }
 }

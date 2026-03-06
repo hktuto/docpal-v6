@@ -125,6 +125,21 @@ export const createBatchDetailPageTab = (batchId: string) => {
   }
 }
 
+export const createNewBatchPageTab = (projectId: string) => {
+  return {
+    id: 'client-scan-new',
+    name: 'client-scan-new',
+    label: 'New Batch',
+    icon: 'lucide:file-plus',
+    hoverIcon: 'lucide:file-plus',
+    component: 'LazyBatchNewPage',
+    feature: 'CORE',
+    props: {
+      projectId
+    }
+  }
+}
+
 export const createProjectTableTab = () => {
   return {
     id: 'admin-scan',

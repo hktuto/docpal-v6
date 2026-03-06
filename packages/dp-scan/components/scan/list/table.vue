@@ -52,7 +52,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     ...ScanTableColumns
   ],
   dblClickAction: ({ row }) => {
-    const newTab = createBatchDetailPageTab(row.batchNo)
+    const newTab = createBatchDetailPageTab(row.id)
     routerProvider?.navigateTo(newTab)
   },
   bodyActions: [
@@ -61,7 +61,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
         code: 'view',
         name: 'Open',
         action: ({ row }) => {
-          const newTab = createBatchDetailPageTab(row.batchNo)
+          const newTab = createBatchDetailPageTab(row.id)
           routerProvider?.navigateTo(newTab)
         }
       },
