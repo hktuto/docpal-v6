@@ -60,7 +60,6 @@ onMounted(() => {
   setUpListener()
   refreshData()
   variables.value = getVariablesByType()
-  console.log(123123, variables.value)
 })
 </script>
 
