@@ -58,7 +58,7 @@ watch(
         <ScanProjectInfo :info="projectDetail" @updated="getProjetDetail" />
       </ElSplitterPanel>
       <ElSplitterPanel>
-        <ScanProjectFormList />
+        <ScanProjectFormList :projectId="projectId" />
       </ElSplitterPanel>
       <ElSplitterPanel size="200px">
         <ScanProjectAuditList :projectId="projectId" />

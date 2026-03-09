@@ -39,6 +39,7 @@ export async function loadPDF(source: File | ArrayBuffer): Promise<PDFWrapper> {
 
   // Dynamic import of pdfjs-dist legacy build
   const pdfjsLib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.624/legacy/build/pdf.mjs')
+  console.log('pdfjsLib', pdfjsLib)
   pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
 
   const data = await file.arrayBuffer()
@@ -75,8 +76,7 @@ export async function getPDFPagesInfo(pdf: PDFWrapper): Promise<PDFPageInfo[]> {
  */
 export async function renderPDFPageToCanvas(pdf: PDFWrapper, pageNumber: number, options: RenderOptions = {}): Promise<HTMLCanvasElement> {
   const { scale = 1.5, maxWidth, maxHeight } = options
-
-  const page = await pdf.getPage(pageNumber)
+  const page = await pdf.doc.getPage(pageNumber)
   let viewport = page.getViewport({ scale })
 
   // Calculate scale to fit within max dimensions

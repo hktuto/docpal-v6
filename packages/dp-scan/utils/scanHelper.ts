@@ -167,3 +167,18 @@ export const createScanDetailPageTab = (projectId: string) => {
     }
   }
 }
+
+export const createScanFormDetailPageTab = (formId: string) => {
+  return {
+    id: 'scan-form-detail',
+    name: 'scan-form-detail',
+    label: 'Scan Form Detail',
+    icon: 'lucide:file-text',
+    hoverIcon: 'lucide:file-text',
+    component: 'LazyScanFormDetail',
+    feature: 'CORE',
+    props: {
+      formId
+    }
+  }
+}

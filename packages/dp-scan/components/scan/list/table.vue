@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useVxeTable } from '#imports'
 import { clientApi } from 'api'
-import { ScanTableColumns } from '../../../utils/scanHelper'
+import { ScanTableColumns } from '#imports'
 import { ElMessageBox } from 'element-plus'
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {

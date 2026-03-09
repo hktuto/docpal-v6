@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
-import { StatusMap } from '../../../utils/scanHelper'
+import { StatusMap } from '#imports'
 const { projects } = useScanClient()
 const stat = ref()
 const loading = ref(true)
