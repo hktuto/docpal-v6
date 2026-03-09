@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useVxeTable } from '#imports'
 import { clientApi } from 'api'
-import { ScanTableColumns } from '../../../utils/scanHelper'
+import { ScanTableColumns } from '#imports'
 import { ElMessageBox } from 'element-plus'
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
@@ -52,7 +52,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     ...ScanTableColumns
   ],
   dblClickAction: ({ row }) => {
-    const newTab = createBatchDetailPageTab(row.batchNo)
+    const newTab = createBatchDetailPageTab(row.id)
     routerProvider?.navigateTo(newTab)
   },
   bodyActions: [
@@ -61,7 +61,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
         code: 'view',
         name: 'Open',
         action: ({ row }) => {
-          const newTab = createBatchDetailPageTab(row.batchNo)
+          const newTab = createBatchDetailPageTab(row.id)
           routerProvider?.navigateTo(newTab)
         }
       },

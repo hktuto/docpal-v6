@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ArrowDown } from '@element-plus/icons-vue'
 import { useDebounceFn } from '@vueuse/core'
-import { StatusMap, ScanTableColumns } from '../../../utils/scanHelper'
+import { StatusMap, ScanTableColumns } from '#imports'
 const { filter } = useScanClient()
 
 const emit = defineEmits(['search'])
