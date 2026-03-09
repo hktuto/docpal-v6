@@ -1,7 +1,7 @@
 <template>
-  <MdFormItem v-if="formData && column.field" v-bind="props" :rules="rules">
+  <MdFormItem v-if="formData && column[fieldName]" v-bind="props" :rules="rules">
     <el-select
-      v-model="formData[column.field]"
+      v-model="formData[column[fieldName]]"
       :multiple="isMultiple"
       :placeholder="column.placeholder || '请选择成员'"
       clearable
@@ -26,6 +26,7 @@ import { clientApi } from 'api'
 const props = defineProps<{
   formData: any
   column: any
+  fieldName: string
 }>()
 
 const loading = ref(false)
@@ -33,7 +34,7 @@ const userList = ref<Array<{ value: string; label: string; email?: string }>>([]
 
 // 判断是否多选
 const isMultiple = computed(() => {
-  return props.column?.properties?.allowMulti === true
+  return props.column?.display_structure?.allowMulti === true
 })
 
 // 验证规则
@@ -94,8 +95,8 @@ onMounted(() => {
   fetchUserList()
 
   // 如果是多选且初始值为空，初始化为空数组
-  if (isMultiple.value && !props.formData[props.column.field]) {
-    props.formData[props.column.field] = []
+  if (isMultiple.value && !props.formData[props.column[props.fieldName]]) {
+    props.formData[props.column[props.fieldName]] = []
   }
 })
 </script>

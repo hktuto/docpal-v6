@@ -32,7 +32,7 @@ The package uses Vue `provide/inject`:
 
 2. **Package consumes contexts** via:
    - `useColumnsContext()` - get column context
-   - `useTableDataContext()` - get data context
+   - `useTableDataInject()` - get data context
    - `useMDTableInject()` - get table context
 
 ## Common Patterns

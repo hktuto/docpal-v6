@@ -1,6 +1,6 @@
 <template>
   <MdFormItem v-bind="props" :rules="rules">
-    <ElInput v-if="formData && column.field" v-model="formData[column.field]" :placeholder="column.placeholder" clearable />
+    <ElInput v-if="formData && column[fieldName]" v-model="formData[column[fieldName]]" :placeholder="column.placeholder" clearable />
   </MdFormItem>
 </template>
 
@@ -9,6 +9,7 @@ import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 const props = defineProps<{
   formData: any
   column: any
+  fieldName: string
 }>()
 const rules = computed(() => {
   if(!props.column) {

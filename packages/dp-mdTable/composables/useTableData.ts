@@ -65,7 +65,7 @@ export interface TableDataContext {
   addRow: (row: any) => void
   updateRow: (rows: any[]) => void
   deleteRow: (ids: string | string[]) => void
-  getAggChildData?: (params?: any, aggregate?: { id: string; field: string; order: string }) => Promise<any[] | undefined>
+  getAggChildData: (params?: any, aggregate?: { id: string; field: string; order: string }) => Promise<any[] | undefined>
   queryRecordById: (id: string) => any
   upsertRows?: (
     rows: any[],
@@ -150,7 +150,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   function getAggregateData(params?: any) {
     return createMockAggregateData(params, tableId)
   }
-  function getAggChildData(params?: any) {
+  async function getAggChildData(params?: any, aggregate?: { id: string; field: string; order: string }) {
     console.log('getAggChildData', params)
     return createMockAggChildData(params, tableId)
   }
@@ -164,9 +164,10 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   /**
    * 添加行数据
    */
-  const addRow = (row: any) => {
-    tableData.value.push(row)
-    rawData.value.push(row)
+  const addRow = async (row: any) => {
+    const { data } = await newClientApi.postDynamicDbTableTableidData(tableId, { data: row })
+    console.log('data', data)
+    getTableData()
   }
   function queryRecordById(id: string) {
     const record = tableData.value.find((item) => item?.id === id)
@@ -242,6 +243,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     loading,
     error,
     queryParams,
+    getAggChildData,
     // 方法
     queryRecordById,
     getTableData,
@@ -252,7 +254,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
   }
 }
 
-export const useTableDataContext = () => {
+export const useTableDataInject = () => {
   const tableDataContext = inject(TableDataContextKey)
   if (!tableDataContext) {
     throw new Error('TableDataContext not found')

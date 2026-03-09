@@ -9,28 +9,30 @@ export interface mdTable {
   gridRef: Ref<VxeGridInstance | undefined>
   getOptionsFromTableData: (column: any) => any[]
   clearCheckboxRow: () => void
-  updateRow: (row: any) => void
   getUserList: () => Promise<any[]>
   userList: Ref<any[]>
+  tableData: Ref<any[]>
+  updateRow: (row: any) => void
+  addRow: (row: any) => void
 }
 export const MdTableContextKey: InjectionKey<mdTable> = Symbol('MdTableContextKey')
 export function useMDTable(props: any) {
   console.log('useMDTable', props)
   const editable = ref(props.editable)
   const gridRef = ref<any>()
-  const { columns, columnGroupRules, columnFilterRules, columnSortRules, addColumnPopoverRef, deleteColumn } = useColumns(props.tableId)
+  const { columns, columnGroupRules, columnFilterRules, columnSortRules, addColumnPopoverRef, deleteColumn, addColumn } = useColumns(props.tableId)
 
   const {
     loading,
     queryParams,
     tableData,
     refresh: refreshTableData,
-    addRow: addTableRow,
-    updateRow: updateTableRow,
+    addRow,
+    updateRow,
     deleteRow,
     getTableData,
     getAggChildData
-  } = useTableDataContext()
+  } = useTableData(props.tableId, gridRef)
 
   // Get update status helper for cell styling
   const { getCellClass } = useUpdateStatus()
@@ -61,9 +63,7 @@ export function useMDTable(props: any) {
       gridRef.value?.clearCheckboxRow()
     }
   }
-  function updateRow(row: any) {
-    updateTableRow(Array.isArray(row) ? row : [row])
-  }
+
 
   const userList = ref<any[]>([])
   let lastLoadTime = 0
@@ -102,30 +102,34 @@ export function useMDTable(props: any) {
 
   provide(MdTableContextKey, {
     columns,
-
+    tableData,
     gridRef,
     clearCheckboxRow,
     // helper functions
     getOptionsFromTableData,
     getUserList,
     userList,
-    updateRow
+    updateRow,
+    addRow
   })
 
   return {
     columns,
     addColumnPopoverRef,
+    addColumn,
     deleteColumn,
     columnGroupRules,
     columnFilterRules,
     columnSortRules,
+
     gridOptions,
     gridRef,
-    updateTableRow,
     refreshTableData,
     tableData,
     editable,
-    clearCheckboxRow
+    
+    clearCheckboxRow,
+    addRow
   }
 }
 

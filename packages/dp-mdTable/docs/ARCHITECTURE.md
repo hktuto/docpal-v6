@@ -129,7 +129,7 @@ The package uses Vue's `provide/inject` for dependency injection:
 │  │  dp-mdTable package                               │  │
 │  │  ├── useMDTable() - Consumes contexts             │  │
 │  │  ├── useColumnsContext() - Column operations      │  │
-│  │  └── useTableDataContext() - Data operations      │  │
+│  │  └── useTableDataInject() - Data operations      │  │
 │  └───────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────┘
 ```

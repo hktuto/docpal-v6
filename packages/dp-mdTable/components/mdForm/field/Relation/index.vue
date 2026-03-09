@@ -1,5 +1,5 @@
 <template>
-  <MdFormItem v-if="formData && column?.field" v-bind="props"
+  <MdFormItem v-if="formData && column?.[fieldName]" v-bind="props"
     >
     <MdFormFieldRelationPicker
       v-if="relationTableId"
@@ -20,6 +20,7 @@ import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 const props = defineProps<{
   formData: any
   column: any
+  fieldName: string
 }>()
 
 const emit = defineEmits<{
@@ -29,11 +30,11 @@ const pickerRef = ref<InstanceType<typeof MdFormFieldRelationPicker>>()
 const availableRecords = ref<any[]>([])
 const { queryRelatedTable, getFieldsForTable } = useColumnsInject()
 const { columns } = useMDTableInject()
-const relationTableId = computed(() => props.column?.properties?.relationTableId ?? '')
+const relationTableId = computed(() => props.column?.display_structure?.relationTableId ?? '')
 const { t } = useI18n()
-const tableLabel = computed(() => props.column?.properties?.relationTableName ?? props.column?.title ?? t('mdTable.relationPicker.defaultTableLabel'))
+const tableLabel = computed(() => props.column?.display_structure?.relationTableName ?? props.column?.title ?? t('mdTable.relationPicker.defaultTableLabel'))
 const currentValue = computed(() => {
-  const v = props.formData?.[props.column?.field]
+  const v = props.formData?.[props.column?.[props.fieldName]]
   return Array.isArray(v) ? v : v != null ? [v] : []
 })
 
@@ -44,7 +45,7 @@ function getVirtualColumnsForRelation(relationFieldName: string) {
   const cols = columns?.value ?? []
   return cols.filter((col: any) => {
     if (col.type !== ColumnFieldType.VirtualColumn) return false
-    const sourceRelationField = col.properties?.sourceRelationField ?? col.field?.split('.')[0]
+    const sourceRelationField = col.display_structure?.sourceRelationField ?? col[props.fieldName]?.split('.')[0]
     return sourceRelationField === relationFieldName
   })
 }
@@ -52,10 +53,10 @@ function handleOriginalClick(record: any) {
   emit('original-click', record)
 }
 function handleUpdate(value: string[]) {
-  if (!props.formData || props.column?.field == null) return
+  if (!props.formData || props.column?.[props.fieldName] == null) return
 
-  const relationFieldName = props.column.field.includes('.') ? props.column.field.split('.')[0] : props.column.field
-  props.formData[props.column.field] = value
+  const relationFieldName = props.column[props.fieldName].includes('.') ? props.column[props.fieldName].split('.')[0] : props.column[props.fieldName]
+  props.formData[props.column[props.fieldName]] = value
 
   // 同步更新与当前 relation 共享同一关联表的 VirtualColumn 数据
   const virtualColumns = getVirtualColumnsForRelation(relationFieldName)
@@ -63,7 +64,7 @@ function handleUpdate(value: string[]) {
     const recordsMap = pickerRef.value?.selectedRecordsMap?.value ?? pickerRef.value?.selectedRecordsMap ?? {}
     const ids = Array.isArray(value) ? value : value != null ? [value] : []
     virtualColumns.forEach((vc: any) => {
-      const displayFieldName = vc.properties?.displayFieldName ?? vc.field?.split('.')[1]
+      const displayFieldName = vc.display_structure?.displayFieldName ?? vc[props.fieldName]?.split('.')[1]
       if (!displayFieldName) return
       const dataKey = `${relationFieldName}.${displayFieldName}`
       const vals = ids.map((id: string) => recordsMap[id]?.[displayFieldName] ?? id)

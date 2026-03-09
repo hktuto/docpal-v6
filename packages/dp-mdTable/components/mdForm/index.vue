@@ -1,7 +1,8 @@
 <template>
   <ElForm ref="formRef" :model="formData" label-position="top">
-    <div v-for="column in columns" :key="column.field">
-      <component v-if="mode === 'edit' || !systemFieldsTypes.includes(column.type)" :is="getComponent(column.type)" :form-data="formData" :column="column" 
+    <div v-for="column in columns" :key="column.field_name">
+      <component v-if="mode === 'edit' || !systemFieldsTypes.includes(column.business_type)" :is="getComponent(column.business_type)" :form-data="formData" :column="column" 
+        fieldName="field_name"
         @original-click="handleOriginalClick"
       />
     </div>
@@ -11,7 +12,7 @@
 
 <script setup lang="ts">
 import { resolveComponent } from 'vue'
-import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
+import { ColumnFieldType, reverseColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 const props = defineProps<{
   formData: any
   mode: 'default' | 'edit'
@@ -44,7 +45,8 @@ const componentMap = {
   Rating: resolveComponent('LazyMdFormFieldRating')
 }
 const getComponent = (type: string) => {
-  const s_type = ColumnFieldType[type]
+  const s_type = reverseColumnFieldType[type]
+  console.log('s_type', s_type)
   return componentMap[s_type] || resolveComponent('LazyMdFormFieldDisabled')
 }
 

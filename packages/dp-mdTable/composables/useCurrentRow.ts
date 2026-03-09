@@ -1,7 +1,6 @@
 export function useCurrentRow() {
   
-  const { tableData } = useTableDataContext()
-  const { gridRef } = useMDTableInject()
+  const { gridRef, tableData } = useMDTableInject() as any
   const currentRow = ref<any>(null)
   const currentIndex = ref<number>(0)
   const disabledUp = ref<boolean>(false)

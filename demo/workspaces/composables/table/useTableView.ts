@@ -5,7 +5,6 @@ import { getCurrentUserId } from '../useCurrentUser'
 // Import sub-composables
 import { useTableFields, ensurePlainArray } from './useTableFields'
 import { useTableViews, ViewContextKey, type ViewContext } from './useTableViews'
-import { useTableDataProvider } from './useTableDataProvider'
 import { newClientApi } from 'api'
 
 // Re-export ViewContext for backwards compatibility
@@ -45,20 +44,20 @@ export const useTableView = () => {
 
 
   // Initialize data provider (depends on fields, views, columns)
-  const dataComposable = useTableDataProvider({
-    physicalTableName,
-    fields: fieldComposable.fields,
-    currentView: viewComposable.currentView,
-    columnFilterRules: viewComposable.columnFilterRules,
-    columnSortRules: viewComposable.columnSortRules,
-    columnGroupRules: viewComposable.columnGroupRules,
-    query,
-    getField: fieldComposable.getField,
-    // Audit logging options
-    tableId,
-    reference_entity_id,
-    enableAuditLog: true
-  })
+  // const dataComposable = useTableDataProvider({
+  //   physicalTableName,
+  //   fields: fieldComposable.fields,
+  //   currentView: viewComposable.currentView,
+  //   columnFilterRules: viewComposable.columnFilterRules,
+  //   columnSortRules: viewComposable.columnSortRules,
+  //   columnGroupRules: viewComposable.columnGroupRules,
+  //   query,
+  //   getField: fieldComposable.getField,
+  //   // Audit logging options
+  //   tableId,
+  //   reference_entity_id,
+  //   enableAuditLog: true
+  // })
 
   /**
    * Initialize table view with table ID
@@ -381,16 +380,16 @@ export const useTableView = () => {
     reference_entity_id,
 
     // Table Data (from dataComposable)
-    loading: dataComposable.loading,
-    error: dataComposable.error,
-    tableData: dataComposable.tableData,
-    queryParams: dataComposable.queryParams,
-    getTableData: dataComposable.getTableData,
-    refresh: dataComposable.refresh,
-    addRow: dataComposable.addRow,
-    updateRow: dataComposable.updateRow,
-    deleteRow: dataComposable.deleteRow,
-    queryTableByName: dataComposable.queryTableByName,
+    // loading: dataComposable.loading,
+    // error: dataComposable.error,
+    // tableData: dataComposable.tableData,
+    // queryParams: dataComposable.queryParams,
+    // getTableData: dataComposable.getTableData,
+    // refresh: dataComposable.refresh,
+    // addRow: dataComposable.addRow,
+    // updateRow: dataComposable.updateRow,
+    // deleteRow: dataComposable.deleteRow,
+    // queryTableByName: dataComposable.queryTableByName,
 
     // Fields (from fieldComposable)
     fields: fieldComposable.fields,

@@ -29,6 +29,9 @@ export enum ColumnFieldType {
   LastModifiedBy = '24', // 修改人
   //OneWayLink = 26,     // 单向关联
 }
+export const reverseColumnFieldType = Object.fromEntries(
+  Object.entries(ColumnFieldType).map(([key, value]) => [value, key])
+);
 export interface FieldOption {
   id: string
   name: string

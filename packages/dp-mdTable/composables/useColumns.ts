@@ -207,7 +207,12 @@ export function useColumns(tableId: string, options: UseColumnsOptions = {}) {
   const getAllColumns = async (): Promise<ColumnConfig[]> => {
     if (tableId) {
       const { data }: any = await newClientApi.getDynamicDbTableTableidFields(tableId)
-      columns.value = data ?? []
+      columns.value = data?.map((item: any) => ({
+        ...item,
+        type: item.business_type,
+        field: item.field_name,
+        title: item.field_name_alias,
+      })) ?? []
       return columns.value
     }
     return [...columns.value]
@@ -218,7 +223,7 @@ export function useColumns(tableId: string, options: UseColumnsOptions = {}) {
    * @param column 列配置
    * @returns 是否添加成功
    */
-  const addColumn = async (column: ColumnConfig | ColumnConfig[]): Promise<void> => {
+  const addColumn = async (column: ColumnConfig | ColumnConfig[], originColumnName?: string, position?: 'left' | 'right'): Promise<void> => {
     let newColumns: any[] = []
     if (Array.isArray(column)) {
       for (const item of column) {
@@ -252,7 +257,7 @@ export function useColumns(tableId: string, options: UseColumnsOptions = {}) {
    */
   const deleteColumn = async (field: string): Promise<void> => {
     try {
-      const index = columns.value.findIndex((col) => col.field_name === field)
+      const index = columns.value.findIndex((col) => col.field === field)
       const { data }: any = await newClientApi.deleteDynamicDbTableFieldsFieldid(columns.value[index].id as string)
       if(!!data) columns.value.splice(index, 1)
     } catch (error) {
@@ -272,9 +277,9 @@ export function useColumns(tableId: string, options: UseColumnsOptions = {}) {
    */
   const updateColumn = async (field: string, updates: Partial<ColumnConfig>): Promise<void> => {
     try {
-      const index = columns.value.findIndex((col) => col.field_name === field)
+      const index = columns.value.findIndex((col) => col.field === field)
       if (index === -1) {
-        console.error(`更新列失败: 字段名 "${columns.value[index].field_name_alias}" 不存在`)
+        console.error(`更新列失败: 字段名 "${field}" 不存在`)
       }
       const { data }: any = await newClientApi.putDynamicDbTableFieldsFieldid(columns.value[index].id as string, updates)
       if(!!data) columns.value[index] = {

@@ -1,8 +1,8 @@
 <template>
   <MdFormItem v-bind="props" :rules="rules">
     <el-input-number
-      v-if="formData && column?.field"
-      v-model="formData[column.field]"
+      v-if="formData && column?.[fieldName]"
+      v-model="formData[column[fieldName]]"
       :placeholder="column.placeholder"
       clearable
       :precision="properties.precision"
@@ -26,11 +26,12 @@ import type { NumberConfig } from '@packages/dp-mdTable/types/column-types'
 const props = defineProps<{
   formData: any
   column: any
+  fieldName: string
 }>()
 
 /** 数字列配置（columnProperties），与 NumberConfig 一致 */
 const properties = computed((): NumberConfig => {
-  const p = props.column?.properties ?? {}
+  const p = props.column?.display_structure ?? {}
 
   return {
     symbol: p.symbol ?? '',

@@ -164,7 +164,7 @@ const fields = await getFieldsForTable(targetTableId)
 ### Get Data Context
 
 ```typescript
-import { useTableDataContext } from './useTableData'
+import { useTableDataInject } from './useTableData'
 
 const {
   tableData,        // Ref<any[]>
@@ -173,7 +173,7 @@ const {
   addRow,           // (row: any) => Promise<void>
   updateRow,        // (id: string, updates: any) => Promise<void>
   deleteRow,        // (id: string) => Promise<void>
-} = useTableDataContext()
+} = useTableDataInject()
 ```
 
 ### Add Row via Form Dialog

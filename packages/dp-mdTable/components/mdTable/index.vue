@@ -122,7 +122,9 @@ const {
   updateTableRow,
   addVirtualColumn,
   addColumnPopoverRef,
-  deleteColumn
+  deleteColumn,
+  addColumn,
+  addRow
 } = useMDTable(props)
 // Import update status composable
 await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -254,6 +256,7 @@ const handleAddRow = () => {
 }
 const handleAddRowSubmit = (data: any) => {
   console.log('handleAddRowSubmit', data)
+  addRow(data)
   // emit('add-row-submit', data)
 }
 // Handle expand click from checkbox column
@@ -287,18 +290,16 @@ const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) =>
       break
     case 'insertLeft':
       const defaultNewColumn = {
-        field: createFieldId(),
-        title: `New Column`,
-        type: ColumnFieldType.MultiText
+        field_name: `New Column`,
+        business_type: ColumnFieldType.MultiText
       } as unknown as ColumnConfig
       //
       addColumn(defaultNewColumn, column.field, 'left')
       break
     case 'insertRight':
       const defaultNewColumnRight = {
-        field: createFieldId(),
-        title: `New Column`,
-        type: ColumnFieldType.MultiText
+        field_name: `New Column`,
+        business_type: ColumnFieldType.MultiText
       } as unknown as ColumnConfig
       //
       addColumn(defaultNewColumnRight, column.field, 'right')

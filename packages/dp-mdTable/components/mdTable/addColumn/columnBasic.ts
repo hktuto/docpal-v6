@@ -1,4 +1,4 @@
-import { ColumnFieldType } from '../../../types/column-types'
+import { ColumnFieldType, reverseColumnFieldType } from '../../../types/column-types'
 export const columnBasic: any = {
   [ColumnFieldType.Text]: {
     label: 'Text',
@@ -79,9 +79,7 @@ export const columnBasic: any = {
   }
 }
 
-const reverseColumnFieldTypeMapping = Object.fromEntries(
-  Object.entries(ColumnFieldType).map(([key, value]) => [value, key])
-);
+
 
 export function getColumnFieldOptions() {
   const uniqueFieldValues = [...new Set(Object.values(ColumnFieldType))]
@@ -96,7 +94,7 @@ export function getColumnFieldOptions() {
     if (fieldSetting?.isBasic) {
 
       const item: any = {
-        label: fieldSetting.label || reverseColumnFieldTypeMapping[value],
+        label: fieldSetting.label || reverseColumnFieldType[value],
         disableCreate: fieldSetting.disableCreate || false,
         value: value
       }
@@ -108,7 +106,7 @@ export function getColumnFieldOptions() {
     } else {
       console.log('fieldSetting', fieldSetting, value)
       const item: any = {
-        label: fieldSetting?.label || reverseColumnFieldTypeMapping[value],
+        label: fieldSetting?.label || reverseColumnFieldType[value],
         disableCreate: fieldSetting?.disableCreate || false,
         value: value
       }

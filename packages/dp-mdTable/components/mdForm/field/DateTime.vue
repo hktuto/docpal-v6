@@ -1,8 +1,8 @@
 <template>
   <MdFormItem v-bind="_props" :rules="rules">
     <el-date-picker
-      v-if="formData && column && column.field"
-      v-model="formData[column.field]"
+      v-if="formData && column && column[fieldName]"
+      v-model="formData[column[fieldName]]"
       :type="properties.includeTime ? 'datetime' : 'date'"
       :format="displayFormat"
       :disabled="disabledFields.includes(column.type)"
@@ -20,14 +20,15 @@ import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 const props = defineProps<{
   formData: any
   column: any
+  fieldName: string
 }>()
 const disabledFields = [ColumnFieldType.CreatedTime, ColumnFieldType.LastModifiedTime]
 const _props = computed(() => {
   const columnItem = JSON.parse(JSON.stringify(props.column))
-  if (!columnItem?.properties) return columnItem
+  if (!columnItem?.display_structure) return columnItem
 
-  if (columnItem.properties.includeTime && columnItem.properties.includeTimeZone) {
-    columnItem.title = columnItem.title + ' (' + columnItem.properties.timezone + ')'
+  if (columnItem.display_structure.includeTime && columnItem.display_structure.includeTimeZone) {
+    columnItem.title = columnItem.title + ' (' + columnItem.display_structure.timezone + ')'
   }
 
   return {
@@ -41,7 +42,7 @@ const _props = computed(() => {
  * 支持 DateTimeConfig 或 addColumn 结构：日期格式、是否含时间、时间格式、地区（时区）
  */
 const properties = computed(() => {
-  const p = props.column?.properties ?? {}
+  const p = props.column?.display_structure ?? {}
   // timeFormat: 0=仅日期, 1=12小时, 2=24小时（与 DateTimeConfig 一致时）
   const timeFormat = typeof p.timeFormat === 'number' ? p.timeFormat : p.includeTime ? 2 : 0
   const includeTime = p.includeTime === true || timeFormat > 0

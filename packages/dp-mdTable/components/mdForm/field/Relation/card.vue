@@ -100,7 +100,7 @@ function getFieldType(fieldName: string): ColumnFieldType | undefined {
 }
 
 function getFieldProperties(fieldName: string): Record<string, any> {
-  return getFieldInfo(fieldName)?.properties || {}
+  return getFieldInfo(fieldName)?.display_structure || {}
 }
 
 function getFieldLabel(fieldName: string): string {
