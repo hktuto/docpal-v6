@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { workflowJsonToX6Node, WORKFLOW_PROVIDER } from '#imports'
+import { workflowJsonToX6Node } from '#imports'
 import { Graph, type Node } from '@antv/x6'
 import { DagreLayout } from '@antv/layout'
 
@@ -92,9 +92,6 @@ function init(workflowJsonObject: any) {
   nextTick(fitIn)
 
   // autoLayout(bpmnXml)
-
-  allFormField.value = getAllFormFieldFromGraph(graph.value)
-
   graph.value.on('history:change', () => {
     allFormField.value = getAllFormFieldFromGraph(graph.value as any)
   })
@@ -263,7 +260,6 @@ defineExpose({
 
 <template>
   <div class="bpmnViewerContainer">
-    {{}}
     <div class="bpmnGraphContainer" ref="containerEl"></div>
     <slot />
   </div>

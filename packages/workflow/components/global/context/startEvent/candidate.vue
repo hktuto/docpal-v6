@@ -6,9 +6,8 @@ const { node } = defineProps<{
   node: Node
 }>()
 
-const graphProvider = inject(WORKFLOW_PROVIDER)
-const editorProvider = inject(WORKFLOW_EDITOR_PROVIDER)
-if (!graphProvider || !editorProvider) {
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+if (!graphProvider ) {
   throw createError('provider not found')
 }
 
@@ -60,7 +59,7 @@ onMounted(async () => {
   <div class="itemContainer">
     <ElForm label-position="top" label-width="100px" size="small">
       <ElFormItem label="Start Candidate Group">
-        <ElSelect v-model="candidateGroup" placeholder="Select Group" :disabled="editorProvider.readonly.value"
+        <ElSelect v-model="candidateGroup" placeholder="Select Group" :disabled="graphProvider.readonly.value"
                   filterable clearable @change="candidateGroupChanged">
           <ElOption v-for="item in allUserGroup" :key="item.value" :label="item.label" :value="item.value" />
         </ElSelect>

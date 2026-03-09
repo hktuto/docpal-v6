@@ -10,11 +10,11 @@ const { node } = defineProps<{
 const emits = defineEmits(['openForm'])
 const formDialogRef = ref()
 const formRenderVisible = ref()
+const fromRenderRef = ref()
 
 // #region setup
-const graphProvider = inject(WORKFLOW_PROVIDER)
-const editorProvider = inject(WORKFLOW_EDITOR_PROVIDER)
-if (!graphProvider || !editorProvider) {
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+if (!graphProvider) {
   throw createError('provider not found')
 }
 
@@ -58,16 +58,16 @@ function editField() {
 
 async function copyFormAndFieldSetting() {
   const fields = JSON.parse(JSON.stringify(formItems.value))
-  const form = await editorProvider?.getFormByNode(node)
+  const form = await graphProvider?.getFormByNode(node)
   console.log('copyFormAndFieldSetting', fields, form)
-  editorProvider?.copyForm(node, {
+  graphProvider?.copyForm(node, {
     fields,
     form
   })
 }
 
 async function pasteForm() {
-  await editorProvider?.pasteForm(node)
+  await graphProvider?.pasteForm(node)
   refreshData()
 }
 
@@ -124,20 +124,20 @@ watch(
   <div class="formComponentContainer">
     <div class="title">{{ $t('workflowEdior.formField') }}</div>
     <div class="actionsContainer">
-      <ElButton type="primary" id="Workflow__UserTask__EditField" :disabled="editorProvider.readonly.value" @click="editField">Edit Field</ElButton>
+      <ElButton type="primary" id="Workflow__UserTask__EditField" :disabled="graphProvider.readonly.value" @click="editField">Edit Field</ElButton>
       <ElButton type="primary" id="Workflow__UserTask__EditForm" @click="handleOpenForm">Edit Form</ElButton>
       <ElButton type="primary" id="Workflow__UserTask__PreviewForm" @click="previewForm">Preview Form</ElButton>
     </div>
 
     <div class="actionsContainer">
-      <ElButton type="link" size="small" @click="copyFormAndFieldSetting" :disabled="editorProvider.readonly.value">Copy Form and Field setting</ElButton>
-      <ElButton v-if="editorProvider.copyKey.value" type="link" size="small" :disabled="editorProvider.readonly.value" @click="pasteForm">
+      <ElButton type="link" size="small" @click="copyFormAndFieldSetting" :disabled="graphProvider.readonly.value">Copy Form and Field setting</ElButton>
+      <ElButton v-if="graphProvider.copyKey.value" type="link" size="small" :disabled="graphProvider.readonly.value" @click="pasteForm">
         Paste Form
       </ElButton>
     </div>
   </div>
 
-  <LazyContextVariableManageDialog ref="RuleManageDialogRef" />
+  <LazyContextVariableManageDialog ref="RuleManageDialogRef" :node="node" />
   <LazyContextFormDialog ref="formDialogRef" />
   <ElDialog v-model="formRenderVisible" class="big" distory-on-close draggable>
     <LazyContextFormRender ref="fromRenderRef" />

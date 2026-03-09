@@ -1,4 +1,5 @@
-import { useState, createError } from '#imports'
+import { createError, useState } from '#imports'
+
 type FormRenderSlotsType = {
   name: string
   component: any // FormRenderSlots
@@ -52,9 +53,8 @@ export const useWorkflow = () => {
   }
 }
 
-
-export const useAdditionalContext = (f: Function) => {
-  const graphProvider = inject(WORKFLOW_PROVIDER)
+export const useWorkflowAdditionalContext = (f: Function) => {
+  const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
   if (!graphProvider) {
     throw createError('graph provider not found')
   }

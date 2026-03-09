@@ -1,16 +1,15 @@
 <script lang="ts" setup>
-import { BPMN_PROVIDER, createError } from '#imports'
+import { createError } from '#imports'
 import { onMounted } from 'vue'
 
-const graphProvider = inject(BPMN_PROVIDER)
-const editorProvider = inject(EDITOR_PROVIDER)
-if (!graphProvider || !editorProvider) {
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+if (!graphProvider) {
   throw createError('graph provider not found')
 }
 
 function setupEdge() {
   graphProvider?.graph.value?.on('edge:mouseenter', ({ cell }: any) => {
-    if (editorProvider?.readonly.value) return
+    if (graphProvider?.readonly.value) return
     // cell.setRouter('normal')
     cell.addTools([
       {
@@ -46,11 +45,12 @@ function setupEdge() {
   })
 
   graphProvider?.graph.value?.on('edge:mouseleave', ({ cell }: any) => {
-    if (editorProvider?.readonly.value) return
+    if (graphProvider?.readonly.value) return
     cell.removeTools()
   })
+
   graphProvider?.graph.value?.on('edge:connected', ({ edge, isNew }) => {
-    if (editorProvider?.readonly.value) return
+    if (graphProvider?.readonly.value) return
     const source = edge.getSourceCell()
     const target = edge.getTargetCell()
     if (!source || !target) return

@@ -1,15 +1,11 @@
 <script lang="ts" setup>
-import { createError, WORKFLOW_PROVIDER, WORKFLOW_EDITOR_PROVIDER, workflowElement } from '#imports'
+import { createError, workflowElement } from '#imports'
 import { onClickOutside } from '@vueuse/core'
 import { ElPopconfirm } from 'element-plus'
 
-const graphProvider = inject(WORKFLOW_PROVIDER)
-const editorProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
-}
-if (!editorProvider) {
-  throw createError('editor provider not found')
 }
 
 const opened = ref(false)
@@ -31,7 +27,7 @@ function setupNode() {
   })
 
   graphProvider?.graph.value?.on('node:mouseenter', ({ cell }: any) => {
-    if (editorProvider?.readonly.value) return
+    if (graphProvider?.readonly.value) return
     // 获取该节点下的所有连接桩
     const ports = cell.getPorts() || []
     ports.forEach((port: any) => {
@@ -43,7 +39,7 @@ function setupNode() {
   })
 
   graphProvider?.graph.value?.on('node:mouseleave', ({ cell }: any) => {
-    if (editorProvider?.readonly.value) return
+    if (graphProvider?.readonly.value) return
     // 获取该节点下的所有连接桩
     const ports = cell.getPorts() || []
     ports.forEach((port: any) => {
@@ -66,7 +62,7 @@ const contextSelectedNode = ref()
 const rightClickEl = ref()
 
 function contextMenuHandler({ e, view, node }: any) {
-  if (editorProvider?.readonly.value) return
+  if (graphProvider?.readonly.value) return
   if (ignoreTypeList.includes(node.data.type || '')) {
     return
   }
@@ -110,7 +106,7 @@ function handleNodeClick({ node }: any) {
         element = workflowElementType.contextMenuComponent(node.data)
       }
       if (!!element) {
-        editorProvider?.openSidebar(element, node)
+        graphProvider?.openSidebar(element, node)
       }
     }
   }
@@ -120,15 +116,15 @@ async function copy() {
   const data = contextSelectedNode.value.data
   const field = data.data.extensionElements['flowable:formProperty'] || []
   const fields = JSON.parse(JSON.stringify(field))
-  const form = await editorProvider?.getFormByNode(contextSelectedNode.value)
-  editorProvider?.copyForm(contextSelectedNode.value, {
+  const form = await graphProvider?.getFormByNode(contextSelectedNode.value)
+  graphProvider?.copyForm(contextSelectedNode.value, {
     fields,
     form
   })
 }
 
-async function paste() {
-  await editorProvider?.pasteForm(contextSelectedNode.value)
+function paste() {
+  graphProvider?.pasteForm(contextSelectedNode.value)
 }
 
 onMounted(() => {
@@ -151,8 +147,8 @@ onMounted(() => {
       v-if="
         contextSelectedNode &&
         ['userTask', 'startEvent'].includes(contextSelectedNode.data.type) &&
-        editorProvider.copyKey.value &&
-        editorProvider.copyKey.value !== contextSelectedNode.data.id
+        graphProvider.copyKey.value &&
+        graphProvider.copyKey.value !== contextSelectedNode.data.id
       "
       @click="paste"
     >

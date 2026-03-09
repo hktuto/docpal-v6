@@ -1,15 +1,14 @@
 <script lang="ts" setup>
 import type { Node, Edge, Cell } from '@antv/x6'
-import { WORKFLOW_PROVIDER, WORKFLOW_EDITOR_PROVIDER } from '#imports'
+import { WORKFLOW_EDITOR_PROVIDER } from '#imports'
 
 const opened = ref(false)
 const editComponent = ref()
 const selectedNode = ref()
 
-const graphProvider = inject(WORKFLOW_PROVIDER)
-const editorProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 const activeTab = ref('properties')
-if (!graphProvider || !editorProvider) {
+if (!graphProvider) {
   throw createError('graph provider not found')
 }
 
@@ -24,12 +23,12 @@ function openInfo() {
 }
 
 function openPermission() {
-  const id = graphProvider?.graphJson.value.id
+  const id = graphProvider?.workflowJson.value.id
   const cell = graphProvider?.graph.value?.getCellById(id)
   if (!cell) {
     throw createError('Process node not found')
   }
-  editorProvider?.openSidebar('LazyContextPermission', cell)
+  graphProvider?.openSidebar('LazyContextPermission', cell)
 }
 
 function openSidebar(component: string, node: Node | Cell | Edge) {
@@ -82,7 +81,6 @@ defineExpose({
   padding: var(--app-space-s);
   border-radius: var(--app-border-radius-m);
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
   transform: translateX(100%);
   transition: all 0.2s ease-in-out;
   display: grid;

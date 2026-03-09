@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
 
-const graphProvider = inject(WORKFLOW_PROVIDER)
-const editorProvider = inject(WORKFLOW_EDITOR_PROVIDER)
-if (!graphProvider || !editorProvider) {
+useWorkflowAdditionalContext(refreshData)
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+if (!graphProvider) {
   throw createError('graph provider not found')
 }
 const { node } = defineProps<{
@@ -11,7 +11,7 @@ const { node } = defineProps<{
 }>()
 const { getVariablesByType, deleteVariableItem } = useVariablesProvide()
 const FormDialogRef = ref()
-const variables = ref([])
+const variables = ref<VariableSelectItem[]>([])
 const FormRef = ref()
 const form = ref({
   name: ''
@@ -31,17 +31,11 @@ function nameChange(val: string) {
 }
 
 function refreshData() {
-  const data = node.getData()
-  form.value.name = data.name
-}
-
-function setUpListener() {
-  graphProvider?.graph.value?.on('history:undo', () => {
-    refreshData()
-  })
-  graphProvider?.graph.value?.on('history:redo', () => {
-    refreshData()
-  })
+  try {
+    form.value.name = node.getData()?.name
+  } catch (e) {
+    throw new Error('Workflow name not found')
+  }
 }
 
 function handleAdd() {
@@ -57,8 +51,6 @@ function handleRemove(item: any) {
 }
 
 onMounted(() => {
-  setUpListener()
-  refreshData()
   variables.value = getVariablesByType()
 })
 </script>
@@ -66,7 +58,7 @@ onMounted(() => {
 <template>
   <el-form ref="FormRef" label-position="top" :model="form" @submit.stop="() => {}">
     <el-formItem label="Name" prop="name" :rules="[{ required: true, message: 'Workflow Name is required' }]">
-      <el-input v-model="form.name" @change="nameChange" :disabled="editorProvider.readonly.value" placeholder="Name" />
+      <el-input v-model="form.name" @change="nameChange" :disabled="graphProvider.readonly.value" placeholder="Name" />
     </el-formItem>
     <el-divider />
 
@@ -104,5 +96,4 @@ onMounted(() => {
 .formFieldItem + .formFieldItem {
   border-top: 1px solid var(--app-grey-900);
 }
-
 </style>

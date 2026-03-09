@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
 import { ElMessageBox } from 'element-plus'
-import { WORKFLOW_PROVIDER } from '@packages/workflow/utils/workflowType'
 
-const graphProvider = inject(WORKFLOW_PROVIDER)
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
 }

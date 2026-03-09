@@ -11,9 +11,14 @@ export interface WorkflowProvider {
   key: symbol
 }
 
-export const WORKFLOW_EDITOR_PROVIDER: InjectionKey<EditorProvider> = Symbol('Workflow_EDITOR_PROVIDER_KEY')
-export interface EditorProvider {
+export const WORKFLOW_EDITOR_PROVIDER: InjectionKey<WorkflowEditorProvider> = Symbol('Workflow_EDITOR_PROVIDER_KEY')
+export interface WorkflowEditorProvider {
+  graph: Ref<Graph | undefined>
+  workflowJson: Ref<any | {}>
   openSidebar: (component: string, node: Node | Edge | Cell) => void
+  pasteForm: (node:Node) => void,
+  copyForm: (node:Node, obj:any) => void
   copyKey: Ref<string | undefined>
-  readonly: Ref<boolean>
+  readonly: Ref<boolean>,
+  getFormByNode: (node:Node) => Promise<Object>,
 }

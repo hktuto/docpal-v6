@@ -1,14 +1,13 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
-import { WORKFLOW_PROVIDER, WORKFLOW_EDITOR_PROVIDER } from '#imports'
+import { WORKFLOW_EDITOR_PROVIDER } from '#imports'
 
 const { node } = defineProps<{
   node: Node
 }>()
 
-const graphProvider = inject(WORKFLOW_PROVIDER)
-const editorProvider = inject(WORKFLOW_EDITOR_PROVIDER)
-if (!graphProvider || !editorProvider) {
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+if (!graphProvider) {
   throw createError('graph provider not found')
 }
 
@@ -36,7 +35,7 @@ function getForm() {
   }
 }
 
-const { bpmnGlobalRules } = editorProvider.BpmnRule
+const { bpmnGlobalRules } = graphProvider.BpmnRule
 const allBooleanInfo = computed(() => {
   return bpmnGlobalRules.value
     .filter((item: any) => item.validationRule.type === 'boolean')

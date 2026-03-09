@@ -1,23 +1,39 @@
 <script lang="ts" setup>
-import { WORKFLOW_PROVIDER } from '#imports'
+import { Graph } from '@antv/x6'
+import type { WorkflowJson } from '#imports'
 
-const graphProvider = inject(WORKFLOW_PROVIDER)
-if (!graphProvider) {
-  throw createError('graph provider not found')
-}
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 
 function save() {
-  const graph = graphProvider?.graph.value
-  const workflowJson = graphProvider?.workflowJson.value
-  const graphJson = graphProvider?.graphJson.value
+  if (!graphProvider) {
+    throw new Error('graph provider not found')
+  }
+  const graph: Graph = graphProvider.graph.value
+  if (!graph) {
+    throw new Error('graph is undefined')
+  }
+  const wJson: WorkflowJson = graphProvider.workflowJson.value
+
   const nodes = graph.getNodes()
   const edges = graph.getEdges()
-  console.log(22, nodes, workflowJson, graphJson)
-  // 更新 nodes
+  console.log('-- nodes: ', nodes)
+  console.log('-- edges: ', edges)
+  console.log('-- workflowJson: ', wJson)
+  // Update nodes
 
-  // 更新 edges
+  const workflowConfig: any = graph.getCellById(wJson.id)
+  if (!workflowConfig) {
+    throw new Error('workflow Config is undefined')
+  }
+  wJson.name = workflowConfig.data.name
 
-  // 更新 variables
+  // Update edges
+  // wJson.edges = edges
+
+  // Update variables
+  wJson.variables = workflowConfig.data.variables
+
+  // Call API update workflow Json Data
 }
 
 function setupHistory() {
@@ -26,7 +42,7 @@ function setupHistory() {
     state.value.canRedo = graphProvider?.graph.value?.canRedo() || false
     // check if workflow is empty
     if (graphProvider?.graph.value?.getNodes() && graphProvider?.graph.value?.getNodes().length > 0) {
-      // save()
+      save()
     }
   })
 }

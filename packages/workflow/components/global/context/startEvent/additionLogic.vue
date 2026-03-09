@@ -4,9 +4,8 @@ import type { Node } from '@antv/x6'
 const { node } = defineProps<{
   node: Node
 }>()
-const graphProvider = inject(WORKFLOW_PROVIDER)
-const editorProvider = inject(WORKFLOW_EDITOR_PROVIDER)
-if (!graphProvider || !editorProvider) {
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+if (!graphProvider) {
   throw createError('starterAdditionLogic -> graph provider not found')
 }
 type Form = {
@@ -69,7 +68,7 @@ watch(
     <h4>Additional Setting</h4>
     <ElForm label-position="top">
       <ElFormItem label="Open Form in new page">
-        <ElSwitch :disabled="editorProvider.readonly.value" v-model="form.openInNewPage" @change="updateData" />
+        <ElSwitch :disabled="graphProvider.readonly.value" v-model="form.openInNewPage" @change="updateData" />
       </ElFormItem>
     </ElForm>
   </div>

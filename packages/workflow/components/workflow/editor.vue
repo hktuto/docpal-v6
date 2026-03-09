@@ -1,33 +1,53 @@
 <script setup lang="ts">
-import type { Cell, Node, Edge } from '@antv/x6'
+import { type Cell, type Node, type Edge, Graph } from '@antv/x6'
 import { Transform } from '@antv/x6-plugin-transform'
 import { Selection } from '@antv/x6-plugin-selection'
 import { Dnd } from '@antv/x6-plugin-dnd'
 import { History } from '@antv/x6-plugin-history'
-import { workflowCellElement, workflowElement } from '../../utils/workflowElement'
-import { useVariables, WORKFLOW_EDITOR_PROVIDER } from '#imports'
+import { MenuRouterKey, useVariables, WORKFLOW_EDITOR_PROVIDER, workflowJsonToX6Node, workflowCellElement, workflowElement, type WorkflowJson } from '#imports'
+import { newAdminApi } from 'api'
 
 const { setVariables } = useVariables()
-const viewerRef = ref()
-const graphOptions = ref()
-const sidebarRef = ref()
-const ready = ref()
-const readonly = ref(false)
+const routerProvider = inject(MenuRouterKey)
+// if (!routerProvider) {
+//   throw new Error('MenuRouterKey is not provided')
+// }
+const props = defineProps<{
+  workflowData: any
+  readonly: boolean
+  processKey: string
+  id: string
+  version: number
+}>()
+const { workflowData: workflowJsonObject, readonly } = toRefs(props)
 
-// const { readonly } = toRefs()
+const sidebarRef = ref()
 const nodeRef = ref()
 const edgeRef = ref()
-const graph = ref()
+const graph = ref<Graph>()
 const dnd = ref()
+const containerEl = ref()
+const workflowJson = ref<WorkflowJson>()
 
-function init(workflowJson: any) {
-  // check if ready
-  if (ready.value && graph.value) {
-    // reset graph
-    ready.value = false
+const dropActionsItems = computed(() => {
+  return Object.values(workflowElement).reduce((acc: any, cur: any) => {
+    if (cur.toolbar.length > 0) {
+      acc.push(...cur.toolbar)
+    }
+    return acc
+  }, [])
+})
+
+function init() {
+  if (!workflowJsonObject.value) {
+    throw new Error('workflowJsonObject is not found')
+  }
+
+  // dispose graph
+  if (!!graph.value) {
     graph.value.dispose()
   }
-  graphOptions.value = {
+  const graphOptions = {
     interacting: !readonly.value,
     panning: {
       enabled: true,
@@ -63,35 +83,95 @@ function init(workflowJson: any) {
       }
     }
   }
-  setVariables(workflowJson.variables)
+  if (!containerEl.value) {
+    throw new Error('Container is not found')
+  }
 
+  // step 4 - init graph
+  const initGraphOptions: any = Object.assign(
+    {
+      container: containerEl.value,
+      grid: {
+        visible: true,
+        type: 'mesh',
+        args: {
+          color: '#eee',
+          thickness: 1
+        }
+      },
+      scaling: {
+        min: 0.005,
+        max: 2
+      },
+      background: {
+        color: 'var(--app-grey-9000)'
+      },
+      autoResize: true,
+      panning: {
+        enabled: true,
+        eventTypes: ['leftMouseDown', 'mouseWheel']
+      },
+      embedding: {
+        enabled: false
+      },
+      mousewheel: {
+        enabled: true,
+        factor: 1.05,
+        modifiers: ['ctrl', 'meta']
+      },
+      connecting: {
+        connector: 'rounded',
+        allowMulti: false
+      },
+      interacting: false
+    },
+    graphOptions
+  )
+  graph.value = new Graph({
+    container: containerEl,
+    ...initGraphOptions
+  })
+
+  workflowJson.value = workflowJsonObject.value
+  setVariables(workflowJsonObject.value.variables)
+  const json = workflowJsonToX6Node(workflowJsonObject.value)
+  console.log(22, json)
   nextTick(() => {
-    viewerRef.value?.init(workflowJson)
+    graph.value?.fromJSON(json)
+    // remove all tools
+    graph.value?.getNodes().forEach((node: any) => {
+      node.removeTools()
+      const ports = node.getPorts() || []
+      ports.forEach((port: any) => {
+        node.setPortProp(port.id, 'attrs/circle', {
+          fill: 'transparent',
+          stroke: 'transparent'
+        })
+      })
+    })
+    graph.value?.getEdges().forEach((edge: any) => {
+      edge.removeTools()
+    })
+    fitIn()
+    graphReady()
   })
 }
 
-const dropActionsItems = computed(() => {
-  return Object.values(workflowElement).reduce((acc: any, cur: any) => {
-    if (cur.toolbar.length > 0) {
-      acc.push(...cur.toolbar)
-    }
-    return acc
-  }, [])
-})
-
-function itemDrop(item: any, ev: any) {
-  if (readonly.value) return
-  const newData = workflowCellElement.getCellItem(item.id)
-  const newNode = graph.value.createNode(newData)
-  dnd.value.options.getDragNode = (node: Node) => node
-  dnd.value.options.getDropNode = (node: Node) => node.clone({ keepId: true })
-  dnd.value.start(newNode, ev)
+function fitIn() {
+  if (window.innerWidth >= 1280) {
+    graph.value?.zoomToFit({ padding: 100 })
+  }
+  graph.value?.zoomToFit({ padding: 40 })
+  // get current zoom level
+  const currentZoom = graph.value?.zoom()
+  if (!currentZoom || currentZoom < 0.3) {
+    graph.value?.zoom(0.35)
+  }
 }
 
+// loading component
 function graphReady() {
-  ready.value = true
-  graph.value = viewerRef.value.graph
-  graph.value.use(
+  graph.value?.use(
     new Transform({
       resizing: {
         enabled: !readonly.value,
@@ -99,8 +179,7 @@ function graphReady() {
       }
     })
   )
-
-  graph.value.use(
+  graph.value?.use(
     new Selection({
       enabled: !readonly.value,
       multiple: true,
@@ -110,7 +189,7 @@ function graphReady() {
       modifiers: ['shift']
     })
   )
-  graph.value.use(
+  graph.value?.use(
     new History({
       enabled: !readonly.value,
       beforeAddCommand: (event: any, args: any) => {
@@ -119,13 +198,22 @@ function graphReady() {
       }
     })
   )
-  graph.value.cleanHistory()
+  graph.value?.cleanHistory()
   dnd.value = new Dnd({
     target: graph.value,
     validateNode: (node: Node, options) => {
       return !readonly.value
     }
   })
+}
+
+function itemDrop(item: any, ev: any) {
+  if (readonly.value) return
+  const newData = workflowCellElement.getCellItem(item.id)
+  const newNode = graph.value?.createNode(newData)
+  dnd.value.options.getDragNode = (node: Node) => node
+  dnd.value.options.getDropNode = (node: Node) => node.clone({ keepId: true })
+  dnd.value.start(newNode, ev)
 }
 
 function openInfo() {
@@ -141,10 +229,36 @@ function openForm() {}
 
 function openPermission() {}
 
+async function getFormByNode(node: Node) {
+  const relation = {
+    processKey: props.processKey,
+    userTaskId: node.data.id,
+    versionId: props.version
+  }
+
+  const response = await newAdminApi.getDmsFormPropertiesQuery(relation).then((r) => r.data)
+  if (!response || response.length === 0) {
+    return {}
+  }
+  return JSON.parse(response[0].jsonValue || '{}')
+}
+
 const copyKey = useState('copy-key', () => '')
+const copyObj = useState('copy-obj')
+async function copyForm(node: Node, obj: any) {
+  copyKey.value = node.data.id
+  copyObj.value = obj
+  routerProvider?.message.success(`${node.data.name || node.data.id} form has copied`)
+}
+function pasteForm() {}
 
 provide(WORKFLOW_EDITOR_PROVIDER, {
+  workflowJson,
+  graph,
   openSidebar,
+  pasteForm,
+  copyForm,
+  getFormByNode,
   copyKey,
   readonly
 })
@@ -154,8 +268,28 @@ defineExpose({ init })
 
 <template>
   <div class="bpmnEditorContainer">
-    <WorkflowViewer ref="viewerRef" :options="graphOptions" @graph-ready="graphReady">
+    <!--    <WorkflowViewer ref="viewerRef" :options="graphOptions" @graph-ready="graphReady">
       <div v-if="ready" class="toolbar">
+        <div class="group">
+          <ToolbarHistory />
+          <ToolbarInfo @click="openInfo" />
+          &lt;!&ndash;          <WorkflowToolbarPermission @click="openPermission" />&ndash;&gt;
+        </div>
+        <div v-if="!readonly" class="group">
+          <div v-for="(item, index) in dropActionsItems" :key="index" class="icon handlers" @mousedown.native="(ev) => itemDrop(item, ev)">
+            <Icon :name="item.icon" />
+            <div class="label">{{ item.label }}</div>
+          </div>
+        </div>
+      </div>
+      <Sidebar ref="sidebarRef" />
+      <ToolbarEdge v-if="ready" ref="edgeRef" />
+      <ToolbarNode v-if="ready" ref="nodeRef" @openForm="openForm" />
+    </WorkflowViewer>-->
+
+    <div class="bpmnViewerContainer">
+      <div class="bpmnGraphContainer" ref="containerEl" />
+      <div class="toolbar">
         <div class="group">
           <ToolbarHistory />
           <ToolbarInfo @click="openInfo" />
@@ -169,13 +303,25 @@ defineExpose({ init })
         </div>
       </div>
       <Sidebar ref="sidebarRef" />
-      <!--            <WorkflowToolbarEdge v-if="ready" ref="edgeRef" />-->
-      <ToolbarNode v-if="ready" ref="nodeRef" @openForm="openForm" />
-    </WorkflowViewer>
+      <ToolbarEdge ref="edgeRef" />
+      <ToolbarNode ref="nodeRef" @openForm="openForm" />
+    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
+.bpmnViewerContainer {
+  width: 100%;
+  height: 1000px;
+  border: 1px solid #eee;
+  overflow: hidden;
+
+  > .bpmnGraphContainer {
+    width: 100%;
+    height: 100%;
+  }
+}
+
 .bpmnEditorContainer {
   width: 100%;
   height: 100%;
@@ -253,5 +399,19 @@ defineExpose({ init })
       display: none;
     }
   }
+}
+</style>
+
+<style>
+@keyframes running-line {
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+
+.x6-highlight-stroke {
+  stroke: var(--app-main-color) !important;
+  stroke-dasharray: 5;
+  animation: running-line 60s infinite linear;
 }
 </style>

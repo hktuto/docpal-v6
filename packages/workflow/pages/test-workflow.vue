@@ -4,17 +4,22 @@ import json from './testWorkflow.json'
 const workflowEditorRef = ref()
 
 function getData() {
-  workflowEditorRef.value?.init(json)
+  workflowEditorRef.value?.init()
 }
+const workflowData = ref<any>()
+const processKey = ref<string>('')
+const version = ref<number>()
 
 onMounted(() => {
-  getData()
+  workflowData.value = json
+  processKey.value = json.key
+  nextTick(getData)
 })
 </script>
 
 <template>
   <div class="pageContainer">
-    <WorkflowEditor ref="workflowEditorRef" />
+    <WorkflowEditor ref="workflowEditorRef" :workflow-data="workflowData" :readonly="false" :process-key="processKey" :version="version" />
   </div>
 </template>
 

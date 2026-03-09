@@ -2,9 +2,8 @@
 import { useI18n } from '#imports'
 import type { Node } from '@antv/x6'
 
-const graphProvider = inject(WORKFLOW_PROVIDER)
-const editorProvider = inject(WORKFLOW_EDITOR_PROVIDER)
-if (!graphProvider || !editorProvider) {
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+if (!graphProvider) {
   throw createError('graph provider not found')
 }
 const emits = defineEmits(['updateNode'])
@@ -64,7 +63,7 @@ watch(() => node,() => {
       prop="name"
       :rules="[{ required: true, message: t('render.hint.fieldRequired', { name: t('tableHeader_name') }) }]"
     >
-      <el-input v-model="form.name" :disabled="editorProvider.readonly.value" @change="nameChange" placeholder="Name" />
+      <el-input v-model="form.name" :disabled="graphProvider.readonly.value" @change="nameChange" placeholder="Name" />
     </el-formItem>
   </el-form>
 </template>
