@@ -37,7 +37,7 @@ const dropActionsItems = computed(() => {
     return acc
   }, [])
 })
-
+const isReady = ref(false)
 function init() {
   if (!workflowJsonObject.value) {
     throw new Error('workflowJsonObject is not found')
@@ -45,6 +45,7 @@ function init() {
 
   // dispose graph
   if (!!graph.value) {
+    isReady.value = false
     graph.value.dispose()
   }
   const graphOptions = {
@@ -205,6 +206,7 @@ function graphReady() {
       return !readonly.value
     }
   })
+  isReady.value = true
 }
 
 function itemDrop(item: any, ev: any) {
@@ -287,9 +289,9 @@ defineExpose({ init })
       <ToolbarNode v-if="ready" ref="nodeRef" @openForm="openForm" />
     </WorkflowViewer>-->
 
-    <div class="bpmnViewerContainer">
+    <div  class="bpmnViewerContainer">
       <div class="bpmnGraphContainer" ref="containerEl" />
-      <div class="toolbar">
+      <div v-if="isReady" class="toolbar">
         <div class="group">
           <ToolbarHistory />
           <ToolbarInfo @click="openInfo" />
@@ -301,10 +303,10 @@ defineExpose({ init })
             <div class="label">{{ item.label }}</div>
           </div>
         </div>
+        <Sidebar ref="sidebarRef" />
+        <ToolbarEdge ref="edgeRef" />
+        <ToolbarNode ref="nodeRef" @openForm="openForm" />
       </div>
-      <Sidebar ref="sidebarRef" />
-      <ToolbarEdge ref="edgeRef" />
-      <ToolbarNode ref="nodeRef" @openForm="openForm" />
     </div>
   </div>
 </template>

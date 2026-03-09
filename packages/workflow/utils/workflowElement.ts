@@ -13,6 +13,70 @@ export enum WorkflowElementType {
   // httpTask: 'httpTask'
 }
 
+Graph.registerNode(
+  'invisible-node',
+  {
+    inherit: 'rect',
+    markup: []
+  },
+  true
+)
+Graph.registerNode(
+  'bpmn-node',
+  {
+    inherit: 'rect',
+    ports: {
+      groups: {
+        from: {
+          position: 'top',
+          attrs: {
+            circle: {
+              magnet: true,
+              stroke: 'transparent',
+              fill: 'transparent',
+              r: 5
+            }
+          }
+        },
+        to: {
+          position: 'bottom',
+          attrs: {
+            circle: {
+              magnet: true,
+              stroke: 'transparent',
+              fill: 'transparent',
+              r: 5
+            }
+          }
+        },
+        left: {
+          position: 'left',
+          attrs: {
+            circle: {
+              magnet: true,
+              stroke: 'transparent',
+              fill: 'transparent',
+              r: 5
+            }
+          }
+        },
+        right: {
+          position: 'right',
+          attrs: {
+            circle: {
+              magnet: true,
+              stroke: 'transparent',
+              fill: 'transparent',
+              r: 5
+            }
+          }
+        }
+      }
+    }
+  },
+  true
+)
+
 /**
  * Render Workflow Toolbar Chart Types
  */
@@ -186,6 +250,29 @@ function GenAttrs(title: string, textAnchor: string, icon?: string) {
   } as Attrs
 }
 
+function GenDefPorts() {
+  return {
+    items: [
+      {
+        id: 'from',
+        group: 'from'
+      },
+      {
+        id: 'to',
+        group: 'to'
+      },
+      {
+        id: 'left',
+        group: 'left'
+      },
+      {
+        id: 'right',
+        group: 'right'
+      }
+    ]
+  }
+}
+
 /**
  * Node => workflowElement
  * Cell => Element Item
@@ -195,7 +282,7 @@ export const workflowElement: WorkflowElement = {
     embed: false,
     toolbar: [],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
-      const graph: GraphItem = {
+      const node: GraphItem = {
         id: workflowNodeItem.id,
         markup: [
           { tagName: 'rect', selector: 'body' },
@@ -219,9 +306,17 @@ export const workflowElement: WorkflowElement = {
           ...workflowNodeItem,
           version: 0
         },
+        ports: {
+          items: [
+            {
+              id: 'to',
+              group: 'to'
+            }
+          ]
+        },
         _order: 0
       }
-      return graph
+      return node
     },
     clickHandler: () => {},
     contextMenuComponent: 'LazyContextStartEvent'
@@ -255,6 +350,14 @@ export const workflowElement: WorkflowElement = {
           name: workflowNodeItem.name,
           type: workflowNodeItem.type,
           version: 0
+        },
+        ports: {
+          items: [
+            {
+              id: 'from',
+              group: 'from'
+            }
+          ]
         },
         _order: 0
       }
@@ -314,6 +417,7 @@ export const workflowElement: WorkflowElement = {
           type: workflowNodeItem.type,
           version: 0
         },
+        props: GenDefPorts(),
         _order: 0
       }
       return graph
@@ -358,10 +462,10 @@ const workflowCellElementTemplate: CellTypeItem = {
       ]
     },
     data: {
-      id:'',
-      name:'New User Task',
+      id: '',
+      name: 'New User Task',
       type: 'UserTask',
-      assignee: '',
+      assignee: ''
     }
   },
   SignatureTask: {
