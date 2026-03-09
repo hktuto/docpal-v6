@@ -136,7 +136,6 @@ function init() {
   workflowJson.value = workflowJsonObject.value
   setVariables(workflowJsonObject.value.variables)
   const json = workflowJsonToX6Node(workflowJsonObject.value)
-  console.log(22, json)
   nextTick(() => {
     graph.value?.fromJSON(json)
     // remove all tools
@@ -257,12 +256,12 @@ function pasteForm() {}
 provide(WORKFLOW_EDITOR_PROVIDER, {
   workflowJson,
   graph,
+  copyKey,
+  readonly,
   openSidebar,
   pasteForm,
   copyForm,
-  getFormByNode,
-  copyKey,
-  readonly
+  getFormByNode
 })
 
 defineExpose({ init })
@@ -270,26 +269,7 @@ defineExpose({ init })
 
 <template>
   <div class="bpmnEditorContainer">
-    <!--    <WorkflowViewer ref="viewerRef" :options="graphOptions" @graph-ready="graphReady">
-      <div v-if="ready" class="toolbar">
-        <div class="group">
-          <ToolbarHistory />
-          <ToolbarInfo @click="openInfo" />
-          &lt;!&ndash;          <WorkflowToolbarPermission @click="openPermission" />&ndash;&gt;
-        </div>
-        <div v-if="!readonly" class="group">
-          <div v-for="(item, index) in dropActionsItems" :key="index" class="icon handlers" @mousedown.native="(ev) => itemDrop(item, ev)">
-            <Icon :name="item.icon" />
-            <div class="label">{{ item.label }}</div>
-          </div>
-        </div>
-      </div>
-      <Sidebar ref="sidebarRef" />
-      <ToolbarEdge v-if="ready" ref="edgeRef" />
-      <ToolbarNode v-if="ready" ref="nodeRef" @openForm="openForm" />
-    </WorkflowViewer>-->
-
-    <div  class="bpmnViewerContainer">
+    <div class="bpmnViewerContainer">
       <div class="bpmnGraphContainer" ref="containerEl" />
       <div v-if="isReady" class="toolbar">
         <div class="group">

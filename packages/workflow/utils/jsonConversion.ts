@@ -1,5 +1,5 @@
+import { Graph } from '@antv/x6'
 import { workflowElement, WorkflowElementType } from './workflowElement'
-
 interface Flow {
   incoming: string[]
   outgoing: string[]
@@ -90,14 +90,51 @@ export interface WorkflowJson {
   metadata: MetadataDetails
 }
 
-export const x6NodeToWorkflowJson = function (x6NodeJson: any) {
-  const workflowJson = {
-    id: '',
-    name: '',
-    type: ''
+export const x6NodeToWorkflowJson = function (graphProvider) {
+  const graph: Graph = graphProvider.graph.value
+  if (!graph) {
+    throw new Error('graph is undefined')
   }
+  const oldJson: WorkflowJson = graphProvider.workflowJson.value
+  const workflowJson = JSON.parse(JSON.stringify(oldJson))
 
-  return workflowJson
+  const nodes = graph.getNodes()
+  const edges = graph.getEdges()
+  console.log('-- nodes: ', nodes)
+  console.log('-- edges: ', edges)
+  console.log('-- workflowJson: ', oldJson)
+  // Update nodes
+
+  const workflowConfig: any = graph.getCellById(workflowJson.id)
+  if (!workflowConfig) {
+    throw new Error('workflow Config is undefined')
+  }
+  // Update workflow name
+  workflowJson.name = workflowConfig.data.name
+  try {
+    // Update edges
+    if (edges.length === 0) {
+      workflowJson.edges = []
+    } else {
+      const edgeList = []
+      edges.forEach((item: any) => {
+        if (!!item.data) {
+          edgeList.push(item.data)
+        }
+      })
+      workflowJson.edges = edgeList
+    }
+
+    // Update variables
+    workflowJson.variables = workflowConfig.data.variables
+    // Update Nodes
+    workflowJson.nodes = AddFlowForChildNodes(nodes, workflowJson.edges)
+
+    console.log('---- workflowJson', workflowJson)
+    return workflowJson
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 export const workflowJsonToX6Node = function (workflowJson: WorkflowJson) {
@@ -129,4 +166,37 @@ export const workflowJsonToX6Node = function (workflowJson: WorkflowJson) {
   return {
     cells
   }
+}
+
+function AddFlowForChildNodes(nodes: any[], edges: any[]) {
+  const flowMap = edges.reduce(
+    (acc, item) => {
+      if (!acc[item.target_node_id]) {
+        acc[item.target_node_id] = { incoming: [], outgoing: [] }
+      }
+      acc[item.target_node_id].incoming.push(item.source_node_id)
+
+      if (!acc[item.source_node_id]) {
+        acc[item.source_node_id] = { outgoing: [] }
+      }
+      acc[item.source_node_id].outgoing.push(item.target_node_id)
+
+      return acc
+    },
+    {} as Record<string, { incoming: string[]; outgoing: string[] }>
+  )
+
+  // 遍历节点并根据 flowMap 设置 flow 属性
+  nodes.forEach((node: any) => {
+    if (node.type === 'process') return
+    const { incoming = [], outgoing = [] } = flowMap[node.id] || {}
+    node.flow = {
+      incoming,
+      outgoing,
+      join_type: 'XOR',
+      split_type: 'XOR'
+    }
+  })
+
+  return nodes
 }

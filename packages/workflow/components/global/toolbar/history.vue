@@ -1,39 +1,16 @@
 <script lang="ts" setup>
-import { Graph } from '@antv/x6'
-import type { WorkflowJson } from '#imports'
+import { x6NodeToWorkflowJson } from '#imports'
+import { newAdminApi } from 'api'
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+if (!graphProvider) {
+  throw new Error('graph provider not found')
+}
 
 function save() {
-  if (!graphProvider) {
-    throw new Error('graph provider not found')
-  }
-  const graph: Graph = graphProvider.graph.value
-  if (!graph) {
-    throw new Error('graph is undefined')
-  }
-  const wJson: WorkflowJson = graphProvider.workflowJson.value
-
-  const nodes = graph.getNodes()
-  const edges = graph.getEdges()
-  console.log('-- nodes: ', nodes)
-  console.log('-- edges: ', edges)
-  console.log('-- workflowJson: ', wJson)
-  // Update nodes
-
-  const workflowConfig: any = graph.getCellById(wJson.id)
-  if (!workflowConfig) {
-    throw new Error('workflow Config is undefined')
-  }
-  wJson.name = workflowConfig.data.name
-
-  // Update edges
-  // wJson.edges = edges
-
-  // Update variables
-  wJson.variables = workflowConfig.data.variables
-
+  const workflowJson = x6NodeToWorkflowJson(graphProvider)
   // Call API update workflow Json Data
+
 }
 
 function setupHistory() {

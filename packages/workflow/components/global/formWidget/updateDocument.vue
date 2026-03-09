@@ -28,7 +28,6 @@ watch( formData, () => {
 })
 
 onMounted(() => {
-  console.log('activated')
   getInfo()
 })
 
