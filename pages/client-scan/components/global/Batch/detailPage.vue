@@ -11,7 +11,14 @@ if (!routerProvider) {
 }
 
 // Use the composable for all batch detail state
-const {detailLoading, batchDetail, currentBatchId,currentSelectedDoc,selectedDocDetail} = useBatchDetail(props.batchId)
+const {
+  detailLoading, 
+  batchDetail, 
+  currentBatchId,
+  currentSelectedDoc,
+  selectedDocDetail,
+  sectionsWithValues
+} = useBatchDetail(props.batchId)
 
 const canCancel = computed(() => {
   return batchDetail.value?.status === 'pending'

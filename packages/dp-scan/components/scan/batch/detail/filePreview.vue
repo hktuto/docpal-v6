@@ -6,15 +6,15 @@ if (!context) {
   throw new Error('BatchDetailContext not found')
 }
 
-// Destructure for easier access
-const {
-  previewLoading,
-  previewImgUrl,
-  currentPageNumber,
-  totalPages,
-  highlightedSection,
+// Destructure for easier access (no .value needed in template)
+const { 
+  previewLoading, 
+  previewImgUrl, 
+  currentPageNumber, 
+  totalPages, 
+  highlightedSection, 
   highlightedField,
-  changePage
+  changePage 
 } = context
 
 // Canvas refs
@@ -44,12 +44,12 @@ function drawCanvas() {
   const canvas = canvasRef.value
   const container = containerRef.value
   const img = imageObj.value
-
+  
   if (!canvas || !container || !img) return
-
+  
   const ctx = canvas.getContext('2d')
   if (!ctx) return
-
+  
   // Calculate scale to fit image in container while maintaining aspect ratio
   const containerRect = container.getBoundingClientRect()
   const scale = Math.min(
@@ -57,20 +57,20 @@ function drawCanvas() {
     containerRect.height / img.naturalHeight,
     1 // Don't upscale beyond 100%
   )
-
+  
   const displayWidth = img.naturalWidth * scale
   const displayHeight = img.naturalHeight * scale
-
+  
   // Set canvas size
   canvas.width = displayWidth
   canvas.height = displayHeight
-
+  
   // Clear canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height)
-
+  
   // Draw image
   ctx.drawImage(img, 0, 0, displayWidth, displayHeight)
-
+  
   // Draw section highlight if on current page
   if (highlightedSection.value && currentPageNumber.value === highlightedSection.value.page) {
     const zone = parseZone(highlightedSection.value.zone)
@@ -78,7 +78,7 @@ function drawCanvas() {
       drawHighlightBox(ctx, zone, scale, '#409EFF', 2) // Blue for section
     }
   }
-
+  
   // Draw field highlight if on current page
   if (highlightedField.value && currentPageNumber.value === highlightedField.value.page) {
     const zone = parseZone(highlightedField.value.zone)
@@ -100,20 +100,20 @@ function drawHighlightBox(
   const y = zone.y * scale
   const w = zone.width * scale
   const h = zone.height * scale
-
+  
   // Draw semi-transparent fill
   ctx.fillStyle = color + '20' // 20 hex = ~12% opacity
   ctx.fillRect(x, y, w, h)
-
+  
   // Draw border
   ctx.strokeStyle = color
   ctx.lineWidth = lineWidth
   ctx.strokeRect(x, y, w, h)
-
+  
   // Draw corner handles
   const handleSize = 6
   ctx.fillStyle = color
-
+  
   // Top-left
   ctx.fillRect(x - handleSize/2, y - handleSize/2, handleSize, handleSize)
   // Top-right
@@ -127,7 +127,7 @@ function drawHighlightBox(
 // Load image when preview URL changes
 watch(() => previewImgUrl.value, (url) => {
   if (!url) return
-
+  
   imageLoading.value = true
   const img = new Image()
   img.onload = () => {
@@ -171,7 +171,7 @@ function prevPage() {
 }
 
 function nextPage() {
-  if (currentPageNumber.value && totalPages.value &&
+  if (currentPageNumber.value && totalPages.value && 
       currentPageNumber.value < totalPages.value) {
     changePage(currentPageNumber.value + 1)
   }
@@ -185,14 +185,14 @@ function nextPage() {
         <!-- Action buttons can go here -->
       </div>
       <div class="pageNav">
-        <ElButton
-          :disabled="(currentPageNumber || 1) <= 1"
-          link
+        <ElButton 
+          :disabled="(currentPageNumber || 1) <= 1" 
+          link 
           @click="prevPage"
         >
           <Icon name="lucide:chevron-left" />
         </ElButton>
-
+        
         <div class="pageNumbers">
           <span
             v-for="page in totalPages"
@@ -203,24 +203,24 @@ function nextPage() {
             {{ page }}
           </span>
         </div>
-
-        <ElButton
-          :disabled="(currentPageNumber || 1) >= (totalPages || 1)"
-          link
+        
+        <ElButton 
+          :disabled="(currentPageNumber || 1) >= (totalPages || 1)" 
+          link 
           @click="nextPage"
         >
           <Icon name="lucide:chevron-right" />
         </ElButton>
       </div>
-
+      
       <div class="pageInfo">
         Page {{ currentPageNumber || 1 }} of {{ totalPages || 1 }}
       </div>
     </div>
-
-    <div
+    
+    <div 
       ref="containerRef"
-      v-loading="imageLoading"
+      v-loading="imageLoading" 
       class="previewBody"
     >
       <canvas
@@ -278,11 +278,11 @@ function nextPage() {
   cursor: pointer;
   border-radius: var(--app-radius-s);
   font-size: var(--app-font-size-s);
-
+  
   &:hover {
     background-color: var(--app-bg-color-hover);
   }
-
+  
   &.active {
     background-color: var(--app-primary-color);
     color: white;
