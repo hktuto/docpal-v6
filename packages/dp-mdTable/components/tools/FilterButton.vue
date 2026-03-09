@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import FilterConfigPopover from './FilterConfigPopover.vue'
 import type { FilterRule } from './FilterConfigPopover.vue'
 import type { ColumnConfig } from '../../composables/useColumns'
@@ -33,7 +32,7 @@ const emits = defineEmits<{
   (e: 'filter-change', rules: FilterRule[]): void
 }>()
 
-const buttonRef = ref<HTMLElement>()
+const buttonRef = ref<InstanceType<typeof ElButton>>()
 const popoverRef = ref<InstanceType<typeof FilterConfigPopover>>()
 
 const { columnFilterRules : filterRules  } = useColumnsInject()
@@ -46,10 +45,11 @@ const availableColumns = computed<ColumnConfig[]>(() => {
   return []
 })
 
-// 处理按钮点击
+// 处理按钮点击（传 $el 给 popover，因 ref 绑在组件上拿到的是组件实例不是 DOM）
 const handleButtonClick = () => {
   if (popoverRef.value) {
-    popoverRef.value.show(buttonRef.value)
+    const triggerEl = buttonRef.value?.$el as HTMLElement | undefined
+    popoverRef.value.show(triggerEl)
   }
 }
 

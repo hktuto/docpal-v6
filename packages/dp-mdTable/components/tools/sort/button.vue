@@ -47,7 +47,7 @@ const availableColumns = computed<ColumnConfig[]>(() => {
 // 处理按钮点击
 const handleButtonClick = () => {
   if (popoverRef.value) {
-    popoverRef.value.show(buttonRef.value)
+    popoverRef.value.show(buttonRef.value.$el)
   }
 }
 
