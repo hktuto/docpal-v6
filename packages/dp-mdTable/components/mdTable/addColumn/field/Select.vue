@@ -417,6 +417,9 @@ onMounted(() => {
 
     .drag-handle {
       cursor: move;
+      :deep(.svg-icon) {
+        cursor: move;
+      }
       display: flex;
       align-items: center;
     }
