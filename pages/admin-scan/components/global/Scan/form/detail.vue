@@ -11,3 +11,13 @@ const props = defineProps<{
         <ScanProjectFormDetail :formId="formId" />
     </div>
 </template>
+
+<style scoped>
+.pageContainer {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  margin: 0 auto;
+}
+</style>

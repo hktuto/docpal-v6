@@ -52,6 +52,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     ...ScanTableColumns
   ],
   dblClickAction: ({ row }) => {
+    console.log("row id",row.id)
     const newTab = createBatchDetailPageTab(row.id)
     routerProvider?.navigateTo(newTab)
   },

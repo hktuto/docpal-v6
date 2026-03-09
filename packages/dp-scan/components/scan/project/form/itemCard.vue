@@ -10,7 +10,6 @@ const props = defineProps<{
 const emits = defineEmits<{
   edit: [form: any]
   delete: [form: any]
-  configure: [form: any]
 }>()
 
 const routerProvider = inject(MenuRouterKey)
@@ -76,10 +75,6 @@ function handleDelete() {
   emits('delete', props.form)
 }
 
-function handleConfigure() {
-  emits('configure', props.form)
-}
-
 onMounted(() => {
   getPreview()
 })
@@ -106,11 +101,7 @@ onUnmounted(() => {
               <Icon name="lucide:edit" />
               Edit
             </ElDropdownItem>
-            <ElDropdownItem @click="handleConfigure">
-              <Icon name="lucide:settings" />
-              Configure
-            </ElDropdownItem>
-            <ElDropdownItem divided @click="handleDelete">
+            <ElDropdownItem @click="handleDelete">
               <Icon name="lucide:trash-2" class="text-danger" />
               <span class="text-danger">Delete</span>
             </ElDropdownItem>

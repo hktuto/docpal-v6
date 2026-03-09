@@ -63,7 +63,7 @@ async function submit() {
   loading.value = true
   try {
     const response = await clientApi.api.postCaptureProjformsetting(form.value)
-    if (response.success) {
+    if (response.result) {
       emits('updated')
       close()
       // Navigate to form detail page with the new form ID
