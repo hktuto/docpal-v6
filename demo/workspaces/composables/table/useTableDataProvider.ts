@@ -243,6 +243,7 @@ export function useTableDataProvider(options: UseTableDataProviderOptions) {
    * Get table data (main entry point)
    */
   async function getTableData(params: any = {}, aggregate: any = []): Promise<any[]> {
+    console.log('getTableDataaaaaaaaaaaaaaaaaaaaa', physicalTableName.value, currentView.value)
     if (!physicalTableName.value || !currentView.value) {
       throw new Error('physicalTableName and currentView are required')
     }

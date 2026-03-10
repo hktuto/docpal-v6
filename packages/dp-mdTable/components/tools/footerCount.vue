@@ -104,6 +104,7 @@ function makeFlatData(data: any[], childKey: string) {
 }
 // 获取表格数据列表
 const getTableData = (): any[] => {
+  console.log('getTableData', gridRef.value)
   if (gridRef?.value) {
     try {
       const result = (gridRef.value as any).getTableData()

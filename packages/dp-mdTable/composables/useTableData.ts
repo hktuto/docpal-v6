@@ -59,12 +59,15 @@ export interface TableDataContext {
   loading: Ref<boolean>
   error: Ref<Error | null>
   queryParams: Ref<any>
+  columnGroupRules: Ref<any[]>
+  columnFilterRules: Ref<any[]>
+  columnSortRules: Ref<any[]>
   // 方法
-  getTableData: (params?: any) => Promise<any[] | undefined>
+  getTableData: (params?: any) => Promise<{ entryList: any[]; totalSize: number } | undefined>
   refresh: () => Promise<void>
   addRow: (row: any) => void
   updateRow: (rows: any[]) => void
-  deleteRow: (ids: string | string[]) => void
+  deleteRow: (rowid: string) => Promise<boolean>
   getAggChildData: (params?: any, aggregate?: { id: string; field: string; order: string }) => Promise<any[] | undefined>
   queryRecordById: (id: string) => any
   upsertRows?: (
@@ -116,32 +119,37 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     { key: 'age', asc: true }
   ])
 
+  const columnGroupRules = ref<any[]>([])
+  const columnFilterRules = ref<any[]>([])
+  const columnSortRules = ref<any[]>([])
   /**
    * 获取表格数据
    */
   const getTableData = async (
     params: any = {
-      pageSize: 9999
-    },
-    aggregate: any = {}
-  ) => {
-    console.log('params', params)
-    console.log('aggregate', aggregate)
-    if (aggregate?.length > 0) {
+      pageSize: 100
+    }
+  ): Promise<{ entryList: any[]; totalSize: number } | undefined> => {
+    if (columnGroupRules.value?.length > 0) {
       tableData.value = getAggregateData(params)
-      return tableData.value
+      return {
+        entryList: tableData.value,
+        totalSize: tableData.value.length
+      }
     }
     if (tableId) {
-      const { data } = await newClientApi.postDynamicDbTableTableidDataPage(tableId, params)
-      console.log('data', data)
-      tableData.value = data?.entryList ?? []
-      // const data = createGroupTree(tableData.value, groupOptions.value)
-      // console.log('data', data)
-      return tableData.value
+      const { data } = await newClientApi.postDynamicDbTableTableidDataPage(tableId, { ...params })
+      return {
+        entryList: data?.entryList?.map((item: any) => ({ ...item, ...item.data })) ?? [],
+        totalSize: data?.totalSize ?? 0
+      }
     }
     if (!!tableId) {
       console.warn('tableId 不能为空')
-      return
+      return {
+        entryList: [],
+        totalSize: 0
+      }
     }
 
     loading.value = true
@@ -151,14 +159,13 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     return createMockAggregateData(params, tableId)
   }
   async function getAggChildData(params?: any, aggregate?: { id: string; field: string; order: string }) {
-    console.log('getAggChildData', params)
     return createMockAggChildData(params, tableId)
   }
   /**
    * 刷新数据
    */
   const refresh = async () => {
-    await getTableData()
+    gridRef.value?.commitProxy('reload')
   }
 
   /**
@@ -166,8 +173,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
    */
   const addRow = async (row: any) => {
     const { data } = await newClientApi.postDynamicDbTableTableidData(tableId, { data: row })
-    console.log('data', data)
-    getTableData()
+    gridRef.value?.commitProxy('reload')
   }
   function queryRecordById(id: string) {
     const record = tableData.value.find((item) => item?.id === id)
@@ -197,26 +203,14 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
    * 删除行数据：与接口对齐，支持 string | string[]，内部统一转为数组后按 id 删除
    * @param ids - 行 id，支持单个或数组
    */
-  const deleteRow = (ids: string | string[]) => {
-    const idList = Array.isArray(ids) ? ids.map(String) : [String(ids)]
-    const idSet = new Set(idList)
-    tableData.value = tableData.value.filter((item) => item?.id == null || !idSet.has(String(item.id)))
-    rawData.value = rawData.value.filter((item) => item?.id == null || !idSet.has(String(item.id)))
-  }
-
-  // 监听 tableId 变化，自动重新加载数据
-  watch(
-    () => tableId,
-    (newTableName) => {
-      if (newTableName && autoLoad) {
-        getTableData()
-      }
-    },
-    { immediate: false }
-  )
-  // 如果 autoLoad 为 true，初始化时加载数据
-  if (autoLoad && tableId) {
-    getTableData()
+  const deleteRow = async (rowid: string) => {
+    try {
+      await newClientApi.deleteDynamicDbTableTableidDataDataid(tableId, rowid)
+      gridRef.value?.commitProxy('reload')
+      return true
+    } catch (error) {
+      return false
+    }
   }
 
   provide(TableDataContextKey, {
@@ -233,7 +227,11 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     refresh,
     addRow,
     updateRow,
-    deleteRow
+    deleteRow,
+
+    columnGroupRules,
+    columnFilterRules,
+    columnSortRules
   })
 
   return {
@@ -250,7 +248,11 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     refresh,
     addRow,
     updateRow,
-    deleteRow
+    deleteRow,
+
+    columnGroupRules,
+    columnFilterRules,
+    columnSortRules
   }
 }
 

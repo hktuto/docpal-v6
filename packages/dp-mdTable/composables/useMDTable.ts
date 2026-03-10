@@ -20,7 +20,7 @@ export function useMDTable(props: any) {
   console.log('useMDTable', props)
   const editable = ref(props.editable)
   const gridRef = ref<any>()
-  const { columns, columnGroupRules, columnFilterRules, columnSortRules, addColumnPopoverRef, deleteColumn, addColumn } = useColumns(props.tableId)
+  const { columns, addColumnPopoverRef, deleteColumn, addColumn } = useColumns(props.tableId)
 
   const {
     loading,
@@ -31,7 +31,11 @@ export function useMDTable(props: any) {
     updateRow,
     deleteRow,
     getTableData,
-    getAggChildData
+    getAggChildData,
+
+    columnGroupRules,
+    columnFilterRules,
+    columnSortRules,
   } = useTableData(props.tableId, gridRef)
 
   // Get update status helper for cell styling

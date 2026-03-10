@@ -11,8 +11,8 @@
 <script setup lang="ts">
 import { ElMessageBox } from 'element-plus'
 const { t } = useI18n()
-const { gridRef, clearCheckboxRow, deleteRow } = useMDTableInject()
-
+const { gridRef, clearCheckboxRow } = useMDTableInject()
+const { deleteRow } = useTableDataInject()
 const popoverRef = ref()
 const selectedRows = ref<any>([])
 const optionList = ref<any>([])
@@ -34,8 +34,8 @@ function open(target: HTMLElement, { row, column }: any) {
       {
         label: t('mdTable.deleteSelectedRow', { count: selectedRows.value.length }),
         icon: 'Delete',
-        onClick: async() => {
-          try{
+        onClick: async () => {
+          try {
             await ElMessageBox.confirm(t('mdTable.deleteSelectedRow', { count: selectedRows.value.length }), {
               confirmButtonClass: 'el-button el-button--warning',
               confirmButtonText: t('common_confirmDelete'),
@@ -56,8 +56,8 @@ function open(target: HTMLElement, { row, column }: any) {
       {
         label: t('mdTable.deleteRow'),
         icon: 'Delete',
-        onClick: async() => {
-          try{
+        onClick: async () => {
+          try {
             await ElMessageBox.confirm(t('mdTable.deleteRow', { count: 1 }), {
               confirmButtonClass: 'el-button el-button--warning',
               confirmButtonText: t('common_confirmDelete'),

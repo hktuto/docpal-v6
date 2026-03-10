@@ -36,7 +36,7 @@ const emits = defineEmits<{
 }>()
 const buttonRef = ref<HTMLElement>()
 const popoverRef = ref<InstanceType<typeof GroupingConfigPopover>>()
-const { columnGroupRules : groupingRules  } = useColumnsInject()
+const { columnGroupRules : groupingRules  } = useTableDataInject()
 
 // 获取可用列（自动响应 tableRef 变化）
 const availableColumns = computed<ColumnConfig[]>(() => {

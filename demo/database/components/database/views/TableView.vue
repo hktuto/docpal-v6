@@ -541,6 +541,7 @@ function getTreeConfig() {
 
 // Toggle group collapse
 function toggleGroupCollapse(groupValue: string) {
+  console.log('toggleGroupCollapse', groupValue)
   if (collapsedGroups.value.has(groupValue)) {
     collapsedGroups.value.delete(groupValue)
   } else {

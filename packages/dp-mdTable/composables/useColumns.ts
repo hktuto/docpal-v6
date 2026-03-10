@@ -32,9 +32,7 @@ export interface ColumnContext {
   updateColumn: (field: string, updates: Partial<ColumnConfig>) => Promise<void>
   saveColumnOrder: (ordersParam: OrdersParam) => void
   columns: Ref<ColumnConfig[]>
-  columnGroupRules: Ref<any[]>
-  columnFilterRules: Ref<any[]>
-  columnSortRules: Ref<any[]>
+
   addColumnPopoverRef: Ref<any>
   // Relation helpers
   getAvailableTablesForRelation?: (excludeCurrentTable?: boolean) => Promise<any[]>
@@ -187,9 +185,6 @@ function createMockColumns(tableId: string) {
 export function useColumns(tableId: string, options: UseColumnsOptions = {}) {
   console.log('useColumns', tableId)
   const columns = ref<ColumnConfig[]>([])
-  const columnGroupRules = ref<any[]>([])
-  const columnFilterRules = ref<any[]>([])
-  const columnSortRules = ref<any[]>([])
   const addColumnPopoverRef = ref()
   /**
    * 获取列
@@ -307,9 +302,7 @@ export function useColumns(tableId: string, options: UseColumnsOptions = {}) {
     saveColumnOrder,
     addColumnPopoverRef,
     columns,
-    columnGroupRules,
-    columnFilterRules,
-    columnSortRules
+
   })
   return {
     // 基础方法
@@ -323,9 +316,7 @@ export function useColumns(tableId: string, options: UseColumnsOptions = {}) {
 
     // 原始引用（只读）
     columns: columns as Readonly<Ref<ColumnConfig[]>>,
-    columnGroupRules,
-    columnFilterRules,
-    columnSortRules
+
   }
 }
 

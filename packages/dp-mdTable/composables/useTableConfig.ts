@@ -204,6 +204,11 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       },
       // 分组配置
       showFooter: true,
+      pagerConfig: {
+        enabled: true,
+        // pageSize : params.pageSize || 20
+        pageSize: 9999
+      },
       footerData: [{ type: 'footerData' }],
       checkboxConfig: {
         highlight: true,
@@ -279,10 +284,22 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     }
     return options
   })
-  function loadData(pageParams: any) {
+  async function loadData(args: any) {
+    const { page, sorts, filters } = args
+    // 默认接收 Promise<{ result: [], page: { total: 100 } }>
+    let pageParams: any = {
+      pageSize: page.pageSize,
+      pageNum: page.currentPage - 1
+    }
     const gb: any = (options?.groupBy as any)?.value
     const groupByList = Array.isArray(gb) && gb.length > 0 ? gb : null
-    return apiMethod(pageParams, groupByList)
+    const { entryList, totalSize } = await apiMethod(pageParams, groupByList)
+    return {
+      result: entryList,
+      page: {
+        total: totalSize
+      }
+    }
   }
   async function treeLoadData(params: any) {
     try {
