@@ -257,10 +257,18 @@ async function processUploadedFile(uploadedFile: UploadedFile, originalFile: Fil
     // Extract application number from QR code
     await extractApplicationNumber(uploadedFile, imageBlob, detectedForm)
 
-    uploadedFile.isProcessing = false
+    // Find and update the file in the array to ensure reactivity
+    const fileIndex = uploadedFiles.value.findIndex(f => f.filePath === uploadedFile.filePath)
+    if (fileIndex !== -1) {
+      uploadedFiles.value[fileIndex].isProcessing = false
+    }
   } catch (error) {
     console.error('Failed to process file:', error)
-    uploadedFile.isProcessing = false
+    // Find and update the file in the array to ensure reactivity
+    const fileIndex = uploadedFiles.value.findIndex(f => f.filePath === uploadedFile.filePath)
+    if (fileIndex !== -1) {
+      uploadedFiles.value[fileIndex].isProcessing = false
+    }
   }
 }
 
@@ -415,68 +423,76 @@ onMounted(() => {
     </div>
 
     <div class="content">
-      <!-- Left: Upload Zone -->
-      <div class="uploadSection">
-        <div
-          class="uploadZone"
-          @dragover="handleDragOver"
-          @drop="handleDrop"
-        >
-          <input
-            type="file"
-            multiple
-            accept=".pdf,.jpg,.jpeg,.png,.tiff"
-            class="fileInput"
-            @change="(e: any) => Array.from(e.target.files).forEach((f: any) => handleFileUpload(f))"
-          />
-          <div class="uploadPlaceholder">
-            <Icon name="lucide:upload-cloud" class="uploadIcon" />
-            <div class="uploadText">Drop files here or click to upload</div>
-            <div class="uploadHint">Supported: PDF, JPG, PNG, TIFF (300 DPI)</div>
-          </div>
+      <!-- Left: Full-height Upload Zone with Grid -->
+      <div
+        class="uploadZoneLarge"
+        @dragover="handleDragOver"
+        @drop="handleDrop"
+      >
+        <input
+          type="file"
+          multiple
+          accept=".pdf,.jpg,.jpeg,.png,.tiff"
+          class="fileInput"
+          @change="(e: any) => Array.from(e.target.files).forEach((f: any) => handleFileUpload(f))"
+        />
+
+        <!-- Upload Placeholder (shown when no files) -->
+        <div v-if="uploadedFiles.length === 0" class="uploadPlaceholder">
+          <Icon name="lucide:upload-cloud" class="uploadIcon" />
+          <div class="uploadText">Drop files here or click to upload</div>
+          <div class="uploadHint">Supported: PDF, JPG, PNG, TIFF (300 DPI)</div>
         </div>
 
-        <!-- File List -->
-        <div v-if="uploadedFiles.length > 0" class="fileList">
+        <!-- File Grid (shown when files exist) -->
+        <div v-else class="fileGrid">
           <div
             v-for="(file, index) in uploadedFiles"
             :key="file.filePath"
-            class="fileItem"
+            class="fileGridItem"
           >
-            <div class="fileThumbnail">
-              <Icon v-if="!file.thumbnail" name="lucide:file-text" />
+            <div class="fileGridThumbnail">
+              <Icon v-if="!file.thumbnail" name="lucide:file-text" class="fileGridIcon" />
               <img v-else :src="file.thumbnail" alt="Thumbnail" />
               <div v-if="file.isProcessing" class="processingOverlay">
-                <ElIcon class="spinning"><Icon name="lucide:loader-2" /></ElIcon>
+                <Icon name="lucide:loader-2" class="spinning" />
               </div>
             </div>
-            <div class="fileInfo">
-              <div class="fileName">{{ file.fileName }}</div>
-              <div class="fileMeta">
+            <div class="fileGridInfo">
+              <div class="fileGridName" :title="file.fileName">{{ file.fileName }}</div>
+              <div class="fileGridMeta">
                 <ElTag v-if="file.applicationNumber" size="small" type="success">
-                  App #: {{ file.applicationNumber }}
+                  #{{ file.applicationNumber }}
                 </ElTag>
-                <ElTag v-if="file.detectedFormId" size="small" type="info">
-                  Form detected
+                <ElTag v-else-if="file.isProcessing" size="small">
+                  Processing...
                 </ElTag>
               </div>
             </div>
-            <div class="fileActions">
-              <!-- Replace button -->
-              <ElUpload
-                :auto-upload="false"
-                :show-file-list="false"
-                @change="(uploadFile: any) => replaceFile(uploadFile.raw, file, index)"
+            <div class="fileGridActions">
+              <ElButton
+                link
+                type="danger"
+                size="small"
+                class="deleteBtn"
+                @click.stop="removeFile(file, index)"
               >
-                <ElButton link type="primary" title="Replace">
-                  <Icon name="lucide:refresh-cw" />
-                </ElButton>
-              </ElUpload>
-              <!-- Remove button -->
-              <ElButton link type="danger" @click="removeFile(file, index)">
                 <Icon name="lucide:x" />
               </ElButton>
             </div>
+          </div>
+
+          <!-- Add More Button -->
+          <div class="fileGridItem addMore" @click.stop="$event.currentTarget.querySelector('input').click()">
+            <input
+              type="file"
+              multiple
+              accept=".pdf,.jpg,.jpeg,.png,.tiff"
+              style="display: none;"
+              @change="(e: any) => Array.from(e.target.files).forEach((f: any) => handleFileUpload(f))"
+            />
+            <Icon name="lucide:plus" class="addMoreIcon" />
+            <span>Add More</span>
           </div>
         </div>
       </div>
@@ -588,25 +604,18 @@ onMounted(() => {
   gap: var(--app-space-m);
 }
 
-.uploadSection {
+.uploadZoneLarge {
   flex: 1;
-  display: flex;
-  flex-flow: column nowrap;
-  gap: var(--app-space-m);
-  overflow: hidden;
-}
-
-.uploadZone {
   position: relative;
-  height: 200px;
   border: 2px dashed var(--app-border-color);
   border-radius: var(--app-radius-m);
+  background-color: var(--app-bg-color-secondary);
+  transition: all 0.2s ease;
+  overflow: auto;
+  padding: var(--app-space-m);
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--app-bg-color-secondary);
-  transition: all 0.2s ease;
-  flex-shrink: 0;
 
   &:hover {
     border-color: var(--app-primary-color);
@@ -621,6 +630,7 @@ onMounted(() => {
     height: 100%;
     opacity: 0;
     cursor: pointer;
+    z-index: 1;
   }
 }
 
@@ -634,11 +644,11 @@ onMounted(() => {
 }
 
 .uploadIcon {
-  font-size: 48px;
+  font-size: 64px;
 }
 
 .uploadText {
-  font-size: var(--app-font-size-m);
+  font-size: var(--app-font-size-l);
   font-weight: 500;
 }
 
@@ -647,27 +657,54 @@ onMounted(() => {
   opacity: 0.7;
 }
 
-.fileList {
-  flex: 1;
-  overflow-y: auto;
+/* File Grid Layout */
+.fileGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--app-space-m);
+  width: 100%;
+  max-width: 800px;
+  padding: var(--app-space-m);
+  z-index: 2;
+}
+
+.fileGridItem {
+  position: relative;
   display: flex;
   flex-flow: column nowrap;
-  gap: var(--app-space-s);
-}
-
-.fileItem {
-  display: flex;
   align-items: center;
-  gap: var(--app-space-s);
+  gap: var(--app-space-xs);
   padding: var(--app-space-s);
-  border: 1px solid var(--app-border-color);
-  border-radius: var(--app-radius-s);
   background-color: var(--app-bg-color);
+  border: 1px solid var(--app-border-color);
+  border-radius: var(--app-radius-m);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--app-primary-color);
+    box-shadow: var(--app-shadow-m);
+
+    .deleteBtn {
+      opacity: 1;
+    }
+  }
+
+  &.addMore {
+    border-style: dashed;
+    cursor: pointer;
+    justify-content: center;
+    min-height: 180px;
+
+    &:hover {
+      border-color: var(--app-primary-color);
+      background-color: var(--app-primary-color-light);
+    }
+  }
 }
 
-.fileThumbnail {
-  width: 60px;
-  height: 80px;
+.fileGridThumbnail {
+  width: 100%;
+  aspect-ratio: 3/4;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -675,15 +712,57 @@ onMounted(() => {
   border-radius: var(--app-radius-s);
   overflow: hidden;
   position: relative;
-  flex-shrink: 0;
-  font-size: 24px;
-  color: var(--app-text-color-secondary);
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
+}
+
+.fileGridIcon {
+  font-size: 48px;
+  color: var(--app-text-color-secondary);
+}
+
+.fileGridInfo {
+  width: 100%;
+  text-align: center;
+}
+
+.fileGridName {
+  font-size: var(--app-font-size-s);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: var(--app-space-xs);
+}
+
+.fileGridMeta {
+  display: flex;
+  justify-content: center;
+  gap: var(--app-space-xs);
+}
+
+.fileGridActions {
+  position: absolute;
+  top: var(--app-space-xs);
+  right: var(--app-space-xs);
+
+  .deleteBtn {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    padding: 4px;
+  }
+}
+
+.addMoreIcon {
+  font-size: 32px;
+  color: var(--app-primary-color);
+  margin-bottom: var(--app-space-xs);
 }
 
 .processingOverlay {
@@ -706,32 +785,6 @@ onMounted(() => {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
-}
-
-.fileInfo {
-  flex: 1;
-  min-width: 0;
-}
-
-.fileName {
-  font-size: var(--app-font-size-s);
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.fileMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--app-space-xs);
-  margin-top: var(--app-space-xs);
-}
-
-.fileActions {
-  display: flex;
-  align-items: center;
-  gap: var(--app-space-xs);
 }
 
 .infoSection {
