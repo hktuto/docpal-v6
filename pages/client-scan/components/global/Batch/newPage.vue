@@ -209,11 +209,22 @@ async function handleFileUpload(file: File) {
   }
 }
 
+// Helper to update file in array (ensures Vue reactivity)
+function updateFileInArray(filePath: string, updates: Partial<UploadedFile>) {
+  const index = uploadedFiles.value.findIndex(f => f.filePath === filePath)
+  if (index !== -1) {
+    // Create new object to trigger reactivity
+    uploadedFiles.value[index] = { ...uploadedFiles.value[index], ...updates }
+  }
+}
+
 // Process uploaded file - convert to image and extract QR
 async function processUploadedFile(uploadedFile: UploadedFile, originalFile: File) {
+  const filePath = uploadedFile.filePath
+  
   try {
     // Check if file still exists in list (might have been deleted during processing)
-    const stillExists = uploadedFiles.value.some(f => f.filePath === uploadedFile.filePath)
+    const stillExists = uploadedFiles.value.some(f => f.filePath === filePath)
     if (!stillExists) {
       console.log('File was removed during processing, skipping')
       return
@@ -221,6 +232,7 @@ async function processUploadedFile(uploadedFile: UploadedFile, originalFile: Fil
 
     // For PDF files, convert to image first with 300 DPI
     let imageBlob: Blob
+    let thumbnail: string | undefined
 
     if (originalFile.type === 'application/pdf' || originalFile.name.toLowerCase().endsWith('.pdf')) {
       const pdf = await loadPDF(originalFile)
@@ -228,53 +240,54 @@ async function processUploadedFile(uploadedFile: UploadedFile, originalFile: Fil
       const imageUrl = await pdfPageToImageUrl(pdf, 1, { dpi: 300 })
       const response = await fetch(imageUrl)
       imageBlob = await response.blob()
-
-      // Generate thumbnail
-      uploadedFile.thumbnail = imageUrl
+      thumbnail = imageUrl
     } else {
       imageBlob = originalFile
-      uploadedFile.thumbnail = URL.createObjectURL(originalFile)
+      thumbnail = URL.createObjectURL(originalFile)
     }
 
     // Check again if file still exists (might have been deleted during PDF conversion)
-    if (!uploadedFiles.value.some(f => f.filePath === uploadedFile.filePath)) {
+    if (!uploadedFiles.value.some(f => f.filePath === filePath)) {
       console.log('File was removed during processing, skipping')
       return
     }
 
+    // Update thumbnail immediately
+    updateFileInArray(filePath, { thumbnail })
+
     // Detect which form this document belongs to
     const detectedForm = await detectFormForDocument(imageBlob)
+    let detectedFormId: string | undefined
     if (detectedForm) {
-      uploadedFile.detectedFormId = detectedForm.id
+      detectedFormId = detectedForm.id
+      updateFileInArray(filePath, { detectedFormId })
     }
 
     // Check again before QR extraction
-    if (!uploadedFiles.value.some(f => f.filePath === uploadedFile.filePath)) {
+    if (!uploadedFiles.value.some(f => f.filePath === filePath)) {
       console.log('File was removed during processing, skipping')
       return
     }
 
     // Extract application number from QR code
-    await extractApplicationNumber(uploadedFile, imageBlob, detectedForm)
-
-    // Find and update the file in the array to ensure reactivity
-    const fileIndex = uploadedFiles.value.findIndex(f => f.filePath === uploadedFile.filePath)
-    if (fileIndex !== -1) {
-      uploadedFiles.value[fileIndex].isProcessing = false
-    }
+    const applicationNumber = await extractApplicationNumber(imageBlob, detectedForm, originalFile.name)
+    
+    // Update all final properties at once
+    updateFileInArray(filePath, {
+      applicationNumber,
+      detectedFormId,
+      thumbnail,
+      isProcessing: false
+    })
   } catch (error) {
     console.error('Failed to process file:', error)
-    // Find and update the file in the array to ensure reactivity
-    const fileIndex = uploadedFiles.value.findIndex(f => f.filePath === uploadedFile.filePath)
-    if (fileIndex !== -1) {
-      uploadedFiles.value[fileIndex].isProcessing = false
-    }
+    updateFileInArray(filePath, { isProcessing: false })
   }
 }
 
 // Extract application number from QR code
-async function extractApplicationNumber(uploadedFile: UploadedFile, imageBlob: Blob, form: FormSetting | null) {
-  if (!form) return
+async function extractApplicationNumber(imageBlob: Blob, form: FormSetting | null, fileName: string): Promise<string | undefined> {
+  if (!form) return undefined
 
   // Find application number QR field
   const qrFields = form.fieldsSetting?.qrcode || []
@@ -284,19 +297,20 @@ async function extractApplicationNumber(uploadedFile: UploadedFile, imageBlob: B
     q.lable?.toLowerCase().includes('application')
   ) || qrFields[0]
 
-  if (!appNumberField) return
+  if (!appNumberField) return undefined
 
   try {
     // TODO: Use ZXing to extract QR code from the cropped region
     // For now, use placeholder extraction from filename
-    const fileName = uploadedFile.fileName || ''
     const match = fileName.match(/(\d+)/)
     if (match) {
-      uploadedFile.applicationNumber = match[1]
+      return match[1]
     }
   } catch (error) {
     console.error('Failed to extract application number:', error)
   }
+  
+  return undefined
 }
 
 // Handle drag and drop
