@@ -2,18 +2,18 @@ import { clientApi } from 'api'
 
 /**
  * Batch Detail Composable
- * 
+ *
  * Zone Schema Documentation:
  * --------------------------
  * Sections and Fields have zone data in the following format:
- * 
+ *
  * {
  *   zone: {
  *     page: number,  // Page number where this section/field is located (1-based)
  *     zone: string   // Zone coordinates: "x1,y1,x2,y2" (topleft x, topleft y, bottomright x, bottomright y)
  *   }
  * }
- * 
+ *
  * Example:
  * {
  *   zone: {
@@ -29,14 +29,14 @@ import { clientApi } from 'api'
  *     }
  *   ]
  * }
- * 
+ *
  * Note: formClassificationConfig uses a simpler format where zone is just a string:
  * {
  *   single_code_1: {
  *     zone: "2154,525,2278,613"
  *   }
  * }
- * 
+ *
  * Result JSON Structure:
  * ----------------------
  * newResultJson and oldResultJson map section names to field values:
@@ -142,6 +142,9 @@ export const useBatchDetail = (batchId: string) => {
   const highlightedSection = ref<HighlightedParams>()
   const highlightedField = ref<HighlightedParams>()
 
+  // Abort controller for canceling image requests
+  let currentImageAbortController: AbortController | null = null
+
   // Computed: Sections combined with result values
   const sectionsWithValues = ref<SectionWithValues[]>([])
 
@@ -156,25 +159,25 @@ export const useBatchDetail = (batchId: string) => {
   function buildSectionsWithValues() {
     const settings = selectedDocDetail.value?.setting?.fieldsSetting
     const detail = selectedDocDetail.value?.detail
-    
+
     if (!settings?.section || !detail) {
       sectionsWithValues.value = []
       return
     }
-    
+
     const newResult = detail.newResultJson || {}
     const oldResult = detail.oldResultJson || {}
-    
+
     sectionsWithValues.value = settings.section.map((section: any): SectionWithValues => {
       const sectionName = section.section_name
       const newSectionData = newResult[sectionName]
       const oldSectionData = oldResult[sectionName]
-      
+
       // Handle table type sections
       if (section.section_type === 'table') {
         const newRows = Array.isArray(newSectionData) ? newSectionData : []
         const oldRows = Array.isArray(oldSectionData) ? oldSectionData : []
-        
+
         const rows = newRows.map((rowData: any, index: number) => {
           const oldRowData = oldRows[index] || {}
           return {
@@ -194,7 +197,7 @@ export const useBatchDetail = (batchId: string) => {
             })
           }
         })
-        
+
         return {
           ...section,
           currentValue: newSectionData,
@@ -211,11 +214,11 @@ export const useBatchDetail = (batchId: string) => {
           rows
         }
       }
-      
+
       // Handle standard sections
       const newSectionValues = newSectionData || {}
       const oldSectionValues = oldSectionData || {}
-      
+
       return {
         ...section,
         currentValue: newSectionValues,
@@ -239,10 +242,10 @@ export const useBatchDetail = (batchId: string) => {
   // Convert sectionsWithValues back to newResultJson format
   function buildResultJson(): Record<string, any> {
     const result: Record<string, any> = {}
-    
+
     sectionsWithValues.value.forEach((section) => {
       const sectionName = section.section_name
-      
+
       if (section.section_type === 'table') {
         // Table sections are arrays of row objects
         result[sectionName] = section.rows?.map(row => {
@@ -263,7 +266,7 @@ export const useBatchDetail = (batchId: string) => {
         result[sectionName] = sectionData
       }
     })
-    
+
     return result
   }
 
@@ -287,9 +290,12 @@ export const useBatchDetail = (batchId: string) => {
     documentLoading.value = true
     try {
       const res = await clientApi.api.getCaptureProjformsettingId(batchDetail.value.formId)
+      console.log("res", res)
       const pageSplitConfig = JSON.parse(res.data.pageSplitConfig) || { split_into_number_of_page: 1 }
       const formClassificationConfig = JSON.parse(res.data.formClassificationConfig) || {}
+
       const fieldsSetting = JSON.parse(res.data.fieldsSetting) || {}
+      console.log(fieldsSetting)
       const docDetailRes = await clientApi.api.getCaptureBatchBatchidDocDocidDetail(batchDetail.value.id, docId)
       selectedDocDetail.value = {
         setting: {
@@ -320,21 +326,55 @@ export const useBatchDetail = (batchId: string) => {
     await renderPage(pageNumber)
   }
 
+  /**
+   * Cancel any in-flight image download request
+   */
+  function cancelImageRequest() {
+    if (currentImageAbortController) {
+      currentImageAbortController.abort()
+      currentImageAbortController = null
+    }
+  }
+
   async function downloadImage(path: string): Promise<Blob> {
-    const b = await clientApi.api.postCaptureFileQuerycapturefilebypath({ path }, {
-      format: 'blob',
-      headers: { noThrowError: true }
-    })
-    //@ts-ignore
-    return b
+    // Cancel any previous request
+    cancelImageRequest()
+
+    // Create new abort controller for this request
+    currentImageAbortController = new AbortController()
+
+    try {
+      const b = await clientApi.api.postCaptureFileQuerycapturefilebypath({ path }, {
+        format: 'blob',
+        headers: { noThrowError: true },
+        signal: currentImageAbortController.signal
+      })
+      currentImageAbortController = null
+      //@ts-ignore
+      return b
+    } catch (error: any) {
+      currentImageAbortController = null
+      // Re-throw if not aborted
+      if (error.name !== 'AbortError') {
+        throw error
+      }
+      // Return empty blob for aborted requests
+      return new Blob()
+    }
   }
 
   async function renderPage(pageNumber: number) {
+    // Cancel any pending image request before starting new one
+    cancelImageRequest()
+
     previewLoading.value = true
     try {
       const url = selectedDocDetail.value?.detail?.pages?.[pageNumber - 1]
       if (url) {
         const blob = await downloadImage(url)
+        // Skip if request was aborted (empty blob)
+        if (blob.size === 0) return
+
         // Revoke old URL to prevent memory leak
         if (previewImgUrl.value?.startsWith('blob:')) {
           URL.revokeObjectURL(previewImgUrl.value)
@@ -371,7 +411,7 @@ export const useBatchDetail = (batchId: string) => {
    */
   function getZoneFromObject(obj: any): { page: number; zone: string } | null {
     if (!obj?.zone) return null
-    
+
     // Handle object format: { page: 1, zone: "x1,y1,x2,y2" }
     if (typeof obj.zone === 'object') {
       return {
@@ -379,7 +419,7 @@ export const useBatchDetail = (batchId: string) => {
         zone: obj.zone.zone
       }
     }
-    
+
     // Handle string format (fallback for other configs)
     return {
       page: obj.page || 1,
@@ -431,7 +471,7 @@ export const useBatchDetail = (batchId: string) => {
   function updateFieldValue(sectionId: string, fieldKey: string, value: any, rowIndex?: number) {
     const section = sectionsWithValues.value.find((s) => s.section_id === sectionId)
     if (!section) return
-    
+
     if (section.section_type === 'table' && rowIndex !== undefined) {
       // Update field in specific row
       const row = section.rows?.[rowIndex]
@@ -456,11 +496,11 @@ export const useBatchDetail = (batchId: string) => {
   function addTableRow(sectionId: string) {
     const section = sectionsWithValues.value.find((s) => s.section_id === sectionId)
     if (!section || section.section_type !== 'table') return
-    
+
     if (!section.rows) {
       section.rows = []
     }
-    
+
     // Create new row with empty values
     const newRow = {
       currentValue: {},
@@ -471,7 +511,7 @@ export const useBatchDetail = (batchId: string) => {
         originalValue: ''
       }))
     }
-    
+
     section.rows.push(newRow)
   }
 
@@ -480,9 +520,9 @@ export const useBatchDetail = (batchId: string) => {
    */
   async function saveDraft() {
     if (!currentSelectedDoc.value || !selectedDocDetail.value) return
-    
+
     const newResultJson = buildResultJson()
-    
+
     try {
       await clientApi.api.postCaptureBatchBatchidDocDocidSaveDraft(
         currentBatchId.value,
@@ -506,9 +546,9 @@ export const useBatchDetail = (batchId: string) => {
    */
   async function confirm() {
     if (!currentSelectedDoc.value || !selectedDocDetail.value) return
-    
+
     const newResultJson = buildResultJson()
-    
+
     try {
       await clientApi.api.postCaptureBatchBatchidDocDocidConfirm(
         currentBatchId.value,
@@ -570,6 +610,9 @@ export const useBatchDetail = (batchId: string) => {
 
   // Cleanup on unmount
   onUnmounted(() => {
+    // Cancel any pending image request
+    cancelImageRequest()
+
     if (previewImgUrl.value?.startsWith('blob:')) {
       URL.revokeObjectURL(previewImgUrl.value)
     }

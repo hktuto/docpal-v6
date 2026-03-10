@@ -23,6 +23,7 @@ export interface RenderOptions {
   scale?: number
   maxWidth?: number
   maxHeight?: number
+  dpi?: number  // Target DPI (default: 300)
 }
 
 export interface PDFWrapper {
@@ -73,19 +74,45 @@ export async function getPDFPagesInfo(pdf: PDFWrapper): Promise<PDFPageInfo[]> {
 
 /**
  * Render a PDF page to a canvas
+ * 
+ * DPI Calculation:
+ * - PDF internal units are in points (1/72 inch)
+ * - Default PDF DPI is 72
+ * - To get 300 DPI output, scale = 300/72 = 4.166...
+ * - If PDF specifies different DPI, we use that instead
  */
 export async function renderPDFPageToCanvas(pdf: PDFWrapper, pageNumber: number, options: RenderOptions = {}): Promise<HTMLCanvasElement> {
-  const { scale = 1.5, maxWidth, maxHeight } = options
+  const { scale, maxWidth, maxHeight, dpi = 300 } = options
   const page = await pdf.doc.getPage(pageNumber)
-  let viewport = page.getViewport({ scale })
+  
+  // Get page info to determine PDF DPI
+  // PDF default is 72 DPI (1 point = 1/72 inch)
+  const defaultPdfDpi = 72
+  const targetDpi = dpi || 300
+  
+  // Calculate scale to achieve target DPI
+  // If PDF has its own DPI, we would calculate: targetDpi / pdfDpi
+  // Since most PDFs use 72 DPI, the scale factor is: 300/72 = 4.166...
+  const dpiScale = targetDpi / defaultPdfDpi
+  
+  // Use provided scale or calculated DPI scale
+  let finalScale = scale || dpiScale
+  
+  // Get viewport with the scale
+  let viewport = page.getViewport({ scale: finalScale })
 
-  // Calculate scale to fit within max dimensions
-  let finalScale = scale
+  // Calculate scale to fit within max dimensions if specified
   if (maxWidth || maxHeight) {
     const scaleX = maxWidth ? maxWidth / viewport.width : Infinity
     const scaleY = maxHeight ? maxHeight / viewport.height : Infinity
-    finalScale = Math.min(scale, scaleX, scaleY)
-    viewport = page.getViewport({ scale: finalScale })
+    const fitScale = Math.min(scaleX, scaleY)
+    
+    // Only apply fit scale if it's smaller than our target scale
+    // This ensures we don't upscale beyond target DPI
+    if (fitScale < 1) {
+      finalScale = finalScale * fitScale
+      viewport = page.getViewport({ scale: finalScale })
+    }
   }
 
   const canvas = document.createElement('canvas')

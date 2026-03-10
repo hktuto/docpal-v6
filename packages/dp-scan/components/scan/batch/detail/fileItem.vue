@@ -16,8 +16,8 @@ const statusColor = computed(() => {
 </script>
 
 <template>
-  <div 
-    :class="{ 'fileItem': true, 'selected': selected }" 
+  <div
+    :class="{ 'fileItem': true, 'selected': selected }"
     :style="{ '--status-color': statusColor }"
   >
     <div class="trafficLight"></div>
@@ -38,11 +38,11 @@ const statusColor = computed(() => {
   transition: background-color 0.15s ease;
 
   &:hover {
-    background-color: var(--app-bg-color-hover);
+    background-color: var(--app-grey-800);
   }
 
   &.selected {
-    background-color: var(--app-primary-color-light);
+    background-color: var(--app-grey-900);
     color: var(--app-primary-color);
   }
 }

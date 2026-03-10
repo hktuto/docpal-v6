@@ -125,7 +125,14 @@ export const createBatchDetailPageTab = (batchId: string) => {
   }
 }
 
-export const createNewBatchPageTab = (projectId: string) => {
+export type DraftBatch = {
+  projectId: string,
+  id: string,
+  projectName: string,
+  status: string,
+  formName: string,
+}
+export const createNewBatchPageTab = (draftBatch:DraftBatch) => {
   return {
     id: 'client-scan-new',
     name: 'client-scan-new',
@@ -135,7 +142,7 @@ export const createNewBatchPageTab = (projectId: string) => {
     component: 'LazyBatchNewPage',
     feature: 'CORE',
     props: {
-      projectId
+      ...draftBatch
     }
   }
 }
