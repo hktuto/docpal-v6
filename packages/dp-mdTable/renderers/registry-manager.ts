@@ -1,7 +1,7 @@
 // renderers/registry-manager.ts
 import { h } from 'vue'
 import { VxeUI } from 'vxe-pc-ui'
-import { ColumnFieldType } from '../types/column-types'
+import { ColumnFieldType, reverseColumnFieldType } from '../types/column-types'
 import type { ComponentConfig, RenderComponentConfig } from '../types/column-types'
 import { MDTableComponents } from './render-components'
 
@@ -46,6 +46,7 @@ export class RendererRegistryManager {
    */
   public registerAllRenderers(): void {
     // 遍历所有组件配置
+    console.log('componentMap', this.componentMap)
     this.componentMap.forEach((config, key) => {
       if (config.view?.render || config.edit?.render || config.both?.render) {
         this.registerRenderer(config, key)
@@ -101,7 +102,7 @@ export class RendererRegistryManager {
     viewOptions = viewOptions || {}
     editOptions = editOptions || {}
 
-    const fieldName = ColumnFieldType[type]
+    const fieldName = reverseColumnFieldType[type]
     let config: RenderComponentConfig | undefined = this.getComponentConfig(fieldName)
 
     if (!config) {

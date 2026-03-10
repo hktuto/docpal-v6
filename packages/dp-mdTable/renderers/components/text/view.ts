@@ -14,7 +14,7 @@ export const TextView = ({options, params}: ViewRenderFunctionParams<string>) =>
 export const TextEdit = ({options, params}: ViewRenderFunctionParams<string>) => {
   const { $table, row, column } = params
   const textOptions = options?.props
-  // console.log('textOptions', textOptions)
+
   return h(ElInput, {
     modelValue: row[column.field],
     'onUpdate:modelValue': (value: string) => { row[column.field] = value },

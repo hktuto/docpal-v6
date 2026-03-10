@@ -119,7 +119,7 @@ const {
   gridRef,
   refreshTableData,
   saveColumnOrder,
-  updateTableRow,
+  updateRow,
   addVirtualColumn,
   addColumnPopoverRef,
   deleteColumn,
@@ -148,7 +148,6 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     }
   },
   'edit-closed': async (params: any) => {
-    console.log('edit-closed', params)
     const { column, row } = params
     // need to check if the row data is changed
     const newData = row[column.field]
@@ -160,7 +159,6 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     // Only send the row ID and the updated field value
     // This avoids sending all the additional data the table may have added
     const updateData = {
-      id: row.id,
       [column.field]: row[column.field]
     }
 
@@ -168,7 +166,7 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     setLoading(row.id, column.field)
 
     try {
-      await updateTableRow([updateData])
+      await updateRow(row.id, updateData)
       // Set success state - will auto-clear after delay
       setSuccess(row.id, column.field)
     } catch (error) {

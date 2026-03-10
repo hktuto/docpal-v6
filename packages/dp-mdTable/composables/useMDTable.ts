@@ -12,7 +12,7 @@ export interface mdTable {
   getUserList: () => Promise<any[]>
   userList: Ref<any[]>
   tableData: Ref<any[]>
-  updateRow: (row: any) => void
+  updateRow: (rowId: string, data: any) => Promise<boolean>
   addRow: (row: any) => void
 }
 export const MdTableContextKey: InjectionKey<mdTable> = Symbol('MdTableContextKey')
@@ -133,7 +133,8 @@ export function useMDTable(props: any) {
     editable,
     
     clearCheckboxRow,
-    addRow
+    addRow,
+    updateRow
   }
 }
 

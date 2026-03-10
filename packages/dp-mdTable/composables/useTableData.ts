@@ -66,7 +66,7 @@ export interface TableDataContext {
   getTableData: (params?: any) => Promise<{ entryList: any[]; totalSize: number } | undefined>
   refresh: () => Promise<void>
   addRow: (row: any) => void
-  updateRow: (rows: any[]) => void
+  updateRow: (rowId: string, data: any) => Promise<boolean>
   deleteRow: (rowid: string) => Promise<boolean>
   getAggChildData: (params?: any, aggregate?: { id: string; field: string; order: string }) => Promise<any[] | undefined>
   queryRecordById: (id: string) => any
@@ -186,17 +186,14 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
    * 更新行数据：根据每行的 id 在 tableData/rawData 中查找并合并更新
    * @param rows - 要更新的行（可含部分字段），至少需包含 id
    */
-  const updateRow = (rows: any[]) => {
-    const list = Array.isArray(rows) ? rows : [rows]
-    list.forEach((row) => {
-      if (row?.id == null) return
-      const idStr = String(row.id)
-      const idx = tableData.value.findIndex((item) => item != null && String(item.id) === idStr)
-      if (idx !== -1) {
-        tableData.value[idx] = { ...tableData.value[idx], ...row }
-        rawData.value[idx] = { ...rawData.value[idx], ...row }
-      }
-    })
+  const updateRow = async (rowId: string, data: any) => {
+    try {
+      await newClientApi.putDynamicDbTableTableidDataDataid(tableId, rowId, { data })
+      return true
+    } catch (error) {
+      gridRef.value?.commitProxy('reload')
+      return false
+    }
   }
 
   /**
