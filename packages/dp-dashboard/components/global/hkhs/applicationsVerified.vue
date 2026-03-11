@@ -26,6 +26,7 @@ const formData = ref({
   project: '',
   date: dayjs().format('YYYY-MM-DD')
 })
+
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'HKHS-ApplicationsVerified',
   virtualScroll: true,
@@ -34,7 +35,31 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     { field: 'batch_no', title: 'Batch No.', fixed: 'left' },
     { field: 'application_no', title: 'Application No.' },
     { field: 'form_type', title: 'Form Type' },
-    { field: 'compare', title: 'Compare' },
+    {
+      field: 'compare',
+      title: 'Compare',
+      minWidth: 120,
+      type: 'html',
+      formatter: ({ cellValue, row }) => {
+        return cellValue
+        /*return `<table>
+                  <thead>
+                    <tr>
+                      <th>Appin No.</th>
+                      <th>Form Type</th>
+                      <th>HKIC</th>
+                      <th>Payment Ref</th>
+                      <th>Family Class</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>${cellValue}</td>
+                    </tr>
+                  </tbody>
+                </table>`*/
+      }
+    },
     {
       field: 'modified',
       title: 'Modified',
@@ -117,7 +142,7 @@ function handleCompare(oldStr: string, newStr: string): string[] {
 
   return oldParts.map((oldValue, i) => {
     const newValue = newParts[i] || ''
-    return oldValue !== newValue ? `${oldValue} - ${newValue}` : oldValue
+    return oldValue !== newValue ? `${oldValue} - ${newValue}` : `<div style="background: #c1c1c1">${oldValue}</div>`
   })
 }
 
@@ -264,6 +289,16 @@ onMounted(async () => {
 
 .toolbar-select {
   width: 180px;
+}
+
+:deep(.table) {
+  width: 100%;
+  border-collapse: collapse;
+}
+:deep(th, td) {
+  padding: 8px;
+  text-align: left;
+  border: none;
 }
 
 :deep(.container) {
