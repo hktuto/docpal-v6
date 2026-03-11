@@ -24,7 +24,7 @@ export const StatusMap: {
   failed: {
     color: '#F56C6C',
     key: 'failed, fail',
-    status: ['failed-to-process', 'failed-to-export']
+    status: ['failed-to-process', 'failed-to-export', 'upload-fail']
   },
   cancelled: {
     color: '#909399',

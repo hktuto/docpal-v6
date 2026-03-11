@@ -5,13 +5,17 @@ const props = defineProps<{
 }>()
 
 const statusColor = computed(() => {
+  if(props.doc.status.includes('fail')) {
+    return 'var(--app-error-color)'
+  }
   if (props.doc.status === 'processed') {
     return 'var(--app-info-color)'
   } else if (props.doc.status === 'cancelled') {
     return 'var(--app-warning-color)'
-  } else {
+  } else if(props.doc.status === "verified") {
     return 'var(--app-primary-color)'
   }
+  return 'var(--app-info-color)'
 })
 </script>
 

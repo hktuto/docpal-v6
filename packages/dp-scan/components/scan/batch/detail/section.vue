@@ -3,6 +3,7 @@ import { useBatchDetailContext, type SectionWithValues, type FieldWithValue } fr
 
 const props = defineProps<{
   section: SectionWithValues
+  readonly?: boolean
 }>()
 
 const emits = defineEmits<{
@@ -42,22 +43,14 @@ function getZoneString(zoneData: any): string | null {
   return null
 }
 
-// Handle mouse enter/leave for section
+// Handle mouse enter for section - highlight persists until another is hovered
 function handleSectionMouseEnter() {
   selectSection(props.section)
 }
 
-function handleSectionMouseLeave() {
-  selectSection(null)
-}
-
-// Handle field mouse enter/leave
+// Handle field mouse enter - highlight persists until another is hovered
 function handleFieldMouseEnter(field: FieldWithValue) {
   selectField(field)
-}
-
-function handleFieldMouseLeave() {
-  selectField(null)
 }
 
 // Handle field value change
@@ -95,7 +88,6 @@ function getInputType(fieldType: string): string {
     :class="{ highlighted: isHighlighted }"
     tabindex="0"
     @mouseenter="handleSectionMouseEnter"
-    @mouseleave="handleSectionMouseLeave"
   >
     <div class="sectionHeader">
       <Icon name="lucide:layout-template" class="sectionIcon" />
@@ -104,9 +96,9 @@ function getInputType(fieldType: string): string {
         Page {{ section.zone.page }}
       </ElTag>
       
-      <!-- Add row button for table sections -->
+      <!-- Add row button for table sections - only show when not readonly -->
       <ElButton
-        v-if="section.section_type === 'table'"
+        v-if="section.section_type === 'table' && !readonly"
         type="primary"
         size="small"
         circle
@@ -128,7 +120,6 @@ function getInputType(fieldType: string): string {
           modified: isFieldModified(field)
         }"
         @mouseenter="handleFieldMouseEnter(field)"
-        @mouseleave="handleFieldMouseLeave"
       >
         <div class="fieldLabel">
           <span class="labelText">{{ field.lable || field.label }}</span>
@@ -144,6 +135,7 @@ function getInputType(fieldType: string): string {
           size="small"
           class="fieldInput"
           :placeholder="`Select ${field.lable || field.label}`"
+          :disabled="readonly"
           @update:model-value="(val) => handleFieldChange(field, val)"
         >
           <ElOption
@@ -162,6 +154,7 @@ function getInputType(fieldType: string): string {
           class="fieldInput"
           :type="getInputType(field.type)"
           :placeholder="field.lable || field.label"
+          :disabled="readonly"
           @update:model-value="(val) => handleFieldChange(field, val)"
         />
         
@@ -176,7 +169,7 @@ function getInputType(fieldType: string): string {
     <!-- Table Section -->
     <div v-else class="tableSection">
       <div v-if="!section.rows || section.rows.length === 0" class="emptyTable">
-        <ElEmpty description="No data rows. Click + to add." :image-size="60" />
+        <ElEmpty :description="readonly ? 'No data rows.' : 'No data rows. Click + to add.'" :image-size="60" />
       </div>
       
       <div
@@ -196,7 +189,6 @@ function getInputType(fieldType: string): string {
             class="fieldItem"
             :class="{ modified: field.currentValue !== field.originalValue }"
             @mouseenter="handleFieldMouseEnter(field)"
-            @mouseleave="handleFieldMouseLeave"
           >
             <div class="fieldLabel">
               <span class="labelText">{{ field.lable || field.label }}</span>
@@ -210,6 +202,7 @@ function getInputType(fieldType: string): string {
               :model-value="field.currentValue"
               size="small"
               class="fieldInput"
+              :disabled="readonly"
               @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
             >
               <ElOption
@@ -226,6 +219,7 @@ function getInputType(fieldType: string): string {
               size="small"
               class="fieldInput"
               :type="getInputType(field.type)"
+              :disabled="readonly"
               @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
             />
             

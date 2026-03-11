@@ -3,7 +3,10 @@
 const props = defineProps<{
   id?: string
 }>()
-
+const stateEl = ref()
+function tableUpdated() {
+  stateEl.value.getStats()
+}
 // Example: Update props when needed
 // function handleIdChange(newId: string) {
 //   routerProvider?.updateProps({ id: newId })
@@ -16,8 +19,8 @@ const props = defineProps<{
       <div class="title">Batch List</div>
       <ScanNewBatch />
     </div>
-    <ScanListStat />
-    <ScanListTable />
+    <ScanListStat ref="stateEl" />
+    <ScanListTable @updated="tableUpdated" />
   </div>
 </template>
 

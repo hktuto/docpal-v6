@@ -33,6 +33,9 @@ watch(
     immediate: true
   }
 )
+defineExpose({
+  getStats
+})
 </script>
 
 <template>

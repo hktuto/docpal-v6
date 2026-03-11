@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
 
-const { projects } = useScanClient()
+const { projects, projectsPermissions, isCreator } = useScanClient()
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey not found')
@@ -9,8 +9,13 @@ if (!routerProvider) {
 
 const loading = ref(false)
 
+// Filter projects to only show those where user has creator permission
+const creatableProjects = computed(() => {
+  return projects.value.filter((project) => isCreator(project.id))
+})
+
 const isDisable = computed(() => {
-  return !projects.value || projects.value.length === 0 || loading.value
+  return creatableProjects.value.length === 0 || loading.value
 })
 
 async function handleCommand(projectId: string) {
@@ -48,7 +53,7 @@ async function handleCommand(projectId: string) {
     </span>
     <template #dropdown>
       <ElDropdownMenu>
-        <ElDropdownItem v-for="project in projects" :key="project.id" :command="project.id">
+        <ElDropdownItem v-for="project in creatableProjects" :key="project.id" :command="project.id">
           {{ project.name }}
         </ElDropdownItem>
       </ElDropdownMenu>

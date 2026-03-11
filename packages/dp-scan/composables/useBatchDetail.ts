@@ -105,6 +105,7 @@ export type BatchDetailContext = {
   documentLoading: Ref<boolean>
   previewLoading: Ref<boolean>
   batchDetail: Ref<any>
+  projectId: ComputedRef<string | undefined>
   currentSelectedDoc: Ref<any>
   selectedDocDetail: Ref<any>
   totalPages: Ref<number | undefined>
@@ -113,6 +114,8 @@ export type BatchDetailContext = {
   highlightedSection: Ref<HighlightedParams | undefined>
   highlightedField: Ref<HighlightedParams | undefined>
   sectionsWithValues: Ref<SectionWithValues[]>
+  isLockedByOther: Ref<boolean>
+  lockedByUser: Ref<string | undefined>
   selectSection: (section: any) => void
   selectField: (field: any) => void
   changePage: (pageNumber: number) => Promise<void>
@@ -120,6 +123,7 @@ export type BatchDetailContext = {
   addTableRow: (sectionId: string) => void
   saveDraft: () => Promise<void>
   confirm: () => Promise<void>
+  reload: () => Promise<void>
 }
 
 export const useBatchDetail = (batchId: string) => {
@@ -147,6 +151,13 @@ export const useBatchDetail = (batchId: string) => {
 
   // Computed: Sections combined with result values
   const sectionsWithValues = ref<SectionWithValues[]>([])
+
+  // Computed: Get projectId from batchDetail
+  const projectId = computed(() => batchDetail.value?.projectId)
+
+  // Batch lock state
+  const isLockedByOther = ref(false)
+  const lockedByUser = ref<string | undefined>()
 
   // Watch for selectedDocDetail changes and rebuild sectionsWithValues
   watch(selectedDocDetail, () => {
@@ -274,10 +285,28 @@ export const useBatchDetail = (batchId: string) => {
 
   async function getBatchDetail() {
     detailLoading.value = true
+    isLockedByOther.value = false
+    lockedByUser.value = undefined
     try {
       const response = await clientApi.api.getCaptureBatchBatchidDetail(currentBatchId.value)
       batchDetail.value = response.data
       currentSelectedDoc.value = response.data.documents[0]
+      
+      // Handle batch locking
+      const userId = useUserId()
+      const lockBy = batchDetail.value.lockBy
+      
+      if (!lockBy || lockBy === userId.value) {
+        // Batch is not locked or locked by current user - open it
+        await clientApi.api.postCaptureBatchBatchidOpen(currentBatchId.value)
+        isLockedByOther.value = false
+        lockedByUser.value = undefined
+      } else {
+        // Batch is locked by another user - set readonly state
+        isLockedByOther.value = true
+        lockedByUser.value = lockBy
+        console.warn(`Batch is locked by user: ${lockBy}`)
+      }
     } catch (error) {
       console.error(error)
     } finally {
@@ -573,6 +602,7 @@ export const useBatchDetail = (batchId: string) => {
     documentLoading,
     previewLoading,
     batchDetail,
+    projectId,
     currentSelectedDoc,
     selectedDocDetail,
     totalPages,
@@ -581,13 +611,16 @@ export const useBatchDetail = (batchId: string) => {
     highlightedSection,
     highlightedField,
     sectionsWithValues,
+    isLockedByOther,
+    lockedByUser,
     selectSection,
     selectField,
     changePage,
     updateFieldValue,
     addTableRow,
     saveDraft,
-    confirm
+    confirm,
+    reload: getBatchDetail
   }
 
   provide('batchDetailProvider', context)
@@ -609,7 +642,9 @@ export const useBatchDetail = (batchId: string) => {
   })
 
   // Cleanup on unmount
-  onUnmounted(() => {
+  onUnmounted( async() => {
+    console.log('Unmounted batch detail')
+    await clientApi.api.postCaptureBatchBatchidRelease(currentBatchId.value)
     // Cancel any pending image request
     cancelImageRequest()
 
