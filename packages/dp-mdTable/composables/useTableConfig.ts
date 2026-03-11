@@ -207,7 +207,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       pagerConfig: {
         enabled: true,
         // pageSize : params.pageSize || 20
-        pageSize: 9999
+        pageSize: 100
       },
       footerData: [{ type: 'footerData' }],
       checkboxConfig: {

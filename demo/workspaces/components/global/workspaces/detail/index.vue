@@ -97,13 +97,13 @@ const detailComponent = computed(() => {
       return 'LazyWorkspacesDetailView'
     case 'dashboard':
       if (workspaceRouteParams.value.pageType === 'setting') {
-        return 'LazyWorkspacesSettingDashoard'
+        return 'LazyWorkspacesSettingDashboard'
       }
-      return 'LazyWorkspacessDetailDashboard'
+      return 'LazyWorkspacesDetailDashboard'
     case 'record':
       return 'LazyWorkspacesDetailRecord'
     default:
-      return 'LazyWorkspaceDetailRoot'
+      return 'LazyWorkspacesDetailRoot'
   }
 })
 

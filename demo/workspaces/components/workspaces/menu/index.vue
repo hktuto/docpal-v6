@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { CaseFieldRecord } from '../../../utils/db/schema/newTableSchema'
 import { ElMessage } from 'element-plus'
-import { useDebounceFn } from '@vueuse/core'
-import { onUnmounted } from 'vue'
 
 interface Props {
   workspaceId: string
@@ -29,99 +27,26 @@ const importToTableDialogRef = ref()
 const pendingDuplicates = ref<DuplicateSheetInfo[]>([])
 const tablesUpdated = ref<{ id: string; name: string }[]>([])
 
-// Excel drop import
-const isDraggingOver = ref(false)
-const dragLeaveTimeout = ref<NodeJS.Timeout | null>(null)
-
-function handleDragOver(event: DragEvent) {
-  if (!props.isAdmin) return
-
-  event.preventDefault()
-  event.stopPropagation()
-
-  // Check if dragging files
-  if (event.dataTransfer?.types.includes('Files')) {
-    event.dataTransfer.dropEffect = 'copy'
-  }
-}
-
-function handleDragEnter(event: DragEvent) {
-  if (!props.isAdmin) return
-
-  event.preventDefault()
-  event.stopPropagation()
-
-  // Check if dragging files
-  console.log(event.dataTransfer)
-  if (event.dataTransfer?.files) {
-    // Clear any pending drag leave timeout
-    if (dragLeaveTimeout.value) {
-      clearTimeout(dragLeaveTimeout.value)
-      dragLeaveTimeout.value = null
-    }
-
-    isDraggingOver.value = true
-  }
-}
-const menuRef = ref()
-function handleDragLeave(event: DragEvent) {
-  event.preventDefault()
-  event.stopPropagation()
-  const relatedTarget = event.relatedTarget as Node | null
-  if (!relatedTarget) {
-    isDraggingOver.value = false
-    dragLeaveTimeout.value = null
-    return
-  }
-  if (relatedTarget.classList.contains('workspace-menu') || relatedTarget.classList.contains('menu-content')) return
-  // Use a timeout to debounce drag leave
-  // This prevents flickering when moving between child elements
-  isDraggingOver.value = false
-  dragLeaveTimeout.value = null
-}
-
-async function handleDrop(event: DragEvent) {
-  event.preventDefault()
-  event.stopPropagation()
-
-  // Clear any pending drag leave timeout
-  if (dragLeaveTimeout.value) {
-    clearTimeout(dragLeaveTimeout.value)
-    dragLeaveTimeout.value = null
-  }
-
-  // Reset drag state
-  isDraggingOver.value = false
-
-  if (!props.isAdmin) return
-
-  const files = event.dataTransfer?.files
-  if (!files || files.length === 0) return
-
-  // Find Excel files
-  const excelFile = Array.from(files).find(isExcelFile)
-  if (excelFile && workspace.value?.id) {
-    // Import the file
-    const result = await importExcelFile(excelFile, workspace.value.id, null)
-    
-    // If update action, open ImportExcelDialog to handle duplicate updates
-    if (result.action === 'update' && result.duplicateSheets && result.duplicateSheets.length > 0) {
-      handleDuplicateUpdates(excelFile, result.duplicateSheets)
+// 菜单区域拖放：状态与事件封装在 useMenuDrag 中
+const {
+  isDraggingOver,
+  handleDragOver,
+  handleDragEnter,
+  handleDragLeave,
+  handleDrop,
+  handleDragEnd
+} = useMenuDrag({
+  enabled: computed(() => props.isAdmin),
+  onDrop: async (files) => {
+    const excelFile = files.find(isExcelFile)
+    if (excelFile && workspace.value?.id) {
+      const result = await importExcelFile(excelFile, workspace.value.id, null)
+      if (result.action === 'update' && result.duplicateSheets && result.duplicateSheets.length > 0) {
+        handleDuplicateUpdates(excelFile, result.duplicateSheets)
+      }
     }
   }
-}
-
-// Handle drag end (when drag operation is completed)
-function handleDragEnd() {
-  // Clear any pending drag leave timeout
-  if (dragLeaveTimeout.value) {
-    clearTimeout(dragLeaveTimeout.value)
-    dragLeaveTimeout.value = null
-  }
-
-  // Reset drag state when drag operation ends
-  isDraggingOver.value = false
-}
+})
 
 async function handleFolderDrop(folderId: string, file: File) {
   if (workspace.value?.id) {
@@ -289,14 +214,6 @@ function handleOpenActions() {
 onMounted(async () => {
   await getMenuFromDb()
 })
-
-// Clean up timeout on unmount
-onUnmounted(() => {
-  if (dragLeaveTimeout.value) {
-    clearTimeout(dragLeaveTimeout.value)
-    dragLeaveTimeout.value = null
-  }
-})
 </script>
 
 <template>
@@ -335,7 +252,7 @@ onUnmounted(() => {
       </div>
 
       <!-- Draggable Menu Items -->
-      <WorkspacesMenuDraggableList v-else v-model="state.items" :level="0" :parent-id="null" :is-admin="isAdmin" />
+      <WorkspacesMenuDraggableList v-else v-model="state.items" :level="0" :parent-id="null" :is-admin="isAdmin" @dragover.stop @dragenter.stop @drop.stop />
     </div>
 
     <!-- Hidden file input for Excel upload -->

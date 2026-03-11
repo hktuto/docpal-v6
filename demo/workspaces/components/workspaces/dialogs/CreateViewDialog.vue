@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import type { CaseTableRecord, CaseFieldRecord, ViewType, ViewSettings } from '../../../../utils/db/schema/newTableSchema'
+import type { CaseTableRecord, CaseFieldRecord, ViewType, ViewSettings } from '../../../utils/db/schema/newTableSchema'
 
 interface ViewFormData {
   name: string

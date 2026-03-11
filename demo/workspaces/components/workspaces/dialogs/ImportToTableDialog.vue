@@ -324,7 +324,7 @@
 
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import type { CaseFieldRecord } from '../../../../utils/db/schema/newTableSchema'
+import type { CaseFieldRecord } from '../../../utils/db/schema/newTableSchema'
 
 const emit = defineEmits<{
   complete: [result: ImportResult]
