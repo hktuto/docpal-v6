@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
 import { pdfPageToImageUrl, loadPDF } from '#imports'
+import { readQRCode } from '#imports'
 
 interface DraftBatch {
   id: string
@@ -134,40 +135,93 @@ async function getProjectForms() {
 }
 
 // Try to detect which form matches the document by checking QR code
-async function detectFormForDocument(imageBlob: Blob): Promise<FormSetting | null> {
+async function detectFormForDocument(imageBlob: Blob): Promise<{ form: FormSetting; applicationNumber: string } | null> {
   if (projectForms.value.length === 0) return null
 
   // Create image from blob
   const imageUrl = URL.createObjectURL(imageBlob)
 
   try {
+    // Load image to get dimensions
+    const img = await loadImage(imageUrl)
+    
     // Try each form that has QR code configuration
     for (const form of projectForms.value) {
       const qrFields = form.fieldsSetting?.qrcode || []
 
       for (const qrField of qrFields) {
-        if (!qrField.zone) continue
+        if (!qrField.zone?.zone) continue
 
-        // TODO: Use ZXing to extract QR code from the cropped region
-        // For now, we'll use the first form that has a QR code config
-        // The actual implementation would:
-        // 1. Parse zone coordinates from qrField.zone.zone
-        // 2. Crop the image to that zone
-        // 3. Use ZXing to read the QR code
-        // 4. If successful, return this form
+        // Parse zone coordinates: "x1,y1,x2,y2"
+        const zoneCoords = parseZone(qrField.zone.zone)
+        if (!zoneCoords) continue
 
-        // Placeholder: return first form with QR config
-        return form
+        // Crop image to zone
+        const croppedImageUrl = await cropImageToZone(img, zoneCoords)
+        
+        // Try to read QR code from cropped region
+        const qrResult = await readQRCode(croppedImageUrl)
+        
+        if (qrResult?.value) {
+          // Found a valid QR code, this is the matching form
+          return {
+            form,
+            applicationNumber: qrResult.value
+          }
+        }
       }
     }
 
-    // If no QR code found, return first form as default
-    return projectForms.value[0]
+    // If no QR code found in any form, return first form as default (no application number)
+    return {
+      form: projectForms.value[0],
+      applicationNumber: ''
+    }
   } finally {
     URL.revokeObjectURL(imageUrl)
   }
 
   return null
+}
+
+// Parse zone string "x1,y1,x2,y2" to coordinates
+function parseZone(zone: string): { x: number; y: number; width: number; height: number } | null {
+  if (!zone) return null
+  const parts = zone.split(',').map(p => parseFloat(p.trim()))
+  if (parts.length !== 4 || parts.some(isNaN)) return null
+  const [x1, y1, x2, y2] = parts
+  return {
+    x: Math.min(x1, x2),
+    y: Math.min(y1, y2),
+    width: Math.abs(x2 - x1),
+    height: Math.abs(y2 - y1)
+  }
+}
+
+// Crop image to specified zone
+async function cropImageToZone(
+  img: HTMLImageElement, 
+  zone: { x: number; y: number; width: number; height: number }
+): Promise<string> {
+  const canvas = document.createElement('canvas')
+  canvas.width = zone.width
+  canvas.height = zone.height
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('Failed to get canvas context')
+  
+  ctx.drawImage(img, zone.x, zone.y, zone.width, zone.height, 0, 0, zone.width, zone.height)
+  return canvas.toDataURL('image/png')
+}
+
+// Load image from URL
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => resolve(img)
+    img.onerror = () => reject(new Error(`Failed to load image: ${src}`))
+    img.src = src
+  })
 }
 
 // Handle file upload
@@ -223,12 +277,10 @@ function updateFileInArray(filePath: string, fileName: string, updates: Partial<
 // Process uploaded file - convert to image and extract QR
 async function processUploadedFile(uploadedFile: UploadedFile, originalFile: File) {
   const filePath = uploadedFile.filePath
-  console.log("processUploadedFile", uploadedFile)
   try {
     // Check if file still exists in list (might have been deleted during processing)
     const stillExists = uploadedFiles.value.some(f => f.filePath === filePath && f.fileName === uploadedFile.fileName)
     if (!stillExists) {
-      console.log('File was removed during processing, skipping')
       return
     }
 
@@ -238,11 +290,9 @@ async function processUploadedFile(uploadedFile: UploadedFile, originalFile: Fil
 
     if (originalFile.type === 'application/pdf' || originalFile.name.toLowerCase().endsWith('.pdf')) {
       const pdf = await loadPDF(originalFile)
-      console.log("processUploadedFile pdf", pdf)
       // Convert first page to image at 300 DPI (scale = 300/72 = 4.166...)
       const imageUrl = await pdfPageToImageUrl(pdf, 1, { dpi: 300 })
       const response = await fetch(imageUrl)
-      console.log("image load success", response)
 
       imageBlob = await response.blob()
       thumbnail = imageUrl
@@ -253,70 +303,36 @@ async function processUploadedFile(uploadedFile: UploadedFile, originalFile: Fil
 
     // Check again if file still exists (might have been deleted during PDF conversion)
     if (!uploadedFiles.value.some(f => f.filePath === filePath && f.fileName === uploadedFile.fileName)) {
-      console.log('File was removed during processing, skipping')
       return
     }
     // now we generated the thumbnail, update the file in the array
     // Update thumbnail immediately
     updateFileInArray(filePath, uploadedFile.fileName, { thumbnail })
 
-    // Detect which form this document belongs to
-    const detectedForm = await detectFormForDocument(imageBlob)
-    console.log("detected result", detectedForm)
-    let detectedFormId: string | undefined
-    if (detectedForm) {
-      detectedFormId = detectedForm.id
-      updateFileInArray(filePath, uploadedFile.fileName, { detectedFormId })
+    // Detect which form this document belongs to and extract application number
+    const detectionResult = await detectFormForDocument(imageBlob)
+    
+    if (detectionResult) {
+      const { form, applicationNumber } = detectionResult
+      
+      // Update form ID and application number
+      updateFileInArray(filePath, uploadedFile.fileName, { 
+        detectedFormId: form.id,
+        applicationNumber: applicationNumber || undefined,
+        thumbnail,
+        isProcessing: false 
+      })
+    } else {
+      // No form detected, just update thumbnail and stop processing
+      updateFileInArray(filePath, uploadedFile.fileName, { 
+        thumbnail,
+        isProcessing: false 
+      })
     }
-
-    // Check again before QR extraction
-    if (!uploadedFiles.value.some(f => f.filePath === filePath && f.fileName === uploadedFile.fileName)) {
-      console.log('File was removed during processing, skipping')
-      return
-    }
-
-    // Extract application number from QR code
-    const applicationNumber = await extractApplicationNumber(imageBlob, detectedForm, originalFile.name)
-
-    // Update all final properties at once
-    updateFileInArray(filePath, uploadedFile.fileName, {
-      applicationNumber,
-      detectedFormId,
-      thumbnail,
-      isProcessing: false
-    })
   } catch (error) {
     console.error('Failed to process file:', error)
     updateFileInArray(filePath, uploadedFile.fileName, { isProcessing: false })
   }
-}
-
-// Extract application number from QR code
-async function extractApplicationNumber(imageBlob: Blob, form: FormSetting | null, fileName: string): Promise<string | undefined> {
-  if (!form) return undefined
-
-  // Find application number QR field
-  const qrFields = form.fieldsSetting?.qrcode || []
-  const appNumberField = qrFields.find((q: any) =>
-    q.export_label === 'application_no' ||
-    q.label?.toLowerCase().includes('application') ||
-    q.lable?.toLowerCase().includes('application')
-  ) || qrFields[0]
-
-  if (!appNumberField) return undefined
-
-  try {
-    // TODO: Use ZXing to extract QR code from the cropped region
-    // For now, use placeholder extraction from filename
-    const match = fileName.match(/(\d+)/)
-    if (match) {
-      return match[1]
-    }
-  } catch (error) {
-    console.error('Failed to extract application number:', error)
-  }
-
-  return undefined
 }
 
 // Handle drag and drop
@@ -471,7 +487,6 @@ onMounted(() => {
             :key="file.filePath"
             class="fileGridItem"
           >
-              {{file.isProcessing}}
             <div class="fileGridThumbnail">
               <Icon v-if="!file.thumbnail" name="lucide:file-text" class="fileGridIcon" />
               <img v-else :src="file.thumbnail" alt="Thumbnail" />
