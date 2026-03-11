@@ -221,7 +221,8 @@ function handleInput() {
 
 .inline-editor {
   display: flex;
-  align-items: flex-start;
+  justify-content: flex-start;
+  align-items: center;
   gap: var(--app-space-xs);
   flex: 1;
   min-width: 0;
@@ -253,6 +254,5 @@ function handleInput() {
   width: 20px;
   height: 20px;
   padding: 0;
-  margin-top: 4px;
 }
 </style>

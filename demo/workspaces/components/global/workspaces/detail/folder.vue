@@ -46,7 +46,7 @@ watch(
 <template>
   <div class="folder-detail">
     <div v-if="currentFolder" class="innerGrid">
-      <UiInlineEditor :model-value="currentFolder.label" wrapper="h1" :editable="isAdmin" @save="handleLabelSave" />
+      <UiInlineEditor :model-value="currentFolder.name" wrapper="h1" :editable="isAdmin" @save="handleLabelSave" />
       <UiInlineEditor
         :model-value="currentFolder.description || ''"
         wrapper="p"
