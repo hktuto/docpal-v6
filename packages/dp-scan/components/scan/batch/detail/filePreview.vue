@@ -582,12 +582,10 @@ watch(() => highlightedSection.value, (newVal) => {
     cancelCropEdit()
     return
   }
-  console.log("highlight change", newVal, sectionsWithValues.value)
   // Check if new section is editable
   const section = sectionsWithValues.value.find(
     s => {
-      console.log("s" , s)
-      return s.zone.page === newVal.page && s.zone.zone === newVal.zone
+      return s.zone && s.zone.page === newVal.page && s.zone.zone === newVal.zone
     }
   )
 
