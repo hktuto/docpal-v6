@@ -355,6 +355,11 @@ export const useBatchDetail = (batchId: string) => {
   async function changePage(pageNumber: number) {
     if (pageNumber < 1 || pageNumber > (totalPages.value || 1)) return
     currentPageNumber.value = pageNumber
+    
+    // Clear highlights when changing page
+    highlightedSection.value = undefined
+    highlightedField.value = undefined
+    
     await renderPage(pageNumber)
   }
 
