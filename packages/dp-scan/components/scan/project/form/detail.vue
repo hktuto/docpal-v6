@@ -24,7 +24,7 @@ const formStatusFromFormDetail = computed(() => {
   if (!formDetail.value.sampleDocPath) return 'classificationUpload'
 
   // Check if classification config is complete
-  if (!formDetail.value.formClassificationConfig) return 'classificationCrop'
+  if (!formDetail.value.formClassificationConfig || !formDetail.value.formClassificationConfig.length) return 'classificationCrop'
 
   // Check if page split is complete
   if (!formDetail.value.pageSplitConfig) return 'split'
@@ -43,11 +43,32 @@ const statusTitles: Record<string, string> = {
   formSetup: 'Form Detail'
 }
 
+function normalizeObj(val: any) {
+  if (!val) return null
+  try {
+    const jVal = JSON.parse(val)
+    if(Array.isArray(jVal)) return jVal.length ? jVal : null
+    return Object.keys(jVal).length ? jVal : null
+  } catch {
+    return null
+  }
+}
 async function fetchFormDetail() {
   loading.value = true
   try {
     const { data } = await clientApi.api.getCaptureProjformsettingId(props.formId)
-    formDetail.value = data
+    // docSeparationConfig, fieldsSetting, formClassificationConfig, otherMetadataSetting, pageSplitConfig are stringmify json, need to convert and normalize it
+    // if those objevt are null or underfined or empty object or array after conversion, set them to null.
+    // use normalizeObj to convert and normalize them
+    if(!data) throw new Error('Failed to fetch form detail')
+    formDetail.value = {
+      ...data,
+      docSeparationConfig: normalizeObj(data.docSeparationConfig),
+      fieldsSetting: normalizeObj(data.fieldsSetting),
+      formClassificationConfig: normalizeObj(data.formClassificationConfig),
+      otherMetadataSetting: normalizeObj(data.otherMetadataSetting),
+      pageSplitConfig: normalizeObj(data.pageSplitConfig),
+    }
   } catch (err) {
     console.error('Failed to fetch form detail:', err)
     routerProvider?.message.error('Failed to load form detail')
@@ -78,7 +99,7 @@ onMounted(() => {
       <ClassificationUpload
         v-if="formStatus === 'classificationUpload'"
         :form-detail="formDetail"
-        @refresh="refreshFormDetail"
+        @update="refreshFormDetail"
       />
 
       <!-- Step 1b: Crop/Select QR Code Region -->

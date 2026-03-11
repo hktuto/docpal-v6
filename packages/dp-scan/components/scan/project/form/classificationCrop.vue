@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
-import { pdfPageToImageUrl, loadPDF } from '#imports'
+import DocumentCropper from './DocumentCropper.vue'
+import { readQRCode } from '#imports'
 
 const props = defineProps<{
   formDetail: any
@@ -13,239 +14,211 @@ const emits = defineEmits<{
 const routerProvider = inject(MenuRouterKey)
 
 // State
-const loading = ref(false)
 const saving = ref(false)
-const previewImage = ref<string>()
-const imageDimensions = ref({ width: 0, height: 0 })
 
-// Canvas for cropping
-const canvasRef = ref<HTMLCanvasElement>()
-const imageRef = ref<HTMLImageElement>()
-const isDrawing = ref(false)
-const selection = ref<{ x: number; y: number; width: number; height: number } | null>(null)
-const startPos = ref({ x: 0, y: 0 })
+// Cropper ref
+const cropperRef = ref<InstanceType<typeof DocumentCropper>>()
+
+// Crop mode state
+const isCropMode = ref(false)
+const cropType = ref<'barcode' | 'keyword' | null>(null)
 
 // Classification config
-const codeType = ref(props.formDetail?.formClassificationConfig?.codeType || 'QR')
-const codeValue = ref(props.formDetail?.formClassificationConfig?.codeValue || '')
+interface ClassificationItem {
+  key: string
+  zone: string
+  order: number
+  method: 'barcode' | 'keyword'
+  barcode_type?: string
+  barcode_value?: string
+  keyword?: string
+  croppedImage?: string
+}
 
-// Load PDF preview
-async function loadPreview() {
-  if (!props.formDetail?.sampleDocPath) return
+const classificationConfig = ref<Record<string, ClassificationItem>>({})
 
-  loading.value = true
-  try {
-    const blob = await clientApi.api.postCaptureFileQuerycapturefilebypath(
-      { path: props.formDetail.sampleDocPath },
-      { format: 'blob', headers: { noThrowError: true } }
-    )
+// Computed items
+const barcodeItems = computed(() => {
+  return Object.entries(classificationConfig.value)
+    .filter(([_, item]) => item.method === 'barcode')
+    .sort((a, b) => a[1].order - b[1].order)
+})
 
-    const fileName = props.formDetail.sampleDocPath.split('/').pop() || 'document'
-    const file = new File([blob], fileName, { type: blob.type })
+const keywordItems = computed(() => {
+  return Object.entries(classificationConfig.value)
+    .filter(([_, item]) => item.method === 'keyword')
+    .sort((a, b) => a[1].order - b[1].order)
+})
 
-    if (file.type === 'application/pdf' || fileName.toLowerCase().endsWith('.pdf')) {
-      const pdf = await loadPDF(file)
-      previewImage.value = await pdfPageToImageUrl(pdf, 1, {
-        scale: 2,
-        maxWidth: 1200,
-        maxHeight: 1600
-      })
-    } else if (file.type.startsWith('image/')) {
-      previewImage.value = URL.createObjectURL(blob)
-    }
-  } catch (error) {
-    console.error('Failed to load preview:', error)
-    routerProvider?.message.error('Failed to load document preview')
-  } finally {
-    loading.value = false
+// Initialize from props
+function initClassificationConfig() {
+  const config = props.formDetail?.formClassificationConfig
+  if (config && typeof config === 'object') {
+    classificationConfig.value = { ...config }
+  } else {
+    classificationConfig.value = {}
   }
 }
 
-// Handle image load to get dimensions
-function onImageLoad() {
-  if (imageRef.value) {
-    imageDimensions.value = {
-      width: imageRef.value.naturalWidth,
-      height: imageRef.value.naturalHeight
-    }
-    initCanvas()
-  }
-}
-
-// Initialize canvas
-function initCanvas() {
-  const canvas = canvasRef.value
-  const img = imageRef.value
-  if (!canvas || !img) return
-
-  const rect = img.getBoundingClientRect()
-  canvas.width = rect.width
-  canvas.height = rect.height
-
-  // Restore existing selection if any
-  if (props.formDetail?.formClassificationConfig?.cropRegion) {
-    const region = props.formDetail.formClassificationConfig.cropRegion
-    const scaleX = rect.width / imageDimensions.value.width
-    const scaleY = rect.height / imageDimensions.value.height
-    selection.value = {
-      x: region.x * scaleX,
-      y: region.y * scaleY,
-      width: region.width * scaleX,
-      height: region.height * scaleY
-    }
-    drawSelection()
-  }
-}
-
-// Mouse events for selection
-function onMouseDown(e: MouseEvent) {
-  const canvas = canvasRef.value
-  if (!canvas) return
-
-  const rect = canvas.getBoundingClientRect()
-  isDrawing.value = true
-  startPos.value = {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top
-  }
-  selection.value = null
-}
-
-function onMouseMove(e: MouseEvent) {
-  if (!isDrawing.value) return
-
-  const canvas = canvasRef.value
-  if (!canvas) return
-
-  const rect = canvas.getBoundingClientRect()
-  const currentPos = {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top
-  }
-
-  selection.value = {
-    x: Math.min(startPos.value.x, currentPos.x),
-    y: Math.min(startPos.value.y, currentPos.y),
-    width: Math.abs(currentPos.x - startPos.value.x),
-    height: Math.abs(currentPos.y - startPos.value.y)
-  }
-
-  drawSelection()
-}
-
-function onMouseUp() {
-  isDrawing.value = false
-}
-
-function onMouseLeave() {
-  isDrawing.value = false
-}
-
-// Draw selection rectangle
-function drawSelection() {
-  const canvas = canvasRef.value
-  if (!canvas || !selection.value) return
-
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-  // Draw semi-transparent overlay
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-  // Clear the selection area
-  ctx.clearRect(
-    selection.value.x,
-    selection.value.y,
-    selection.value.width,
-    selection.value.height
-  )
-
-  // Draw selection border
-  ctx.strokeStyle = '#409eff'
-  ctx.lineWidth = 2
-  ctx.strokeRect(
-    selection.value.x,
-    selection.value.y,
-    selection.value.width,
-    selection.value.height
-  )
-
-  // Draw resize handles
-  const handles = [
-    { x: selection.value.x, y: selection.value.y },
-    { x: selection.value.x + selection.value.width, y: selection.value.y },
-    { x: selection.value.x, y: selection.value.y + selection.value.height },
-    { x: selection.value.x + selection.value.width, y: selection.value.y + selection.value.height }
-  ]
-
-  ctx.fillStyle = '#409eff'
-  handles.forEach(handle => {
-    ctx.fillRect(handle.x - 4, handle.y - 4, 8, 8)
+// Start adding new classification item
+function startAddClassification(type: 'barcode' | 'keyword') {
+  cropType.value = type
+  isCropMode.value = true
+  // Wait for cropper to mount then start crop
+  nextTick(() => {
+    cropperRef.value?.startCrop()
   })
 }
 
-// Clear selection
-function clearSelection() {
-  selection.value = null
-  const canvas = canvasRef.value
-  if (canvas) {
-    const ctx = canvas.getContext('2d')
-    ctx?.clearRect(0, 0, canvas.width, canvas.height)
+// Handle crop cancel
+function handleCropCancel() {
+  isCropMode.value = false
+  cropType.value = null
+}
+
+// Handle crop confirm
+async function handleCropConfirm({ zone, croppedImage }: { zone: string; croppedImage: string }) {
+  if (!cropType.value) return
+
+  // Generate unique key
+  const timestamp = Date.now()
+  const prefix = cropType.value === 'barcode' ? 'single_code' : 'single_keyword'
+  const existingKeys = Object.keys(classificationConfig.value).filter(k => k.startsWith(prefix))
+  const index = existingKeys.length + 1
+  const key = `${prefix}_${index}_${timestamp}`
+
+  // Calculate order
+  const allItems = Object.values(classificationConfig.value)
+  const maxOrder = allItems.reduce((max, item) => Math.max(max, item.order), 0)
+
+  // Create new item
+  const newItem: ClassificationItem = {
+    key,
+    zone,
+    order: maxOrder + 1,
+    method: cropType.value,
+    croppedImage
+  }
+
+  if (cropType.value === 'barcode') {
+    newItem.barcode_type = 'qrcode'
+    newItem.barcode_value = ''
+    // Try to scan barcode
+    const scannedValue = await scanBarcode(croppedImage, 'qrcode')
+    if (scannedValue) {
+      newItem.barcode_value = scannedValue
+    }
+  } else {
+    newItem.keyword = ''
+  }
+
+  // Add to config
+  classificationConfig.value[key] = newItem
+
+  // Exit crop mode
+  isCropMode.value = false
+  cropType.value = null
+
+  // Auto-save
+  await saveConfig()
+}
+
+// Scan barcode from cropped image using pure function
+async function scanBarcode(base64Image: string, barcodeType: string): Promise<string | null> {
+  try {
+    // Import BarcodeFormat dynamically
+    const { BarcodeFormat } = await import('@zxing/library')
+    
+    // Get formats for the specified type
+    const typeMap: Record<string, any[]> = {
+      qrcode: [BarcodeFormat.QR_CODE],
+      data_matrix: [BarcodeFormat.DATA_MATRIX],
+      barcode: [
+        BarcodeFormat.CODE_128,
+        BarcodeFormat.CODE_39,
+        BarcodeFormat.CODE_93,
+        BarcodeFormat.CODABAR,
+        BarcodeFormat.EAN_13,
+        BarcodeFormat.EAN_8,
+        BarcodeFormat.ITF,
+        BarcodeFormat.UPC_A,
+        BarcodeFormat.UPC_E,
+      ]
+    }
+    
+    const formats = typeMap[barcodeType]
+    
+    // Try with specific formats first
+    if (formats && formats.length > 0) {
+      const result = await readQRCode(base64Image, { formats })
+      if (result) return result.value
+    }
+    
+    // Fallback: try all formats
+    const result = await readQRCode(base64Image)
+    return result?.value || null
+  } catch (error) {
+    console.warn('Barcode scan failed:', error)
+    return null
   }
 }
 
-// Generate QR code value
-function generateCodeValue() {
-  const timestamp = Date.now().toString(36).toUpperCase()
-  const random = Math.random().toString(36).substring(2, 6).toUpperCase()
-  codeValue.value = `FORM-${timestamp}-${random}`
+// Update functions
+async function updateBarcodeType(key: string, newType: string) {
+  const item = classificationConfig.value[key]
+  if (!item || item.method !== 'barcode') return
+
+  item.barcode_type = newType
+  if (item.croppedImage) {
+    const scannedValue = await scanBarcode(item.croppedImage, newType)
+    if (scannedValue) {
+      item.barcode_value = scannedValue
+    }
+  }
+  await saveConfig()
+}
+
+async function updateBarcodeValue(key: string, value: string) {
+  const item = classificationConfig.value[key]
+  if (!item || item.method !== 'barcode') return
+  item.barcode_value = value
+  await saveConfig()
+}
+
+async function updateKeyword(key: string, value: string) {
+  const item = classificationConfig.value[key]
+  if (!item || item.method !== 'keyword') return
+  item.keyword = value
+  await saveConfig()
+}
+
+// Delete classification item
+async function deleteClassificationItem(key: string) {
+  try {
+    await routerProvider?.dialog.confirm({
+      title: 'Confirm Delete',
+      message: 'Are you sure you want to delete this classification item?',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      variant: 'danger'
+    })
+
+    delete classificationConfig.value[key]
+    await saveConfig()
+    routerProvider?.message.success('Classification item deleted')
+  } catch {
+    // User cancelled
+  }
 }
 
 // Save classification config
 async function saveConfig() {
-  if (!selection.value) {
-    routerProvider?.message.warning('Please select a region for the QR code')
-    return
-  }
-
-  if (!codeValue.value) {
-    routerProvider?.message.warning('Please enter a code value')
-    return
-  }
-
   saving.value = true
   try {
-    // Convert selection back to original image coordinates
-    const canvas = canvasRef.value
-    const img = imageRef.value
-    if (!canvas || !img) return
-
-    const scaleX = imageDimensions.value.width / canvas.width
-    const scaleY = imageDimensions.value.height / canvas.height
-
-    const cropRegion = {
-      x: Math.round(selection.value.x * scaleX),
-      y: Math.round(selection.value.y * scaleY),
-      width: Math.round(selection.value.width * scaleX),
-      height: Math.round(selection.value.height * scaleY)
-    }
-
-    const config = {
-      codeType: codeType.value,
-      codeValue: codeValue.value,
-      cropRegion
-    }
-
-    // Save to backend
     await clientApi.api.patchCaptureProjformsettingId(props.formDetail.id, {
-      formClassificationConfig: config
+      formClassificationConfig: classificationConfig.value
     })
-
     routerProvider?.message.success('Classification configuration saved')
-    // Refresh to get updated form detail with new status
     emits('refresh')
   } catch (error) {
     console.error('Save error:', error)
@@ -256,191 +229,342 @@ async function saveConfig() {
 }
 
 onMounted(() => {
-  loadPreview()
-})
-
-onUnmounted(() => {
-  if (previewImage.value?.startsWith('blob:')) {
-    URL.revokeObjectURL(previewImage.value)
-  }
+  initClassificationConfig()
 })
 </script>
 
 <template>
-  <div class="cropContainer">
-    <!-- Left: Document Preview with Crop -->
-    <div class="previewPanel">
-      <div v-loading="loading" class="previewContent">
-        <div v-if="previewImage" class="imageContainer">
-          <img
-            ref="imageRef"
-            :src="previewImage"
-            class="documentImage"
-            @load="onImageLoad"
-            alt="Document preview"
+  <div class="classificationCrop">
+    <ElSplitter class="splitter">
+      <!-- Left Panel: Document Preview / Crop -->
+      <ElSplitterPanel size="60%" min="300">
+        <div class="leftPanel">
+          <!-- Show cropper when in crop mode -->
+          <DocumentCropper
+            v-if="isCropMode"
+            ref="cropperRef"
+            :sample-doc-path="formDetail?.sampleDocPath"
+            @cancel="handleCropCancel"
+            @confirm="handleCropConfirm"
           />
-          <canvas
-            ref="canvasRef"
-            class="selectionCanvas"
-            @mousedown="onMouseDown"
-            @mousemove="onMouseMove"
-            @mouseup="onMouseUp"
-            @mouseleave="onMouseLeave"
-          />
-        </div>
-        <ElEmpty v-else description="Loading document preview..." />
-      </div>
-      <div class="previewHint">
-        <Icon name="lucide:mouse-pointer-2" />
-        Drag to select the QR code region on the document
-      </div>
-    </div>
 
-    <!-- Right: Configuration Panel -->
-    <div class="configPanel">
-      <div class="configContent">
-        <ElForm label-position="top">
-          <!-- Code Type -->
-          <ElFormItem label="Code Type">
-            <ElSelect v-model="codeType" class="fullWidth">
-              <ElOption label="QR Code" value="QR">
-                <span class="optionWithIcon">
-                  <Icon name="lucide:qr-code" />
-                  QR Code
-                </span>
-              </ElOption>
-              <ElOption label="Data Matrix" value="DATAMATRIX">
-                <span class="optionWithIcon">
-                  <Icon name="lucide:grid-2x2" />
-                  Data Matrix
-                </span>
-              </ElOption>
-              <ElOption label="Barcode" value="BARCODE">
-                <span class="optionWithIcon">
-                  <Icon name="lucide:barcode" />
-                  Barcode
-                </span>
-              </ElOption>
-            </ElSelect>
-          </ElFormItem>
-
-          <!-- Code Value -->
-          <ElFormItem label="Code Value">
-            <ElInput v-model="codeValue" placeholder="Enter code value">
-              <template #append>
-                <ElButton @click="generateCodeValue">
-                  <Icon name="lucide:refresh-cw" />
-                </ElButton>
-              </template>
-            </ElInput>
-            <div class="helpText">
-              This code will be used to identify the form type when scanning
+          <!-- Show preview when not in crop mode -->
+          <div v-else class="previewPlaceholder">
+            <div class="placeholderContent">
+              <Icon name="lucide:scan" class="placeholderIcon" />
+              <p class="placeholderText">
+                Click the <Icon name="lucide:plus" class="inlineIcon" /> button in the QRcode or Keywords panel to start cropping
+              </p>
             </div>
-          </ElFormItem>
+          </div>
+        </div>
+      </ElSplitterPanel>
 
-          <!-- Selection Info -->
-          <ElFormItem v-if="selection" label="Selected Region">
-            <ElDescriptions :column="2" size="small" border>
-              <ElDescriptionsItem label="X">{{ Math.round(selection.x) }}px</ElDescriptionsItem>
-              <ElDescriptionsItem label="Y">{{ Math.round(selection.y) }}px</ElDescriptionsItem>
-              <ElDescriptionsItem label="Width">{{ Math.round(selection.width) }}px</ElDescriptionsItem>
-              <ElDescriptionsItem label="Height">{{ Math.round(selection.height) }}px</ElDescriptionsItem>
-            </ElDescriptions>
-            <ElButton
-              type="danger"
-              size="small"
-              class="clearBtn"
-              @click="clearSelection"
-            >
-              <Icon name="lucide:trash-2" />
-              Clear Selection
+      <!-- Right Panel: Configuration -->
+      <ElSplitterPanel size="40%" min="320">
+        <div class="rightPanel">
+          <!-- QRCode Section -->
+          <div class="section">
+            <div class="sectionHeader">
+              <span class="sectionTitle">
+                <Icon name="lucide:qr-code" />
+                QRcode
+              </span>
+              <ElButton
+                type="primary"
+                size="small"
+                circle
+                :disabled="isCropMode"
+                @click="startAddClassification('barcode')"
+              >
+                <Icon name="lucide:plus" />
+              </ElButton>
+            </div>
+            <div class="sectionContent">
+              <div
+                v-for="[key, item] in barcodeItems"
+                :key="key"
+                class="classificationItem"
+              >
+                <div class="itemPreview">
+                  <img
+                    v-if="item.croppedImage"
+                    :src="item.croppedImage"
+                    alt="QR Code preview"
+                  />
+                  <div v-else class="noPreview">
+                    <Icon name="lucide:image" />
+                  </div>
+                  <ElButton
+                    type="danger"
+                    size="small"
+                    circle
+                    class="deleteBtn"
+                    @click="deleteClassificationItem(key)"
+                  >
+                    <Icon name="lucide:trash-2" />
+                  </ElButton>
+                </div>
+                <div class="itemForm">
+                  <ElForm label-position="top" size="small">
+                    <ElFormItem label="QRCode Type :" required>
+                      <ElSelect
+                        :model-value="item.barcode_type"
+                        class="fullWidth"
+                        @change="(val) => updateBarcodeType(key, val as string)"
+                      >
+                        <ElOption label="QR Code" value="qrcode" />
+                        <ElOption label="Data Matrix" value="data_matrix" />
+                        <ElOption label="Barcode" value="barcode" />
+                      </ElSelect>
+                    </ElFormItem>
+                    <ElFormItem label="Value :" required>
+                      <ElInput
+                        :model-value="item.barcode_value"
+                        placeholder="Enter or scan barcode value"
+                        @update:model-value="(val) => updateBarcodeValue(key, val as string)"
+                      />
+                    </ElFormItem>
+                  </ElForm>
+                </div>
+              </div>
+              <ElEmpty
+                v-if="barcodeItems.length === 0"
+                description="No QR codes added"
+                :image-size="60"
+              />
+            </div>
+          </div>
+
+          <!-- Keywords Section -->
+          <div class="section">
+            <div class="sectionHeader">
+              <span class="sectionTitle">
+                <Icon name="lucide:type" />
+                Keywords
+              </span>
+              <ElButton
+                type="primary"
+                size="small"
+                circle
+                :disabled="isCropMode"
+                @click="startAddClassification('keyword')"
+              >
+                <Icon name="lucide:plus" />
+              </ElButton>
+            </div>
+            <div class="sectionContent">
+              <div
+                v-for="[key, item] in keywordItems"
+                :key="key"
+                class="classificationItem"
+              >
+                <div class="itemPreview">
+                  <img
+                    v-if="item.croppedImage"
+                    :src="item.croppedImage"
+                    alt="Keyword preview"
+                  />
+                  <div v-else class="noPreview">
+                    <Icon name="lucide:image" />
+                  </div>
+                  <ElButton
+                    type="danger"
+                    size="small"
+                    circle
+                    class="deleteBtn"
+                    @click="deleteClassificationItem(key)"
+                  >
+                    <Icon name="lucide:trash-2" />
+                  </ElButton>
+                </div>
+                <div class="itemForm">
+                  <ElForm label-position="top" size="small">
+                    <ElFormItem label="Keyword" required>
+                      <ElInput
+                        :model-value="item.keyword"
+                        placeholder="Enter keyword"
+                        @update:model-value="(val) => updateKeyword(key, val as string)"
+                      />
+                    </ElFormItem>
+                  </ElForm>
+                </div>
+              </div>
+              <ElEmpty
+                v-if="keywordItems.length === 0"
+                description="No keywords added"
+                :image-size="60"
+              />
+            </div>
+          </div>
+
+          <!-- Footer Actions -->
+          <div class="panelFooter">
+            <ElButton type="primary" :loading="saving" @click="saveConfig">
+              Save & Continue
+              <Icon name="lucide:arrow-right" />
             </ElButton>
-          </ElFormItem>
-        </ElForm>
-      </div>
-
-      <!-- Actions -->
-      <div class="panelFooter">
-        <ElButton type="primary" :loading="saving" @click="saveConfig">
-          Save & Continue
-          <Icon name="lucide:arrow-right" />
-        </ElButton>
-      </div>
-    </div>
+          </div>
+        </div>
+      </ElSplitterPanel>
+    </ElSplitter>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.cropContainer {
-  display: flex;
+.classificationCrop {
   height: 100%;
-  gap: var(--app-space-m);
+  width: 100%;
 }
 
-.previewPanel {
-  flex: 1;
-  display: flex;
-  flex-flow: column nowrap;
-  background-color: var(--app-bg-color);
+.splitter {
+  height: 100%;
+  width: 100%;
+}
+
+.leftPanel {
+  height: 100%;
+  width: 100%;
   border-radius: var(--app-radius-m);
-  border: 1px solid var(--app-border-color);
   overflow: hidden;
+  border: 1px solid var(--app-border-color);
 }
 
-.previewContent {
-  flex: 1;
-  overflow: auto;
-  background-color: var(--app-bg-color-secondary);
+.previewPlaceholder {
+  height: 100%;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: var(--app-bg-color-secondary);
 }
 
-.imageContainer {
-  position: relative;
-  display: inline-block;
-  max-width: 100%;
-  max-height: 100%;
+.placeholderContent {
+  text-align: center;
+  color: var(--app-text-color-secondary);
+  max-width: 400px;
 }
 
-.documentImage {
-  max-width: 100%;
-  max-height: calc(100vh - 250px);
-  display: block;
+.placeholderIcon {
+  font-size: 64px;
+  margin-bottom: var(--app-space-m);
+  opacity: 0.5;
 }
 
-.selectionCanvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  cursor: crosshair;
+.placeholderText {
+  font-size: var(--app-font-size-m);
+  line-height: 1.6;
 }
 
-.previewHint {
+.inlineIcon {
+  display: inline;
+  font-size: var(--app-font-size-s);
+  vertical-align: middle;
+  margin: 0 4px;
+}
+
+.rightPanel {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  background-color: var(--app-bg-color);
+  overflow: hidden;
+  border-radius: var(--app-radius-m);
+  border: 1px solid var(--app-border-color);
+}
+
+.section {
+  flex: 1;
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: hidden;
+  border-bottom: 1px solid var(--app-border-color);
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+}
+
+.sectionHeader {
   padding: var(--app-space-m);
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--app-space-s);
-  color: var(--app-text-color-secondary);
-  font-size: var(--app-font-size-s);
-  border-top: 1px solid var(--app-border-color);
+  justify-content: space-between;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  flex-shrink: 0;
 }
 
-.configPanel {
-  width: 360px;
+.sectionTitle {
   display: flex;
-  flex-flow: column nowrap;
-  background-color: var(--app-bg-color);
-  border-radius: var(--app-radius-m);
-  border: 1px solid var(--app-border-color);
-  overflow: hidden;
+  align-items: center;
+  gap: var(--app-space-s);
+  font-weight: 600;
+  font-size: var(--app-font-size-m);
 }
 
-.configContent {
+.sectionContent {
   flex: 1;
   overflow-y: auto;
   padding: var(--app-space-m);
+  display: flex;
+  flex-flow: column nowrap;
+  gap: var(--app-space-m);
+}
+
+.classificationItem {
+  display: flex;
+  gap: var(--app-space-m);
+  padding: var(--app-space-m);
+  background-color: var(--app-bg-color-secondary);
+  border-radius: var(--app-radius-m);
+  border: 1px solid var(--app-border-color);
+
+  &:hover {
+    border-color: var(--app-primary-color);
+  }
+}
+
+.itemPreview {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: var(--app-radius-s);
+  overflow: hidden;
+  background-color: var(--app-bg-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  .noPreview {
+    color: var(--app-text-color-secondary);
+    font-size: var(--app-font-size-l);
+  }
+
+  .deleteBtn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  &:hover .deleteBtn {
+    opacity: 1;
+  }
+}
+
+.itemForm {
+  flex: 1;
+  min-width: 0;
 }
 
 .panelFooter {
@@ -448,25 +572,11 @@ onUnmounted(() => {
   border-top: 1px solid var(--app-border-color);
   display: flex;
   justify-content: flex-end;
+  flex-shrink: 0;
+  background-color: var(--app-bg-color);
 }
 
 .fullWidth {
   width: 100%;
-}
-
-.optionWithIcon {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.helpText {
-  font-size: var(--app-font-size-s);
-  color: var(--app-text-color-secondary);
-  margin-top: var(--app-space-xs);
-}
-
-.clearBtn {
-  margin-top: var(--app-space-m);
 }
 </style>

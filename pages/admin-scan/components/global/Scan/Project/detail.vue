@@ -54,13 +54,13 @@ watch(
       </div>
     </div>
     <ElSplitter>
-      <ElSplitterPanel size="200px" min="120">
+      <ElSplitterPanel  >
         <ScanProjectInfo :info="projectDetail" @updated="getProjetDetail" />
       </ElSplitterPanel>
       <ElSplitterPanel>
         <ScanProjectFormList :projectId="projectId" />
       </ElSplitterPanel>
-      <ElSplitterPanel size="200px">
+      <ElSplitterPanel size="200px" min="120">
         <ScanProjectAuditList :projectId="projectId" />
       </ElSplitterPanel>
     </ElSplitter>

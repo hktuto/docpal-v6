@@ -74,7 +74,7 @@ async function uploadFile(file: File) {
     // Upload file using the API
     const response = await clientApi.api.postCaptureFileUploadexampletoform({
       file: file,
-      projId: props.formDetail?.projectId || '',
+      projectId: props.formDetail?.projectId || '',
       formId: props.formDetail?.id || ''
     })
 
