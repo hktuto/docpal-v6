@@ -164,10 +164,10 @@ function drawEditingHighlightBox(
   const w = zone.width * scale
   const h = zone.height * scale
 
-  const color = '#E6A23C' // Orange for editing
+  const color = '#409EFF' // Blue (same as section highlight)
 
   // Draw semi-transparent fill
-  ctx.fillStyle = color + '30' // 30 hex = ~19% opacity
+  ctx.fillStyle = color + '20' // 20 hex = ~12% opacity (same as section)
   ctx.fillRect(x, y, w, h)
 
   // Draw border
@@ -203,34 +203,34 @@ function drawEditingHighlightBox(
   const buttonPadding = 8
   const gap = 8
   const fontSize = 12
-  
+
   // Button text
   const saveText = 'Save'
   const cancelText = 'Cancel'
-  
+
   // Measure text width
   ctx.font = `500 ${fontSize}px sans-serif`
   const saveTextWidth = ctx.measureText(saveText).width
   const cancelTextWidth = ctx.measureText(cancelText).width
-  
+
   // Calculate button widths
   const saveBtnWidth = saveTextWidth + buttonPadding * 2
   const cancelBtnWidth = cancelTextWidth + buttonPadding * 2
   const totalWidth = saveBtnWidth + gap + cancelBtnWidth
-  
+
   // Position buttons centered below crop area with 20px offset
   const startX = x + (w - totalWidth) / 2
   const btnY = y + h + 20
-  
+
   // Store button positions for click detection
   canvasButtons.value = {
     save: { x: startX, y: btnY, width: saveBtnWidth, height: buttonHeight },
     cancel: { x: startX + saveBtnWidth + gap, y: btnY, width: cancelBtnWidth, height: buttonHeight }
   }
-  
+
   // Helper to draw button
   const drawButton = (
-    bx: number, by: number, bwidth: number, bheight: number, 
+    bx: number, by: number, bwidth: number, bheight: number,
     text: string, bgColor: string, textColor: string
   ) => {
     // Button background with shadow
@@ -238,19 +238,19 @@ function drawEditingHighlightBox(
     ctx.shadowBlur = 4
     ctx.shadowOffsetX = 0
     ctx.shadowOffsetY = 2
-    
+
     // Button background
     ctx.fillStyle = bgColor
     ctx.beginPath()
     ctx.roundRect(bx, by, bwidth, bheight, 4)
     ctx.fill()
-    
+
     // Reset shadow
     ctx.shadowColor = 'transparent'
     ctx.shadowBlur = 0
     ctx.shadowOffsetX = 0
     ctx.shadowOffsetY = 0
-    
+
     // Button text
     ctx.fillStyle = textColor
     ctx.font = `500 ${fontSize}px sans-serif`
@@ -258,10 +258,10 @@ function drawEditingHighlightBox(
     ctx.textBaseline = 'middle'
     ctx.fillText(text, bx + bwidth / 2, by + bheight / 2 + 1)
   }
-  
+
   // Draw Save button (green)
   drawButton(startX, btnY, saveBtnWidth, buttonHeight, saveText, '#67C23A', '#fff')
-  
+
   // Draw Cancel button (gray)
   drawButton(startX + saveBtnWidth + gap, btnY, cancelBtnWidth, buttonHeight, cancelText, '#909399', '#fff')
 }
@@ -582,7 +582,7 @@ watch(() => highlightedSection.value, (newVal) => {
     cancelCropEdit()
     return
   }
-  console.log("highlight change", newVal)
+  console.log("highlight change", newVal, sectionsWithValues.value)
   // Check if new section is editable
   const section = sectionsWithValues.value.find(
     s => {
@@ -817,27 +817,27 @@ function getResizeHandleAtPosition(mouseX: number, mouseY: number): string | nul
 // Check if mouse is over a canvas button
 function getCanvasButtonAtPosition(mouseX: number, mouseY: number): 'save' | 'cancel' | null {
   if (!isEditingCrop.value) return null
-  
+
   // Check Save button
   const saveBtn = canvasButtons.value.save
-  if (saveBtn && 
-      mouseX >= saveBtn.x && 
+  if (saveBtn &&
+      mouseX >= saveBtn.x &&
       mouseX <= saveBtn.x + saveBtn.width &&
-      mouseY >= saveBtn.y && 
+      mouseY >= saveBtn.y &&
       mouseY <= saveBtn.y + saveBtn.height) {
     return 'save'
   }
-  
+
   // Check Cancel button
   const cancelBtn = canvasButtons.value.cancel
-  if (cancelBtn && 
-      mouseX >= cancelBtn.x && 
+  if (cancelBtn &&
+      mouseX >= cancelBtn.x &&
       mouseX <= cancelBtn.x + cancelBtn.width &&
-      mouseY >= cancelBtn.y && 
+      mouseY >= cancelBtn.y &&
       mouseY <= cancelBtn.y + cancelBtn.height) {
     return 'cancel'
   }
-  
+
   return null
 }
 
@@ -965,14 +965,6 @@ function nextPage() {
             <Icon name="lucide:maximize-2" />
           </ElButton>
         </div>
-
-        <!-- Edit Mode Indicator -->
-        <div v-if="isEditingCrop" class="cropEditIndicator">
-          <ElTag type="warning" effect="dark" size="small">
-            <Icon name="lucide:edit-3" />
-            Editing Crop Area
-          </ElTag>
-        </div>
       </div>
       <div class="pageNav">
         <ElButton
@@ -1080,12 +1072,6 @@ function nextPage() {
   font-weight: 500;
   color: var(--app-text-color-primary);
   user-select: none;
-}
-
-.cropEditIndicator {
-  margin-left: var(--app-space-m);
-  padding-left: var(--app-space-m);
-  border-left: 1px solid var(--app-border-color);
 }
 
 .pageNav {
