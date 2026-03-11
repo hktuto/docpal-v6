@@ -7,12 +7,12 @@ if (!context) {
 }
 
 // Destructure for easier access (no .value needed in template)
-const { 
-  previewLoading, 
-  previewImgUrl, 
-  currentPageNumber, 
-  totalPages, 
-  highlightedSection, 
+const {
+  previewLoading,
+  previewImgUrl,
+  currentPageNumber,
+  totalPages,
+  highlightedSection,
   highlightedField,
   changePage,
   currentSelectedDoc,
@@ -64,7 +64,7 @@ const baseScale = computed(() => {
   const img = imageObj.value
   const container = containerRef.value
   if (!img || !container) return 1
-  
+
   const containerRect = container.getBoundingClientRect()
   return Math.min(
     containerRect.width / img.naturalWidth,
@@ -89,27 +89,24 @@ const floatingButtonPosition = computed(() => {
   if (!isEditingCrop.value || !editingZone.value || !containerRef.value) {
     return { display: 'none' }
   }
-  
-  const container = containerRef.value
+
   const zone = editingZone.value
   const scale = effectiveScale.value
-  
+
   // Calculate zone position in screen coordinates
-  const zoneRight = (zone.x + zone.width) * scale
-  const zoneTop = zone.y * scale
-  
-  // Position buttons at top-right of crop area, inside the container
-  const buttonX = zoneRight - 100 // Offset left to not cover the edge
-  const buttonY = zoneTop + 10    // Slight offset from top
-  
-  // Check if buttons would be outside visible area and adjust
-  const visibleX = Math.min(buttonX, container.clientWidth - 110)
-  const visibleY = Math.max(buttonY, 10)
-  
+  const zoneCenterX = (zone.x + zone.width / 2) * scale
+  const zoneBottom = (zone.y + zone.height) * scale
+
+  // Position buttons at bottom of crop area with 20px offset
+  // Center horizontally relative to crop area
+  const buttonWidth = 140 // Approximate width of both buttons + gap
+  const buttonX = zoneCenterX - buttonWidth / 2
+  const buttonY = zoneBottom + 20 // 20px below the crop area
+
   return {
     position: 'absolute' as const,
-    left: `${visibleX}px`,
-    top: `${visibleY}px`,
+    left: `${Math.max(10, buttonX)}px`,
+    top: `${buttonY}px`,
     zIndex: 100
   }
 })
@@ -138,27 +135,27 @@ function drawCanvas() {
   const canvas = canvasRef.value
   const container = containerRef.value
   const img = imageObj.value
-  
+
   if (!canvas || !container || !img) return
-  
+
   const ctx = canvas.getContext('2d')
   if (!ctx) return
-  
+
   const scale = effectiveScale.value
-  
+
   const displayWidth = img.naturalWidth * scale
   const displayHeight = img.naturalHeight * scale
-  
+
   // Set canvas size
   canvas.width = displayWidth
   canvas.height = displayHeight
-  
+
   // Clear canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height)
-  
+
   // Draw image
   ctx.drawImage(img, 0, 0, displayWidth, displayHeight)
-  
+
   // Draw editing highlight if in edit mode
   if (isEditingCrop.value && editingZone.value) {
     drawEditingHighlightBox(ctx, editingZone.value, scale)
@@ -170,7 +167,7 @@ function drawCanvas() {
         drawHighlightBox(ctx, zone, scale, '#409EFF', 2) // Blue for section
       }
     }
-    
+
     // Draw field highlight if on current page
     if (highlightedField.value && currentPageNumber.value === highlightedField.value.page) {
       const zone = parseZone(highlightedField.value.zone)
@@ -191,32 +188,32 @@ function drawEditingHighlightBox(
   const y = zone.y * scale
   const w = zone.width * scale
   const h = zone.height * scale
-  
+
   const color = '#E6A23C' // Orange for editing
-  
+
   // Draw semi-transparent fill
   ctx.fillStyle = color + '30' // 30 hex = ~19% opacity
   ctx.fillRect(x, y, w, h)
-  
+
   // Draw border
   ctx.strokeStyle = color
   ctx.lineWidth = 2
   ctx.setLineDash([5, 5]) // Dashed line for editing
   ctx.strokeRect(x, y, w, h)
   ctx.setLineDash([]) // Reset dash
-  
+
   // Draw larger resize handles (10px)
   const handleSize = 10
   ctx.fillStyle = '#fff'
   ctx.strokeStyle = color
   ctx.lineWidth = 2
-  
+
   // Helper to draw handle
   const drawHandle = (hx: number, hy: number) => {
     ctx.fillRect(hx - handleSize/2, hy - handleSize/2, handleSize, handleSize)
     ctx.strokeRect(hx - handleSize/2, hy - handleSize/2, handleSize, handleSize)
   }
-  
+
   // Top-left
   drawHandle(x, y)
   // Top-right
@@ -239,20 +236,20 @@ function drawHighlightBox(
   const y = zone.y * scale
   const w = zone.width * scale
   const h = zone.height * scale
-  
+
   // Draw semi-transparent fill
   ctx.fillStyle = color + '20' // 20 hex = ~12% opacity
   ctx.fillRect(x, y, w, h)
-  
+
   // Draw border
   ctx.strokeStyle = color
   ctx.lineWidth = lineWidth
   ctx.strokeRect(x, y, w, h)
-  
+
   // Draw corner handles
   const handleSize = 6
   ctx.fillStyle = color
-  
+
   // Top-left
   ctx.fillRect(x - handleSize/2, y - handleSize/2, handleSize, handleSize)
   // Top-right
@@ -268,17 +265,17 @@ function centerCanvas() {
   const container = containerRef.value
   const canvas = canvasRef.value
   if (!container || !canvas) return
-  
+
   // Reset margins before calculating (in case of zoom change)
   canvas.style.marginLeft = ''
   canvas.style.marginRight = ''
   canvas.style.marginTop = ''
   canvas.style.marginBottom = ''
-  
+
   // Only center if canvas is larger than container (scrollable)
   const maxScrollLeft = canvas.width - container.clientWidth
   const maxScrollTop = canvas.height - container.clientHeight
-  
+
   if (maxScrollLeft > 0) {
     container.scrollLeft = maxScrollLeft / 2
   } else {
@@ -286,7 +283,7 @@ function centerCanvas() {
     canvas.style.marginLeft = 'auto'
     canvas.style.marginRight = 'auto'
   }
-  
+
   if (maxScrollTop > 0) {
     container.scrollTop = maxScrollTop / 2
   } else {
@@ -305,10 +302,10 @@ let highlightPanTimeout: ReturnType<typeof setTimeout> | null = null
 // Load image when preview URL changes
 watch(() => previewImgUrl.value, (url) => {
   if (!url) return
-  
+
   // Reset zoom when new image loads
   zoomScale.value = 1
-  
+
   imageLoading.value = true
   const img = new Image()
   img.onload = () => {
@@ -363,16 +360,16 @@ function panToZone(zone: { x: number; y: number; width: number; height: number }
 watch(() => highlightedSection.value, (newVal) => {
   drawCanvas()
   if (!newVal) return
-  
+
   // Don't auto-pan when in edit mode
   if (isEditingCrop.value) return
-  
+
   // Clear any pending pan timeout
   if (highlightPanTimeout) {
     clearTimeout(highlightPanTimeout)
     highlightPanTimeout = null
   }
-  
+
   // If highlight is on current page, pan after short delay
   if (currentPageNumber.value === newVal.page) {
     highlightPanTimeout = setTimeout(() => {
@@ -388,16 +385,16 @@ watch(() => highlightedSection.value, (newVal) => {
 watch(() => highlightedField.value, (newVal) => {
   drawCanvas()
   if (!newVal) return
-  
+
   // Don't auto-pan when in edit mode
   if (isEditingCrop.value) return
-  
+
   // Clear any pending pan timeout
   if (highlightPanTimeout) {
     clearTimeout(highlightPanTimeout)
     highlightPanTimeout = null
   }
-  
+
   // If highlight is on current page, pan after short delay
   if (currentPageNumber.value === newVal.page) {
     highlightPanTimeout = setTimeout(() => {
@@ -521,12 +518,12 @@ function fitToScreen() {
 // Check if highlighted section is editable (save_to_result = true)
 const canEditCrop = computed(() => {
   if (!canEdit.value || !highlightedSection.value) return false
-  
+
   const section = sectionsWithValues.value.find(
-    s => s.zone.page === highlightedSection.value?.page && 
+    s => s.zone.page === highlightedSection.value?.page &&
          s.zone.zone === highlightedSection.value?.zone
   )
-  
+
   return section?.save_to_result === true
 })
 
@@ -537,12 +534,12 @@ watch(() => highlightedSection.value, (newVal) => {
     cancelCropEdit()
     return
   }
-  
+  console.log("highlight change", newVal)
   // Check if new section is editable
   const section = sectionsWithValues.value.find(
     s => s.zone.page === newVal.page && s.zone.zone === newVal.zone
   )
-  
+
   if (section?.save_to_result === true && canEdit.value) {
     // Auto-enter edit mode for this section
     nextTick(() => {
@@ -563,10 +560,10 @@ const editingSection = computed(() => {
 // Start editing the crop area for a specific section
 function startCropEditForSection(section: any) {
   if (!section) return
-  
+
   const zone = parseZone(section.zone.zone)
   if (!zone) return
-  
+
   editingSectionId.value = section.section_id
   editingZone.value = { ...zone }
   isEditingCrop.value = true
@@ -575,12 +572,12 @@ function startCropEditForSection(section: any) {
 // Start editing the crop area (manual trigger)
 function startCropEdit() {
   if (!canEditCrop.value || !highlightedSection.value) return
-  
+
   const section = sectionsWithValues.value.find(
-    s => s.zone.page === highlightedSection.value?.page && 
+    s => s.zone.page === highlightedSection.value?.page &&
          s.zone.zone === highlightedSection.value?.zone
   )
-  
+
   startCropEditForSection(section)
 }
 
@@ -596,24 +593,24 @@ function cancelCropEdit() {
 // Save crop changes
 async function saveCropEdit() {
   if (!editingSection.value || !editingZone.value) return
-  
+
   try {
     // Convert zone back to string format
     const zoneString = `${editingZone.value.x},${editingZone.value.y},${editingZone.value.x + editingZone.value.width},${editingZone.value.y + editingZone.value.height}`
-    
+
     await updateSectionZone(editingSection.value.section_id, {
       page: editingSection.value.zone.page,
       zone: zoneString
     })
-    
+
     // Update local highlight to match new zone
     if (highlightedSection.value) {
       highlightedSection.value.zone = zoneString
     }
-    
+
     // Exit edit mode
     cancelCropEdit()
-    
+
     // Show success message
     const routerProvider = inject(MenuRouterKey)
     routerProvider?.message.success('Crop area updated successfully')
@@ -628,7 +625,7 @@ async function saveCropEdit() {
 function handleResizeHandleMouseDown(event: MouseEvent, handle: string) {
   event.stopPropagation()
   if (!editingZone.value) return
-  
+
   isResizing.value = true
   resizeHandle.value = handle
   resizeStart.value = {
@@ -644,16 +641,16 @@ function handleResizeHandleMouseDown(event: MouseEvent, handle: string) {
 // Handle resize mouse move
 function handleResizeMouseMove(event: MouseEvent) {
   if (!isResizing.value || !editingZone.value || !resizeHandle.value) return
-  
+
   const scale = effectiveScale.value
   const dx = (event.clientX - resizeStart.value.x) / scale
   const dy = (event.clientY - resizeStart.value.y) / scale
-  
+
   let newX = editingZone.value.x
   let newY = editingZone.value.y
   let newW = editingZone.value.width
   let newH = editingZone.value.height
-  
+
   switch (resizeHandle.value) {
     case 'nw':
       newX = resizeStart.value.zoneX + dx
@@ -676,11 +673,11 @@ function handleResizeMouseMove(event: MouseEvent) {
       newH = resizeStart.value.zoneH + dy
       break
   }
-  
+
   // Enforce minimum size
   if (newW < 10) newW = 10
   if (newH < 10) newH = 10
-  
+
   // Update editing zone
   editingZone.value = {
     x: newX,
@@ -688,7 +685,7 @@ function handleResizeMouseMove(event: MouseEvent) {
     width: newW,
     height: newH
   }
-  
+
   // Redraw canvas
   drawCanvas()
 }
@@ -709,7 +706,7 @@ function handleContainerMouseMove(event: MouseEvent) {
       y: event.clientY - container.getBoundingClientRect().top + container.scrollTop
     }
   }
-  
+
   // Handle pan drag
   handleMouseMove(event)
 }
@@ -717,25 +714,25 @@ function handleContainerMouseMove(event: MouseEvent) {
 // Mouse wheel zoom - zooms towards mouse position
 function handleWheel(event: WheelEvent) {
   event.preventDefault()
-  
+
   const delta = event.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP
   const newZoom = zoomScale.value + delta
-  
+
   // Calculate mouse position relative to the container
   const container = containerRef.value
   if (!container) return
-  
+
   const rect = container.getBoundingClientRect()
   const mouseX = event.clientX - rect.left + container.scrollLeft
   const mouseY = event.clientY - rect.top + container.scrollTop
-  
+
   zoomTo(newZoom, { x: mouseX, y: mouseY })
 }
 
 // Check if mouse is over a resize handle
 function getResizeHandleAtPosition(mouseX: number, mouseY: number): string | null {
   if (!isEditingCrop.value || !editingZone.value || !canvasRef.value) return null
-  
+
   const scale = effectiveScale.value
   const zone = editingZone.value
   const x = zone.x * scale
@@ -743,7 +740,7 @@ function getResizeHandleAtPosition(mouseX: number, mouseY: number): string | nul
   const w = zone.width * scale
   const h = zone.height * scale
   const handleSize = 14 // Slightly larger hit area (10px visual + padding)
-  
+
   // Check each handle
   const handles = [
     { name: 'nw', x: x, y: y },
@@ -751,7 +748,7 @@ function getResizeHandleAtPosition(mouseX: number, mouseY: number): string | nul
     { name: 'sw', x: x, y: y + h },
     { name: 'se', x: x + w, y: y + h }
   ]
-  
+
   for (const handle of handles) {
     if (
       mouseX >= handle.x - handleSize/2 &&
@@ -762,42 +759,42 @@ function getResizeHandleAtPosition(mouseX: number, mouseY: number): string | nul
       return handle.name
     }
   }
-  
+
   return null
 }
 
 // Pan/drag functions
 function handleMouseDown(event: MouseEvent) {
   if (!containerRef.value || !canvasRef.value) return
-  
+
   const container = containerRef.value
   const canvas = canvasRef.value
-  
+
   // Calculate mouse position relative to canvas
   const rect = canvas.getBoundingClientRect()
   const mouseX = event.clientX - rect.left
   const mouseY = event.clientY - rect.top
-  
+
   // Check if clicking on a resize handle
   const handle = getResizeHandleAtPosition(mouseX, mouseY)
   if (handle) {
     handleResizeHandleMouseDown(event, handle)
     return
   }
-  
+
   // Don't start pan if resizing
   if (isResizing.value) return
-  
+
   // Only start dragging if image is larger than container
   const canPanHorizontal = canvas.width > container.clientWidth
   const canPanVertical = canvas.height > container.clientHeight
-  
+
   if (!canPanHorizontal && !canPanVertical) return
-  
+
   isDragging.value = true
   dragStart.value = { x: event.clientX, y: event.clientY }
   scrollStart.value = { x: container.scrollLeft, y: container.scrollTop }
-  
+
   container.style.cursor = 'grabbing'
 }
 
@@ -807,15 +804,15 @@ function handleMouseMove(event: MouseEvent) {
     handleResizeMouseMove(event)
     return
   }
-  
+
   if (!isDragging.value || !containerRef.value) return
-  
+
   event.preventDefault()
-  
+
   const container = containerRef.value
   const dx = event.clientX - dragStart.value.x
   const dy = event.clientY - dragStart.value.y
-  
+
   container.scrollLeft = scrollStart.value.x - dx
   container.scrollTop = scrollStart.value.y - dy
 }
@@ -826,9 +823,9 @@ function handleMouseUp() {
     handleResizeMouseUp()
     return
   }
-  
+
   if (!containerRef.value) return
-  
+
   isDragging.value = false
   containerRef.value.style.cursor = 'grab'
 }
@@ -853,7 +850,7 @@ function prevPage() {
 }
 
 function nextPage() {
-  if (currentPageNumber.value && totalPages.value && 
+  if (currentPageNumber.value && totalPages.value &&
       currentPageNumber.value < totalPages.value) {
     changePage(currentPageNumber.value + 1)
   }
@@ -877,7 +874,7 @@ function nextPage() {
             <Icon name="lucide:maximize-2" />
           </ElButton>
         </div>
-        
+
         <!-- Edit Mode Indicator -->
         <div v-if="isEditingCrop" class="cropEditIndicator">
           <ElTag type="warning" effect="dark" size="small">
@@ -887,14 +884,14 @@ function nextPage() {
         </div>
       </div>
       <div class="pageNav">
-        <ElButton 
-          :disabled="(currentPageNumber || 1) <= 1" 
-          link 
+        <ElButton
+          :disabled="(currentPageNumber || 1) <= 1"
+          link
           @click="prevPage"
         >
           <Icon name="lucide:chevron-left" />
         </ElButton>
-        
+
         <div class="pageNumbers">
           <span
             v-for="page in totalPages"
@@ -905,24 +902,24 @@ function nextPage() {
             {{ page }}
           </span>
         </div>
-        
-        <ElButton 
-          :disabled="(currentPageNumber || 1) >= (totalPages || 1)" 
-          link 
+
+        <ElButton
+          :disabled="(currentPageNumber || 1) >= (totalPages || 1)"
+          link
           @click="nextPage"
         >
           <Icon name="lucide:chevron-right" />
         </ElButton>
       </div>
-      
+
       <div class="pageInfo">
         Page {{ currentPageNumber || 1 }} of {{ totalPages || 1 }}
       </div>
     </div>
-    
-    <div 
+
+    <div
       ref="containerRef"
-      v-loading="imageLoading" 
+      v-loading="imageLoading"
       class="previewBody"
       :class="{ canPan: effectiveScale > baseScale, editing: isEditingCrop }"
       @wheel="handleWheel"
@@ -945,7 +942,7 @@ function nextPage() {
         :style="{ cursor: canvasCursor }"
       />
       <ElEmpty v-else description="No preview available" />
-      
+
       <!-- Floating Save/Cancel Buttons (positioned at crop area) -->
       <div
         v-if="isEditingCrop && editingZone"
@@ -994,7 +991,7 @@ function nextPage() {
   display: flex;
   align-items: center;
   gap: var(--app-space-xs);
-  
+
   :deep(.el-button) {
     padding: 4px 8px;
     font-size: var(--app-font-size-m);
@@ -1038,11 +1035,11 @@ function nextPage() {
   cursor: pointer;
   border-radius: var(--app-radius-s);
   font-size: var(--app-font-size-s);
-  
+
   &:hover {
     background-color: var(--app-bg-color-hover);
   }
-  
+
   &.active {
     background-color: var(--app-primary-color);
     color: white;
@@ -1065,29 +1062,29 @@ function nextPage() {
   padding: var(--app-space-m);
   cursor: grab;
   user-select: none;
-  
+
   &.canPan {
     cursor: grab;
   }
-  
+
   &:active {
     cursor: grabbing;
   }
-  
+
   // Hide scrollbar when not needed
   &::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
-  
+
   &::-webkit-scrollbar-track {
     background: var(--app-bg-color-secondary);
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background: var(--app-border-color);
     border-radius: 4px;
-    
+
     &:hover {
       background: var(--app-text-color-disabled);
     }
@@ -1097,14 +1094,14 @@ function nextPage() {
 .previewCanvas {
   box-shadow: var(--app-shadow-l);
   flex-shrink: 0;
-  
+
   // Center canvas when it's smaller than container
   // When canvas is larger, margins are cleared by centerCanvas() for scroll to work
   margin: auto;
-  
+
   // Prevent flexbox from stretching the canvas
   align-self: flex-start;
-  
+
   &.editing {
     box-shadow: 0 0 0 2px var(--app-warning-color), var(--app-shadow-l);
   }
@@ -1140,7 +1137,7 @@ function nextPage() {
   box-shadow: var(--app-shadow-l);
   border: 1px solid var(--app-warning-color);
   pointer-events: auto;
-  
+
   :deep(.el-button) {
     padding: 6px 12px;
     font-size: var(--app-font-size-s);
