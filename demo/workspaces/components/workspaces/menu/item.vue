@@ -144,7 +144,7 @@ async function onFolderDrop(event: DragEvent) {
         />
       </div>
       <!-- Actions Menu (shown on hover) -->
-      <div v-if="isAdmin" class="item-actions" :class="{ visible: isHovered }">
+      <div v-if="isAdmin && !isEditing" class="item-actions" :class="{ visible: isHovered }">
         <Icon name="material-symbols:more-vert" size="16" @click="handleActionsClick" />
       </div>
       <!-- Expand/Collapse Icon (folders only) -->
@@ -158,6 +158,7 @@ async function onFolderDrop(event: DragEvent) {
   position: relative;
   user-select: none;
   flex: 1;
+  overflow: hidden;
 }
 
 .item-content {

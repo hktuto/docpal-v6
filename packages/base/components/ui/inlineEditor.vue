@@ -232,7 +232,7 @@ function handleInput() {
 .inline-editor-input {
   flex: 1;
   min-width: 0;
-  padding: 4px 8px;
+  padding: 4px 8px!important;
 
   background: var(--el-bg-color);
   outline: none;
@@ -242,7 +242,7 @@ function handleInput() {
   resize: none;
   overflow: hidden;
   font-family: inherit;
-
+  text-align: left;
   &:focus {
     border-color: var(--el-color-primary);
   }
