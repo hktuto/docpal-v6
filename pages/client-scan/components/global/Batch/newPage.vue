@@ -177,8 +177,9 @@ async function handleFileUpload(file: File) {
   formDataUpload.append('batchId', props.id)
 
   try {
+    console.log("handleFileUpload", formDataUpload)
     const response = await clientApi.api.postCaptureFileUploadtempfiletobatch(formDataUpload)
-
+    console.log("handleFileUpload response", response)
     if (response.result && response.data) {
       // Ensure we have fileName (fallback to original file name if API doesn't return it)
       const uploadedFileName = response.data.fileName || file.name
@@ -197,7 +198,7 @@ async function handleFileUpload(file: File) {
       }
 
       uploadedFiles.value.push(uploadedFile)
-
+      console.log("handleFileUpload uploadedFile", uploadedFile)
       // Process file for QR code and form detection
       await processUploadedFile(uploadedFile, file)
     } else {
@@ -210,8 +211,9 @@ async function handleFileUpload(file: File) {
 }
 
 // Helper to update file in array (ensures Vue reactivity)
-function updateFileInArray(filePath: string, updates: Partial<UploadedFile>) {
-  const index = uploadedFiles.value.findIndex(f => f.filePath === filePath)
+function updateFileInArray(filePath: string, fileName: string, updates: Partial<UploadedFile>) {
+  // Unique key is filePath + fileName since filePath alone is not unique within a batch
+  const index = uploadedFiles.value.findIndex(f => f.filePath === filePath && f.fileName === fileName)
   if (index !== -1) {
     // Create new object to trigger reactivity
     uploadedFiles.value[index] = { ...uploadedFiles.value[index], ...updates }
@@ -221,10 +223,10 @@ function updateFileInArray(filePath: string, updates: Partial<UploadedFile>) {
 // Process uploaded file - convert to image and extract QR
 async function processUploadedFile(uploadedFile: UploadedFile, originalFile: File) {
   const filePath = uploadedFile.filePath
-  
+  console.log("processUploadedFile", uploadedFile)
   try {
     // Check if file still exists in list (might have been deleted during processing)
-    const stillExists = uploadedFiles.value.some(f => f.filePath === filePath)
+    const stillExists = uploadedFiles.value.some(f => f.filePath === filePath && f.fileName === uploadedFile.fileName)
     if (!stillExists) {
       console.log('File was removed during processing, skipping')
       return
@@ -236,9 +238,12 @@ async function processUploadedFile(uploadedFile: UploadedFile, originalFile: Fil
 
     if (originalFile.type === 'application/pdf' || originalFile.name.toLowerCase().endsWith('.pdf')) {
       const pdf = await loadPDF(originalFile)
+      console.log("processUploadedFile pdf", pdf)
       // Convert first page to image at 300 DPI (scale = 300/72 = 4.166...)
       const imageUrl = await pdfPageToImageUrl(pdf, 1, { dpi: 300 })
       const response = await fetch(imageUrl)
+      console.log("image load success", response)
+
       imageBlob = await response.blob()
       thumbnail = imageUrl
     } else {
@@ -247,33 +252,34 @@ async function processUploadedFile(uploadedFile: UploadedFile, originalFile: Fil
     }
 
     // Check again if file still exists (might have been deleted during PDF conversion)
-    if (!uploadedFiles.value.some(f => f.filePath === filePath)) {
+    if (!uploadedFiles.value.some(f => f.filePath === filePath && f.fileName === uploadedFile.fileName)) {
       console.log('File was removed during processing, skipping')
       return
     }
-
+    // now we generated the thumbnail, update the file in the array
     // Update thumbnail immediately
-    updateFileInArray(filePath, { thumbnail })
+    updateFileInArray(filePath, uploadedFile.fileName, { thumbnail })
 
     // Detect which form this document belongs to
     const detectedForm = await detectFormForDocument(imageBlob)
+    console.log("detected result", detectedForm)
     let detectedFormId: string | undefined
     if (detectedForm) {
       detectedFormId = detectedForm.id
-      updateFileInArray(filePath, { detectedFormId })
+      updateFileInArray(filePath, uploadedFile.fileName, { detectedFormId })
     }
 
     // Check again before QR extraction
-    if (!uploadedFiles.value.some(f => f.filePath === filePath)) {
+    if (!uploadedFiles.value.some(f => f.filePath === filePath && f.fileName === uploadedFile.fileName)) {
       console.log('File was removed during processing, skipping')
       return
     }
 
     // Extract application number from QR code
     const applicationNumber = await extractApplicationNumber(imageBlob, detectedForm, originalFile.name)
-    
+
     // Update all final properties at once
-    updateFileInArray(filePath, {
+    updateFileInArray(filePath, uploadedFile.fileName, {
       applicationNumber,
       detectedFormId,
       thumbnail,
@@ -281,7 +287,7 @@ async function processUploadedFile(uploadedFile: UploadedFile, originalFile: Fil
     })
   } catch (error) {
     console.error('Failed to process file:', error)
-    updateFileInArray(filePath, { isProcessing: false })
+    updateFileInArray(filePath, uploadedFile.fileName, { isProcessing: false })
   }
 }
 
@@ -309,7 +315,7 @@ async function extractApplicationNumber(imageBlob: Blob, form: FormSetting | nul
   } catch (error) {
     console.error('Failed to extract application number:', error)
   }
-  
+
   return undefined
 }
 
@@ -465,6 +471,7 @@ onMounted(() => {
             :key="file.filePath"
             class="fileGridItem"
           >
+              {{file.isProcessing}}
             <div class="fileGridThumbnail">
               <Icon v-if="!file.thumbnail" name="lucide:file-text" class="fileGridIcon" />
               <img v-else :src="file.thumbnail" alt="Thumbnail" />
