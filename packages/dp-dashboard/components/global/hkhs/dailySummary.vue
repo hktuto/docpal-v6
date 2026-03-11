@@ -2,6 +2,7 @@
 import { ArrowDownBold } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
 import dayjs from 'dayjs'
+import { statusToGroupStatus } from '#imports'
 
 const props = withDefaults(
   defineProps<{
@@ -43,16 +44,14 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       title: 'Status',
       minWidth: 120,
       type: 'html',
-      formatter: ({ cellValue, row }) => {
-        const trueList = ['completed', 'verified', 'export-ready']
-        if (trueList.includes(cellValue.toLowerCase())) {
-          return `<div class="container"><div class="circle yes"></div><div class="text">${cellValue}</div></div>`
-        }
-        const falseList = ['fail to export']
-        if (falseList.includes(cellValue.toLowerCase())) {
-          return `<div class="container"><div class="circle no"></div><div class="text">${cellValue}</div></div>`
-        }
-        return cellValue
+      formatter({ cellValue }: any) {
+        if (!cellValue) return ''
+        const groupStatus = statusToGroupStatus(cellValue)
+        if (!groupStatus) return cellValue
+        return `<div class="table-status" style="--status-color: ${groupStatus.color}">
+        <div class="status-dot" ></div>
+        ${cellValue}
+      </div>`
       }
     },
     { field: 'remark', title: 'Remark' }
@@ -201,28 +200,17 @@ onMounted(async () => {
   width: 180px;
 }
 
-:deep(.container) {
+:deep(.table-status) {
   display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
   align-items: center;
+  gap: var(--app-space-xs);
 }
-
-:deep(.circle) {
-  width: 20px;
-  height: 20px;
+:deep(.status-dot) {
+  width: var(--app-space-s);
+  height: var(--app-space-s);
   border-radius: 50%;
-  margin-right: 10px;
-}
-
-:deep(.yes) {
-  background-color: #1abc9c;
-}
-
-:deep(.no) {
-  background-color: #e74c3c;
-}
-
-:deep(.text) {
-  font-size: 16px;
-  color: #333;
+  background-color: var(--status-color);
 }
 </style>
