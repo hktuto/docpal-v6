@@ -84,6 +84,36 @@ const canvasCursor = computed(() => {
   return 'grab'
 })
 
+// Calculate position for floating save/cancel buttons (relative to viewport)
+const floatingButtonPosition = computed(() => {
+  if (!isEditingCrop.value || !editingZone.value || !containerRef.value) {
+    return { display: 'none' }
+  }
+  
+  const container = containerRef.value
+  const zone = editingZone.value
+  const scale = effectiveScale.value
+  
+  // Calculate zone position in screen coordinates
+  const zoneRight = (zone.x + zone.width) * scale
+  const zoneTop = zone.y * scale
+  
+  // Position buttons at top-right of crop area, inside the container
+  const buttonX = zoneRight - 100 // Offset left to not cover the edge
+  const buttonY = zoneTop + 10    // Slight offset from top
+  
+  // Check if buttons would be outside visible area and adjust
+  const visibleX = Math.min(buttonX, container.clientWidth - 110)
+  const visibleY = Math.max(buttonY, 10)
+  
+  return {
+    position: 'absolute' as const,
+    left: `${visibleX}px`,
+    top: `${visibleY}px`,
+    zIndex: 100
+  }
+})
+
 // Current effective scale = base scale * zoom
 const effectiveScale = computed(() => {
   return baseScale.value * zoomScale.value
@@ -500,21 +530,38 @@ const canEditCrop = computed(() => {
   return section?.corp_to_scan === true
 })
 
+// Auto-enter edit mode when editable section is highlighted
+watch(() => highlightedSection.value, (newVal) => {
+  if (!newVal) {
+    // Exit edit mode when no section highlighted
+    cancelCropEdit()
+    return
+  }
+  
+  // Check if new section is editable
+  const section = sectionsWithValues.value.find(
+    s => s.zone.page === newVal.page && s.zone.zone === newVal.zone
+  )
+  
+  if (section?.corp_to_scan === true && canEdit.value) {
+    // Auto-enter edit mode for this section
+    nextTick(() => {
+      startCropEditForSection(section)
+    })
+  } else {
+    // Exit edit mode if current section not editable
+    cancelCropEdit()
+  }
+}, { immediate: true })
+
 // Get the currently editing section
 const editingSection = computed(() => {
   if (!editingSectionId.value) return null
   return sectionsWithValues.value.find(s => s.section_id === editingSectionId.value)
 })
 
-// Start editing the crop area
-function startCropEdit() {
-  if (!canEditCrop.value || !highlightedSection.value) return
-  
-  const section = sectionsWithValues.value.find(
-    s => s.zone.page === highlightedSection.value?.page && 
-         s.zone.zone === highlightedSection.value?.zone
-  )
-  
+// Start editing the crop area for a specific section
+function startCropEditForSection(section: any) {
   if (!section) return
   
   const zone = parseZone(section.zone.zone)
@@ -523,6 +570,18 @@ function startCropEdit() {
   editingSectionId.value = section.section_id
   editingZone.value = { ...zone }
   isEditingCrop.value = true
+}
+
+// Start editing the crop area (manual trigger)
+function startCropEdit() {
+  if (!canEditCrop.value || !highlightedSection.value) return
+  
+  const section = sectionsWithValues.value.find(
+    s => s.zone.page === highlightedSection.value?.page && 
+         s.zone.zone === highlightedSection.value?.zone
+  )
+  
+  startCropEditForSection(section)
 }
 
 // Cancel crop editing
@@ -819,23 +878,12 @@ function nextPage() {
           </ElButton>
         </div>
         
-        <!-- Crop Edit Controls -->
-        <div v-if="canEditCrop && !isEditingCrop" class="cropControls">
-          <ElButton type="warning" size="small" @click="startCropEdit">
-            <Icon name="lucide:crop" />
-            Edit Crop
-          </ElButton>
-        </div>
-        
-        <div v-if="isEditingCrop" class="cropEditActions">
-          <ElButton type="success" size="small" @click="saveCropEdit">
-            <Icon name="lucide:check" />
-            Save
-          </ElButton>
-          <ElButton type="info" size="small" @click="cancelCropEdit">
-            <Icon name="lucide:x" />
-            Cancel
-          </ElButton>
+        <!-- Edit Mode Indicator -->
+        <div v-if="isEditingCrop" class="cropEditIndicator">
+          <ElTag type="warning" effect="dark" size="small">
+            <Icon name="lucide:edit-3" />
+            Editing Crop Area
+          </ElTag>
         </div>
       </div>
       <div class="pageNav">
@@ -876,7 +924,7 @@ function nextPage() {
       ref="containerRef"
       v-loading="imageLoading" 
       class="previewBody"
-      :class="{ canPan: effectiveScale > baseScale }"
+      :class="{ canPan: effectiveScale > baseScale, editing: isEditingCrop }"
       @wheel="handleWheel"
       @mousedown="handleMouseDown"
       @mousemove="handleContainerMouseMove"
@@ -897,6 +945,22 @@ function nextPage() {
         :style="{ cursor: canvasCursor }"
       />
       <ElEmpty v-else description="No preview available" />
+      
+      <!-- Floating Save/Cancel Buttons (positioned at crop area) -->
+      <div
+        v-if="isEditingCrop && editingZone"
+        class="floatingCropButtons"
+        :style="floatingButtonPosition"
+      >
+        <ElButton type="success" size="small" @click="saveCropEdit">
+          <Icon name="lucide:check" />
+          Save
+        </ElButton>
+        <ElButton type="info" size="small" @click="cancelCropEdit">
+          <Icon name="lucide:x" />
+          Cancel
+        </ElButton>
+      </div>
     </div>
   </div>
 </template>
@@ -946,18 +1010,10 @@ function nextPage() {
   user-select: none;
 }
 
-.cropControls {
+.cropEditIndicator {
   margin-left: var(--app-space-m);
   padding-left: var(--app-space-m);
   border-left: 1px solid var(--app-border-color);
-}
-
-.cropEditActions {
-  margin-left: var(--app-space-m);
-  padding-left: var(--app-space-m);
-  border-left: 1px solid var(--app-border-color);
-  display: flex;
-  gap: var(--app-space-xs);
 }
 
 .pageNav {
@@ -1072,5 +1128,22 @@ function nextPage() {
 
 .errorText {
   font-size: var(--app-font-size-l);
+}
+
+.floatingCropButtons {
+  position: absolute;
+  display: flex;
+  gap: var(--app-space-xs);
+  background: rgba(255, 255, 255, 0.95);
+  padding: var(--app-space-xs);
+  border-radius: var(--app-radius-m);
+  box-shadow: var(--app-shadow-l);
+  border: 1px solid var(--app-warning-color);
+  pointer-events: auto;
+  
+  :deep(.el-button) {
+    padding: 6px 12px;
+    font-size: var(--app-font-size-s);
+  }
 }
 </style>
