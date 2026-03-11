@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useBatchDetailContext } from '#imports'
+import { useBatchDetailContext, useScanClient } from '#imports'
 
 const context = useBatchDetailContext()
 if (!context) {
@@ -15,14 +15,30 @@ const {
   highlightedSection, 
   highlightedField,
   changePage,
-  currentSelectedDoc
+  currentSelectedDoc,
+  sectionsWithValues,
+  isLockedByOther,
+  projectId,
+  updateSectionZone
 } = context
+
+// Check user permissions
+const { isVerifier } = useScanClient()
+const canEdit = computed(() => isVerifier(projectId.value) && !isLockedByOther.value)
 
 // Check if current document has error status
 const hasError = computed(() => {
   const status = currentSelectedDoc.value?.status
   return status?.includes('fail') || status === 'error'
 })
+
+// Crop editing state
+const isEditingCrop = ref(false)
+const editingZone = ref<{ x: number; y: number; width: number; height: number } | null>(null)
+const editingSectionId = ref<string | null>(null)
+const isResizing = ref(false)
+const resizeHandle = ref<string | null>(null)
+const resizeStart = ref({ x: 0, y: 0, zoneX: 0, zoneY: 0, zoneW: 0, zoneH: 0 })
 
 // Canvas refs
 const canvasRef = ref<HTMLCanvasElement>()
@@ -55,6 +71,17 @@ const baseScale = computed(() => {
     containerRect.height / img.naturalHeight,
     1 // Don't upscale beyond 100%
   )
+})
+
+// Canvas cursor based on state
+const canvasCursor = computed(() => {
+  if (isResizing.value) return 'grabbing'
+  if (isDragging.value) return 'grabbing'
+  if (isEditingCrop.value) {
+    // Could enhance to show resize cursors based on hover
+    return 'crosshair'
+  }
+  return 'grab'
 })
 
 // Current effective scale = base scale * zoom
@@ -102,21 +129,72 @@ function drawCanvas() {
   // Draw image
   ctx.drawImage(img, 0, 0, displayWidth, displayHeight)
   
-  // Draw section highlight if on current page
-  if (highlightedSection.value && currentPageNumber.value === highlightedSection.value.page) {
-    const zone = parseZone(highlightedSection.value.zone)
-    if (zone) {
-      drawHighlightBox(ctx, zone, scale, '#409EFF', 2) // Blue for section
+  // Draw editing highlight if in edit mode
+  if (isEditingCrop.value && editingZone.value) {
+    drawEditingHighlightBox(ctx, editingZone.value, scale)
+  } else {
+    // Draw section highlight if on current page
+    if (highlightedSection.value && currentPageNumber.value === highlightedSection.value.page) {
+      const zone = parseZone(highlightedSection.value.zone)
+      if (zone) {
+        drawHighlightBox(ctx, zone, scale, '#409EFF', 2) // Blue for section
+      }
     }
+    
+    // Draw field highlight if on current page
+    if (highlightedField.value && currentPageNumber.value === highlightedField.value.page) {
+      const zone = parseZone(highlightedField.value.zone)
+      if (zone) {
+        drawHighlightBox(ctx, zone, scale, '#67C23A', 2) // Green for field
+      }
+    }
+  }
+}
+
+// Draw editing highlight box with resize handles
+function drawEditingHighlightBox(
+  ctx: CanvasRenderingContext2D,
+  zone: { x: number; y: number; width: number; height: number },
+  scale: number
+) {
+  const x = zone.x * scale
+  const y = zone.y * scale
+  const w = zone.width * scale
+  const h = zone.height * scale
+  
+  const color = '#E6A23C' // Orange for editing
+  
+  // Draw semi-transparent fill
+  ctx.fillStyle = color + '30' // 30 hex = ~19% opacity
+  ctx.fillRect(x, y, w, h)
+  
+  // Draw border
+  ctx.strokeStyle = color
+  ctx.lineWidth = 2
+  ctx.setLineDash([5, 5]) // Dashed line for editing
+  ctx.strokeRect(x, y, w, h)
+  ctx.setLineDash([]) // Reset dash
+  
+  // Draw larger resize handles (10px)
+  const handleSize = 10
+  ctx.fillStyle = '#fff'
+  ctx.strokeStyle = color
+  ctx.lineWidth = 2
+  
+  // Helper to draw handle
+  const drawHandle = (hx: number, hy: number) => {
+    ctx.fillRect(hx - handleSize/2, hy - handleSize/2, handleSize, handleSize)
+    ctx.strokeRect(hx - handleSize/2, hy - handleSize/2, handleSize, handleSize)
   }
   
-  // Draw field highlight if on current page
-  if (highlightedField.value && currentPageNumber.value === highlightedField.value.page) {
-    const zone = parseZone(highlightedField.value.zone)
-    if (zone) {
-      drawHighlightBox(ctx, zone, scale, '#67C23A', 2) // Green for field
-    }
-  }
+  // Top-left
+  drawHandle(x, y)
+  // Top-right
+  drawHandle(x + w, y)
+  // Bottom-left
+  drawHandle(x, y + h)
+  // Bottom-right
+  drawHandle(x + w, y + h)
 }
 
 // Draw a single highlight box
@@ -188,6 +266,12 @@ function centerCanvas() {
   }
 }
 
+// Track pending highlight pan (for cross-page highlights)
+const pendingHighlightPan = ref<{ zone: string; page: number } | null>(null)
+
+// Pan timeout for debouncing same-page highlight pans
+let highlightPanTimeout: ReturnType<typeof setTimeout> | null = null
+
 // Load image when preview URL changes
 watch(() => previewImgUrl.value, (url) => {
   if (!url) return
@@ -202,8 +286,17 @@ watch(() => previewImgUrl.value, (url) => {
     imageLoading.value = false
     nextTick(() => {
       drawCanvas()
-      // Center canvas after drawing
-      nextTick(() => centerCanvas())
+      // Check if we have a pending highlight pan
+      if (pendingHighlightPan.value && pendingHighlightPan.value.page === currentPageNumber.value) {
+        const zone = parseZone(pendingHighlightPan.value.zone)
+        if (zone) {
+          nextTick(() => panToZone(zone))
+        }
+        pendingHighlightPan.value = null
+      } else {
+        // Center canvas after drawing
+        nextTick(() => centerCanvas())
+      }
     })
   }
   img.onerror = () => {
@@ -212,23 +305,150 @@ watch(() => previewImgUrl.value, (url) => {
   img.src = url
 }, { immediate: true })
 
-// Redraw when highlights change
-watch(() => highlightedSection.value, () => {
-  drawCanvas()
-}, { deep: true })
+// Pan to center a zone in the viewport
+function panToZone(zone: { x: number; y: number; width: number; height: number } | null) {
+  const container = containerRef.value
+  const canvas = canvasRef.value
+  if (!container || !canvas || !zone) return
 
-watch(() => highlightedField.value, () => {
-  drawCanvas()
-}, { deep: true })
+  const scale = effectiveScale.value
 
-// Redraw when zoom changes
-watch(zoomScale, () => {
-  nextTick(() => {
-    drawCanvas()
-    // Re-center after zoom change
-    nextTick(() => centerCanvas())
+  // Calculate zone center in screen coordinates
+  const zoneCenterX = (zone.x + zone.width / 2) * scale
+  const zoneCenterY = (zone.y + zone.height / 2) * scale
+
+  // Calculate target scroll position to center the zone
+  const targetScrollLeft = zoneCenterX - container.clientWidth / 2
+  const targetScrollTop = zoneCenterY - container.clientHeight / 2
+
+  // Smooth scroll to target
+  container.scrollTo({
+    left: Math.max(0, targetScrollLeft),
+    top: Math.max(0, targetScrollTop),
+    behavior: 'smooth'
   })
-})
+}
+
+// Redraw when highlights change and auto-pan to highlight
+watch(() => highlightedSection.value, (newVal) => {
+  drawCanvas()
+  if (!newVal) return
+  
+  // Don't auto-pan when in edit mode
+  if (isEditingCrop.value) return
+  
+  // Clear any pending pan timeout
+  if (highlightPanTimeout) {
+    clearTimeout(highlightPanTimeout)
+    highlightPanTimeout = null
+  }
+  
+  // If highlight is on current page, pan after short delay
+  if (currentPageNumber.value === newVal.page) {
+    highlightPanTimeout = setTimeout(() => {
+      const zone = parseZone(newVal.zone)
+      if (zone) panToZone(zone)
+    }, 100)
+  } else {
+    // Highlight is on a different page, set pending pan for after page load
+    pendingHighlightPan.value = { zone: newVal.zone, page: newVal.page }
+  }
+}, { deep: true })
+
+watch(() => highlightedField.value, (newVal) => {
+  drawCanvas()
+  if (!newVal) return
+  
+  // Don't auto-pan when in edit mode
+  if (isEditingCrop.value) return
+  
+  // Clear any pending pan timeout
+  if (highlightPanTimeout) {
+    clearTimeout(highlightPanTimeout)
+    highlightPanTimeout = null
+  }
+  
+  // If highlight is on current page, pan after short delay
+  if (currentPageNumber.value === newVal.page) {
+    highlightPanTimeout = setTimeout(() => {
+      const zone = parseZone(newVal.zone)
+      if (zone) panToZone(zone)
+    }, 100)
+  } else {
+    // Highlight is on a different page, set pending pan for after page load
+    pendingHighlightPan.value = { zone: newVal.zone, page: newVal.page }
+  }
+}, { deep: true })
+
+// Store the mouse position for zoom-to-cursor
+const lastMousePosition = ref<{ x: number; y: number } | null>(null)
+
+// Zoom towards a focal point (mouse position)
+function zoomTo(newZoom: number, focalPoint?: { x: number; y: number } | null) {
+  const container = containerRef.value
+  const canvas = canvasRef.value
+  const img = imageObj.value
+  if (!container || !canvas || !img) return
+
+  // Clamp zoom
+  const clampedZoom = Math.max(MIN_ZOOM, Math.min(newZoom, MAX_ZOOM))
+  if (clampedZoom === zoomScale.value) return
+
+  // If no focal point provided, zoom to center
+  const focus = focalPoint || {
+    x: container.clientWidth / 2 + container.scrollLeft,
+    y: container.clientHeight / 2 + container.scrollTop
+  }
+
+  // Calculate the point on the image that we're zooming towards (as ratio 0-1)
+  const oldScale = baseScale.value * zoomScale.value
+  const imageX = focus.x / oldScale
+  const imageY = focus.y / oldScale
+
+  // Apply new zoom
+  zoomScale.value = clampedZoom
+
+  // After zoom, calculate where that same point should be
+  nextTick(() => {
+    const newScale = baseScale.value * zoomScale.value
+    const newCanvasWidth = img.naturalWidth * newScale
+    const newCanvasHeight = img.naturalHeight * newScale
+
+    // Update canvas size
+    canvas.width = newCanvasWidth
+    canvas.height = newCanvasHeight
+
+    // Redraw
+    drawCanvas()
+
+    // Adjust scroll to keep the focal point in the same position
+    const newFocusX = imageX * newScale
+    const newFocusY = imageY * newScale
+
+    container.scrollLeft = newFocusX - focus.x + container.scrollLeft
+    container.scrollTop = newFocusY - focus.y + container.scrollTop
+
+    // Apply margins if canvas fits in container
+    const maxScrollLeft = canvas.width - container.clientWidth
+    const maxScrollTop = canvas.height - container.clientHeight
+
+    if (maxScrollLeft <= 0) {
+      canvas.style.marginLeft = 'auto'
+      canvas.style.marginRight = 'auto'
+    } else {
+      canvas.style.marginLeft = ''
+      canvas.style.marginRight = ''
+    }
+
+    if (maxScrollTop <= 0) {
+      canvas.style.marginTop = 'auto'
+      canvas.style.marginBottom = 'auto'
+    } else {
+      canvas.style.marginTop = ''
+      canvas.style.marginBottom = ''
+    }
+  })
+}
 
 // Handle window resize - recalculate base scale but keep zoom level
 function handleResize() {
@@ -241,45 +461,275 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
+  // Clear any pending highlight pan timeout
+  if (highlightPanTimeout) {
+    clearTimeout(highlightPanTimeout)
+  }
 })
 
 // Zoom functions
 function zoomIn() {
-  const newZoom = zoomScale.value + ZOOM_STEP
-  zoomScale.value = Math.min(newZoom, MAX_ZOOM)
+  zoomTo(zoomScale.value + ZOOM_STEP)
 }
 
 function zoomOut() {
-  const newZoom = zoomScale.value - ZOOM_STEP
-  zoomScale.value = Math.max(newZoom, MIN_ZOOM)
+  zoomTo(zoomScale.value - ZOOM_STEP)
 }
 
 function resetZoom() {
   zoomScale.value = 1
+  nextTick(() => centerCanvas())
 }
 
 function fitToScreen() {
   zoomScale.value = 1
+  nextTick(() => centerCanvas())
 }
 
-// Mouse wheel zoom
+// ==================== CROP EDITING FUNCTIONS ====================
+
+// Check if highlighted section is editable (corp_to_scan = true)
+const canEditCrop = computed(() => {
+  if (!canEdit.value || !highlightedSection.value) return false
+  
+  const section = sectionsWithValues.value.find(
+    s => s.zone.page === highlightedSection.value?.page && 
+         s.zone.zone === highlightedSection.value?.zone
+  )
+  
+  return section?.corp_to_scan === true
+})
+
+// Get the currently editing section
+const editingSection = computed(() => {
+  if (!editingSectionId.value) return null
+  return sectionsWithValues.value.find(s => s.section_id === editingSectionId.value)
+})
+
+// Start editing the crop area
+function startCropEdit() {
+  if (!canEditCrop.value || !highlightedSection.value) return
+  
+  const section = sectionsWithValues.value.find(
+    s => s.zone.page === highlightedSection.value?.page && 
+         s.zone.zone === highlightedSection.value?.zone
+  )
+  
+  if (!section) return
+  
+  const zone = parseZone(section.zone.zone)
+  if (!zone) return
+  
+  editingSectionId.value = section.section_id
+  editingZone.value = { ...zone }
+  isEditingCrop.value = true
+}
+
+// Cancel crop editing
+function cancelCropEdit() {
+  isEditingCrop.value = false
+  editingZone.value = null
+  editingSectionId.value = null
+  isResizing.value = false
+  resizeHandle.value = null
+}
+
+// Save crop changes
+async function saveCropEdit() {
+  if (!editingSection.value || !editingZone.value) return
+  
+  try {
+    // Convert zone back to string format
+    const zoneString = `${editingZone.value.x},${editingZone.value.y},${editingZone.value.x + editingZone.value.width},${editingZone.value.y + editingZone.value.height}`
+    
+    await updateSectionZone(editingSection.value.section_id, {
+      page: editingSection.value.zone.page,
+      zone: zoneString
+    })
+    
+    // Update local highlight to match new zone
+    if (highlightedSection.value) {
+      highlightedSection.value.zone = zoneString
+    }
+    
+    // Exit edit mode
+    cancelCropEdit()
+    
+    // Show success message
+    const routerProvider = inject(MenuRouterKey)
+    routerProvider?.message.success('Crop area updated successfully')
+  } catch (error) {
+    console.error('Failed to save crop:', error)
+    const routerProvider = inject(MenuRouterKey)
+    routerProvider?.message.error('Failed to save crop area')
+  }
+}
+
+// Handle resize handle mouse down
+function handleResizeHandleMouseDown(event: MouseEvent, handle: string) {
+  event.stopPropagation()
+  if (!editingZone.value) return
+  
+  isResizing.value = true
+  resizeHandle.value = handle
+  resizeStart.value = {
+    x: event.clientX,
+    y: event.clientY,
+    zoneX: editingZone.value.x,
+    zoneY: editingZone.value.y,
+    zoneW: editingZone.value.width,
+    zoneH: editingZone.value.height
+  }
+}
+
+// Handle resize mouse move
+function handleResizeMouseMove(event: MouseEvent) {
+  if (!isResizing.value || !editingZone.value || !resizeHandle.value) return
+  
+  const scale = effectiveScale.value
+  const dx = (event.clientX - resizeStart.value.x) / scale
+  const dy = (event.clientY - resizeStart.value.y) / scale
+  
+  let newX = editingZone.value.x
+  let newY = editingZone.value.y
+  let newW = editingZone.value.width
+  let newH = editingZone.value.height
+  
+  switch (resizeHandle.value) {
+    case 'nw':
+      newX = resizeStart.value.zoneX + dx
+      newY = resizeStart.value.zoneY + dy
+      newW = resizeStart.value.zoneW - dx
+      newH = resizeStart.value.zoneH - dy
+      break
+    case 'ne':
+      newY = resizeStart.value.zoneY + dy
+      newW = resizeStart.value.zoneW + dx
+      newH = resizeStart.value.zoneH - dy
+      break
+    case 'sw':
+      newX = resizeStart.value.zoneX + dx
+      newW = resizeStart.value.zoneW - dx
+      newH = resizeStart.value.zoneH + dy
+      break
+    case 'se':
+      newW = resizeStart.value.zoneW + dx
+      newH = resizeStart.value.zoneH + dy
+      break
+  }
+  
+  // Enforce minimum size
+  if (newW < 10) newW = 10
+  if (newH < 10) newH = 10
+  
+  // Update editing zone
+  editingZone.value = {
+    x: newX,
+    y: newY,
+    width: newW,
+    height: newH
+  }
+  
+  // Redraw canvas
+  drawCanvas()
+}
+
+// Handle resize mouse up
+function handleResizeMouseUp() {
+  isResizing.value = false
+  resizeHandle.value = null
+}
+
+// Combined mouse move handler for pan and zoom tracking
+function handleContainerMouseMove(event: MouseEvent) {
+  // Track mouse position for zoom-to-cursor
+  if (containerRef.value) {
+    const container = containerRef.value
+    lastMousePosition.value = {
+      x: event.clientX - container.getBoundingClientRect().left + container.scrollLeft,
+      y: event.clientY - container.getBoundingClientRect().top + container.scrollTop
+    }
+  }
+  
+  // Handle pan drag
+  handleMouseMove(event)
+}
+
+// Mouse wheel zoom - zooms towards mouse position
 function handleWheel(event: WheelEvent) {
   event.preventDefault()
   
   const delta = event.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP
   const newZoom = zoomScale.value + delta
-  zoomScale.value = Math.max(MIN_ZOOM, Math.min(newZoom, MAX_ZOOM))
+  
+  // Calculate mouse position relative to the container
+  const container = containerRef.value
+  if (!container) return
+  
+  const rect = container.getBoundingClientRect()
+  const mouseX = event.clientX - rect.left + container.scrollLeft
+  const mouseY = event.clientY - rect.top + container.scrollTop
+  
+  zoomTo(newZoom, { x: mouseX, y: mouseY })
+}
+
+// Check if mouse is over a resize handle
+function getResizeHandleAtPosition(mouseX: number, mouseY: number): string | null {
+  if (!isEditingCrop.value || !editingZone.value || !canvasRef.value) return null
+  
+  const scale = effectiveScale.value
+  const zone = editingZone.value
+  const x = zone.x * scale
+  const y = zone.y * scale
+  const w = zone.width * scale
+  const h = zone.height * scale
+  const handleSize = 14 // Slightly larger hit area (10px visual + padding)
+  
+  // Check each handle
+  const handles = [
+    { name: 'nw', x: x, y: y },
+    { name: 'ne', x: x + w, y: y },
+    { name: 'sw', x: x, y: y + h },
+    { name: 'se', x: x + w, y: y + h }
+  ]
+  
+  for (const handle of handles) {
+    if (
+      mouseX >= handle.x - handleSize/2 &&
+      mouseX <= handle.x + handleSize/2 &&
+      mouseY >= handle.y - handleSize/2 &&
+      mouseY <= handle.y + handleSize/2
+    ) {
+      return handle.name
+    }
+  }
+  
+  return null
 }
 
 // Pan/drag functions
 function handleMouseDown(event: MouseEvent) {
-  if (!containerRef.value) return
+  if (!containerRef.value || !canvasRef.value) return
   
-  // Only start dragging if image is larger than container
   const container = containerRef.value
   const canvas = canvasRef.value
-  if (!canvas) return
   
+  // Calculate mouse position relative to canvas
+  const rect = canvas.getBoundingClientRect()
+  const mouseX = event.clientX - rect.left
+  const mouseY = event.clientY - rect.top
+  
+  // Check if clicking on a resize handle
+  const handle = getResizeHandleAtPosition(mouseX, mouseY)
+  if (handle) {
+    handleResizeHandleMouseDown(event, handle)
+    return
+  }
+  
+  // Don't start pan if resizing
+  if (isResizing.value) return
+  
+  // Only start dragging if image is larger than container
   const canPanHorizontal = canvas.width > container.clientWidth
   const canPanVertical = canvas.height > container.clientHeight
   
@@ -293,6 +743,12 @@ function handleMouseDown(event: MouseEvent) {
 }
 
 function handleMouseMove(event: MouseEvent) {
+  // Handle resize if in resize mode
+  if (isResizing.value) {
+    handleResizeMouseMove(event)
+    return
+  }
+  
   if (!isDragging.value || !containerRef.value) return
   
   event.preventDefault()
@@ -306,6 +762,12 @@ function handleMouseMove(event: MouseEvent) {
 }
 
 function handleMouseUp() {
+  // Handle resize mouse up
+  if (isResizing.value) {
+    handleResizeMouseUp()
+    return
+  }
+  
   if (!containerRef.value) return
   
   isDragging.value = false
@@ -313,8 +775,14 @@ function handleMouseUp() {
 }
 
 function handleMouseLeave() {
+  if (isResizing.value) {
+    handleResizeMouseUp()
+  }
   if (isDragging.value) {
-    handleMouseUp()
+    isDragging.value = false
+    if (containerRef.value) {
+      containerRef.value.style.cursor = 'grab'
+    }
   }
 }
 
@@ -348,6 +816,25 @@ function nextPage() {
           </ElButton>
           <ElButton link size="small" @click="fitToScreen">
             <Icon name="lucide:maximize-2" />
+          </ElButton>
+        </div>
+        
+        <!-- Crop Edit Controls -->
+        <div v-if="canEditCrop && !isEditingCrop" class="cropControls">
+          <ElButton type="warning" size="small" @click="startCropEdit">
+            <Icon name="lucide:crop" />
+            Edit Crop
+          </ElButton>
+        </div>
+        
+        <div v-if="isEditingCrop" class="cropEditActions">
+          <ElButton type="success" size="small" @click="saveCropEdit">
+            <Icon name="lucide:check" />
+            Save
+          </ElButton>
+          <ElButton type="info" size="small" @click="cancelCropEdit">
+            <Icon name="lucide:x" />
+            Cancel
           </ElButton>
         </div>
       </div>
@@ -392,7 +879,7 @@ function nextPage() {
       :class="{ canPan: effectiveScale > baseScale }"
       @wheel="handleWheel"
       @mousedown="handleMouseDown"
-      @mousemove="handleMouseMove"
+      @mousemove="handleContainerMouseMove"
       @mouseup="handleMouseUp"
       @mouseleave="handleMouseLeave"
     >
@@ -406,7 +893,8 @@ function nextPage() {
         v-else-if="previewImgUrl"
         ref="canvasRef"
         class="previewCanvas"
-        :style="{ cursor: isDragging ? 'grabbing' : 'grab' }"
+        :class="{ editing: isEditingCrop }"
+        :style="{ cursor: canvasCursor }"
       />
       <ElEmpty v-else description="No preview available" />
     </div>
@@ -456,6 +944,20 @@ function nextPage() {
   font-weight: 500;
   color: var(--app-text-color-primary);
   user-select: none;
+}
+
+.cropControls {
+  margin-left: var(--app-space-m);
+  padding-left: var(--app-space-m);
+  border-left: 1px solid var(--app-border-color);
+}
+
+.cropEditActions {
+  margin-left: var(--app-space-m);
+  padding-left: var(--app-space-m);
+  border-left: 1px solid var(--app-border-color);
+  display: flex;
+  gap: var(--app-space-xs);
 }
 
 .pageNav {
@@ -546,6 +1048,10 @@ function nextPage() {
   
   // Prevent flexbox from stretching the canvas
   align-self: flex-start;
+  
+  &.editing {
+    box-shadow: 0 0 0 2px var(--app-warning-color), var(--app-shadow-l);
+  }
 }
 
 .errorState {
