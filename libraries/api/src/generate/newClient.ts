@@ -2023,8 +2023,8 @@ export interface MTColumnInfo {
     nullRelation?: boolean;
     /** @format int32 */
     sort?: number;
-    unique?: boolean;
     primaryKey?: boolean;
+    unique?: boolean;
     required?: boolean;
 }
 
@@ -2512,8 +2512,8 @@ export interface HoldPolicy {
     modifiedDate?: string;
     removeAuto?: boolean;
     holdAuto?: boolean;
-    holdReasonReq?: boolean;
     removeReasonReq?: boolean;
+    holdReasonReq?: boolean;
 }
 
 export interface ResultHoldPolicy {
@@ -2661,8 +2661,8 @@ export interface MetadataPermissionRuleDTO {
 }
 
 export interface MetadataValidation {
-    validationRuleName?: string;
     isMultiple?: boolean;
+    validationRuleName?: string;
 }
 
 export type NumberValidation = MetadataValidation & {
@@ -2998,14 +2998,14 @@ export interface DocumentDTO {
     comeFrom?: string;
     drivePreviewLink?: string;
     originalPath?: string;
-    fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
-    fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
+    fileContentExtension?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentMimeType?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentDigestAlgorithm?: string;
     fileContentName?: string;
 }
 
@@ -4382,11 +4382,11 @@ export interface PageNotificationRecord {
 
 export interface PageableObject {
     paged?: boolean;
-    unpaged?: boolean;
     /** @format int32 */
     pageNumber?: number;
     /** @format int32 */
     pageSize?: number;
+    unpaged?: boolean;
     /** @format int64 */
     offset?: number;
     sort?: SortObject;
@@ -6927,12 +6927,12 @@ export interface EasyShareDocumentDetails {
     watermarkData?: WatermarkData;
     createdBy?: string;
     originFilePath?: string;
-    conversionId?: string;
-    watermarkTemplateId?: string;
     watermarkStatus?: string;
     watermarkFile?: string;
     previewFile?: string;
+    watermarkTemplateId?: string;
     watermarkedLocalPath?: string;
+    conversionId?: string;
 }
 
 /** EasyShare (Request) */
@@ -7556,8 +7556,8 @@ export interface MasterTableResponseDTO {
     fields?: MTColumnInfo[];
     userId?: string;
     aces?: string;
-    create?: boolean;
     edit?: boolean;
+    create?: boolean;
     read?: boolean;
     enable?: boolean;
 }
@@ -7703,8 +7703,8 @@ export interface MTPermissionDTO {
     userId?: string;
     userName?: string;
     userType?: string;
-    create?: boolean;
     edit?: boolean;
+    create?: boolean;
     read?: boolean;
     enable?: boolean;
 }
@@ -8037,8 +8037,8 @@ export interface DocumentRequestDTO {
     watermarkTemplateId?: string;
     version?: string;
     needMetadata?: boolean;
-    fileName?: string;
     title?: string;
+    fileName?: string;
 }
 
 /** Document (Request) */
@@ -8548,8 +8548,8 @@ export interface WatermarkDocumentRequestDTO {
     needMetadata?: boolean;
     /** Origin Document Id */
     originDocumentId?: string;
-    fileName?: string;
     title?: string;
+    fileName?: string;
 }
 
 /** Versioning (Request) */
@@ -8850,14 +8850,14 @@ export interface DocumentResponseDTO {
     isCollectionMember?: boolean;
     holdDocument?: HoldDocument;
     retentionDocument?: RetentionDocument;
-    fileContentExtension?: string;
     fileContentDigest?: string;
     fileContentData?: string;
-    fileContentMinioFileVersion?: string;
-    fileContentDigestAlgorithm?: string;
+    fileContentExtension?: string;
     /** @format int64 */
     fileContentLength?: number;
     fileContentMimeType?: string;
+    fileContentMinioFileVersion?: string;
+    fileContentDigestAlgorithm?: string;
     fileContentName?: string;
 }
 
@@ -9652,8 +9652,8 @@ export interface DFCRequestDTO {
     emailReport?: FCReminder;
     /** Email Reminder */
     emailReminder?: FCReminder;
-    fileName?: string;
     title?: string;
+    fileName?: string;
 }
 
 export interface DFCNotificationConfig {
@@ -13730,41 +13730,6 @@ export interface ResultListCaptureProjFormSettingDropDownResponseDTO {
     locale?: string;
 }
 
-export interface CaptureProjFormSetting {
-    /** @format uuid */
-    id?: string;
-    name?: string;
-    code?: string;
-    description?: string;
-    /** @format uuid */
-    projectId?: string;
-    pageSplitConfig?: JsonNode;
-    sampleDocPath?: string;
-    formClassificationConfig?: JsonNode;
-    docSeparationConfig?: JsonNode;
-    fieldsSetting?: JsonNode;
-    otherMetadataSetting?: JsonNode;
-    status?: string;
-    createdBy?: string;
-    updatedBy?: string;
-    /** @format date-time */
-    createdAt?: string;
-    /** @format date-time */
-    updatedAt?: string;
-    /** @format int32 */
-    defaultPageCount?: number;
-}
-
-export interface ResultCaptureProjFormSetting {
-    result?: boolean;
-    /** @format int32 */
-    code?: number;
-    message?: string;
-    data?: CaptureProjFormSetting;
-    messageKey?: string;
-    locale?: string;
-}
-
 export interface ResultCaptureProjResponseDTO {
     result?: boolean;
     /** @format int32 */
@@ -13894,10 +13859,10 @@ export interface ResultListMQMessageTotalDTO {
 
 export interface MQConsumeGroupStatusDTO {
     consumeGroup?: string;
-    completed?: number;
-    finish?: number;
     create?: number;
     pending?: number;
+    completed?: number;
+    finish?: number;
     error?: number;
 }
 
@@ -28567,6 +28532,28 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         /**
          * No description
          *
+         * @tags CaptureProjFormSettingController
+         * @name PostCaptureProjformsettingDuplicate
+         * @summary Duplicate Capture Proj Form Setting
+         * @request POST:/api/capture/projFormSetting/duplicate
+         */
+        postCaptureProjformsettingDuplicate: (
+            query: {
+                id: string;
+                name: string;
+            },
+            params: RequestParams = {},
+        ) =>
+            this.request<ResultBoolean, any>({
+                path: `/api/capture/projFormSetting/duplicate`,
+                method: "POST",
+                query: query,
+                ...params,
+            }),
+
+        /**
+         * No description
+         *
          * @tags CaptureProjController
          * @name PostCaptureProjPage
          * @summary Query project list page
@@ -36627,21 +36614,6 @@ export class Standard<SecurityDataType extends unknown> extends HttpClient<Secur
         getCaptureProjformsettingGetdropdownlistbyprojidProjid: (projId: string, params: RequestParams = {}) =>
             this.request<ResultListCaptureProjFormSettingDropDownResponseDTO, any>({
                 path: `/api/capture/projFormSetting/getDropDownListByProjId/${projId}`,
-                method: "GET",
-                ...params,
-            }),
-
-        /**
-         * No description
-         *
-         * @tags CaptureProjFormSettingController
-         * @name GetCaptureProjformsettingDuplicateId
-         * @summary Duplicate Capture Proj Form Setting
-         * @request GET:/api/capture/projFormSetting/duplicate/{id}
-         */
-        getCaptureProjformsettingDuplicateId: (id: string, params: RequestParams = {}) =>
-            this.request<ResultCaptureProjFormSetting, any>({
-                path: `/api/capture/projFormSetting/duplicate/${id}`,
                 method: "GET",
                 ...params,
             }),

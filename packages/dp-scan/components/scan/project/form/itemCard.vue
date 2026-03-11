@@ -10,6 +10,7 @@ const props = defineProps<{
 const emits = defineEmits<{
   edit: [form: any]
   delete: [form: any]
+  duplicate: [form: any]
 }>()
 
 const routerProvider = inject(MenuRouterKey)
@@ -75,6 +76,10 @@ function handleDelete() {
   emits('delete', props.form)
 }
 
+function handleDuplicate() {
+  emits('duplicate', props.form)
+}
+
 onMounted(() => {
   getPreview()
 })
@@ -100,6 +105,10 @@ onUnmounted(() => {
             <ElDropdownItem @click="handleEdit">
               <Icon name="lucide:edit" />
               Edit
+            </ElDropdownItem>
+            <ElDropdownItem @click="handleDuplicate">
+              <Icon name="lucide:copy" />
+              Duplicate
             </ElDropdownItem>
             <ElDropdownItem @click="handleDelete">
               <Icon name="lucide:trash-2" class="text-danger" />

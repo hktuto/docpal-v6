@@ -1,10 +1,12 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
 import ScanPropjectFormNewDialog from './newDialog.vue'
+import ScanPropjectFormDuplicateDialog from './duplicateDialog.vue'
 const props = defineProps<{
   projectId: string
 }>()
 const newFormDialogEl = ref()
+const duplicateFormDialogEl = ref()
 const newButtonEl = ref()
 const forms = ref<any[]>([])
 const loading = ref(false)
@@ -38,6 +40,10 @@ function deleteForm(form: any) {
 function configureForm(form: any) {
   // TODO: Navigate to form configuration (page split, sections, fields)
   console.log('Configure form:', form)
+}
+
+function duplicateForm(form: any) {
+  duplicateFormDialogEl.value?.open(form.id, form.name)
 }
 
 watch(
@@ -79,11 +85,13 @@ watch(
           @edit="editForm"
           @delete="deleteForm"
           @configure="configureForm"
+          @duplicate="duplicateForm"
         />
       </div>
     </div>
   </div>
   <ScanPropjectFormNewDialog ref="newFormDialogEl" :buttonEl="newButtonEl" :projectId="projectId" @updated="getForms" />
+  <ScanPropjectFormDuplicateDialog ref="duplicateFormDialogEl" @updated="getForms" />
 </template>
 
 <style lang="scss" scoped>

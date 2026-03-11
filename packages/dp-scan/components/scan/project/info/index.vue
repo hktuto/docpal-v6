@@ -11,7 +11,38 @@ const additionFieldsSettingEl = ref()
 if (!routerProvider) {
   throw new Error('MenuRouterKey not found')
 }
+
+// Validation function for batch naming rules
+function validateBatchNamingRules(): boolean {
+  if (!info.value) return false
+
+  const { prefix, minDigit, startingNumber } = info.value
+  const missingFields: string[] = []
+
+  if (!prefix || prefix.trim() === '') {
+    missingFields.push('Prefix')
+  }
+  if (!minDigit || minDigit.trim() === '') {
+    missingFields.push('Suffix')
+  }
+  if (startingNumber === undefined || startingNumber === null || startingNumber === '') {
+    missingFields.push('Starting Number')
+  }
+
+  if (missingFields.length > 0) {
+    routerProvider?.message.error(`Batch Naming Rules are required: ${missingFields.join(', ')}`)
+    return false
+  }
+
+  return true
+}
+
 async function save() {
+  // Validate batch naming rules before saving
+  if (!validateBatchNamingRules()) {
+    return
+  }
+
   loading.value = true
   const form: any = { ...info.value }
   try {
@@ -28,6 +59,11 @@ async function save() {
 }
 
 async function publish() {
+  // Validate batch naming rules before publishing
+  if (!validateBatchNamingRules()) {
+    return
+  }
+
   loading.value = true
   const form: any = { ...info.value }
   try {
@@ -63,18 +99,18 @@ function addProjectField() {}
       <div class="section">Project Fields <Icon class="cursor-pointer" name="lucide:plus" @click="addProjectField" /></div>
       <ScanProjectInfoProjectField ref="additionFieldsSettingEl" :additionFieldsSetting="info.additionFieldsSetting" />
       <div class="section">Batch Naming Rules</div>
-      <ElFormItem label="Prefix">
-        <ElInput v-model="info.prefix" />
+      <ElFormItem label="Prefix" required>
+        <ElInput v-model="info.prefix" placeholder="Enter prefix" />
       </ElFormItem>
       <ElRow :gutter="6">
         <ElCol :span="12">
-          <ElFormItem label="Suffix">
-            <ElInput v-model="info.minDigit" />
+          <ElFormItem label="Suffix" required>
+            <ElInput v-model="info.minDigit" placeholder="Enter suffix" />
           </ElFormItem>
         </ElCol>
         <ElCol :span="12">
-          <ElFormItem label="startingNumber">
-            <ElInput type="number" v-model="info.startingNumber" />
+          <ElFormItem label="Starting Number" required>
+            <ElInput type="number" v-model="info.startingNumber" placeholder="Enter starting number" />
           </ElFormItem>
         </ElCol>
       </ElRow>
