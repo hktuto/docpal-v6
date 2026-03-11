@@ -23,9 +23,11 @@ const containerRef = ref<HTMLDivElement>()
 const imageObj = ref<HTMLImageElement>()
 const imageLoading = ref(false)
 
-// Store selection in ORIGINAL image coordinates (not display coordinates)
-// This ensures selection persists through zoom changes
+// Store selection in ORIGINAL image coordinates
 const selectionInOriginalCoords = ref<{ x: number; y: number; width: number; height: number } | null>(null)
+
+// Is in crop editing mode (has selection)
+const hasSelection = computed(() => selectionInOriginalCoords.value !== null)
 
 // Zoom state
 const zoomScale = ref(1)
@@ -47,7 +49,7 @@ const baseScale = computed(() => {
   )
 })
 
-// Current effective scale = base scale * zoom
+// Current effective scale
 const effectiveScale = computed(() => {
   return baseScale.value * zoomScale.value
 })
@@ -56,20 +58,21 @@ const effectiveScale = computed(() => {
 const canvasCursor = computed(() => {
   if (isResizing.value) return 'grabbing'
   if (isDragging.value) return 'grabbing'
-  return 'crosshair'
+  if (isHoveringHandle.value) return 'pointer'
+  if (selectionInOriginalCoords.value) return 'move'
+  return 'grab'
 })
 
 // Interaction state
-const isDrawing = ref(false)
 const isResizing = ref(false)
-const resizeHandle = ref<number>(-1)
-const startPosInOriginalCoords = ref({ x: 0, y: 0 })
-const selectionStartInOriginalCoords = ref({ x: 0, y: 0, width: 0, height: 0 })
-
-// Pan state
+const resizeHandle = ref<string | null>(null)
 const isDragging = ref(false)
 const dragStart = ref({ x: 0, y: 0 })
 const scrollStart = ref({ x: 0, y: 0 })
+const isHoveringHandle = ref(false)
+
+// Default crop size in original image pixels
+const DEFAULT_CROP_SIZE = 150
 
 // Convert display (screen) coordinates to original image coordinates
 function displayToOriginal(displayX: number, displayY: number) {
@@ -87,6 +90,18 @@ function originalToDisplay(originalX: number, originalY: number) {
     x: originalX * scale,
     y: originalY * scale
   }
+}
+
+// Get current viewport center in original coordinates
+function getViewportCenterInOriginal(): { x: number; y: number } {
+  const container = containerRef.value
+  if (!container) return { x: 0, y: 0 }
+
+  // Current scroll position + half of visible area
+  const displayX = container.scrollLeft + container.clientWidth / 2
+  const displayY = container.scrollTop + container.clientHeight / 2
+
+  return displayToOriginal(displayX, displayY)
 }
 
 // Load document preview
@@ -170,7 +185,7 @@ function drawCanvas() {
   }
 }
 
-// Draw selection overlay
+// Draw selection overlay with resize handles
 function drawSelection(ctx: CanvasRenderingContext2D) {
   if (!selectionInOriginalCoords.value) return
 
@@ -183,36 +198,33 @@ function drawSelection(ctx: CanvasRenderingContext2D) {
   const displayW = width * scale
   const displayH = height * scale
 
-  // Draw semi-transparent overlay outside selection
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'
-  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+  // Draw semi-transparent fill
+  ctx.fillStyle = 'rgba(64, 158, 255, 0.2)'
+  ctx.fillRect(displayX, displayY, displayW, displayH)
 
-  // Clear the selection area
-  ctx.clearRect(displayX, displayY, displayW, displayH)
-
-  // Redraw image in selection area (from original source for clarity)
-  ctx.drawImage(
-    imageObj.value!,
-    x, y, width, height,
-    displayX, displayY, displayW, displayH
-  )
-
-  // Draw selection border
+  // Draw dashed border
   ctx.strokeStyle = '#409eff'
   ctx.lineWidth = 2
+  ctx.setLineDash([5, 5])
   ctx.strokeRect(displayX, displayY, displayW, displayH)
+  ctx.setLineDash([])
 
-  // Draw resize handles
+  // Draw resize handles (10px white squares with blue border)
+  const handleSize = 10
+  ctx.fillStyle = '#fff'
+  ctx.strokeStyle = '#409eff'
+  ctx.lineWidth = 2
+
   const handles = [
-    { x: displayX, y: displayY },
-    { x: displayX + displayW, y: displayY },
-    { x: displayX, y: displayY + displayH },
-    { x: displayX + displayW, y: displayY + displayH }
+    { x: displayX, y: displayY, name: 'nw' },
+    { x: displayX + displayW, y: displayY, name: 'ne' },
+    { x: displayX, y: displayY + displayH, name: 'sw' },
+    { x: displayX + displayW, y: displayY + displayH, name: 'se' }
   ]
 
-  ctx.fillStyle = '#409eff'
   handles.forEach(handle => {
-    ctx.fillRect(handle.x - 5, handle.y - 5, 10, 10)
+    ctx.fillRect(handle.x - handleSize/2, handle.y - handleSize/2, handleSize, handleSize)
+    ctx.strokeRect(handle.x - handleSize/2, handle.y - handleSize/2, handleSize, handleSize)
   })
 }
 
@@ -260,7 +272,6 @@ function zoomTo(newZoom: number, focalPoint?: { x: number; y: number } | null) {
     y: container.clientHeight / 2 + container.scrollTop
   }
 
-  // Calculate the point on the ORIGINAL image that we're zooming towards
   const oldScale = baseScale.value * zoomScale.value
   const imageX = focus.x / oldScale
   const imageY = focus.y / oldScale
@@ -272,17 +283,14 @@ function zoomTo(newZoom: number, focalPoint?: { x: number; y: number } | null) {
     canvas.width = img.naturalWidth * newScale
     canvas.height = img.naturalHeight * newScale
 
-    // Redraw canvas (selection will be redrawn at new scale automatically)
     drawCanvas()
 
-    // Adjust scroll to keep the focal point at the same position
     const newFocusX = imageX * newScale
     const newFocusY = imageY * newScale
 
     container.scrollLeft = newFocusX - focus.x + container.scrollLeft
     container.scrollTop = newFocusY - focus.y + container.scrollTop
 
-    // Apply margins if canvas fits in container
     const maxScrollLeft = canvas.width - container.clientWidth
     const maxScrollTop = canvas.height - container.clientHeight
 
@@ -333,46 +341,78 @@ function handleWheel(event: WheelEvent) {
   zoomTo(newZoom, { x: mouseX, y: mouseY })
 }
 
-// Mouse handlers
-function handleMouseDown(event: MouseEvent) {
-  if (!containerRef.value || !canvasRef.value || !imageObj.value) return
+// Get resize handle at position
+function getResizeHandleAtPosition(mouseX: number, mouseY: number): string | null {
+  if (!selectionInOriginalCoords.value) return null
 
-  const canvas = canvasRef.value
-  const rect = canvas.getBoundingClientRect()
-  const displayX = event.clientX - rect.left
-  const displayY = event.clientY - rect.top
+  const scale = effectiveScale.value
+  const zone = selectionInOriginalCoords.value
+  const x = zone.x * scale
+  const y = zone.y * scale
+  const w = zone.width * scale
+  const h = zone.height * scale
+  const handleSize = 14 // Hit area slightly larger than visual
 
-  // Convert to original coordinates
-  const originalPos = displayToOriginal(displayX, displayY)
+  const handles = [
+    { name: 'nw', x: x, y: y },
+    { name: 'ne', x: x + w, y: y },
+    { name: 'sw', x: x, y: y + h },
+    { name: 'se', x: x + w, y: y + h }
+  ]
 
-  // Check if clicking on resize handle (only if selection exists)
-  if (selectionInOriginalCoords.value) {
-    const { x, y, width, height } = selectionInOriginalCoords.value
-    const scale = effectiveScale.value
-
-    // Convert handle positions to display coordinates for hit testing
-    const handles = [
-      { x: x * scale, y: y * scale, idx: 0 },
-      { x: (x + width) * scale, y: y * scale, idx: 1 },
-      { x: x * scale, y: (y + height) * scale, idx: 2 },
-      { x: (x + width) * scale, y: (y + height) * scale, idx: 3 }
-    ]
-
-    for (const handle of handles) {
-      if (Math.abs(displayX - handle.x) < 10 && Math.abs(displayY - handle.y) < 10) {
-        isResizing.value = true
-        resizeHandle.value = handle.idx
-        startPosInOriginalCoords.value = { ...originalPos }
-        selectionStartInOriginalCoords.value = { ...selectionInOriginalCoords.value }
-        return
-      }
+  for (const handle of handles) {
+    if (
+      mouseX >= handle.x - handleSize/2 &&
+      mouseX <= handle.x + handleSize/2 &&
+      mouseY >= handle.y - handleSize/2 &&
+      mouseY <= handle.y + handleSize/2
+    ) {
+      return handle.name
     }
   }
 
-  // Start new selection in original coordinates
-  isDrawing.value = true
-  startPosInOriginalCoords.value = { ...originalPos }
-  selectionInOriginalCoords.value = { x: originalPos.x, y: originalPos.y, width: 0, height: 0 }
+  return null
+}
+
+// Mouse handlers
+function handleMouseDown(event: MouseEvent) {
+  if (!canvasRef.value || !imageObj.value) return
+
+  const canvas = canvasRef.value
+  const rect = canvas.getBoundingClientRect()
+  const mouseX = event.clientX - rect.left
+  const mouseY = event.clientY - rect.top
+
+  // Check if clicking on resize handle
+  const handle = getResizeHandleAtPosition(mouseX, mouseY)
+  if (handle && selectionInOriginalCoords.value) {
+    isResizing.value = true
+    resizeHandle.value = handle
+    dragStart.value = { x: event.clientX, y: event.clientY }
+    return
+  }
+
+  // Check if clicking inside selection (to drag/move it)
+  if (selectionInOriginalCoords.value) {
+    const scale = effectiveScale.value
+    const sel = selectionInOriginalCoords.value
+    const displayX = sel.x * scale
+    const displayY = sel.y * scale
+    const displayW = sel.width * scale
+    const displayH = sel.height * scale
+
+    if (
+      mouseX >= displayX &&
+      mouseX <= displayX + displayW &&
+      mouseY >= displayY &&
+      mouseY <= displayY + displayH
+    ) {
+      // Start dragging the selection
+      isDragging.value = true
+      dragStart.value = { x: event.clientX, y: event.clientY }
+      return
+    }
+  }
 }
 
 function handleMouseMove(event: MouseEvent) {
@@ -380,109 +420,138 @@ function handleMouseMove(event: MouseEvent) {
 
   const canvas = canvasRef.value
   const rect = canvas.getBoundingClientRect()
-  const displayX = event.clientX - rect.left
-  const displayY = event.clientY - rect.top
+  const mouseX = event.clientX - rect.left
+  const mouseY = event.clientY - rect.top
 
-  // Convert to original coordinates
-  const originalPos = displayToOriginal(displayX, displayY)
+  // Update hover state for cursor
+  isHoveringHandle.value = getResizeHandleAtPosition(mouseX, mouseY) !== null
 
-  if (isResizing.value && selectionInOriginalCoords.value) {
-    const start = startPosInOriginalCoords.value
-    const selStart = selectionStartInOriginalCoords.value
-    const newSelection = { ...selectionInOriginalCoords.value }
+  if (isResizing.value && selectionInOriginalCoords.value && resizeHandle.value) {
+    const scale = effectiveScale.value
+    const originalMouse = displayToOriginal(mouseX, mouseY)
+    const sel = selectionInOriginalCoords.value
+
+    let newX = sel.x
+    let newY = sel.y
+    let newW = sel.width
+    let newH = sel.height
 
     switch (resizeHandle.value) {
-      case 0: // Top-left
-        newSelection.x = Math.min(originalPos.x, selStart.x + selStart.width)
-        newSelection.y = Math.min(originalPos.y, selStart.y + selStart.height)
-        newSelection.width = Math.abs(selStart.x + selStart.width - originalPos.x)
-        newSelection.height = Math.abs(selStart.y + selStart.height - originalPos.y)
+      case 'nw':
+        newX = Math.min(originalMouse.x, sel.x + sel.width)
+        newY = Math.min(originalMouse.y, sel.y + sel.height)
+        newW = Math.abs(sel.x + sel.width - originalMouse.x)
+        newH = Math.abs(sel.y + sel.height - originalMouse.y)
         break
-      case 1: // Top-right
-        newSelection.x = selStart.x
-        newSelection.y = Math.min(originalPos.y, selStart.y + selStart.height)
-        newSelection.width = Math.abs(originalPos.x - selStart.x)
-        newSelection.height = Math.abs(selStart.y + selStart.height - originalPos.y)
+      case 'ne':
+        newX = sel.x
+        newY = Math.min(originalMouse.y, sel.y + sel.height)
+        newW = Math.abs(originalMouse.x - sel.x)
+        newH = Math.abs(sel.y + sel.height - originalMouse.y)
         break
-      case 2: // Bottom-left
-        newSelection.x = Math.min(originalPos.x, selStart.x + selStart.width)
-        newSelection.y = selStart.y
-        newSelection.width = Math.abs(selStart.x + selStart.width - originalPos.x)
-        newSelection.height = Math.abs(originalPos.y - selStart.y)
+      case 'sw':
+        newX = Math.min(originalMouse.x, sel.x + sel.width)
+        newY = sel.y
+        newW = Math.abs(sel.x + sel.width - originalMouse.x)
+        newH = Math.abs(originalMouse.y - sel.y)
         break
-      case 3: // Bottom-right
-        newSelection.x = selStart.x
-        newSelection.y = selStart.y
-        newSelection.width = Math.abs(originalPos.x - selStart.x)
-        newSelection.height = Math.abs(originalPos.y - selStart.y)
+      case 'se':
+        newX = sel.x
+        newY = sel.y
+        newW = Math.abs(originalMouse.x - sel.x)
+        newH = Math.abs(originalMouse.y - sel.y)
         break
     }
 
-    // Enforce minimum size in original coordinates (10 pixels at current zoom)
-    const minSize = 10 / effectiveScale.value
-    if (newSelection.width >= minSize && newSelection.height >= minSize) {
-      selectionInOriginalCoords.value = newSelection
+    // Enforce minimum size
+    const minSize = 20
+    if (newW >= minSize && newH >= minSize) {
+      selectionInOriginalCoords.value = {
+        x: newX,
+        y: newY,
+        width: newW,
+        height: newH
+      }
       drawCanvas()
     }
-  } else if (isDrawing.value) {
-    const start = startPosInOriginalCoords.value
+  } else if (isDragging.value && selectionInOriginalCoords.value) {
+    // Drag the entire selection
+    const dx = (event.clientX - dragStart.value.x) / effectiveScale.value
+    const dy = (event.clientY - dragStart.value.y) / effectiveScale.value
+
     selectionInOriginalCoords.value = {
-      x: Math.min(start.x, originalPos.x),
-      y: Math.min(start.y, originalPos.y),
-      width: Math.abs(originalPos.x - start.x),
-      height: Math.abs(originalPos.y - start.y)
+      ...selectionInOriginalCoords.value,
+      x: selectionInOriginalCoords.value.x + dx,
+      y: selectionInOriginalCoords.value.y + dy
     }
+
+    dragStart.value = { x: event.clientX, y: event.clientY }
     drawCanvas()
-  } else if (isDragging.value && containerRef.value) {
-    // Handle pan
-    event.preventDefault()
-    const container = containerRef.value
-    const dx = event.clientX - dragStart.value.x
-    const dy = event.clientY - dragStart.value.y
-    container.scrollLeft = scrollStart.value.x - dx
-    container.scrollTop = scrollStart.value.y - dy
   }
 }
 
 function handleMouseUp() {
   isResizing.value = false
-  isDrawing.value = false
   isDragging.value = false
-  resizeHandle.value = -1
-  if (containerRef.value) {
-    containerRef.value.style.cursor = ''
-  }
+  resizeHandle.value = null
 }
 
-function handleMouseLeave() {
-  isResizing.value = false
-  isDrawing.value = false
-  isDragging.value = false
-  resizeHandle.value = -1
-  if (containerRef.value) {
-    containerRef.value.style.cursor = ''
-  }
-}
-
-// Handle pan drag start
-function handlePanStart(event: MouseEvent) {
-  if (isDrawing.value || isResizing.value) return
-  if (!containerRef.value) return
+// Pan/scroll handlers for container
+function handleContainerMouseDown(event: MouseEvent) {
+  // Don't pan if clicking on canvas (which handles its own events)
+  if (event.target === canvasRef.value) return
 
   const container = containerRef.value
-  const canvas = canvasRef.value
-  if (!canvas) return
-
-  // Only pan if canvas is larger than container
-  const canPanHorizontal = canvas.width > container.clientWidth
-  const canPanVertical = canvas.height > container.clientHeight
-
-  if (!canPanHorizontal && !canPanVertical) return
+  if (!container) return
 
   isDragging.value = true
   dragStart.value = { x: event.clientX, y: event.clientY }
   scrollStart.value = { x: container.scrollLeft, y: container.scrollTop }
   container.style.cursor = 'grabbing'
+}
+
+function handleContainerMouseMove(event: MouseEvent) {
+  if (!isDragging.value || !containerRef.value) return
+
+  const container = containerRef.value
+  const dx = event.clientX - dragStart.value.x
+  const dy = event.clientY - dragStart.value.y
+
+  container.scrollLeft = scrollStart.value.x - dx
+  container.scrollTop = scrollStart.value.y - dy
+}
+
+function handleContainerMouseUp() {
+  if (containerRef.value) {
+    containerRef.value.style.cursor = ''
+  }
+  isDragging.value = false
+}
+
+// Add new crop at viewport center
+function addCropAtCenter() {
+  const img = imageObj.value
+  if (!img) return
+
+  const center = getViewportCenterInOriginal()
+  const size = Math.min(DEFAULT_CROP_SIZE, img.naturalWidth / 4, img.naturalHeight / 4)
+
+  // Ensure crop stays within image bounds
+  let x = center.x - size / 2
+  let y = center.y - size / 2
+
+  // Clamp to image bounds
+  x = Math.max(0, Math.min(x, img.naturalWidth - size))
+  y = Math.max(0, Math.min(y, img.naturalHeight - size))
+
+  selectionInOriginalCoords.value = {
+    x,
+    y,
+    width: size,
+    height: size
+  }
+
+  drawCanvas()
 }
 
 // Extract cropped image
@@ -513,6 +582,10 @@ function startCrop() {
   nextTick(() => {
     drawCanvas()
     centerCanvas()
+    // Add crop at center after a short delay to ensure layout is ready
+    setTimeout(() => {
+      addCropAtCenter()
+    }, 50)
   })
 }
 
@@ -532,11 +605,6 @@ function confirmCrop() {
   emits('confirm', { zone, croppedImage })
 }
 
-// Expose methods
-defineExpose({
-  startCrop
-})
-
 // Handle window resize
 function handleResize() {
   nextTick(() => {
@@ -552,6 +620,10 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
+})
+
+defineExpose({
+  startCrop
 })
 </script>
 
@@ -572,8 +644,8 @@ onUnmounted(() => {
         </ElButton>
       </div>
       <div class="cropHint">
-        <Icon name="lucide:crop" />
-        Drag to select region
+        <Icon name="lucide:move" />
+        Drag to pan • Drag crop to move • Drag corners to resize
       </div>
     </div>
 
@@ -583,7 +655,10 @@ onUnmounted(() => {
       v-loading="loading || imageLoading"
       class="cropBody"
       @wheel="handleWheel"
-      @mousedown="handlePanStart"
+      @mousedown="handleContainerMouseDown"
+      @mousemove="handleContainerMouseMove"
+      @mouseup="handleContainerMouseUp"
+      @mouseleave="handleContainerMouseUp"
     >
       <canvas
         v-if="imageObj"
@@ -593,7 +668,7 @@ onUnmounted(() => {
         @mousedown="handleMouseDown"
         @mousemove="handleMouseMove"
         @mouseup="handleMouseUp"
-        @mouseleave="handleMouseLeave"
+        @mouseleave="handleMouseUp"
       />
       <ElEmpty v-else description="Loading document..." />
     </div>
@@ -659,9 +734,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: var(--app-space-xs);
-  color: var(--app-primary-color);
+  color: var(--app-text-color-secondary);
   font-size: var(--app-font-size-s);
-  font-weight: 500;
 }
 
 .cropBody {
@@ -671,6 +745,11 @@ onUnmounted(() => {
   background-color: var(--app-bg-color-secondary);
   padding: var(--app-space-m);
   user-select: none;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
 
   &::-webkit-scrollbar {
     width: 8px;
