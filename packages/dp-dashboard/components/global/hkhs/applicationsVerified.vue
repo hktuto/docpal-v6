@@ -27,37 +27,32 @@ const formData = ref({
 })
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'HKHS-ApplicationsVerified',
-  api: async () => {
-    // TODO：test
-    const rpcParams = {
-      p_start_date: '2026-03-05',
-      // p_start_date: formData.value.date,
-      p_end_date: formData.value.date,
-      p_distinct_flag: 2,
-      default_schema: true
-    }
-    const list: any[] = await newClientApi.postPostgrestRpcFunc('get_user_verification_list', JSON.stringify(rpcParams))
-    const element: any = list.data[list.data.length - 1]
-    list.data.splice(list.data.length - 1, 1)
-    footerData.value[0].application_no = element.total_number_of_application
-    return list
-  },
+  virtualScroll: true,
   columns: [
     { field: 'batch_no', title: 'Batch No.', fixed: 'left' },
     { field: 'application_no', title: 'Application No.' },
     { field: 'form_type', title: 'Form Type' },
     { field: 'compare', title: 'Compare' },
-    { field: 'modified', title: 'Modified' },
+    {
+      field: 'modified',
+      title: 'Modified',
+      minWidth: 120,
+      type: 'html',
+      formatter: ({ cellValue, row }) => {
+        if (cellValue.toLowerCase() === 'y') {
+          return `<div class="container"><div class="circle yes"></div><div class="text">${cellValue}</div></div>`
+        }
+        if (cellValue.toLowerCase() === 'n') {
+          return `<div class="container"><div class="circle no"></div><div class="text">${cellValue}</div></div>`
+        }
+        return cellValue
+      }
+    },
     { field: 'verified_by', title: 'Verified By' },
     { field: 'completed_on', title: 'Completed on' }
   ],
   bodyActions: [],
-  dblClickAction: ({ row, column, event }: any) => {},
-  optionalConfig: {
-    //   pagerConfig: {
-    //     enabled: false
-    //   }
-  }
+  dblClickAction: ({ row, column, event }: any) => {}
 })
 
 const footerData = ref([
@@ -91,6 +86,24 @@ function handleRefresh() {
   reload()
   refresh()
 }
+
+async function getData() {
+  const rpcParams = {
+    p_start_date: formData.value.date,
+    p_end_date: formData.value.date,
+    p_distinct_flag: 2,
+    default_schema: true
+  }
+  const list: any[] = await newClientApi.postPostgrestRpcFunc('get_user_verification_list', JSON.stringify(rpcParams))
+  const element: any = list.data[list.data.length - 1]
+  list.data.splice(list.data.length - 1, 1)
+  footerData.value[0].application_no = element.total_number_of_application
+  tableRef.value.loadData(list.data)
+}
+
+onMounted(async () => {
+  await getData()
+})
 </script>
 
 <template>
@@ -129,10 +142,10 @@ function handleRefresh() {
         <template #toolbar_buttons>
           <div class="toolbar-form-row">
             <el-select class="toolbar-select toolbar-select--type">
-              <el-option @change="query" />
+              <el-option @change="getData" />
             </el-select>
             <el-select class="toolbar-select toolbar-select--type">
-              <el-option @change="query" />
+              <el-option @change="getData" />
             </el-select>
             <el-date-picker
               class="toolbar-date"
@@ -141,9 +154,8 @@ function handleRefresh() {
               format="YYYY-MM-DD"
               value-format="YYYY-MM-DD"
               placeholder="Pick a day"
-              :size="size"
               :clearable="false"
-              @change="query"
+              @change="getData"
             />
           </div>
         </template>
@@ -170,24 +182,28 @@ function handleRefresh() {
   width: 180px;
 }
 
-.container {
+:deep(.container) {
   display: flex;
   align-items: center;
 }
-.circle {
-  width: 2px; /* 圓的直徑 */
-  height: 2px; /* 圓的直徑 */
-  border-radius: 50%; /* 使其呈圓形 */
-  margin-right: 2px; /* 圓與文本之間的間距 */
+
+:deep(.circle) {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 10px;
 }
-.yes {
-  background-color: #1abc9c; /* Yes 的顏色 */
+
+:deep(.yes) {
+  background-color: #1abc9c;
 }
-.no {
-  background-color: #e74c3c; /* No 的顏色 */
+
+:deep(.no) {
+  background-color: #e74c3c;
 }
-.text {
-  font-size: 16px; /* 字體大小 */
-  color: #333; /* 字體顏色 */
+
+:deep(.text) {
+  font-size: 16px;
+  color: #333;
 }
 </style>

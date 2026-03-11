@@ -27,17 +27,7 @@ const formData = ref({
 
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'HKHS-DailyReportTable',
-  api: async () => {
-    const rpcParams = {
-      p_start_date: formData.value.date[0],
-      p_end_date: formData.value.date[1],
-      p_distinct_flag: formData.value.includeDuplicate,
-      default_schema: true //默认值必须传
-    }
-    let list = await newClientApi.postPostgrestRpcFunc('get_doc_processing_daily_report', JSON.stringify(rpcParams))
-    handleTotal(list.data)
-    return list
-  },
+  virtualScroll: true,
   columns: [
     {
       field: 'transaction_date',
@@ -133,6 +123,22 @@ const IncludeDuplicateOption = ref([
   { label: 'Yes', value: 2 },
   { label: 'No', value: 1 }
 ])
+
+async function getData() {
+  const rpcParams = {
+    p_start_date: formData.value.date[0],
+    p_end_date: formData.value.date[1],
+    p_distinct_flag: formData.value.includeDuplicate,
+    default_schema: true //默认值必须传
+  }
+  let list = await newClientApi.postPostgrestRpcFunc('get_doc_processing_daily_report', JSON.stringify(rpcParams))
+  handleTotal(list.data)
+  tableRef.value.loadData(list.data)
+}
+
+onMounted(async () => {
+  await getData()
+})
 </script>
 
 <template>
@@ -171,7 +177,7 @@ const IncludeDuplicateOption = ref([
         <template #toolbar_buttons>
           <div class="toolbar-form-row">
             <el-select class="toolbar-select toolbar-select--type">
-              <el-option  @change="query"/>
+              <el-option @change="query" />
             </el-select>
             <el-date-picker
               class="toolbar-date"

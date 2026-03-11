@@ -131,11 +131,11 @@ export default defineAppConfig({
         }
       ]
     },
-    // {
-    //   label: 'adminMenu.browse',
-    //   icon: 'ri:folder-5-line',
-    //   hoverIcon: 'ri:folder-5-line',
-    //   children: [
+    {
+      label: 'adminMenu.browse',
+      icon: 'ri:folder-5-line',
+      hoverIcon: 'ri:folder-5-line',
+      children: [
     //     {
     //       name: 'admin-smart-folder'
     //     },
@@ -154,14 +154,14 @@ export default defineAppConfig({
     //     {
     //       name: 'admin-watermark'
     //     },
-    //     {
-    //       name: 'admin-work-panel'
-    //     },
+        {
+          name: 'admin-work-panel'
+        },
     //     {
     //       name: 'admin-master-table'
     //     },
-    //   ]
-    // },
+      ]
+    },
     // {
     //   label: 'adminMenu.shareModule',
     //   icon: 'lucide:share-2',

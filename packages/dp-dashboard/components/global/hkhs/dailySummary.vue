@@ -27,20 +27,7 @@ const formData = ref({
 
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'HKHS-DailySummary',
-  api: async () => {
-    const rpcParams = {
-      p_start_date: formData.value.date[0],
-      p_end_date: formData.value.date[1],
-      p_distinct_flag: 2,
-      default_schema: true
-    }
-    const list = await newClientApi.postPostgrestRpcFunc('get_daily_export_summary', JSON.stringify(rpcParams))
-    const element: any = list.data[list.data.length - 1]
-    list.data.splice(list.data.length - 1, 1)
-    footerData.value[0].no_of_application = element.no_of_application
-    footerData.value[0].status = element.status
-    return list
-  },
+  virtualScroll: true,
   columns: [
     { field: 'datetime', title: 'Date Time', fixed: 'left' },
     { field: 'batch_no', title: 'Batch No.' },
@@ -51,7 +38,23 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     { field: 'source', title: 'Source' },
     { field: 'user_id', title: 'User ID' },
     { field: 'is_overwrite', title: 'Insert/Replace' },
-    { field: 'status', title: 'Status' },
+    {
+      field: 'status',
+      title: 'Status',
+      minWidth: 120,
+      type: 'html',
+      formatter: ({ cellValue, row }) => {
+        const trueList = ['completed', 'verified', 'export-ready']
+        if (trueList.includes(cellValue.toLowerCase())) {
+          return `<div class="container"><div class="circle yes"></div><div class="text">${cellValue}</div></div>`
+        }
+        const falseList = ['fail to export']
+        if (falseList.includes(cellValue.toLowerCase())) {
+          return `<div class="container"><div class="circle no"></div><div class="text">${cellValue}</div></div>`
+        }
+        return cellValue
+      }
+    },
     { field: 'remark', title: 'Remark' }
   ],
   bodyActions: [],
@@ -98,6 +101,25 @@ function handleRefresh() {
   reload()
   refresh()
 }
+
+async function getData() {
+  const rpcParams = {
+    p_start_date: formData.value.date[0],
+    p_end_date: formData.value.date[1],
+    p_distinct_flag: 2,
+    default_schema: true
+  }
+  const list = await newClientApi.postPostgrestRpcFunc('get_daily_export_summary', JSON.stringify(rpcParams))
+  const element: any = list.data[list.data.length - 1]
+  list.data.splice(list.data.length - 1, 1)
+  footerData.value[0].no_of_application = element.no_of_application
+  footerData.value[0].status = element.status
+  tableRef.value.loadData(list.data)
+}
+
+onMounted(async () => {
+  await getData()
+})
 </script>
 
 <template>
@@ -136,10 +158,10 @@ function handleRefresh() {
         <template #toolbar_buttons>
           <div class="toolbar-form-row">
             <el-select class="toolbar-select toolbar-select--type">
-              <el-option @change="query" />
+              <el-option @change="getData" />
             </el-select>
             <el-select class="toolbar-select toolbar-select--type">
-              <el-option @change="query" />
+              <el-option @change="getData" />
             </el-select>
             <el-date-picker
               class="toolbar-date"
@@ -152,7 +174,7 @@ function handleRefresh() {
               end-placeholder="End month"
               unlink-panels
               :clearable="false"
-              @change="query"
+              @change="getData"
             />
           </div>
         </template>
@@ -179,24 +201,28 @@ function handleRefresh() {
   width: 180px;
 }
 
-.container {
+:deep(.container) {
   display: flex;
   align-items: center;
 }
-.circle {
-  width: 2px; /* 圓的直徑 */
-  height: 2px; /* 圓的直徑 */
-  border-radius: 50%; /* 使其呈圓形 */
-  margin-right: 2px; /* 圓與文本之間的間距 */
+
+:deep(.circle) {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 10px;
 }
-.yes {
-  background-color: #1abc9c; /* Yes 的顏色 */
+
+:deep(.yes) {
+  background-color: #1abc9c;
 }
-.no {
-  background-color: #e74c3c; /* No 的顏色 */
+
+:deep(.no) {
+  background-color: #e74c3c;
 }
-.text {
-  font-size: 16px; /* 字體大小 */
-  color: #333; /* 字體顏色 */
+
+:deep(.text) {
+  font-size: 16px;
+  color: #333;
 }
 </style>
