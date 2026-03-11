@@ -4,6 +4,7 @@ import { useSingleWorkspaceContext } from '../../../composables/workspace/useSin
 import type { ElTree } from 'element-plus'
 import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
+import { useMagicKeys } from '@vueuse/core'
 
 interface Props {
   modelValue: TreeItem[]
@@ -41,7 +42,6 @@ function cloneTreeNode(node: TreeItem): TreeItem {
   return cloned
 }
 
-
 // 在树中查找节点所在父级与下标（父为 null 表示根）
 function findParentAndIndex(items: TreeItem[], nodeId: string, parent: TreeItem[] | null = null): { parentList: TreeItem[]; index: number } | null {
   for (let i = 0; i < items.length; i++) {
@@ -78,7 +78,12 @@ function getNextSiblingId(items: TreeItem[], nodeId: string): string | undefined
   return next?.id
 }
 
-async function handleNodeDrop(draggingNode: { data: TreeItem; key: string }, dropNode: { data: TreeItem; key: string }, dropType: 'inner' | 'prev' | 'next', event: Event) {
+async function handleNodeDrop(
+  draggingNode: { data: TreeItem; key: string },
+  dropNode: { data: TreeItem; key: string },
+  dropType: 'inner' | 'prev' | 'next',
+  event: Event
+) {
   console.log('handleNodeDrop', draggingNode, dropNode, dropType, event)
   return
   const moveId = draggingNode.data.id
@@ -109,6 +114,14 @@ async function handleNodeDrop(draggingNode: { data: TreeItem; key: string }, dro
 function allowDrop(_draggingNode: any, dropNode: any, _type: string) {
   return dropNode?.data?.item_type === 'folder'
 }
+const { f2 } = useMagicKeys()
+watchEffect(() => {
+  if (f2?.value) {
+    const currentNode = treeRef.value?.getCurrentNode()
+    if (!currentNode) return
+    menuContext.startEdit(currentNode?.id as string)
+  }
+})
 </script>
 
 <template>
