@@ -84,32 +84,7 @@ const canvasCursor = computed(() => {
   return 'grab'
 })
 
-// Calculate position for floating save/cancel buttons (relative to viewport)
-const floatingButtonPosition = computed(() => {
-  if (!isEditingCrop.value || !editingZone.value || !containerRef.value) {
-    return { display: 'none' }
-  }
 
-  const zone = editingZone.value
-  const scale = effectiveScale.value
-
-  // Calculate zone position in screen coordinates
-  const zoneCenterX = (zone.x + zone.width / 2) * scale
-  const zoneBottom = (zone.y + zone.height) * scale
-
-  // Position buttons at bottom of crop area with 20px offset
-  // Center horizontally relative to crop area
-  const buttonWidth = 140 // Approximate width of both buttons + gap
-  const buttonX = zoneCenterX - buttonWidth / 2
-  const buttonY = zoneBottom + 20 // 20px below the crop area
-
-  return {
-    position: 'absolute' as const,
-    left: `${Math.max(10, buttonX)}px`,
-    top: `${buttonY}px`,
-    zIndex: 100
-  }
-})
 
 // Current effective scale = base scale * zoom
 const effectiveScale = computed(() => {
@@ -178,7 +153,7 @@ function drawCanvas() {
   }
 }
 
-// Draw editing highlight box with resize handles
+// Draw editing highlight box with resize handles and buttons
 function drawEditingHighlightBox(
   ctx: CanvasRenderingContext2D,
   zone: { x: number; y: number; width: number; height: number },
@@ -222,6 +197,73 @@ function drawEditingHighlightBox(
   drawHandle(x, y + h)
   // Bottom-right
   drawHandle(x + w, y + h)
+
+  // Draw Save/Cancel buttons below the crop area
+  const buttonHeight = 28
+  const buttonPadding = 8
+  const gap = 8
+  const fontSize = 12
+  
+  // Button text
+  const saveText = 'Save'
+  const cancelText = 'Cancel'
+  
+  // Measure text width
+  ctx.font = `500 ${fontSize}px sans-serif`
+  const saveTextWidth = ctx.measureText(saveText).width
+  const cancelTextWidth = ctx.measureText(cancelText).width
+  
+  // Calculate button widths
+  const saveBtnWidth = saveTextWidth + buttonPadding * 2
+  const cancelBtnWidth = cancelTextWidth + buttonPadding * 2
+  const totalWidth = saveBtnWidth + gap + cancelBtnWidth
+  
+  // Position buttons centered below crop area with 20px offset
+  const startX = x + (w - totalWidth) / 2
+  const btnY = y + h + 20
+  
+  // Store button positions for click detection
+  canvasButtons.value = {
+    save: { x: startX, y: btnY, width: saveBtnWidth, height: buttonHeight },
+    cancel: { x: startX + saveBtnWidth + gap, y: btnY, width: cancelBtnWidth, height: buttonHeight }
+  }
+  
+  // Helper to draw button
+  const drawButton = (
+    bx: number, by: number, bwidth: number, bheight: number, 
+    text: string, bgColor: string, textColor: string
+  ) => {
+    // Button background with shadow
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.2)'
+    ctx.shadowBlur = 4
+    ctx.shadowOffsetX = 0
+    ctx.shadowOffsetY = 2
+    
+    // Button background
+    ctx.fillStyle = bgColor
+    ctx.beginPath()
+    ctx.roundRect(bx, by, bwidth, bheight, 4)
+    ctx.fill()
+    
+    // Reset shadow
+    ctx.shadowColor = 'transparent'
+    ctx.shadowBlur = 0
+    ctx.shadowOffsetX = 0
+    ctx.shadowOffsetY = 0
+    
+    // Button text
+    ctx.fillStyle = textColor
+    ctx.font = `500 ${fontSize}px sans-serif`
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(text, bx + bwidth / 2, by + bheight / 2 + 1)
+  }
+  
+  // Draw Save button (green)
+  drawButton(startX, btnY, saveBtnWidth, buttonHeight, saveText, '#67C23A', '#fff')
+  
+  // Draw Cancel button (gray)
+  drawButton(startX + saveBtnWidth + gap, btnY, cancelBtnWidth, buttonHeight, cancelText, '#909399', '#fff')
 }
 
 // Draw a single highlight box
@@ -298,6 +340,12 @@ const pendingHighlightPan = ref<{ zone: string; page: number } | null>(null)
 
 // Pan timeout for debouncing same-page highlight pans
 let highlightPanTimeout: ReturnType<typeof setTimeout> | null = null
+
+// Canvas button state for edit mode
+const canvasButtons = ref<{
+  save: { x: number; y: number; width: number; height: number } | null
+  cancel: { x: number; y: number; width: number; height: number } | null
+}>({ save: null, cancel: null })
 
 // Load image when preview URL changes
 watch(() => previewImgUrl.value, (url) => {
@@ -537,7 +585,10 @@ watch(() => highlightedSection.value, (newVal) => {
   console.log("highlight change", newVal)
   // Check if new section is editable
   const section = sectionsWithValues.value.find(
-    s => s.zone.page === newVal.page && s.zone.zone === newVal.zone
+    s => {
+      console.log("s" , s)
+      return s.zone.page === newVal.page && s.zone.zone === newVal.zone
+    }
   )
 
   if (section?.save_to_result === true && canEdit.value) {
@@ -763,6 +814,33 @@ function getResizeHandleAtPosition(mouseX: number, mouseY: number): string | nul
   return null
 }
 
+// Check if mouse is over a canvas button
+function getCanvasButtonAtPosition(mouseX: number, mouseY: number): 'save' | 'cancel' | null {
+  if (!isEditingCrop.value) return null
+  
+  // Check Save button
+  const saveBtn = canvasButtons.value.save
+  if (saveBtn && 
+      mouseX >= saveBtn.x && 
+      mouseX <= saveBtn.x + saveBtn.width &&
+      mouseY >= saveBtn.y && 
+      mouseY <= saveBtn.y + saveBtn.height) {
+    return 'save'
+  }
+  
+  // Check Cancel button
+  const cancelBtn = canvasButtons.value.cancel
+  if (cancelBtn && 
+      mouseX >= cancelBtn.x && 
+      mouseX <= cancelBtn.x + cancelBtn.width &&
+      mouseY >= cancelBtn.y && 
+      mouseY <= cancelBtn.y + cancelBtn.height) {
+    return 'cancel'
+  }
+  
+  return null
+}
+
 // Pan/drag functions
 function handleMouseDown(event: MouseEvent) {
   if (!containerRef.value || !canvasRef.value) return
@@ -774,6 +852,19 @@ function handleMouseDown(event: MouseEvent) {
   const rect = canvas.getBoundingClientRect()
   const mouseX = event.clientX - rect.left
   const mouseY = event.clientY - rect.top
+
+  // Check if clicking on a canvas button (Save/Cancel)
+  const button = getCanvasButtonAtPosition(mouseX, mouseY)
+  if (button) {
+    event.preventDefault()
+    event.stopPropagation()
+    if (button === 'save') {
+      saveCropEdit()
+    } else if (button === 'cancel') {
+      cancelCropEdit()
+    }
+    return
+  }
 
   // Check if clicking on a resize handle
   const handle = getResizeHandleAtPosition(mouseX, mouseY)
@@ -942,22 +1033,6 @@ function nextPage() {
         :style="{ cursor: canvasCursor }"
       />
       <ElEmpty v-else description="No preview available" />
-
-      <!-- Floating Save/Cancel Buttons (positioned at crop area) -->
-      <div
-        v-if="isEditingCrop && editingZone"
-        class="floatingCropButtons"
-        :style="floatingButtonPosition"
-      >
-        <ElButton type="success" size="small" @click="saveCropEdit">
-          <Icon name="lucide:check" />
-          Save
-        </ElButton>
-        <ElButton type="info" size="small" @click="cancelCropEdit">
-          <Icon name="lucide:x" />
-          Cancel
-        </ElButton>
-      </div>
     </div>
   </div>
 </template>
@@ -1125,22 +1200,5 @@ function nextPage() {
 
 .errorText {
   font-size: var(--app-font-size-l);
-}
-
-.floatingCropButtons {
-  position: absolute;
-  display: flex;
-  gap: var(--app-space-xs);
-  background: rgba(255, 255, 255, 0.95);
-  padding: var(--app-space-xs);
-  border-radius: var(--app-radius-m);
-  box-shadow: var(--app-shadow-l);
-  border: 1px solid var(--app-warning-color);
-  pointer-events: auto;
-
-  :deep(.el-button) {
-    padding: 6px 12px;
-    font-size: var(--app-font-size-s);
-  }
 }
 </style>
