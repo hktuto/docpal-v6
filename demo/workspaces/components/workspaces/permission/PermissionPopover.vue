@@ -3,18 +3,18 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 interface Props {
   itemId: string
   itemLabel: string
-  itemType: 'folder' | 'table' | 'view' | 'dashboard'
+  item_type: 'folder' | 'table' | 'view' | 'dashboard'
 }
 
 const props = defineProps<Props>()
 
 // Local state for when item data is passed directly via open()
-const localItem = ref<{ id: string; label: string; itemType: string } | null>(null)
+const localItem = ref<{ id: string; label: string; item_type: string } | null>(null)
 
 // Use local item data if available, otherwise fall back to props
 const effectiveItemId = computed(() => localItem.value?.id || props.itemId)
 const effectiveItemLabel = computed(() => localItem.value?.label || props.itemLabel)
-const effectiveItemType = computed(() => (localItem.value?.itemType || props.itemType) as 'folder' | 'table' | 'view' | 'dashboard')
+const effectiveItemType = computed(() => (localItem.value?.item_type || props.item_type) as 'folder' | 'table' | 'view' | 'dashboard')
 
 const emit = defineEmits<{
   close: []
@@ -70,7 +70,7 @@ async function open(target: HTMLElement, itemData?: TreeItem | null) {
     localItem.value = {
       id: itemData.id,
       label: itemData.label,
-      itemType: itemData.itemType
+      item_type: itemData.item_type
     }
   }
   

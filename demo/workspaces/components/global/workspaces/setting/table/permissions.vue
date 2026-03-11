@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from 'element-plus'
 const props = defineProps<{
-  menuItem?: { id: string; itemId?: string; label: string; itemType: string }
+  menuItem?: { id: string; itemId?: string; label: string; item_type: string }
 }>()
 
 const { getItemPermissions, grantPermission, revokePermission } = usePermission()

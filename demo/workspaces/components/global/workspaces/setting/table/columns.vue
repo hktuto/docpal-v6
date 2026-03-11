@@ -35,7 +35,7 @@ function getColumnTypeLabel(type: number) {
 
 async function initializeTable() {
   const treeItem = findItemById(menuState.value.items, workspaceRouteParams.value.detailId || '')
-  if (!treeItem || treeItem.itemType !== 'table' || !treeItem.itemId) return
+  if (!treeItem || treeItem.item_type !== 'table' || !treeItem.itemId) return
 
   try {
     await tableView.initializeTableView(treeItem.itemId)

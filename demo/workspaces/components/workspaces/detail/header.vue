@@ -126,8 +126,8 @@ function menuNodeToBreadcrumbItem(node: MenuDTO): BreadcrumbItem {
 }
 
 /** API item_type 映射为 WorkspaceRouteParams.detailType */
-function mapItemTypeToDetailType(itemType?: string): WorkspaceRouteParams['detailType'] {
-    switch (itemType) {
+function mapItemTypeToDetailType(item_type?: string): WorkspaceRouteParams['detailType'] {
+    switch (item_type) {
         case 'folder':
             return 'folder';
         case 'master_table':
@@ -233,16 +233,16 @@ watch(
                   :class="{ 'is-current': child.id === workspaceRouteParams.detailId }"
                 >
                   <div class="dropdown-item-content">
-                    <el-icon v-if="child.itemType === 'folder'" class="folder-icon">
+                    <el-icon v-if="child.item_type === 'folder'" class="folder-icon">
                       <Folder />
                     </el-icon>
-                    <el-icon v-else-if="child.itemType === 'table'" class="table-icon">
+                    <el-icon v-else-if="child.item_type === 'table'" class="table-icon">
                       <Grid />
                     </el-icon>
-                    <el-icon v-else-if="child.itemType === 'view'" class="view-icon">
+                    <el-icon v-else-if="child.item_type === 'view'" class="view-icon">
                       <Postcard />
                     </el-icon>
-                    <el-icon v-else-if="child.itemType === 'dashboard'" class="dashboard-icon">
+                    <el-icon v-else-if="child.item_type === 'dashboard'" class="dashboard-icon">
                       <DataAnalysis />
                     </el-icon>
                     <span class="dropdown-label">{{ child.name }}</span>

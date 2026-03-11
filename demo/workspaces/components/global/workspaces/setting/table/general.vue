@@ -16,7 +16,7 @@ const formData = ref({
 
 async function loadTableData() {
   const treeItem = findItemById(menuState.value.items, workspaceRouteParams.value.detailId || '')
-  if (!treeItem || treeItem.itemType !== 'table' || !treeItem.itemId) return
+  if (!treeItem || treeItem.item_type !== 'table' || !treeItem.itemId) return
 
   try {
     const tables = await query<CaseTableRecord[]>(

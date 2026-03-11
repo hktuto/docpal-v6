@@ -23,7 +23,7 @@ function getChildIcon(child: TreeItem) {
 
 // Handle drag over for folder cards
 function handleDragOver(event: DragEvent, child: TreeItem) {
-  if (child.itemType !== 'folder') return
+  if (child.item_type !== 'folder') return
 
   event.preventDefault()
   event.stopPropagation()
@@ -37,7 +37,7 @@ function handleDragOver(event: DragEvent, child: TreeItem) {
 
 // Handle drag leave for folder cards
 function handleDragLeave(event: DragEvent, child: TreeItem) {
-  if (child.itemType !== 'folder') return
+  if (child.item_type !== 'folder') return
 
   event.preventDefault()
   event.stopPropagation()
@@ -48,7 +48,7 @@ function handleDragLeave(event: DragEvent, child: TreeItem) {
 
 // Handle drop on folder cards
 async function handleDrop(event: DragEvent, child: TreeItem) {
-  if (child.itemType !== 'folder') return
+  if (child.item_type !== 'folder') return
 
   event.preventDefault()
   event.stopPropagation()
@@ -76,7 +76,7 @@ async function handleDrop(event: DragEvent, child: TreeItem) {
       :key="child.id"
       class="child-card"
       :class="{
-        'is-folder': child.itemType === 'folder',
+        'is-folder': child.item_type === 'folder',
         'is-drag-over': dragStates[child.id]
       }"
       @click="navigateToItem(child)"
@@ -87,7 +87,7 @@ async function handleDrop(event: DragEvent, child: TreeItem) {
     >
       <!-- Drop Overlay -->
       <Transition name="fade">
-        <div v-if="dragStates[child.id] && child.itemType === 'folder'" class="drop-overlay">
+        <div v-if="dragStates[child.id] && child.item_type === 'folder'" class="drop-overlay">
           <div class="drop-content">
             <Icon name="material-symbols:upload-file-outline" size="32" />
             <p>Drop Excel file to import tables</p>

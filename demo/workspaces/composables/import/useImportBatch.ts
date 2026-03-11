@@ -930,7 +930,7 @@ export function useImportBatch() {
 
     function collectFromItems(items: any[]) {
       for (const item of items) {
-        if (item.itemType === 'table') {
+        if (item.item_type === 'table') {
           const lowerName = item.label.toLowerCase()
           names.push(lowerName)
           if (item.slug) {
@@ -1312,7 +1312,7 @@ export function useImportBatch() {
           entityId,
           label: sheet.tableName,
           slug: sheet.slug,
-          itemType: 'table',
+          item_type: 'table',
           itemId: tableId,
           parentId: parentFolderId || null,
           order: 0
@@ -1333,7 +1333,7 @@ export function useImportBatch() {
         // Add to local menu state
         if (parentFolderId) {
           const parentFolder = findItemById(menuState.value.items, parentFolderId)
-          if (parentFolder && parentFolder.itemType === 'folder') {
+          if (parentFolder && parentFolder.item_type === 'folder') {
             if (!parentFolder.children) {
               parentFolder.children = []
             }

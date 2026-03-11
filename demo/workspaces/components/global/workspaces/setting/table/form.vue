@@ -33,7 +33,7 @@ const fieldInfoList = computed<FieldInfo[]>(() => {
 // Load table data and fields
 async function loadTableData() {
   const treeItem = findItemById(menuState.value.items, workspaceRouteParams.value.detailId || '')
-  if (!treeItem || treeItem.itemType !== 'table' || !treeItem.itemId) {
+  if (!treeItem || treeItem.item_type !== 'table' || !treeItem.itemId) {
     isLoading.value = false
     return
   }
