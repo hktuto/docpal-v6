@@ -173,16 +173,16 @@ async function detectFormForDocument(imageBlob: Blob): Promise<{ form: FormSetti
       }
     }
 
-    // STEP 2: If all form zones fail, try scanning the entire page
-    console.log('No QR found in form zones, trying full page scan...')
-    const fullPageResult = await readQRCode(imageUrl)
+    // STEP 2: If all form zones fail, try grid-based scanning
+    console.log('No QR found in form zones, trying grid scan...')
+    const gridResult = await scanImageGrid(img, 4, 0.5)  // 4x4 grid with 50% overlap
     
-    if (fullPageResult?.value) {
-      // Found QR code on full page, use first form as default
-      console.log('QR found on full page:', fullPageResult.value)
+    if (gridResult?.value) {
+      // Found QR code in grid scan, use first form as default
+      console.log('QR found in grid scan:', gridResult.value)
       return {
         form: projectForms.value[0],
-        applicationNumber: fullPageResult.value
+        applicationNumber: gridResult.value
       }
     }
 
@@ -226,6 +226,66 @@ async function cropImageToZone(
   
   ctx.drawImage(img, zone.x, zone.y, zone.width, zone.height, 0, 0, zone.width, zone.height)
   return canvas.toDataURL('image/png')
+}
+
+// Scan image using grid-based approach
+// gridSize: number of rows/cols (e.g., 4 = 4x4 grid = 16 regions)
+// overlapRatio: 0.5 = 50% overlap between grid cells
+async function scanImageGrid(
+  img: HTMLImageElement,
+  gridSize: number = 4,
+  overlapRatio: number = 0.5
+): Promise<{ value: string } | null> {
+  const width = img.width
+  const height = img.height
+  
+  // Calculate base cell size
+  const baseCellWidth = width / gridSize
+  const baseCellHeight = height / gridSize
+  
+  // Calculate overlap size
+  const overlapX = baseCellWidth * overlapRatio
+  const overlapY = baseCellHeight * overlapRatio
+  
+  // Calculate actual cell size with overlap
+  const cellWidth = baseCellWidth + overlapX
+  const cellHeight = baseCellHeight + overlapY
+  
+  console.log(`Grid scan: ${gridSize}x${gridSize} grid, cell size: ${cellWidth.toFixed(0)}x${cellHeight.toFixed(0)}`)
+  
+  // Scan each grid cell
+  for (let row = 0; row < gridSize; row++) {
+    for (let col = 0; col < gridSize; col++) {
+      // Calculate cell position with overlap
+      // Start position accounts for overlap to ensure coverage
+      const x = Math.max(0, col * baseCellWidth - overlapX / 2)
+      const y = Math.max(0, row * baseCellHeight - overlapY / 2)
+      
+      // Adjust width/height for edge cells
+      const w = Math.min(cellWidth, width - x)
+      const h = Math.min(cellHeight, height - y)
+      
+      console.log(`Scanning grid cell [${row},${col}]: x=${x.toFixed(0)}, y=${y.toFixed(0)}, w=${w.toFixed(0)}, h=${h.toFixed(0)}`)
+      
+      try {
+        // Crop to grid cell
+        const cellImageUrl = await cropImageToZone(img, { x, y, width: w, height: h })
+        
+        // Try to read QR code from this cell
+        const result = await readQRCode(cellImageUrl)
+        
+        if (result?.value) {
+          console.log(`QR found in grid cell [${row},${col}]:`, result.value)
+          return { value: result.value }
+        }
+      } catch (error) {
+        console.warn(`Error scanning grid cell [${row},${col}]:`, error)
+      }
+    }
+  }
+  
+  console.log('No QR found in any grid cell')
+  return null
 }
 
 // Load image from URL
