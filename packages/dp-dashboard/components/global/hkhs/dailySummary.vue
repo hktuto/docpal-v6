@@ -29,6 +29,7 @@ const formData = ref({
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'HKHS-DailySummary',
   virtualScroll: true,
+  api: () => getData(),
   columns: [
     { field: 'datetime', title: 'Date Time', fixed: 'left' },
     { field: 'batch_no', title: 'Batch No.' },
@@ -57,12 +58,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     { field: 'remark', title: 'Remark' }
   ],
   bodyActions: [],
-  dblClickAction: ({ row, column, event }: any) => {},
-  optionalConfig: {
-    //   pagerConfig: {
-    //     enabled: false
-    //   }
-  }
+  dblClickAction: ({ row, column, event }: any) => {}
 })
 
 const footerData = ref([
@@ -108,17 +104,14 @@ async function getData() {
     p_distinct_flag: 2,
     default_schema: true
   }
-  const list = await newClientApi.postPostgrestRpcFunc('get_daily_export_summary', JSON.stringify(rpcParams))
-  const element: any = list.data[list.data.length - 1]
-  list.data.splice(list.data.length - 1, 1)
+  const data = await newClientApi.postPostgrestRpcFunc('get_daily_export_summary', JSON.stringify(rpcParams)).then((r) => r.data)
+  const element: any = data[data.length - 1]
+  data.splice(data.length - 1, 1)
   footerData.value[0].no_of_application = element.no_of_application
   footerData.value[0].status = element.status
-  tableRef.value.loadData(list.data)
+  tableRef.value.loadData(data)
+  return data
 }
-
-onMounted(async () => {
-  await getData()
-})
 </script>
 
 <template>

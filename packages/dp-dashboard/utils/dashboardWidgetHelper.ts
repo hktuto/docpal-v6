@@ -80,7 +80,19 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     setting: {
     }
   },
-  HkhsApplicationFormsPassLog:{},
+  HkhsApplicationFormsPassLog:{
+    type: DASHBOARD_TYPE.hkhs,
+    label: 'HkhsApplicationFormsPassLog',
+    minW: 8,
+    minH: 6,
+    maxW: 12,
+    maxH: 8,
+    w: 8,
+    h: 6,
+    component: 'LazyHkhsApplicationFormsPassLog',
+    setting: {
+    }
+  },
   HkhsApplicationsVerified:{
     type: DASHBOARD_TYPE.hkhs,
     label: 'HkhsApplicationsVerified',

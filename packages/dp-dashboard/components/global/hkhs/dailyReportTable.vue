@@ -27,6 +27,7 @@ const formData = ref({
 
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'HKHS-DailyReportTable',
+  api: () => getData(),
   virtualScroll: true,
   columns: [
     {
@@ -47,12 +48,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     { field: 'cancelled', title: '(8)Cancelled' }
   ],
   bodyActions: [],
-  dblClickAction: ({ row, column, event }: any) => {},
-  optionalConfig: {
-    //   pagerConfig: {
-    //     enabled: false
-    //   }
-  }
+  dblClickAction: ({ row, column, event }: any) => {}
 })
 
 const footerData = ref([
@@ -131,14 +127,11 @@ async function getData() {
     p_distinct_flag: formData.value.includeDuplicate,
     default_schema: true //默认值必须传
   }
-  let list = await newClientApi.postPostgrestRpcFunc('get_doc_processing_daily_report', JSON.stringify(rpcParams))
-  handleTotal(list.data)
-  tableRef.value.loadData(list.data)
+  let data = await newClientApi.postPostgrestRpcFunc('get_doc_processing_daily_report', JSON.stringify(rpcParams)).then((r) => r.data)
+  handleTotal(data)
+  tableRef.value.loadData(data)
+  return data
 }
-
-onMounted(async () => {
-  await getData()
-})
 </script>
 
 <template>
