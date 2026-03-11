@@ -99,6 +99,8 @@ export type SectionWithValues = {
   rows?: { currentValue: any; originalValue: any; fields: FieldWithValue[] }[]
 }
 
+// Type for editable sections (save_to_result = true)
+
 export type BatchDetailContext = {
   currentBatchId: Ref<string>
   detailLoading: Ref<boolean>
@@ -124,6 +126,7 @@ export type BatchDetailContext = {
   saveDraft: () => Promise<void>
   confirm: () => Promise<void>
   reload: () => Promise<void>
+  updateSectionZone: (sectionId: string, newZone: ZoneObject) => Promise<void>
 }
 
 export const useBatchDetail = (batchId: string) => {
@@ -596,6 +599,48 @@ export const useBatchDetail = (batchId: string) => {
     }
   }
 
+  /**
+   * Update section zone (crop area) in the form setting
+   */
+  async function updateSectionZone(sectionId: string, newZone: ZoneObject) {
+    if (!selectedDocDetail.value?.setting) return
+
+    const formId = batchDetail.value?.formId
+    if (!formId) {
+      console.error('No formId available')
+      return
+    }
+
+    // Find the section in the current settings
+    const settings = selectedDocDetail.value.setting.fieldsSetting
+    const sectionIndex = settings.section?.findIndex((s: any) => s.section_id === sectionId)
+    
+    if (sectionIndex === -1) {
+      console.error('Section not found:', sectionId)
+      return
+    }
+
+    // Update local state first (optimistic update)
+    settings.section[sectionIndex].zone = newZone
+
+    // Prepare the updated fieldsSetting
+    const updatedFieldsSetting = JSON.stringify(settings)
+
+    try {
+      // Call API to update form setting
+      await clientApi.api.putCaptureProjformsettingId(formId, {
+        ...selectedDocDetail.value.setting,
+        fieldsSetting: updatedFieldsSetting
+      })
+      
+      console.log('Section zone updated successfully')
+    } catch (error) {
+      console.error('Failed to update section zone:', error)
+      // Could revert local state here if needed
+      throw error
+    }
+  }
+
   const context: BatchDetailContext = {
     currentBatchId,
     detailLoading,
@@ -620,7 +665,8 @@ export const useBatchDetail = (batchId: string) => {
     addTableRow,
     saveDraft,
     confirm,
-    reload: getBatchDetail
+    reload: getBatchDetail,
+    updateSectionZone
   }
 
   provide('batchDetailProvider', context)

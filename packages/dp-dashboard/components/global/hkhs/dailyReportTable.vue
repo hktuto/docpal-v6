@@ -21,6 +21,7 @@ const showDeleteIcon = computed(() => {
   return appPlatform.value === 'admin'
 })
 const formData = ref({
+  project: '',
   date: [dayjs().subtract(30, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')],
   includeDuplicate: 2
 })
@@ -120,6 +121,7 @@ const IncludeDuplicateOption = ref([
   { label: 'No', value: 1 }
 ])
 
+const dataList = ref([])
 async function getData() {
   const rpcParams = {
     p_start_date: formData.value.date[0],
@@ -129,9 +131,51 @@ async function getData() {
   }
   let data = await newClientApi.postPostgrestRpcFunc('get_doc_processing_daily_report', JSON.stringify(rpcParams)).then((r) => r.data)
   handleTotal(data)
-  tableRef.value.loadData(data)
+
+  dataList.value = data
   return data
 }
+
+const columnsRef = ref([
+  { field: 'transaction_date', title: 'Transaction Date' },
+  { field: 'uploaded', title: '(1)Uploaded' },
+  { field: 'failed_to_process', title: '(2)Failed to Process' },
+  { field: 'processed', title: '(3)Processed' },
+  { field: 'verified', title: '(4)Verified' },
+  { field: 'failed_to_export', title: '(5)Failed to Export' },
+  { field: 'exported', title: '(6)Exported' },
+  { field: 'complete', title: '(7)Complete' },
+  { field: 'cancelled', title: '(8)Cancelled' }
+])
+const orderBy = ref(true)
+const sortingField = ref(columnsRef.value[0].field)
+const sortingName = computed(() => {
+  let find = columnsRef.value.find((item: any) => item.field === sortingField.value)
+  return find ? find.title : columnsRef.value[0].title
+})
+
+function HandleSorting(command: string) {
+  sortingField.value = command
+  const sort = dataList.value.sort((a, b) => {
+    if (orderBy.value) {
+      return b[sortingField.value].localeCompare(a[sortingField.value], undefined, { sensitivity: 'base' })
+    } else {
+      return a[sortingField.value].localeCompare(b[sortingField.value], undefined, { sensitivity: 'base' })
+    }
+  })
+  tableRef.value.loadData(sort)
+}
+
+function handleOrderBy() {
+  orderBy.value = !orderBy.value
+  HandleSorting(sortingField.value)
+}
+
+const projectList = ref([])
+
+onMounted(async () => {
+  projectList.value = await newClientApi.postCaptureProjPage({}).then((r) => r.data)
+})
 </script>
 
 <template>
@@ -168,27 +212,44 @@ async function getData() {
     <div class="pageContainer--padding">
       <VxeGrid show-footer ref="tableRef" v-bind="tableConfig" v-on="tableEvent" :footer-data="footerData">
         <template #toolbar_buttons>
-          <div class="toolbar-form-row">
-            <el-select class="toolbar-select toolbar-select--type">
-              <el-option @change="query" />
-            </el-select>
-            <el-date-picker
-              class="toolbar-date"
-              v-model="formData.date"
-              type="daterange"
-              format="YYYY-MM-DD"
-              value-format="YYYY-MM-DD"
-              range-separator="~"
-              start-placeholder="Start month"
-              end-placeholder="End month"
-              unlink-panels
-              :clearable="false"
-              @change="query"
-            />
-            Include Duplicate:
-            <el-select class="toolbar-select toolbar-select--duplicate" v-model="formData.includeDuplicate">
-              <el-option v-for="(item, index) in IncludeDuplicateOption" :label="item.label" :value="item.value" @change="query" />
-            </el-select>
+          <div class="toolbar-wrap">
+            <div class="toolbar-form-row">
+              <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" @change="query">
+                <el-option v-for="(item, index) in projectList" :label="item.name" :value="item.id" />
+              </el-select>
+              <el-date-picker
+                class="toolbar-date"
+                v-model="formData.date"
+                type="daterange"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+                range-separator="~"
+                start-placeholder="Start month"
+                end-placeholder="End month"
+                unlink-panels
+                :clearable="false"
+                @change="query"
+              />
+              Include Duplicate:
+              <el-select class="toolbar-select toolbar-select--duplicate" v-model="formData.includeDuplicate" @change="query">
+                <el-option v-for="(item, index) in IncludeDuplicateOption" :label="item.label" :value="item.value" />
+              </el-select>
+            </div>
+
+            <div class="toolbar-sorting-wrap">
+              <el-dropdown trigger="click" @command="HandleSorting">
+                <el-button text>
+                  {{ sortingName }} &nbsp;
+                  <el-icon><ArrowDownBold /></el-icon>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item v-for="(item, index) in columnsRef" :command="item.field">{{ item.title }}</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+              <Icon :name="orderBy ? 'mdi:sort-descending' : 'mdi:sort-ascending'" style="background-color: #1abc9c" @click="handleOrderBy" />
+            </div>
           </div>
         </template>
       </VxeGrid>
@@ -202,12 +263,24 @@ async function getData() {
   line-height: 35px;
 }
 
+.toolbar-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
 .toolbar-form-row {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
   gap: 12px;
+}
+
+.toolbar-sorting-wrap {
+  display: flex;
+  align-items: center;
 }
 
 .toolbar-select {

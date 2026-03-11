@@ -46,6 +46,8 @@ function getZoneString(zoneData: any): string | null {
 // Handle mouse enter for section - highlight persists until another is hovered
 function handleSectionMouseEnter() {
   selectSection(props.section)
+  // Clear field highlight when selecting a new section
+  selectField(null)
 }
 
 // Handle field mouse enter - highlight persists until another is hovered
@@ -95,7 +97,7 @@ function getInputType(fieldType: string): string {
       <ElTag v-if="section.zone?.page" size="small" type="info">
         Page {{ section.zone.page }}
       </ElTag>
-      
+
       <!-- Add row button for table sections - only show when not readonly -->
       <ElButton
         v-if="section.section_type === 'table' && !readonly"
@@ -108,16 +110,15 @@ function getInputType(fieldType: string): string {
         <Icon name="lucide:plus" />
       </ElButton>
     </div>
-    
+
     <!-- Standard Section -->
     <div v-if="section.section_type !== 'table'" class="fieldsList">
       <div
         v-for="field in section.fields"
         :key="field.key"
         class="fieldItem"
-        :class="{ 
-          highlighted: isFieldHighlighted(field),
-          modified: isFieldModified(field)
+        :class="{
+          highlighted: isFieldHighlighted(field)
         }"
         @mouseenter="handleFieldMouseEnter(field)"
       >
@@ -127,13 +128,13 @@ function getInputType(fieldType: string): string {
             *
           </ElTag>
         </div>
-        
+
         <!-- Select field with options -->
         <ElSelect
           v-if="field.options && field.options.length > 0"
           :model-value="field.currentValue"
           size="small"
-          class="fieldInput"
+          :class="{fieldInput: true, edited: isFieldModified(field)}"
           :placeholder="`Select ${field.lable || field.label}`"
           :disabled="readonly"
           @update:model-value="(val) => handleFieldChange(field, val)"
@@ -145,19 +146,19 @@ function getInputType(fieldType: string): string {
             :value="opt.value"
           />
         </ElSelect>
-        
+
         <!-- Regular text input -->
         <ElInput
           v-else
           :model-value="field.currentValue"
           size="small"
-          class="fieldInput"
+          :class="{fieldInput: true, edited: isFieldModified(field)}"
           :type="getInputType(field.type)"
           :placeholder="field.lable || field.label"
           :disabled="readonly"
           @update:model-value="(val) => handleFieldChange(field, val)"
         />
-        
+
         <!-- Original OCR value display -->
         <div v-if="isFieldModified(field)" class="originalValue">
           <Icon name="lucide:history" class="originalIcon" />
@@ -165,13 +166,13 @@ function getInputType(fieldType: string): string {
         </div>
       </div>
     </div>
-    
+
     <!-- Table Section -->
     <div v-else class="tableSection">
       <div v-if="!section.rows || section.rows.length === 0" class="emptyTable">
         <ElEmpty :description="readonly ? 'No data rows.' : 'No data rows. Click + to add.'" :image-size="60" />
       </div>
-      
+
       <div
         v-for="(row, rowIndex) in section.rows"
         :key="rowIndex"
@@ -181,7 +182,7 @@ function getInputType(fieldType: string): string {
           <Icon name="lucide:rows-3" class="rowIcon" />
           <span>Row {{ rowIndex + 1 }}</span>
         </div>
-        
+
         <div class="rowFields">
           <div
             v-for="field in row.fields"
@@ -196,7 +197,7 @@ function getInputType(fieldType: string): string {
                 *
               </ElTag>
             </div>
-            
+
             <ElSelect
               v-if="field.options && field.options.length > 0"
               :model-value="field.currentValue"
@@ -212,7 +213,7 @@ function getInputType(fieldType: string): string {
                 :value="opt.value"
               />
             </ElSelect>
-            
+
             <ElInput
               v-else
               :model-value="field.currentValue"
@@ -222,7 +223,7 @@ function getInputType(fieldType: string): string {
               :disabled="readonly"
               @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
             />
-            
+
             <!-- Original OCR value display -->
             <div v-if="field.currentValue !== field.originalValue" class="originalValue">
               <Icon name="lucide:history" class="originalIcon" />
@@ -244,13 +245,13 @@ function getInputType(fieldType: string): string {
   background-color: var(--app-bg-color);
   transition: all 0.2s ease;
   flex-shrink: 0;
-  
+
   &:hover,
   &.highlighted {
     border-color: var(--app-primary-color);
     box-shadow: 0 0 0 1px var(--app-primary-color-light);
   }
-  
+
   &:focus-within {
     outline: 2px solid var(--app-primary-color);
     outline-offset: 2px;
@@ -266,7 +267,7 @@ function getInputType(fieldType: string): string {
   border-bottom: 1px solid var(--app-border-color);
   font-weight: 600;
   font-size: var(--app-font-size-m);
-  
+
   .sectionContainer:hover &,
   .sectionContainer.highlighted & {
     background-color: var(--app-primary-color-light);
@@ -300,16 +301,22 @@ function getInputType(fieldType: string): string {
   padding: var(--app-space-xs);
   border-radius: var(--app-radius-s);
   transition: all 0.15s ease;
-  
+  position: relative;
   &:hover,
   &.highlighted {
     background-color: var(--app-primary-color-light);
+    &:before{
+      content: '';
+      position: absolute;
+      left: -3px;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      background: var(--app-warning-color);
+    }
+    /* padding-left: calc(var(--app-space-xs) - 3px); */
   }
-  
-  &.modified {
-    border-left: 3px solid var(--app-warning-color);
-    padding-left: calc(var(--app-space-xs) - 3px);
-  }
+
 }
 
 .fieldLabel {
@@ -330,6 +337,11 @@ function getInputType(fieldType: string): string {
 
 .fieldInput {
   width: 100%;
+  &.edited{
+    :deep(.el-input__wrapper), :deep(.el-select__wrapper){
+      border: 1px solid var(--app-primary-color);
+    }
+  }
 }
 
 .originalValue {
@@ -341,11 +353,11 @@ function getInputType(fieldType: string): string {
   padding: var(--app-space-xs);
   background-color: var(--app-bg-color-secondary);
   border-radius: var(--app-radius-s);
-  
+
   .originalIcon {
     font-size: 12px;
   }
-  
+
   .originalText {
     text-decoration: line-through;
     opacity: 0.7;
@@ -366,7 +378,7 @@ function getInputType(fieldType: string): string {
   border-radius: var(--app-radius-s);
   margin-bottom: var(--app-space-s);
   overflow: hidden;
-  
+
   &:last-child {
     margin-bottom: 0;
   }

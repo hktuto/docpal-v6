@@ -23,6 +23,7 @@ const { cardRef, settingRef, refresh, loading } = useDashboardCard({
 })
 
 const formData = ref({
+  project: '',
   date: dayjs().format('YYYY-MM-DD')
 })
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
@@ -88,6 +89,8 @@ function handleRefresh() {
   refresh()
 }
 
+const dataList = ref([])
+
 async function getData() {
   const rpcParams = {
     p_start_date: formData.value.date,
@@ -103,7 +106,7 @@ async function getData() {
   data.forEach((item: any) => {
     item.compare = handleCompare(item.before, item.after)
   })
-  tableRef.value.loadData(data)
+  dataList.value = data
   return data
 }
 
@@ -127,20 +130,35 @@ const columnsRef = ref([
   { field: 'verified_by', title: 'Verified By' },
   { field: 'completed_on', title: 'Completed on' }
 ])
-
-const sortingField = ref('')
+const orderBy = ref(true)
+const sortingField = ref(columnsRef.value[0].field)
 const sortingName = computed(() => {
-  if (sortingField.value === '') {
-    sortingField.value = columnsRef.value[0].field
-  }
   let find = columnsRef.value.find((item: any) => item.field === sortingField.value)
   return find ? find.title : columnsRef.value[0].title
 })
 
 function HandleSorting(command: string) {
   sortingField.value = command
+  const sort = dataList.value.sort((a, b) => {
+    if (orderBy.value) {
+      return b[sortingField.value].localeCompare(a[sortingField.value], undefined, { sensitivity: 'base' })
+    } else {
+      return a[sortingField.value].localeCompare(b[sortingField.value], undefined, { sensitivity: 'base' })
+    }
+  })
+  tableRef.value.loadData(sort)
 }
 
+function handleOrderBy() {
+  orderBy.value = !orderBy.value
+  HandleSorting(sortingField.value)
+}
+
+const projectList = ref([])
+
+onMounted(async () => {
+  projectList.value = await newClientApi.postCaptureProjPage({}).then((r) => r.data)
+})
 </script>
 
 <template>
@@ -179,11 +197,11 @@ function HandleSorting(command: string) {
         <template #toolbar_buttons>
           <div class="toolbar-wrap">
             <div class="toolbar-form-row">
-              <el-select class="toolbar-select toolbar-select--type">
-                <el-option @change="getData" />
+              <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" @change="query">
+                <el-option v-for="(item, index) in projectList" :label="item.name" :value="item.id" />
               </el-select>
               <el-select class="toolbar-select toolbar-select--type">
-                <el-option @change="getData" />
+                <el-option @change="query" />
               </el-select>
               <el-date-picker
                 class="toolbar-date"
@@ -193,14 +211,15 @@ function HandleSorting(command: string) {
                 value-format="YYYY-MM-DD"
                 placeholder="Pick a day"
                 :clearable="false"
-                @change="getData"
+                @change="query"
               />
             </div>
 
             <div class="toolbar-sorting-wrap">
               <el-dropdown trigger="click" @command="HandleSorting">
                 <el-button text>
-                  {{ sortingName }} &nbsp;<el-icon><ArrowDownBold /></el-icon>
+                  {{ sortingName }} &nbsp;
+                  <el-icon><ArrowDownBold /></el-icon>
                 </el-button>
                 <template #dropdown>
                   <el-dropdown-menu>
@@ -208,6 +227,7 @@ function HandleSorting(command: string) {
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
+              <Icon :name="orderBy ? 'mdi:sort-descending' : 'mdi:sort-ascending'" style="background-color: #1abc9c" @click="handleOrderBy" />
             </div>
           </div>
         </template>
