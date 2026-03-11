@@ -145,7 +145,7 @@ async function detectFormForDocument(imageBlob: Blob): Promise<{ form: FormSetti
     // Load image to get dimensions
     const img = await loadImage(imageUrl)
     
-    // Try each form that has QR code configuration
+    // STEP 1: Try each form's configured QR code zones
     for (const form of projectForms.value) {
       const qrFields = form.fieldsSetting?.qrcode || []
 
@@ -163,7 +163,8 @@ async function detectFormForDocument(imageBlob: Blob): Promise<{ form: FormSetti
         const qrResult = await readQRCode(croppedImageUrl)
         
         if (qrResult?.value) {
-          // Found a valid QR code, this is the matching form
+          // Found a valid QR code in configured zone
+          console.log('QR found in form zone:', form.name, qrResult.value)
           return {
             form,
             applicationNumber: qrResult.value
@@ -172,7 +173,21 @@ async function detectFormForDocument(imageBlob: Blob): Promise<{ form: FormSetti
       }
     }
 
-    // If no QR code found in any form, return first form as default (no application number)
+    // STEP 2: If all form zones fail, try scanning the entire page
+    console.log('No QR found in form zones, trying full page scan...')
+    const fullPageResult = await readQRCode(imageUrl)
+    
+    if (fullPageResult?.value) {
+      // Found QR code on full page, use first form as default
+      console.log('QR found on full page:', fullPageResult.value)
+      return {
+        form: projectForms.value[0],
+        applicationNumber: fullPageResult.value
+      }
+    }
+
+    // STEP 3: No QR code found anywhere, return first form with empty application number
+    console.log('No QR found anywhere')
     return {
       form: projectForms.value[0],
       applicationNumber: ''
