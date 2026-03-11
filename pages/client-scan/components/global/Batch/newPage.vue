@@ -418,8 +418,7 @@ async function confirmBatch() {
       applicantStart: fromApplicationNumber.value !== '-' ? fromApplicationNumber.value : '',
       applicantEnd: toApplicationNumber.value !== '-' ? toApplicationNumber.value : '',
       documents: uploadedFiles.value.map(f => ({
-        tempFilePath: f.filePath,
-        formId: f.detectedFormId  // Include detected form ID
+        tempFilePath: f.filePath  // filePath already includes filename
       }))
     }
 
