@@ -99,6 +99,8 @@ export type SectionWithValues = {
   rows?: { currentValue: any; originalValue: any; fields: FieldWithValue[] }[]
 }
 
+// Type for editable sections (save_to_result = true)
+
 export type BatchDetailContext = {
   currentBatchId: Ref<string>
   detailLoading: Ref<boolean>

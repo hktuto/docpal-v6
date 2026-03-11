@@ -518,7 +518,7 @@ function fitToScreen() {
 
 // ==================== CROP EDITING FUNCTIONS ====================
 
-// Check if highlighted section is editable (corp_to_scan = true)
+// Check if highlighted section is editable (save_to_result = true)
 const canEditCrop = computed(() => {
   if (!canEdit.value || !highlightedSection.value) return false
   
@@ -527,7 +527,7 @@ const canEditCrop = computed(() => {
          s.zone.zone === highlightedSection.value?.zone
   )
   
-  return section?.corp_to_scan === true
+  return section?.save_to_result === true
 })
 
 // Auto-enter edit mode when editable section is highlighted
@@ -543,7 +543,7 @@ watch(() => highlightedSection.value, (newVal) => {
     s => s.zone.page === newVal.page && s.zone.zone === newVal.zone
   )
   
-  if (section?.corp_to_scan === true && canEdit.value) {
+  if (section?.save_to_result === true && canEdit.value) {
     // Auto-enter edit mode for this section
     nextTick(() => {
       startCropEditForSection(section)
