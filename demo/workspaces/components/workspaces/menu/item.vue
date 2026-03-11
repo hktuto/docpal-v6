@@ -147,8 +147,6 @@ async function onFolderDrop(event: DragEvent) {
       <div v-if="isAdmin && !isEditing" class="item-actions" :class="{ visible: isHovered }">
         <Icon name="material-symbols:more-vert" size="16" @click="handleActionsClick" />
       </div>
-      <!-- Expand/Collapse Icon (folders only) -->
-      <div v-if="item.item_type === 'folder'" class="expand-icon" @click.stop="handleToggle"></div>
     </div>
   </div>
 </template>
@@ -169,10 +167,6 @@ async function onFolderDrop(event: DragEvent) {
   border-radius: var(--app-border-radius-s);
   cursor: pointer;
   transition: background-color 0.2s ease;
-
-  &:hover {
-    background: var(--el-fill-color-light);
-  }
 }
 
 .drag-handle {
@@ -194,20 +188,6 @@ async function onFolderDrop(event: DragEvent) {
 
   &:active {
     cursor: grabbing;
-  }
-}
-
-.expand-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--app-font-size-m);
-  color: var(--app-text-color-secondary);
-  cursor: pointer;
-  transition: transform 0.2s ease;
-
-  &:hover {
-    color: var(--app-text-color-primary);
   }
 }
 

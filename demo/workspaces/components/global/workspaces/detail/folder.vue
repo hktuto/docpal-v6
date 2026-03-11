@@ -18,17 +18,32 @@ onMounted(() => {
 
 function handleLabelSave(newLabel: string) {
   if (currentFolder.value) {
-    currentFolder.value.label = newLabel
-    // recursiveUpdateItem(menuState.value.items, workspaceRouteParams.value.detailId as string, currentFolder.value)
-    saveMenuItemToDb(currentFolder.value)
+    try {
+      const params = {
+        name: newLabel,
+        id: currentFolder.value.id
+      }
+      // recursiveUpdateItem(menuState.value.items, workspaceRouteParams.value.detailId as string, currentFolder.value)
+      saveMenuItemToDb(params)
+      currentFolder.value.name = newLabel
+    } catch (error) {
+      console.error('Error saving label:', error)
+    }
   }
 }
 
 function handleDescriptionSave(newDescription: string) {
   if (currentFolder.value) {
-    currentFolder.value.description = newDescription
-    // recursiveUpdateItem(menuState.value.items, workspaceRouteParams.value.detailId as string, currentFolder.value)
-    saveMenuItemToDb(currentFolder.value)
+    try {
+      const params = {
+        description: newDescription,
+        id: currentFolder.value.id
+      }
+      saveMenuItemToDb(params)
+      currentFolder.value.description = newDescription
+    } catch (error) {
+      console.error('Error saving description:', error)
+    }
   }
 }
 

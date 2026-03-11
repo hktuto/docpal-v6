@@ -121,6 +121,7 @@ function allowDrop(_draggingNode: any, dropNode: any, _type: string) {
     :draggable="isAdmin"
     :allow-drop="allowDrop"
     :allow-drag="isAdmin"
+    highlight-current
     :expand-on-click-node="false"
     class="menu-tree"
     :class="{ [`level-${level}`]: true }"
