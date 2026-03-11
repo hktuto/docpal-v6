@@ -8,8 +8,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const { menuState, startEdit, saveEdit, cancelEdit, navigateToItem, openMenuItemActions, workspaceRouteParams, getMenuIcon } =
-  useSingleWorkspaceContext()
+const { menuState, startEdit, saveEdit, cancelEdit, navigateToItem, openMenuItemActions, workspaceRouteParams, getMenuIcon } = useSingleWorkspaceContext()
 
 const isHovered = ref(false)
 const isDragOver = ref(false)
@@ -22,12 +21,6 @@ const isSelected = computed(() => workspaceRouteParams.value.detailId === props.
 
 // Check if this item is being edited
 const isEditing = computed(() => menuState.value.editingItemId === props.item.id)
-
-// Check if this folder is expanded
-const isExpanded = computed(() => {
-  if (props.item.itemType !== 'folder') return false
-  return menuState.value.expandedFolders.has(props.item.id)
-})
 
 // Handle item click - navigate to the item
 function handleItemClick() {
@@ -47,7 +40,7 @@ function handleActionsClick(event: MouseEvent) {
 
 // Handle save from label editor
 async function handleSaveEdit(newLabel: string) {
-  console.log('handleSaveEdit', JSON.stringify(props.item),props.item.id, newLabel)
+  console.log('handleSaveEdit', JSON.stringify(props.item), props.item.id, newLabel)
   const success = await saveEdit(props.item.id, newLabel)
   if (success) {
     props.item.name = newLabel
@@ -68,7 +61,7 @@ function handleCancelEdit() {
 
 // Folder drop handlers
 function onFolderDragOver(event: DragEvent) {
-  if (props.item.itemType !== 'folder' || !props.isAdmin) return
+  if (props.item.item_type !== 'folder' || !props.isAdmin) return
   // console.log('onFolderDragOver', event)
   event.preventDefault()
   event.stopPropagation()
@@ -99,7 +92,7 @@ async function onFolderDrop(event: DragEvent) {
   event.stopPropagation()
   isDragOver.value = false
 
-  if (props.item.itemType !== 'folder' || !props.isAdmin) return
+  if (props.item.item_type !== 'folder' || !props.isAdmin) return
 
   const files = event.dataTransfer?.files
   if (!files || files.length === 0) return
@@ -116,8 +109,7 @@ async function onFolderDrop(event: DragEvent) {
   <div
     class="menu-item"
     :class="{
-      'is-folder': item.itemType === 'folder',
-      'is-expanded': isExpanded,
+      'is-folder': item.item_type === 'folder',
       'is-selected': isSelected,
       'is-drag-over': isDragOver
     }"
@@ -151,17 +143,12 @@ async function onFolderDrop(event: DragEvent) {
           @cancel="handleCancelEdit"
         />
       </div>
-
       <!-- Actions Menu (shown on hover) -->
       <div v-if="isAdmin" class="item-actions" :class="{ visible: isHovered }">
-        <el-button text circle size="small" @click="handleActionsClick">
-          <Icon name="material-symbols:more-horiz" size="16" />
-        </el-button>
+        <Icon name="material-symbols:more-vert" size="16" @click="handleActionsClick" />
       </div>
       <!-- Expand/Collapse Icon (folders only) -->
-      <div v-if="item.itemType === 'folder'" class="expand-icon" @click.stop="handleToggle">
-        <Icon :name="isExpanded ? 'material-symbols:expand-more' : 'material-symbols:chevron-right'" size="18" />
-      </div>
+      <div v-if="item.item_type === 'folder'" class="expand-icon" @click.stop="handleToggle"></div>
     </div>
   </div>
 </template>
@@ -170,6 +157,7 @@ async function onFolderDrop(event: DragEvent) {
 .menu-item {
   position: relative;
   user-select: none;
+  flex: 1;
 }
 
 .item-content {

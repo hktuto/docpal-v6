@@ -207,7 +207,7 @@ function updateOrderNumbers(items: TreeItem[]): TreeItem[] {
 }
 const editIconRef = ref()
 function handleOpenActions() {
-  openMenuItemActions({ item: null, isAdmin: true }, editIconRef.value || undefined)
+  openMenuItemActions({ item: null, isAdmin: true }, editIconRef.value.$el || undefined)
 }
 
 

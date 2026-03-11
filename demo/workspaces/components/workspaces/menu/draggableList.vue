@@ -140,6 +140,7 @@ function allowDrop(_draggingNode: any, dropNode: any, _type: string) {
     height: auto;
     min-height: 32px;
     padding: 0;
+    display: flex;
   }
 }
 </style>

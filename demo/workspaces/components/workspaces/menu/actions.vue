@@ -38,10 +38,10 @@ async function handleDelete() {
   let message = `Are you sure you want to delete "${item.value.name}"?`
   let confirmText = 'Delete'
 
-  if (item.value?.itemType === 'master_table') {
+  if (item.value?.item_type === 'master_table') {
     message = `Are you sure you want to delete the table "${item.value.name}"?\n\nThis will permanently delete:\n• The physical database table\n• All fields\n• All data records\n\nThis action cannot be undone.`
     confirmText = 'Delete Table'
-  } else if (item.value?.itemType === 'folder' && item.value?.children && item.value?.children.length > 0) {
+  } else if (item.value?.item_type === 'folder' && item.value?.children && item.value?.children.length > 0) {
     message = `Are you sure you want to delete the folder "${item.value.name}" and all its contents?`
   }
 
@@ -124,7 +124,7 @@ defineExpose({ open, close })
 </script>
 
 <template>
-  <UiPopoverDialog ref="popoverRef" placement="bottom-start" :width="200">
+  <UiPopoverDialog ref="popoverRef" placement="bottom-start" :showHighlight="false" :width="200">
     <div class="item-actions-menu">
       <template v-if="!item">
         <div class="action-item" @click="handleAddItem('folder')">
@@ -161,7 +161,7 @@ defineExpose({ open, close })
           <span>Permissions</span>
         </div>
 
-        <template v-if="item.itemType === 'folder'">
+        <template v-if="item.item_type === 'folder'">
           <div class="action-divider" />
           <div class="action-item" @click="handleAddItem('folder')">
             <Icon name="material-symbols:folder-outline" />
@@ -185,7 +185,7 @@ defineExpose({ open, close })
             <span>Import from Excel</span>
           </div>
         </template>
-        <template v-if="item.itemType === 'master_table'">
+        <template v-if="item.item_type === 'master_table'">
           <div class="action-item" @click="handleEditSetting('master_table')">
             <Icon name="material-symbols:settings-outline" />
             <span>Table Settings</span>
@@ -205,7 +205,7 @@ defineExpose({ open, close })
   <WorkspacesTableImportExcelDialog
     ref="importExcelDialogRef"
     :entity-id="menuContext.workspace.value?.id || ''"
-    :parent-folder-id="item?.itemType === 'folder' ? item.id : null"
+    :parent-folder-id="item?.item_type === 'folder' ? item.id : null"
     @success="handleImportSuccess"
   />
 
@@ -213,7 +213,7 @@ defineExpose({ open, close })
   <WorkspacesDialogsCreateViewDialog ref="createViewDialogRef" @created="handleViewCreated" />
 
   <!-- Permission Popover -->
-  <WorkspacesPermissionPopover ref="permissionPopoverRef" :item-id="item?.id || ''" :item-label="item?.label || ''" :item-type="item?.itemType || 'folder'" />
+  <WorkspacesPermissionPopover ref="permissionPopoverRef" :item-id="item?.id || ''" :item-label="item?.label || ''" :item-type="item?.item_type || 'folder'" />
 </template>
 
 <style scoped lang="scss">

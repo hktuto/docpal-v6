@@ -256,56 +256,10 @@ export function useSingleWorkspace() {
   }
 
   async function addItem(parent_id: string | null, type: CaseTreeItemType, viewData?: ViewCreationData): Promise<TreeItem> {
+    console.log('addItem', parent_id, type, viewData)
     const now = new Date()
     let label = `New ${type}`
     const slug = `new-${type}-${Date.now()}`
-
-    // For views, create the view in the database
-    if (type === 'view' && workspace.value?.id && viewData) {
-      const viewId = uuidv7()
-      const viewName = `view_${viewId.replace(/-/g, '_')}`
-      label = viewData.name
-
-      try {
-        // Get all fields from the base table to include in the view
-        const tableFields = await query<{ fieldName: string }>(`SELECT "fieldName" FROM case_fields WHERE "tableId" = $1`, [viewData.tableId])
-        const fieldNames = tableFields.map((f) => f.fieldName)
-
-        // Create the view record
-        const currentUserId = getCurrentUserId()
-        await query(
-          `INSERT INTO case_views (
-            id, name, description, "viewName", "viewType", "viewSettings",
-            filter, sorting, grouping, "tableId", "isDefault", "reference_entity_id",
-            fields, "createdBy", "createdAt", "updatedBy", "updatedAt"
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
-          [
-            viewId,
-            viewData.name,
-            null,
-            viewName,
-            viewData.viewType,
-            JSON.stringify(viewData.viewSettings),
-            null,
-            null,
-            null,
-            viewData.tableId,
-            false, // isDefault
-            workspace.value.id,
-            fieldNames,
-            currentUserId,
-            now,
-            currentUserId,
-            now
-          ]
-        )
-        itemId = viewId
-      } catch (error) {
-        console.error('Error creating view:', error)
-        throw error
-      }
-    }
-
     const newItem: any = {
       name: label,
       reference_entity_type: 'case',
@@ -334,7 +288,7 @@ export function useSingleWorkspace() {
       const parent = findItemById(menuState.value.items, parent_id)
       if (parent && parent.item_type === 'folder') {
         parent.children = parent.children || []
-        parent.children.push(newItem)
+        parent.children.push(data)
       }
     } else {
       menuState.value.items.push(data)
@@ -342,9 +296,9 @@ export function useSingleWorkspace() {
 
     // For views, we already have the name from viewData, no need to edit
     if (type !== 'view') {
-      startEdit(newItem.id)
+      startEdit(data.id)
     }
-    return newItem
+    return data
   }
 
   function navigateToItem(item?: TreeItem, pageType: 'setting' | 'detail' = 'detail') {

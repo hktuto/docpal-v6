@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Custom Popover Dialog Component
- * 
+ *
  * Exposes open(targetElement, highlightElement?) and close() methods
  * - Desktop + valid target: Shows positioned popover
  * - Mobile OR no target: Shows dialog
@@ -13,12 +13,29 @@ import { onClickOutside, useEventListener } from '@vueuse/core'
 interface Props {
   title?: string
   width?: string | number
-  placement?: 'top' | 'top-start' | 'top-center' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-center' | 'bottom-end' | 'left' | 'left-start' | 'left-center' | 'left-end' | 'right' | 'right-start' | 'right-center' | 'right-end'
+  placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-center'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-center'
+    | 'bottom-end'
+    | 'left'
+    | 'left-start'
+    | 'left-center'
+    | 'left-end'
+    | 'right'
+    | 'right-start'
+    | 'right-center'
+    | 'right-end'
   offset?: number
   closeOnClickModal?: boolean
   closeOnClickOutside?: boolean // If false, clicking outside won't close popover
   showClose?: boolean
   persistId?: string // If provided, save/restore size to localStorage
+  showHighlight?: boolean
 }
 
 interface Emits {
@@ -35,10 +52,10 @@ const props = withDefaults(defineProps<Props>(), {
   closeOnClickModal: true,
   closeOnClickOutside: true,
   showClose: true,
+  showHighlight: true
 })
 
 const emit = defineEmits<Emits>()
-
 
 // State
 const visible = ref(false)
@@ -51,29 +68,27 @@ const contentRef = ref<HTMLElement>()
 const popoverStyle = ref({
   top: '0px',
   left: '0px',
-  transformOrigin: 'top left',
+  transformOrigin: 'top left'
 })
 
 // Arrow position state
 const arrowStyle = ref({
   top: '0px',
   left: '0px',
-  side: 'bottom' as 'top' | 'bottom' | 'left' | 'right',
+  side: 'bottom' as 'top' | 'bottom' | 'left' | 'right'
 })
 
 // Resize state
 const popoverSize = ref<{ width: number | null; height: number | null }>({
   width: null,
-  height: null,
+  height: null
 })
 const isResizing = ref(false)
 const resizeDirection = ref<'top' | 'bottom' | 'left' | 'right' | null>(null)
 const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0, top: 0, left: 0 })
 
 // localStorage key for size persistence
-const sizeStorageKey = computed(() => 
-  props.persistId ? `popover:${props.persistId}:size` : null
-)
+const sizeStorageKey = computed(() => (props.persistId ? `popover:${props.persistId}:size` : null))
 
 // Restore size from localStorage on mount
 function restoreSize() {
@@ -92,22 +107,25 @@ function restoreSize() {
 // Save size to localStorage
 function saveSize() {
   if (!sizeStorageKey.value || !popoverSize.value.width || !popoverSize.value.height) return
-  localStorage.setItem(sizeStorageKey.value, JSON.stringify({
-    width: popoverSize.value.width,
-    height: popoverSize.value.height,
-  }))
+  localStorage.setItem(
+    sizeStorageKey.value,
+    JSON.stringify({
+      width: popoverSize.value.width,
+      height: popoverSize.value.height
+    })
+  )
 }
 
 // Start resize
 function startResize(direction: 'top' | 'bottom' | 'left' | 'right', e: MouseEvent) {
   e.preventDefault()
   e.stopPropagation()
-  
+
   if (!popoverRef.value) return
-  
+
   isResizing.value = true
   resizeDirection.value = direction
-  
+
   const rect = popoverRef.value.getBoundingClientRect()
   resizeStart.value = {
     x: e.clientX,
@@ -115,9 +133,9 @@ function startResize(direction: 'top' | 'bottom' | 'left' | 'right', e: MouseEve
     width: rect.width,
     height: rect.height,
     top: parseFloat(popoverStyle.value.top),
-    left: parseFloat(popoverStyle.value.left),
+    left: parseFloat(popoverStyle.value.left)
   }
-  
+
   document.addEventListener('mousemove', handleResize)
   document.addEventListener('mouseup', stopResize)
 }
@@ -125,21 +143,21 @@ function startResize(direction: 'top' | 'bottom' | 'left' | 'right', e: MouseEve
 // Handle resize drag
 function handleResize(e: MouseEvent) {
   if (!isResizing.value || !resizeDirection.value || !targetElement.value) return
-  
+
   const deltaX = e.clientX - resizeStart.value.x
   const deltaY = e.clientY - resizeStart.value.y
   const arrowSize = 8
   const baseMinWidth = 200
   const baseMinHeight = 100
-  
+
   const targetRect = targetElement.value.getBoundingClientRect()
   const side = arrowStyle.value.side
-  
+
   let newWidth = resizeStart.value.width
   let newHeight = resizeStart.value.height
   let newTop = resizeStart.value.top
   let newLeft = resizeStart.value.left
-  
+
   // Calculate initial new dimensions
   switch (resizeDirection.value) {
     case 'right':
@@ -157,12 +175,12 @@ function handleResize(e: MouseEvent) {
       newTop = resizeStart.value.top + (resizeStart.value.height - newHeight)
       break
   }
-  
+
   // Calculate dynamic minimum size based on target position relative to NEW popover position
   // This ensures arrow can always point to target center
   let minWidth = baseMinWidth
   let minHeight = baseMinHeight
-  
+
   if (side === 'top' || side === 'bottom') {
     // For horizontal arrows, ensure popover is wide enough for arrow to reach target center
     const targetCenter = targetRect.left + targetRect.width / 2
@@ -182,7 +200,7 @@ function handleResize(e: MouseEvent) {
     const requiredHeight = targetCenter - newTop + arrowSize
     minHeight = Math.max(baseMinHeight, requiredHeight)
   }
-  
+
   // Apply dynamic minimum constraints
   switch (resizeDirection.value) {
     case 'right':
@@ -200,14 +218,14 @@ function handleResize(e: MouseEvent) {
       newTop = resizeStart.value.top + (resizeStart.value.height - newHeight)
       break
   }
-  
+
   popoverSize.value = { width: newWidth, height: newHeight }
   popoverStyle.value = {
     ...popoverStyle.value,
     top: `${newTop}px`,
-    left: `${newLeft}px`,
+    left: `${newLeft}px`
   }
-  
+
   // Recalculate arrow position to stay pointed at target
   if (side === 'top' || side === 'bottom') {
     // Arrow positioned horizontally (center of target)
@@ -219,7 +237,7 @@ function handleResize(e: MouseEvent) {
     arrowStyle.value = {
       ...arrowStyle.value,
       left: `${arrowLeft}px`,
-      top: side === 'bottom' ? `-${arrowSize}px` : `${newHeight}px`,
+      top: side === 'bottom' ? `-${arrowSize}px` : `${newHeight}px`
     }
   } else {
     // Arrow positioned vertically (center of target)
@@ -231,7 +249,7 @@ function handleResize(e: MouseEvent) {
     arrowStyle.value = {
       ...arrowStyle.value,
       top: `${arrowTop}px`,
-      left: side === 'right' ? `-${arrowSize}px` : `${newWidth}px`,
+      left: side === 'right' ? `-${arrowSize}px` : `${newWidth}px`
     }
   }
 }
@@ -258,18 +276,14 @@ function calculateAvailableSpace(targetRect: DOMRect) {
     top: targetRect.top,
     bottom: window.innerHeight - targetRect.bottom,
     left: targetRect.left,
-    right: window.innerWidth - targetRect.right,
+    right: window.innerWidth - targetRect.right
   }
 }
 
 /**
  * Find best placement direction based on available space
  */
-function findBestPlacement(
-  targetRect: DOMRect,
-  contentRect: DOMRect,
-  preferredPlacement: string
-): { side: string; align: string } {
+function findBestPlacement(targetRect: DOMRect, contentRect: DOMRect, preferredPlacement: string): { side: string; align: string } {
   const space = calculateAvailableSpace(targetRect)
   const minSpace = props.offset + 20 // Minimum required space
 
@@ -286,7 +300,7 @@ function findBestPlacement(
     top: space.top >= needsHeight,
     bottom: space.bottom >= needsHeight,
     left: space.left >= needsWidth,
-    right: space.right >= needsWidth,
+    right: space.right >= needsWidth
   }
 
   // Try preferred side first
@@ -299,11 +313,11 @@ function findBestPlacement(
     { side: 'bottom', space: space.bottom, hasSpace: hasSpace.bottom },
     { side: 'top', space: space.top, hasSpace: hasSpace.top },
     { side: 'right', space: space.right, hasSpace: hasSpace.right },
-    { side: 'left', space: space.left, hasSpace: hasSpace.left },
+    { side: 'left', space: space.left, hasSpace: hasSpace.left }
   ].sort((a, b) => b.space - a.space)
 
   // Return first side with enough space, or fallback to largest space
-  const bestSide = sortedSpaces.find(s => s.hasSpace)?.side || sortedSpaces[0]!.side
+  const bestSide = sortedSpaces.find((s) => s.hasSpace)?.side || sortedSpaces[0]!.side
 
   return { side: bestSide, align: preferredAlign || 'center' }
 }
@@ -317,7 +331,7 @@ function calculatePosition(target: HTMLElement, content: HTMLElement) {
   console.log('calculatePosition', contentRect)
   const viewport = {
     width: window.innerWidth,
-    height: window.innerHeight,
+    height: window.innerHeight
   }
 
   // Find best placement
@@ -374,7 +388,7 @@ function calculatePosition(target: HTMLElement, content: HTMLElement) {
 
   // Keep within viewport bounds (but don't overlap target)
   const padding = props.offset
-  
+
   if (side === 'top' || side === 'bottom') {
     // Horizontal adjustment
     if (left < padding) {
@@ -403,7 +417,7 @@ function calculatePosition(target: HTMLElement, content: HTMLElement) {
     const targetCenter = targetRect.left + targetRect.width / 2
     const popoverLeft = left
     arrowLeft = `${Math.max(arrowSize, Math.min(contentRect.width - arrowSize * 2, targetCenter - popoverLeft - arrowSize))}px`
-    
+
     if (side === 'bottom') {
       arrowTop = `-${arrowSize}px` // Arrow at top of popover, pointing up
     } else {
@@ -414,7 +428,7 @@ function calculatePosition(target: HTMLElement, content: HTMLElement) {
     const targetCenter = targetRect.top + targetRect.height / 2
     const popoverTop = top
     arrowTop = `${Math.max(arrowSize, Math.min(contentRect.height - arrowSize * 2, targetCenter - popoverTop - arrowSize))}px`
-    
+
     if (side === 'right') {
       arrowLeft = `-${arrowSize}px` // Arrow at left of popover, pointing left
     } else {
@@ -428,7 +442,7 @@ function calculatePosition(target: HTMLElement, content: HTMLElement) {
     transformOrigin,
     arrowTop,
     arrowLeft,
-    arrowSide: side as 'top' | 'bottom' | 'left' | 'right',
+    arrowSide: side as 'top' | 'bottom' | 'left' | 'right'
   }
 }
 
@@ -439,7 +453,7 @@ async function open(target?: HTMLElement, highlight?: HTMLElement) {
   // check if target is a Vue component or a DOM element
   targetElement.value = target || null
   highlightElement.value = highlight || null
-  
+
   // Mobile or no target → use dialog
   if (isMobile.value || !target) {
     visible.value = true
@@ -449,31 +463,33 @@ async function open(target?: HTMLElement, highlight?: HTMLElement) {
     return
   }
   // set highlight element (or target if no highlight provided) to add outline
-  const elementToHighlight = highlightElement.value || target
-  elementToHighlight.classList.add('focus-outline')
+  if (props.showHighlight) {
+    const elementToHighlight = highlightElement.value || target
+    elementToHighlight.classList.add('focus-outline')
+  }
   // Desktop with target → use positioned popover
   emit('open')
   visible.value = true
-  if(highlightElement.value){
+  if (props.showHighlight && highlightElement.value) {
     highlightElement.value.classList.add('highlight-element')
-  }else if(targetElement.value){
+  } else if (targetElement.value) {
     targetElement.value.classList.add('highlight-element')
   }
   await nextTick()
-  
+
   if (!contentRef.value) return
-  
+
   // Calculate position using target element
   const position = calculatePosition(target, contentRef.value)
   popoverStyle.value = {
     top: position.top,
     left: position.left,
-    transformOrigin: position.transformOrigin,
+    transformOrigin: position.transformOrigin
   }
   arrowStyle.value = {
     top: position.arrowTop,
     left: position.arrowLeft,
-    side: position.arrowSide,
+    side: position.arrowSide
   }
   // the contentRef just render, so we need to recalculate the position after the content is rendered
   setTimeout(() => {
@@ -487,7 +503,7 @@ async function open(target?: HTMLElement, highlight?: HTMLElement) {
  */
 async function close() {
   if (!visible.value) return
-  
+
   emit('close')
   visible.value = false
   // Remove outline from highlight element (or target if no highlight was set)
@@ -495,7 +511,7 @@ async function close() {
   elementToUnhighlight?.classList.remove('focus-outline')
   targetElement.value = null
   highlightElement.value = null
-  
+
   await nextTick()
   emit('closed')
 }
@@ -504,22 +520,22 @@ async function close() {
 onClickOutside(popoverRef, (event) => {
   // Skip if closeOnClickOutside is disabled
   if (!props.closeOnClickOutside) return
-  
+
   if (visible.value && !isMobile.value && targetElement.value) {
     const clickedElement = event.target as HTMLElement
-    
+
     // Check if click is on or inside the target element (let toggle handler handle it)
     const isInsideTarget = targetElement.value.contains(clickedElement)
     if (isInsideTarget) return
-    
+
     // Check if click is on or inside the highlight element
     if (highlightElement.value?.contains(clickedElement)) return
-    
+
     // Check if click is inside another popover (nested popover case)
     // All popovers are teleported to body, so nested ones are siblings in the DOM
     const isInsideAnyPopover = clickedElement.closest('.custom-popover')
     const isInsideElPopover = clickedElement.closest('.el-popper')
-    
+
     // Only close if NOT clicking inside any popover
     // (if clicking in nested popover, don't close parent)
     if (!isInsideAnyPopover && !isInsideElPopover) {
@@ -530,15 +546,15 @@ onClickOutside(popoverRef, (event) => {
 
 // Close on escape (but not if user is typing in an input)
 useEventListener(document, 'keydown', (e: KeyboardEvent) => {
-  if(!props.closeOnClickOutside) return;
+  if (!props.closeOnClickOutside) return
   if (e.key === 'Escape' && visible.value) {
     const activeElement = document.activeElement as HTMLElement
-    const isEditable = 
+    const isEditable =
       activeElement?.tagName === 'INPUT' ||
       activeElement?.tagName === 'TEXTAREA' ||
       activeElement?.isContentEditable ||
       activeElement?.getAttribute('contenteditable') === 'true'
-    
+
     // Only close if not editing
     if (!isEditable) {
       close()
@@ -553,35 +569,40 @@ useEventListener(window, 'resize', () => {
     popoverStyle.value = {
       top: position.top,
       left: position.left,
-      transformOrigin: position.transformOrigin,
+      transformOrigin: position.transformOrigin
     }
     arrowStyle.value = {
       top: position.arrowTop,
       left: position.arrowLeft,
-      side: position.arrowSide,
+      side: position.arrowSide
     }
   }
 })
 
-useEventListener(window, 'scroll', () => {
-  if (visible.value && !isMobile.value && targetElement.value && contentRef.value) {
-    const position = calculatePosition(targetElement.value, contentRef.value)
-    popoverStyle.value = {
-      top: position.top,
-      left: position.left,
-      transformOrigin: position.transformOrigin,
+useEventListener(
+  window,
+  'scroll',
+  () => {
+    if (visible.value && !isMobile.value && targetElement.value && contentRef.value) {
+      const position = calculatePosition(targetElement.value, contentRef.value)
+      popoverStyle.value = {
+        top: position.top,
+        left: position.left,
+        transformOrigin: position.transformOrigin
+      }
+      arrowStyle.value = {
+        top: position.arrowTop,
+        left: position.arrowLeft,
+        side: position.arrowSide
+      }
     }
-    arrowStyle.value = {
-      top: position.arrowTop,
-      left: position.arrowLeft,
-      side: position.arrowSide,
-    }
-  }
-}, { passive: true })
+  },
+  { passive: true }
+)
 onUnmounted(() => {
-  if(highlightElement.value){
+  if (highlightElement.value) {
     highlightElement.value.classList.remove('highlight-element')
-  }else if(targetElement.value){
+  } else if (targetElement.value) {
     targetElement.value.classList.remove('highlight-element')
   }
 })
@@ -590,17 +611,17 @@ onUnmounted(() => {
  */
 function recalculate() {
   if (!visible.value || isMobile.value || !targetElement.value || !contentRef.value) return
-  
+
   const position = calculatePosition(targetElement.value, contentRef.value)
   popoverStyle.value = {
     top: position.top,
     left: position.left,
-    transformOrigin: position.transformOrigin,
+    transformOrigin: position.transformOrigin
   }
   arrowStyle.value = {
     top: position.arrowTop,
     left: position.arrowLeft,
-    side: position.arrowSide,
+    side: position.arrowSide
   }
 }
 
@@ -609,12 +630,11 @@ defineExpose({
   open,
   close,
   recalculate,
-  visible: readonly(visible),
+  visible: readonly(visible)
 })
 </script>
 
 <template>
-      
   <Teleport to="body">
     <!-- Desktop Popover -->
     <div
@@ -624,42 +644,26 @@ defineExpose({
       :class="{ 'is-resizing': isResizing }"
       :style="{
         ...popoverStyle,
-        width: popoverSize.width ? `${popoverSize.width}px` : (typeof width === 'number' ? `${width}px` : width),
-        height: popoverSize.height ? `${popoverSize.height}px` : undefined,
+        width: popoverSize.width ? `${popoverSize.width}px` : typeof width === 'number' ? `${width}px` : width,
+        height: popoverSize.height ? `${popoverSize.height}px` : undefined
       }"
     >
       <!-- Arrow pointing to target -->
-      <div 
+      <div
         class="popover-arrow"
         :class="`arrow-${arrowStyle.side}`"
         :style="{
           top: arrowStyle.top,
-          left: arrowStyle.left,
+          left: arrowStyle.left
         }"
       />
-      
+
       <!-- Resize handles (hidden on arrow side) -->
-      <div 
-        v-if="arrowStyle.side !== 'bottom'" 
-        class="resize-handle resize-top"
-        @mousedown="startResize('top', $event)"
-      />
-      <div 
-        v-if="arrowStyle.side !== 'top'" 
-        class="resize-handle resize-bottom"
-        @mousedown="startResize('bottom', $event)"
-      />
-      <div 
-        v-if="arrowStyle.side !== 'right'" 
-        class="resize-handle resize-left"
-        @mousedown="startResize('left', $event)"
-      />
-      <div 
-        v-if="arrowStyle.side !== 'left'" 
-        class="resize-handle resize-right"
-        @mousedown="startResize('right', $event)"
-      />
-      
+      <div v-if="arrowStyle.side !== 'bottom'" class="resize-handle resize-top" @mousedown="startResize('top', $event)" />
+      <div v-if="arrowStyle.side !== 'top'" class="resize-handle resize-bottom" @mousedown="startResize('bottom', $event)" />
+      <div v-if="arrowStyle.side !== 'right'" class="resize-handle resize-left" @mousedown="startResize('left', $event)" />
+      <div v-if="arrowStyle.side !== 'left'" class="resize-handle resize-right" @mousedown="startResize('right', $event)" />
+
       <div ref="contentRef" class="popover-content">
         <slot />
       </div>
@@ -667,32 +671,32 @@ defineExpose({
 
     <!-- Mobile Dialog -->
   </Teleport>
-    <el-dialog
-      v-model="visible"
-      v-if="isMobile || !targetElement"
-      :title="title"
-      :width="isMobile ? '90%' : width"
-      :close-on-click-modal="closeOnClickModal"
-      :show-close="showClose"
-      append-to-body
-      @open="emit('open')"
-      @close="emit('close')"
-      @opened="emit('opened')"
-      @closed="emit('closed')"
-    >
-      <slot />
-    </el-dialog>
+  <el-dialog
+    v-model="visible"
+    v-if="isMobile || !targetElement"
+    :title="title"
+    :width="isMobile ? '90%' : width"
+    :close-on-click-modal="closeOnClickModal"
+    :show-close="showClose"
+    append-to-body
+    @open="emit('open')"
+    @close="emit('close')"
+    @opened="emit('opened')"
+    @closed="emit('closed')"
+  >
+    <slot />
+  </el-dialog>
 </template>
 <style>
-  .highlight-element{
-    transition: all 0.3s ease;
-    outline: initial ;
-    box-shadow: initial ;
-  }
-  .focus-outline{
-    outline: 2px solid var(--app-primary-alpha-50) !important;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-  }
+.highlight-element {
+  transition: all 0.3s ease;
+  outline: initial;
+  box-shadow: initial;
+}
+.focus-outline {
+  outline: 2px solid var(--app-primary-alpha-50) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
 </style>
 <style scoped lang="scss">
 .custom-popover {
@@ -704,7 +708,7 @@ defineExpose({
   box-shadow: var(--app-shadow-l);
   min-width: 200px;
   min-height: 100px;
-  
+
   &.is-resizing {
     user-select: none;
   }
@@ -722,9 +726,11 @@ defineExpose({
 .resize-handle {
   position: absolute;
   opacity: 0;
-  transition: opacity 0.2s ease, background-color 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    background-color 0.2s ease;
   z-index: 10;
-  
+
   &:hover {
     opacity: 1;
   }
@@ -736,7 +742,7 @@ defineExpose({
   right: 0;
   height: 4px;
   cursor: ns-resize;
-  
+
   &:hover {
     height: 6px;
     background: var(--app-primary-alpha-50);
@@ -759,7 +765,7 @@ defineExpose({
   bottom: 0;
   width: 4px;
   cursor: ew-resize;
-  
+
   &:hover {
     width: 6px;
     background: var(--app-primary-alpha-50);
@@ -782,12 +788,12 @@ defineExpose({
   width: 0;
   height: 0;
   border: 8px solid transparent;
-  
+
   // Arrow pointing up (popover below target)
   &.arrow-bottom {
     border-bottom-color: var(--el-bg-color);
     border-top-width: 0;
-    
+
     &::before {
       content: '';
       position: absolute;
@@ -800,12 +806,12 @@ defineExpose({
       left: -9px;
     }
   }
-  
+
   // Arrow pointing down (popover above target)
   &.arrow-top {
     border-top-color: var(--el-bg-color);
     border-bottom-width: 0;
-    
+
     &::before {
       content: '';
       position: absolute;
@@ -818,12 +824,12 @@ defineExpose({
       left: -9px;
     }
   }
-  
+
   // Arrow pointing right (popover to the left of target)
   &.arrow-left {
     border-left-color: var(--el-bg-color);
     border-right-width: 0;
-    
+
     &::before {
       content: '';
       position: absolute;
@@ -836,12 +842,12 @@ defineExpose({
       top: -9px;
     }
   }
-  
+
   // Arrow pointing left (popover to the right of target)
   &.arrow-right {
     border-right-color: var(--el-bg-color);
     border-left-width: 0;
-    
+
     &::before {
       content: '';
       position: absolute;
