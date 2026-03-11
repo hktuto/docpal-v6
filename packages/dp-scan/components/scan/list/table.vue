@@ -1,23 +1,52 @@
 <script lang="ts" setup>
 import { useVxeTable } from '#imports'
 import { clientApi } from 'api'
-import { ScanTableColumns } from '../../../utils/scanHelper'
+import { ScanTableColumns } from '#imports'
 import { ElMessageBox } from 'element-plus'
 const routerProvider = inject(MenuRouterKey)
 if (!routerProvider) {
   throw new Error('MenuRouterKey not found')
 }
 const selectedRow = ref<any[]>([])
-const { projects } = useScanClient()
+const { projects, isAdmin } = useScanClient()
 const filter = useUserListFilter()
+
+/**
+ * Check if user can cancel batches based on project permissions
+ * All selected batches must belong to projects where user is admin
+ */
+const canCancelBatches = (rows: any[]): boolean => {
+  if (!rows || rows.length === 0) return false
+  return rows.every((row) => {
+    // Check status allows cancel
+    const gorupStatus = statusToGroupStatus(row.status)
+    const canCancelStatus = !gorupStatus || (gorupStatus.key !== 'cancelled' && gorupStatus.key !== 'completed')
+    // Check user has admin permission for this batch's project
+    const hasAdminPermission = isAdmin(row.projectId)
+    return canCancelStatus && hasAdminPermission
+  })
+}
+const emits = defineEmits(['updated'])
 function cleanSelected() {
   cleanSelectedRows()
   // selectedRow.value = []
 }
 async function batchExport(ids: string[]) {
-  const batchIds = ids ? ids : selectedRow.value.map((row) => row.id)
-  if (!batchIds || batchIds.length === 0) return
-  routerProvider?.message.info('Waiting Api to be ready')
+  const batchIdList = ids ? ids : selectedRow.value.map((row) => row.id)
+  if (!batchIdList || batchIdList.length === 0) return
+  const b = await clientApi.api.postCaptureExportZip({ batchIdList }, {
+    format: 'blob'
+  })
+  const blob = new Blob([b], { type: 'application/zip' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `batch_export_${new Date().toISOString().replace(/:/g, '-')}.zip`
+  a.click()
+  URL.revokeObjectURL(url)
+  a.remove()
+  emits('updated')
+  // routerProvider?.message.info('Waiting Api to be ready')
 }
 async function cancelBatchs(ids: string[]) {
   const batchIds = ids ? ids : selectedRow.value.map((row) => row.id)
@@ -25,6 +54,7 @@ async function cancelBatchs(ids: string[]) {
   await clientApi.api.postCaptureBatchCancel({ batchIds })
   routerProvider?.message.success('Batch cancelled successfully')
   cleanSelectedRows()
+    emits('updated')
 }
 
 const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeTable({
@@ -52,7 +82,8 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     ...ScanTableColumns
   ],
   dblClickAction: ({ row }) => {
-    const newTab = createBatchDetailPageTab(row.batchNo)
+    console.log("row id",row.id)
+    const newTab = createBatchDetailPageTab(row.id)
     routerProvider?.navigateTo(newTab)
   },
   bodyActions: [
@@ -61,7 +92,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
         code: 'view',
         name: 'Open',
         action: ({ row }) => {
-          const newTab = createBatchDetailPageTab(row.batchNo)
+          const newTab = createBatchDetailPageTab(row.id)
           routerProvider?.navigateTo(newTab)
         }
       },
@@ -84,7 +115,6 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
               }
             }
           })
-          // TODO : show confirm dialog and then call api to cancel batch
         }
       }
     ]
@@ -98,8 +128,10 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     }
     if (code === 'cancel') {
       const gorupStatus = statusToGroupStatus(row.status)
+      const canCancelStatus = !gorupStatus || (gorupStatus.key !== 'cancelled' && gorupStatus.key !== 'completed')
+      const hasAdminPermission = isAdmin(row.projectId)
       return {
-        visible: !gorupStatus || (gorupStatus.key !== 'cancelled' && gorupStatus.key !== 'completed'),
+        visible: canCancelStatus && hasAdminPermission,
         disabled: false
       }
     }

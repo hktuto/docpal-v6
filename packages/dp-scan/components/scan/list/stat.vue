@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
-import { StatusMap } from '../../../utils/scanHelper'
+import { StatusMap } from '#imports'
 const { projects } = useScanClient()
 const stat = ref()
 const loading = ref(true)
@@ -33,6 +33,9 @@ watch(
     immediate: true
   }
 )
+defineExpose({
+  getStats
+})
 </script>
 
 <template>
@@ -59,7 +62,7 @@ watch(
 }
 .statusContainer {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
   gap: var(--app-space-s);
 }
 .statItem {

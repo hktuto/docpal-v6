@@ -5,18 +5,34 @@ const props = defineProps<{
 
 const emit = defineEmits(['cancel', 'batchCancel', 'batchExport'])
 
+const { isAdmin, isExporter } = useScanClient()
+
+/**
+ * Check if user can cancel selected batches
+ * Requires: admin permission for all selected batches' projects
+ * AND status must allow cancel (not cancelled or completed)
+ */
 const canCancel = computed(() => {
   return props.selectedRow.every((row: any) => {
     const gorupStatus = statusToGroupStatus(row.status)
-    return !gorupStatus || (gorupStatus.key !== 'cancelled' && gorupStatus.key !== 'completed')
+    const canCancelStatus = !gorupStatus || (gorupStatus.key !== 'cancelled' && gorupStatus.key !== 'completed')
+    const hasAdminPermission = isAdmin(row.projectId)
+    return canCancelStatus && hasAdminPermission
   })
 })
 
+/**
+ * Check if user can export selected batches
+ * Requires: exporter permission for all selected batches' projects
+ * AND status must allow export (completed or exportReady)
+ */
 const canDownload = computed(() => {
-  return props.selectedRow.every((row: any) => {
+  const hasExportPermission = props.selectedRow.every((row: any) => isExporter(row.projectId))
+  const hasExportableStatus = props.selectedRow.every((row: any) => {
     const gorupStatus = statusToGroupStatus(row.status)
     return gorupStatus && (gorupStatus.key === 'completed' || gorupStatus.key === 'exportReady')
   })
+  return hasExportPermission && hasExportableStatus
 })
 </script>
 
