@@ -31,7 +31,9 @@ function cleanSelected() {
   cleanSelectedRows()
   // selectedRow.value = []
 }
+const exportLoading = ref(false)
 async function batchExport(ids: string[]) {
+  exportLoading.value = true;
   const batchIdList = ids ? ids : selectedRow.value.map((row) => row.id)
   if (!batchIdList || batchIdList.length === 0) return
   const b = await clientApi.api.postCaptureExportZip({ batchIdList }, {
@@ -46,6 +48,7 @@ async function batchExport(ids: string[]) {
   URL.revokeObjectURL(url)
   a.remove()
   emits('updated')
+  exportLoading.value = false;
   // routerProvider?.message.info('Waiting Api to be ready')
 }
 async function cancelBatchs(ids: string[]) {
@@ -60,6 +63,7 @@ async function cancelBatchs(ids: string[]) {
 const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeTable({
   id: 'scan-table',
   api: async (params: any) => {
+
     if (filter.value.projectId.length === 0) return []
     cleanSelectedRows()
 
@@ -158,7 +162,7 @@ watch(filter, debounceReload, {
           <ScanListFilter />
         </template>
         <template v-else>
-          <ScanListMultipleSelect :selectedRow="selectedRow" @cancel="cleanSelected" @batchCancel="cancelBatchs" @batchExpor="batchExport" />
+          <ScanListMultipleSelect :selectedRow="selectedRow" @cancel="cleanSelected" @batchCancel="cancelBatchs" @batchExport="batchExport" />
         </template>
       </template>
     </vxe-grid>

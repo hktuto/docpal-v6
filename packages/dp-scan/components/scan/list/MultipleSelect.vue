@@ -28,12 +28,21 @@ const canCancel = computed(() => {
  */
 const canDownload = computed(() => {
   const hasExportPermission = props.selectedRow.every((row: any) => isExporter(row.projectId))
+  // console.log(props.selectedRow)
+  return true
   const hasExportableStatus = props.selectedRow.every((row: any) => {
     const gorupStatus = statusToGroupStatus(row.status)
     return gorupStatus && (gorupStatus.key === 'completed' || gorupStatus.key === 'exportReady')
   })
   return hasExportPermission && hasExportableStatus
 })
+
+function exportSelected(){
+  emit('batchExport', props.selectedRow.map((row) => row.id))
+}
+function cancelSelected() {
+  emit('batchCancel', props.selectedRow.map((row) => row.id))
+}
 </script>
 
 <template>
@@ -43,8 +52,8 @@ const canDownload = computed(() => {
       <el-button type="text" @click="$emit('cancel')">Clear</el-button>
     </div>
     <div class="right">
-      <el-button :type="canCancel ? 'warning' : 'info'" :disabled="!canCancel" @click="$emit('batchCancel')">Batch Cancel</el-button>
-      <el-button :type="canDownload ? 'primary' : 'info'" :disabled="!canDownload" @click="$emit('batchExport')">Batch Export</el-button>
+      <el-button :type="canCancel ? 'warning' : 'info'" :disabled="!canCancel" @click="cancelSelected">Batch Cancel</el-button>
+      <el-button :type="canDownload ? 'primary' : 'info'" :disabled="!canDownload" @click="exportSelected">Batch Export</el-button>
     </div>
   </div>
 </template>

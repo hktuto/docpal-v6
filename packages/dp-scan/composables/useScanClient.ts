@@ -44,6 +44,7 @@ export const hasProjectPermission = (
   permission: ScanClientPermission
 ): boolean => {
   if (!projectId) return false
+  console.log("hasProjectPermission",permission, projectsPermissions.value[permission], projectsPermissions.value)
   return projectsPermissions.value[permission]?.some((project) => project.id === projectId) || false
 }
 
@@ -86,7 +87,6 @@ export const useScanClient = () => {
     projectLoading.value = true
     const { data } = (await clientApi.api.getCaptureProjUserUserid(userId.value)) as any
     projectsPermissions.value = data
-    console.log('projectsPermissions', projectsPermissions.value)
     const allProjects = new Map()
     Object.keys(data).forEach((key) => {
       data[key].forEach((project: any) => {
@@ -100,7 +100,7 @@ export const useScanClient = () => {
   }
 
   onMounted(() => {
-    if (!projectLoading.value) {
+    if (!projectLoading.value && projects.value.length ===0) {
       getUserProject()
     }
   })

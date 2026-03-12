@@ -1,4 +1,22 @@
 <script lang="ts" setup>
+import { ref, computed, watch, onMounted, inject, nextTick } from 'vue'
+import { clientApi } from 'api'
+import DocumentPreview from './DocumentPreview.vue'
+import SectionDialog from './SectionDialog.vue'
+import FormSetupConfig from './FormSetupConfig.vue'
+import type {
+  FormFieldsSetting,
+  Section,
+  QRCodeField,
+  Zone
+} from '../../../../types/formOCR'
+import {
+  createEmptyFormFieldsSetting,
+  createEmptyQRCodeField,
+  generateKey
+} from '../../../../types/formOCR'
+import type { CropItem } from './DocumentPreview.vue'
+
 const props = defineProps<{
   formDetail: any
 }>()
@@ -6,61 +24,360 @@ const props = defineProps<{
 const emits = defineEmits<{
   refresh: []
 }>()
+
+const routerProvider = inject(MenuRouterKey)
+
+// ==================== Refs ====================
+const previewRef = ref<InstanceType<typeof DocumentPreview>>()
+
+// ==================== State ====================
+const loading = ref(false)
+const saving = ref(false)
+const formConfig = ref<FormFieldsSetting>(createEmptyFormFieldsSetting())
+const activeCropId = ref<string | null>(null)
+
+// Dialog state
+const showSectionDialog = ref(false)
+const editingSection = ref<Section | null>(null)
+
+// Document paths for multi-page support
+const documentPaths = ref<string[]>([])
+
+// Prompt templates (mock - should be fetched from API)
+const promptTemplates = ref<Array<{ id: string; name: string }>>([
+  { id: '1', name: 'Standard Form Template' },
+  { id: '2', name: 'HKHS Application Template' },
+  { id: '3', name: 'Table Extraction Template' }
+])
+
+// ==================== Initialization ====================
+async function initFormConfig() {
+  const existing = props.formDetail?.formFieldsSetting
+  console.log("initFormConfig", props.formDetail)
+  if (existing && typeof existing === 'object') {
+    formConfig.value = {
+      ...createEmptyFormFieldsSetting(),
+      ...existing,
+      qrcode: existing.qrcode || [],
+      section: existing.section || []
+    }
+  } else {
+    formConfig.value = createEmptyFormFieldsSetting()
+    if (props.formDetail?.formName) {
+      formConfig.value.form_name = props.formDetail.formName
+    }
+  }
+
+  // Setup document paths
+  await setupDocumentPaths()
+  initPreview()
+
+}
+
+async function setupDocumentPaths() {
+  // For now, use sampleDocPath as single page
+  // TODO: Handle multi-page documents from pageSplitConfig
+  if (props.formDetail?.sampleDocPath) {
+     const blob = await clientApi.api.postCaptureFileQuerycapturefilebypath(
+       { path:props.formDetail?.sampleDocPath },
+       { format: 'blob', headers: { noThrowError: true }
+      })
+     const pdf = await loadPDF(blob)
+     for(let i = 1; i <= pdf.numPages; i++){
+       const p = await pdfPageToImageUrl(pdf, i)
+       documentPaths.value.push(p)
+     }
+  } else {
+    documentPaths.value = []
+  }
+}
+
+function initPreview() {
+  if (!previewRef.value) return
+
+  const crops = buildCropsFromConfig()
+  previewRef.value.init(documentPaths.value, crops)
+}
+
+function buildCropsFromConfig(): CropItem[] {
+  const crops: CropItem[] = []
+
+  // Add QRCode crops
+  formConfig.value.qrcode.forEach(qr => {
+    crops.push({
+      id: qr.key,
+      type: 'qrcode',
+      page: qr.zone.page,
+      zone: qr.zone.zone,
+      label: qr.label,
+      isEditing: false
+    })
+  })
+
+  // Add section and field crops
+  formConfig.value.section.forEach(section => {
+    if (section.zone) {
+      crops.push({
+        id: section.section_id,
+        type: 'section',
+        page: section.zone.page,
+        zone: section.zone.zone,
+        label: section.section_name,
+        isEditing: false
+      })
+    }
+
+    section.fields.forEach(field => {
+      crops.push({
+        id: field.key,
+        type: 'field',
+        page: field.zone.page,
+        zone: field.zone.zone,
+        label: field.label,
+        isEditing: false,
+        parentId: section.section_id
+      })
+    })
+  })
+
+  return crops
+}
+
+// ==================== Document Preview Events ====================
+function handleCropUpdate(crop: CropItem) {
+  const id = crop.id as string
+
+  // Update zone in config (no auto-save)
+  const zone: Zone = {
+    page: crop.page,
+    zone: crop.zone
+  }
+
+  // Check if it's a section
+  const section = formConfig.value.section.find(s => s.section_id === id)
+  if (section) {
+    section.zone = zone
+    return
+  }
+
+  // Check if it's a QRCode
+  const qrCode = formConfig.value.qrcode.find(q => q.key === id)
+  if (qrCode) {
+    qrCode.zone = zone
+    return
+  }
+
+  // Check if it's a field
+  for (const sect of formConfig.value.section) {
+    const field = sect.fields.find(f => f.key === id)
+    if (field) {
+      field.zone = zone
+      return
+    }
+  }
+}
+
+function handleCropRemove(cropId: string | number) {
+  const id = cropId as string
+
+  // Remove from config
+  let removed = false
+
+  // Check QRCode
+  const qrIndex = formConfig.value.qrcode.findIndex(q => q.key === id)
+  if (qrIndex >= 0) {
+    formConfig.value.qrcode.splice(qrIndex, 1)
+    if (formConfig.value.index_field.qrcode_option === id) {
+      formConfig.value.index_field.qrcode_option = ''
+    }
+    removed = true
+  }
+
+  // Check section
+  if (!removed) {
+    const sectionIndex = formConfig.value.section.findIndex(s => s.section_id === id)
+    if (sectionIndex >= 0) {
+      formConfig.value.section.splice(sectionIndex, 1)
+      removed = true
+    }
+  }
+
+  // Check field
+  if (!removed) {
+    for (const section of formConfig.value.section) {
+      const fieldIndex = section.fields.findIndex(f => f.key === id)
+      if (fieldIndex >= 0) {
+        section.fields.splice(fieldIndex, 1)
+        removed = true
+        break
+      }
+    }
+  }
+
+  if (removed) {
+    if (activeCropId.value === id) {
+      activeCropId.value = null
+    }
+  }
+}
+
+// ==================== Section Management ====================
+function openAddSection() {
+  editingSection.value = null
+  showSectionDialog.value = true
+}
+
+function openEditSection(section: Section) {
+  editingSection.value = JSON.parse(JSON.stringify(section))
+  showSectionDialog.value = true
+}
+
+function handleSaveSection(section: Section) {
+  const existingIndex = formConfig.value.section.findIndex(
+    s => s.section_id === section.section_id
+  )
+
+  if (existingIndex >= 0) {
+    formConfig.value.section[existingIndex] = section
+  } else {
+    formConfig.value.section.push(section)
+  }
+
+}
+
+function deleteSection(sectionId: string) {
+  routerProvider?.dialog.confirm({
+    title: 'Delete Section',
+    message: 'Are you sure you want to delete this section? All fields will be removed.',
+    confirmText: 'Delete',
+    cancelText: 'Cancel',
+    variant: 'danger'
+  }).then(() => {
+    const index = formConfig.value.section.findIndex(s => s.section_id === sectionId)
+    if (index >= 0) {
+      formConfig.value.section.splice(index, 1)
+      if (activeCropId.value === sectionId) {
+        activeCropId.value = null
+      }
+
+
+      routerProvider?.message.success('Section deleted. Click Save to apply changes.')
+    }
+  }).catch(() => {
+    // Cancelled
+  })
+}
+
+// ==================== QRCode Management ====================
+function addQRCode() {
+  const newQR = createEmptyQRCodeField(`QR Code ${formConfig.value.qrcode.length + 1}`)
+  formConfig.value.qrcode.push(newQR)
+
+  // If first QRCode, set as index field
+  if (formConfig.value.qrcode.length === 1) {
+    formConfig.value.index_field.qrcode_option = newQR.key
+  }
+
+  // Add crop to preview
+  nextTick(() => {
+    previewRef.value?.addCrop({
+      id: newQR.key,
+      type: 'qrcode',
+      page: newQR.zone.page,
+      zone: newQR.zone.zone,
+      label: newQR.label
+    })
+  })
+}
+
+function deleteQRCode(key: string) {
+  const index = formConfig.value.qrcode.findIndex(q => q.key === key)
+  if (index >= 0) {
+    formConfig.value.qrcode.splice(index, 1)
+    if (activeCropId.value === key) {
+      activeCropId.value = null
+    }
+
+    if (formConfig.value.index_field.qrcode_option === key) {
+      formConfig.value.index_field.qrcode_option = ''
+    }
+
+
+  }
+}
+
+function setIndexQRCode(key: string) {
+  formConfig.value.index_field.qrcode_option = key
+}
+
+// ==================== Save ====================
+async function saveConfig() {
+  saving.value = true
+  try {
+    // TODO : implemenmt save later
+    emits('refresh')
+  } catch (error) {
+    console.error('Save error:', error)
+    routerProvider?.message.error('Failed to save configuration')
+  } finally {
+    saving.value = false
+  }
+}
+
+// ==================== Watchers ====================
+watch(() => props.formDetail, () => {
+  initFormConfig()
+}, { immediate: true })
+
 </script>
 
 <template>
-  <div class="formSetupContainer">
-    <div class="setupHeader">
-      <h3>Form Setup</h3>
-      <p>Define sections, fields, and extraction rules for this form</p>
-    </div>
-    <div class="setupContent">
-      <div class="placeholder">
-        <Icon name="lucide:file-cog" class="placeholderIcon" />
-        <span>Form setup tools will be implemented here</span>
-      </div>
-    </div>
+  <div class="form-setup">
+    <ElSplitter class="splitter">
+      <!-- Left Panel: Document Preview -->
+      <ElSplitterPanel >
+          <DocumentPreview
+            ref="previewRef"
+            show-legend
+            @update="handleCropUpdate"
+            @remove="handleCropRemove"
+          />
+      </ElSplitterPanel>
+
+      <!-- Right Panel: Configuration Panel -->
+      <ElSplitterPanel size="260" min="120">
+        <FormSetupConfig
+          v-model="formConfig"
+          v-model:active-crop-id="activeCropId"
+          :saving="saving"
+          @add-section="openAddSection"
+          @edit-section="openEditSection"
+          @delete-section="deleteSection"
+          @add-qrcode="addQRCode"
+          @delete-qrcode="deleteQRCode"
+          @set-index-qrcode="setIndexQRCode"
+          @save="saveConfig"
+        />
+      </ElSplitterPanel>
+    </ElSplitter>
+
+    <!-- Section Dialog -->
+    <SectionDialog
+      v-model="showSectionDialog"
+      :document-url="documentPaths[0] || ''"
+      :existing-section="editingSection"
+      :prompt-templates="promptTemplates"
+      @save="handleSaveSection"
+    />
   </div>
 </template>
 
 <style lang="scss" scoped>
-.formSetupContainer {
+.form-setup {
   display: flex;
-  flex-flow: column nowrap;
+  flex-direction: column;
   height: 100%;
-  padding: var(--app-space-m);
 }
 
-.setupHeader {
-  margin-bottom: var(--app-space-m);
 
-  h3 {
-    margin: 0 0 var(--app-space-xs) 0;
-  }
-
-  p {
-    color: var(--app-text-color-secondary);
-    margin: 0;
-  }
-}
-
-.setupContent {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.placeholder {
-  display: flex;
-  flex-flow: column nowrap;
-  align-items: center;
-  gap: var(--app-space-m);
-  color: var(--app-text-color-secondary);
-
-  .placeholderIcon {
-    font-size: 64px;
-    opacity: 0.5;
-  }
-}
 </style>

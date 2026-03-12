@@ -46,7 +46,7 @@ export async function loadPDF(source: File | ArrayBuffer): Promise<PDFWrapper> {
   const data = await file.arrayBuffer()
   const task = pdfjsLib.getDocument({ data })
   const doc = await task.promise.then((pdfDoc) => pdfDoc)
-  console.log(`doc`, doc)
+
   return {
     file,
     numPages: doc.numPages,
@@ -74,7 +74,7 @@ export async function getPDFPagesInfo(pdf: PDFWrapper): Promise<PDFPageInfo[]> {
 
 /**
  * Render a PDF page to a canvas
- * 
+ *
  * DPI Calculation:
  * - PDF internal units are in points (1/72 inch)
  * - Default PDF DPI is 72
@@ -84,20 +84,20 @@ export async function getPDFPagesInfo(pdf: PDFWrapper): Promise<PDFPageInfo[]> {
 export async function renderPDFPageToCanvas(pdf: PDFWrapper, pageNumber: number, options: RenderOptions = {}): Promise<HTMLCanvasElement> {
   const { scale, maxWidth, maxHeight, dpi = 300 } = options
   const page = await pdf.doc.getPage(pageNumber)
-  
+
   // Get page info to determine PDF DPI
   // PDF default is 72 DPI (1 point = 1/72 inch)
   const defaultPdfDpi = 72
   const targetDpi = dpi || 300
-  
+
   // Calculate scale to achieve target DPI
   // If PDF has its own DPI, we would calculate: targetDpi / pdfDpi
   // Since most PDFs use 72 DPI, the scale factor is: 300/72 = 4.166...
   const dpiScale = targetDpi / defaultPdfDpi
-  
+
   // Use provided scale or calculated DPI scale
   let finalScale = scale || dpiScale
-  
+
   // Get viewport with the scale
   let viewport = page.getViewport({ scale: finalScale })
 
@@ -106,7 +106,7 @@ export async function renderPDFPageToCanvas(pdf: PDFWrapper, pageNumber: number,
     const scaleX = maxWidth ? maxWidth / viewport.width : Infinity
     const scaleY = maxHeight ? maxHeight / viewport.height : Infinity
     const fitScale = Math.min(scaleX, scaleY)
-    
+
     // Only apply fit scale if it's smaller than our target scale
     // This ensures we don't upscale beyond target DPI
     if (fitScale < 1) {

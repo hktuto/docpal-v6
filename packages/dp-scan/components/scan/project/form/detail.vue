@@ -77,7 +77,7 @@ async function fetchFormDetail() {
   }
 }
 function backToList() {
-  const tab = createProjectTableTab()
+  const tab = createScanDetailPageTab(formDetail.value.projectId)
     routerProvider?.navigateTo(tab)
 }
 async function refreshFormDetail() {
@@ -166,7 +166,7 @@ onMounted(() => {
 .statusContent {
   flex: 1;
   overflow: hidden;
-  padding: var(--app-space-m);
+  /* padding: var(--app-space-m); */
 }
 
 .loadingState {
