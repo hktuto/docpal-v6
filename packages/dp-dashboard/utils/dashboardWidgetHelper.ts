@@ -84,11 +84,11 @@ export const dashboardWidgetSetting: { [key in string]: DashboardWidgetSetting }
     type: DASHBOARD_TYPE.hkhs,
     label: 'HkhsApplicationFormsPassLog',
     minW: 8,
-    minH: 6,
+    minH: 10,
     maxW: 12,
-    maxH: 8,
+    maxH: 12,
     w: 8,
-    h: 6,
+    h: 10,
     component: 'LazyHkhsApplicationFormsPassLog',
     setting: {
     }

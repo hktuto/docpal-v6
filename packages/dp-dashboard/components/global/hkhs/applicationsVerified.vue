@@ -3,6 +3,7 @@ import { ArrowDownBold } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
 import dayjs from 'dayjs'
 
+const emits = defineEmits(['delete', 'refreshSetting'])
 const props = withDefaults(
   defineProps<{
     setting?: any
@@ -13,10 +14,6 @@ const props = withDefaults(
     hideSetting: true
   }
 )
-const appPlatform = useAppPlatform()
-const showDeleteIcon = computed(() => {
-  return appPlatform.value === 'admin'
-})
 
 const { cardRef, settingRef, refresh, loading } = useDashboardCard({
   props
@@ -196,7 +193,6 @@ onMounted(async () => {
     :setting="setting"
     :show-refresh-icon="false"
     :show-fullscreen-icon="false"
-    :show-delete-icon="showDeleteIcon"
     @delete="handleDelete"
     @refresh="handleRefresh"
   >
@@ -258,6 +254,7 @@ onMounted(async () => {
         </template>
       </VxeGrid>
     </div>
+    <HkhsSetting ref="settingRef" :setting="setting" @submit="(setting) => $emit('refreshSetting', setting)"/>
   </DashboardCard>
 </template>
 
