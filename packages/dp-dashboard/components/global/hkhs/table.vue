@@ -10,7 +10,7 @@ const props = defineProps<{
   orderBy: boolean
 }>()
 
-const dataList = ref([])
+const dataList = ref<any[]>([])
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'HKHS-ApplicationFormsPassLog',
   virtualScroll: true,
@@ -18,9 +18,9 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
   columns: [
     { field: 'datetime', title: 'Date Time', fixed: 'left' },
     { field: 'batch_no', title: 'Batch No.' },
-    { field: 'form', title: 'Form' },
-    { field: 'to', title: 'To' },
-    { field: 'No of Applications', title: 'No of Applications' },
+    { field: 'from_application_number', title: 'Form' },
+    { field: 'to_application_number', title: 'To' },
+    { field: 'no_of_application', title: 'No of Applications' },
     { field: 'form_type', title: 'Form Type' },
     { field: 'user_id', title: 'User ID' },
     { field: 'is_overwrite', title: 'Insert/Replace' },
@@ -44,14 +44,19 @@ async function getData() {
 }
 
 function HandleSorting() {
-  const sort = dataList.value.sort((a, b) => {
-    if (props.orderBy) {
-      return b[props.sortingField].localeCompare(a[props.sortingField], undefined, { sensitivity: 'base' })
-    } else {
-      return a[props.sortingField].localeCompare(b[props.sortingField], undefined, { sensitivity: 'base' })
-    }
+  const field = props.sortingField
+  if (!field) return
+  const getVal = (row: any) => {
+    const v = row?.[field]
+    return v == null ? '' : String(v)
+  }
+  const sorted = [...dataList.value].sort((a, b) => {
+    const va = getVal(a)
+    const vb = getVal(b)
+    const cmp = va.localeCompare(vb, undefined, { sensitivity: 'base' })
+    return props.orderBy ? cmp : -cmp
   })
-  tableRef.value.loadData(sort)
+  tableRef.value.loadData(sorted)
 }
 
 defineExpose({
