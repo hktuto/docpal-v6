@@ -24,7 +24,7 @@ const formStatusFromFormDetail = computed(() => {
   if (!formDetail.value.sampleDocPath) return 'classificationUpload'
 
   // Check if classification config is complete
-  if (!formDetail.value.formClassificationConfig || !formDetail.value.formClassificationConfig.length) return 'classificationCrop'
+  if (!formDetail.value.formClassificationConfig ) return 'classificationCrop'
 
   // Check if page split is complete
   if (!formDetail.value.pageSplitConfig) return 'split'
@@ -76,7 +76,10 @@ async function fetchFormDetail() {
     loading.value = false
   }
 }
-
+function backToList() {
+  const tab = createProjectTableTab()
+    routerProvider?.navigateTo(tab)
+}
 async function refreshFormDetail() {
   await fetchFormDetail()
 }
@@ -90,6 +93,9 @@ onMounted(() => {
   <div v-loading="loading" class="formDetail">
     <!-- Header with current step name -->
     <div class="formHeader">
+        <div class="back" @click="backToList">
+          <Icon name="material-symbols:arrow-back-ios" />
+        </div>
       <h2 class="formTitle">{{ statusTitles[formStatus] || 'Form Configuration' }}</h2>
     </div>
 
@@ -144,6 +150,10 @@ onMounted(() => {
   background-color: var(--app-bg-color);
   border-bottom: 1px solid var(--app-border-color);
   flex-shrink: 0;
+  display: flex;
+  flex-flow: flex-start;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .formTitle {

@@ -2,6 +2,7 @@
 import { clientApi } from 'api'
 import DocumentCropper from './DocumentCropper.vue'
 import { readQRCode } from '#imports'
+import { ref, computed, nextTick, watch, onMounted, inject } from 'vue'
 
 const props = defineProps<{
   formDetail: any
@@ -15,13 +16,13 @@ const routerProvider = inject(MenuRouterKey)
 
 // State
 const saving = ref(false)
+const cropperInitialized = ref(false)
 
 // Cropper ref
 const cropperRef = ref<InstanceType<typeof DocumentCropper>>()
 
-// Crop mode state
-const isCropMode = ref(false)
-const cropType = ref<'barcode' | 'keyword' | null>(null)
+// Current crop type when adding
+const addingCropType = ref<'barcode' | 'keyword' | null>(null)
 
 // Classification config
 interface ClassificationItem {
@@ -33,6 +34,7 @@ interface ClassificationItem {
   barcode_value?: string
   keyword?: string
   croppedImage?: string
+  color?: string
 }
 
 const classificationConfig = ref<Record<string, ClassificationItem>>({})
@@ -50,7 +52,14 @@ const keywordItems = computed(() => {
     .sort((a, b) => a[1].order - b[1].order)
 })
 
-// Initialize from props
+// Get sample document URL
+const sampleDocUrl = computed(() => {
+  if (!props.formDetail?.sampleDocPath) return null
+  // Assuming sampleDocPath is a full URL or needs to be resolved
+  return props.formDetail.sampleDocPath
+})
+
+// Initialize from props and load cropper
 function initClassificationConfig() {
   const config = props.formDetail?.formClassificationConfig
   if (config && typeof config === 'object') {
@@ -58,69 +67,111 @@ function initClassificationConfig() {
   } else {
     classificationConfig.value = {}
   }
+  
+  // Initialize cropper after data is loaded
+  nextTick(() => {
+    initCropper()
+  })
+}
+
+// Initialize cropper with image and existing crops
+function initCropper() {
+  if (!cropperRef.value || !sampleDocUrl.value) return
+  
+  // Convert existing config to crop objects
+  const existingCrops = Object.entries(classificationConfig.value).map(([key, item]) => ({
+    id: key,
+    zone: item.zone,
+    color: item.color,
+    method: item.method,
+    barcode_type: item.barcode_type,
+    barcode_value: item.barcode_value,
+    keyword: item.keyword,
+    croppedImage: item.croppedImage,
+    order: item.order
+  }))
+  
+  cropperRef.value.init(sampleDocUrl.value, existingCrops)
+  cropperInitialized.value = true
 }
 
 // Start adding new classification item
 function startAddClassification(type: 'barcode' | 'keyword') {
-  cropType.value = type
-  isCropMode.value = true
-  // Wait for cropper to mount then start crop
-  nextTick(() => {
-    cropperRef.value?.startCrop()
-  })
-}
-
-// Handle crop cancel
-function handleCropCancel() {
-  isCropMode.value = false
-  cropType.value = null
-}
-
-// Handle crop confirm
-async function handleCropConfirm({ zone, croppedImage }: { zone: string; croppedImage: string }) {
-  if (!cropType.value) return
-
+  if (!cropperRef.value || !cropperInitialized.value) {
+    routerProvider?.message.warning('Please wait for the document to load')
+    return
+  }
+  
+  addingCropType.value = type
+  
   // Generate unique key
   const timestamp = Date.now()
-  const prefix = cropType.value === 'barcode' ? 'single_code' : 'single_keyword'
+  const prefix = type === 'barcode' ? 'single_code' : 'single_keyword'
   const existingKeys = Object.keys(classificationConfig.value).filter(k => k.startsWith(prefix))
   const index = existingKeys.length + 1
   const key = `${prefix}_${index}_${timestamp}`
-
+  
   // Calculate order
   const allItems = Object.values(classificationConfig.value)
   const maxOrder = allItems.reduce((max, item) => Math.max(max, item.order), 0)
-
-  // Create new item
-  const newItem: ClassificationItem = {
-    key,
-    zone,
+  
+  // Add crop via cropper - this enters edit mode
+  cropperRef.value.addCrop({
+    id: key,
+    method: type,
     order: maxOrder + 1,
-    method: cropType.value,
+    barcode_type: type === 'barcode' ? 'qrcode' : undefined,
+    barcode_value: '',
+    keyword: type === 'keyword' ? '' : undefined
+  })
+}
+
+// Handle crop update (confirm)
+async function handleCropUpdate(cropData: any) {
+  const { id, zone, color, method, croppedImage } = cropData
+  
+  // Get existing item or create new
+  const existingItem = classificationConfig.value[id]
+  
+  const newItem: ClassificationItem = {
+    key: id,
+    zone,
+    order: existingItem?.order || cropData.order,
+    method: method || addingCropType.value || 'barcode',
+    color,
     croppedImage
   }
-
-  if (cropType.value === 'barcode') {
-    newItem.barcode_type = 'qrcode'
-    newItem.barcode_value = ''
-    // Try to scan barcode
-    const scannedValue = await scanBarcode(croppedImage, 'qrcode')
-    if (scannedValue) {
-      newItem.barcode_value = scannedValue
+  
+  if (newItem.method === 'barcode') {
+    newItem.barcode_type = existingItem?.barcode_type || cropData.barcode_type || 'qrcode'
+    newItem.barcode_value = existingItem?.barcode_value || ''
+    
+    // Try to scan barcode if we have cropped image
+    if (croppedImage) {
+      const scannedValue = await scanBarcode(croppedImage, newItem.barcode_type!)
+      if (scannedValue) {
+        newItem.barcode_value = scannedValue
+      }
     }
   } else {
-    newItem.keyword = ''
+    newItem.keyword = existingItem?.keyword || ''
   }
-
-  // Add to config
-  classificationConfig.value[key] = newItem
-
-  // Exit crop mode
-  isCropMode.value = false
-  cropType.value = null
-
+  
+  // Update config
+  classificationConfig.value[id] = newItem
+  addingCropType.value = null
+  
   // Auto-save
   await saveConfig()
+}
+
+// Handle crop remove
+function handleCropRemove(cropId: string | number) {
+  // Remove from config
+  if (classificationConfig.value[cropId]) {
+    delete classificationConfig.value[cropId]
+    saveConfig()
+  }
 }
 
 // Scan barcode from cropped image using pure function
@@ -204,6 +255,10 @@ async function deleteClassificationItem(key: string) {
     })
 
     delete classificationConfig.value[key]
+    
+    // Re-initialize cropper to reflect changes
+    initCropper()
+    
     await saveConfig()
     routerProvider?.message.success('Classification item deleted')
   } catch {
@@ -228,6 +283,13 @@ async function saveConfig() {
   }
 }
 
+// Watch for sampleDocPath changes
+watch(() => props.formDetail?.sampleDocPath, () => {
+  if (sampleDocUrl.value && cropperRef.value) {
+    initCropper()
+  }
+})
+
 onMounted(() => {
   initClassificationConfig()
 })
@@ -236,25 +298,19 @@ onMounted(() => {
 <template>
   <div class="classificationCrop">
     <ElSplitter class="splitter">
-      <!-- Left Panel: Document Preview / Crop -->
+      <!-- Left Panel: Document Cropper -->
       <ElSplitterPanel size="60%" min="300">
         <div class="leftPanel">
-          <!-- Show cropper when in crop mode -->
           <DocumentCropper
-            v-if="isCropMode"
+            v-if="sampleDocUrl"
             ref="cropperRef"
-            :sample-doc-path="formDetail?.sampleDocPath"
-            @cancel="handleCropCancel"
-            @confirm="handleCropConfirm"
+            @update="handleCropUpdate"
+            @remove="handleCropRemove"
           />
-
-          <!-- Show preview when not in crop mode -->
           <div v-else class="previewPlaceholder">
             <div class="placeholderContent">
-              <Icon name="lucide:scan" class="placeholderIcon" />
-              <p class="placeholderText">
-                Click the <Icon name="lucide:plus" class="inlineIcon" /> button in the QRcode or Keywords panel to start cropping
-              </p>
+              <Icon name="lucide:file-x" class="placeholderIcon" />
+              <p class="placeholderText">No sample document available</p>
             </div>
           </div>
         </div>
@@ -274,7 +330,7 @@ onMounted(() => {
                 type="primary"
                 size="small"
                 circle
-                :disabled="isCropMode"
+                :disabled="!cropperInitialized"
                 @click="startAddClassification('barcode')"
               >
                 <Icon name="lucide:plus" />
@@ -347,7 +403,7 @@ onMounted(() => {
                 type="primary"
                 size="small"
                 circle
-                :disabled="isCropMode"
+                :disabled="!cropperInitialized"
                 @click="startAddClassification('keyword')"
               >
                 <Icon name="lucide:plus" />
