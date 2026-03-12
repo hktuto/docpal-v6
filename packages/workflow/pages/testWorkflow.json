@@ -14,7 +14,7 @@
       "flow": {
         "incoming": [],
         "outgoing": [
-          "system_end_event"
+          "New_UserTask_1773305606924"
         ],
         "join_type": "XOR",
         "split_type": "XOR"
@@ -24,7 +24,7 @@
         "timeout_ms": 1000,
         "priority": 0
       },
-      "config": { },
+      "config": {},
       "metadata": {
         "x": 60,
         "y": -150,
@@ -35,12 +35,12 @@
     },
     {
       "id": "system_end_event",
-      "name": "End Event",
       "label": "End Event",
+      "name": "End Event",
       "type": "EndEvent",
       "flow": {
         "incoming": [
-          "system_start_event"
+          "New_UserTask_1773305606924"
         ],
         "outgoing": [],
         "join_type": "XOR",
@@ -54,17 +54,47 @@
       "config": {},
       "metadata": {
         "x": 60,
-        "y": 60,
+        "y": 170,
         "width": 140,
         "height": 64,
         "icon": "/icons/close.svg"
+      }
+    },
+    {
+      "id": "New_UserTask_1773305606924",
+      "label": "New User Task",
+      "name": "New User Task",
+      "type": "UserTask",
+      "flow": {
+        "incoming": [
+          "system_start_event"
+        ],
+        "outgoing": [
+          "system_end_event"
+        ],
+        "join_type": "XOR",
+        "split_type": "XOR"
+      },
+      "metadata": {
+        "x": 30,
+        "y": 10,
+        "width": 200,
+        "height": 64
       }
     }
   ],
   "edges": [
     {
-      "id": "edge-6d659da4-3c0f-4cc2-9fff-4818cfe12eb3",
+      "id": "edge-0ec7a00b-5d90-402d-ba43-61aaf0f7bfab",
       "source_node_id": "system_start_event",
+      "target_node_id": "New_UserTask_1773305606924",
+      "flow_control": {
+        "type": "sequence"
+      }
+    },
+    {
+      "id": "edge-35ce57a1-9338-4288-ba1e-699e2350c37b",
+      "source_node_id": "New_UserTask_1773305606924",
       "target_node_id": "system_end_event",
       "flow_control": {
         "type": "sequence"

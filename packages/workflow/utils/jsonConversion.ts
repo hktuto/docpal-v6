@@ -102,7 +102,7 @@ export const x6NodeToWorkflowJson = function (graphProvider) {
   const edges = graph.getEdges()
   console.log('-- x6Nodes: ', x6Nodes)
   console.log('-- edges: ', edges)
-  console.log('-- workflowJson: ', oldJson)
+  // console.log('-- workflowJson: ', oldJson)
 
   const workflowConfig: any = graph.getCellById(workflowJson.id)
   if (!workflowConfig) {
@@ -172,7 +172,6 @@ export const workflowJsonToX6Node = function (workflowJson: WorkflowJson) {
 function x6NodesToWorkflowJsonNodes(x6Nodes: any[]) {
   const nodes: any[] = []
   x6Nodes.forEach((x6Node: any) => {
-    console.log('---- x6Node', x6Node.data)
     if (x6Node.data.type === 'process') return
 
     const { x, y } = x6Node.getPosition()

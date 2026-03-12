@@ -54,22 +54,34 @@ function setupEdge() {
     const target = edge.getTargetCell()
     if (!source || !target) return
 
-    if (target.data.type === WorkflowElementType.StartEvent) {
+    console.log('----edge:connected edge ', isNew, edge)
+    console.log('----edge:connected source ', source)
+    console.log('----edge:connected target', target)
+
+    if (!isNew) {
+      // update edge
+      const data = edge.data
+      const newData = {
+        ...data,
+        id: `edge-${edge.id}`,
+        source_node_id: source.id,
+        target_node_id: target.id
+      }
+      edge.setData(newData, { overwrite: true, deep: true })
       return
     }
 
-    if (isNew) {
-      // TODO: 需要多一個字段用於 用保存進出/出口綫，從cell中的那個點出發。以及該綫是虛綫還是實綫
-      edge.data = {
-        id: `edge-${edge.id}`,
-        source_node_id: edge.source.cell,
-        target_node_id: edge.target.cell,
-        flow_control: {
-          type: 'sequence'
-        }
+    // create new edge
+    // TODO: 需要多一個字段用於 用保存進出/出口綫，從cell中的那個點出發。以及該綫是虛綫還是實綫
+    edge.data = {
+      id: `edge-${edge.id}`,
+      source_node_id: edge.source.cell,
+      target_node_id: edge.target.cell,
+      flow_control: {
+        type: 'sequence'
       }
-      edge.setRouter('manhattan')
     }
+    edge.setRouter('manhattan')
   })
 }
 
