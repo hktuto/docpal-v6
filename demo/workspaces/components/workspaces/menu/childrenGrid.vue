@@ -99,7 +99,7 @@ async function handleDrop(event: DragEvent, child: TreeItem) {
         <Icon :name="getChildIcon(child)" />
       </div>
       <div class="child-label">
-        {{ child.label }}
+        {{ child.name }}
       </div>
       <p class="child-description">
         {{ child.description }}

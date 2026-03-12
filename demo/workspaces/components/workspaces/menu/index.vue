@@ -42,11 +42,11 @@ const {
     if (excelFile && workspace.value?.id) {
       const result = await importExcelFile(excelFile, workspace.value.id, null)
       if (result.action === 'update' && result.duplicateSheets && result.duplicateSheets.length > 0) {
-        handleDuplicateUpdates(excelFile, result.duplicateSheets)
       }
     }
   }
 })
+
 
 async function handleFolderDrop(folderId: string, file: File) {
   if (workspace.value?.id) {
@@ -72,11 +72,6 @@ async function handleFileInputChange(event: Event) {
 
   if (isExcelFile(file)) {
     const result = await importExcelFile(file, workspace.value.id, null)
-    
-    // If update action, open dialog to handle duplicate updates
-    if (result.action === 'update' && result.duplicateSheets && result.duplicateSheets.length > 0) {
-      handleDuplicateUpdates(file, result.duplicateSheets)
-    }
   } else {
     ElMessage.error('Please select an Excel file (.xlsx, .xls) or CSV file (.csv)')
   }
@@ -94,70 +89,6 @@ function triggerFileInput() {
 }
 
 /**
- * Handle duplicate updates by opening ImportToTableDialog for each duplicate
- */
-function handleDuplicateUpdates(file: File, duplicates: DuplicateSheetInfo[]) {
-  pendingDuplicates.value = [...duplicates]
-  tablesUpdated.value = []
-  
-  ElMessage.info(`Updating ${duplicates.length} existing table(s)...`)
-  processNextDuplicate()
-}
-
-/**
- * Process the next duplicate by opening ImportToTableDialog
- */
-async function processNextDuplicate() {
-  if (pendingDuplicates.value.length === 0) {
-    // All duplicates processed
-    if (tablesUpdated.value.length > 0) {
-      ElMessage.success(`${tablesUpdated.value.length} table(s) updated successfully`)
-    }
-    return
-  }
-
-  const duplicate = pendingDuplicates.value[0]
-  console.log('[ImportToTableDialog] Processing duplicate:', duplicate)
-  try {
-    // Get table fields for the existing table
-    const fields = await query<CaseFieldRecord>(
-      `SELECT * FROM case_fields WHERE "tableId" = $1`,
-      [duplicate.existingTableId]
-    )
-    console.log('[ImportToTableDialog] Got fields:', fields.length)
-    // Get physical table name (stored as "tableName" in DB)
-    const tableData = await query<{ tableName: string }>(
-      `SELECT "tableName" FROM case_tables WHERE id = $1`,
-      [duplicate.existingTableId]
-    )
-    console.log('[ImportToTableDialog] Got table data:', tableData.length)
-    if (tableData.length === 0) {
-      console.error('Table not found:', duplicate.existingTableId)
-      pendingDuplicates.value.shift()
-      processNextDuplicate()
-      return
-    }
-
-    // Open the import dialog for this duplicate with pre-loaded data
-    importToTableDialogRef.value?.openWithSheetData(
-      duplicate.rows,
-      duplicate.headers,
-      {
-        physicalTableName: ref(tableData[0].tableName),
-        fields: ref(fields),
-        query,
-        tableDisplayName: duplicate.existingTableName,
-        tableIdValue: duplicate.existingTableId
-      }
-    )
-  } catch (error) {
-    console.error('Error preparing duplicate update:', error)
-    pendingDuplicates.value.shift()
-    processNextDuplicate()
-  }
-}
-
-/**
  * Handle completion of a table update from ImportToTableDialog
  */
 function handleUpdateComplete(result: any) {
@@ -172,7 +103,8 @@ function handleUpdateComplete(result: any) {
   
   // Process next duplicate
   if (pendingDuplicates.value.length > 0) {
-    setTimeout(() => processNextDuplicate(), 300)
+    // continue with next duplicate 
+    // TODO importToTableDialogRef.value?.openWithSheetData
   } else if (tablesUpdated.value.length > 0) {
     ElMessage.success(`${tablesUpdated.value.length} table(s) updated successfully`)
   }
@@ -183,12 +115,7 @@ function handleUpdateComplete(result: any) {
  */
 function handleUpdateClose() {
   pendingDuplicates.value.shift()
-  
-  if (pendingDuplicates.value.length > 0) {
-    setTimeout(() => processNextDuplicate(), 300)
-  } else if (tablesUpdated.value.length > 0) {
-    ElMessage.success(`${tablesUpdated.value.length} table(s) updated successfully`)
-  }
+
 }
 
 // Expose for child components

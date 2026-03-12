@@ -136,7 +136,7 @@ async function onFolderDrop(event: DragEvent) {
         <UiInlineEditor
           :model-value="item.name"
           :editing="isEditing"
-          :editable="isAdmin"
+          :editable="false"
           wrapper="span"
           @update:editing="(val) => (val ? startEdit(item.id) : cancelEdit())"
           @save="handleSaveEdit"
