@@ -2,7 +2,6 @@ export * from './workspace/useWorkspace'
 export * from './workspace/useSingleWorkspace'
 
 export * from './table/useTableView'
-export * from './table/useTableFields'
 export * from './table/useTableViews'
 export * from './table/useTableSchema'
 export * from './table/useTableDetailSuggestionState'

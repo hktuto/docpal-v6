@@ -3,7 +3,6 @@ import { ElMessage } from 'element-plus'
 import { getCurrentUserId } from '../useCurrentUser'
 
 // Import sub-composables
-import { useTableFields, ensurePlainArray } from './useTableFields'
 import { useTableViews, ViewContextKey, type ViewContext } from './useTableViews'
 import { newClientApi } from 'api'
 
@@ -27,14 +26,6 @@ export const useTableView = () => {
   const physicalTableName = ref<string>('')
   const reference_entity_id = ref<string>('')
 
-  // Initialize field management
-  const fieldComposable = useTableFields({
-    tableId,
-    physicalTableName,
-    query,
-    exec
-  })
-
   // Initialize view management
   const viewComposable = useTableViews({
     tableId,
@@ -46,13 +37,11 @@ export const useTableView = () => {
   // Initialize data provider (depends on fields, views, columns)
   // const dataComposable = useTableDataProvider({
   //   physicalTableName,
-  //   fields: fieldComposable.fields,
   //   currentView: viewComposable.currentView,
   //   columnFilterRules: viewComposable.columnFilterRules,
   //   columnSortRules: viewComposable.columnSortRules,
   //   columnGroupRules: viewComposable.columnGroupRules,
   //   query,
-  //   getField: fieldComposable.getField,
   //   // Audit logging options
   //   tableId,
   //   reference_entity_id,
@@ -80,8 +69,6 @@ export const useTableView = () => {
       throw new Error('Table viewName not found')
     }
 
-    // Load fields and view
-    await fieldComposable.getAllFields()
     await viewComposable.getViewById(table.viewName)
   }
 
@@ -110,7 +97,6 @@ export const useTableView = () => {
     reference_entity_id.value = table.reference_entity_id
 
     // Load fields
-    await fieldComposable.getAllFields()
 
     // Set current view and load rules
     await viewComposable.getViewById(viewId)
@@ -138,11 +124,6 @@ export const useTableView = () => {
       throw new Error('At least one display field is required')
     }
 
-    // Get source field
-    const sourceField = fieldComposable.getField(sourceFieldName)
-    if (!sourceField) {
-      throw new Error('Source field not found')
-    }
 
     // Get target table info
     const targetTableData = await query<CaseTableRecord>(`SELECT * FROM case_tables WHERE id = $1`, [targetTableId])
@@ -312,8 +293,6 @@ export const useTableView = () => {
       }
     }
 
-    // Refresh fields
-    await fieldComposable.getAllFields()
 
     // Add the relation column to the view, plus virtual columns for additional display fields
     if (viewComposable.currentView.value) {
@@ -390,14 +369,6 @@ export const useTableView = () => {
     // updateRow: dataComposable.updateRow,
     // deleteRow: dataComposable.deleteRow,
     // queryTableByName: dataComposable.queryTableByName,
-
-    // Fields (from fieldComposable)
-    fields: fieldComposable.fields,
-    getField: fieldComposable.getField,
-    getAllFields: fieldComposable.getAllFields,
-    addField: fieldComposable.addField,
-    updateField: fieldComposable.updateField,
-    deleteField: fieldComposable.deleteField,
 
     columnGroupRules: viewComposable.columnGroupRules,
 

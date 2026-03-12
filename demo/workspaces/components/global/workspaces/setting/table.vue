@@ -23,7 +23,6 @@ const settingsSections = [
     group: 'GENERAL',
     items: [
       { id: 'info', label: 'Info', icon: 'lucide:info' },
-      { id: 'columns', label: 'Columns', icon: 'lucide:columns' }
     ]
   },
   {
@@ -61,8 +60,6 @@ const sectionComponent = computed(() => {
   switch (activeSection.value) {
     case 'info':
       return 'LazyWorkspacesSettingTableGeneral'
-    case 'columns':
-      return 'LazyWorkspacesSettingTableColumns'
     case 'card':
       return 'LazyWorkspacesSettingTableCard'
     case 'detail':

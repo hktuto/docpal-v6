@@ -3,7 +3,7 @@ import { ElMessage } from 'element-plus'
 import { useSingleWorkspaceContext } from '../../../../../composables/workspace/useSingleWorkspace'
 
 const { workspace, saveWorkspaceToDb } = useSingleWorkspaceContext()
-
+const loading = ref(false)
 const formData = ref({
   name: '',
   description: '',
@@ -26,6 +26,7 @@ async function handleSaveGeneral() {
   if (!workspace.value) return
   
   try {
+    loading.value = true
     await saveWorkspaceToDb({
       ...workspace.value,
       name: formData.value.name,
@@ -36,6 +37,8 @@ async function handleSaveGeneral() {
   } catch (error) {
     console.error('Error saving workspace:', error)
     ElMessage.error('Failed to save settings')
+  } finally {
+    loading.value = false
   }
 }
 </script>
@@ -66,7 +69,7 @@ async function handleSaveGeneral() {
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary" @click="handleSaveGeneral">
+        <el-button type="primary" :loading="loading" @click="handleSaveGeneral">
           Save Changes
         </el-button>
       </el-form-item>

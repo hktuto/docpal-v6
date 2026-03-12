@@ -3,12 +3,12 @@ import { ElMessage } from 'element-plus'
 import { useSingleWorkspaceContext } from '../../../../../composables/workspace/useSingleWorkspace'
 import type { CaseTableRecord, CaseFieldRecord } from '../../../../../utils/db/schema/newTableSchema'
 
-const { workspaceRouteParams, findItemById, menuState } = useSingleWorkspaceContext()
+const { workspaceRouteParams, findItemById, menuState, saveMenuItemToDb } = useSingleWorkspaceContext()
 const { query } = usePglite()
 
-const tableData = ref<CaseTableRecord | null>(null)
 const fieldsData = ref<CaseFieldRecord[]>([])
 
+const loading = ref(false)
 const formData = ref({
   name: '',
   description: ''
@@ -16,54 +16,28 @@ const formData = ref({
 
 async function loadTableData() {
   const treeItem = findItemById(menuState.value.items, workspaceRouteParams.value.detailId || '')
-  if (!treeItem || treeItem.item_type !== 'table' || !treeItem.itemId) return
-
-  try {
-    const tables = await query<CaseTableRecord[]>(
-      `SELECT * FROM case_tables WHERE id = $1`,
-      [treeItem.itemId]
-    )
-    
-    if (tables.length > 0) {
-      tableData.value = tables[0]
-      formData.value.name = tableData.value.name
-      formData.value.description = tableData.value.description || ''
-    }
-
-    fieldsData.value = await query<CaseFieldRecord[]>(
-      `SELECT * FROM case_fields WHERE "tableId" = $1 ORDER BY "createdAt" ASC`,
-      [treeItem.itemId]
-    )
-  } catch (error) {
-    console.error('Error loading table data:', error)
-    ElMessage.error('Failed to load table data')
-  }
+  if (!treeItem || treeItem.item_type !== 'master_table' || !treeItem.item_id) return
+  formData.value.name = treeItem.name
+  formData.value.description = treeItem.description || ''
 }
 
 async function handleSaveGeneral() {
-  if (!tableData.value) return
-
   try {
-    const now = new Date().toISOString()
-    await query(
-      `UPDATE case_tables 
-       SET name = $1, description = $2, "updatedAt" = $3
-       WHERE id = $4`,
-      [formData.value.name, formData.value.description, now, tableData.value.id]
-    )
-
+    loading.value = true
+    await saveMenuItemToDb({ ...formData.value, id: workspaceRouteParams.value.detailId })
     const treeItem = findItemById(menuState.value.items, workspaceRouteParams.value.detailId || '')
     if (treeItem) {
-      treeItem.label = formData.value.name
+      treeItem.name = formData.value.name
+      treeItem.description = formData.value.description || null
     }
-
     ElMessage.success('Settings saved successfully')
   } catch (error) {
     console.error('Error saving table:', error)
     ElMessage.error('Failed to save settings')
+  } finally {
+    loading.value = false
   }
 }
-
 
 onMounted(() => {
   loadTableData()
@@ -88,21 +62,13 @@ watch(
       <el-form-item label="Table Name">
         <el-input v-model="formData.name" placeholder="Enter table name" />
       </el-form-item>
-      
+
       <el-form-item label="Description">
-        <el-input 
-          v-model="formData.description" 
-          type="textarea" 
-          :rows="3"
-          placeholder="Enter table description"
-        />
+        <el-input v-model="formData.description" type="textarea" :rows="3" placeholder="Enter table description" />
       </el-form-item>
 
-
       <el-form-item>
-        <el-button type="primary" @click="handleSaveGeneral">
-          Save Changes
-        </el-button>
+        <el-button type="primary" :loading="loading" @click="handleSaveGeneral"> Save Changes </el-button>
       </el-form-item>
     </el-form>
   </el-card>
