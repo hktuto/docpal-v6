@@ -98,12 +98,11 @@ export const x6NodeToWorkflowJson = function (graphProvider) {
   const oldJson: WorkflowJson = graphProvider.workflowJson.value
   const workflowJson = JSON.parse(JSON.stringify(oldJson))
 
-  const nodes = graph.getNodes()
+  const x6Nodes = graph.getNodes()
   const edges = graph.getEdges()
-  console.log('-- nodes: ', nodes)
+  console.log('-- x6Nodes: ', x6Nodes)
   console.log('-- edges: ', edges)
   console.log('-- workflowJson: ', oldJson)
-  // Update nodes
 
   const workflowConfig: any = graph.getCellById(workflowJson.id)
   if (!workflowConfig) {
@@ -116,7 +115,7 @@ export const x6NodeToWorkflowJson = function (graphProvider) {
     if (edges.length === 0) {
       workflowJson.edges = []
     } else {
-      const edgeList = []
+      const edgeList: any[] = []
       edges.forEach((item: any) => {
         if (!!item.data) {
           edgeList.push(item.data)
@@ -128,7 +127,8 @@ export const x6NodeToWorkflowJson = function (graphProvider) {
     // Update variables
     workflowJson.variables = workflowConfig.data.variables
     // Update Nodes
-    workflowJson.nodes = AddFlowForChildNodes(nodes, workflowJson.edges)
+    const nodes = AddFlowForChildNodes(x6Nodes, workflowJson.edges)
+    workflowJson.nodes = x6NodesToWorkflowJsonNodes(nodes)
 
     console.log('---- workflowJson', workflowJson)
     return workflowJson
@@ -157,6 +157,7 @@ export const workflowJsonToX6Node = function (workflowJson: WorkflowJson) {
       type: 'process',
       data: {
         name: workflowJson.name,
+        type: 'process',
         version: 0,
         variables: workflowJson.variables
       }
@@ -168,7 +169,36 @@ export const workflowJsonToX6Node = function (workflowJson: WorkflowJson) {
   }
 }
 
-function AddFlowForChildNodes(nodes: any[], edges: any[]) {
+function x6NodesToWorkflowJsonNodes(x6Nodes: any[]) {
+  const nodes: any[] = []
+  x6Nodes.forEach((x6Node: any) => {
+    console.log('---- x6Node', x6Node.data)
+    if (x6Node.data.type === 'process') return
+
+    const { x, y } = x6Node.getPosition()
+    const { width, height } = x6Node.getSize()
+    nodes.push({
+      id: x6Node.id,
+      label: x6Node.data.name,
+      name: x6Node.data.name,
+      type: x6Node.data.type,
+      flow: x6Node.data.flow,
+      execution: x6Node.data.execution,
+      config: x6Node.data.config,
+      metadata: {
+        ...x6Node.data.metadata,
+        x: x,
+        y: y,
+        width: width,
+        height: height
+      }
+    })
+  })
+
+  return nodes
+}
+
+function AddFlowForChildNodes(x6Nodes: any[], edges: any[]) {
   const flowMap = edges.reduce(
     (acc, item) => {
       if (!acc[item.target_node_id]) {
@@ -187,16 +217,15 @@ function AddFlowForChildNodes(nodes: any[], edges: any[]) {
   )
 
   // 遍历节点并根据 flowMap 设置 flow 属性
-  nodes.forEach((node: any) => {
-    if (node.type === 'process') return
-    const { incoming = [], outgoing = [] } = flowMap[node.id] || {}
-    node.flow = {
+  x6Nodes.forEach((x6Node: any) => {
+    if (x6Node.data.type === 'process') return
+    const { incoming = [], outgoing = [] } = flowMap[x6Node.id] || {}
+    x6Node.data.flow = {
       incoming,
       outgoing,
       join_type: 'XOR',
       split_type: 'XOR'
     }
   })
-
-  return nodes
+  return x6Nodes
 }

@@ -55,12 +55,11 @@ function setupEdge() {
     if (!source || !target) return
 
     if (target.data.type === WorkflowElementType.StartEvent) {
-      console.log(edge)
       return
     }
 
     if (isNew) {
-      console.log('new edge', edge)
+      // TODO: 需要多一個字段用於 用保存進出/出口綫，從cell中的那個點出發。以及該綫是虛綫還是實綫
       edge.data = {
         id: `edge-${edge.id}`,
         source_node_id: edge.source.cell,

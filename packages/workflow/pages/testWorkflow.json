@@ -7,14 +7,14 @@
   "description": "Process definition created with JSON modeler",
   "nodes": [
     {
-      "id": "start_po",
+      "id": "system_start_event",
       "label": "Start Event",
       "name": "Start Event",
       "type": "StartEvent",
       "flow": {
         "incoming": [],
         "outgoing": [
-          "validate_budget"
+          "system_end_event"
         ],
         "join_type": "XOR",
         "split_type": "XOR"
@@ -24,24 +24,23 @@
         "timeout_ms": 1000,
         "priority": 0
       },
-      "config": {
-        "trigger_type": "message"
-      },
+      "config": { },
       "metadata": {
         "x": 60,
-        "y": 60,
+        "y": -150,
         "width": 140,
         "height": 64,
-        "icon": "/icons/browse.svg"
+        "icon": "/icons/form.svg"
       }
     },
     {
-      "id": "end_approved",
+      "id": "system_end_event",
       "name": "End Event",
+      "label": "End Event",
       "type": "EndEvent",
       "flow": {
         "incoming": [
-          "notify_requester"
+          "system_start_event"
         ],
         "outgoing": [],
         "join_type": "XOR",
@@ -49,26 +48,24 @@
       },
       "execution": {
         "async": false,
-        "timeout_ms": 100,
+        "timeout_ms": 1000,
         "priority": 0
       },
-      "config": {
-        "result": "APPROVED"
-      },
+      "config": {},
       "metadata": {
-        "x": 220,
+        "x": 60,
         "y": 60,
         "width": 140,
         "height": 64,
-        "icon": "icons/close.svg"
+        "icon": "/icons/close.svg"
       }
     }
   ],
   "edges": [
     {
       "id": "edge-6d659da4-3c0f-4cc2-9fff-4818cfe12eb3",
-      "source_node_id": "start_po",
-      "target_node_id": "end_approved",
+      "source_node_id": "system_start_event",
+      "target_node_id": "system_end_event",
       "flow_control": {
         "type": "sequence"
       }

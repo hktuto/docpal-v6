@@ -195,6 +195,7 @@ interface GraphItem {
   position: Position
   size: Size
   data: any
+  ports: any
   _order: number
 }
 
@@ -346,9 +347,7 @@ export const workflowElement: WorkflowElement = {
           height: workflowNodeItem.metadata.height || 64
         },
         data: {
-          id: workflowNodeItem.id,
-          name: workflowNodeItem.name,
-          type: workflowNodeItem.type,
+          ...workflowNodeItem,
           version: 0
         },
         ports: {
@@ -417,7 +416,7 @@ export const workflowElement: WorkflowElement = {
           type: workflowNodeItem.type,
           version: 0
         },
-        props: GenDefPorts(),
+        ports: GenDefPorts(),
         _order: 0
       }
       return graph
@@ -465,7 +464,11 @@ const workflowCellElementTemplate: CellTypeItem = {
       id: '',
       name: 'New User Task',
       type: 'UserTask',
-      assignee: ''
+      formKey: '',
+      inputSchema: '',
+      outputSchema: '',
+      assignee: '',
+      metadata: {}
     }
   },
   SignatureTask: {
@@ -489,7 +492,16 @@ const workflowCellElementTemplate: CellTypeItem = {
         { id: 'right', group: 'right' }
       ]
     },
-    data: {}
+    data: {
+      id: '',
+      name: 'New Signature Task',
+      type: 'UserTask',
+      formKey: '',
+      inputSchema: '',
+      outputSchema: '',
+      assignee: '',
+      metadata: {}
+    }
   }
 }
 
@@ -505,6 +517,7 @@ export const workflowCellElement = {
       ...workflowCellElementTemplate[key],
       id: id,
       data: {
+        ...workflowCellElementTemplate[key].data,
         id: id
       }
     } as CellTypeItem[K]

@@ -136,6 +136,7 @@ function init() {
   workflowJson.value = workflowJsonObject.value
   setVariables(workflowJsonObject.value.variables)
   const json = workflowJsonToX6Node(workflowJsonObject.value)
+
   nextTick(() => {
     graph.value?.fromJSON(json)
     // remove all tools
@@ -151,6 +152,25 @@ function init() {
     })
     graph.value?.getEdges().forEach((edge: any) => {
       edge.removeTools()
+    })
+
+    workflowJsonObject.value.edges.forEach((edge: any) => {
+      // TODO: 需要多一個字段用於 用保存進出/出口綫，從cell中的那個點出發。以及該綫是虛綫還是實綫
+      graph.value?.addEdge({
+        source: { cell: edge.source_node_id, port: 'to' },
+        target: { cell: edge.target_node_id, port: 'from' },
+        attrs: {
+          line: {
+            stroke: '#000000',
+            strokeWidth: 2,
+            strokeDasharray: 0
+          }
+        },
+        data: edge,
+        router: {
+          name: 'manhattan'
+        }
+      })
     })
     fitIn()
     graphReady()
@@ -218,7 +238,7 @@ function itemDrop(item: any, ev: any) {
 }
 
 function openInfo() {
-  sidebarRef.value.openInfo()
+  sidebarRef.value?.openInfo()
 }
 
 function openSidebar(component: string, node: Node | Edge | Cell) {
@@ -228,7 +248,9 @@ function openSidebar(component: string, node: Node | Edge | Cell) {
 
 function openForm() {}
 
-function openPermission() {}
+function openPermission() {
+  sidebarRef.value?.openPermission()
+}
 
 async function getFormByNode(node: Node) {
   const relation = {
@@ -283,11 +305,11 @@ defineExpose({ init })
             <div class="label">{{ item.label }}</div>
           </div>
         </div>
-        <Sidebar ref="sidebarRef" />
         <ToolbarEdge ref="edgeRef" />
         <ToolbarNode ref="nodeRef" @openForm="openForm" />
       </div>
     </div>
+    <Sidebar ref="sidebarRef" />
   </div>
 </template>
 
