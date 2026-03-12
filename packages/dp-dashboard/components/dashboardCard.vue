@@ -13,8 +13,6 @@ const props = withDefaults(
     mode?: 'mock' | 'real'
     showRefreshIcon?: boolean
     showFullscreenIcon?: boolean
-    showSettingIcon?: boolean
-    showDeleteIcon?: boolean
     extraParams?: any[] // add extra params to setting handleOpen function, and it use spread operator
   }>(),
   {
@@ -24,9 +22,7 @@ const props = withDefaults(
     extraParams: [],
     mode: 'real',
     showRefreshIcon: true,
-    showFullscreenIcon: true,
-    showSettingIcon: true,
-    showDeleteIcon: true
+    showFullscreenIcon: true
   }
 )
 const cardRef = ref<any>()
@@ -104,20 +100,8 @@ defineExpose({
             :name="fullscreen ? 'material-symbols:fullscreen-exit-rounded' : 'material-symbols:fullscreen'"
             @click="toggleFullscreen"
           />
-          <SvgIcon
-            v-if="showSettingIcon && !hideSetting && settingRef && mode === 'real'"
-            class=""
-            id="setting"
-            src="/icons/setting.svg"
-            @click="openSetting"
-          />
-          <SvgIcon
-            v-if="showDeleteIcon && !hideSetting && !fullscreen && mode === 'real'"
-            class="setting--icon"
-            id="delete"
-            src="/icons/delete.svg"
-            @click="handleDelete"
-          />
+          <SvgIcon v-if="!hideSetting && settingRef && mode === 'real'" class="" id="setting" src="/icons/setting.svg" @click="openSetting" />
+          <SvgIcon v-if="!hideSetting && !fullscreen && mode === 'real'" class="setting--icon" id="delete" src="/icons/delete.svg" @click="handleDelete" />
         </div>
       </slot>
     </template>

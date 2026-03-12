@@ -13,11 +13,8 @@ const props = withDefaults(
     hideSetting: true
   }
 )
-const appPlatform = useAppPlatform()
-const showDeleteIcon = computed(() => {
-  return appPlatform.value === 'admin'
-})
 
+const emits = defineEmits(['delete', 'refreshSetting'])
 const { cardRef, settingRef, refresh, loading } = useDashboardCard({
   props
 })
@@ -112,12 +109,13 @@ onMounted(async () => {
     :setting="setting"
     :show-refresh-icon="false"
     :show-fullscreen-icon="false"
-    :show-delete-icon="showDeleteIcon"
     @delete="handleDelete"
     @refresh="handleRefresh"
   >
-    <div class="toolbar-wrap-1">
-      <h4 class="title-suffix-name">{{ name }}</h4>
+    <template #title_suffix>
+      <span class="title-suffix-name">{{ name }}</span>
+    </template>
+    <template #action_prefix>
       <el-dropdown trigger="click" @command="handleDownloadCommand">
         <el-button type="primary">
           Download &nbsp;<el-icon><ArrowDownBold /></el-icon>
@@ -129,8 +127,7 @@ onMounted(async () => {
           </el-dropdown-menu>
         </template>
       </el-dropdown>
-    </div>
-
+    </template>
     <div class="toolbar-wrap">
       <div class="toolbar-form-row">
         <el-select class="toolbar-select toolbar-select--type" v-model="formData.project" @change="query">
@@ -184,6 +181,7 @@ onMounted(async () => {
         </div>
       </template>
     </div>
+    <HkhsSetting ref="settingRef" :setting="setting" @submit="(setting) => $emit('refreshSetting', setting)"/>
   </DashboardCard>
 </template>
 
@@ -194,8 +192,6 @@ onMounted(async () => {
 }
 
 .toolbar-wrap {
-  margin-top: 30px;
-  margin-block: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;

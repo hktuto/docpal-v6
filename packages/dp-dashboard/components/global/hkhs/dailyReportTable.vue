@@ -16,10 +16,7 @@ const props = withDefaults(
 const { cardRef, settingRef, refresh, loading } = useDashboardCard({
   props
 })
-const appPlatform = useAppPlatform()
-const showDeleteIcon = computed(() => {
-  return appPlatform.value === 'admin'
-})
+
 const formData = ref({
   project: '',
   date: [dayjs().subtract(30, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')],
@@ -94,7 +91,6 @@ function handleTotal(list: any[]) {
 }
 
 const emits = defineEmits(['delete', 'refreshSetting'])
-const hideSetting = ref()
 const setting = ref()
 const name = ref('SCS-100 - Summary of Application Forms Processed')
 
@@ -188,7 +184,6 @@ onMounted(async () => {
     :setting="setting"
     :show-refresh-icon="false"
     :show-fullscreen-icon="false"
-    :show-delete-icon="showDeleteIcon"
     @delete="handleDelete"
     @refresh="handleRefresh"
   >
@@ -254,6 +249,7 @@ onMounted(async () => {
         </template>
       </VxeGrid>
     </div>
+    <HkhsSetting ref="settingRef" :setting="setting" @submit="(setting) => $emit('refreshSetting', setting)"/>
   </DashboardCard>
 </template>
 

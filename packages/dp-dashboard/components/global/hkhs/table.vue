@@ -56,7 +56,7 @@ function HandleSorting() {
     const cmp = va.localeCompare(vb, undefined, { sensitivity: 'base' })
     return props.orderBy ? cmp : -cmp
   })
-  tableRef.value.loadData(sorted)
+  tableRef.value?.loadData(sorted)
 }
 
 defineExpose({
