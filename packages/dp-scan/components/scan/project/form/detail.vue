@@ -117,6 +117,7 @@ onMounted(() => {
         v-else-if="formStatus === 'classificationCrop'"
         :form-detail="formDetail"
         @refresh="refreshFormDetail"
+        @back="overriderStatus = 'classificationUpload'"
         @next="overriderStatus = 'split'"
       />
 

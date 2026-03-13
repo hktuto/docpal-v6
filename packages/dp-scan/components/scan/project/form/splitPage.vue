@@ -5,24 +5,37 @@ const props = defineProps<{
   formDetail: any
 }>()
 const splitPageCount = ref(1)
+const splited = ref(false)
 const emits = defineEmits(['back', 'next'])
-
+const pagesList = ref<any>([]);
+const loading = ref(false)
 const handleCommand = (command: string) => {
   console.log(command)
-
 }
+
 const handleBack = () => {
   emits('back')
 }
-async function handleNext() {
+async function handleSplit() {
+  loading.value = true
   if(!splitPageCount.value) return
   const data = {
     id: props.formDetail.id,
     projectId: props.formDetail.projectId,
-    path: "",
-    splitPageCount: splitPageCount.value,
+    path: props.formDetail.pagePathList[0],
+    pages: splitPageCount.value,
   }
+  const res = await clientApi.api.postCaptureProjformsettingSplitpage(data)
+  if(res.result){
+    splited.value = true
+    pagesList.value = res.data
+  }
+  loading.value = false
 }
+function handleNext() {
+  emits('next')
+}
+
 </script>
 
 <template>
@@ -45,23 +58,30 @@ async function handleNext() {
               </template>
           </el-dropdown>
       </Teleport>
-    <div class="content">
-
+    <div v-loading="loading" class="content">
+        <template v-if="splited">
+            {{pagesList}}
+        </template>
+        <template v-else>
+            {{formDetail.pagePathList}}
+        </template>
     </div>
     <div class="footer">
         <ElButton type="primary" @click="handleBack">Back</ElButton>
-        <ElButton type="primary" @click="handleNext">Next</ElButton>
-
+        <ElButton v-if="splited" type="primary" @click="handleNext">Next</ElButton>
+        <ElButton v-else type="primary" @click="handleSplit">Next</ElButton>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .splitPageContainer {
-  display: flex;
-  flex-flow: column nowrap;
+  width:100%;
   height: 100%;
-  padding: var(--app-space-m);
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr min-content;
+  padding: var(--app-space-s);
 }
 
 .splitHeader {

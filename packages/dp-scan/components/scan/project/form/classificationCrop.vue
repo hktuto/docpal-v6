@@ -10,7 +10,8 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   refresh: []
-  next: []
+  next: [],
+  back: []
 }>()
 
 const routerProvider = inject(MenuRouterKey)
@@ -504,6 +505,7 @@ onMounted(() => {
 
           <!-- Footer Actions -->
           <div class="panelFooter">
+            <ElButton @click="emits('back')">Back</ElButton>
             <ElButton type="primary" :loading="saving" @click="saveConfig">
               Save & Continue
               <Icon name="lucide:arrow-right" />

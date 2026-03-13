@@ -92,7 +92,7 @@ import { fabric } from "fabric"
 import { ArrowLeft, ArrowRight, ZoomIn, ZoomOut } from '@element-plus/icons-vue'
 import { clientApi } from 'api'
 import { ElMessage } from 'element-plus'
-import { watch } from 'vue'
+import { watch, nextTick } from 'vue'
 
 // ==================== Constants ====================
 const MIN_ZOOM = 0.25
