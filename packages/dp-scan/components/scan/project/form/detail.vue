@@ -69,6 +69,7 @@ async function fetchFormDetail() {
       otherMetadataSetting: normalizeObj(data.otherMetadataSetting),
       pageSplitConfig: normalizeObj(data.pageSplitConfig),
     }
+    console.log("formDetail", formDetail.value)
   } catch (err) {
     console.error('Failed to fetch form detail:', err)
     routerProvider?.message.error('Failed to load form detail')

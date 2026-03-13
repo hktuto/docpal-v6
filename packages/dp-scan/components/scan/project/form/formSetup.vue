@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted, inject, nextTick } from 'vue'
 import { clientApi } from 'api'
+import {ElMessageBox}　from 'element-plus'
 import DocumentPreview from './DocumentPreview.vue'
 import SectionDialog from './SectionDialog.vue'
 import FormSetupConfig from './FormSetupConfig.vue'
@@ -52,8 +53,7 @@ const promptTemplates = ref<Array<{ id: string; name: string }>>([
 
 // ==================== Initialization ====================
 async function initFormConfig() {
-  const existing = props.formDetail?.formFieldsSetting
-  console.log("initFormConfig", props.formDetail)
+  const existing = props.formDetail?.fieldsSetting
   if (existing && typeof existing === 'object') {
     formConfig.value = {
       ...createEmptyFormFieldsSetting(),
@@ -110,7 +110,7 @@ function buildCropsFromConfig(): CropItem[] {
       page: qr.zone.page,
       zone: qr.zone.zone,
       label: qr.label,
-      isEditing: false
+      editable: false
     })
   })
 
@@ -123,7 +123,7 @@ function buildCropsFromConfig(): CropItem[] {
         page: section.zone.page,
         zone: section.zone.zone,
         label: section.section_name,
-        isEditing: false
+        editable: false
       })
     }
 
@@ -134,7 +134,7 @@ function buildCropsFromConfig(): CropItem[] {
         page: field.zone.page,
         zone: field.zone.zone,
         label: field.label,
-        isEditing: false,
+        editable: false,
         parentId: section.section_id
       })
     })
@@ -246,7 +246,7 @@ function handleSaveSection(section: Section) {
 }
 
 function deleteSection(sectionId: string) {
-  routerProvider?.dialog.confirm({
+  ElMessageBox.confirm({
     title: 'Delete Section',
     message: 'Are you sure you want to delete this section? All fields will be removed.',
     confirmText: 'Delete',

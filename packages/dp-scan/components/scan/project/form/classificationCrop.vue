@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
-import DocumentCropper from './DocumentCropper.vue'
+import DocumentPreview from './DocumentPreview.vue'
 import { readQRCode } from '#imports'
 import { ref, computed, nextTick, watch, onMounted, inject } from 'vue'
-
+import { ElMessageBox } from 'element-plus'
 const props = defineProps<{
   formDetail: any
 }>()
@@ -19,7 +19,7 @@ const saving = ref(false)
 const cropperInitialized = ref(false)
 
 // Cropper ref
-const cropperRef = ref<InstanceType<typeof DocumentCropper>>()
+const cropperRef = ref()
 
 // Current crop type when adding
 const addingCropType = ref<'barcode' | 'keyword' | null>(null)
@@ -54,9 +54,9 @@ const keywordItems = computed(() => {
 
 // Get sample document URL
 const sampleDocUrl = computed(() => {
-  if (!props.formDetail?.sampleDocPath) return null
+  if (!props.formDetail?.pagePathList) return null
   // Assuming sampleDocPath is a full URL or needs to be resolved
-  return props.formDetail.sampleDocPath
+  return props.formDetail.pagePathList
 })
 
 // Initialize from props and load cropper
@@ -67,7 +67,7 @@ function initClassificationConfig() {
   } else {
     classificationConfig.value = {}
   }
-  
+
   // Initialize cropper after data is loaded
   nextTick(() => {
     initCropper()
@@ -77,7 +77,7 @@ function initClassificationConfig() {
 // Initialize cropper with image and existing crops
 function initCropper() {
   if (!cropperRef.value || !sampleDocUrl.value) return
-  
+
   // Convert existing config to crop objects
   const existingCrops = Object.entries(classificationConfig.value).map(([key, item]) => ({
     id: key,
@@ -90,7 +90,7 @@ function initCropper() {
     croppedImage: item.croppedImage,
     order: item.order
   }))
-  
+
   cropperRef.value.init(sampleDocUrl.value, existingCrops)
   cropperInitialized.value = true
 }
@@ -101,20 +101,20 @@ function startAddClassification(type: 'barcode' | 'keyword') {
     routerProvider?.message.warning('Please wait for the document to load')
     return
   }
-  
+
   addingCropType.value = type
-  
+
   // Generate unique key
   const timestamp = Date.now()
   const prefix = type === 'barcode' ? 'single_code' : 'single_keyword'
   const existingKeys = Object.keys(classificationConfig.value).filter(k => k.startsWith(prefix))
   const index = existingKeys.length + 1
   const key = `${prefix}_${index}_${timestamp}`
-  
+
   // Calculate order
   const allItems = Object.values(classificationConfig.value)
   const maxOrder = allItems.reduce((max, item) => Math.max(max, item.order), 0)
-  
+
   // Add crop via cropper - this enters edit mode
   cropperRef.value.addCrop({
     id: key,
@@ -128,27 +128,27 @@ function startAddClassification(type: 'barcode' | 'keyword') {
 
 // Handle crop update (confirm)
 async function handleCropUpdate(cropData: any) {
-  const { id, zone, color, method, croppedImage } = cropData
-  
+  const { crop:{ id, zone, color, method}, imageData } = cropData
+
   // Get existing item or create new
   const existingItem = classificationConfig.value[id]
-  
+
   const newItem: ClassificationItem = {
     key: id,
     zone,
     order: existingItem?.order || cropData.order,
     method: method || addingCropType.value || 'barcode',
     color,
-    croppedImage
+    croppedImage:imageData
   }
-  
+
   if (newItem.method === 'barcode') {
     newItem.barcode_type = existingItem?.barcode_type || cropData.barcode_type || 'qrcode'
     newItem.barcode_value = existingItem?.barcode_value || ''
-    
+
     // Try to scan barcode if we have cropped image
-    if (croppedImage) {
-      const scannedValue = await scanBarcode(croppedImage, newItem.barcode_type!)
+    if (imageData) {
+      const scannedValue = await scanBarcode(imageData, newItem.barcode_type!)
       if (scannedValue) {
         newItem.barcode_value = scannedValue
       }
@@ -156,13 +156,13 @@ async function handleCropUpdate(cropData: any) {
   } else {
     newItem.keyword = existingItem?.keyword || ''
   }
-  
+
   // Update config
   classificationConfig.value[id] = newItem
   addingCropType.value = null
-  
+
   // Auto-save
-  await saveConfig()
+  // await saveConfig()
 }
 
 // Handle crop remove
@@ -179,7 +179,7 @@ async function scanBarcode(base64Image: string, barcodeType: string): Promise<st
   try {
     // Import BarcodeFormat dynamically
     const { BarcodeFormat } = await import('@zxing/library')
-    
+
     // Get formats for the specified type
     const typeMap: Record<string, any[]> = {
       qrcode: [BarcodeFormat.QR_CODE],
@@ -196,15 +196,16 @@ async function scanBarcode(base64Image: string, barcodeType: string): Promise<st
         BarcodeFormat.UPC_E,
       ]
     }
-    
+
     const formats = typeMap[barcodeType]
-    
+
     // Try with specific formats first
     if (formats && formats.length > 0) {
       const result = await readQRCode(base64Image, { formats })
+      console.log("result", result, formats)
       if (result) return result.value
     }
-    
+
     // Fallback: try all formats
     const result = await readQRCode(base64Image)
     return result?.value || null
@@ -222,44 +223,44 @@ async function updateBarcodeType(key: string, newType: string) {
   item.barcode_type = newType
   if (item.croppedImage) {
     const scannedValue = await scanBarcode(item.croppedImage, newType)
+    console.log("scannedValue", scannedValue)
     if (scannedValue) {
       item.barcode_value = scannedValue
     }
   }
-  await saveConfig()
+
 }
 
 async function updateBarcodeValue(key: string, value: string) {
   const item = classificationConfig.value[key]
   if (!item || item.method !== 'barcode') return
   item.barcode_value = value
-  await saveConfig()
+
 }
 
 async function updateKeyword(key: string, value: string) {
   const item = classificationConfig.value[key]
   if (!item || item.method !== 'keyword') return
   item.keyword = value
-  await saveConfig()
+
 }
 
 // Delete classification item
 async function deleteClassificationItem(key: string) {
   try {
-    await routerProvider?.dialog.confirm({
-      title: 'Confirm Delete',
-      message: 'Are you sure you want to delete this classification item?',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
-      variant: 'danger'
+    const action = await ElMessageBox.confirm('Are you sure you want to delete this classification item?',{
+      confirmButtonClass: 'el-button el-button--warning',
+      dangerouslyUseHTMLString: true,
+      confirmButtonText: 'confirm'
     })
-
+    console.log(action)
+    if(!action || action !== 'confirm') return
     delete classificationConfig.value[key]
-    
+
     // Re-initialize cropper to reflect changes
     initCropper()
-    
-    await saveConfig()
+
+
     routerProvider?.message.success('Classification item deleted')
   } catch {
     // User cancelled
@@ -268,11 +269,50 @@ async function deleteClassificationItem(key: string) {
 
 // Save classification config
 async function saveConfig() {
+  if(Object.keys(classificationConfig.value).length === 0) {
+    routerProvider?.message.warning('Please add at least one classification item before saving')
+    return
+  }
+  Object.keys(classificationConfig.value).forEach(key => {
+    if(!classificationConfig.value[key].zone) {
+      throw new Error('Classification item must have a zone')
+    }
+    if(classificationConfig.value[key].method === 'barcode') {
+      if(!classificationConfig.value[key].barcode_type || !classificationConfig.value[key].barcode_value) {
+        throw new Error('Classification item must have a barcode type and value')
+      }
+    }
+    if(classificationConfig.value[key].method === 'keyword') {
+      if(!classificationConfig.value[key].keyword) {
+        throw new Error('Classification item must have a keyword')
+      }
+    }
+  })
   saving.value = true
   try {
-    await clientApi.api.patchCaptureProjformsettingId(props.formDetail.id, {
-      formClassificationConfig: classificationConfig.value
-    })
+    const updateData = {
+      ...props.formDetail,
+      formClassificationConfig: Object.keys(classificationConfig.value).reduce((acc, key) => {
+        acc[key] = {
+          zone: classificationConfig.value[key].zone,
+          order: classificationConfig.value[key].order,
+          method: classificationConfig.value[key].method,
+        }
+        if (classificationConfig.value[key].barcode_type) {
+          acc[key].barcode_type = classificationConfig.value[key].barcode_type
+          acc[key].barcode_value = classificationConfig.value[key].barcode_value
+        }
+        if (classificationConfig.value[key].keyword) {
+          acc[key].keyword = classificationConfig.value[key].keyword
+        }
+        return acc
+      }, {} as any)
+    }
+    delete updateData.updatedBy
+    delete updateData.updatedAt
+    delete updateData.createdAt
+    delete updateData.createdBy
+    await clientApi.api.putCaptureProjformsetting(updateData)
     routerProvider?.message.success('Classification configuration saved')
     emits('refresh')
   } catch (error) {
@@ -301,12 +341,18 @@ onMounted(() => {
       <!-- Left Panel: Document Cropper -->
       <ElSplitterPanel size="60%" min="300">
         <div class="leftPanel">
-          <DocumentCropper
+            <DocumentPreview
+                v-if="sampleDocUrl"
+                ref="cropperRef"
+              @update="handleCropUpdate"
+              @remove="handleCropRemove"
+            />
+          <!-- <DocumentCropper
             v-if="sampleDocUrl"
             ref="cropperRef"
             @update="handleCropUpdate"
             @remove="handleCropRemove"
-          />
+          /> -->
           <div v-else class="previewPlaceholder">
             <div class="placeholderContent">
               <Icon name="lucide:file-x" class="placeholderIcon" />
@@ -403,8 +449,8 @@ onMounted(() => {
                 type="primary"
                 size="small"
                 circle
-                :disabled="!cropperInitialized"
                 @click="startAddClassification('keyword')"
+                :disabled="!cropperInitialized"
               >
                 <Icon name="lucide:plus" />
               </ElButton>
@@ -520,22 +566,21 @@ onMounted(() => {
 }
 
 .rightPanel {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-flow: column nowrap;
-  background-color: var(--app-bg-color);
-  overflow: hidden;
-  border-radius: var(--app-radius-m);
-  border: 1px solid var(--app-border-color);
+height: 100%;
+width: 100%;
+display: flex;
+flex-direction: column;
+gap: 16px;
+overflow-y: auto;
+padding: var(--app-space-xs);
 }
 
 .section {
-  flex: 1;
-  display: flex;
-  flex-flow: column nowrap;
-  overflow: hidden;
-  border-bottom: 1px solid var(--app-border-color);
+flex: 1 0 auto;
+    background: #fff;
+    overflow: hidden;
+    flex-shrink: 0;
+    margin-bottom: var(--app-space-s);
 
   &:last-of-type {
     border-bottom: none;
@@ -543,16 +588,17 @@ onMounted(() => {
 }
 
 .sectionHeader {
-  padding: var(--app-space-m);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  color: white;
-  flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: var(--app-space-xs) var(--app-space-s);
+    background: #8BD9E0;
+    color: white;
+    font-weight: 600;
 }
 
 .sectionTitle {
+flex: 1 0 auto;
   display: flex;
   align-items: center;
   gap: var(--app-space-s);

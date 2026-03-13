@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue'
-import type { FormFieldsSetting, Section, CropItem } from '../../../types/formOCR'
+import type { FormFieldsSetting, Section, CropItem } from '../../../../types/formOCR'
 
 const props = defineProps<{
   modelValue: FormFieldsSetting
@@ -69,9 +69,9 @@ function onSave() {
 
 function selectCrop(id: string) {
   emit('update:activeCropId', id)
-  
+
   // Expand section if selecting a field
-  const section = config.value.section.find(s => 
+  const section = config.value.section.find(s =>
     s.fields.some(f => f.key === id)
   )
   if (section && !expandedSections.value.includes(section.section_id)) {
@@ -98,15 +98,17 @@ function getFieldTypeLabel(type: string): string {
     <!-- Form Information -->
     <div class="config-section">
       <div class="section-header">
-        <Icon name="lucide:info" />
-        <span>Information</span>
+          <div class="header-left">
+            <Icon name="lucide:info" />
+            <span>Information</span>
+          </div>
       </div>
       <div class="section-content">
         <ElForm label-position="top" size="small">
           <ElFormItem label="Form Name" required>
             <ElInput v-model="config.form_name" placeholder="Enter form name" />
           </ElFormItem>
-          
+
           <ElFormItem label="Export Format">
             <ElSelect v-model="config.export_format" class="w-full">
               <ElOption label="XML" value="xml" />
@@ -114,11 +116,11 @@ function getFieldTypeLabel(type: string): string {
               <ElOption label="CSV" value="csv" />
             </ElSelect>
           </ElFormItem>
-          
+
           <ElFormItem label="Output File Name Template">
             <ElInput v-model="config.out_file_name_template" />
           </ElFormItem>
-          
+
           <ElFormItem label="Document Name Template">
             <ElInput v-model="config.new_document_name_tempate" />
           </ElFormItem>
@@ -137,6 +139,7 @@ function getFieldTypeLabel(type: string): string {
           <Icon name="lucide:plus" />
         </ElButton>
       </div>
+
       <div class="section-content">
         <ElCollapse v-model="expandedSections">
           <ElCollapseItem
@@ -146,7 +149,7 @@ function getFieldTypeLabel(type: string): string {
             :class="{ 'is-active': activeCropId === section.section_id }"
           >
             <template #title>
-              <div 
+              <div
                 class="collapse-title"
                 :class="{ active: activeCropId === section.section_id }"
                 @click.stop="selectCrop(section.section_id)"
@@ -157,7 +160,7 @@ function getFieldTypeLabel(type: string): string {
                 </ElTag>
               </div>
             </template>
-            
+
             <div class="section-details">
               <div class="detail-row">
                 <span class="detail-label">ID:</span>
@@ -175,7 +178,7 @@ function getFieldTypeLabel(type: string): string {
                 <span class="detail-label">Save to Result:</span>
                 <ElSwitch v-model="section.save_to_result" size="small" />
               </div>
-              
+
               <div class="section-actions">
                 <ElButton size="small" @click="onEditSection(section)">
                   <Icon name="lucide:edit" />
@@ -188,7 +191,7 @@ function getFieldTypeLabel(type: string): string {
             </div>
           </ElCollapseItem>
         </ElCollapse>
-        
+
         <ElEmpty v-if="config.section.length === 0" description="No sections added">
           <ElButton type="primary" @click="onAddSection">Add Section</ElButton>
         </ElEmpty>
@@ -208,7 +211,7 @@ function getFieldTypeLabel(type: string): string {
       </div>
       <div class="section-content">
         <div v-for="qr in config.qrcode" :key="qr.key" class="qr-item">
-          <div 
+          <div
             class="qr-info"
             :class="{ active: activeCropId === qr.key, index: config.index_field.qrcode_option === qr.key }"
             @click="selectCrop(qr.key)"
@@ -216,9 +219,9 @@ function getFieldTypeLabel(type: string): string {
             <div class="qr-label">{{ qr.label }}</div>
             <div class="qr-meta">
               <ElTag size="small">{{ qr.format }}</ElTag>
-              <ElTag 
-                v-if="config.index_field.qrcode_option === qr.key" 
-                type="success" 
+              <ElTag
+                v-if="config.index_field.qrcode_option === qr.key"
+                type="success"
                 size="small"
               >
                 Index
@@ -226,7 +229,7 @@ function getFieldTypeLabel(type: string): string {
             </div>
           </div>
           <div class="qr-actions">
-            <ElButton 
+            <ElButton
               v-if="config.index_field.qrcode_option !== qr.key"
               size="small"
               @click="onSetIndexQRCode(qr.key)"
@@ -238,7 +241,7 @@ function getFieldTypeLabel(type: string): string {
             </ElButton>
           </div>
         </div>
-        
+
         <ElEmpty v-if="config.qrcode.length === 0" description="No QRCodes added" />
       </div>
     </div>
@@ -292,16 +295,14 @@ function getFieldTypeLabel(type: string): string {
   flex-direction: column;
   gap: 16px;
   overflow-y: auto;
-  padding-right: 4px;
+  padding: var(--app-space-xs);
 }
 
 .config-section {
   background: #fff;
-  border-radius: 8px;
-  border: 1px solid #e4e7ed;
   overflow: hidden;
   flex-shrink: 0;
-
+  margin-bottom: var(--app-space-s);
   &.highlight {
     border-color: #409eff;
     box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
@@ -311,9 +312,9 @@ function getFieldTypeLabel(type: string): string {
 .section-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  justify-content: flex-start;
+  padding: var(--app-space-xs) var(--app-space-s);
+  background: #8BD9E0;
   color: white;
   font-weight: 600;
 
@@ -321,11 +322,11 @@ function getFieldTypeLabel(type: string): string {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex: 1 0 auto;
   }
 }
 
 .section-content {
-  padding: 16px;
 }
 
 .w-full {
