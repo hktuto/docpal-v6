@@ -90,7 +90,7 @@ export interface WorkflowJson {
   metadata: MetadataDetails
 }
 
-export const x6NodeToWorkflowJson = function (graphProvider) {
+export const x6NodeToWorkflowJson = function (graphProvider: any) {
   const graph: Graph = graphProvider.graph.value
   if (!graph) {
     throw new Error('graph is undefined')
@@ -151,7 +151,7 @@ export const workflowJsonToX6Node = function (workflowJson: WorkflowJson) {
   // 不包含workflow id的node時創建, 該node用於存放variables
   if (!cells.find((node: any) => node.id === workflowJson.id)) {
     cells.push({
-      id: workflowJson.id,
+      id: workflowJson.id ? workflowJson.id : Date.now(),
       shape: 'invisible-node',
       label: workflowJson.name,
       type: 'process',

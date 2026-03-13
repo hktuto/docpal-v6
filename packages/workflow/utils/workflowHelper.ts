@@ -158,6 +158,9 @@ export async function getBpmnAdditionalElement(xml: any, taskDefinitionKey: stri
   }
 }
 
+
+
+
 export function convertWorkflowVariableToTemplateVariable(variables: any, mapping: any) {
   return Object.keys(mapping).reduce((prev: any, key: string) => {
     const valueKey = mapping[key]

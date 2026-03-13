@@ -6,11 +6,23 @@ const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw new Error('graph provider not found')
 }
+const { workflowId } = defineProps<{
+  workflowId: string
+}>()
 
-function save() {
+async function save() {
   const workflowJson = x6NodeToWorkflowJson(graphProvider)
-  // Call API update workflow Json Data
 
+  if (!workflowId || workflowId === '') {
+    throw new Error('Workflow ID is null')
+  }
+
+  // update workflow Json Data
+  try {
+    $api.put(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${workflowId}`, workflowJson).then((r) => r.data)
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 function setupHistory() {

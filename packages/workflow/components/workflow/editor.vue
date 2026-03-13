@@ -15,9 +15,6 @@ const routerProvider = inject(MenuRouterKey)
 const props = defineProps<{
   workflowData: any
   readonly: boolean
-  processKey: string
-  id: string
-  version: number
 }>()
 const { workflowData: workflowJsonObject, readonly } = toRefs(props)
 
@@ -28,6 +25,10 @@ const graph = ref<Graph>()
 const dnd = ref()
 const containerEl = ref()
 const workflowJson = ref<WorkflowJson>()
+const workflowId = ref<string>('')
+const workflowKey = ref<string>('')
+const version = ref<number>(0)
+const emits = defineEmits(['refresh'])
 
 const dropActionsItems = computed(() => {
   return Object.values(workflowElement).reduce((acc: any, cur: any) => {
@@ -134,6 +135,9 @@ function init() {
   })
 
   workflowJson.value = workflowJsonObject.value
+  workflowId.value = workflowJsonObject.value.id
+  workflowKey.value = workflowJsonObject.value.key
+  version.value = workflowJsonObject.value.version
   setVariables(workflowJsonObject.value.variables)
   const json = workflowJsonToX6Node(workflowJsonObject.value)
 
@@ -254,9 +258,9 @@ function openPermission() {
 
 async function getFormByNode(node: Node) {
   const relation = {
-    processKey: props.processKey,
+    processKey: workflowKey.value,
     userTaskId: node.data.id,
-    versionId: props.version
+    versionId: version.value
   }
 
   const response = await newAdminApi.getDmsFormPropertiesQuery(relation).then((r) => r.data)
@@ -276,6 +280,7 @@ async function copyForm(node: Node, obj: any) {
 function pasteForm() {}
 
 provide(WORKFLOW_EDITOR_PROVIDER, {
+  workflowKey,
   workflowJson,
   graph,
   copyKey,
@@ -295,7 +300,7 @@ defineExpose({ init })
       <div class="bpmnGraphContainer" ref="containerEl" />
       <div v-if="isReady" class="toolbar">
         <div class="group">
-          <ToolbarHistory />
+          <ToolbarHistory :workflowId="workflowId" />
           <ToolbarInfo @click="openInfo" />
           <!--          <WorkflowToolbarPermission @click="openPermission" />-->
         </div>

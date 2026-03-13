@@ -1,20 +1,48 @@
 <script setup lang="ts">
-const { getVariablesByType } = useVariablesProvide()
+import type { Node } from '@antv/x6'
+import { newAdminApi } from 'api'
 
+const { getVariablesByType } = useVariablesProvide()
+const props = defineProps<{
+  processKey: string
+  userTaskId: string
+  node: Node
+}>()
+const emits = defineEmits(['submit'])
+const FormDesignRef = ref()
 const variables = ref([])
 const formDialogVisible = ref(false)
 
-function openDialog(node: any) {
+async function openDialog() {
   formDialogVisible.value = true
 }
 
-function handleFormSubmit() {
+async function handleFormSubmit() {
+  const json = FormDesignRef.value.getFormJson()
+  //  save e-form
+  // TODO: 該接口會不斷創建新的 E-form Json。每次返回的ID都是新的
+  const data = await newAdminApi
+    .postDmsFormPropertiesSave({
+      processKey: props.processKey,
+      userTaskId: props.userTaskId,
+      jsonValue: JSON.stringify(json),
+      versionId: 0
+    })
+    .then((r) => r.data)
+
+  emits('submit', data.id)
   formDialogVisible.value = false
 }
 
 onMounted(() => {
-  variables.value = getVariablesByType()
+  const variableList = getVariablesByType()
+  variables.value = {
+    labelKey: 'name',
+    nameKey: 'id',
+    data: variableList
+  }
 })
+
 defineExpose({ openDialog })
 </script>
 

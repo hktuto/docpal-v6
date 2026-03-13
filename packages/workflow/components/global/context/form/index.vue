@@ -2,6 +2,7 @@
 import type { Node } from '@antv/x6'
 import { newAdminApi } from 'api'
 import { ElMessage } from 'element-plus'
+import { useWorkflowAdditionalContext } from '#imports'
 
 const { node } = defineProps<{
   node: Node
@@ -11,39 +12,23 @@ const emits = defineEmits(['openForm'])
 const formDialogRef = ref()
 const formRenderVisible = ref()
 const fromRenderRef = ref()
-
-// #region setup
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('provider not found')
 }
-
-function setUpListener() {
-  graphProvider?.graph.value?.on('history:undo', () => {
-    refreshData()
-  })
-  graphProvider?.graph.value?.on('history:redo', () => {
-    refreshData()
-  })
-}
-// #endregion
+const { workflowKey } = graphProvider
 
 const drag = ref(false)
 const formItems = ref<any[]>([])
 const RuleManageDialogRef = ref()
 
 function formChange() {
-  console.log('form change', formItems.value)
   graphProvider?.graph.value?.startBatch('update-from-data')
   const newData = {
     ...node.data,
     version: (node.data.version || 0) + 1,
     data: {
-      ...JSON.parse(JSON.stringify(node.data.data)),
-      extensionElements: {
-        ...node.data.data.extensionElements,
-        'flowable:formProperty': JSON.parse(JSON.stringify(formItems.value))
-      }
+      ...node.data
     }
   }
   node.setData(newData, { overwrite: true, deep: true, silent: false })
@@ -72,7 +57,16 @@ async function pasteForm() {
 }
 
 function handleOpenForm() {
-  formDialogRef.value.openDialog(node)
+  formDialogRef.value.openDialog()
+}
+
+function handelSubmitForm(id: string) {
+  console.log('----node ', node, id)
+  const data = node.getData()
+  const newData = {
+    ...data,
+    form: id
+  }
 }
 
 async function previewForm() {
@@ -104,13 +98,13 @@ async function previewForm() {
 }
 
 onMounted(() => {
-  setUpListener()
+  useWorkflowAdditionalContext(refreshData)
 })
 watch(
   () => node,
   () => {
     if (node) {
-      // refreshData()
+      refreshData()
     }
   },
   {
@@ -130,18 +124,16 @@ watch(
     </div>
 
     <div class="actionsContainer">
-      <ElButton type="link" size="small" @click="copyFormAndFieldSetting" :disabled="graphProvider.readonly.value">Copy Form and Field setting</ElButton>
-      <ElButton v-if="graphProvider.copyKey.value" type="link" size="small" :disabled="graphProvider.readonly.value" @click="pasteForm">
-        Paste Form
-      </ElButton>
+      <ElButton size="small" @click="copyFormAndFieldSetting" :disabled="graphProvider.readonly.value">Copy Form and Field setting</ElButton>
+      <ElButton v-if="graphProvider.copyKey.value" size="small" :disabled="graphProvider.readonly.value" @click="pasteForm"> Paste Form </ElButton>
     </div>
   </div>
 
   <LazyContextVariableManageDialog ref="RuleManageDialogRef" :node="node" />
-  <LazyContextFormDialog ref="formDialogRef" />
-  <ElDialog v-model="formRenderVisible" class="big" distory-on-close draggable>
+  <LazyContextFormDialog ref="formDialogRef" :node="node" :processKey="workflowKey" :userTaskId="node.id" @submit="handelSubmitForm" />
+  <el-dialog v-model="formRenderVisible" class="big" distory-on-close draggable>
     <LazyContextFormRender ref="fromRenderRef" />
-  </ElDialog>
+  </el-dialog>
 </template>
 
 <style lang="scss" scoped>
