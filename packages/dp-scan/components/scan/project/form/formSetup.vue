@@ -23,7 +23,8 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  refresh: []
+  refresh: [],
+  back: [],
 }>()
 
 const routerProvider = inject(MenuRouterKey)
@@ -254,7 +255,8 @@ function deleteSection(sectionId: string) {
     confirmText: 'Delete',
     cancelText: 'Cancel',
     variant: 'danger'
-  }).then(() => {
+  }).then((result) => {
+    if(result !== 'confirm') return
     const index = formConfig.value.section.findIndex(s => s.section_id === sectionId)
     if (index >= 0) {
       formConfig.value.section.splice(index, 1)
@@ -335,6 +337,9 @@ watch(() => props.formDetail, () => {
 
 <template>
   <div class="form-setup">
+      <Teleport :to="`#detail-${formDetail.id}`" defer>
+          <ElButton type="primary" @click="$emit('back')">Split Page</ElButton>
+      </Teleport>
     <ElSplitter class="splitter">
       <!-- Left Panel: Document Preview -->
       <ElSplitterPanel >
