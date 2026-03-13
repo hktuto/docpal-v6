@@ -10,6 +10,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   refresh: []
+  next: []
 }>()
 
 const routerProvider = inject(MenuRouterKey)
@@ -315,6 +316,7 @@ async function saveConfig() {
     await clientApi.api.putCaptureProjformsetting(updateData)
     routerProvider?.message.success('Classification configuration saved')
     emits('refresh')
+    emits('next')
   } catch (error) {
     console.error('Save error:', error)
     routerProvider?.message.error('Failed to save configuration')

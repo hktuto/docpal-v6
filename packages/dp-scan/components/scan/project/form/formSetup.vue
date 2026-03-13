@@ -55,12 +55,14 @@ const promptTemplates = ref<Array<{ id: string; name: string }>>([
 async function initFormConfig() {
   const existing = props.formDetail?.fieldsSetting
   if (existing && typeof existing === 'object') {
+
     formConfig.value = {
       ...createEmptyFormFieldsSetting(),
       ...existing,
       qrcode: existing.qrcode || [],
-      section: existing.section || []
+      section: existing.section || [],
     }
+
   } else {
     formConfig.value = createEmptyFormFieldsSetting()
     if (props.formDetail?.formName) {

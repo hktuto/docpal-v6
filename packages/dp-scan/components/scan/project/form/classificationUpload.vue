@@ -7,6 +7,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   refresh: []
+  next: []
 }>()
 
 const routerProvider = inject(MenuRouterKey)
@@ -86,6 +87,8 @@ async function uploadFile(file: File) {
       }
 
       emits('update', updatedForm)
+      emits('next')
+
       routerProvider?.message.success('Sample document uploaded successfully')
     } else {
       routerProvider?.message.error(response.message || 'Upload failed')

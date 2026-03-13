@@ -1,24 +1,57 @@
 <script lang="ts" setup>
+import { clientApi } from 'api'
+import { ArrowDown }  from '@element-plus/icons-vue'
 const props = defineProps<{
   formDetail: any
 }>()
+const splitPageCount = ref(1)
+const emits = defineEmits(['back', 'next'])
 
-const emits = defineEmits<{
-  refresh: []
-}>()
+const handleCommand = (command: string) => {
+  console.log(command)
+
+}
+const handleBack = () => {
+  emits('back')
+}
+async function handleNext() {
+  if(!splitPageCount.value) return
+  const data = {
+    id: props.formDetail.id,
+    projectId: props.formDetail.projectId,
+    path: "",
+    splitPageCount: splitPageCount.value,
+  }
+}
 </script>
 
 <template>
   <div class="splitPageContainer">
-    <div class="splitHeader">
-      <h3>Page Split Configuration</h3>
-      <p>Configure how pages are split and organized within this form</p>
+      <Teleport :to="`#detail-${formDetail.id}`" defer>
+          <el-dropdown @command="handleCommand">
+              <ElButton type="primary" class="el-dropdown-link">
+                Split into : {{splitPageCount}} page
+                <el-icon class="el-icon--right">
+                    <arrow-down />
+                </el-icon>
+              </ElButton>
+              <template #dropdown>
+                  <el-dropdown-menu>
+                      <el-dropdown-item command="1">1</el-dropdown-item>
+                      <el-dropdown-item command="2">2</el-dropdown-item>
+                      <el-dropdown-item command="3">3</el-dropdown-item>
+                      <el-dropdown-item command="custom">Custom</el-dropdown-item>
+                  </el-dropdown-menu>
+              </template>
+          </el-dropdown>
+      </Teleport>
+    <div class="content">
+
     </div>
-    <div class="splitContent">
-      <div class="placeholder">
-        <Icon name="lucide:scissors" class="placeholderIcon" />
-        <span>Page split tools will be implemented here</span>
-      </div>
+    <div class="footer">
+        <ElButton type="primary" @click="handleBack">Back</ElButton>
+        <ElButton type="primary" @click="handleNext">Next</ElButton>
+
     </div>
   </div>
 </template>
@@ -63,4 +96,5 @@ const emits = defineEmits<{
     opacity: 0.5;
   }
 }
+
 </style>

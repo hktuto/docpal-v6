@@ -652,6 +652,25 @@ function removeCropItem(cropId: string | number) {
   emit('remove', cropId)
 }
 
+async function getAllCropImages() {
+  // Iterate through all crops and emit update with image data
+  for (const crop of crops.value) {
+    // Navigate to the crop's page if not on current page
+    if (crop.page !== currentPage.value) {
+      await loadPage(crop.page)
+    }
+    
+    // Give time for page to render
+    await nextTick()
+    
+    // Extract crop image
+    const imageData = extractCropImage(crop)
+    
+    // Emit update event
+    emit('update', { crop, imageData })
+  }
+}
+
 // ==================== Page Navigation ====================
 
 async function loadPage(pageNum: number) {
@@ -864,7 +883,7 @@ function handleMouseUp() {
 }
 
 // ==================== Expose ====================
-defineExpose({ init, addCrop, removeCropItem, focusCrop, blur })
+defineExpose({ init, addCrop, removeCropItem, focusCrop, blur, getAllCropImages })
 </script>
 
 <style scoped>

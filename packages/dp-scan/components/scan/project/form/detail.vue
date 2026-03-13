@@ -56,7 +56,7 @@ function normalizeObj(val: any) {
 async function fetchFormDetail() {
   loading.value = true
   try {
-    const { data } = await clientApi.api.getCaptureProjformsettingId(props.formId)
+    const { data } = await clientApi.api.getCaptureProjformsettingId(props.formId) as any
     // docSeparationConfig, fieldsSetting, formClassificationConfig, otherMetadataSetting, pageSplitConfig are stringmify json, need to convert and normalize it
     // if those objevt are null or underfined or empty object or array after conversion, set them to null.
     // use normalizeObj to convert and normalize them
@@ -68,8 +68,8 @@ async function fetchFormDetail() {
       formClassificationConfig: normalizeObj(data.formClassificationConfig),
       otherMetadataSetting: normalizeObj(data.otherMetadataSetting),
       pageSplitConfig: normalizeObj(data.pageSplitConfig),
+      pagePathList: data.pagePathList ? data.pagePathList.sort((a, b) => a.length !== b.length ? a.length - b.length : a.localeCompare(b)) : []
     }
-    console.log("formDetail", formDetail.value)
   } catch (err) {
     console.error('Failed to fetch form detail:', err)
     routerProvider?.message.error('Failed to load form detail')
@@ -98,6 +98,8 @@ onMounted(() => {
           <Icon name="material-symbols:arrow-back-ios" />
         </div>
       <h2 class="formTitle">{{ statusTitles[formStatus] || 'Form Configuration' }}</h2>
+      <div :id="'detail-' + (formDetail?.id || '')" >
+      </div>
     </div>
 
     <!-- Status Content -->
@@ -107,6 +109,7 @@ onMounted(() => {
         v-if="formStatus === 'classificationUpload'"
         :form-detail="formDetail"
         @update="refreshFormDetail"
+        @next="overriderStatus = 'classificationCrop'"
       />
 
       <!-- Step 1b: Crop/Select QR Code Region -->
@@ -114,12 +117,14 @@ onMounted(() => {
         v-else-if="formStatus === 'classificationCrop'"
         :form-detail="formDetail"
         @refresh="refreshFormDetail"
+        @next="overriderStatus = 'split'"
       />
 
       <!-- Step 2: Split Page -->
       <SplitPage
         v-else-if="formStatus === 'split'"
         :form-detail="formDetail"
+        @back="overriderStatus = 'classificationCrop'"
         @refresh="refreshFormDetail"
       />
 
@@ -158,6 +163,7 @@ onMounted(() => {
 }
 
 .formTitle {
+flex: 1 0 auto;
   margin: 0;
   font-size: var(--app-font-size-xl);
   font-weight: 600;
