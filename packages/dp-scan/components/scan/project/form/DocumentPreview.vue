@@ -92,7 +92,7 @@ import { fabric } from "fabric"
 import { ArrowLeft, ArrowRight, ZoomIn, ZoomOut } from '@element-plus/icons-vue'
 import { clientApi } from 'api'
 import { ElMessage } from 'element-plus'
-import { watch, nextTick } from 'vue'
+import { watch, nextTick, onMounted, onUnmounted } from 'vue'
 
 // ==================== Constants ====================
 const MIN_ZOOM = 0.25
@@ -177,6 +177,45 @@ watch(currentPage, (newPage) => {
   pageInputValue.value = String(newPage)
 })
 
+// ==================== Resize Handling ====================
+function setupResizeObserver() {
+  if (!previewContainerRef.value || typeof ResizeObserver === 'undefined') return
+
+  resizeObserver = new ResizeObserver((entries) => {
+    for (const entry of entries) {
+      const { width, height } = entry.contentRect
+
+      // Update reactive container size to trigger style re-computation
+      containerSize.value = { width, height }
+
+      // If canvas is smaller than container, re-center it by scrolling
+      const scale = effectiveScale.value
+      const scaledWidth = canvasSize.value.width * scale
+      const scaledHeight = canvasSize.value.height * scale
+
+      // Only auto-scroll if the canvas fits within the container
+      // and we're not currently panning
+      if (!isPanning.value && scaledWidth < width && scaledHeight < height) {
+        // Center the scroll
+        const container = previewContainerRef.value
+        if (container) {
+          container.scrollLeft = (scaledWidth - width) / 2
+          container.scrollTop = (scaledHeight - height) / 2
+        }
+      }
+    }
+  })
+
+  resizeObserver.observe(previewContainerRef.value)
+}
+
+function cleanupResizeObserver() {
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+    resizeObserver = null
+  }
+}
+
 // Crops
 const crops = ref<CropItem[]>([])
 const activeCropId = ref<string | number | null>(null)
@@ -190,6 +229,10 @@ const panStartY = ref(0)
 const panStartScrollLeft = ref(0)
 const panStartScrollTop = ref(0)
 
+// Resize observer
+let resizeObserver: ResizeObserver | null = null
+const containerSize = ref({ width: 0, height: 0 })
+
 // ==================== Computed ====================
 const effectiveScale = computed(() => baseScale.value * zoom.value)
 
@@ -200,9 +243,10 @@ const canvasWrapperStyle = computed(() => {
   const scaledWidth = width * scale
   const scaledHeight = height * scale
 
-  const container = previewContainerRef.value
-  const containerWidth = container?.clientWidth || 0
-  const containerHeight = container?.clientHeight || 0
+  // Use reactive containerSize to trigger re-computation on resize
+  // Falls back to direct container ref if size not yet captured
+  const containerWidth = containerSize.value.width || previewContainerRef.value?.clientWidth || 0
+  const containerHeight = containerSize.value.height || previewContainerRef.value?.clientHeight || 0
 
   // Calculate left offset to center the canvas
   // If scaled canvas is smaller than container, center it
@@ -273,6 +317,15 @@ function updateCanvasScale() {
   // Canvas maintains its original dimensions for accurate calculations
 }
 
+// ==================== Lifecycle ====================
+onMounted(() => {
+  setupResizeObserver()
+})
+
+onUnmounted(() => {
+  cleanupResizeObserver()
+})
+
 // ==================== Public Methods ====================
 
 async function init(documentUrlList: string[], existingCrops?: CropItem[]) {
@@ -286,7 +339,6 @@ async function init(documentUrlList: string[], existingCrops?: CropItem[]) {
   zoom.value = 1
 
   await loadPage(1)
-  console.log(pageCount.value)
   // Render existing crops for current page
   if (existingCrops?.length) {
     renderCropsForCurrentPage()
@@ -445,7 +497,6 @@ function renderCropsForCurrentPage() {
   fabricCrops.value.clear()
 
   // Render crops for current page
-  console.log("currentPage.value", currentPage.value)
   const pageCrops = crops.value.filter(c => c.page === currentPage.value)
   pageCrops.forEach(crop => {
     renderCropOnCanvas(crop)
@@ -659,13 +710,13 @@ async function getAllCropImages() {
     if (crop.page !== currentPage.value) {
       await loadPage(crop.page)
     }
-    
+
     // Give time for page to render
     await nextTick()
-    
+
     // Extract crop image
     const imageData = extractCropImage(crop)
-    
+
     // Emit update event
     emit('update', { crop, imageData })
   }

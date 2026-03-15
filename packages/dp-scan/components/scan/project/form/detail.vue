@@ -134,7 +134,7 @@ onMounted(() => {
       <FormSetup
         v-else-if="formStatus === 'formSetup'"
         :form-detail="formDetail"
-         @back="overriderStatus = 'split'"
+        @back="(step) => overriderStatus = step || 'classificationCrop'"
         @refresh="refreshFormDetail"
       />
 

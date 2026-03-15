@@ -24,11 +24,11 @@ export interface Zone {
 /**
  * Field type options
  */
-export type FieldType = 
-  | 'text' 
-  | 'select' 
-  | 'date' 
-  | 'hkic' 
+export type FieldType =
+  | 'text'
+  | 'select'
+  | 'date'
+  | 'hkic'
   | 'number'
   | 'checkbox'
   | 'radio'
@@ -273,10 +273,10 @@ export function zoneToString(zone: Zone): string {
  * @returns Zone object
  */
 export function coordinatesToZone(
-  x1: number, 
-  y1: number, 
-  x2: number, 
-  y2: number, 
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
   page: number = 1
 ): Zone {
   return {
@@ -317,11 +317,12 @@ export function isValidZoneString(zoneString: string): boolean {
  * Create empty form fields setting
  * @returns Empty FormFieldsSetting
  */
-export function createEmptyFormFieldsSetting(): FormFieldsSetting {
+export function createEmptyFormFieldsSetting(formDetail?:any): FormFieldsSetting {
+
   return {
     qrcode: [],
     section: [],
-    form_name: '',
+    form_name: formDetail?.name || '',
     index_field: { qrcode_option: '' },
     export_format: 'xml',
     prompt_template_id: '',
@@ -385,7 +386,7 @@ export function getDefaultFieldByType(type: FieldType): Partial<Field> {
       field_setting: { options: [] }
     }
   }
-  
+
   return defaults[type] || defaults.text
 }
 
@@ -421,8 +422,8 @@ export function createEmptySection(sectionId?: string, sectionName?: string): Se
  * @returns Empty Field
  */
 export function createEmptyField(
-  key?: string, 
-  label?: string, 
+  key?: string,
+  label?: string,
   type: FieldType = 'text'
 ): Field {
   return {

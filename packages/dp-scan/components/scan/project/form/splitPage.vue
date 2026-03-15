@@ -66,17 +66,12 @@ async function handleSplit() {
     })
     pagesList.value = []
 
-  if (splitPageCount.value === 1 && props.formDetail.pagePathList.length) {
-    pagesList.value = props.formDetail.pagePathList.map((item: any) => ({ path: item }))
-  } else {
-
     const data = {
       formId: props.formDetail.id,
       pageToSplit: splitPageCount.value,
     }
     const res = await clientApi.api.postCaptureProjformsettingSplitpage(data)
     pagesList.value = res.data.map((item: any) => ({ path: item }))
-  }
   }catch(error) {
     routerProvider?.message?.error("Split page failed")
   } finally {

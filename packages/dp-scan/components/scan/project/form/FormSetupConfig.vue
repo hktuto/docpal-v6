@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue'
 import type { FormFieldsSetting, Section, CropItem } from '../../../../types/formOCR'
-
+import PropmtSelect from './promptSelect.vue'
 const props = defineProps<{
   modelValue: FormFieldsSetting
   activeCropId?: string | null
@@ -123,6 +123,9 @@ function getFieldTypeLabel(type: string): string {
 
           <ElFormItem label="Document Name Template">
             <ElInput v-model="config.new_document_name_tempate" />
+          </ElFormItem>
+          <ElFormItem label="Form Prompt Template">
+              <PropmtSelect v-model="config.prompt_template_id" />
           </ElFormItem>
         </ElForm>
       </div>
@@ -293,16 +296,22 @@ function getFieldTypeLabel(type: string): string {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--app-space-s);
   overflow-y: auto;
   padding: var(--app-space-xs);
+  :deep(.el-form-item--small){
+    margin-bottom: var(--app-space-s);
+  }
+  :deep(.el-form-item--label-top .el-form-item__label){
+    margin-bottom: var(--app-space-xs);
+    line-height: 1.2;
+  }
 }
 
 .config-section {
   background: #fff;
   overflow: hidden;
   flex-shrink: 0;
-  margin-bottom: var(--app-space-s);
   &.highlight {
     border-color: #409eff;
     box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
@@ -317,7 +326,7 @@ function getFieldTypeLabel(type: string): string {
   background: #8BD9E0;
   color: white;
   font-weight: 600;
-
+  margin-bottom :var(--app-space-s);
   .header-left {
     display: flex;
     align-items: center;
@@ -327,6 +336,7 @@ function getFieldTypeLabel(type: string): string {
 }
 
 .section-content {
+    padding-inline: var(--app-space-xs);
 }
 
 .w-full {

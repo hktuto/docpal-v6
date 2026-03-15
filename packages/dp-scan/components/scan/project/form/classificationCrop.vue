@@ -350,12 +350,7 @@ onMounted(() => {
               @update="handleCropUpdate"
               @remove="handleCropRemove"
             />
-          <!-- <DocumentCropper
-            v-if="sampleDocUrl"
-            ref="cropperRef"
-            @update="handleCropUpdate"
-            @remove="handleCropRemove"
-          /> -->
+
           <div v-else class="previewPlaceholder">
             <div class="placeholderContent">
               <Icon name="lucide:file-x" class="placeholderIcon" />

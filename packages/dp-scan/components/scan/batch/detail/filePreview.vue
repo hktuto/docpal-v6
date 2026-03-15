@@ -944,6 +944,63 @@ function nextPage() {
     changePage(currentPageNumber.value + 1)
   }
 }
+
+// ==================== PAGINATION FUNCTIONS ====================
+
+// Input value for current page input
+const pageInputValue = ref(currentPageNumber.value?.toString() || '1')
+
+// Sync input value when current page changes
+watch(() => currentPageNumber.value, (newVal) => {
+  pageInputValue.value = newVal?.toString() || '1'
+})
+
+// Handle page input change
+function handlePageInputChange() {
+  const page = parseInt(pageInputValue.value, 10)
+  if (!isNaN(page) && page >= 1 && page <= (totalPages.value || 1)) {
+    changePage(page)
+  } else {
+    // Reset to current page if invalid
+    pageInputValue.value = currentPageNumber.value?.toString() || '1'
+  }
+}
+
+// Handle page input blur - reset if invalid
+function handlePageInputBlur() {
+  pageInputValue.value = currentPageNumber.value?.toString() || '1'
+}
+
+// Computed pagination items based on current page
+const paginationItems = computed(() => {
+  const total = totalPages.value || 1
+  const current = currentPageNumber.value || 1
+  
+  // If 7 or fewer pages, show all without ellipsis
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1)
+  }
+  
+  // For more than 7 pages, use compact format with ellipsis
+  const items: (number | string)[] = []
+  
+  if (current <= 3) {
+    // Near start: < [1] 2 3 ... > or < 1 [2] 3 ... > or < 1 2 [3] ... >
+    items.push(1, 2, 3)
+    items.push('...')
+  } else if (current >= total - 2) {
+    // Near end: < ... 5 6 [7] >
+    items.push('...')
+    items.push(total - 2, total - 1, total)
+  } else {
+    // Middle: < ... 2 3 [4] 5 6 ... >
+    items.push('...')
+    items.push(current - 1, current, current + 1)
+    items.push('...')
+  }
+  
+  return items
+})
 </script>
 
 <template>
@@ -974,14 +1031,30 @@ function nextPage() {
         </ElButton>
 
         <div class="pageNumbers">
-          <span
-            v-for="page in totalPages"
-            :key="page"
-            :class="{ num: true, active: currentPageNumber === page }"
-            @click="changePage(page)"
-          >
-            {{ page }}
-          </span>
+          <template v-for="(item, index) in paginationItems" :key="index">
+            <!-- Current page as input -->
+            <input
+              v-if="item === currentPageNumber"
+              v-model="pageInputValue"
+              type="number"
+              min="1"
+              :max="totalPages || 1"
+              class="pageInput active"
+              @change="handlePageInputChange"
+              @blur="handlePageInputBlur"
+              @keyup.enter="handlePageInputChange"
+            />
+            <!-- Ellipsis -->
+            <span v-else-if="item === '...'" class="ellipsis">...</span>
+            <!-- Regular page number -->
+            <span
+              v-else
+              :class="{ num: true, active: currentPageNumber === item }"
+              @click="changePage(item as number)"
+            >
+              {{ item }}
+            </span>
+          </template>
         </div>
 
         <ElButton
@@ -1085,8 +1158,8 @@ function nextPage() {
 }
 
 .num {
-  min-width: 24px;
-  height: 24px;
+  min-width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1094,6 +1167,7 @@ function nextPage() {
   cursor: pointer;
   border-radius: var(--app-radius-s);
   font-size: var(--app-font-size-s);
+  padding: 0 4px;
 
   &:hover {
     background-color: var(--app-bg-color-hover);
@@ -1104,6 +1178,43 @@ function nextPage() {
     color: white;
     cursor: default;
   }
+}
+
+.pageInput {
+  width: 40px;
+  height: 28px;
+  text-align: center;
+  border: 1px solid var(--app-primary-color);
+  border-radius: var(--app-radius-s);
+  background-color: var(--app-primary-color);
+  color: white;
+  font-size: var(--app-font-size-s);
+  font-weight: 500;
+  padding: 0 2px;
+  outline: none;
+  -moz-appearance: textfield;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 2px var(--app-primary-color-light, rgba(64, 158, 255, 0.3));
+  }
+}
+
+.ellipsis {
+  min-width: 20px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--app-text-color-secondary);
+  font-size: var(--app-font-size-s);
+  user-select: none;
+  cursor: default;
 }
 
 .pageInfo {

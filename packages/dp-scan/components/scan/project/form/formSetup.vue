@@ -18,14 +18,12 @@ import {
 } from '../../../../types/formOCR'
 import type { CropItem } from './DocumentPreview.vue'
 
+
 const props = defineProps<{
   formDetail: any
 }>()
 
-const emits = defineEmits<{
-  refresh: [],
-  back: [],
-}>()
+const emits = defineEmits(['refresh','back'])
 
 const routerProvider = inject(MenuRouterKey)
 
@@ -54,18 +52,19 @@ const promptTemplates = ref<Array<{ id: string; name: string }>>([
 
 // ==================== Initialization ====================
 async function initFormConfig() {
+
   const existing = props.formDetail?.fieldsSetting
   if (existing && typeof existing === 'object') {
 
     formConfig.value = {
-      ...createEmptyFormFieldsSetting(),
+      ...createEmptyFormFieldsSetting(props.formDetail),
       ...existing,
       qrcode: existing.qrcode || [],
       section: existing.section || [],
     }
 
   } else {
-    formConfig.value = createEmptyFormFieldsSetting()
+    formConfig.value = createEmptyFormFieldsSetting(props.formDetail)
     if (props.formDetail?.formName) {
       formConfig.value.form_name = props.formDetail.formName
     }
@@ -79,20 +78,9 @@ async function initFormConfig() {
 
 async function setupDocumentPaths() {
   // For now, use sampleDocPath as single page
-  // TODO: Handle multi-page documents from pageSplitConfig
-  if (props.formDetail?.sampleDocPath) {
-     const blob = await clientApi.api.postCaptureFileQuerycapturefilebypath(
-       { path:props.formDetail?.sampleDocPath },
-       { format: 'blob', headers: { noThrowError: true }
-      })
-     const pdf = await loadPDF(blob)
-     for(let i = 1; i <= pdf.numPages; i++){
-       const p = await pdfPageToImageUrl(pdf, i)
-       documentPaths.value.push(p)
-     }
-  } else {
-    documentPaths.value = []
-  }
+ const pages = await clientApi.api.getCaptureProjformsettingSplitpageFormid(props.formDetail.id)
+ documentPaths.value = Object.values(pages.data)
+
 }
 
 function initPreview() {
@@ -318,7 +306,17 @@ function setIndexQRCode(key: string) {
 async function saveConfig() {
   saving.value = true
   try {
-    // TODO : implemenmt save later
+    const updateData = {
+      ...props.formDetail,
+      fieldsSetting: {
+        ...formConfig.value
+      }
+    }
+    delete updateData.updatedBy
+    delete updateData.updatedAt
+    delete updateData.createdAt
+    delete updateData.createdBy
+    await clientApi.api.putCaptureProjformsetting(updateData)
     emits('refresh')
   } catch (error) {
     console.error('Save error:', error)
@@ -327,6 +325,7 @@ async function saveConfig() {
     saving.value = false
   }
 }
+
 
 // ==================== Watchers ====================
 watch(() => props.formDetail, () => {
@@ -338,14 +337,15 @@ watch(() => props.formDetail, () => {
 <template>
   <div class="form-setup">
       <Teleport :to="`#detail-${formDetail.id}`" defer>
-          <ElButton type="primary" @click="$emit('back')">Split Page</ElButton>
+          <ElButton type="primary" >Test Form</ElButton>
+          <ElButton type="primary" @click="$emit('back', 'classificationUpload')">Repalce Sample</ElButton>
+          <ElButton type="primary" @click="$emit('back', 'split')">Split Page</ElButton>
       </Teleport>
     <ElSplitter class="splitter">
       <!-- Left Panel: Document Preview -->
       <ElSplitterPanel >
           <DocumentPreview
             ref="previewRef"
-            show-legend
             @update="handleCropUpdate"
             @remove="handleCropRemove"
           />
