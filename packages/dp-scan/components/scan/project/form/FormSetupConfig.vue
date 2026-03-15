@@ -2,9 +2,10 @@
 import { ref, computed, watch } from 'vue'
 import type { FormFieldsSetting, Section, CropItem } from '../../../../types/formOCR'
 import PropmtSelect from './promptSelect.vue'
+import QrcodeEdit from './formQrcpde/edit.vue'
 const props = defineProps<{
   modelValue: FormFieldsSetting
-  activeCropId?: string | null
+  formImages: Record<string, string>
   saving?: boolean
 }>()
 
@@ -29,14 +30,7 @@ const config = computed({
   set: (val) => emit('update:modelValue', val)
 })
 
-const activeField = computed(() => {
-  if (!props.activeCropId) return null
-  for (const section of config.value.section) {
-    const field = section.fields.find(f => f.key === props.activeCropId)
-    if (field) return { field, section }
-  }
-  return null
-})
+
 
 // ==================== Methods ====================
 function onAddSection() {
@@ -52,6 +46,7 @@ function onDeleteSection(sectionId: string) {
 }
 
 function onAddQRCode() {
+
   emit('addQRCode')
 }
 
@@ -91,195 +86,144 @@ function getFieldTypeLabel(type: string): string {
   }
   return labels[type] || type
 }
+
+const activeQrcode = ref([])
 </script>
 
 <template>
   <div class="form-setup-config">
-    <!-- Form Information -->
-    <div class="config-section">
-      <div class="section-header">
-          <div class="header-left">
-            <Icon name="lucide:info" />
-            <span>Information</span>
-          </div>
-      </div>
-      <div class="section-content">
-        <ElForm label-position="top" size="small">
-          <ElFormItem label="Form Name" required>
-            <ElInput v-model="config.form_name" placeholder="Enter form name" />
-          </ElFormItem>
-
-          <ElFormItem label="Export Format">
-            <ElSelect v-model="config.export_format" class="w-full">
-              <ElOption label="XML" value="xml" />
-              <ElOption label="JSON" value="json" />
-              <ElOption label="CSV" value="csv" />
-            </ElSelect>
-          </ElFormItem>
-
-          <ElFormItem label="Output File Name Template">
-            <ElInput v-model="config.out_file_name_template" />
-          </ElFormItem>
-
-          <ElFormItem label="Document Name Template">
-            <ElInput v-model="config.new_document_name_tempate" />
-          </ElFormItem>
-          <ElFormItem label="Form Prompt Template">
-              <PropmtSelect v-model="config.prompt_template_id" />
-          </ElFormItem>
-        </ElForm>
-      </div>
-    </div>
-
-    <!-- Sections -->
-    <div class="config-section">
-      <div class="section-header">
-        <div class="header-left">
-          <Icon name="lucide:layout-grid" />
-          <span>Sections</span>
-        </div>
-        <ElButton type="primary" size="small" circle @click="onAddSection">
-          <Icon name="lucide:plus" />
-        </ElButton>
-      </div>
-
-      <div class="section-content">
-        <ElCollapse v-model="expandedSections">
-          <ElCollapseItem
-            v-for="section in config.section"
-            :key="section.section_id"
-            :name="section.section_id"
-            :class="{ 'is-active': activeCropId === section.section_id }"
-          >
-            <template #title>
-              <div
-                class="collapse-title"
-                :class="{ active: activeCropId === section.section_id }"
-                @click.stop="selectCrop(section.section_id)"
-              >
-                <span class="title-text">{{ section.section_name }}</span>
-                <ElTag size="small" :type="section.section_type === 'table' ? 'warning' : 'info'">
-                  {{ section.section_type }}
-                </ElTag>
-              </div>
-            </template>
-
-            <div class="section-details">
-              <div class="detail-row">
-                <span class="detail-label">ID:</span>
-                <span class="detail-value">{{ section.section_id }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Fields:</span>
-                <span class="detail-value">{{ section.fields.length }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Crop to Scan:</span>
-                <ElSwitch v-model="section.corp_to_scan" size="small" />
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Save to Result:</span>
-                <ElSwitch v-model="section.save_to_result" size="small" />
-              </div>
-
-              <div class="section-actions">
-                <ElButton size="small" @click="onEditSection(section)">
-                  <Icon name="lucide:edit" />
-                  Edit
-                </ElButton>
-                <ElButton type="danger" size="small" @click="onDeleteSection(section.section_id)">
-                  <Icon name="lucide:trash-2" />
-                </ElButton>
-              </div>
+    <div class="formContent">
+        <!-- Form Information -->
+        <div class="config-section">
+        <div class="section-header">
+            <div class="header-left">
+                <Icon name="lucide:info" />
+                <span>Information</span>
             </div>
-          </ElCollapseItem>
-        </ElCollapse>
-
-        <ElEmpty v-if="config.section.length === 0" description="No sections added">
-          <ElButton type="primary" @click="onAddSection">Add Section</ElButton>
-        </ElEmpty>
-      </div>
-    </div>
-
-    <!-- QRCodes -->
-    <div class="config-section">
-      <div class="section-header">
-        <div class="header-left">
-          <Icon name="lucide:qr-code" />
-          <span>QRCodes</span>
         </div>
-        <ElButton type="primary" size="small" circle @click="onAddQRCode">
-          <Icon name="lucide:plus" />
-        </ElButton>
-      </div>
-      <div class="section-content">
-        <div v-for="qr in config.qrcode" :key="qr.key" class="qr-item">
-          <div
-            class="qr-info"
-            :class="{ active: activeCropId === qr.key, index: config.index_field.qrcode_option === qr.key }"
-            @click="selectCrop(qr.key)"
-          >
-            <div class="qr-label">{{ qr.label }}</div>
-            <div class="qr-meta">
-              <ElTag size="small">{{ qr.format }}</ElTag>
-              <ElTag
-                v-if="config.index_field.qrcode_option === qr.key"
-                type="success"
-                size="small"
-              >
-                Index
-              </ElTag>
+        <div class="section-content">
+            <ElForm label-position="top" size="small">
+            <ElFormItem label="Form Name" required>
+                <ElInput v-model="config.form_name" placeholder="Enter form name" />
+            </ElFormItem>
+
+            <ElFormItem label="Export Format">
+                <ElSelect v-model="config.export_format" class="w-full">
+                <ElOption label="XML" value="xml" />
+                <ElOption label="JSON" value="json" />
+                <ElOption label="CSV" value="csv" />
+                </ElSelect>
+            </ElFormItem>
+
+            <ElFormItem label="Output File Name Template">
+                <ElInput v-model="config.out_file_name_template" />
+            </ElFormItem>
+
+            <ElFormItem label="Document Name Template">
+                <ElInput v-model="config.new_document_name_tempate" />
+            </ElFormItem>
+            <ElFormItem label="Form Prompt Template">
+                <PropmtSelect v-model="config.prompt_template_id" />
+            </ElFormItem>
+            </ElForm>
+        </div>
+        </div>
+
+        <!-- Sections -->
+        <div class="config-section">
+            <div class="section-header">
+                <div class="header-left">
+                <Icon name="lucide:layout-grid" />
+                <span>Sections</span>
+                </div>
+                <ElButton type="primary" size="small" circle @click="onAddSection">
+                <Icon name="lucide:plus" />
+                </ElButton>
             </div>
-          </div>
-          <div class="qr-actions">
-            <ElButton
-              v-if="config.index_field.qrcode_option !== qr.key"
-              size="small"
-              @click="onSetIndexQRCode(qr.key)"
-            >
-              Set as Index
-            </ElButton>
-            <ElButton type="danger" size="small" circle @click="onDeleteQRCode(qr.key)">
-              <Icon name="lucide:trash-2" />
-            </ElButton>
-          </div>
+
+            <div class="section-content">
+                <ElCollapse v-model="expandedSections">
+                <ElCollapseItem
+                    v-for="section in config.section"
+                    :key="section.section_id"
+                    :name="section.section_id"
+                    :class="{ 'is-active': activeCropId === section.section_id }"
+                >
+                    <template #title>
+                    <div
+                        class="collapse-title"
+                        :class="{ active: activeCropId === section.section_id }"
+                        @click.stop="selectCrop(section.section_id)"
+                    >
+                        <span class="title-text">{{ section.section_name }}</span>
+                        <ElTag size="small" :type="section.section_type === 'table' ? 'warning' : 'info'">
+                        {{ section.section_type }}
+                        </ElTag>
+                    </div>
+                    </template>
+
+                    <div class="section-details">
+                    <div class="detail-row">
+                        <span class="detail-label">ID:</span>
+                        <span class="detail-value">{{ section.section_id }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Fields:</span>
+                        <span class="detail-value">{{ section.fields.length }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Crop to Scan:</span>
+                        <ElSwitch v-model="section.corp_to_scan" size="small" />
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Save to Result:</span>
+                        <ElSwitch v-model="section.save_to_result" size="small" />
+                    </div>
+
+                    <div class="section-actions">
+                        <ElButton size="small" @click="onEditSection(section)">
+                        <Icon name="lucide:edit" />
+                        Edit
+                        </ElButton>
+                        <ElButton type="danger" size="small" @click="onDeleteSection(section.section_id)">
+                        <Icon name="lucide:trash-2" />
+                        </ElButton>
+                    </div>
+                    </div>
+                </ElCollapseItem>
+                </ElCollapse>
+
+                <ElEmpty v-if="config.section.length === 0" description="No sections added">
+                <ElButton type="primary" @click="onAddSection">Add Section</ElButton>
+                </ElEmpty>
+            </div>
         </div>
 
-        <ElEmpty v-if="config.qrcode.length === 0" description="No QRCodes added" />
-      </div>
-    </div>
-
-    <!-- Active Selection Details -->
-    <div v-if="activeField" class="config-section highlight">
-      <div class="section-header">
-        <Icon name="lucide:mouse-pointer" />
-        <span>Selected Field</span>
-      </div>
-      <div class="section-content">
-        <div class="field-info">
-          <div class="info-row">
-            <span class="info-label">Label:</span>
-            <span class="info-value">{{ activeField.field.label }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Type:</span>
-            <span class="info-value">{{ getFieldTypeLabel(activeField.field.type) }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Section:</span>
-            <span class="info-value">{{ activeField.section.section_name }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Export:</span>
-            <span class="info-value">{{ activeField.field.export_label || '-' }}</span>
-          </div>
+        <!-- QRCodes -->
+        <div class="config-section">
+            <div class="section-header">
+                <div class="header-left">
+                <Icon name="lucide:qr-code" />
+                <span>QRCodes</span>
+                </div>
+                <ElButton type="primary" size="small" circle @click="onAddQRCode">
+                <Icon name="lucide:plus" />
+                </ElButton>
+            </div>
+            <div class="section-content">
+                <el-collapse v-model="activeQrcode">
+                <QrcodeEdit
+                    v-for="qr in config.qrcode" :key="qr.key"
+                    :modelValue="qr"
+                    :img="formImages[qr.key]"
+                    @update:modelValue="(newVal)=>qr = newVal "
+                    @delete="onDeleteQRCode(qr.key)"
+                />
+                </el-collapse>
+                <ElEmpty v-if="config.qrcode.length === 0" description="No QRCodes added" />
+            </div>
         </div>
-        <ElAlert type="info" :closable="false" size="small">
-          Edit this field in the Section dialog
-        </ElAlert>
-      </div>
     </div>
-
     <!-- Footer Actions -->
     <div class="config-footer">
       <ElButton :loading="saving" type="primary" @click="onSave">
@@ -294,10 +238,10 @@ function getFieldTypeLabel(type: string): string {
 .form-setup-config {
   height: 100%;
   width: 100%;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: 1fr min-content;
   gap: var(--app-space-s);
-  overflow-y: auto;
+  overflow-y: hidden;
   padding: var(--app-space-xs);
   :deep(.el-form-item--small){
     margin-bottom: var(--app-space-s);
@@ -308,9 +252,19 @@ function getFieldTypeLabel(type: string): string {
   }
 }
 
+.formContent{
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: var(--app-space-s);
+    overflow-y: auto;
+}
+
 .config-section {
-  background: #fff;
-  overflow: hidden;
+    width: 100%;
+    max-height: 500px;
+  overflow: auto;
   flex-shrink: 0;
   &.highlight {
     border-color: #409eff;

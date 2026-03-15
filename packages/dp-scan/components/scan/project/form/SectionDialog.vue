@@ -38,7 +38,7 @@ const activeTab = ref<'section' | 'fields'>('section')
 const isEditing = computed(() => !!props.existingSection)
 
 const dialogTitle = computed(() => isEditing.value ? 'Edit Section' : 'New Section')
-
+const previewRef = ref()
 const crops = computed(() => {
   const result: Array<{
     id: string
@@ -87,7 +87,10 @@ watch(() => props.modelValue, (visible) => {
     } else {
       section.value = createEmptySection()
     }
-    activeCropId.value = null
+    nextTick(() => {
+      console.log(section.value)
+     previewRef.value.init([props.documentUrl], [])
+    })
     activeTab.value = 'section'
   }
 })
@@ -172,6 +175,13 @@ function getFieldTypeLabel(type: FieldType): string {
   }
   return labels[type] || type
 }
+
+function handleCropUpdate({crop}:any){
+
+}
+function handleCropRemove(deleteKey:string){
+
+}
 </script>
 
 <template>
@@ -179,22 +189,19 @@ function getFieldTypeLabel(type: FieldType): string {
     :model-value="modelValue"
     :title="dialogTitle"
     width="90%"
+    class="sectionDialog"
     :close-on-click-modal="false"
     destroy-on-close
+    fullscreen
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <div class="section-dialog">
       <!-- Left: Document Preview -->
       <div class="preview-panel">
         <DocumentPreview
-          :document-url="documentUrl"
-          :crops="crops"
-          :active-crop-id="activeCropId"
-          :show-legend="true"
-          @crop-click="handleCropClick"
-          @empty-click="handleEmptyClick"
-          @crop-resize="handleCropResize"
-          @crop-move="handleCropMove"
+            ref="previewRef"
+            @update="handleCropUpdate"
+            @remove="handleCropRemove"
         />
       </div>
 
@@ -412,11 +419,18 @@ function getFieldTypeLabel(type: FieldType): string {
   </ElDialog>
 </template>
 
+<style>
+.sectionDialog{
+    .el-dialog__body{
+       height: calc(100% - 89px);
+    }
+}
+</style>
 <style scoped>
 .section-dialog {
   display: flex;
   gap: 16px;
-  height: 70vh;
+  height: 100%;
   min-height: 500px;
 }
 

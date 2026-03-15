@@ -144,7 +144,7 @@ export interface QRCodeField {
   /** Unique key */
   key: string
   /** Zone coordinates */
-  zone: Zone
+  zone?: Zone
   /** Display label */
   label: string
   /** Barcode format */
@@ -429,14 +429,10 @@ export function createEmptyField(
   return {
     key: key || generateKey('field'),
     label: label || 'New Field',
-    export_label: '',
+    export_label: label || 'New Field',
     type,
     need_ocr: true,
     required: false,
-    zone: {
-      page: 1,
-      zone: '0,0,100,50'
-    },
     ...getDefaultFieldByType(type)
   } as Field
 }
@@ -454,9 +450,5 @@ export function createEmptyQRCodeField(label?: string): QRCodeField {
     readonly: true,
     required: true,
     export_label: '',
-    zone: {
-      page: 1,
-      zone: '0,0,100,100'
-    }
   }
 }

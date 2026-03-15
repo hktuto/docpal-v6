@@ -34,8 +34,7 @@ const previewRef = ref<InstanceType<typeof DocumentPreview>>()
 const loading = ref(false)
 const saving = ref(false)
 const formConfig = ref<FormFieldsSetting>(createEmptyFormFieldsSetting())
-const activeCropId = ref<string | null>(null)
-
+const formImages = ref<any>({})
 // Dialog state
 const showSectionDialog = ref(false)
 const editingSection = ref<Section | null>(null)
@@ -88,6 +87,7 @@ function initPreview() {
 
   const crops = buildCropsFromConfig()
   previewRef.value.init(documentPaths.value, crops)
+
 }
 
 function buildCropsFromConfig(): CropItem[] {
@@ -101,7 +101,7 @@ function buildCropsFromConfig(): CropItem[] {
       page: qr.zone.page,
       zone: qr.zone.zone,
       label: qr.label,
-      editable: false
+      editable: true
     })
   })
 
@@ -135,9 +135,10 @@ function buildCropsFromConfig(): CropItem[] {
 }
 
 // ==================== Document Preview Events ====================
-function handleCropUpdate(crop: CropItem) {
+function handleCropUpdate({crop, imageData}:any) {
   const id = crop.id as string
 
+  formImages.value[crop.id] = imageData
   // Update zone in config (no auto-save)
   const zone: Zone = {
     page: crop.page,
@@ -154,6 +155,7 @@ function handleCropUpdate(crop: CropItem) {
   // Check if it's a QRCode
   const qrCode = formConfig.value.qrcode.find(q => q.key === id)
   if (qrCode) {
+
     qrCode.zone = zone
     return
   }
@@ -205,11 +207,7 @@ function handleCropRemove(cropId: string | number) {
     }
   }
 
-  if (removed) {
-    if (activeCropId.value === id) {
-      activeCropId.value = null
-    }
-  }
+
 }
 
 // ==================== Section Management ====================
@@ -248,11 +246,6 @@ function deleteSection(sectionId: string) {
     const index = formConfig.value.section.findIndex(s => s.section_id === sectionId)
     if (index >= 0) {
       formConfig.value.section.splice(index, 1)
-      if (activeCropId.value === sectionId) {
-        activeCropId.value = null
-      }
-
-
       routerProvider?.message.success('Section deleted. Click Save to apply changes.')
     }
   }).catch(() => {
@@ -264,7 +257,6 @@ function deleteSection(sectionId: string) {
 function addQRCode() {
   const newQR = createEmptyQRCodeField(`QR Code ${formConfig.value.qrcode.length + 1}`)
   formConfig.value.qrcode.push(newQR)
-
   // If first QRCode, set as index field
   if (formConfig.value.qrcode.length === 1) {
     formConfig.value.index_field.qrcode_option = newQR.key
@@ -275,26 +267,22 @@ function addQRCode() {
     previewRef.value?.addCrop({
       id: newQR.key,
       type: 'qrcode',
-      page: newQR.zone.page,
-      zone: newQR.zone.zone,
-      label: newQR.label
+      label: newQR.label,
+      editable: true,
     })
   })
 }
 
 function deleteQRCode(key: string) {
+  console.log("deleteQRCode", key)
   const index = formConfig.value.qrcode.findIndex(q => q.key === key)
   if (index >= 0) {
     formConfig.value.qrcode.splice(index, 1)
-    if (activeCropId.value === key) {
-      activeCropId.value = null
-    }
 
     if (formConfig.value.index_field.qrcode_option === key) {
       formConfig.value.index_field.qrcode_option = ''
     }
-
-
+    previewRef.value?.removeCropItem(key)
   }
 }
 
@@ -317,7 +305,7 @@ async function saveConfig() {
     delete updateData.createdAt
     delete updateData.createdBy
     await clientApi.api.putCaptureProjformsetting(updateData)
-    emits('refresh')
+    // emits('refresh')
   } catch (error) {
     console.error('Save error:', error)
     routerProvider?.message.error('Failed to save configuration')
@@ -355,13 +343,13 @@ watch(() => props.formDetail, () => {
       <ElSplitterPanel size="260" min="120">
         <FormSetupConfig
           v-model="formConfig"
-          v-model:active-crop-id="activeCropId"
+          :formImages="formImages"
           :saving="saving"
           @add-section="openAddSection"
           @edit-section="openEditSection"
           @delete-section="deleteSection"
-          @add-qrcode="addQRCode"
-          @delete-qrcode="deleteQRCode"
+          @addQRCode="addQRCode"
+          @deleteQRCode="deleteQRCode"
           @set-index-qrcode="setIndexQRCode"
           @save="saveConfig"
         />
@@ -371,7 +359,7 @@ watch(() => props.formDetail, () => {
     <!-- Section Dialog -->
     <SectionDialog
       v-model="showSectionDialog"
-      :document-url="documentPaths[0] || ''"
+      :document-url="documentPaths[previewRef?.currentPage -1 || 0] || ''"
       :existing-section="editingSection"
       :prompt-templates="promptTemplates"
       @save="handleSaveSection"

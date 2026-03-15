@@ -113,7 +113,7 @@ type CropType = 'section' | 'field' | 'qrcode'
 
 export interface CropItem {
   id: string | number
-  type: CropType
+  type: string
   page: number
   zone: string
   label?: string
@@ -338,11 +338,7 @@ async function init(documentUrlList: string[], existingCrops?: CropItem[]) {
   fabricCrops.value.clear()
   zoom.value = 1
 
-  await loadPage(1)
-  // Render existing crops for current page
-  if (existingCrops?.length) {
-    renderCropsForCurrentPage()
-  }
+  await getAllCropImages()
 }
 
 function focusCrop(cropId: string | number) {
@@ -459,7 +455,6 @@ function addCrop(cropInput: CropInput) {
   // Create crop item
   const cropItem: CropItem = {
     id: cropInput.id || `crop-${Date.now()}`,
-    type: cropInput.type,
     page: cropInput.page || currentPage.value,
     zone: zoneToString(zoneCoords.x, zoneCoords.y, zoneCoords.width, zoneCoords.height),
     label: cropInput.label,
@@ -487,7 +482,7 @@ function addCrop(cropInput: CropInput) {
 
 // ==================== Crop Rendering ====================
 
-function renderCropsForCurrentPage() {
+async function renderCropsForCurrentPage() {
   if (!canvas) return
 
   // Clear existing fabric crops
@@ -501,6 +496,7 @@ function renderCropsForCurrentPage() {
   pageCrops.forEach(crop => {
     renderCropOnCanvas(crop)
   })
+  await canvas.renderAll()
 }
 
 function renderCropOnCanvas(crop: CropItem) {
@@ -578,11 +574,12 @@ function renderCropOnCanvas(crop: CropItem) {
 }
 
 function extractCropImage(crop: CropItem): string | undefined {
+  console.log("extractCropImage",canvas)
   if (!canvas) return undefined
 
   const zoneCoords = parseZoneString(crop.zone)
   if (!zoneCoords) return undefined
-
+  console.log("extractCropImage",zoneCoords)
   // Get the fabric crop object to hide it temporarily
   const fabricCrop = fabricCrops.value.get(crop.id)
   const cropRect = fabricCrop?.rect
@@ -675,14 +672,23 @@ function highlightCrop(cropId: string | number) {
 function removeCropFromCanvas(cropId: string | number) {
   const fabricCrop = fabricCrops.value.get(cropId)
   if (fabricCrop && canvas) {
-    canvas.remove(fabricCrop.rect)
+    const allObj = canvas.getObjects()
+    allObj.forEach((rec:any) => {
+      if(rec.data.cropId === cropId){
+        canvas.remove(rec)
+      }
+    })
+
     fabricCrops.value.delete(cropId)
+    canvas.renderAll()
   }
 }
 
 function removeCropItem(cropId: string | number) {
   // Remove from crops array
+
   const index = crops.value.findIndex(c => c.id === cropId)
+  console.log("removeCropItem",index )
   if (index > -1) {
     crops.value.splice(index, 1)
   }
@@ -705,7 +711,11 @@ function removeCropItem(cropId: string | number) {
 
 async function getAllCropImages() {
   // Iterate through all crops and emit update with image data
-  for (const crop of crops.value) {
+  // sort all crop by page so no need to change page radome
+  const sortedCrop = [...crops.value].sort((a,b) => a.page - b.page);
+  const lastCurrentPage = currentPage.value
+  await loadPage(currentPage.value)
+  for (const crop of sortedCrop) {
     // Navigate to the crop's page if not on current page
     if (crop.page !== currentPage.value) {
       await loadPage(crop.page)
@@ -716,10 +726,11 @@ async function getAllCropImages() {
 
     // Extract crop image
     const imageData = extractCropImage(crop)
-
     // Emit update event
     emit('update', { crop, imageData })
   }
+  // go back to current page before getAllCropImages
+  await loadPage(lastCurrentPage)
 }
 
 // ==================== Page Navigation ====================
@@ -934,7 +945,7 @@ function handleMouseUp() {
 }
 
 // ==================== Expose ====================
-defineExpose({ init, addCrop, removeCropItem, focusCrop, blur, getAllCropImages })
+defineExpose({ init, addCrop, removeCropItem, focusCrop, blur, getAllCropImages, currentPage })
 </script>
 
 <style scoped>
