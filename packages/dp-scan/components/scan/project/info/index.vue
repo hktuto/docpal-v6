@@ -22,9 +22,10 @@ function validateBatchNamingRules(): boolean {
   if (!prefix || prefix.trim() === '') {
     missingFields.push('Prefix')
   }
-  if (!minDigit || minDigit.trim() === '') {
+  if (!minDigit) {
     missingFields.push('Suffix')
   }
+
   if (startingNumber === undefined || startingNumber === null || startingNumber === '') {
     missingFields.push('Starting Number')
   }
@@ -45,6 +46,10 @@ async function save() {
 
   loading.value = true
   const form: any = { ...info.value }
+  delete form.updatedBy
+  delete form.updatedAt
+  delete form.createdAt
+  delete form.createdBy
   try {
     form.status = 'I'
     await clientApi.api.putCaptureProj(form)
@@ -66,6 +71,10 @@ async function publish() {
 
   loading.value = true
   const form: any = { ...info.value }
+  delete form.updatedBy
+  delete form.updatedAt
+  delete form.createdAt
+  delete form.createdBy
   try {
     form.status = 'A'
     await clientApi.api.putCaptureProj(form)
@@ -96,16 +105,16 @@ function addProjectField() {}
       <ElFormItem label="Description">
         <ElInput type="textarea" v-model="info.description" />
       </ElFormItem>
-      <div class="section">Project Fields <Icon class="cursor-pointer" name="lucide:plus" @click="addProjectField" /></div>
-      <ScanProjectInfoProjectField ref="additionFieldsSettingEl" v-model="info.additionFieldsSetting" />
+      <!-- <div class="section">Project Fields <Icon class="cursor-pointer" name="lucide:plus" @click="addProjectField" /></div> -->
+      <!-- <ScanProjectInfoProjectField ref="additionFieldsSettingEl" v-model="info.additionFieldsSetting" /> -->
       <div class="section">Batch Naming Rules</div>
       <ElFormItem label="Prefix" required>
         <ElInput v-model="info.prefix" placeholder="Enter prefix" />
       </ElFormItem>
       <ElRow :gutter="6">
         <ElCol :span="12">
-          <ElFormItem label="Suffix" required>
-            <ElInput v-model="info.minDigit" placeholder="Enter suffix" />
+          <ElFormItem label="Min Digit" required>
+            <ElInput v-model="info.minDigit" placeholder="Enter Min Digit" />
           </ElFormItem>
         </ElCol>
         <ElCol :span="12">
@@ -115,7 +124,9 @@ function addProjectField() {}
         </ElCol>
       </ElRow>
       <div class="section">Result Setting</div>
-      <ElInput v-model="info.zipPassword" type="password" shwo-password />
+      <ElFormItem label="Zip Password" required>
+        <ElInput v-model="info.zipPassword" type="password" show-password />
+      </ElFormItem>
     </div>
     <div v-if="info" class="footer">
       <ElButton v-if="info.status === 'I'" type="primary" :disabled="loading" @click="publish">Publish</ElButton>

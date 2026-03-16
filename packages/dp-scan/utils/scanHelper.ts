@@ -189,3 +189,18 @@ export const createScanFormDetailPageTab = (formId: string) => {
     }
   }
 }
+
+export const createScanTestFormPageTab = (params: { formName: string, ocrResult:string, splitInfo:any }) => {
+  return {
+    id: 'scan-test-form',
+    name: 'scan-test-form',
+    label: 'Scan Test Form',
+    icon: 'lucide:file-text',
+    hoverIcon: 'lucide:file-text',
+    component: 'LazyScanProjectTestResult',
+    feature: 'CORE',
+    props: {
+      ...params
+    }
+  }
+}

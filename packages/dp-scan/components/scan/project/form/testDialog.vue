@@ -5,13 +5,16 @@ const file = ref([])
 const formConfig = ref<any>(null)
 const projectId = ref<string>('')
 const formId = ref<string>('')
+const routerProvider = inject(MenuRouterKey)
+if (!routerProvider) {
+  throw new Error('MenuRouterKey not found')
+}
 function open(testFormId: string, testProjectId:string, testFormConfig: any) {
   visible.value = true
 
   formConfig.value = testFormConfig
   formId.value = testFormId
   projectId.value = testProjectId
-  console.log(formId, testFormConfig)
 }
 
 function close() {
@@ -28,9 +31,14 @@ async function submit(){
     formData.append('file', file.value[0].raw)
     formData.append('projectId', projectId.value)
     formData.append('formId', formId.value)
-    formData.append('fieldsSettingJson', formConfig.value)
-    const result = await clientApi.api.postCaptureProjformsettingTestform(formData)
-    console.log(result)
+    formData.append('fieldsSettingJson', JSON.stringify(formConfig.value))
+    const {data} = await clientApi.api.postCaptureProjformsettingTestform(formData)
+    const tab = createScanTestFormPageTab({
+      formConfig: formConfig.value,
+      ocrResult: data?.ocrResult,
+      splitInfo: data?.splitInfo
+    })
+    routerProvider?.navigateTo(tab)
   }catch(err){
 
   }finally{

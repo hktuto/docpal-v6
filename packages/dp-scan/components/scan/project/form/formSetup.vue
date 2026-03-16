@@ -368,7 +368,7 @@ onUnmounted(() => {
 <template>
   <div class="form-setup">
       <Teleport :to="`#detail-${formDetail.id}`" defer>
-          <ElButton type="primary" @click="testForm">Test Form</ElButton>
+          <!-- <ElButton type="primary" @click="testForm">Test Form</ElButton> -->
           <ElButton type="primary" @click="$emit('back', 'classificationUpload')">Repalce Sample</ElButton>
           <ElButton type="primary" @click="$emit('back', 'split')">Split Page</ElButton>
       </Teleport>
@@ -401,7 +401,7 @@ onUnmounted(() => {
 
     <!-- Section Dialog -->
     <SectionDialog
-        ref="sectionDialogRef"
+    ref="sectionDialogRef"
       @save="handleSaveSection"
     />
     <TestFromDialog ref="testFormRef" />
