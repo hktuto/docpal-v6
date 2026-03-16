@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import DocumentPreview from './DocumentPreview.vue'
+import PropmtSelect from './promptSelect.vue'
+
 import type {
   CropItem,
   CropUpdateEvent
@@ -16,27 +18,27 @@ import {
   generateKey
 } from '../../../../types/formOCR'
 
+const formImages = ref<Record<string, string>>({})
 const props = defineProps<{
-  modelValue: boolean
-  documentUrl: string
-  existingSection?: Section | null
-  promptTemplates?: Array<{ id: string; name: string }>
 }>()
 
 const emit = defineEmits<{
-  'update:modelValue': [value: boolean]
   save: [section: Section]
+  close: []
 }>()
 
 // ==================== State ====================
+const visible = ref(false)
 const section = ref<Section>(createEmptySection())
 const activeCropId = ref<string | null>(null)
 const activeTab = ref<'section' | 'fields'>('section')
 const previewRef = ref<InstanceType<typeof DocumentPreview>>()
 const isInitialized = ref(false)
+const isEditing = ref(false)
+const documentUrl = ref('')
+const currentPage = ref(1)
 
 // ==================== Computed ====================
-const isEditing = computed(() => !!props.existingSection)
 const dialogTitle = computed(() => isEditing.value ? 'Edit Section' : 'New Section')
 
 const canSave = computed(() => {
@@ -45,38 +47,49 @@ const canSave = computed(() => {
          section.value.zone
 })
 
-// ==================== Watchers ====================
-watch(() => props.modelValue, async (visible) => {
-  if (visible) {
-    // Reset state
-    isInitialized.value = false
-    activeCropId.value = null
-    
-    if (props.existingSection) {
-      section.value = JSON.parse(JSON.stringify(props.existingSection))
-    } else {
-      section.value = createEmptySection()
-    }
-    activeTab.value = 'section'
-    
-    // Initialize DocumentPreview after dialog is shown
-    await nextTick()
-    
+// ==================== Public Methods ====================
+
+
+/**
+ * Open the dialog for editing an existing section
+ * @param url - The document URL to preview
+ * @param page - The current page number (1-based)
+ * @param existingSection - The section to edit
+ */
+function open(url: string, page: number, existingSection?: Section) {
+  // Reset state
+  visible.value = true
+  isInitialized.value = false
+  activeCropId.value = null
+  activeTab.value = 'section'
+  documentUrl.value = url
+  currentPage.value = page
+  formImages.value = {}
+  if (existingSection) {
+    isEditing.value = true
+    section.value = JSON.parse(JSON.stringify(existingSection))
+  } else {
+    isEditing.value = false
+    section.value = createEmptySection()
+  }
+
+  // Initialize DocumentPreview after dialog is shown
+  nextTick(async () => {
     // Prepare initial crops from section data
     const initialCrops: CropItem[] = []
-    
+
     // Add section crop if exists
     if (section.value.zone) {
       initialCrops.push({
         id: 'section',
         type: 'section',
         page: 1,
-        zone: `${section.value.zone.x1},${section.value.zone.y1},${section.value.zone.x2},${section.value.zone.y2}`,
+        zone: section.value.zone.zone,
         label: section.value.section_name,
         editable: true
       })
     }
-    
+
     // Add field crops
     section.value.fields.forEach((field) => {
       if (field.zone) {
@@ -84,31 +97,49 @@ watch(() => props.modelValue, async (visible) => {
           id: field.key,
           type: 'field',
           page: 1,
-          zone: `${field.zone.x1},${field.zone.y1},${field.zone.x2},${field.zone.y2}`,
+          zone: field.zone.zone,
           label: field.label,
           editable: true
         })
       }
     })
-    
+
     // Initialize preview with all existing crops
-    await previewRef.value?.init([props.documentUrl], initialCrops)
+    await previewRef.value?.init([documentUrl.value], initialCrops)
     isInitialized.value = true
-  } else {
-    // Dialog closed - cleanup
-    isInitialized.value = false
-  }
-})
+
+    // For new sections without a zone, automatically add a section crop
+    if (!isEditing.value && !section.value.zone) {
+      nextTick(() => {
+        previewRef.value?.addCrop({
+          id: 'section',
+          type: 'section',
+          page: 1,
+          label: section.value.section_name || 'Section',
+          editable: true
+        })
+      })
+    }
+  })
+}
+
+function close() {
+  visible.value = false
+  isInitialized.value = false
+  emit('close')
+}
 
 // ==================== Methods ====================
 
-function close() {
-  emit('update:modelValue', false)
-}
-
 function handleSave() {
   if (!canSave.value) return
-  emit('save', JSON.parse(JSON.stringify(section.value)))
+  const newSectionData = JSON.parse(JSON.stringify(section.value))
+  newSectionData.zone.page = currentPage.value;
+  newSectionData.fields.map((f:any) => {
+    f.zone.page =  currentPage.value;
+  })
+
+  emit('save', newSectionData)
   close()
 }
 
@@ -121,13 +152,14 @@ function addField() {
   section.value.fields.push(newField)
   activeCropId.value = newField.key
   activeTab.value = 'fields'
-  
+
   // Add crop to preview (only if already initialized)
   if (isInitialized.value) {
     nextTick(() => {
       previewRef.value?.addCrop({
         id: newField.key,
         type: 'field',
+        page: currentPage.value,
         label: newField.label,
         editable: true
       })
@@ -141,7 +173,7 @@ function removeField(index: number) {
     activeCropId.value = null
   }
   section.value.fields.splice(index, 1)
-  
+
   // Remove from preview
   if (isInitialized.value) {
     previewRef.value?.removeCropItem(field.key)
@@ -158,27 +190,27 @@ function moveField(index: number, direction: 'up' | 'down') {
 }
 
 function handleCropUpdate(event: CropUpdateEvent) {
-  const { crop } = event
-  
+  const { crop, imageData } = event
+  formImages.value[crop.id] = imageData
   // Parse zone string to Zone object
   const coords = crop.zone.split(',').map(Number)
   if (coords.length !== 4) return
-  
+
   const newZone = {
-    x1: coords[0],
-    y1: coords[1],
-    x2: coords[2],
-    y2: coords[3]
+    page: 1,
+    zone: `${coords[0]},${coords[1]},${coords[2]},${coords[3]}`
   }
-  
-  if (crop.id === 'section') {
+
+  if (crop.type === 'section') {
     section.value.zone = newZone
+
   } else {
     const field = section.value.fields.find(f => f.key === crop.id)
     if (field) {
       field.zone = newZone
     }
   }
+  console.log("handleCropUpdate",section.value)
 }
 
 function handleCropRemove(cropId: string | number) {
@@ -188,19 +220,16 @@ function handleCropRemove(cropId: string | number) {
       activeCropId.value = null
     }
   } else {
-    const index = section.value.fields.findIndex(f => f.key === cropId)
-    if (index > -1) {
-      // Note: field is already removed from preview, just update our data
-      if (activeCropId.value === cropId) {
-        activeCropId.value = null
-      }
+    // Field is already removed from data in removeField, just update active state
+    if (activeCropId.value === cropId) {
+      activeCropId.value = null
     }
   }
 }
 
 function handleActiveCropChange(cropId: string | null) {
   activeCropId.value = cropId
-  
+
   if (cropId && isInitialized.value) {
     if (cropId === 'section') {
       activeTab.value = 'section'
@@ -214,16 +243,6 @@ function handleActiveCropChange(cropId: string | null) {
   }
 }
 
-function addSectionCrop() {
-  if (!isInitialized.value) return
-  
-  previewRef.value?.addCrop({
-    id: 'section',
-    type: 'section',
-    label: section.value.section_name || 'Section',
-    editable: true
-  })
-}
 
 function getFieldTypeLabel(type: FieldType): string {
   const labels: Record<FieldType, string> = {
@@ -237,18 +256,22 @@ function getFieldTypeLabel(type: FieldType): string {
   }
   return labels[type] || type
 }
+
+// ==================== Expose ====================
+defineExpose({
+  open
+})
 </script>
 
 <template>
   <ElDialog
-    :model-value="modelValue"
+    v-model="visible"
     :title="dialogTitle"
     width="90%"
     class="sectionDialog"
     :close-on-click-modal="false"
     destroy-on-close
     fullscreen
-    @update:model-value="$emit('update:modelValue', $event)"
   >
     <div class="section-dialog">
       <!-- Left: Document Preview -->
@@ -300,16 +323,9 @@ function getFieldTypeLabel(type: FieldType): string {
                       <ElInput v-model="section.export_label" placeholder="Export column name" />
                     </ElFormItem>
                   </ElCol>
-                  <ElCol :span="12">
+                  <ElCol :span="24">
                     <ElFormItem label="Prompt Template">
-                      <ElSelect v-model="section.prompt_template_id" class="w-full" clearable>
-                        <ElOption
-                          v-for="template in promptTemplates"
-                          :key="template.id"
-                          :label="template.name"
-                          :value="template.id"
-                        />
-                      </ElSelect>
+                        <PropmtSelect v-model="section.prompt_template_id" />
                     </ElFormItem>
                   </ElCol>
                 </ElRow>
@@ -331,14 +347,9 @@ function getFieldTypeLabel(type: FieldType): string {
                   </ElCol>
                 </ElRow>
 
-                <ElAlert v-if="!section.zone" type="warning" :closable="false">
+                <ElAlert v-if="!section.zone" type="info" :closable="false">
                   <template #default>
-                    <div class="alert-content">
-                      <span>Click "Add Section Area" to define the section crop area</span>
-                      <ElButton type="primary" size="small" @click="addSectionCrop">
-                        Add Section Area
-                      </ElButton>
-                    </div>
+                    Creating section crop automatically...
                   </template>
                 </ElAlert>
 
@@ -363,8 +374,8 @@ function getFieldTypeLabel(type: FieldType): string {
               </div>
 
               <div class="fields-list">
-                <ElCollapse 
-                  :model-value="activeCropId" 
+                <ElCollapse
+                  :model-value="activeCropId"
                   @update:model-value="handleActiveCropChange"
                 >
                   <ElCollapseItem

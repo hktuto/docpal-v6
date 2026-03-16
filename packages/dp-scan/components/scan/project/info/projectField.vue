@@ -1,6 +1,15 @@
 <script lang="ts" setup>
-const additionFieldsSetting = defineModel('additionFieldsSetting', {
-  default: []
+
+const modelValue = defineModel('modelValue', {
+  default: [],
+  required: true
+})
+
+const localValue = computed({
+  get: () => modelValue.value,
+  set: (value) => {
+    modelValue.value = value
+  }
 })
 
 function add() {
@@ -14,6 +23,6 @@ defineExpose({
 
 <template>
   <div>
-    {{ additionFieldsSetting }}
+     {{ localValue }}
   </div>
 </template>

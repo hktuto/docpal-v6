@@ -341,6 +341,7 @@ async function init(documentUrlList: string[], existingCrops?: CropItem[]) {
   await getAllCropImages()
 }
 
+
 function focusCrop(cropId: string | number) {
   const crop = crops.value.find(c => c.id === cropId)
   if (!crop) {
@@ -484,16 +485,27 @@ function addCrop(cropInput: CropInput) {
 
 async function renderCropsForCurrentPage() {
   if (!canvas) return
-
   // Clear existing fabric crops
-  fabricCrops.value.forEach((fabricCrop) => {
-    canvas?.remove(fabricCrop.rect)
+  const allObj = canvas.getObjects()
+  allObj.forEach((rec:any) => {
+    canvas.remove(rec)
   })
+
   fabricCrops.value.clear()
 
   // Render crops for current page
   const pageCrops = crops.value.filter(c => c.page === currentPage.value)
-  pageCrops.forEach(crop => {
+  // sort the pageCrops , by section, field, qrcode
+  const orderMap = {
+    'section': 0,
+    'field': 1,
+    'qrcode': 2
+  }
+  pageCrops.sort((a,b) => {
+    const indexA = orderMap[a.type] ?? Number.MAX_SAFE_INTEGER; // Items not in order go last
+      const indexB = orderMap[b.type] ?? Number.MAX_SAFE_INTEGER;
+      return indexA - indexB;
+  }).forEach(crop => {
     renderCropOnCanvas(crop)
   })
   await canvas.renderAll()
@@ -514,7 +526,7 @@ function renderCropOnCanvas(crop: CropItem) {
     top: zoneCoords.y,
     width: zoneCoords.width,
     height: zoneCoords.height,
-    fill: crop.type === 'section' ? `${color}33` : undefined, // 20% opacity fill
+    fill: crop.type === 'section' ? `${color}11` : undefined, // 10% opacity fill
     stroke: color,
     strokeWidth: 4,
     selectable: editable,
@@ -574,7 +586,7 @@ function renderCropOnCanvas(crop: CropItem) {
 }
 
 function extractCropImage(crop: CropItem): string | undefined {
-  console.log("extractCropImage",canvas)
+
   if (!canvas) return undefined
 
   const zoneCoords = parseZoneString(crop.zone)
@@ -945,7 +957,7 @@ function handleMouseUp() {
 }
 
 // ==================== Expose ====================
-defineExpose({ init, addCrop, removeCropItem, focusCrop, blur, getAllCropImages, currentPage })
+defineExpose({ init, addCrop, removeCropItem, focusCrop, blur, crops, renderCropsForCurrentPage, getAllCropImages, currentPage })
 </script>
 
 <style scoped>

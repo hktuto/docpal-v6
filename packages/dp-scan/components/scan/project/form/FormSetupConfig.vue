@@ -47,7 +47,7 @@ function onDeleteSection(sectionId: string) {
 
 function onAddQRCode() {
 
-  emit('addQRCode')
+
 }
 
 function onDeleteQRCode(key: string) {
@@ -194,7 +194,7 @@ const activeQrcode = ref([])
                 </ElCollapse>
 
                 <ElEmpty v-if="config.section.length === 0" description="No sections added">
-                <ElButton type="primary" @click="onAddSection">Add Section</ElButton>
+                <ElButton type="primary" @click="$emit('addSection')">Add Section</ElButton>
                 </ElEmpty>
             </div>
         </div>
@@ -206,7 +206,7 @@ const activeQrcode = ref([])
                 <Icon name="lucide:qr-code" />
                 <span>QRCodes</span>
                 </div>
-                <ElButton type="primary" size="small" circle @click="onAddQRCode">
+                <ElButton type="primary" size="small" circle @click="$emit('addQRCode')">
                 <Icon name="lucide:plus" />
                 </ElButton>
             </div>

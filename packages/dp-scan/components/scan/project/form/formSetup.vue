@@ -24,7 +24,7 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits(['refresh','back'])
-
+const hasUnSaveChange = ref(false)
 const routerProvider = inject(MenuRouterKey)
 
 // ==================== Refs ====================
@@ -36,7 +36,7 @@ const saving = ref(false)
 const formConfig = ref<FormFieldsSetting>(createEmptyFormFieldsSetting())
 const formImages = ref<any>({})
 // Dialog state
-const showSectionDialog = ref(false)
+const sectionDialogRef  = ref()
 const editingSection = ref<Section | null>(null)
 
 // Document paths for multi-page support
@@ -68,7 +68,7 @@ async function initFormConfig() {
       formConfig.value.form_name = props.formDetail.formName
     }
   }
-
+  console.log("formConfig.value", formConfig.value)
   // Setup document paths
   await setupDocumentPaths()
   initPreview()
@@ -107,6 +107,7 @@ function buildCropsFromConfig(): CropItem[] {
 
   // Add section and field crops
   formConfig.value.section.forEach(section => {
+    console.log("section",section)
     if (section.zone) {
       crops.push({
         id: section.section_id,
@@ -168,6 +169,7 @@ function handleCropUpdate({crop, imageData}:any) {
       return
     }
   }
+  hasUnSaveChange.value = true
 }
 
 function handleCropRemove(cropId: string | number) {
@@ -207,18 +209,24 @@ function handleCropRemove(cropId: string | number) {
     }
   }
 
-
+    hasUnSaveChange.value = true
 }
 
 // ==================== Section Management ====================
 function openAddSection() {
+  const currentPageImg = documentPaths.value[previewRef.value?.currentPage -1 || 0]
+  sectionDialogRef.value.open(currentPageImg, previewRef.value?.currentPage)
   editingSection.value = null
-  showSectionDialog.value = true
 }
 
 function openEditSection(section: Section) {
+
   editingSection.value = JSON.parse(JSON.stringify(section))
-  showSectionDialog.value = true
+  const sectionPage = editingSection.value.zone.page
+  if(!sectionPage) throw error("sectionPage is not define")
+  const currentPageImg = documentPaths.value[sectionPage -1]
+  sectionDialogRef.value.open(currentPageImg, sectionPage, editingSection.value)
+
 }
 
 function handleSaveSection(section: Section) {
@@ -226,21 +234,22 @@ function handleSaveSection(section: Section) {
     s => s.section_id === section.section_id
   )
 
-  if (existingIndex >= 0) {
+  if (existingIndex !== -1) {
     formConfig.value.section[existingIndex] = section
   } else {
     formConfig.value.section.push(section)
   }
-
+  const newCrops = buildCropsFromConfig()
+  previewRef.value.crops = newCrops
+  previewRef.value?.renderCropsForCurrentPage()
+   hasUnSaveChange.value = true
 }
 
 function deleteSection(sectionId: string) {
-  ElMessageBox.confirm({
-    title: 'Delete Section',
-    message: 'Are you sure you want to delete this section? All fields will be removed.',
-    confirmText: 'Delete',
-    cancelText: 'Cancel',
-    variant: 'danger'
+  ElMessageBox.confirm('Are you sure you want to delete this section? All fields will be removed.',{
+    confirmButtonClass: 'el-button el-button--warning',
+    dangerouslyUseHTMLString: true,
+    confirmButtonText: 'Confirm'
   }).then((result) => {
     if(result !== 'confirm') return
     const index = formConfig.value.section.findIndex(s => s.section_id === sectionId)
@@ -248,6 +257,10 @@ function deleteSection(sectionId: string) {
       formConfig.value.section.splice(index, 1)
       routerProvider?.message.success('Section deleted. Click Save to apply changes.')
     }
+    const newCrops = buildCropsFromConfig()
+    previewRef.value.crops = newCrops
+    previewRef.value?.renderCropsForCurrentPage()
+    hasUnSaveChange.value = true
   }).catch(() => {
     // Cancelled
   })
@@ -256,6 +269,7 @@ function deleteSection(sectionId: string) {
 // ==================== QRCode Management ====================
 function addQRCode() {
   const newQR = createEmptyQRCodeField(`QR Code ${formConfig.value.qrcode.length + 1}`)
+  console.log("newQR",newQR)
   formConfig.value.qrcode.push(newQR)
   // If first QRCode, set as index field
   if (formConfig.value.qrcode.length === 1) {
@@ -271,10 +285,11 @@ function addQRCode() {
       editable: true,
     })
   })
+  hasUnSaveChange.value = true
 }
 
 function deleteQRCode(key: string) {
-  console.log("deleteQRCode", key)
+
   const index = formConfig.value.qrcode.findIndex(q => q.key === key)
   if (index >= 0) {
     formConfig.value.qrcode.splice(index, 1)
@@ -284,6 +299,7 @@ function deleteQRCode(key: string) {
     }
     previewRef.value?.removeCropItem(key)
   }
+  hasUnSaveChange.value = true
 }
 
 function setIndexQRCode(key: string) {
@@ -305,6 +321,7 @@ async function saveConfig() {
     delete updateData.createdAt
     delete updateData.createdBy
     await clientApi.api.putCaptureProjformsetting(updateData)
+    hasUnSaveChange.value = false
     // emits('refresh')
   } catch (error) {
     console.error('Save error:', error)
@@ -319,6 +336,21 @@ async function saveConfig() {
 watch(() => props.formDetail, () => {
   initFormConfig()
 }, { immediate: true })
+
+function dataLostWarning(e){
+  if(hasUnSaveChange.value){
+    event.preventDefault();
+    event.returnValue = ""; // Required for most browsers
+  }
+}
+
+onMounted(() => {
+  window.addEventListener("beforeunload", dataLostWarning)
+})
+
+onUnmounted(() => {
+  window.removeEventListener("beforeunload", dataLostWarning)
+})
 
 </script>
 
@@ -345,12 +377,12 @@ watch(() => props.formDetail, () => {
           v-model="formConfig"
           :formImages="formImages"
           :saving="saving"
-          @add-section="openAddSection"
-          @edit-section="openEditSection"
-          @delete-section="deleteSection"
+          @addSection="openAddSection"
+          @editSection="openEditSection"
+          @deleteSection="deleteSection"
           @addQRCode="addQRCode"
           @deleteQRCode="deleteQRCode"
-          @set-index-qrcode="setIndexQRCode"
+          @setIndexQRCode="setIndexQRCode"
           @save="saveConfig"
         />
       </ElSplitterPanel>
@@ -358,10 +390,7 @@ watch(() => props.formDetail, () => {
 
     <!-- Section Dialog -->
     <SectionDialog
-      v-model="showSectionDialog"
-      :document-url="documentPaths[previewRef?.currentPage -1 || 0] || ''"
-      :existing-section="editingSection"
-      :prompt-templates="promptTemplates"
+        ref="sectionDialogRef"
       @save="handleSaveSection"
     />
   </div>

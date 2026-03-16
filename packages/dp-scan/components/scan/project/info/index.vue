@@ -97,7 +97,7 @@ function addProjectField() {}
         <ElInput type="textarea" v-model="info.description" />
       </ElFormItem>
       <div class="section">Project Fields <Icon class="cursor-pointer" name="lucide:plus" @click="addProjectField" /></div>
-      <ScanProjectInfoProjectField ref="additionFieldsSettingEl" :additionFieldsSetting="info.additionFieldsSetting" />
+      <ScanProjectInfoProjectField ref="additionFieldsSettingEl" v-model="info.additionFieldsSetting" />
       <div class="section">Batch Naming Rules</div>
       <ElFormItem label="Prefix" required>
         <ElInput v-model="info.prefix" placeholder="Enter prefix" />

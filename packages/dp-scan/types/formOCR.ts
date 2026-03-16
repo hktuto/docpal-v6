@@ -407,10 +407,6 @@ export function createEmptySection(sectionId?: string, sectionName?: string): Se
     export_label: '',
     merge_method: 'overwrite',
     prompt_template_id: '',
-    zone: {
-      page: 1,
-      zone: '0,0,100,100'
-    }
   }
 }
 
@@ -446,9 +442,9 @@ export function createEmptyQRCodeField(label?: string): QRCodeField {
   return {
     key: generateKey('qrcode'),
     label: label || 'QR Code',
+    export_label: label || 'QR Code',
     format: 'qrcode',
     readonly: true,
     required: true,
-    export_label: '',
   }
 }
