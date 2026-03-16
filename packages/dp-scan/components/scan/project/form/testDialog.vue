@@ -20,12 +20,22 @@ function close() {
   file.value = []
 }
 
-async function save(){
-  const formData = new FormData()
-  formData.append('file', file.value[0].raw)
-  formData.append('projectId', projectId.value)
-  formData.append('formId', formId.value)
-  // const result = await clientApi.api.
+const loading = ref(false)
+async function submit(){
+  loading.value = true
+  try{
+    const formData = new FormData()
+    formData.append('file', file.value[0].raw)
+    formData.append('projectId', projectId.value)
+    formData.append('formId', formId.value)
+    formData.append('fieldsSettingJson', formConfig.value)
+    const result = await clientApi.api.postCaptureProjformsettingTestform(formData)
+    console.log(result)
+  }catch(err){
+
+  }finally{
+    loading.value = false
+  }
 }
 
 watch(visible, (bool) => {
@@ -43,7 +53,7 @@ defineExpose({
 
 <template>
   <ElDialog v-model="visible" @close="file = []" >
-      <ElForm label-position="top">
+      <ElForm v-loading="loading" label-position="top">
           <ElFormItem>
               <el-upload
                     class="avatar-uploader"
@@ -61,7 +71,7 @@ defineExpose({
               <ElButton type="info" @click="close">
                   Cancel
               </ElButton>
-              <ElButton type="primary" @click="$emit('save')">
+              <ElButton type="primary" @click="submit">
                   Confirm
               </ElButton>
           </ElFormItem>

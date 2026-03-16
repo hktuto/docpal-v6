@@ -338,7 +338,7 @@ async function saveConfig() {
 const testFormRef = ref()
 function testForm(){
   console.log("props.formDetail", props.formDetail)
-  testFormRef.value.open(props.formDetail.id,props.formDetail.id, deepCopy(formConfig.value))
+  testFormRef.value.open(props.formDetail.id, props.formDetail.projectId, deepCopy(formConfig.value))
 }
 
 // ==================== Watchers ====================
