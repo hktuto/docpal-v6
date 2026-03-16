@@ -5,12 +5,12 @@ const file = ref([])
 const formConfig = ref<any>(null)
 const projectId = ref<string>('')
 const formId = ref<string>('')
-function open(formId: string,projectId:string  testFormConfig: any) {
+function open(testFormId: string, testProjectId:string, testFormConfig: any) {
   visible.value = true
 
   formConfig.value = testFormConfig
-  formId.value = formId
-  projectId.value = projectId
+  formId.value = testFormId
+  projectId.value = testProjectId
   console.log(formId, testFormConfig)
 }
 
@@ -25,7 +25,7 @@ async function save(){
   formData.append('file', file.value[0].raw)
   formData.append('projectId', projectId.value)
   formData.append('formId', formId.value)
-  const result = await clientApi.api.
+  // const result = await clientApi.api.
 }
 
 watch(visible, (bool) => {

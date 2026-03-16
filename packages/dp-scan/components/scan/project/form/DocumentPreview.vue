@@ -591,7 +591,6 @@ function extractCropImage(crop: CropItem): string | undefined {
 
   const zoneCoords = parseZoneString(crop.zone)
   if (!zoneCoords) return undefined
-  console.log("extractCropImage",zoneCoords)
   // Get the fabric crop object to hide it temporarily
   const fabricCrop = fabricCrops.value.get(crop.id)
   const cropRect = fabricCrop?.rect

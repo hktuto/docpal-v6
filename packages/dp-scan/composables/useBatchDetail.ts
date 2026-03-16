@@ -1,4 +1,5 @@
 import { clientApi } from 'api'
+import { normalizeValue, createValidator, type NormalizeOptions, type ValidationFunction } from '../types/formOCR'
 
 /**
  * Batch Detail Composable
@@ -79,6 +80,9 @@ export type FieldWithValue = {
   currentValue: any
   originalValue: any
   options?: { label: string; value: string }[]
+  // Normalization and validation
+  normalize_options?: NormalizeOptions
+  validation_function?: ValidationFunction
 }
 
 export type SectionWithValues = {
@@ -199,14 +203,20 @@ export const useBatchDetail = (batchId: string) => {
             originalValue: oldRowData,
             fields: section.fields?.map((field: any): FieldWithValue => {
               const fieldLabel = field.lable || field.label
+              const rawValue = rowData?.[fieldLabel] ?? ''
+              const normalizedValue = field.normalize_options
+                ? normalizeValue(rawValue, field.normalize_options)
+                : rawValue
               return {
                 ...field,
-                currentValue: rowData?.[fieldLabel] ?? '',
+                currentValue: normalizedValue,
                 originalValue: oldRowData?.[fieldLabel] ?? '',
                 options: field.field_setting?.options?.map((opt: Record<string, string>) => {
                   const [value, label] = Object.entries(opt)[0] || ['', '']
                   return { value, label }
-                })
+                }),
+                normalize_options: field.normalize_options,
+                validation_function: field.validation_function
               }
             })
           }
@@ -223,7 +233,9 @@ export const useBatchDetail = (batchId: string) => {
             options: field.field_setting?.options?.map((opt: Record<string, string>) => {
               const [value, label] = Object.entries(opt)[0] || ['', '']
               return { value, label }
-            })
+            }),
+            normalize_options: field.normalize_options,
+            validation_function: field.validation_function
           })),
           rows
         }
@@ -239,14 +251,20 @@ export const useBatchDetail = (batchId: string) => {
         originalValue: oldSectionValues,
         fields: section.fields?.map((field: any): FieldWithValue => {
           const fieldLabel = field.lable || field.label
+          const rawValue = newSectionValues?.[fieldLabel] ?? ''
+          const normalizedValue = field.normalize_options
+            ? normalizeValue(rawValue, field.normalize_options)
+            : rawValue
           return {
             ...field,
-            currentValue: newSectionValues?.[fieldLabel] ?? '',
+            currentValue: normalizedValue,
             originalValue: oldSectionValues?.[fieldLabel] ?? '',
             options: field.field_setting?.options?.map((opt: Record<string, string>) => {
               const [value, label] = Object.entries(opt)[0] || ['', '']
               return { value, label }
-            })
+            }),
+            normalize_options: field.normalize_options,
+            validation_function: field.validation_function
           }
         })
       }

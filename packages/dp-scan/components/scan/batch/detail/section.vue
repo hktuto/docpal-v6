@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useBatchDetailContext, type SectionWithValues, type FieldWithValue } from '#imports'
+import { createValidator } from '../../../../types/formOCR'
 
 const props = defineProps<{
   section: SectionWithValues
@@ -70,6 +71,47 @@ function isFieldModified(field: FieldWithValue): boolean {
   return field.currentValue !== field.originalValue
 }
 
+// Generate validation rules for a field
+function getFieldRules(field: FieldWithValue): any[] {
+  const rules: any[] = []
+  
+  // Required rule
+  if (field.required) {
+    rules.push({ required: true, message: 'Required', trigger: 'change' })
+  }
+  
+  // Custom validation function
+  if (field.validation_function) {
+    rules.push({
+      validator: (rule: any, value: any, callback: any) => {
+        const validatorFn = createValidator(field.validation_function)
+        // Build allData from section values for cross-field validation
+        const allData = props.section.section_type === 'table' 
+          ? {} // Table row validation - pass empty for now
+          : props.section.fields.reduce((acc, f) => {
+              acc[f.label || f.lable || f.key] = f.currentValue
+              return acc
+            }, {} as Record<string, any>)
+        validatorFn(rule, value, callback, allData)
+      },
+      trigger: 'blur'
+    })
+  }
+  
+  return rules
+}
+
+// Get all field values for validation context
+function getAllFieldValues(): Record<string, any> {
+  if (props.section.section_type === 'table') {
+    return {}
+  }
+  return props.section.fields.reduce((acc, f) => {
+    acc[f.label || f.lable || f.key] = f.currentValue
+    return acc
+  }, {} as Record<string, any>)
+}
+
 // Get input type for field
 function getInputType(fieldType: string): string {
   const typeMap: Record<string, string> = {
@@ -113,58 +155,69 @@ function getInputType(fieldType: string): string {
 
     <!-- Standard Section -->
     <div v-if="section.section_type !== 'table'" class="fieldsList">
-      <div
-        v-for="field in section.fields"
-        :key="field.key"
-        class="fieldItem"
-        :class="{
-          highlighted: isFieldHighlighted(field)
-        }"
-        @mouseenter="handleFieldMouseEnter(field)"
+      <ElForm
+        :model="getAllFieldValues()"
+        label-position="top"
+        size="small"
+        class="section-form"
       >
-        <div class="fieldLabel">
-          <span class="labelText">{{ field.lable || field.label }}</span>
-          <ElTag v-if="field.required" size="small" type="danger" effect="plain" class="requiredTag">
-            *
-          </ElTag>
-        </div>
-
-        <!-- Select field with options -->
-        <ElSelect
-          v-if="field.options && field.options.length > 0"
-          :model-value="field.currentValue"
-          size="small"
-          :class="{fieldInput: true, edited: isFieldModified(field)}"
-          :placeholder="`Select ${field.lable || field.label}`"
-          :disabled="readonly"
-          @update:model-value="(val) => handleFieldChange(field, val)"
+        <ElFormItem
+          v-for="field in section.fields"
+          :key="field.key"
+          :prop="field.label || field.lable || field.key"
+          :rules="getFieldRules(field)"
+          class="field-form-item"
         >
-          <ElOption
-            v-for="opt in field.options"
-            :key="opt.value"
-            :label="opt.label"
-            :value="opt.value"
-          />
-        </ElSelect>
+          <div
+            class="fieldItem"
+            :class="{ highlighted: isFieldHighlighted(field) }"
+            @mouseenter="handleFieldMouseEnter(field)"
+          >
+            <div class="fieldLabel">
+              <span class="labelText">{{ field.lable || field.label }}</span>
+              <ElTag v-if="field.required" size="small" type="danger" effect="plain" class="requiredTag">
+                *
+              </ElTag>
+            </div>
 
-        <!-- Regular text input -->
-        <ElInput
-          v-else
-          :model-value="field.currentValue"
-          size="small"
-          :class="{fieldInput: true, edited: isFieldModified(field)}"
-          :type="getInputType(field.type)"
-          :placeholder="field.lable || field.label"
-          :disabled="readonly"
-          @update:model-value="(val) => handleFieldChange(field, val)"
-        />
+            <!-- Select field with options -->
+            <ElSelect
+              v-if="field.options && field.options.length > 0"
+              :model-value="field.currentValue"
+              size="small"
+              :class="{fieldInput: true, edited: isFieldModified(field)}"
+              :placeholder="`Select ${field.lable || field.label}`"
+              :disabled="readonly"
+              @update:model-value="(val) => handleFieldChange(field, val)"
+            >
+              <ElOption
+                v-for="opt in field.options"
+                :key="opt.value"
+                :label="opt.label"
+                :value="opt.value"
+              />
+            </ElSelect>
 
-        <!-- Original OCR value display -->
-        <div v-if="isFieldModified(field)" class="originalValue">
-          <Icon name="lucide:history" class="originalIcon" />
-          <span class="originalText">{{ field.originalValue || '(empty)' }}</span>
-        </div>
-      </div>
+            <!-- Regular text input -->
+            <ElInput
+              v-else
+              :model-value="field.currentValue"
+              size="small"
+              :class="{fieldInput: true, edited: isFieldModified(field)}"
+              :type="getInputType(field.type)"
+              :placeholder="field.lable || field.label"
+              :disabled="readonly"
+              @update:model-value="(val) => handleFieldChange(field, val)"
+            />
+
+            <!-- Original OCR value display -->
+            <div v-if="isFieldModified(field)" class="originalValue">
+              <Icon name="lucide:history" class="originalIcon" />
+              <span class="originalText">{{ field.originalValue || '(empty)' }}</span>
+            </div>
+          </div>
+        </ElFormItem>
+      </ElForm>
     </div>
 
     <!-- Table Section -->
@@ -184,52 +237,68 @@ function getInputType(fieldType: string): string {
         </div>
 
         <div class="rowFields">
-          <div
-            v-for="field in row.fields"
-            :key="field.key"
-            class="fieldItem"
-            :class="{ modified: field.currentValue !== field.originalValue }"
-            @mouseenter="handleFieldMouseEnter(field)"
+          <ElForm
+            :model="row.fields.reduce((acc, f) => {
+              acc[f.label || f.lable || f.key] = f.currentValue
+              return acc
+            }, {})"
+            label-position="top"
+            size="small"
+            class="row-form"
           >
-            <div class="fieldLabel">
-              <span class="labelText">{{ field.lable || field.label }}</span>
-              <ElTag v-if="field.required" size="small" type="danger" effect="plain" class="requiredTag">
-                *
-              </ElTag>
-            </div>
-
-            <ElSelect
-              v-if="field.options && field.options.length > 0"
-              :model-value="field.currentValue"
-              size="small"
-              class="fieldInput"
-              :disabled="readonly"
-              @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
+            <ElFormItem
+              v-for="field in row.fields"
+              :key="field.key"
+              :prop="field.label || field.lable || field.key"
+              :rules="getFieldRules(field)"
+              class="field-form-item"
             >
-              <ElOption
-                v-for="opt in field.options"
-                :key="opt.value"
-                :label="opt.label"
-                :value="opt.value"
-              />
-            </ElSelect>
+              <div
+                class="fieldItem"
+                :class="{ modified: field.currentValue !== field.originalValue }"
+                @mouseenter="handleFieldMouseEnter(field)"
+              >
+                <div class="fieldLabel">
+                  <span class="labelText">{{ field.lable || field.label }}</span>
+                  <ElTag v-if="field.required" size="small" type="danger" effect="plain" class="requiredTag">
+                    *
+                  </ElTag>
+                </div>
 
-            <ElInput
-              v-else
-              :model-value="field.currentValue"
-              size="small"
-              class="fieldInput"
-              :type="getInputType(field.type)"
-              :disabled="readonly"
-              @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
-            />
+                <ElSelect
+                  v-if="field.options && field.options.length > 0"
+                  :model-value="field.currentValue"
+                  size="small"
+                  class="fieldInput"
+                  :disabled="readonly"
+                  @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
+                >
+                  <ElOption
+                    v-for="opt in field.options"
+                    :key="opt.value"
+                    :label="opt.label"
+                    :value="opt.value"
+                  />
+                </ElSelect>
 
-            <!-- Original OCR value display -->
-            <div v-if="field.currentValue !== field.originalValue" class="originalValue">
-              <Icon name="lucide:history" class="originalIcon" />
-              <span class="originalText">{{ field.originalValue || '(empty)' }}</span>
-            </div>
-          </div>
+                <ElInput
+                  v-else
+                  :model-value="field.currentValue"
+                  size="small"
+                  class="fieldInput"
+                  :type="getInputType(field.type)"
+                  :disabled="readonly"
+                  @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
+                />
+
+                <!-- Original OCR value display -->
+                <div v-if="field.currentValue !== field.originalValue" class="originalValue">
+                  <Icon name="lucide:history" class="originalIcon" />
+                  <span class="originalText">{{ field.originalValue || '(empty)' }}</span>
+                </div>
+              </div>
+            </ElFormItem>
+          </ElForm>
         </div>
       </div>
     </div>
@@ -403,5 +472,22 @@ function getInputType(fieldType: string): string {
   display: flex;
   flex-flow: column nowrap;
   gap: var(--app-space-xs);
+}
+
+.section-form,
+.row-form {
+  width: 100%;
+}
+
+.field-form-item {
+  margin-bottom: 0;
+}
+
+.field-form-item :deep(.el-form-item__content) {
+  display: block;
+}
+
+.field-form-item :deep(.el-form-item__error) {
+  padding-top: 2px;
 }
 </style>
