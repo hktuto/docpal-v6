@@ -18,7 +18,7 @@ async function getWorkflowData() {
     throw new Error('Workflow ID is null')
   }
   try {
-    const data = await $api.get(`192.168.5.147:8080/api/v1/workflow/definitions/instance/${props.id}`).then((r) => r.data)
+    const data = await $api.get(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${props.id}`).then((r) => r.data)
     if (!data) {
       throw Error('workflow Data is null')
     }

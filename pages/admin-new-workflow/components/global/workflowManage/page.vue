@@ -8,6 +8,7 @@ if (!routerProvider) {
   throw new Error('MenuRouterKey is not provided')
 }
 const workflowManageDialogRef = ref()
+const workflowManageDuplicateRef = ref()
 const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   id: 'admin-new-workflow-manage',
   saveColumnOrder: false,
@@ -122,6 +123,13 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
       }
     }
 
+    if (code === 'remove') {
+      return {
+        visible: row.status === 'D',
+        disabled: false
+      }
+    }
+
     return {
       visible: false,
       disabled: true
@@ -158,9 +166,19 @@ function handleEditInfo(row: any) {
   workflowManageDialogRef.value.edit(row)
 }
 
-function handleDuplicate(row: any) {}
+function handleDuplicate(row: any) {
+  workflowManageDuplicateRef.value.open(row)
+}
 
-function handleRemove(row: any) {}
+async function handleRemove(row: any) {
+  if (row.status === 'A') return
+
+  try {
+    await $api.delete(`/api/v1/workflow/definitions/instance/${row.id}`).then((r) => r.dada)
+  } catch (e) {
+    console.log('')
+  }
+}
 
 function openCreateDialog() {
   workflowManageDialogRef.value.open()
@@ -180,6 +198,7 @@ function openCreateDialog() {
     </VxeGrid>
   </div>
   <workflowManageDialog ref="workflowManageDialogRef" @refresh="reload" />
+  <workflowManageDuplicate ref="workflowManageDuplicateRef" />
 </template>
 
 <style lang="scss" scoped></style>
