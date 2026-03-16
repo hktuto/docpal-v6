@@ -185,7 +185,7 @@ export const useBatchDetail = (batchId: string) => {
 
     const newResult = detail.newResultJson || {}
     const oldResult = detail.oldResultJson || {}
-    console.log("buildSectionsWithValues")
+
     sectionsWithValues.value = settings.section.map((section: any): SectionWithValues => {
       const sectionName = section.section_name
       const newSectionData = newResult[sectionName]
