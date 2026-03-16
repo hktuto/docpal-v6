@@ -207,9 +207,7 @@ export const useBatchDetail = (batchId: string) => {
               const normalizedValue = field.normalize_options
                 ? normalizeValue(rawValue, field.normalize_options)
                 : rawValue
-              if (field.normalize_options) {
-                console.log("normalizedValue",normalizeValue(rawValue, field.normalize_options), rawValue )
-              }
+
               return {
                 ...field,
                 currentValue: normalizedValue,
@@ -258,9 +256,7 @@ export const useBatchDetail = (batchId: string) => {
           const normalizedValue = field.normalize_options
             ? normalizeValue(rawValue, field.normalize_options)
             : rawValue
-          if (field.normalize_options) {
-            console.log("normalizedValue",normalizeValue(rawValue, field.normalize_options), rawValue )
-          }
+
           return {
             ...field,
             currentValue: normalizedValue,
