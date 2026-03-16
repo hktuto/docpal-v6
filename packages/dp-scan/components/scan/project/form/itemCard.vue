@@ -141,16 +141,7 @@ onUnmounted(() => {
       </div>
 
       <!-- Stats -->
-      <div class="formStats">
-        <div class="statItem">
-          <Icon name="lucide:layout-template" />
-          <span>{{ form.sectionCount || 0 }} sections</span>
-        </div>
-        <div class="statItem">
-          <Icon name="lucide:text-fields" />
-          <span>{{ form.fieldCount || 0 }} fields</span>
-        </div>
-      </div>
+
     </div>
   </ElCard>
 </template>
