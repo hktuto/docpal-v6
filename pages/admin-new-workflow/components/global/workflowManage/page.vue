@@ -1,0 +1,185 @@
+<script lang="ts" setup>
+import { routeWorkflowManageEditor } from '#imports'
+import { newAdminApi } from 'api'
+
+const { t } = useI18n()
+const routerProvider = inject(MenuRouterKey)
+if (!routerProvider) {
+  throw new Error('MenuRouterKey is not provided')
+}
+const workflowManageDialogRef = ref()
+const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
+  id: 'admin-new-workflow-manage',
+  saveColumnOrder: false,
+  api: async (pageParams: any) => {
+    const params = {
+      page_size: pageParams.pageSize,
+      page_num: pageParams.pageNum + 1
+    }
+    return await getData(params)
+  },
+  columns: [
+    { field: 'key', title: 'Workflow Key', fixed: 'left' },
+    { field: 'name', title: 'workflow_workflowName' },
+    { field: 'draft_content.description', title: 'Description' },
+    { field: 'status', title: 'Status' },
+    {
+      field: 'created_at',
+      title: 'Create Date',
+      formatter({ cellValue }: any) {
+        return formatDate(cellValue)
+      }
+    }
+  ],
+  bodyActions: [
+    [
+      {
+        code: 'edit_info',
+        name: 'workflowEditor.editInfo',
+        visible: true,
+        disabled: false,
+        action: ({ row }: any) => {
+          handleEditInfo(row)
+        }
+      },
+      {
+        code: 'duplicate',
+        name: 'actions.duplicate',
+        visible: true,
+        disabled: false,
+        action: ({ row }: any) => {
+          handleDuplicate(row)
+        }
+      },
+      {
+        code: 'activate',
+        name: t('actions.active'),
+        action: async ({ row }: { row: any }) => {
+          try {
+            await $api.put(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${row.id}/activate`).then((r) => r.data)
+            reload()
+          } catch (error) {
+            console.error('Failed to activate user group:', error)
+          }
+        }
+      },
+      {
+        code: 'deactivate',
+        name: t('actions.inactive'),
+        action: async ({ row }: { row: any }) => {
+          try {
+            await $api.put(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${row.id}/deactivate`).then((r) => r.data)
+            reload()
+          } catch (error) {
+            console.error('Failed to deactivate user group:', error)
+          }
+        }
+      },
+      {
+        code: 'remove',
+        name: 'common_remove',
+        visible: true,
+        disabled: false,
+        action: ({ row }: any) => {
+          handleRemove(row)
+        }
+      }
+    ]
+  ],
+  permissionMethod: ({ row, code }: { row: any; code?: string }) => {
+    if (!row) {
+      return { visible: false, disabled: false }
+    }
+
+    // Show edit action for all user groups
+    if (code === 'edit_info') {
+      return {
+        visible: row.status === 'D',
+        disabled: false
+      }
+    }
+
+    if (code === 'duplicate') {
+      return {
+        visible: true,
+        disabled: false
+      }
+    }
+
+    // Show activate action only for inactive user groups
+    if (code === 'activate') {
+      return {
+        visible: row.status === 'D',
+        disabled: false
+      }
+    }
+
+    // Show deactivate action only for active user groups
+    if (code === 'deactivate') {
+      return {
+        visible: row.status === 'A',
+        disabled: false
+      }
+    }
+
+    return {
+      visible: false,
+      disabled: true
+    }
+  },
+  dblClickAction: ({ row, column, event }: any) => {
+    handleDbClick(row)
+  }
+})
+
+async function getData(params: any) {
+  const data = await $api.post('http://192.168.5.147:8080/api/v1/workflow/definitions/page', params).then((r) => r.data)
+  return {
+    data: {
+      entryList: data.items,
+      totalSize: data.total
+    }
+  }
+}
+
+function handleDbClick(row: any) {
+  try {
+    const workflowEdit = routeWorkflowManageEditor({
+      id: row.id,
+      name: row.name
+    })
+    routerProvider?.navigateTo(workflowEdit)
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+function handleEditInfo(row: any) {
+  workflowManageDialogRef.value.edit(row)
+}
+
+function handleDuplicate(row: any) {}
+
+function handleRemove(row: any) {}
+
+function openCreateDialog() {
+  workflowManageDialogRef.value.open()
+}
+</script>
+
+<template>
+  <div class="pageContainer--padding">
+    <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
+      <template #toolbar_buttons>
+        <el-button @click="openCreateDialog">Create Workflow</el-button>
+      </template>
+      <template #status="{ row }">
+        <el-tag v-if="row.status === 'A'" type="success">{{ $t('actions.activated') }}</el-tag>
+        <el-tag v-else type="danger">{{ $t('actions.inactive') }}</el-tag>
+      </template>
+    </VxeGrid>
+  </div>
+  <workflowManageDialog ref="workflowManageDialogRef" @refresh="reload" />
+</template>
+
+<style lang="scss" scoped></style>

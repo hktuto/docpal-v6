@@ -27,7 +27,7 @@ export default defineNuxtConfig({
     '../../pages/client-rbac',
     '../../pages/client-user-setting',
 
-    '../../pages/admin-workflow-editor',
+    // '../../pages/admin-workflow-editor',
     '../../pages/admin-user',
     '../../pages/admin-acl',
     '../../pages/admin-setting',
@@ -45,9 +45,9 @@ export default defineNuxtConfig({
     '../../pages/admin-message-queue',
     '../../pages/admin-share',
     '../../pages/admin-external-connection',
-    '../../pages/admin-workflow',
+    // '../../pages/admin-workflow',
     '../../pages/admin-document-type',
-
+    '../../pages/admin-new-workflow',
     '../../pages/admin-log-manage',
     '../../pages/admin-calendar-setting',
     '../../pages/admin-folder-cabinet',

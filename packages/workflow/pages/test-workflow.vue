@@ -16,7 +16,7 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
   api: async (pageParams: any) => {
     const params = {
       page_size: pageParams.pageSize,
-      page_num: pageParams.pageNum
+      page_num: pageParams.pageNum + 1
     }
     return await getData(params)
   },
@@ -41,12 +41,11 @@ const { tableConfig, tableEvent, tableRef, query, reload } = useVxeTable({
 
 async function getData(params: any) {
   const data = await $api.post('http://192.168.5.147:8080/api/v1/workflow/definitions/page', params).then((r) => r.data)
-  // tableRef.value?.loadData(data.items)
   return {
-    data:{
+    data: {
       entryList: data.items,
-      totalSize: data.total,
-    },
+      totalSize: data.total
+    }
   }
 }
 const router = useRouter()
@@ -96,22 +95,12 @@ async function handleSubmit() {
       <VxeGrid ref="tableRef" v-bind="tableConfig" v-on="tableEvent">
         <template #toolbar_buttons>
           <el-button @click="openDialog = true">Create Workflow</el-button>
-          <!--        <ResponsiveFilter ref="ResponsiveFilterRef" @form-change="handleFilterFormChange" />-->
-          <!--        <el-button
-            :loading="state.loading"
-            id="ActiveWorkflowManagement__Delete"
-            v-show="state.selectedRows.length > 0"
-            type="danger"
-            @click="handleDeleteSelected()"
-          >
-            {{ $t('common_delete') }}
-          </el-button>-->
         </template>
       </VxeGrid>
     </div>
   </div>
 
-  <div style="height: 500px;">
+  <div style="height: 500px">
     <div v-if="openWorkflowEdit" class="pageContainer">
       <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="workflowData" :readonly="workflowReadonly" />
     </div>

@@ -1,0 +1,97 @@
+{
+  "id": "",
+  "key": "process_1770090138471",
+  "name": "New Process",
+  "type": "process",
+  "version": 1,
+  "description": "Process definition created with JSON modeler",
+  "nodes": [
+    {
+      "id": "system_start_event",
+      "label": "Start Event",
+      "name": "Start Event",
+      "type": "StartEvent",
+      "flow": {
+        "incoming": [],
+        "outgoing": [],
+        "join_type": "XOR",
+        "split_type": "XOR"
+      },
+      "execution": {
+        "async": false,
+        "timeout_ms": 1000,
+        "priority": 0
+      },
+      "config": {},
+      "metadata": {
+        "x": 60,
+        "y": -150,
+        "width": 140,
+        "height": 64,
+        "icon": "/icons/form.svg"
+      }
+    },
+    {
+      "id": "system_end_event",
+      "label": "End Event",
+      "name": "End Event",
+      "type": "EndEvent",
+      "flow": {
+        "incoming": [],
+        "outgoing": [],
+        "join_type": "XOR",
+        "split_type": "XOR"
+      },
+      "execution": {
+        "async": false,
+        "timeout_ms": 1000,
+        "priority": 0
+      },
+      "config": {},
+      "metadata": {
+        "x": 60,
+        "y": 170,
+        "width": 140,
+        "height": 64,
+        "icon": "/icons/close.svg"
+      }
+    }
+  ],
+  "edges": [],
+  "variables": {
+    "po_number": {
+      "name": "Po Number",
+      "type": "string",
+      "required": true,
+      "pattern": "^PO-[0-9]{6}$"
+    },
+    "requester_name": {
+      "name": "Requester Name",
+      "type": "string",
+      "required": true
+    },
+    "requester_email": {
+      "name": "Requester Email",
+      "type": "string",
+      "required": true,
+      "format": "email"
+    },
+    "vendor_id": {
+      "name": "Vendor Id",
+      "type": "string",
+      "required": false
+    }
+  },
+  "metadata": {
+    "created_date": "2026-02-03",
+    "version": "2.0-array-execution-tracking",
+    "author": "System",
+    "purpose": "Unified BPMN schema with nodes as array",
+    "status": "active",
+    "tags": [
+      "bpmn",
+      "unified_schema",
+      "execution_tracking"
+    ]
+  }
+}
