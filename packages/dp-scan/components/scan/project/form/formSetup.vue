@@ -5,6 +5,7 @@ import {ElMessageBox}　from 'element-plus'
 import DocumentPreview from './DocumentPreview.vue'
 import SectionDialog from './SectionDialog.vue'
 import FormSetupConfig from './FormSetupConfig.vue'
+import TestFromDialog from './testDialog.vue'
 import type {
   FormFieldsSetting,
   Section,
@@ -333,10 +334,19 @@ async function saveConfig() {
 }
 
 
+//================= Test form logic ====================
+const testFormRef = ref()
+function testForm(){
+  console.log("props.formDetail", props.formDetail)
+  testFormRef.value.open(props.formDetail.id,props.formDetail.id, deepCopy(formConfig.value))
+}
+
 // ==================== Watchers ====================
 watch(() => props.formDetail, () => {
   initFormConfig()
 }, { immediate: true })
+
+// ================== handle close window alert =============
 
 function dataLostWarning(e){
   if(hasUnSaveChange.value){
@@ -358,7 +368,7 @@ onUnmounted(() => {
 <template>
   <div class="form-setup">
       <Teleport :to="`#detail-${formDetail.id}`" defer>
-          <ElButton type="primary" >Test Form</ElButton>
+          <ElButton type="primary" @click="testForm">Test Form</ElButton>
           <ElButton type="primary" @click="$emit('back', 'classificationUpload')">Repalce Sample</ElButton>
           <ElButton type="primary" @click="$emit('back', 'split')">Split Page</ElButton>
       </Teleport>
@@ -394,6 +404,7 @@ onUnmounted(() => {
         ref="sectionDialogRef"
       @save="handleSaveSection"
     />
+    <TestFromDialog ref="testFormRef" />
   </div>
 </template>
 
