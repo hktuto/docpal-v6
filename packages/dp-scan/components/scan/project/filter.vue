@@ -4,7 +4,7 @@ const filter = useAdminListFilter()
 
 <template>
   <div class="filterListContaner">
-    <ElInput v-model="filter.name" placeholder="Search by name" />
+    <!-- <ElInput v-model="filter.name" placeholder="Search by name" /> -->
     <ElSelect v-model="filter.statusList" clearable multiple>
       <ElOption value="A" label="Active">Active</ElOption>
       <ElOption value="I" label="Inactive">Inactive</ElOption>
