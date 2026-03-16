@@ -21,8 +21,6 @@ const emit = defineEmits<{
   save: []
 }>()
 
-// ==================== State ====================
-const expandedSections = ref<string[]>([])
 
 // ==================== Computed ====================
 const config = computed({
@@ -58,21 +56,8 @@ function onSetIndexQRCode(key: string) {
   emit('setIndexQRCode', key)
 }
 
-function onSave() {
-  emit('save')
-}
 
-function selectCrop(id: string) {
-  emit('update:activeCropId', id)
 
-  // Expand section if selecting a field
-  const section = config.value.section.find(s =>
-    s.fields.some(f => f.key === id)
-  )
-  if (section && !expandedSections.value.includes(section.section_id)) {
-    expandedSections.value.push(section.section_id)
-  }
-}
 
 function getFieldTypeLabel(type: string): string {
   const labels: Record<string, string> = {
@@ -142,56 +127,16 @@ const activeQrcode = ref([])
             </div>
 
             <div class="section-content">
-                <ElCollapse v-model="expandedSections">
-                <ElCollapseItem
+                <div class="scction-item"
                     v-for="section in config.section"
-                    :key="section.section_id"
-                    :name="section.section_id"
-                    :class="{ 'is-active': activeCropId === section.section_id }"
                 >
-                    <template #title>
-                    <div
-                        class="collapse-title"
-                        :class="{ active: activeCropId === section.section_id }"
-                        @click.stop="selectCrop(section.section_id)"
-                    >
-                        <span class="title-text">{{ section.section_name }}</span>
-                        <ElTag size="small" :type="section.section_type === 'table' ? 'warning' : 'info'">
-                        {{ section.section_type }}
-                        </ElTag>
-                    </div>
-                    </template>
-
-                    <div class="section-details">
-                    <div class="detail-row">
-                        <span class="detail-label">ID:</span>
-                        <span class="detail-value">{{ section.section_id }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Fields:</span>
-                        <span class="detail-value">{{ section.fields.length }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Crop to Scan:</span>
-                        <ElSwitch v-model="section.corp_to_scan" size="small" />
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Save to Result:</span>
-                        <ElSwitch v-model="section.save_to_result" size="small" />
-                    </div>
-
+                    <div class="section-name">{{section.section_name}} </div>
                     <div class="section-actions">
-                        <ElButton size="small" @click="onEditSection(section)">
-                        <Icon name="lucide:edit" />
-                        Edit
-                        </ElButton>
-                        <ElButton type="danger" size="small" @click="onDeleteSection(section.section_id)">
-                        <Icon name="lucide:trash-2" />
-                        </ElButton>
+                         <Icon class="info" name="lucide:edit" @click="onEditSection(section)" />
+                          <Icon class="warning" name="lucide:trash-2" @click="onDeleteSection(section.section_id)" />
                     </div>
-                    </div>
-                </ElCollapseItem>
-                </ElCollapse>
+                </div>
+
 
                 <ElEmpty v-if="config.section.length === 0" description="No sections added">
                 <ElButton type="primary" @click="$emit('addSection')">Add Section</ElButton>
@@ -226,7 +171,7 @@ const activeQrcode = ref([])
     </div>
     <!-- Footer Actions -->
     <div class="config-footer">
-      <ElButton :loading="saving" type="primary" @click="onSave">
+      <ElButton :loading="saving" type="primary" @click="$emit('save')">
         <Icon name="lucide:save" />
         Save Configuration
       </ElButton>
@@ -312,58 +257,34 @@ const activeQrcode = ref([])
   background: #ecf5ff;
 }
 
-.collapse-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-  padding-right: 12px;
-
-  &.active {
-    color: #409eff;
-    font-weight: 500;
-  }
-}
-
 .title-text {
   flex: 1;
 }
-
-.section-details {
-  padding: 12px;
-  background: #fafafa;
-  border-radius: 4px;
+.scction-item{
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items:center;
+    gap:var(--app-space-xs);
+    background: #f5f7fa;
+    padding: 12px;
+    border-radius: 4px;
 }
-
-.detail-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.detail-label {
-  color: #606266;
-  font-size: 13px;
-}
-
-.detail-value {
-  color: #303133;
-  font-size: 13px;
-  font-weight: 500;
-}
-
 .section-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #e4e7ed;
+    flex: 1 0 auto;
+    display: flex;
+    gap: var(--app-space-xs);
+    justify-content: flex-end;
+
+    > *{
+        cursor:pointer;
+    }
+    .warning {
+        color: var(--app-error-color);
+    }
+    .info{
+        color: var(--app-info-color);
+    }
 }
 
 .qr-item {

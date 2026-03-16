@@ -59,6 +59,13 @@ export interface SelectOption {
 }
 
 /**
+ * Normalization options for mapping OCR/input values to option values
+ * Key = target value, Value = array of patterns (plain strings or regex patterns like "^pattern$")
+ * Example: { "Y": ["Yes", "Y", "^[Yy]"], "N": ["No", "N", "^[Nn]"] }
+ */
+export type NormalizeOptions = Record<string, string[]>
+
+/**
  * Field settings for special field types
  */
 export interface FieldSetting {
@@ -75,6 +82,13 @@ export interface FieldSetting {
   /** Placeholder text */
   placeholder?: string
 }
+
+/**
+ * Validation function signature for custom field validation
+ * Similar to Element Plus validator but with extra allData parameter
+ * Signature: (rule, value, callback, allData) => void
+ */
+export type ValidationFunction = string
 
 /**
  * Individual field definition within a section
@@ -100,6 +114,10 @@ export interface Field {
   format?: string
   /** Whether to support Simplified to Traditional Chinese conversion */
   support_chs_to_cht?: boolean
+  /** Normalization options for mapping input values to option values */
+  normalize_options?: NormalizeOptions
+  /** Custom validation function code (signature: (rule, value, callback, allData) => void) */
+  validation_function?: ValidationFunction
 }
 
 // ==================== Section Types ====================
@@ -447,4 +465,121 @@ export function createEmptyQRCodeField(label?: string): QRCodeField {
     readonly: true,
     required: true,
   }
+}
+
+// ==================== Normalization & Validation ====================
+
+/**
+ * Normalize a value using normalize_options
+ * @param value - Input value from OCR or user
+ * @param normalizeOptions - Normalization mapping object
+ * @returns Matched normalized value or original value if no match
+ * 
+ * Example:
+ *   normalizeValue("Yes", { "Y": ["Yes", "Y"], "N": ["No", "N"] }) → "Y"
+ *   normalizeValue("y", { "Y": ["^[Yy]$"], "N": ["^[Nn]$"] }) → "Y"
+ */
+export function normalizeValue(
+  value: string,
+  normalizeOptions?: NormalizeOptions
+): string {
+  if (!normalizeOptions || !value) return value
+  
+  const input = String(value).trim()
+  
+  for (const [targetValue, patterns] of Object.entries(normalizeOptions)) {
+    for (const pattern of patterns) {
+      // Check if pattern looks like a regex (starts with ^ or ends with $ or contains regex chars)
+      const isRegex = pattern.startsWith('^') || 
+                      pattern.endsWith('$') || 
+                      /[.*+?()[\]{}|]/.test(pattern)
+      
+      if (isRegex) {
+        try {
+          const regex = new RegExp(pattern, 'i') // case-insensitive
+          if (regex.test(input)) {
+            return targetValue
+          }
+        } catch (e) {
+          // Invalid regex, treat as literal string
+          if (input.toLowerCase() === pattern.toLowerCase()) {
+            return targetValue
+          }
+        }
+      } else {
+        // Plain string comparison (case-insensitive)
+        if (input.toLowerCase() === pattern.toLowerCase()) {
+          return targetValue
+        }
+      }
+    }
+  }
+  
+  // No match found, return original value
+  return value
+}
+
+/**
+ * Create a validator function from validation_function string
+ * @param validationCode - Validation function code as string
+ * @returns Validator function compatible with Element Plus form
+ * 
+ * Usage in Element Plus form:
+ *   const rules = {
+ *     field: [{ validator: createValidator(field.validation_function), trigger: 'blur' }]
+ *   }
+ */
+export function createValidator(
+  validationCode?: ValidationFunction
+): (rule: any, value: any, callback: (error?: Error) => void, allData?: any) => void {
+  if (!validationCode) {
+    return (_rule: any, _value: any, callback: (error?: Error) => void) => callback()
+  }
+  
+  return (rule: any, value: any, callback: (error?: Error) => void, allData?: any) => {
+    try {
+      // Create function with proper signature
+      const fn = new Function('rule', 'value', 'callback', 'allData', validationCode)
+      fn(rule, value, callback, allData)
+    } catch (e) {
+      console.error('Validation function error:', e)
+      callback(new Error('Validation error'))
+    }
+  }
+}
+
+/**
+ * Generate normalize_options from field options
+ * Creates a default mapping where each option value maps to itself (case-insensitive)
+ * @param options - SelectOption array
+ * @returns NormalizeOptions object
+ * 
+ * Example:
+ *   generateNormalizeOptionsFromOptions([{"Y": "Yes"}, {"N": "No"}])
+ *   → { "Y": ["Y", "Yes"], "N": ["N", "No"] }
+ */
+export function generateNormalizeOptionsFromOptions(
+  options?: { [value: string]: string }[]
+): NormalizeOptions | undefined {
+  if (!options || options.length === 0) return undefined
+  
+  const result: NormalizeOptions = {}
+  
+  for (const opt of options) {
+    const entries = Object.entries(opt)
+    if (entries.length === 0) continue
+    
+    const [value, label] = entries[0]
+    // Map to itself and its label (case variations)
+    result[value] = [
+      value,
+      value.toLowerCase(),
+      value.toUpperCase(),
+      label,
+      label.toLowerCase(),
+      label.toUpperCase()
+    ]
+  }
+  
+  return result
 }

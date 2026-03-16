@@ -2,6 +2,7 @@
 import { ref, computed, nextTick } from 'vue'
 import DocumentPreview from './DocumentPreview.vue'
 import PropmtSelect from './promptSelect.vue'
+import FieldEditor from '../field/editor.vue'
 
 import type {
   CropItem,
@@ -391,87 +392,26 @@ defineExpose({
                       </div>
                     </template>
 
-                    <div class="field-form">
-                      <ElForm label-position="top" size="small">
-                        <ElRow :gutter="12">
-                          <ElCol :span="16">
-                            <ElFormItem label="Label" required>
-                              <ElInput v-model="field.label" />
-                            </ElFormItem>
-                          </ElCol>
-                          <ElCol :span="8">
-                            <ElFormItem label="Type">
-                              <ElSelect v-model="field.type">
-                                <ElOption label="Text" value="text" />
-                                <ElOption label="Select" value="select" />
-                                <ElOption label="Date" value="date" />
-                                <ElOption label="HKID" value="hkic" />
-                                <ElOption label="Number" value="number" />
-                                <ElOption label="Checkbox" value="checkbox" />
-                                <ElOption label="Radio" value="radio" />
-                              </ElSelect>
-                            </ElFormItem>
-                          </ElCol>
-                        </ElRow>
+                    <FieldEditor v-model="section.fields[index]" />
 
-                        <ElRow :gutter="12">
-                          <ElCol :span="12">
-                            <ElFormItem label="Export Label">
-                              <ElInput v-model="field.export_label" placeholder="Column name" />
-                            </ElFormItem>
-                          </ElCol>
-                          <ElCol :span="12" v-if="field.type === 'date'">
-                            <ElFormItem label="Date Format">
-                              <ElInput v-model="field.format" placeholder="DD/MM/YYYY" />
-                            </ElFormItem>
-                          </ElCol>
-                        </ElRow>
-
-                        <ElRow :gutter="12">
-                          <ElCol :span="12">
-                            <ElFormItem>
-                              <ElCheckbox v-model="field.need_ocr">Need OCR</ElCheckbox>
-                            </ElFormItem>
-                          </ElCol>
-                          <ElCol :span="12">
-                            <ElFormItem>
-                              <ElCheckbox v-model="field.required">Required</ElCheckbox>
-                            </ElFormItem>
-                          </ElCol>
-                        </ElRow>
-
-                        <ElFormItem v-if="['select', 'radio'].includes(field.type)">
-                          <template #label>
-                            Options <ElTag size="small">Format: value=label</ElTag>
-                          </template>
-                          <ElInput
-                            v-model="field.field_setting!.options"
-                            type="textarea"
-                            :rows="3"
-                            placeholder="Y=Yes&#10;N=No"
-                          />
-                        </ElFormItem>
-
-                        <div class="field-actions">
-                          <ElButton
-                            :disabled="index === 0"
-                            size="small"
-                            @click="moveField(index, 'up')"
-                          >
-                            <Icon name="lucide:arrow-up" />
-                          </ElButton>
-                          <ElButton
-                            :disabled="index === section.fields.length - 1"
-                            size="small"
-                            @click="moveField(index, 'down')"
-                          >
-                            <Icon name="lucide:arrow-down" />
-                          </ElButton>
-                          <ElButton type="danger" size="small" @click="removeField(index)">
-                            <Icon name="lucide:trash-2" />
-                          </ElButton>
-                        </div>
-                      </ElForm>
+                    <div class="field-actions">
+                      <ElButton
+                        :disabled="index === 0"
+                        size="small"
+                        @click="moveField(index, 'up')"
+                      >
+                        <Icon name="lucide:arrow-up" />
+                      </ElButton>
+                      <ElButton
+                        :disabled="index === section.fields.length - 1"
+                        size="small"
+                        @click="moveField(index, 'down')"
+                      >
+                        <Icon name="lucide:arrow-down" />
+                      </ElButton>
+                      <ElButton type="danger" size="small" @click="removeField(index)">
+                        <Icon name="lucide:trash-2" />
+                      </ElButton>
                     </div>
                   </ElCollapseItem>
                 </ElCollapse>
@@ -589,12 +529,6 @@ defineExpose({
   color: #909399;
   background: #f4f4f5;
   padding: 2px 8px;
-  border-radius: 4px;
-}
-
-.field-form {
-  padding: 12px;
-  background: #fafafa;
   border-radius: 4px;
 }
 

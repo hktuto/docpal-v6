@@ -322,6 +322,7 @@ async function saveConfig() {
     delete updateData.createdBy
     await clientApi.api.putCaptureProjformsetting(updateData)
     hasUnSaveChange.value = false
+    routerProvider?.message.success('Form has Updated')
     // emits('refresh')
   } catch (error) {
     console.error('Save error:', error)
