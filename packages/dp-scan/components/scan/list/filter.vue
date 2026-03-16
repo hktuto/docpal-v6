@@ -2,7 +2,7 @@
 import { ArrowDown } from '@element-plus/icons-vue'
 import { useDebounceFn } from '@vueuse/core'
 import { StatusMap, ScanTableColumns } from '#imports'
-const { filter } = useScanClient()
+const { filter, projects } = useScanClient()
 
 const emit = defineEmits(['search'])
 const filterUpdate = computed({
@@ -81,12 +81,16 @@ const search = useDebounceFn(() => {
 }, 500)
 
 watchThrottled(filter, search, { throttle: 300 })
+
 </script>
 
 <template>
   <div class="fitlerRow">
     <!-- /status-count -->
     <ElInput v-model="filter.filter" placeholder="Search..." clearable />
+    <ElSelect v-model="filter.projectId" placeholder="Projects">
+      <ElOption v-for="p in projects" :key="p.id" :label="p.name" :value="p.id" />
+    </ElSelect>
     <ElSelect v-model="filter.status" placeholder="Status" multiple clearable>
       <ElOption v-for="(status, key) in StatusMap" :key="key" :label="key" :value="key" />
     </ElSelect>

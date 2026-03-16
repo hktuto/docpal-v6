@@ -85,6 +85,7 @@ function getFieldRules(field: FieldWithValue): any[] {
     rules.push({
       validator: (rule: any, value: any, callback: any) => {
         const validatorFn = createValidator(field.validation_function)
+        if(!props.section.fields) callback()
         // Build allData from section values for cross-field validation
         const allData = props.section.section_type === 'table'
           ? {} // Table row validation - pass empty for now
@@ -106,6 +107,7 @@ function getAllFieldValues(): Record<string, any> {
   if (props.section.section_type === 'table') {
     return {}
   }
+  if(!props.section.fields) return {}
   return props.section.fields.reduce((acc, f) => {
     acc[f.label || f.label || f.key] = f.currentValue
     return acc
@@ -174,7 +176,7 @@ function getInputType(fieldType: string): string {
             @mouseenter="handleFieldMouseEnter(field)"
           >
             <div class="fieldLabel">
-              <span class="labelText">{{ field.label }}</span>
+              <span class="labelText">{{ field.lable || field.label }}</span>
               <ElTag v-if="field.required" size="small" type="danger" effect="plain" class="requiredTag">
                 *
               </ElTag>
@@ -197,7 +199,19 @@ function getInputType(fieldType: string): string {
                 :value="opt.value"
               />
             </ElSelect>
-
+            <template v-else-if="field.type === 'date'">
+              <ElDatePicker
+                :modelValue="field.currentValue"
+                size="small"
+                :class="{fieldInput: true, edited: isFieldModified(field)}"
+                :placeholder="field.lable || field.label"
+                :disabled="readonly"
+                format="DD/MM/YYYY"
+                value-format="DD/MM/YYYY"
+                @update:model-value="(val) => handleFieldChange(field, val)"
+              />
+              <!-- currentValue:{{field.currentValue}} -->
+            </template>
             <!-- Regular text input -->
             <ElInput
               v-else
@@ -209,6 +223,7 @@ function getInputType(fieldType: string): string {
               :disabled="readonly"
               @update:model-value="(val) => handleFieldChange(field, val)"
             />
+
 
             <!-- Original OCR value display -->
             <div v-if="isFieldModified(field)" class="originalValue">
@@ -290,6 +305,7 @@ function getInputType(fieldType: string): string {
                   :disabled="readonly"
                   @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
                 />
+
 
                 <!-- Original OCR value display -->
                 <div v-if="field.currentValue !== field.originalValue" class="originalValue">
@@ -417,7 +433,7 @@ function getInputType(fieldType: string): string {
   display: flex;
   align-items: center;
   gap: var(--app-space-xs);
-  font-size: var(--app-font-size-xs);
+  font-size: var(--app-font-size-s);
   color: var(--app-text-color-secondary);
   padding: var(--app-space-xs);
   background-color: var(--app-bg-color-secondary);

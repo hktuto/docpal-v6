@@ -15,7 +15,7 @@ const statusColor = computed(() => {
   } else if(props.doc.status === "verified") {
     return 'var(--app-primary-color)'
   }
-  return 'var(--app-info-color)'
+  return 'var(--app-primary-color)'
 })
 </script>
 

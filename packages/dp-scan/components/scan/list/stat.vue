@@ -47,7 +47,7 @@ defineExpose({
         <div class="statValue">{{ stat?.total || 0 }}</div>
       </div>
       <div v-for="(item, key) in StatusMap" :key="key" class="statItem" :style="{ backgroundColor: item.color }">
-        <div class="statKey">{{ key }}</div>
+        <div class="statKey">{{ item.label }}</div>
         <div class="statValue">{{ foundStat(item) || 0 }}</div>
       </div>
     </div>

@@ -93,7 +93,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ElCard class="formCard" shadow="hover">
+  <ElCard class="formCard" shadow="hover" @dblclick="handleEdit">
     <div class="cardHeader">
       <div class="formName">{{ form.name }}</div>
       <ElDropdown trigger="click">

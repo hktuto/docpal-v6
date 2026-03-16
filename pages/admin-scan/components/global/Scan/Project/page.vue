@@ -3,7 +3,7 @@
 <template>
   <div class="page-container">
     <div class="page-title">
-      <div class="title">Batch List</div>
+      <div class="title">Project List</div>
       <ScanProjectNewButton />
     </div>
     <ScanProjectTable />

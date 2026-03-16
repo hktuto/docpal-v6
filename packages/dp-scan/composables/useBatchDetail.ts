@@ -185,7 +185,7 @@ export const useBatchDetail = (batchId: string) => {
 
     const newResult = detail.newResultJson || {}
     const oldResult = detail.oldResultJson || {}
-
+    console.log("buildSectionsWithValues")
     sectionsWithValues.value = settings.section.map((section: any): SectionWithValues => {
       const sectionName = section.section_name
       const newSectionData = newResult[sectionName]
@@ -207,6 +207,9 @@ export const useBatchDetail = (batchId: string) => {
               const normalizedValue = field.normalize_options
                 ? normalizeValue(rawValue, field.normalize_options)
                 : rawValue
+              if (field.normalize_options) {
+                console.log("normalizedValue",normalizeValue(rawValue, field.normalize_options), rawValue )
+              }
               return {
                 ...field,
                 currentValue: normalizedValue,
@@ -255,6 +258,9 @@ export const useBatchDetail = (batchId: string) => {
           const normalizedValue = field.normalize_options
             ? normalizeValue(rawValue, field.normalize_options)
             : rawValue
+          if (field.normalize_options) {
+            console.log("normalizedValue",normalizeValue(rawValue, field.normalize_options), rawValue )
+          }
           return {
             ...field,
             currentValue: normalizedValue,
@@ -340,21 +346,30 @@ export const useBatchDetail = (batchId: string) => {
     documentLoading.value = true
     try {
       const docDetailRes = await clientApi.api.getCaptureBatchBatchidDocDocidDetail(batchDetail.value.id, docId)
-      const res = await clientApi.api.getCaptureProjformsettingId(docDetailRes.data.formId)
+      const status = statusToGroupStatus(docDetailRes.data.status)
+      if (!status || status.key.includes('failed')) {
+        selectedDocDetail.value = {
+          setting: null,
+          detail: docDetailRes.data
+        }
+      } else {
 
-      const pageSplitConfig = JSON.parse(res.data.pageSplitConfig) || { split_into_number_of_page: 1 }
-      const formClassificationConfig = JSON.parse(res.data.formClassificationConfig) || {}
+        const res = await clientApi.api.getCaptureProjformsettingId(docDetailRes.data.formId)
 
-      const fieldsSetting = JSON.parse(res.data.fieldsSetting) || {}
+        const pageSplitConfig = JSON.parse(res.data.pageSplitConfig) || { split_into_number_of_page: 1 }
+        const formClassificationConfig = JSON.parse(res.data.formClassificationConfig) || {}
 
-      selectedDocDetail.value = {
-        setting: {
-          ...res.data,
-          pageSplitConfig,
-          formClassificationConfig,
-          fieldsSetting,
-        },
-        detail: docDetailRes.data
+        const fieldsSetting = JSON.parse(res.data.fieldsSetting) || {}
+
+        selectedDocDetail.value = {
+          setting: {
+            ...res.data,
+            pageSplitConfig,
+            formClassificationConfig,
+            fieldsSetting,
+          },
+          detail: docDetailRes.data
+        }
       }
     } catch (error) {
       console.error(error)

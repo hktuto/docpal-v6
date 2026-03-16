@@ -44,7 +44,6 @@ export const hasProjectPermission = (
   permission: ScanClientPermission
 ): boolean => {
   if (!projectId) return false
-  console.log("hasProjectPermission",permission, projectsPermissions.value[permission], projectsPermissions.value)
   return projectsPermissions.value[permission]?.some((project) => project.id === projectId) || false
 }
 
@@ -94,7 +93,10 @@ export const useScanClient = () => {
       })
     })
     projects.value = Array.from(allProjects.values()) as any[]
-    filter.value.projectId = projects.value.map((p) => p.id)
+    console.log("filter.value.projectId", filter.value.projectId)
+    if (!filter.value.projectId ||　!filter.value.projectId.length) {
+      filter.value.projectId = projects.value[0].id
+    }
 
     projectLoading.value = false
   }

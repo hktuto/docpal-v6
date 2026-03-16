@@ -66,10 +66,20 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
 
     if (filter.value.projectId.length === 0) return []
     cleanSelectedRows()
-
+    const f = { ...filter.value }
+    f.projectId = [filter.value.projectId]
+    if(f.status && f.status.length) {
+      // convert status to multiple stage
+      const newStatusFilter:string[] = []
+      f.status.forEach((status) => {
+        const map = StatusMap[status]
+        if(map) newStatusFilter.push(...map.status)
+      })
+      f.status = newStatusFilter
+    }
     const p = {
       ...params,
-      ...filter.value
+      ...f
     }
     return clientApi.api.postCaptureBatchList(p)
   },

@@ -357,6 +357,12 @@ function dataLostWarning(e){
   }
 }
 
+watch(formConfig, () => {
+  hasUnSaveChange.value = true;
+},{
+  deep: true
+})
+
 onMounted(() => {
   window.addEventListener("beforeunload", dataLostWarning)
 })

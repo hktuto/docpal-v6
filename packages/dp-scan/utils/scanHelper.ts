@@ -4,31 +4,37 @@ export const StatusMap: {
   processing: {
     color: '#67C23A',
     key: 'processing,proces ',
+    label: 'Processing',
     status: ['processing', 'uploaded', 'classification', 'page-split', 'ratio-resize', 'ocr', 'exporting', 'combine-document']
   },
   verification: {
     color: '#E6A23C',
     key: 'verification',
+    label: 'Verification',
     status: ['draft', 'processed', 'verifying', 'verified']
   },
   exportReady: {
     color: '#5DC9D3',
     key: 'exportReady, export',
+    label: 'Export Ready',
     status: ['exportReady']
   },
   completed: {
     color: '#15D5B9',
     key: 'completed, complete',
+    label: 'Completed',
     status: ['completed']
   },
   failed: {
     color: '#F56C6C',
     key: 'failed, fail',
+    label: 'Failed',
     status: ['failed-to-process', 'failed-to-export', 'upload-fail']
   },
   cancelled: {
     color: '#909399',
     key: 'cancelled, cancel',
+    label: 'Cancelled',
     status: ['cancelled']
   }
 }
@@ -43,11 +49,6 @@ export const ScanTableColumns: any[] = [
     field: 'batchNo',
     title: 'Batch Name',
     width: 200
-  },
-
-  {
-    field: 'formId',
-    title: 'Form'
   },
   {
     field: 'status',
@@ -82,6 +83,7 @@ export const ScanTableColumns: any[] = [
 type STATUS_GROUP = {
   color: string
   key: string
+  label: string
   status: string[]
 }
 
