@@ -29,10 +29,10 @@ const canCancel = computed(() => {
 const canDownload = computed(() => {
   const hasExportPermission = props.selectedRow.every((row: any) => isExporter(row.projectId))
   // console.log(props.selectedRow)
-  return true
+
   const hasExportableStatus = props.selectedRow.every((row: any) => {
     const gorupStatus = statusToGroupStatus(row.status)
-    return gorupStatus && (gorupStatus.key === 'completed' || gorupStatus.key === 'exportReady')
+    return gorupStatus && (gorupStatus.key.includes('completed') || gorupStatus.key.includes('exportReady'))
   })
   return hasExportPermission && hasExportableStatus
 })
