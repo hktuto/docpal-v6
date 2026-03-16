@@ -110,10 +110,10 @@ onUnmounted(() => {
               <Icon name="lucide:copy" />
               Duplicate
             </ElDropdownItem>
-            <ElDropdownItem @click="handleDelete">
+            <!-- <ElDropdownItem @click="handleDelete">
               <Icon name="lucide:trash-2" class="text-danger" />
               <span class="text-danger">Delete</span>
-            </ElDropdownItem>
+            </ElDropdownItem> -->
           </ElDropdownMenu>
         </template>
       </ElDropdown>

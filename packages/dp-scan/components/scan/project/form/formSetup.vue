@@ -119,7 +119,9 @@ function buildCropsFromConfig(): CropItem[] {
         editable: false
       })
     }
-
+    if(!section.fields){
+      section.fields = []
+    }
     section.fields.forEach(field => {
       crops.push({
         id: field.key,
@@ -368,7 +370,7 @@ onUnmounted(() => {
 <template>
   <div class="form-setup">
       <Teleport :to="`#detail-${formDetail.id}`" defer>
-          <!-- <ElButton type="primary" @click="testForm">Test Form</ElButton> -->
+           <ElButton type="primary" @click="testForm">Test Form</ElButton>
           <ElButton type="primary" @click="$emit('back', 'classificationUpload')">Repalce Sample</ElButton>
           <ElButton type="primary" @click="$emit('back', 'split')">Split Page</ElButton>
       </Teleport>

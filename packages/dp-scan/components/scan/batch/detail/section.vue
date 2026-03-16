@@ -74,19 +74,19 @@ function isFieldModified(field: FieldWithValue): boolean {
 // Generate validation rules for a field
 function getFieldRules(field: FieldWithValue): any[] {
   const rules: any[] = []
-  
+
   // Required rule
   if (field.required) {
     rules.push({ required: true, message: 'Required', trigger: 'change' })
   }
-  
+
   // Custom validation function
   if (field.validation_function) {
     rules.push({
       validator: (rule: any, value: any, callback: any) => {
         const validatorFn = createValidator(field.validation_function)
         // Build allData from section values for cross-field validation
-        const allData = props.section.section_type === 'table' 
+        const allData = props.section.section_type === 'table'
           ? {} // Table row validation - pass empty for now
           : props.section.fields.reduce((acc, f) => {
               acc[f.label || f.lable || f.key] = f.currentValue
@@ -97,7 +97,7 @@ function getFieldRules(field: FieldWithValue): any[] {
       trigger: 'blur'
     })
   }
-  
+
   return rules
 }
 
@@ -107,7 +107,7 @@ function getAllFieldValues(): Record<string, any> {
     return {}
   }
   return props.section.fields.reduce((acc, f) => {
-    acc[f.label || f.lable || f.key] = f.currentValue
+    acc[f.label || f.label || f.key] = f.currentValue
     return acc
   }, {} as Record<string, any>)
 }
@@ -164,7 +164,7 @@ function getInputType(fieldType: string): string {
         <ElFormItem
           v-for="field in section.fields"
           :key="field.key"
-          :prop="field.label || field.lable || field.key"
+          :prop="field.label || field.key"
           :rules="getFieldRules(field)"
           class="field-form-item"
         >
@@ -174,7 +174,7 @@ function getInputType(fieldType: string): string {
             @mouseenter="handleFieldMouseEnter(field)"
           >
             <div class="fieldLabel">
-              <span class="labelText">{{ field.lable || field.label }}</span>
+              <span class="labelText">{{ field.label }}</span>
               <ElTag v-if="field.required" size="small" type="danger" effect="plain" class="requiredTag">
                 *
               </ElTag>
@@ -186,7 +186,7 @@ function getInputType(fieldType: string): string {
               :model-value="field.currentValue"
               size="small"
               :class="{fieldInput: true, edited: isFieldModified(field)}"
-              :placeholder="`Select ${field.lable || field.label}`"
+              :placeholder="`Select ${ field.label}`"
               :disabled="readonly"
               @update:model-value="(val) => handleFieldChange(field, val)"
             >

@@ -312,11 +312,11 @@ export const useBatchDetail = (batchId: string) => {
       const response = await clientApi.api.getCaptureBatchBatchidDetail(currentBatchId.value)
       batchDetail.value = response.data
       currentSelectedDoc.value = response.data.documents[0]
-      
+
       // Handle batch locking
       const userId = useUserId()
       const lockBy = batchDetail.value.lockBy
-      
+
       if (!lockBy || lockBy === userId.value) {
         // Batch is not locked or locked by current user - open it
         await clientApi.api.postCaptureBatchBatchidOpen(currentBatchId.value)
@@ -339,14 +339,14 @@ export const useBatchDetail = (batchId: string) => {
   async function getDocumentDetail(docId: string) {
     documentLoading.value = true
     try {
-      const res = await clientApi.api.getCaptureProjformsettingId(batchDetail.value.formId)
-      console.log("res", res)
+      const docDetailRes = await clientApi.api.getCaptureBatchBatchidDocDocidDetail(batchDetail.value.id, docId)
+      const res = await clientApi.api.getCaptureProjformsettingId(docDetailRes.data.formId)
+
       const pageSplitConfig = JSON.parse(res.data.pageSplitConfig) || { split_into_number_of_page: 1 }
       const formClassificationConfig = JSON.parse(res.data.formClassificationConfig) || {}
 
       const fieldsSetting = JSON.parse(res.data.fieldsSetting) || {}
-      console.log(fieldsSetting)
-      const docDetailRes = await clientApi.api.getCaptureBatchBatchidDocDocidDetail(batchDetail.value.id, docId)
+
       selectedDocDetail.value = {
         setting: {
           ...res.data,
@@ -373,11 +373,11 @@ export const useBatchDetail = (batchId: string) => {
   async function changePage(pageNumber: number) {
     if (pageNumber < 1 || pageNumber > (totalPages.value || 1)) return
     currentPageNumber.value = pageNumber
-    
+
     // Clear highlights when changing page
     highlightedSection.value = undefined
     highlightedField.value = undefined
-    
+
     await renderPage(pageNumber)
   }
 
@@ -637,7 +637,7 @@ export const useBatchDetail = (batchId: string) => {
     // Find the section in the current settings
     const settings = selectedDocDetail.value.setting.fieldsSetting
     const sectionIndex = settings.section?.findIndex((s: any) => s.section_id === sectionId)
-    
+
     if (sectionIndex === -1) {
       console.error('Section not found:', sectionId)
       return
@@ -655,7 +655,7 @@ export const useBatchDetail = (batchId: string) => {
         ...selectedDocDetail.value.setting,
         fieldsSetting: updatedFieldsSetting
       })
-      
+
       console.log('Section zone updated successfully')
     } catch (error) {
       console.error('Failed to update section zone:', error)

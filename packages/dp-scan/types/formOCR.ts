@@ -101,7 +101,7 @@ export interface Field {
   /** Zone coordinates for this field */
   zone: Zone
   /** Display label */
-  label: string
+  lable: string
   /** Whether OCR is needed for this field */
   need_ocr: boolean
   /** Whether field is required */
@@ -474,7 +474,7 @@ export function createEmptyQRCodeField(label?: string): QRCodeField {
  * @param value - Input value from OCR or user
  * @param normalizeOptions - Normalization mapping object
  * @returns Matched normalized value or original value if no match
- * 
+ *
  * Example:
  *   normalizeValue("Yes", { "Y": ["Yes", "Y"], "N": ["No", "N"] }) → "Y"
  *   normalizeValue("y", { "Y": ["^[Yy]$"], "N": ["^[Nn]$"] }) → "Y"
@@ -484,16 +484,16 @@ export function normalizeValue(
   normalizeOptions?: NormalizeOptions
 ): string {
   if (!normalizeOptions || !value) return value
-  
+
   const input = String(value).trim()
-  
+
   for (const [targetValue, patterns] of Object.entries(normalizeOptions)) {
     for (const pattern of patterns) {
       // Check if pattern looks like a regex (starts with ^ or ends with $ or contains regex chars)
-      const isRegex = pattern.startsWith('^') || 
-                      pattern.endsWith('$') || 
+      const isRegex = pattern.startsWith('^') ||
+                      pattern.endsWith('$') ||
                       /[.*+?()[\]{}|]/.test(pattern)
-      
+
       if (isRegex) {
         try {
           const regex = new RegExp(pattern, 'i') // case-insensitive
@@ -514,7 +514,7 @@ export function normalizeValue(
       }
     }
   }
-  
+
   // No match found, return original value
   return value
 }
@@ -523,7 +523,7 @@ export function normalizeValue(
  * Create a validator function from validation_function string
  * @param validationCode - Validation function code as string
  * @returns Validator function compatible with Element Plus form
- * 
+ *
  * Usage in Element Plus form:
  *   const rules = {
  *     field: [{ validator: createValidator(field.validation_function), trigger: 'blur' }]
@@ -535,7 +535,7 @@ export function createValidator(
   if (!validationCode) {
     return (_rule: any, _value: any, callback: (error?: Error) => void) => callback()
   }
-  
+
   return (rule: any, value: any, callback: (error?: Error) => void, allData?: any) => {
     try {
       // Create function with proper signature
@@ -553,7 +553,7 @@ export function createValidator(
  * Creates a default mapping where each option value maps to itself (case-insensitive)
  * @param options - SelectOption array
  * @returns NormalizeOptions object
- * 
+ *
  * Example:
  *   generateNormalizeOptionsFromOptions([{"Y": "Yes"}, {"N": "No"}])
  *   → { "Y": ["Y", "Yes"], "N": ["N", "No"] }
@@ -562,13 +562,13 @@ export function generateNormalizeOptionsFromOptions(
   options?: { [value: string]: string }[]
 ): NormalizeOptions | undefined {
   if (!options || options.length === 0) return undefined
-  
+
   const result: NormalizeOptions = {}
-  
+
   for (const opt of options) {
     const entries = Object.entries(opt)
     if (entries.length === 0) continue
-    
+
     const [value, label] = entries[0]
     // Map to itself and its label (case variations)
     result[value] = [
@@ -580,6 +580,6 @@ export function generateNormalizeOptionsFromOptions(
       label.toUpperCase()
     ]
   }
-  
+
   return result
 }

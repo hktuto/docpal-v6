@@ -387,7 +387,7 @@ defineExpose({
                   >
                     <template #title>
                       <div class="field-header">
-                        <span class="field-label">{{ field.label }}</span>
+                        <span class="field-label">{{ field.lable }}</span>
                         <span class="field-type">{{ getFieldTypeLabel(field.type) }}</span>
                       </div>
                     </template>

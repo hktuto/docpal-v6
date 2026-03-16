@@ -56,7 +56,7 @@ function loadOptionsFromField() {
     optionRows.value = []
     return
   }
-  
+
   optionRows.value = opts.map((opt: Record<string, string>) => {
     const entries = Object.entries(opt)
     if (entries.length === 0) return { key: '', value: '' }
@@ -70,7 +70,7 @@ function saveOptionsToField() {
   if (!localValue.value.field_setting) {
     localValue.value.field_setting = {}
   }
-  
+
   localValue.value.field_setting.options = optionRows.value
     .filter(row => row.key.trim() !== '')
     .map(row => ({
@@ -126,7 +126,7 @@ function loadNormalizeOptions() {
     normalizeRows.value = []
     return
   }
-  
+
   normalizeRows.value = Object.entries(opts).map(([targetValue, patterns]) => ({
     targetValue,
     patterns: Array.isArray(patterns) ? patterns.join(', ') : String(patterns)
@@ -136,7 +136,7 @@ function loadNormalizeOptions() {
 // Save normalize_rows back to normalize_options
 function saveNormalizeOptions() {
   const result: NormalizeOptions = {}
-  
+
   for (const row of normalizeRows.value) {
     if (row.targetValue.trim()) {
       // Split by comma or newline, trim each pattern
@@ -144,13 +144,13 @@ function saveNormalizeOptions() {
         .split(/[,\n]/)
         .map(p => p.trim())
         .filter(p => p.length > 0)
-      
+
       if (patterns.length > 0) {
         result[row.targetValue.trim()] = patterns
       }
     }
   }
-  
+
   localValue.value.normalize_options = Object.keys(result).length > 0 ? result : undefined
 }
 
@@ -159,26 +159,26 @@ function syncNormalizeOptionsFromFieldOptions() {
   // Only auto-generate if normalize_options is empty
   if (!localValue.value.normalize_options || Object.keys(localValue.value.normalize_options).length === 0) {
     const opts: NormalizeOptions = {}
-    
+
     for (const row of optionRows.value) {
       if (row.key.trim()) {
         const key = row.key.trim()
         const label = row.value.trim() || key
-        
+
         // Create patterns: exact match for key and label (case variations)
         opts[key] = [
           key,
           key.toLowerCase(),
           key.toUpperCase()
         ]
-        
+
         // Also add label variations if different from key
         if (label !== key) {
           opts[key].push(label, label.toLowerCase(), label.toUpperCase())
         }
       }
     }
-    
+
     if (Object.keys(opts).length > 0) {
       localValue.value.normalize_options = opts
       loadNormalizeOptions()
@@ -241,7 +241,8 @@ const validationPlaceholder = `// Example: Validate ID with other field
       <ElRow :gutter="12">
         <ElCol :span="16">
           <ElFormItem label="Label" required>
-            <ElInput v-model="localValue.label" placeholder="Field label" />
+
+            <ElInput v-model="localValue.lable" placeholder="Field label" />
           </ElFormItem>
         </ElCol>
         <ElCol :span="8">
@@ -322,18 +323,18 @@ const validationPlaceholder = `// Example: Validate ID with other field
       <template v-if="hasOptions">
         <div class="section-header" @click="showNormalizeSection = !showNormalizeSection">
           <span>Normalize Options</span>
-          <ElTag v-if="localValue.normalize_options && Object.keys(localValue.normalize_options).length > 0" 
+          <ElTag v-if="localValue.normalize_options && Object.keys(localValue.normalize_options).length > 0"
                  size="small" type="success">
             {{ Object.keys(localValue.normalize_options).length }} mappings
           </ElTag>
           <Icon :name="showNormalizeSection ? 'lucide:chevron-down' : 'lucide:chevron-right'" />
         </div>
-        
+
         <div v-show="showNormalizeSection" class="normalize-section">
           <ElAlert type="info" :closable="false" class="normalize-hint">
             Map input values (OCR) to option values. Supports regex patterns (e.g., <code>^[Yy]$</code>).
           </ElAlert>
-          
+
           <div class="normalize-list">
             <div v-for="(row, index) in normalizeRows" :key="index" class="normalize-row">
               <ElInput
@@ -371,12 +372,12 @@ const validationPlaceholder = `// Example: Validate ID with other field
         <ElTag v-if="localValue.validation_function" size="small" type="success">Configured</ElTag>
         <Icon :name="showValidationSection ? 'lucide:chevron-down' : 'lucide:chevron-right'" />
       </div>
-      
+
       <div v-show="showValidationSection" class="validation-section">
         <ElAlert type="info" :closable="false" class="validation-hint">
           Function signature: <code>(rule, value, callback, allData) => { ... }</code>
         </ElAlert>
-        
+
         <ElInput
           v-model="validationCode"
           type="textarea"
