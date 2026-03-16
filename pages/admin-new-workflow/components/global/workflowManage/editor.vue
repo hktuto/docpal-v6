@@ -8,12 +8,13 @@ const props = defineProps<{
   id: string
 }>()
 
-const loading = ref(true)
+const openWorkflowEdit = ref(false)
 const workflowData = ref()
 const workflowReadonly = ref(false)
+const workflowEditorRef = ref()
 
 async function getWorkflowData() {
-  loading.value = true
+  openWorkflowEdit.value = false
   if (!props.id) {
     throw new Error('Workflow ID is null')
   }
@@ -24,21 +25,23 @@ async function getWorkflowData() {
     }
     workflowData.value = data.draft_content
     workflowReadonly.value = data.status !== 'D'
+    openWorkflowEdit.value = true
+    nextTick(() => {
+      workflowEditorRef.value?.init()
+    })
   } catch (e) {
     console.log(e)
-  } finally {
-    loading.value = false
   }
 }
 
-onMounted( async () => {
+onMounted(async () => {
   await getWorkflowData()
 })
 </script>
 
 <template>
   <div style="height: 500px">
-    <div v-loading="loading" class="pageContainer">
+    <div v-if="openWorkflowEdit" class="pageContainer">
       <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="workflowData" :readonly="workflowReadonly" />
     </div>
   </div>

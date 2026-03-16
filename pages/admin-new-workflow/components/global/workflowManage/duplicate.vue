@@ -15,7 +15,6 @@ function open(row: any) {
 }
 function handleSubmit() {
   try {
-    // TODO: 缺少同名檢測
     const defWorkflowJson = {
       ...formData.value.draft_content,
       key: `${formData.value.name}_${Date.now()}`,
