@@ -127,7 +127,7 @@ async function handleDocSelect(doc: any) {
 async function confirmBatch(){
   await clientApi.api.postCaptureBatchBatchidConfirm(batchDetail.value.id)
   routerProvider?.message.success('Batch confirmed successfully')
-  reload()
+  backToList()
 }
 async function cancelBatch(){
   const batchIds = [batchDetail.value.id]
@@ -163,10 +163,11 @@ watch(detailLoading, (isLoading) => {
       // Navigate back to list after a short delay
       setTimeout(() => {
         backToList()
-      }, 1500)
+      }, 300)
     }
   }
 })
+
 </script>
 
 <template>

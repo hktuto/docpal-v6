@@ -175,6 +175,28 @@ export const useBatchDetail = (batchId: string) => {
     }
   }, { deep: true })
 
+  function convertFieldToWithValues(field:any, newData: Record<string, any>, oldData: Record<string, any> | undefined) :FieldWithValue {
+    const fieldLabel = field.lable || field.label
+    const rawValue = newData?.[fieldLabel] ?? ''
+    const normalizedValue = field.normalize_options
+      ? normalizeValue(rawValue, field.normalize_options)
+      : rawValue
+    const normalizeOldValue = field.normalize_options
+      ? normalizeValue(oldData?.[fieldLabel], field.normalize_options)
+      : oldData?.[fieldLabel]
+    return {
+      ...field,
+      currentValue: normalizedValue,
+      originalValue: normalizeOldValue,
+      options: field.field_setting?.options?.map((opt: Record<string, string>) => {
+        const [value, label] = Object.entries(opt)[0] || ['', '']
+        return { value, label }
+      }),
+      normalize_options: field.normalize_options,
+      validation_function: field.validation_function
+    }
+  }
+
   function buildSectionsWithValues() {
     const settings = selectedDocDetail.value?.setting?.fieldsSetting
     const detail = selectedDocDetail.value?.detail
@@ -199,29 +221,12 @@ export const useBatchDetail = (batchId: string) => {
 
         const rows = newRows.map((rowData: any, index: number) => {
           const oldRowData = oldRows[index] || {}
+
           return {
             currentValue: rowData,
             originalValue: oldRowData,
             fields: section.fields?.map((field: any): FieldWithValue => {
-              const fieldLabel = field.lable || field.label
-              const rawValue = rowData?.[fieldLabel] ?? ''
-              const normalizedValue = field.normalize_options
-                ? normalizeValue(rawValue, field.normalize_options)
-                : rawValue
-              const normalizeOldValue = field.normalize_options
-                ? normalizeValue(oldRowData?.[fieldLabel], field.normalize_options)
-                : oldRowData?.[fieldLabel]
-              return {
-                ...field,
-                currentValue: normalizedValue,
-                originalValue: normalizeOldValue,
-                options: field.field_setting?.options?.map((opt: Record<string, string>) => {
-                  const [value, label] = Object.entries(opt)[0] || ['', '']
-                  return { value, label }
-                }),
-                normalize_options: field.normalize_options,
-                validation_function: field.validation_function
-              }
+              return convertFieldToWithValues(field, rowData, oldRowData)
             })
           }
         })
@@ -254,23 +259,8 @@ export const useBatchDetail = (batchId: string) => {
         currentValue: newSectionValues,
         originalValue: oldSectionValues,
         fields: section.fields?.map((field: any): FieldWithValue => {
-          const fieldLabel = field.lable || field.label
-          const rawValue = newSectionValues?.[fieldLabel] ?? ''
-          const normalizedValue = field.normalize_options
-            ? normalizeValue(rawValue, field.normalize_options)
-            : rawValue
+          return convertFieldToWithValues(field, newSectionValues, oldSectionValues)
 
-          return {
-            ...field,
-            currentValue: normalizedValue,
-            originalValue: oldSectionValues?.[fieldLabel] ?? '',
-            options: field.field_setting?.options?.map((opt: Record<string, string>) => {
-              const [value, label] = Object.entries(opt)[0] || ['', '']
-              return { value, label }
-            }),
-            normalize_options: field.normalize_options,
-            validation_function: field.validation_function
-          }
         })
       }
     })
