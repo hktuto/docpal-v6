@@ -556,10 +556,7 @@ function resetZoom() {
   nextTick(() => centerCanvas())
 }
 
-function fitToScreen() {
-  zoomScale.value = 1
-  nextTick(() => centerCanvas())
-}
+
 
 // ==================== CROP EDITING FUNCTIONS ====================
 
@@ -975,15 +972,15 @@ function handlePageInputBlur() {
 const paginationItems = computed(() => {
   const total = totalPages.value || 1
   const current = currentPageNumber.value || 1
-  
+
   // If 7 or fewer pages, show all without ellipsis
   if (total <= 7) {
     return Array.from({ length: total }, (_, i) => i + 1)
   }
-  
+
   // For more than 7 pages, use compact format with ellipsis
   const items: (number | string)[] = []
-  
+
   if (current <= 3) {
     // Near start: < [1] 2 3 ... > or < 1 [2] 3 ... > or < 1 2 [3] ... >
     items.push(1, 2, 3)
@@ -998,7 +995,7 @@ const paginationItems = computed(() => {
     items.push(current - 1, current, current + 1)
     items.push('...')
   }
-  
+
   return items
 })
 </script>
@@ -1016,58 +1013,43 @@ const paginationItems = computed(() => {
           <ElButton link size="small" @click="zoomIn">
             <Icon name="lucide:zoom-in" />
           </ElButton>
-          <ElButton link size="small" @click="fitToScreen">
-            <Icon name="lucide:maximize-2" />
-          </ElButton>
         </div>
       </div>
       <div class="pageNav">
-        <ElButton
-          :disabled="(currentPageNumber || 1) <= 1"
-          link
-          @click="prevPage"
-        >
-          <Icon name="lucide:chevron-left" />
-        </ElButton>
 
-        <div class="pageNumbers">
-          <template v-for="(item, index) in paginationItems" :key="index">
-            <!-- Current page as input -->
-            <input
-              v-if="item === currentPageNumber"
-              v-model="pageInputValue"
-              type="number"
-              min="1"
-              :max="totalPages || 1"
-              class="pageInput active"
-              @change="handlePageInputChange"
-              @blur="handlePageInputBlur"
-              @keyup.enter="handlePageInputChange"
-            />
-            <!-- Ellipsis -->
-            <span v-else-if="item === '...'" class="ellipsis">...</span>
-            <!-- Regular page number -->
-            <span
-              v-else
-              :class="{ num: true, active: currentPageNumber === item }"
-              @click="changePage(item as number)"
-            >
-              {{ item }}
-            </span>
-          </template>
-        </div>
-
-        <ElButton
-          :disabled="(currentPageNumber || 1) >= (totalPages || 1)"
-          link
-          @click="nextPage"
-        >
-          <Icon name="lucide:chevron-right" />
-        </ElButton>
       </div>
 
       <div class="pageInfo">
-        Page {{ currentPageNumber || 1 }} of {{ totalPages || 1 }}
+          <ElButton
+            :disabled="(currentPageNumber || 1) <= 1"
+            link
+            @click="prevPage"
+          >
+            <Icon name="lucide:chevron-left" />
+          </ElButton>
+
+          <div class="pageNumbers">
+              <input
+                v-model="pageInputValue"
+                type="number"
+                min="1"
+                :max="totalPages || 1"
+                class="pageInput active"
+                @change="handlePageInputChange"
+                @blur="handlePageInputBlur"
+                @keyup.enter="handlePageInputChange"
+              />
+              / <span>{{totalPages}}</span>
+
+          </div>
+
+          <ElButton
+            :disabled="(currentPageNumber || 1) >= (totalPages || 1)"
+            link
+            @click="nextPage"
+          >
+            <Icon name="lucide:chevron-right" />
+          </ElButton>
       </div>
     </div>
 
@@ -1110,9 +1092,8 @@ const paginationItems = computed(() => {
 }
 
 .previewHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: min-content 1fr min-content;
   gap: var(--app-space-xs);
   padding: var(--app-space-xs) var(--app-space-s);
   border-bottom: 1px solid var(--app-border-color);
@@ -1181,16 +1162,15 @@ const paginationItems = computed(() => {
 }
 
 .pageInput {
-  width: 40px;
-  height: 28px;
+
   text-align: center;
-  border: 1px solid var(--app-primary-color);
   border-radius: var(--app-radius-s);
   background-color: var(--app-primary-color);
   color: white;
-  font-size: var(--app-font-size-s);
+  /* font-size: var(--app-font-size-s); */
   font-weight: 500;
-  padding: 0 2px;
+  padding: var(--app-space-xs) var(--app-space-xs);
+  border: none;
   outline: none;
   -moz-appearance: textfield;
 
@@ -1218,10 +1198,9 @@ const paginationItems = computed(() => {
 }
 
 .pageInfo {
-  flex: 1;
-  text-align: right;
-  font-size: var(--app-font-size-s);
-  color: var(--app-text-color-secondary);
+    display: flex;
+    align-items: center;
+    gap: var(--app-space-xs);
 }
 
 .previewBody {

@@ -13,8 +13,8 @@ if (!routerProvider) {
 
 // Use the composable for all batch detail state
 const {
-  detailLoading, 
-  batchDetail, 
+  detailLoading,
+  batchDetail,
   currentBatchId,
   currentSelectedDoc,
   selectedDocDetail,
@@ -67,7 +67,7 @@ const canDownload = computed(() => {
  */
 const canConfirm = computed(() => {
   const hasVerifierPermission = isVerifier(projectId.value)
-  const allDocsCompleted = batchDetail.value?.documents?.every((doc: any) => doc.status === 'completed')
+  const allDocsCompleted = batchDetail.value?.documents?.every((doc: any) => doc.status === 'verified')
   return hasVerifierPermission && allDocsCompleted
 })
 
@@ -84,13 +84,13 @@ function backToList() {
 async function handleDocSelect(doc: any) {
   // If already selecting, prevent concurrent clicks
   if (selectingDoc.value) return
-  
+
   // If document is not in processing status, select immediately
   if (doc.status !== 'processing') {
     currentSelectedDoc.value = doc
     return
   }
-  
+
   // Document is in processing status, need to check latest status
   selectingDoc.value = true
   try {
@@ -99,21 +99,21 @@ async function handleDocSelect(doc: any) {
       props.batchId,
       doc.id
     )
-    
+
     const latestDoc = response.data
-    
+
     // If still processing, don't select and show message
     if (latestDoc.status === 'processing') {
       routerProvider?.message.info('Document is still processing, please wait...')
       return
     }
-    
+
     // Status has changed, update local documents list
     const docIndex = batchDetail.value?.documents?.findIndex((d: any) => d.id === doc.id)
     if (docIndex !== -1 && batchDetail.value?.documents) {
       batchDetail.value.documents[docIndex] = { ...batchDetail.value.documents[docIndex], ...latestDoc }
     }
-    
+
     // Select the document
     currentSelectedDoc.value = batchDetail.value?.documents?.[docIndex] || latestDoc
   } catch (error) {
@@ -122,6 +122,32 @@ async function handleDocSelect(doc: any) {
   } finally {
     selectingDoc.value = false
   }
+}
+
+async function confirmBatch(){
+  await clientApi.api.postCaptureBatchBatchidConfirm(batchDetail.value.id)
+  routerProvider?.message.success('Batch confirmed successfully')
+  reload()
+}
+async function cancelBatch(){
+  const batchIds = [batchDetail.value.id]
+  await clientApi.api.postCaptureBatchCancel({ batchIds })
+  routerProvider?.message.success('Batch cancelled successfully')
+  reload()
+}
+async function downloadBatch(){
+  const batchIdList = [batchDetail.value.id]
+  const b = await clientApi.api.postCaptureExportZip({ batchIdList }, {
+    format: 'blob'
+  })
+  const blob = new Blob([b], { type: 'application/zip' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `batch_export_${new Date().toISOString().replace(/:/g, '-')}.zip`
+  a.click()
+  URL.revokeObjectURL(url)
+  a.remove()
 }
 
 watch(() => props.batchId, (newBatchId) => {
@@ -153,9 +179,9 @@ watch(detailLoading, (isLoading) => {
         {{ batchDetail?.batchNo }}
       </div>
       <div class="actions">
-        <ElButton v-if="isAdmin(projectId)" :disabled="!canCancel" type="warning">Cancel Batch</ElButton>
-        <ElButton v-if="isExporter(projectId)" :disabled="!canDownload" type="primary">Download Results</ElButton>
-        <ElButton v-if="isVerifier(projectId)" :disabled="!canConfirm" type="primary">Confirm Batch</ElButton>
+        <ElButton v-if="isAdmin(projectId)" :disabled="!canCancel" type="warning" @click="cancelBatch">Cancel Batch</ElButton>
+        <ElButton v-if="isExporter(projectId)" :disabled="!canDownload" type="primary" @click="downloadBatch">Download Results</ElButton>
+        <ElButton v-if="isVerifier(projectId)" :disabled="!canConfirm" type="primary" @click="confirmBatch">Confirm Batch</ElButton>
       </div>
     </div>
 
@@ -165,7 +191,7 @@ watch(detailLoading, (isLoading) => {
       <span class="processingText">Batch is processing...</span>
       <ElButton @click="backToList">Back to List</ElButton>
     </div>
-    
+
     <!-- Normal batch detail view -->
     <ElSplitter v-else>
       <ElSplitterPanel size="200px" min="120">

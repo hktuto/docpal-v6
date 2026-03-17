@@ -77,7 +77,7 @@ function getFieldRules(field: FieldWithValue): any[] {
 
   // Required rule
   if (field.required) {
-    rules.push({ required: true, message: 'Required', trigger: 'change' })
+    rules.push({ required: true, message: 'Required', trigger: 'blur' })
   }
 
   // Custom validation function
@@ -114,6 +114,21 @@ function getAllFieldValues(): Record<string, any> {
   }, {} as Record<string, any>)
 }
 
+// validate form
+const sectionFormEl = ref()
+const tabelSectionRef = ref()
+async function validateForm(){
+  if(sectionFormEl.value){
+
+    return sectionFormEl.value.validate()
+  }
+  if(tabelSectionRef.value){
+    tabelSectionRef.value.forEach((row) => {
+      row.validate()
+    })
+  }
+}
+
 // Get input type for field
 function getInputType(fieldType: string): string {
   const typeMap: Record<string, string> = {
@@ -126,6 +141,14 @@ function getInputType(fieldType: string): string {
   }
   return typeMap[fieldType] || 'text'
 }
+
+onMounted(() => {
+  validateForm()
+})
+
+defineExpose({
+  validateForm
+})
 </script>
 
 <template>
@@ -158,6 +181,7 @@ function getInputType(fieldType: string): string {
     <!-- Standard Section -->
     <div v-if="section.section_type !== 'table'" class="fieldsList">
       <ElForm
+        ref="sectionFormEl"
         :model="getAllFieldValues()"
         label-position="top"
         size="small"
@@ -200,14 +224,15 @@ function getInputType(fieldType: string): string {
               />
             </ElSelect>
             <template v-else-if="field.type === 'date'">
+
               <ElDatePicker
                 :modelValue="field.currentValue"
                 size="small"
                 :class="{fieldInput: true, edited: isFieldModified(field)}"
                 :placeholder="field.lable || field.label"
                 :disabled="readonly"
-                format="DD/MM/YYYY"
-                value-format="DD/MM/YYYY"
+                :format="field.format || 'DD/MM/YYYY'"
+                :value-format="field.format || 'DD/MM/YYYY'"
                 @update:model-value="(val) => handleFieldChange(field, val)"
               />
               <!-- currentValue:{{field.currentValue}} -->
@@ -257,6 +282,7 @@ function getInputType(fieldType: string): string {
               acc[f.label || f.lable || f.key] = f.currentValue
               return acc
             }, {})"
+            ref="tabelSectionRef"
             label-position="top"
             size="small"
             class="row-form"
@@ -295,6 +321,21 @@ function getInputType(fieldType: string): string {
                     :value="opt.value"
                   />
                 </ElSelect>
+
+                <template v-else-if="field.type === 'date'">
+
+                  <ElDatePicker
+                    :modelValue="field.currentValue"
+                    size="small"
+                    :class="{fieldInput: true, edited: isFieldModified(field)}"
+                    :placeholder="field.lable || field.label"
+                    :disabled="readonly"
+                    :format="field.format || 'DD/MM/YYYY'"
+                    :value-format="field.format || 'DD/MM/YYYY'"
+                    @update:model-value="(val) => handleFieldChange(field, val)"
+                  />
+                  <!-- currentValue:{{field.currentValue}} -->
+                </template>
 
                 <ElInput
                   v-else

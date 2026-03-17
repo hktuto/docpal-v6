@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
+import {ElMessageBox} from 'element-plus'
+
 import ClassificationUpload from './classificationUpload.vue'
 import ClassificationCrop from './classificationCrop.vue'
 import SplitPage from './splitPage.vue'
@@ -8,7 +10,7 @@ import FormSetup from './formSetup.vue'
 const props = defineProps<{
   formId: string
 }>()
-
+const formSetupRef = ref()
 const loading = ref(false)
 const routerProvider = inject(MenuRouterKey)
 
@@ -77,11 +79,25 @@ async function fetchFormDetail() {
     loading.value = false
   }
 }
-function backToList() {
-  const tab = createScanDetailPageTab(formDetail.value.projectId)
-    routerProvider?.navigateTo(tab)
+async function backToList() {
+  if(formSetupRef.value &&　formSetupRef.value.hasUnSaveChange){
+    await ElMessageBox.confirm('There are unsaved changes. Are you sure you want to leave ?',{
+      confirmButtonClass: 'el-button el-button--warning',
+      dangerouslyUseHTMLString: true,
+      confirmButtonText: "confirm"
+    }).then((result) => {
+      if(result === 'confirm') {
+        const tab = createScanDetailPageTab(formDetail.value.projectId)
+          routerProvider?.navigateTo(tab)
+      }
+    }).catch(err => {
+
+    })
+  }
+
 }
 async function refreshFormDetail() {
+
   await fetchFormDetail()
 }
 
@@ -133,6 +149,7 @@ onMounted(() => {
       <!-- Step 3: Form Setup -->
       <FormSetup
         v-else-if="formStatus === 'formSetup'"
+        ref="formSetupRef"
         :form-detail="formDetail"
         @back="(step) => overriderStatus = step || 'classificationCrop'"
         @refresh="refreshFormDetail"

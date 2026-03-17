@@ -175,11 +175,12 @@ function copyError() {
         <Icon name="lucide:lock" class="lockIcon" />
         <span class="lockText">{{ lockMessage }}</span>
       </div>
-      
+
       <!-- Scrollable sections list -->
       <div class="sectionsList" :class="{ 'withWarning': isLockedByOther }">
         <ScanBatchDetailSection
           v-for="section in sectionsWithValues"
+
           :key="section.section_id"
           :section="section"
           :readonly="isReadonly"

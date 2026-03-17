@@ -358,6 +358,7 @@ function dataLostWarning(e){
 }
 
 watch(formConfig, () => {
+  console.log("formConfig change")
   hasUnSaveChange.value = true;
 },{
   deep: true
@@ -370,13 +371,15 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener("beforeunload", dataLostWarning)
 })
-
+defineExpose({
+  hasUnSaveChange
+})
 </script>
 
 <template>
   <div class="form-setup">
       <Teleport :to="`#detail-${formDetail.id}`" defer>
-           <ElButton type="primary" @click="testForm">Test Form</ElButton>
+           <!-- <ElButton type="primary" @click="testForm">Test Form</ElButton> -->
           <ElButton type="primary" @click="$emit('back', 'classificationUpload')">Repalce Sample</ElButton>
           <ElButton type="primary" @click="$emit('back', 'split')">Split Page</ElButton>
       </Teleport>

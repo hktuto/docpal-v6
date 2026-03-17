@@ -76,6 +76,7 @@ export type FieldWithValue = {
   field_setting?: {
     options: Record<string, string>[]
   }
+  format?: string // e.g. 'DD/MM/YYYY' for date formatting
   // Added values from result JSON
   currentValue: any
   originalValue: any
@@ -207,11 +208,13 @@ export const useBatchDetail = (batchId: string) => {
               const normalizedValue = field.normalize_options
                 ? normalizeValue(rawValue, field.normalize_options)
                 : rawValue
-
+              const normalizeOldValue = field.normalize_options
+                ? normalizeValue(oldRowData?.[fieldLabel], field.normalize_options)
+                : oldRowData?.[fieldLabel]
               return {
                 ...field,
                 currentValue: normalizedValue,
-                originalValue: oldRowData?.[fieldLabel] ?? '',
+                originalValue: normalizeOldValue,
                 options: field.field_setting?.options?.map((opt: Record<string, string>) => {
                   const [value, label] = Object.entries(opt)[0] || ['', '']
                   return { value, label }
