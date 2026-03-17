@@ -506,6 +506,7 @@ async function renderCropsForCurrentPage() {
       const indexB = orderMap[b.type] ?? Number.MAX_SAFE_INTEGER;
       return indexA - indexB;
   }).forEach(crop => {
+
     renderCropOnCanvas(crop)
   })
   await canvas.renderAll()
@@ -699,7 +700,7 @@ function removeCropItem(cropId: string | number) {
   // Remove from crops array
 
   const index = crops.value.findIndex(c => c.id === cropId)
-  console.log("removeCropItem",index )
+
   if (index > -1) {
     crops.value.splice(index, 1)
   }
@@ -727,6 +728,9 @@ async function getAllCropImages() {
   const lastCurrentPage = currentPage.value
   await loadPage(currentPage.value)
   for (const crop of sortedCrop) {
+    if (!crop || !crop.page || !crop.zone) {
+      continue;
+    }
     // Navigate to the crop's page if not on current page
     if (crop.page !== currentPage.value) {
       await loadPage(crop.page)
@@ -737,6 +741,7 @@ async function getAllCropImages() {
 
     // Extract crop image
     const imageData = extractCropImage(crop)
+
     // Emit update event
     emit('update', { crop, imageData })
   }
@@ -815,10 +820,7 @@ async function loadPage(pageNum: number) {
     // Render crops for this page
     renderCropsForCurrentPage()
 
-    // Apply dimming if there's a focused crop
-    if (focusedCropId.value) {
-      applyCropDimming()
-    }
+
 
   } catch (error) {
     console.error('Failed to load page:', error)

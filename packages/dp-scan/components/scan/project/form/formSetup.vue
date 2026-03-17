@@ -69,7 +69,7 @@ async function initFormConfig() {
       formConfig.value.form_name = props.formDetail.formName
     }
   }
-  console.log("formConfig.value", formConfig.value)
+  console.log("formConfig.value", formConfig.value.section[1].fields[0].zone)
   // Setup document paths
   await setupDocumentPaths()
   initPreview()
@@ -125,6 +125,7 @@ function buildCropsFromConfig(): CropItem[] {
       crops.push({
         id: field.key,
         type: 'field',
+        section: section.section_id,
         page: field.zone.page,
         zone: field.zone.zone,
         label: field.label,
@@ -151,6 +152,7 @@ function handleCropUpdate({crop, imageData}:any) {
   // Check if it's a section
   const section = formConfig.value.section.find(s => s.section_id === id)
   if (section) {
+
     section.zone = zone
     return
   }
@@ -164,7 +166,9 @@ function handleCropUpdate({crop, imageData}:any) {
   }
 
   // Check if it's a field
-  for (const sect of formConfig.value.section) {
+  if(!crop.section) throw new Error("no section in field")
+  const selectedSection =  formConfig.value.section.filter((sec) => sec.section_id === crop.section)
+  for (const sect of selectedSection) {
     const field = sect.fields.find(f => f.key === id)
     if (field) {
       field.zone = zone
@@ -231,15 +235,15 @@ function openEditSection(section: Section) {
 
 }
 
-function handleSaveSection(section: Section) {
+function handleSaveSection(updatedSection: Section) {
   const existingIndex = formConfig.value.section.findIndex(
-    s => s.section_id === section.section_id
+    s => s.section_id === updatedSection.section_id
   )
 
   if (existingIndex !== -1) {
-    formConfig.value.section[existingIndex] = section
+    formConfig.value.section[existingIndex] = updatedSection
   } else {
-    formConfig.value.section.push(section)
+    formConfig.value.section.push(updatedSection)
   }
   const newCrops = buildCropsFromConfig()
   previewRef.value.crops = newCrops
@@ -322,6 +326,7 @@ async function saveConfig() {
     delete updateData.updatedAt
     delete updateData.createdAt
     delete updateData.createdBy
+    console.log(formConfig.value.section[1].fields[0].zone.zone)
     await clientApi.api.putCaptureProjformsetting(updateData)
     hasUnSaveChange.value = false
     routerProvider?.message.success('Form has Updated')
@@ -338,7 +343,6 @@ async function saveConfig() {
 //================= Test form logic ====================
 const testFormRef = ref()
 function testForm(){
-  console.log("props.formDetail", props.formDetail)
   testFormRef.value.open(props.formDetail.id, props.formDetail.projectId, deepCopy(formConfig.value))
 }
 
@@ -356,9 +360,11 @@ function dataLostWarning(e){
   }
 }
 
-watch(formConfig, () => {
-  console.log("formConfig change")
-  hasUnSaveChange.value = true;
+watch(formConfig, (newVal) => {
+  // console.trace(newVal.section[1].fields[0].zone.zone)
+  if (!hasUnSaveChange.value) {
+    hasUnSaveChange.value = true;
+  }
 },{
   deep: true
 })

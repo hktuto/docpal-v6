@@ -212,7 +212,6 @@ function handleCropUpdate(event: CropUpdateEvent) {
       field.zone = newZone
     }
   }
-  console.log("handleCropUpdate",section.value)
 }
 
 function handleCropRemove(cropId: string | number) {

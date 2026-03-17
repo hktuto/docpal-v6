@@ -554,7 +554,7 @@ export const useBatchDetail = (batchId: string) => {
     }
 
     const zoneInfo = getZoneFromObject(field)
-    console.log("zoneInfo",zoneInfo)
+
     if (zoneInfo) {
       highlightedField.value = {
         page: zoneInfo.page,
@@ -1182,7 +1182,6 @@ function DocumentInitFunctionBackup(detail: any, setting: any) {
 
   // Part 3: Update document values
   updateDocumentValues(detail);
-
   return {
     detail,
     setting
