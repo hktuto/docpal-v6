@@ -54,6 +54,7 @@ import { normalizeValue, createValidator, type NormalizeOptions, type Validation
  */
 
 export type HighlightedParams = {
+  section_type?: string
   page: number // start from 1
   zone: string // 'topleft x,topleft y, bottom right x, bottom right y'
 }
@@ -495,6 +496,7 @@ export const useBatchDetail = (batchId: string) => {
     const zoneInfo = getZoneFromObject(section)
     if (zoneInfo) {
       highlightedSection.value = {
+        section_type: section.section_type,
         page: zoneInfo.page,
         zone: zoneInfo.zone
       }

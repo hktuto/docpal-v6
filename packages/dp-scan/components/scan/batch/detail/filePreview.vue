@@ -142,9 +142,8 @@ function drawCanvas() {
         drawHighlightBox(ctx, zone, scale, '#409EFF', 2) // Blue for section
       }
     }
-
     // Draw field highlight if on current page
-    if (highlightedField.value && currentPageNumber.value === highlightedField.value.page) {
+    if (highlightedSection.value?.section_type !== 'table' && highlightedField.value && currentPageNumber.value === highlightedField.value.page) {
       const zone = parseZone(highlightedField.value.zone)
       if (zone) {
         drawHighlightBox(ctx, zone, scale, '#67C23A', 2) // Green for field
@@ -433,7 +432,7 @@ watch(() => highlightedSection.value, (newVal) => {
 watch(() => highlightedField.value, (newVal) => {
   drawCanvas()
   if (!newVal) return
-
+  if(highlightedSection.value && highlightedField.value?.section_type === 'table') return;
   // Don't auto-pan when in edit mode
   if (isEditingCrop.value) return
 
