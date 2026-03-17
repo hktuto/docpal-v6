@@ -59,7 +59,7 @@
   ],
   "edges": [],
   "variables": {
-    "user_creator_id": {
+    "__system__user_creator_id": {
       "name": "Creator",
       "type": "string",
       "required": true

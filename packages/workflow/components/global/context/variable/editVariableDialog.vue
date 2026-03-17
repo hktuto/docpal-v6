@@ -60,11 +60,18 @@ function idChanged(rule: any, value: any, callback: any) {
   if (!value) {
     return callback(new Error('Please input id'))
   }
+
+  if (value.startsWith('__system__')) {
+    return callback(new Error('Id cannot start with __system__'))
+  }
+
   // check if id has space and other special characters
   if (!/^[a-zA-Z0-9_]+$/.test(value)) {
     return callback(new Error('Id can only contain letters, numbers and underscores'))
   }
+
   const isDuplicatedItem = getVariablesByType().find((item: any) => item.id === value)
+
   if (isDuplicatedItem) {
     return callback(new Error('Id is duplicated'))
   }

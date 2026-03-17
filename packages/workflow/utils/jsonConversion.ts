@@ -41,6 +41,9 @@ interface Metadata {
   icon?: string
 }
 
+/**
+ * Node base type. There are differences between tasks
+ */
 export interface NodeItem {
   id: string
   label: string
@@ -177,13 +180,7 @@ function x6NodesToWorkflowJsonNodes(x6Nodes: any[]) {
     const { x, y } = x6Node.getPosition()
     const { width, height } = x6Node.getSize()
     nodes.push({
-      id: x6Node.id,
-      label: x6Node.data.name,
-      name: x6Node.data.name,
-      type: x6Node.data.type,
-      flow: x6Node.data.flow,
-      execution: x6Node.data.execution,
-      config: x6Node.data.config,
+      ...x6Node.data,
       metadata: {
         ...x6Node.data.metadata,
         x: x,
@@ -193,7 +190,6 @@ function x6NodesToWorkflowJsonNodes(x6Nodes: any[]) {
       }
     })
   })
-
   return nodes
 }
 

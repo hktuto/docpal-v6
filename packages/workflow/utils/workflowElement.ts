@@ -411,10 +411,7 @@ export const workflowElement: WorkflowElement = {
           height: workflowNodeItem.metadata.height || 64
         },
         data: {
-          id: workflowNodeItem.id,
-          name: workflowNodeItem.name,
-          type: workflowNodeItem.type,
-          version: 0
+          ...workflowNodeItem
         },
         ports: GenDefPorts(),
         _order: 0
@@ -468,7 +465,9 @@ const workflowCellElementTemplate: CellTypeItem = {
       inputSchema: '',
       outputSchema: '',
       assignee: '',
-      metadata: {}
+      metadata: {
+        tags: 'userTask',
+      }
     }
   },
   SignatureTask: {
@@ -500,7 +499,9 @@ const workflowCellElementTemplate: CellTypeItem = {
       inputSchema: '',
       outputSchema: '',
       assignee: '',
-      metadata: {}
+      metadata: {
+        tags: 'signature'
+      }
     }
   }
 }

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
 
-useWorkflowAdditionalContext(refreshData)
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
@@ -40,6 +39,10 @@ function refreshData() {
   }
 }
 
+function checkIsSystemDefVariable(item: any) {
+  return !item.id.startsWith('__system__')
+}
+
 function handleAdd() {
   FormDialogRef.value.handleOpen()
 }
@@ -51,6 +54,10 @@ function handleEdit(item: any) {
 function handleRemove(item: any) {
   deleteVariableItem(node, item.id)
 }
+
+onMounted(() => {
+  useWorkflowAdditionalContext(refreshData)
+})
 </script>
 
 <template>
@@ -68,10 +75,10 @@ function handleRemove(item: any) {
       <div class="label" @click="handleEdit(item)">
         {{ item.name }}
       </div>
-      <div class="actions">
+      <div v-if="checkIsSystemDefVariable(item)" class="actions">
         <Icon name="lucide:square-pen" @click="handleEdit(item)" />
       </div>
-      <div class="actions">
+      <div v-if="checkIsSystemDefVariable(item)" class="actions">
         <Icon name="lucide:delete" @click="handleRemove(item)" />
       </div>
     </div>

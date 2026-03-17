@@ -39,7 +39,7 @@ function edit(row: any) {
 async function handleSubmit() {
   try {
     // Edit Workflow Info
-    if (isEdit) {
+    if (isEdit.valuel) {
       const workflowJson = formData.value.draft_content
       workflowJson.description = formData.value.description
       $api.put(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${formData.value.id}`, workflowJson).then((res) => res.data)
