@@ -5,10 +5,12 @@ import { useUpdateStatus } from './useUpdateStatus'
 import { clientApi } from 'api'
 import { newClientApi } from 'api'
 export interface mdTable {
-  columns: any[]
+  columns: any
   deleteColumn: (column: any) => void
   updateColumn: (column: any) => void
   addColumn: (column: any) => void
+  updatedViewConfigs: (updates: Array<{ fieldId: string; display: boolean }>) => void
+  tableFields: any[]
   gridRef: Ref<VxeGridInstance | undefined>
   getOptionsFromTableData: (column: any) => any[]
   clearCheckboxRow: () => void
@@ -17,6 +19,7 @@ export interface mdTable {
   tableData: Ref<any[]>
   updateRow: (rowId: string, data: any) => Promise<boolean>
   addRow: (row: any) => void
+  addColumnPopoverRef: Ref<any>
 }
 export const MdTableContextKey: InjectionKey<mdTable> = Symbol('MdTableContextKey')
 export function useMDTable(props: any) {
@@ -99,7 +102,12 @@ export function useMDTable(props: any) {
   }
 
   provide(MdTableContextKey, {
-    ...props.extraColumnConfig,
+    columns: props.extraColumnConfig.columns,
+    updatedViewConfigs: props.extraColumnConfig.updatedViewConfigs,
+    tableFields: props.extraColumnConfig.tableFields,
+    deleteColumn: props.extraColumnConfig.deleteColumn,
+    updateColumn: props.extraColumnConfig.updateColumn,
+    addColumn: props.extraColumnConfig.addColumn,
     tableData,
     gridRef,
     clearCheckboxRow,

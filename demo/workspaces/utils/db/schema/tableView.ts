@@ -16,7 +16,7 @@ export interface ViewConfig {
 // 列定义
 export interface ViewColumn {
   width?: number;
-  fieldId: string;
+  id: string;
   hidden?: boolean;
   fixed?: 'left' | 'right'
 }

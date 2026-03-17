@@ -79,6 +79,12 @@ import { createFieldId } from '../../utils/mdTableHelper'
 // 导入并注册自定义渲染器（必须在组件加载时执行）
 const slots = useSlots()
 
+interface ColumnVisibilityItem {
+  fieldId: string
+  title: string
+  display: boolean
+}
+
 interface Props {
   tableId?: string
   editable?: boolean
@@ -87,6 +93,8 @@ interface Props {
     deleteColumn: (column: ColumnConfig) => void
     updateColumn: (column: ColumnConfig) => void
     addColumn: (column: ColumnConfig) => void
+    tableFields: Ref<any[]>
+    updatedViewConfigs: (updates: Array<{ fieldId: string; display: boolean }>) => void
   }
 }
 
@@ -97,7 +105,9 @@ const props = withDefaults(defineProps<Props>(), {
     columns: [],
     deleteColumn: () => {},
     updateColumn: () => {},
-    addColumn: () => {}
+    addColumn: () => {},
+    tableFields: [],
+    updatedViewConfigs: () => {}
   })
 })
 
@@ -122,6 +132,7 @@ const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
 const { tableData, columns, gridOptions, gridRef, refreshTableData, saveColumnOrder, updateRow, addVirtualColumn, addColumnPopoverRef, addRow } =
   useMDTable(props)
+
 // Import update status composable
 await new Promise((resolve) => setTimeout(resolve, 1000))
 const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()

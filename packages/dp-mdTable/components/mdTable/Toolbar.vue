@@ -6,15 +6,17 @@
           <el-icon><Search /></el-icon>
         </template>
       </el-input>
-      <ToolsGroupingButton :groupableColumns="groupableColumns" @grouping-change="emit('grouping-change', $event)" />
-      <ToolsFilterButton :available-columns="groupableColumns" @filter-change="handleFilterChange" />
-      <ToolsSortButton :available-columns="groupableColumns" @sort-change="handleSortChange" />
       <slot name="toolbar-left">
         <el-button type="primary" @click="handleAddRow">
           <el-icon><Plus /></el-icon>
           Add Row
         </el-button>
       </slot>
+      <ToolsColumnVisibilityPopover
+      />
+      <ToolsGroupingButton :groupableColumns="groupableColumns" @grouping-change="emit('grouping-change', $event)" />
+      <ToolsFilterButton :available-columns="groupableColumns" @filter-change="handleFilterChange" />
+      <ToolsSortButton :available-columns="groupableColumns" @sort-change="handleSortChange" />
     </div>
     <div class="toolbar-right">
       <slot name="toolbar-right">

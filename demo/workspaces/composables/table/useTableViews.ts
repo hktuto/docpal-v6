@@ -7,7 +7,8 @@ import {
   reorderViews as reorderViewsUtil,
   replaceViewInList,
   applyViewUpdates,
-  getDisplayColumns
+  getDisplayColumns,
+  updateViewColumnDisplay
 } from '../../utils/tableViews'
 
 import { ElMessage } from 'element-plus'
@@ -34,6 +35,7 @@ export interface ViewContext {
   addField: (newColumns: any[]) => Promise<void>
   deleteField: (fieldId: string) => Promise<void>
   updateField: (fieldName: string, updates: Partial<{ field_name: string; business_type: any; display_structure: any }>) => Promise<void>
+  updatedViewConfigs: (updates: Array<{ fieldId: string; display: boolean }>) => Promise<void>
 }
 
 export const TableViewsInjectKey: InjectionKey<ViewContext> = Symbol('TableViewsInjectKey')
@@ -82,9 +84,7 @@ export function useTableViews(options: UseTableViewsOptions) {
     } else {
       currentView.value = view
     }
-    console.log(currentView.value)
     if (currentView.value) {
-      console.log(tableFields.value)
       currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
     }
   }
@@ -107,6 +107,7 @@ export function useTableViews(options: UseTableViewsOptions) {
   }
 
   async function updateView(viewId: string, updates: Partial<ViewConfig>) {
+    console.log(JSON.stringify(updates), 'updateView')
     const view = tableViews.value.find((v) => v.id === viewId)
     if (!view) return
     const updated = applyViewUpdates(view, updates)
@@ -148,7 +149,6 @@ export function useTableViews(options: UseTableViewsOptions) {
     const index = tableFields.value.findIndex((f: any) => f.id === fieldId)
     if (index !== -1) tableFields.value.splice(index, 1)
     if (currentView.value) currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
-
   }
 
   async function updateField(fieldName: string, updates: Partial<{ field_name: string; business_type: any; display_structure: any }>) {
@@ -166,6 +166,17 @@ export function useTableViews(options: UseTableViewsOptions) {
     }
   }
 
+  /**
+   * 根据列显隐配置更新当前视图的 columns（display: true 显示，false 隐藏，对应 column.hidden = !display）
+   */
+  async function updatedViewConfigs(updates: Array<{ id: string; display: boolean }>) {
+    const view = currentView.value
+    if (!view) return
+    let updatedColumns = updateViewColumnDisplay(view, updates, tableFields.value)
+    await updateView(view.id, { columns: updatedColumns })
+    if (currentView.value) currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
+  }
+
   provide(TableViewsInjectKey, {
     tableFields,
     currentView,
@@ -181,7 +192,8 @@ export function useTableViews(options: UseTableViewsOptions) {
     saveViewFilterSortGroup,
     addField,
     deleteField,
-    updateField
+    updateField,
+    updatedViewConfigs
   })
 
   return {
@@ -199,7 +211,8 @@ export function useTableViews(options: UseTableViewsOptions) {
     saveViewFilterSortGroup,
     addField,
     deleteField,
-    updateField
+    updateField,
+    updatedViewConfigs
   }
 }
 

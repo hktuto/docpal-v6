@@ -22,14 +22,15 @@ export function parseViewConfigList(jsonString: string | undefined): ViewConfig[
  * 将 ViewConfig[] 序列化为后端需要的 JSON string
  */
 export function serializeViewConfigList(views: ViewConfig[]): string {
-  return JSON.stringify(views)
+  const sanitized = views.map(({ displayColumns, ...rest }) => rest)
+  return JSON.stringify(sanitized)
 }
 
 /**
  * 合并单个视图的局部更新，返回新 ViewConfig（不修改原对象）
  */
 export function applyViewUpdates(view: ViewConfig, updates: Partial<ViewConfig>): ViewConfig {
-  return {
+  const data = {
     ...view,
     ...updates,
     columns: updates.columns !== undefined ? [...updates.columns] : view.columns,
@@ -43,6 +44,7 @@ export function applyViewUpdates(view: ViewConfig, updates: Partial<ViewConfig>)
           }
         : view.filterInfo
   }
+  return data
 }
 
 /** 仅更新列（含顺序） */
@@ -73,6 +75,61 @@ export function updateViewFilterInfo(view: ViewConfig, filterInfo: FilterInfo): 
 /** 仅更新名称 */
 export function updateViewName(view: ViewConfig, name: string): ViewConfig {
   return applyViewUpdates(view, { name })
+}
+
+/**
+ * 根据列显隐配置更新 view.columns 中对应 column 的 hidden（display: true => hidden: false，display: false => hidden: true）
+ */
+export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: string; display: boolean }>, tableFields: any[]): ViewColumn[] {
+  const fieldsById = new Map<string, any>()
+  for (const f of tableFields ?? []) {
+    if (f?.id == null) continue
+    fieldsById.set(String(f.id), f)
+  }
+
+  const updatesById = new Map<string, boolean>()
+  for (const u of updates ?? []) {
+    if (u?.id == null) continue
+    updatesById.set(String(u.id), Boolean(u.display))
+  }
+  const seen = new Set<string>()
+  const nextColumns: ViewColumn[] = []
+
+  // 1) 过滤 tableFields 不存在的数据 + 2) 按 columns 原有顺序排序
+  for (const col of view?.columns ?? []) {
+    const fieldId = col?.id
+    if (fieldId == null) continue
+    const key = String(fieldId)
+    if (seen.has(key)) continue
+    const tableField = fieldsById.get(key)
+    if (!tableField) continue
+    seen.add(key)
+
+    const display = updatesById.get(key)
+    const hasKey = updatesById.has(key)
+    const tableFieldItem = tableFields.find((f: any) => f.id === fieldId)
+    const item = {
+      title: tableFieldItem.field_name_alias,
+      id: String(tableField.id),
+      hidden: hasKey ? (display === false ? true : false) : col.hidden
+    }
+    nextColumns.push(item)
+  }
+
+  // 3) 补充 tableFields 中存在但 columns 不存在的数据
+  for (const f of tableFields ?? []) {
+    if (f?.id == null) continue
+    const key = String(f.id)
+    if (seen.has(key)) continue
+    seen.add(key)
+
+    const display = updatesById.get(key)
+    nextColumns.push({
+      id: String(f.id),
+      hidden: display === false ? true : false
+    })
+  }
+  return nextColumns
 }
 
 /**
@@ -142,13 +199,14 @@ export function getDisplayColumns<T extends { id?: unknown; tableFieldId?: unkno
   const seenIds = new Set<string>()
   if (columns.length) {
     for (const col of columns) {
-      const fieldId = col?.fieldId ?? (col as any)?.id
+      const fieldId = col?.id ?? (col as any)?.id
       if (fieldId == null || fieldId === '') continue
       const idStr = String(fieldId)
       if (seenIds.has(idStr)) continue
+      seenIds.add(idStr)
+      if (col.hidden === true) continue
       const field = tableFields.find((f) => f.id === fieldId)
       if (!field) continue
-      seenIds.add(idStr)
       ordered.push({ ...field, ...col })
     }
   }
@@ -164,7 +222,7 @@ export function getDisplayColumns<T extends { id?: unknown; tableFieldId?: unkno
   const result = ordered.map((c: any) => ({
     ...c,
     field: c.field_name,
-    title: c.field_name_alias,
+    title: c.field_name_alias
   }))
   return result
 }
