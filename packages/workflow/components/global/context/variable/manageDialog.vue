@@ -61,6 +61,30 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
       }
     ]
   ],
+  permissionMethod: ({ row, code }: { row: any; code?: string }) => {
+    if (!row) {
+      return { visible: false, disabled: false }
+    }
+
+    if (code === 'edit') {
+      return {
+        visible: !row.id.startsWith('__system__'),
+        disabled: false
+      }
+    }
+
+    if (code === 'delete') {
+      return {
+        visible: !row.id.startsWith('__system__'),
+        disabled: false
+      }
+    }
+
+    return {
+      visible: false,
+      disabled: true
+    }
+  },
   optionalConfig: {
     rowConfig: {
       keyField: 'id'
@@ -87,10 +111,7 @@ defineExpose({
 </script>
 
 <template>
-  <ElDialog v-model="opened" width="80%" draggable append-to-body class="big">
-    <template #header>
-      <span style="font-size: var(--app-font-size-m); font-weight: bold">Edit Field</span>
-    </template>
+  <ElDialog v-model="opened" title="Edit Field" draggable append-to-body class="big">
     <template #default>
       <div class="addFieldRow">
         <el-alert show-icon :title="$t('bpmn.globalRuleTip')" type="info" />

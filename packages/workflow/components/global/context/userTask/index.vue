@@ -62,12 +62,7 @@ watch(() => node, () => {
   <div class="fromContainer">
     <SidebarLabel :node="node" />
     <ContextUserTaskAssignee :node="node" />
-<!--    <el-switch :disabled="graphProvider.readonly.value" v-model="switchRef" size="small" active-text="Group" inactive-text="Roles" @change="handleSwitch" />-->
-    <!--    <BpmnSidebarEditCandidateGroup v-if="switchRef" :node="node" />
-    <BpmnSidebarEditCandidateRoles v-else :node="node" />
-    <BpmnSidebarEditForm :node="node" />
-    <BpmnSidebarPreviewDocument :node="node" />
-    <BpmnSidebarBooleanButton :node="node" />-->
+    <ContextForm :node="node" />
   </div>
 </template>
 

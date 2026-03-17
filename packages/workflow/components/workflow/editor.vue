@@ -9,14 +9,15 @@ import { newAdminApi } from 'api'
 
 const { setVariables } = useVariables()
 const routerProvider = inject(MenuRouterKey)
-// if (!routerProvider) {
-//   throw new Error('MenuRouterKey is not provided')
-// }
+if (!routerProvider) {
+  throw new Error('MenuRouterKey is not provided')
+}
 const props = defineProps<{
   workflowData: any
   readonly: boolean
+  showActions: boolean
 }>()
-const { workflowData: workflowJsonObject, readonly } = toRefs(props)
+const { workflowData: workflowJsonObject, readonly, showActions } = toRefs(props)
 
 const sidebarRef = ref()
 const nodeRef = ref()
@@ -314,14 +315,26 @@ defineExpose({ init })
         <ToolbarNode ref="nodeRef" @openForm="openForm" />
       </div>
     </div>
-    <Sidebar ref="sidebarRef" />
+
+    <div class="actions">
+      <slot name="actions" />
+    </div>
   </div>
+  <Sidebar ref="sidebarRef" />
 </template>
 
 <style scoped lang="scss">
+.bpmnEditorContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr min-content;
+}
+
 .bpmnViewerContainer {
   width: 100%;
-  height: 1000px;
+  height: 100%;
   border: 1px solid #eee;
   overflow: hidden;
 
@@ -329,14 +342,6 @@ defineExpose({ init })
     width: 100%;
     height: 100%;
   }
-}
-
-.bpmnEditorContainer {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  display: grid;
-  grid-template-rows: 1fr min-content;
 }
 
 .toolbar {
@@ -408,6 +413,9 @@ defineExpose({ init })
       display: none;
     }
   }
+}
+.actions {
+  padding: var(--app-space-xs);
 }
 </style>
 

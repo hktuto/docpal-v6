@@ -41,10 +41,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div style="height: 500px">
-    <div v-if="openWorkflowEdit" class="pageContainer">
-      <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="workflowData" :readonly="workflowReadonly" />
-    </div>
+  <div v-if="openWorkflowEdit" class="pageContainer">
+    <LazyWorkflowEditor ref="workflowEditorRef" :workflow-data="workflowData" :readonly="workflowReadonly" />
   </div>
 </template>
 

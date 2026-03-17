@@ -18,7 +18,6 @@ export const usePublicPageState = () =>
     '/login',
     '/initPassword/',
     '/initPassword',
-    '/test-workflow'
   ])
 export const useLoginHook = () => useState<any>(() => shallowRef([]))
 
