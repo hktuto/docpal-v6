@@ -59,6 +59,7 @@ const canSave = computed(() => {
  */
 function open(url: string, page: number, existingSection?: Section) {
   // Reset state
+  console.log("open section editor", existingSection)
   visible.value = true
   isInitialized.value = false
   activeCropId.value = null

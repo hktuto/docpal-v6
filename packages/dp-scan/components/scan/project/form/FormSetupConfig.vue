@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import type { FormFieldsSetting, Section, CropItem } from '../../../../types/formOCR'
 import PropmtSelect from './promptSelect.vue'
 import QrcodeEdit from './formQrcpde/edit.vue'
+import CodeEdit from './code.vue'
 const props = defineProps<{
   modelValue: FormFieldsSetting
   formImages: Record<string, string>
@@ -36,6 +37,7 @@ function onAddSection() {
 }
 
 function onEditSection(section: Section) {
+  console.log("edit section", section)
   emit('editSection', section)
 }
 
@@ -111,7 +113,7 @@ const activeQrcode = ref([])
                 <PropmtSelect v-model="config.prompt_template_id" />
             </ElFormItem>
             <ElFormItem label="Init Logic">
-                <ElInput v-model="config.custom_init_logic" />
+                <CodeEdit v-model="config.custom_init_logic" />
             </ElFormItem>
             </ElForm>
         </div>

@@ -108,7 +108,6 @@ function buildCropsFromConfig(): CropItem[] {
 
   // Add section and field crops
   formConfig.value.section.forEach(section => {
-    console.log("section",section)
     if (section.zone) {
       crops.push({
         id: section.section_id,

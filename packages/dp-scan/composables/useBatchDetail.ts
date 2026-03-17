@@ -1,5 +1,6 @@
 import { clientApi } from 'api'
 import { normalizeValue, createValidator, type NormalizeOptions, type ValidationFunction } from '../types/formOCR'
+import { useOldValue } from 'element-plus/es/components/time-picker/src/composables/use-time-picker.mjs'
 
 /**
  * Batch Detail Composable
@@ -169,8 +170,8 @@ export const useBatchDetail = (batchId: string) => {
   const lockedByUser = ref<string | undefined>()
 
   // Watch for selectedDocDetail changes and rebuild sectionsWithValues
-  watch(selectedDocDetail, () => {
-    if (selectedDocDetail.value) {
+  watch(selectedDocDetail, (newValue, oldValue) => {
+    if (selectedDocDetail.value && (!oldValue || newValue.detail.id !== oldValue.detail.id)) {
       buildSectionsWithValues()
       setupPreview()
     }
@@ -209,6 +210,8 @@ export const useBatchDetail = (batchId: string) => {
 
     const newResult = detail.newResultJson || {}
     const oldResult = detail.oldResultJson || {}
+    // init oldResult
+
 
     sectionsWithValues.value = settings.section.map((section: any): SectionWithValues => {
       const sectionName = section.section_name
@@ -327,7 +330,6 @@ export const useBatchDetail = (batchId: string) => {
     } catch (error) {
       console.error(error)
     } finally {
-      console.log("batchDetail", batchDetail.value)
       detailLoading.value = false
     }
   }
@@ -345,20 +347,33 @@ export const useBatchDetail = (batchId: string) => {
       } else {
 
         const res = await clientApi.api.getCaptureProjformsettingId(docDetailRes.data.formId)
-
         const pageSplitConfig = JSON.parse(res.data.pageSplitConfig) || { split_into_number_of_page: 1 }
         const formClassificationConfig = JSON.parse(res.data.formClassificationConfig) || {}
 
         const fieldsSetting = JSON.parse(res.data.fieldsSetting) || {}
+        let setting = {
+          ...res.data,
+          pageSplitConfig,
+          formClassificationConfig,
+          fieldsSetting
+        } as any
+        let detail = docDetailRes.data
+        if (setting.fieldsSetting.custom_init_logic) {
+          try {
+            //formValue
 
+            const fn = new Function('detail','setting', setting.fieldsSetting.custom_init_logic)
+            const { detail: newDetail, setting: newSetting } = fn(detail, setting)
+            if(newDetail) detail = newDetail
+            if (newSetting) setting = newSetting
+            console.log("newDetail",newDetail)
+          } catch (err) {
+            console.error(err)
+          }
+        }
         selectedDocDetail.value = {
-          setting: {
-            ...res.data,
-            pageSplitConfig,
-            formClassificationConfig,
-            fieldsSetting,
-          },
-          detail: docDetailRes.data
+          setting,
+          detail
         }
       }
     } catch (error) {
@@ -426,7 +441,6 @@ export const useBatchDetail = (batchId: string) => {
   async function renderPage(pageNumber: number) {
     // Cancel any pending image request before starting new one
     cancelImageRequest()
-
     previewLoading.value = true
     try {
       const url = selectedDocDetail.value?.detail?.pages?.[pageNumber - 1]
@@ -583,18 +597,19 @@ export const useBatchDetail = (batchId: string) => {
     if (!currentSelectedDoc.value || !selectedDocDetail.value) return
 
     const newResultJson = buildResultJson()
-
+    const newDetail = {
+      ...selectedDocDetail.value.detail,
+      newResultJson
+    }
+    delete newDetail.updatedBy
+    delete newDetail.updatedAt
+    delete newDetail.createdAt
+    delete newDetail.createdBy
     try {
       await clientApi.api.postCaptureBatchBatchidDocDocidSaveDraft(
         currentBatchId.value,
         currentSelectedDoc.value.id,
-        {
-          newResultJson,
-          oldValue: selectedDocDetail.value.detail?.oldValue,
-          newValue: selectedDocDetail.value.detail?.newValue,
-          formSource: selectedDocDetail.value.detail?.formSource,
-          familyCategory: selectedDocDetail.value.detail?.familyCategory
-        }
+        newDetail
       )
     } catch (error) {
       console.error('Failed to save draft:', error)
@@ -609,18 +624,19 @@ export const useBatchDetail = (batchId: string) => {
     if (!currentSelectedDoc.value || !selectedDocDetail.value) return
 
     const newResultJson = buildResultJson()
-
+    const newDetail = {
+      ...selectedDocDetail.value.detail,
+      newResultJson
+    }
+    delete newDetail.updatedBy
+    delete newDetail.updatedAt
+    delete newDetail.createdAt
+    delete newDetail.createdBy
     try {
       await clientApi.api.postCaptureBatchBatchidDocDocidConfirm(
         currentBatchId.value,
         currentSelectedDoc.value.id,
-        {
-          newResultJson,
-          oldValue: selectedDocDetail.value.detail?.oldValue,
-          newValue: selectedDocDetail.value.detail?.newValue,
-          formSource: selectedDocDetail.value.detail?.formSource,
-          familyCategory: selectedDocDetail.value.detail?.familyCategory
-        }
+        newDetail
       )
     } catch (error) {
       console.error('Failed to confirm:', error)
@@ -634,40 +650,18 @@ export const useBatchDetail = (batchId: string) => {
   async function updateSectionZone(sectionId: string, newZone: ZoneObject) {
     if (!selectedDocDetail.value?.setting) return
 
-    const formId = batchDetail.value?.formId
-    if (!formId) {
-      console.error('No formId available')
-      return
-    }
-
     // Find the section in the current settings
-    const settings = selectedDocDetail.value.setting.fieldsSetting
-    const sectionIndex = settings.section?.findIndex((s: any) => s.section_id === sectionId)
-
-    if (sectionIndex === -1) {
-      console.error('Section not found:', sectionId)
-      return
+    // const sectionIndex = settings.section?.findIndex((s: any) => s.section_id === sectionId)
+    if (!selectedDocDetail.value.detail.zoneResizeConfig) {
+      selectedDocDetail.value.detail.zoneResizeConfig = {}
     }
+    selectedDocDetail.value.setting.fieldsSetting.section?.forEach((section) => {
+      if (selectedDocDetail.value.detail.zoneResizeConfig[section.section_id]) {
 
-    // Update local state first (optimistic update)
-    settings.section[sectionIndex].zone = newZone
-
-    // Prepare the updated fieldsSetting
-    const updatedFieldsSetting = JSON.stringify(settings)
-
-    try {
-      // Call API to update form setting
-      await clientApi.api.putCaptureProjformsettingId(formId, {
-        ...selectedDocDetail.value.setting,
-        fieldsSetting: updatedFieldsSetting
-      })
-
-      console.log('Section zone updated successfully')
-    } catch (error) {
-      console.error('Failed to update section zone:', error)
-      // Could revert local state here if needed
-      throw error
-    }
+        section.zone = newZone
+      }
+    })
+    selectedDocDetail.value.detail.zoneResizeConfig[sectionId] = newZone
   }
 
   const context: BatchDetailContext = {
@@ -733,4 +727,54 @@ export const useBatchDetail = (batchId: string) => {
 
 export const useBatchDetailContext = (): BatchDetailContext | undefined => {
   return inject<BatchDetailContext>('batchDetailProvider')
+}
+
+
+
+function DocumentInitFunctionBackup(detail, setting) {
+  // normalize json
+  if(detail.newResultJson){
+    Object.keys(detail.newResultJson).forEach( (sectionKey) => {
+      const section = detail.newResultJson[sectionKey]
+      Object.keys(section).forEach((fieldKey) => {
+          if(fieldKey.includes('HKID') || fieldKey === 'ApplicantChineseName') {
+             detail.newResultJson[sectionKey][fieldKey] = detail.newResultJson[sectionKey][fieldKey].replaceAll('(','').replaceAll(')','')
+              console.log("fieldKeykey", fieldKey, detail.newResultJson[sectionKey][fieldKey])
+            }
+
+       })
+    })
+  }
+  if(detail.oldResultJson){
+     Object.keys(detail.oldResultJson).forEach( (sectionKey) => {
+      const section = detail.oldResultJson[sectionKey]
+      Object.keys(section).forEach((fieldKey) => {
+          if(fieldKey.includes('HKID') || fieldKey === 'ApplicantChineseName') {
+
+             detail.oldResultJson[sectionKey][fieldKey] = detail.oldResultJson[sectionKey][fieldKey].replaceAll('(','').replaceAll(')','')
+              console.log("fieldKeykey", fieldKey, detail.oldResultJson[sectionKey][fieldKey])
+            }
+
+       })
+    })
+  }
+
+  // convert section zoneResizeConfig to settings section
+  // selectedDocDetail.value.detail.zoneResizeConfig
+  console.log(detail)
+  if (detail.zoneResizeConfig) {
+    console.log(detail.zoneResizeConfig)
+    setting.fieldsSetting.section?.forEach((section) => {
+      if (detail.zoneResizeConfig[section.section_id]) {
+
+        section.zone = detail.zoneResizeConfig[section.section_id]
+        console.log(section)
+      }
+    })
+  }
+
+  return {
+    detail,
+    setting
+  }
 }

@@ -432,7 +432,6 @@ watch(() => highlightedSection.value, (newVal) => {
 watch(() => highlightedField.value, (newVal) => {
   drawCanvas()
   if (!newVal) return
-  if(highlightedSection.value && highlightedField.value?.section_type === 'table') return;
   // Don't auto-pan when in edit mode
   if (isEditingCrop.value) return
 
@@ -584,7 +583,6 @@ watch(() => highlightedSection.value, (newVal) => {
       return s.zone && s.zone.page === newVal.page && s.zone.zone === newVal.zone
     }
   )
-
   if (section?.save_to_result === true && canEdit.value) {
     // Auto-enter edit mode for this section
     nextTick(() => {
@@ -853,6 +851,7 @@ function handleMouseDown(event: MouseEvent) {
     event.preventDefault()
     event.stopPropagation()
     if (button === 'save') {
+      console.log("sve button click")
       saveCropEdit()
     } else if (button === 'cancel') {
       cancelCropEdit()
