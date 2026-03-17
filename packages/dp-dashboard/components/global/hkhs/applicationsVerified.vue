@@ -34,31 +34,34 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
     { field: 'batch_no', title: 'Batch No.', fixed: 'left' },
     { field: 'application_no', title: 'Application No.' },
     { field: 'form_type', title: 'Form Type' },
-    {
-      field: 'compare',
-      title: 'Compare',
-      minWidth: 120,
-      type: 'html',
-      formatter: ({ cellValue, row }) => {
-        return cellValue
-        /*return `<table>
-                  <thead>
-                    <tr>
-                      <th>Appin No.</th>
-                      <th>Form Type</th>
-                      <th>HKIC</th>
-                      <th>Payment Ref</th>
-                      <th>Family Class</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>${cellValue}</td>
-                    </tr>
-                  </tbody>
-                </table>`*/
-      }
-    },
+    { field: 'before', title: 'Before' },
+    { field: 'after', title: 'After' },
+
+    // {
+    //   field: 'compare',
+    //   title: 'Compare',
+    //   minWidth: 120,
+    //   type: 'html',
+    //   formatter: ({ cellValue, row }) => {
+    //     return cellValue
+    //     /*return `<table>
+    //               <thead>
+    //                 <tr>
+    //                   <th>Appin No.</th>
+    //                   <th>Form Type</th>
+    //                   <th>HKIC</th>
+    //                   <th>Payment Ref</th>
+    //                   <th>Family Class</th>
+    //                 </tr>
+    //               </thead>
+    //               <tbody>
+    //                 <tr>
+    //                   <td>${cellValue}</td>
+    //                 </tr>
+    //               </tbody>
+    //             </table>`*/
+    //   }
+    // },
     {
       field: 'modified',
       title: 'Modified',
@@ -86,7 +89,8 @@ const footerData = ref([
     batch_no: 'Total',
     application_no: 0,
     form_type: '-',
-    compare: '-',
+    before: '-',
+    after: '-',
     modified: '-',
     verified_by: '-',
     completed_on: '-'
@@ -104,52 +108,37 @@ function handleDownloadCommand(command: string) {
 }
 
 function handleDownloadExcel() {
-  // Prepare clean data for export (without HTML)
-  const exportColumns = [
-    { field: 'batch_no', title: 'Batch No.' },
-    { field: 'application_no', title: 'Application No.' },
-    { field: 'form_type', title: 'Form Type' },
-    { field: 'compare_export', title: 'Compare' },
-    { field: 'modified_export', title: 'Modified' },
-    { field: 'verified_by', title: 'Verified By' },
-    { field: 'completed_on', title: 'Completed on' }
-  ]
+  // Use columns directly as they no longer have HTML formatting (except modified)
+  const exportColumns = columnsRef.value.map(col => ({ field: col.field, title: col.title }))
 
+  // Clean modified value for export (strip HTML)
   const exportData = dataList.value.map(row => ({
     ...row,
-    compare_export: getCompareExportValue(row),
-    modified_export: getModifiedExportValue(row)
+    modified: getModifiedExportValue(row)
   }))
 
   exportSingleSheet(exportColumns, exportData, 'SCS-102_Applications_Verified', footerData.value)
 }
 
-function getCompareExportValue(row: any): string {
-  if (!row.compare || !Array.isArray(row.compare)) return ''
-  return row.compare.map((item: string) => {
-    // Clean HTML tags
-    return item.replace(/<[^>]*>/g, '').trim()
-  }).join('; ')
-}
-
 function getModifiedExportValue(row: any): string {
-  return row.modified || ''
+  const value = row.modified || ''
+  if (typeof value === 'string' && value.includes('<')) {
+    // Extract just the text content from HTML
+    const div = document.createElement('div')
+    div.innerHTML = value
+    return div.textContent || div.innerText || value
+  }
+  return value
 }
 
 function handleDownloadPDF() {
-  const exportColumns = [
-    { field: 'batch_no', title: 'Batch No.' },
-    { field: 'application_no', title: 'Application No.' },
-    { field: 'form_type', title: 'Form Type' },
-    { field: 'compare_export', title: 'Compare' },
-    { field: 'modified', title: 'Modified' },
-    { field: 'verified_by', title: 'Verified By' },
-    { field: 'completed_on', title: 'Completed on' }
-  ]
+  // Use columns directly as they no longer have HTML formatting (except modified)
+  const exportColumns = columnsRef.value.map(col => ({ field: col.field, title: col.title }))
 
+  // Clean modified value for export (strip HTML)
   const exportData = dataList.value.map(row => ({
     ...row,
-    compare_export: getCompareExportValue(row)
+    modified: getModifiedExportValue(row)
   }))
 
   exportTableToPDF({
@@ -208,7 +197,8 @@ const columnsRef = ref([
   { field: 'batch_no', title: 'Batch No.' },
   { field: 'application_no', title: 'Application No.' },
   { field: 'form_type', title: 'Form Type' },
-  { field: 'compare', title: 'Compare' },
+  { field: 'before', title: 'Before' },
+  { field: 'after', title: 'After' },
   { field: 'modified', title: 'Modified' },
   { field: 'verified_by', title: 'Verified By' },
   { field: 'completed_on', title: 'Completed on' }
