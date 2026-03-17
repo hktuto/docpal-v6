@@ -56,26 +56,40 @@ async function pasteForm() {
   refreshData()
 }
 
-function handleOpenForm() {
-  formDialogRef.value.openDialog()
+async function handleOpenForm() {
+  const formJson = await getFormJson()
+  formDialogRef.value.openDialog(formJson)
 }
 
 function handelSubmitForm(id: string) {
-  console.log('----node ', node, id)
+  graphProvider?.graph.value?.startBatch('update-fromKey-data')
   const data = node.getData()
   const newData = {
     ...data,
-    form: id
+    metadata: {
+      formKey: id
+    }
   }
+  node.setData(newData, { overwrite: true, deep: true, silent: false })
+  graphProvider?.graph.value?.stopBatch('update-fromKey-data')
 }
 
 async function previewForm() {
+  const json = await getFormJson()
+  formRenderVisible.value = true
+  nextTick(() => {
+    fromRenderRef.value.setForm(json)
+  })
+}
+
+async function getFormJson() {
   const id = node.data.id
-  // TODO: 接口需要更換
+  // TODO: 接口需要更換， 需要使用metadata.formKey去獲取form json
+  // const id = node.data.metadata.formKey
   const response = await newAdminApi.getDmsFormPropertiesQuery({
-    processKey: props.processKey,
+    processKey: node.data.Key,
     userTaskId: id,
-    versionId: props.currentVersionId
+    versionId: node.data.versionId
   })
   if (!response || !response.data) {
     throw createError('Server Error')
@@ -84,22 +98,13 @@ async function previewForm() {
     ElMessage.warning('Empty Form')
     return
   }
-  selectedStep.value = node.getData()
-  formRenderVisible.value = true
-  nextTick(() => {
-    if (!response || !response.data) return
-    if (response?.data.length > 0) {
-      const json = JSON.parse(response.data[0].jsonValue || '{}')
-      fromRenderRef.value.setForm(json)
-    } else {
-      fromRenderRef.value.setForm({})
-    }
-  })
+  return JSON.parse(response.data[0].jsonValue || '{}')
 }
 
 onMounted(() => {
   useWorkflowAdditionalContext(refreshData)
 })
+
 watch(
   () => node,
   () => {
@@ -130,7 +135,7 @@ watch(
   </div>
 
   <LazyContextVariableManageDialog ref="RuleManageDialogRef" :node="node" />
-  <LazyContextFormDialog ref="formDialogRef" :node="node" :processKey="workflowKey" :userTaskId="node.id" @submit="handelSubmitForm" />
+  <LazyContextFormDialog ref="formDialogRef" :node="node" :processKey="workflowKey" @submit="handelSubmitForm" />
   <el-dialog v-model="formRenderVisible" class="big" distory-on-close draggable>
     <LazyContextFormRender ref="fromRenderRef" />
   </el-dialog>

@@ -467,6 +467,9 @@ const workflowCellElementTemplate: CellTypeItem = {
       assignee: '',
       metadata: {
         tags: 'userTask',
+        formKey: '',
+        buttonSetting: {},
+        booleanButton: []
       }
     }
   },
@@ -500,7 +503,10 @@ const workflowCellElementTemplate: CellTypeItem = {
       outputSchema: '',
       assignee: '',
       metadata: {
-        tags: 'signature'
+        tags: 'signature',
+        formKey: '',
+        buttonSetting: {},
+        booleanButton: []
       }
     }
   }

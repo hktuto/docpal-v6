@@ -4,17 +4,19 @@ import { newAdminApi } from 'api'
 
 const { getVariablesByType } = useVariablesProvide()
 const props = defineProps<{
-  processKey: string
-  userTaskId: string
   node: Node
+  processKey: string
 }>()
 const emits = defineEmits(['submit'])
 const FormDesignRef = ref()
 const variables = ref([])
 const formDialogVisible = ref(false)
 
-async function openDialog() {
+async function openDialog(json: any) {
   formDialogVisible.value = true
+  nextTick(() => {
+    FormDesignRef.value.setForm(json)
+  })
 }
 
 async function handleFormSubmit() {

@@ -55,7 +55,7 @@ const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = 
         action: async ({ row }) => {
           const action = await ElMessageBox.confirm(`${t('msg_confirmWhetherToDelete', { tip: t('bpmn.globalRuleTip') + ', ' })}`).catch((action) => action)
           if (action !== 'confirm') return
-          deleteVariableItem(node, row.id)
+          deleteVariableItem(node.value, row.id)
           reload()
         }
       }
