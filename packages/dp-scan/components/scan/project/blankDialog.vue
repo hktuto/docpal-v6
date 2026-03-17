@@ -33,7 +33,6 @@ function open(el: HTMLElement) {
 
 async function submit() {
   try {
-    console.log(formState.value)
     const result = await formEl.value?.validate()
     if (!result) {
       routerProvider?.message.error('Validation failed')

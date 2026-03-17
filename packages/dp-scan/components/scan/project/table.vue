@@ -26,8 +26,8 @@ const { tableConfig, tableEvent, tableRef, reload } = useVxeTable({
       title: 'Project'
     },
     {
-      field: '',
-      title: 'Number of forms'
+      field: 'code',
+      title: 'Code'
     },
     {
       field: 'status',

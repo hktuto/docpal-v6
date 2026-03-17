@@ -99,6 +99,9 @@ function addProjectField() {}
   <ElForm class="infoContainer" label-position="top">
     <div v-if="info" class="formFields">
       <div class="section">info</div>
+      <ElFormItem label="Code">
+        <ElInput v-model="info.code" />
+      </ElFormItem>
       <ElFormItem label="Name">
         <ElInput v-model="info.name" />
       </ElFormItem>
