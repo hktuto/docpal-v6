@@ -21,31 +21,62 @@ pnpm vitest --ui packages/dp-scan/composables/useBatchDetail.test.ts
 
 ## Test Coverage
 
-### Family Classification Logic Tests
+### `useBatchDetail.test.ts`
 
-The `useBatchDetail.test.ts` file contains comprehensive tests for the Family Category and Class logic:
+The test file is organized into 3 parts, matching the refactored function structure:
 
-#### Green Form (G) Tests
-- **Single Person Scenarios**: Tests for EFAS date checks, HA/Cert classifications, Clearees categories
-- **Family with Members**: Tests for priority schemes (Elderly, Newborn), EFAS logic, Clearees categories
+#### Part 1: `normalizeDocumentData` (6 tests)
+- Remove parentheses from HKID fields
+- Remove parentheses from ApplicantChineseName
+- Normalize both newResultJson and oldResultJson
+- Apply zoneResizeConfig to settings sections
+- Handle missing/undefined data gracefully
 
-#### White Form (W) Tests
-- **Single Person**: Youth schema tests
-- **Family with Members**: Priority scheme combinations, Youth schema
+#### Part 2: `calculateFamilyClassification` (37 tests)
+**Green Form (G) Tests:**
+- **Single Person (6 tests)**: EFAS date checks, HA/Cert classifications, Clearees categories
+- **Family with Members (10 tests)**: Priority schemes, EFAS logic, Clearees categories
 
-#### Edge Cases
-- EFAS date boundary tests (14/04/2023)
-- Empty/undefined field handling
-- Baby count calculations (pregnant family members + applicant)
+**White Form (W) Tests:**
+- **Single Person (2 tests)**: Youth schema
+- **Family with Members (5 tests)**: Priority schemes, Youth schema
 
-#### Complete Matrix Tests
-Tests that verify specific scenarios from the Excel specification matrix.
+**Edge Cases:**
+- EFAS date boundary tests (14/04/2023) - 5 tests
+- Baby count calculations - 3 tests
+- Complete matrix validation - 6 tests
+
+#### Part 3: `updateDocumentValues` (7 tests)
+- Replace `[formClass]` placeholder in oldValue
+- Build newValue with correct format
+- Handle missing/undefined values
+- Include family member HKIDs
+
+## Function Structure
+
+The `DocumentInitFunctionBackup` has been refactored into 3 separate functions:
+
+### 1. `normalizeDocumentData(detail, setting)`
+Normalizes document data by:
+- Removing parentheses from HKID and ApplicantChineseName fields
+- Applying zoneResizeConfig to settings sections
+
+### 2. `calculateFamilyClassification(detail)`
+Calculates family classification:
+- Returns: `{ familyCategory, familyClass, priorityIndicator, formSource, statePerson }`
+- Based on form type (Green/White), priority schemes, and specific fields
+
+### 3. `updateDocumentValues(detail, familyClass)`
+Updates document values:
+- Replaces `[formClass]` placeholder in oldValue
+- Builds newValue string with applicant info and family class
 
 ## Test Data Structure
 
-Tests use a helper function `createDetail()` to construct test data:
+Tests use helper functions to construct test data:
 
 ```typescript
+// Create detail object
 const detail = createDetail(
   'G',                                    // formTypeCode: 'G' or 'W'
   {},                                     // overrides
@@ -54,22 +85,38 @@ const detail = createDetail(
   [{ FamilyMemberPregnanted16Week: 'N' }], // familyMembers
   { ApplicantFemalePregnanted16week: 'Y' } // applicantInfo
 )
+
+// Create mock setting
+const setting = createMockSetting()
 ```
 
 ## Adding New Tests
 
-To add a new test case:
+### Testing Part 1 (Normalization)
+```typescript
+it('should do something', () => {
+  const detail = { /* test data */ }
+  const setting = createMockSetting()
+  normalizeDocumentData(detail, setting)
+  expect(detail.xxx).toBe('expected')
+})
+```
 
-1. Identify the scenario from the Excel matrix
-2. Use `createDetail()` with appropriate parameters
-3. Assert the expected `familyCategory`, `familyClass`, `priorityIndicator`, and `formSource`
-
-Example:
+### Testing Part 2 (Classification)
 ```typescript
 it('should classify as X when condition', () => {
   const detail = createDetail('G', {}, {}, { HA: 'Y' })
   const result = calculateFamilyClassification(detail)
   expect(result.familyCategory).toBe('GF - Green Family')
   expect(result.familyClass).toBe('X - Class Name')
+})
+```
+
+### Testing Part 3 (Value Updates)
+```typescript
+it('should update values correctly', () => {
+  const detail = { /* test data */ }
+  updateDocumentValues(detail, '1S - GF EFAS Elderly & NB')
+  expect(detail.newValue).toContain('1S - GF EFAS Elderly & NB')
 })
 ```

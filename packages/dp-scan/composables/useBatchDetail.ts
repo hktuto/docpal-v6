@@ -498,13 +498,16 @@ export const useBatchDetail = (batchId: string) => {
     // Handle object format: { page: 1, zone: "x1,y1,x2,y2" }
     if (typeof obj.zone === 'object') {
       return {
-        page: obj.zone.page || 1,
-        zone: obj.zone.zone
+        ...obj,
+        page: obj.page || obj.zone.page || 1,
+        zone: obj.zone.zone,
+
       }
     }
 
     // Handle string format (fallback for other configs)
     return {
+      ...obj,
       page: obj.page || 1,
       zone: obj.zone
     }
@@ -537,6 +540,7 @@ export const useBatchDetail = (batchId: string) => {
     }
 
     const zoneInfo = getZoneFromObject(field)
+    console.log("zoneInfo",zoneInfo)
     if (zoneInfo) {
       highlightedField.value = {
         page: zoneInfo.page,
@@ -610,6 +614,7 @@ export const useBatchDetail = (batchId: string) => {
       ...selectedDocDetail.value.detail,
       newResultJson
     }
+    updateDocumentValues(newDetail)
     delete newDetail.updatedBy
     delete newDetail.updatedAt
     delete newDetail.createdAt
@@ -637,6 +642,7 @@ export const useBatchDetail = (batchId: string) => {
       ...selectedDocDetail.value.detail,
       newResultJson
     }
+    updateDocumentValues(newDetail)
     delete newDetail.updatedBy
     delete newDetail.updatedAt
     delete newDetail.createdAt
@@ -739,67 +745,80 @@ export const useBatchDetailContext = (): BatchDetailContext | undefined => {
 
 
 
-function DocumentInitFunctionBackup(detail, setting) {
-  // normalize json
+/**
+ * Part 1: Normalize document data
+ * - Remove parentheses from HKID and ApplicantChineseName fields in result JSON
+ * - Apply zoneResizeConfig to settings sections
+ */
+export function normalizeDocumentData(detail: any, setting: any): void {
+  // Normalize newResultJson - remove parentheses from HKID and ApplicantChineseName
   if (detail.newResultJson) {
     Object.keys(detail.newResultJson).forEach((sectionKey) => {
       const section = detail.newResultJson[sectionKey]
       Object.keys(section).forEach((fieldKey) => {
         if (fieldKey.includes('HKID') || fieldKey === 'ApplicantChineseName') {
           detail.newResultJson[sectionKey][fieldKey] = detail.newResultJson[sectionKey][fieldKey].replaceAll('(', '').replaceAll(')', '')
-
         }
-
       })
     })
   }
+
+  // Normalize oldResultJson - remove parentheses from HKID and ApplicantChineseName
   if (detail.oldResultJson) {
     Object.keys(detail.oldResultJson).forEach((sectionKey) => {
       const section = detail.oldResultJson[sectionKey]
       Object.keys(section).forEach((fieldKey) => {
         if (fieldKey.includes('HKID') || fieldKey === 'ApplicantChineseName') {
-
           detail.oldResultJson[sectionKey][fieldKey] = detail.oldResultJson[sectionKey][fieldKey].replaceAll('(', '').replaceAll(')', '')
-
         }
-
       })
     })
   }
 
-  // convert section zoneResizeConfig to settings section
-  // selectedDocDetail.value.detail.zoneResizeConfig
+  // Convert section zoneResizeConfig to settings section
   if (detail.zoneResizeConfig) {
-    setting.fieldsSetting.section?.forEach((section) => {
+    setting.fieldsSetting.section?.forEach((section: any) => {
       if (detail.zoneResizeConfig[section.section_id]) {
         section.zone = detail.zoneResizeConfig[section.section_id]
       }
     })
   }
-  console.log(detail)
-  // Family Class and Category logic
+}
+
+/**
+ * Part 2: Calculate family classification
+ * - Calculate family category, class, priority indicator, and form source
+ * - Based on form type (Green/White), priority schemes, and specific fields
+ */
+export function calculateFamilyClassification(detail: any): {
+  familyCategory: string
+  familyClass: string
+  priorityIndicator: string
+  formSource: string
+  statePerson: string
+} {
   const { PrioritySchemeForElderly = 'N', PrioritySchemeForNewborns =
     'N', YouthSchema = 'N' } = detail.newResultJson?.PriorityScheme || {}
   const { HKHS = 'N', HA = 'N', EFAS = 'N', CotForEfasApplication: EFAS_COT, CleareesCat } = detail.newResultJson?.SpecificField || {}
   const pplCount: number = (detail.newResultJson?.ApplicantFamilyMemberList?.length || 0) + 1;
   const hasFamilyMember = detail.newResultJson?.ApplicantFamilyMemberList?.length > 0;
 
-  let babyCount:number = detail.newResultJson?.ApplicantFamilyMemberList?.reduce((acc, curr) => {
-    if(curr.FamilyMemberPregnanted16Week === 'Y') {
+  let babyCount: number = detail.newResultJson?.ApplicantFamilyMemberList?.reduce((acc: number, curr: any) => {
+    if (curr.FamilyMemberPregnanted16Week === 'Y') {
       return acc + 1
     }
     return acc
   }, 0) || 0
-  // check if applicant has babyCount
-  if(detail.newResultJson?.['Applicant Info']?.ApplicantFemalePregnanted16week === 'Y') {
-    babyCount ++
+
+  // Check if applicant has babyCount
+  if (detail.newResultJson?.['Applicant Info']?.ApplicantFemalePregnanted16week === 'Y') {
+    babyCount++
   }
 
   let FamilyClass = "";
   let FamilyCategory = "";
   let PriorityIndicator = '';
   let FormSource = "";
-  let Person = ""
 
   // Helper to check if EFAS date is after 14/4/2023
   const isEfasAfterTargetDate = (dateStr: string): boolean => {
@@ -813,11 +832,12 @@ function DocumentInitFunctionBackup(detail, setting) {
   // Helper to check if Clearees category matches
   const isCat = (cat: string): boolean => CleareesCat === `Cat. ${cat}`;
 
+  const elderly = PrioritySchemeForElderly === 'Y';
+  const newborn = PrioritySchemeForNewborns === 'Y';
+  const youth = YouthSchema === 'Y';
+
   if (detail.formTypeCode === 'G') {
     // Green Form logic
-    const elderly = PrioritySchemeForElderly === 'Y';
-    const newborn = PrioritySchemeForNewborns === 'Y';
-
     if (hasFamilyMember) {
       // Family with members (pplCount > 1)
       if (HKHS === 'N') {
@@ -1043,10 +1063,6 @@ function DocumentInitFunctionBackup(detail, setting) {
 
   if (detail.formTypeCode === 'W') {
     // White Form logic
-    const elderly = PrioritySchemeForElderly === 'Y';
-    const newborn = PrioritySchemeForNewborns === 'Y';
-    const youth = YouthSchema === 'Y';
-
     if (hasFamilyMember) {
       // Family with members
       if (elderly && newborn) {
@@ -1085,27 +1101,60 @@ function DocumentInitFunctionBackup(detail, setting) {
     FormSource = "-";
   }
 
-  detail.formSource = FormSource;
-  detail.familyCategory = FamilyCategory;
-  detail.familyClass = FamilyClass;
-  detail.priorityIndicator = PriorityIndicator;
+  const Person = pplCount + ' + ' + babyCount;
 
-  Person = pplCount + ' + ' + babyCount;
-  detail.statePerson = Person;
+  return {
+    familyCategory: FamilyCategory,
+    familyClass: FamilyClass,
+    priorityIndicator: PriorityIndicator,
+    formSource: FormSource,
+    statePerson: Person
+  };
+}
 
-  // update oldValue ans newValue in detail
-  // oldValue is the original value from ocr, olny need to update if [formClass] is present
-  if (detail.oldValue.includes('[formClass]')) {
-    detail.oldValue = detail.oldValue.replace('[formClass]', FamilyClass);
+/**
+ * Part 3: Update document values
+ * - Update oldValue if it contains [formClass] placeholder
+ * - Build newValue string with applicant info and family class
+ */
+export function updateDocumentValues(detail: any, familyClass: string): void {
+  // Update oldValue - replace [formClass] placeholder if present
+  if (detail.oldValue?.includes('[formClass]')) {
+    detail.oldValue = detail.oldValue.replace('[formClass]', familyClass);
   }
-  // update newValue, the newValue is make up of <appln no>&<form type>&<ahkid>&<hkic1>&<hkic2>&<hkic3>&<hkicx>&<PaymentReference>&<family class>
+
+  // Build newValue: <appln no>&<family class>&<ahkid>&<hkic1>&<hkic2>&<hkic3>&<hkicx>&<PaymentReference>&<family class>
   const appl_no = detail.applicantNum
-  const ahkid = detail.newResultJson?.['Applicant Info'].ApplicantHKID
-  const hkics = detail.newResultJson?.ApplicantFamilyMemberList.map((cur) => cur.FamilyMemberHKID ||　'')
-  const PaymentReference = detail.newResultJson?.Payment.PaymentReference
-  detail.newValue = `${appl_no}&${FamilyClass}&${ahkid}&${hkics.join('&')}&${PaymentReference}&${FamilyClass}`;
+  const ahkid = detail.newResultJson?.['Applicant Info']?.ApplicantHKID
+  const hkics = detail.newResultJson?.ApplicantFamilyMemberList?.map((cur: any) => cur.FamilyMemberHKID || '') || []
+  const PaymentReference = detail.newResultJson?.Payment?.PaymentReference
+  detail.newValue = `${appl_no}&${familyClass}&${ahkid}&${hkics.join('&')}&${PaymentReference}&${familyClass}`;
+}
+
+/**
+ * Main document initialization function
+ * Combines all 3 parts: normalization, classification, and value updates
+ */
+function DocumentInitFunctionBackup(detail: any, setting: any) {
+  // Part 1: Normalize document data
+  normalizeDocumentData(detail, setting);
+
+
+  // Part 2: Calculate family classification
+  const classification = calculateFamilyClassification(detail);
+
+  // Apply classification results to detail
+  detail.formSource = classification.formSource;
+  detail.familyCategory = classification.familyCategory;
+  detail.familyClass = classification.familyClass;
+  detail.priorityIndicator = classification.priorityIndicator;
+  detail.statePerson = classification.statePerson;
+
+  // Part 3: Update document values
+  updateDocumentValues(detail);
+
   return {
     detail,
     setting
-  }
+  };
 }

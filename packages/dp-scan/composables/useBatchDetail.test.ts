@@ -1,13 +1,39 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeAll } from 'vitest'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 
 // Extend dayjs with customParseFormat plugin for strict date parsing
 dayjs.extend(customParseFormat)
 
-// Extract the family classification logic for testing
-// This mirrors the logic in useBatchDetail.ts DocumentInitFunctionBackup
+// Mock the api module before importing the functions
+vi.mock('api', () => ({
+  clientApi: {
+    api: {
+      getCaptureBatchBatchidDetail: vi.fn(),
+      postCaptureBatchBatchidOpen: vi.fn(),
+      getCaptureBatchBatchidDocDocidDetail: vi.fn(),
+      getCaptureProjformsettingId: vi.fn(),
+      postCaptureFileQuerycapturefilebypath: vi.fn(),
+      postCaptureBatchBatchidDocDocidSaveDraft: vi.fn(),
+      postCaptureBatchBatchidDocDocidConfirm: vi.fn(),
+      postCaptureBatchBatchidRelease: vi.fn()
+    }
+  }
+}))
 
+// Mock element-plus composable
+vi.mock('element-plus/es/components/time-picker/src/composables/use-time-picker.mjs', () => ({
+  useOldValue: vi.fn()
+}))
+
+// Import the functions after mocking
+const { 
+  normalizeDocumentData, 
+  calculateFamilyClassification, 
+  updateDocumentValues 
+} = await import('./useBatchDetail')
+
+// Type definitions for test data
 interface PriorityScheme {
   PrioritySchemeForElderly?: string
   PrioritySchemeForNewborns?: string
@@ -24,10 +50,16 @@ interface SpecificField {
 
 interface FamilyMember {
   FamilyMemberPregnanted16Week?: string
+  FamilyMemberHKID?: string
 }
 
 interface ApplicantInfo {
   ApplicantFemalePregnanted16week?: string
+  ApplicantHKID?: string
+}
+
+interface Payment {
+  PaymentReference?: string
 }
 
 interface NewResultJson {
@@ -35,374 +67,146 @@ interface NewResultJson {
   SpecificField?: SpecificField
   ApplicantFamilyMemberList?: FamilyMember[]
   'Applicant Info'?: ApplicantInfo
+  Payment?: Payment
 }
 
 interface Detail {
   formTypeCode: 'G' | 'W'
   newResultJson?: NewResultJson
+  oldResultJson?: any
+  zoneResizeConfig?: any
+  applicantNum?: string
+  oldValue?: string
+  newValue?: string
+  formSource?: string
+  familyCategory?: string
+  familyClass?: string
+  priorityIndicator?: string
+  statePerson?: string
 }
 
-interface ClassificationResult {
-  familyCategory: string
-  familyClass: string
-  priorityIndicator: string
-  formSource: string
-  statePerson: string
-}
-
-// Helper functions (mirroring the implementation)
-const isEfasAfterTargetDate = (dateStr: string | undefined): boolean => {
-  if (!dateStr) return false
-  const EFAS_date = dayjs(dateStr, 'DD/MM/YYYY', true)
-  const Target_date = dayjs('14/04/2023', 'DD/MM/YYYY', true)
-  if (!EFAS_date.isValid()) return false
-  return EFAS_date.isAfter(Target_date)
-}
-
-const isCat = (cleareesCat: string | undefined, cat: string): boolean => {
-  return cleareesCat === `Cat. ${cat}`
-}
-
-// Main classification function (extracted from DocumentInitFunctionBackup)
-function calculateFamilyClassification(detail: Detail): ClassificationResult {
-  const newResultJson = detail.newResultJson || {}
-  const priorityScheme = newResultJson.PriorityScheme || {}
-  const specificField = newResultJson.SpecificField || {}
-
-  const { PrioritySchemeForElderly = 'N', PrioritySchemeForNewborns = 'N', YouthSchema = 'N' } = priorityScheme
-  const { HKHS = 'N', HA = 'N', EFAS = 'N', CotForEfasApplication: EFAS_COT, CleareesCat } = specificField
-
-  const familyMembers = newResultJson.ApplicantFamilyMemberList || []
-  const pplCount = familyMembers.length + 1
-  const hasFamilyMember = familyMembers.length > 0
-
-  let babyCount = familyMembers.reduce((acc, curr) => {
-    if (curr.FamilyMemberPregnanted16Week === 'Y') {
-      return acc + 1
-    }
-    return acc
-  }, 0)
-
-  if (newResultJson['Applicant Info']?.ApplicantFemalePregnanted16week === 'Y') {
-    babyCount++
-  }
-
-  let FamilyClass = ''
-  let FamilyCategory = ''
-  let PriorityIndicator = ''
-  let FormSource = ''
-
-  const elderly = PrioritySchemeForElderly === 'Y'
-  const newborn = PrioritySchemeForNewborns === 'Y'
-  const youth = YouthSchema === 'Y'
-
-  if (detail.formTypeCode === 'G') {
-    // Green Form logic
-    if (hasFamilyMember) {
-      // Family with members (pplCount > 1)
-      if (HKHS === 'N') {
-        if (HA === 'Y' && (!CleareesCat || CleareesCat === '')) {
-          // HA Green Form Family (no CleareesCat)
-          if (EFAS === 'Y' && isEfasAfterTargetDate(EFAS_COT)) {
-            // EFAS with date after 14/4/2023
-            if (elderly && newborn) {
-              FamilyCategory = 'GF - Green Family'
-              FamilyClass = '1S - GF EFAS Elderly & NB'
-              PriorityIndicator = 'Elderly & Newborns'
-            } else if (elderly) {
-              FamilyCategory = 'GF - Green Family'
-              FamilyClass = '1S - GF EFAS Elderly & NB'
-              PriorityIndicator = 'Elderly'
-            } else if (newborn) {
-              FamilyCategory = 'GF - Green Family'
-              FamilyClass = '1S - GF EFAS Elderly & NB'
-              PriorityIndicator = 'Newborns'
-            } else {
-              FamilyCategory = 'GF - Green Family'
-              FamilyClass = '3E - GF EFAS'
-              PriorityIndicator = ''
-            }
-            FormSource = 'HA - HA Green'
-          } else {
-            // Regular HA
-            if (elderly && newborn) {
-              FamilyCategory = 'GF - Green Family'
-              FamilyClass = '2N - GF HA Elderly & NB'
-              PriorityIndicator = 'Elderly & Newborns'
-            } else if (elderly) {
-              FamilyCategory = 'GF - Green Family'
-              FamilyClass = '2N - GF HA Elderly & NB'
-              PriorityIndicator = 'Elderly'
-            } else if (newborn) {
-              FamilyCategory = 'GF - Green Family'
-              FamilyClass = '2N - GF HA Elderly & NB'
-              PriorityIndicator = 'Newborns'
-            } else {
-              FamilyCategory = 'GF - Green Family'
-              FamilyClass = '8 - GF HA'
-              PriorityIndicator = ''
-            }
-            FormSource = 'HA - HA Green'
-          }
-        } else if (HA === 'Y' && isCat(CleareesCat, '1')) {
-          // HA with Cat. 1
-          FamilyCategory = 'GF - Green Family'
-          FamilyClass = '9 - GF 1st Absolute Priority'
-          PriorityIndicator = ''
-          FormSource = 'HS - HS Green'
-        } else if (HA === 'Y' && isCat(CleareesCat, '2')) {
-          // HA with Cat. 2
-          FamilyCategory = 'GF - Green Family'
-          FamilyClass = '11 - GF 2nd Absolute Priority'
-          PriorityIndicator = ''
-          FormSource = 'HS - HS Green'
-        } else if (HA === 'Y' && isCat(CleareesCat, '3')) {
-          // HA with Cat. 3
-          FamilyCategory = 'GF - Green Family'
-          FamilyClass = '11 - GF 2nd Absolute Priority'
-          PriorityIndicator = ''
-          FormSource = 'HS - HS Green'
-        } else if ((HA === 'Y' && isCat(CleareesCat, '4')) || HA !== 'Y') {
-          // HS Green Form: HA with Cat. 4, or not HA
-          if (!CleareesCat || CleareesCat === '' || isCat(CleareesCat, '1')) {
-            if (elderly && newborn) {
-              FamilyCategory = 'GF - Green Family'
-              FamilyClass = '4N - GF HS Elderly & NB'
-              PriorityIndicator = 'Elderly & Newborns'
-            } else if (elderly) {
-              FamilyCategory = 'GF - Green Family'
-              FamilyClass = '4N - GF HS Elderly & NB'
-              PriorityIndicator = 'Elderly'
-            } else if (newborn) {
-              FamilyCategory = 'GF - Green Family'
-              FamilyClass = '4N - GF HS Elderly & NB'
-              PriorityIndicator = 'Newborns'
-            } else {
-              FamilyCategory = 'GF - Green Family'
-              FamilyClass = '4 - GF HS'
-              PriorityIndicator = ''
-            }
-            FormSource = 'HS - HS Green'
-          } else if (isCat(CleareesCat, '2')) {
-            FamilyCategory = 'GS - Green Single'
-            FamilyClass = '10 - GS 1st Absolute Priority'
-            PriorityIndicator = ''
-            FormSource = 'HS - HS Green'
-          } else if (isCat(CleareesCat, '3')) {
-            FamilyCategory = 'GF - Green Family'
-            FamilyClass = '11 - GF 2nd Absolute Priority'
-            PriorityIndicator = ''
-            FormSource = 'HS - HS Green'
-          } else if (isCat(CleareesCat, '4')) {
-            FamilyCategory = 'GS - Green Single'
-            FamilyClass = '12 - GS 2nd Absolute Priority'
-            PriorityIndicator = ''
-            FormSource = 'HS - HS Green'
-          }
-        }
-      } else {
-        // HKHS === 'Y'
-        if (!CleareesCat || CleareesCat === '') {
-          if (elderly && newborn) {
-            FamilyCategory = 'GF - Green Family'
-            FamilyClass = '3N - GF Cert Elderly & NB'
-            PriorityIndicator = 'Elderly & Newborns'
-          } else if (elderly) {
-            FamilyCategory = 'GF - Green Family'
-            FamilyClass = '3N - GF Cert Elderly & NB'
-            PriorityIndicator = 'Elderly'
-          } else if (newborn) {
-            FamilyCategory = 'GF - Green Family'
-            FamilyClass = '3N - GF Cert Elderly & NB'
-            PriorityIndicator = 'Newborns'
-          } else {
-            FamilyCategory = 'GF - Green Family'
-            FamilyClass = '3 - GF Cert'
-            PriorityIndicator = ''
-          }
-          FormSource = 'GC - GCert'
-        } else if (isCat(CleareesCat, '1')) {
-          FamilyCategory = 'GF - Green Family'
-          FamilyClass = '9 - GF 1st Absolute Priority'
-          PriorityIndicator = ''
-          FormSource = 'HS - HS Green'
-        } else if (isCat(CleareesCat, '2')) {
-          FamilyCategory = 'GS - Green Single'
-          FamilyClass = '10 - GS 1st Absolute Priority'
-          PriorityIndicator = ''
-          FormSource = 'HS - HS Green'
-        } else if (isCat(CleareesCat, '3')) {
-          FamilyCategory = 'GF - Green Family'
-          FamilyClass = '11 - GF 2nd Absolute Priority'
-          PriorityIndicator = ''
-          FormSource = 'HS - HS Green'
-        } else if (isCat(CleareesCat, '4')) {
-          FamilyCategory = 'GS - Green Single'
-          FamilyClass = '12 - GS 2nd Absolute Priority'
-          PriorityIndicator = ''
-          FormSource = 'HS - HS Green'
-        }
-      }
-    } else {
-      // Single person (pplCount === 1)
-      if (HKHS === 'N') {
-        if (HA === 'Y') {
-          if (!CleareesCat || CleareesCat === '') {
-            if (EFAS === 'Y' && isEfasAfterTargetDate(EFAS_COT)) {
-              FamilyCategory = 'WS - White Single'
-              FamilyClass = '5E - GS EFAS'
-              PriorityIndicator = ''
-              FormSource = 'HA - HA Green'
-            } else {
-              FamilyCategory = 'GS - Green Single'
-              FamilyClass = '6 - GS HA'
-              PriorityIndicator = ''
-              FormSource = 'HA - HA Green'
-            }
-          }
-        } else {
-          // Not HA - check Clearees category
-          if (!CleareesCat || CleareesCat === '') {
-            FamilyCategory = 'GS - Green Single'
-            FamilyClass = '7 - GS Cert'
-            PriorityIndicator = ''
-            FormSource = 'HS - HS Green'
-          } else if (isCat(CleareesCat, '1')) {
-            FamilyCategory = 'GF - Green Family'
-            FamilyClass = '9 - GF 1st Absolute Priority'
-            PriorityIndicator = ''
-            FormSource = 'HS - HS Green'
-          } else if (isCat(CleareesCat, '2')) {
-            FamilyCategory = 'GS - Green Single'
-            FamilyClass = '10 - GS 1st Absolute Priority'
-            PriorityIndicator = ''
-            FormSource = 'HS - HS Green'
-          } else if (isCat(CleareesCat, '3')) {
-            FamilyCategory = 'GF - Green Family'
-            FamilyClass = '11 - GF 2nd Absolute Priority'
-            PriorityIndicator = ''
-            FormSource = 'HS - HS Green'
-          } else if (isCat(CleareesCat, '4')) {
-            FamilyCategory = 'GS - Green Single'
-            FamilyClass = '12 - GS 2nd Absolute Priority'
-            PriorityIndicator = ''
-            FormSource = 'HS - HS Green'
-          }
-        }
-      } else {
-        // HKHS === 'Y'
-        if (!CleareesCat || CleareesCat === '') {
-          FamilyCategory = 'GS - Green Single'
-          FamilyClass = '8 - GS HS'
-          PriorityIndicator = ''
-          FormSource = 'HS - HS Green'
-        } else if (isCat(CleareesCat, '1')) {
-          FamilyCategory = 'GF - Green Family'
-          FamilyClass = '9 - GF 1st Absolute Priority'
-          PriorityIndicator = ''
-          FormSource = 'HS - HS Green'
-        } else if (isCat(CleareesCat, '2')) {
-          FamilyCategory = 'GS - Green Single'
-          FamilyClass = '10 - GS 1st Absolute Priority'
-          PriorityIndicator = ''
-          FormSource = 'HS - HS Green'
-        } else if (isCat(CleareesCat, '3')) {
-          FamilyCategory = 'GF - Green Family'
-          FamilyClass = '11 - GF 2nd Absolute Priority'
-          PriorityIndicator = ''
-          FormSource = 'HS - HS Green'
-        } else if (isCat(CleareesCat, '4')) {
-          FamilyCategory = 'GS - Green Single'
-          FamilyClass = '12 - GS 2nd Absolute Priority'
-          PriorityIndicator = ''
-          FormSource = 'HS - HS Green'
-        }
-      }
-    }
-  }
-
-  if (detail.formTypeCode === 'W') {
-    // White Form logic
-    if (hasFamilyMember) {
-      // Family with members
-      if (elderly && newborn) {
-        FamilyCategory = 'WF- White Family'
-        FamilyClass = '1N -WF Elderly & NB'
-        PriorityIndicator = 'Elderly & Newborns'
-      } else if (elderly) {
-        FamilyCategory = 'WF- White Family'
-        FamilyClass = '1N -WF Elderly & NB'
-        PriorityIndicator = 'Elderly'
-      } else if (newborn) {
-        FamilyCategory = 'WF- White Family'
-        FamilyClass = '1N -WF Elderly & NB'
-        PriorityIndicator = 'Newborns'
-      } else if (youth) {
-        FamilyCategory = 'WF- White Family'
-        FamilyClass = '1Y - WF Youth'
-        PriorityIndicator = ''
-      } else {
-        FamilyCategory = 'WF- White Family'
-        FamilyClass = '1 - WF'
-        PriorityIndicator = ''
-      }
-    } else {
-      // Single person
-      if (youth) {
-        FamilyCategory = 'WS - White Single'
-        FamilyClass = '5Y - WS Youth'
-        PriorityIndicator = ''
-      } else {
-        FamilyCategory = 'WS - White Single'
-        FamilyClass = '5 - WS'
-        PriorityIndicator = ''
-      }
-    }
-    FormSource = '-'
-  }
-
-  const Person = pplCount + ' + ' + babyCount
-
-  return {
-    familyCategory: FamilyCategory,
-    familyClass: FamilyClass,
-    priorityIndicator: PriorityIndicator,
-    formSource: FormSource,
-    statePerson: Person
-  }
-}
-
-// Test suite
-describe('Family Classification Logic', () => {
-  // Helper to create detail object
-  const createDetail = (
-    formTypeCode: 'G' | 'W',
-    overrides: Partial<Detail> = {},
-    priorityScheme: Partial<PriorityScheme> = {},
-    specificField: Partial<SpecificField> = {},
-    familyMembers: FamilyMember[] = [],
-    applicantInfo: Partial<ApplicantInfo> = {}
-  ): Detail => ({
-    formTypeCode,
-    newResultJson: {
-      PriorityScheme: {
-        PrioritySchemeForElderly: 'N',
-        PrioritySchemeForNewborns: 'N',
-        YouthSchema: 'N',
-        ...priorityScheme
-      },
-      SpecificField: {
-        HKHS: 'N',
-        HA: 'N',
-        EFAS: 'N',
-        ...specificField
-      },
-      ApplicantFamilyMemberList: familyMembers,
-      'Applicant Info': applicantInfo
+// Helper to create detail object
+const createDetail = (
+  formTypeCode: 'G' | 'W',
+  overrides: Partial<Detail> = {},
+  priorityScheme: Partial<PriorityScheme> = {},
+  specificField: Partial<SpecificField> = {},
+  familyMembers: FamilyMember[] = [],
+  applicantInfo: Partial<ApplicantInfo> = {},
+  payment: Partial<Payment> = {}
+): Detail => ({
+  formTypeCode,
+  newResultJson: {
+    PriorityScheme: {
+      PrioritySchemeForElderly: 'N',
+      PrioritySchemeForNewborns: 'N',
+      YouthSchema: 'N',
+      ...priorityScheme
     },
-    ...overrides
+    SpecificField: {
+      HKHS: 'N',
+      HA: 'N',
+      EFAS: 'N',
+      ...specificField
+    },
+    ApplicantFamilyMemberList: familyMembers,
+    'Applicant Info': applicantInfo,
+    Payment: payment
+  },
+  applicantNum: '200045',
+  oldValue: '',
+  newValue: '',
+  ...overrides
+})
+
+// Helper to create mock setting
+const createMockSetting = () => ({
+  fieldsSetting: {
+    section: [
+      { section_id: 'section1', zone: null },
+      { section_id: 'section2', zone: null }
+    ]
+  }
+})
+
+describe('Part 1: normalizeDocumentData', () => {
+  it('should remove parentheses from HKID fields in newResultJson', () => {
+    const detail: any = {
+      newResultJson: {
+        'Applicant Info': {
+          ApplicantHKID: '(A123456)7',
+          OtherField: 'value'
+        }
+      }
+    }
+    const setting = createMockSetting()
+
+    normalizeDocumentData(detail, setting)
+
+    expect(detail.newResultJson['Applicant Info'].ApplicantHKID).toBe('A1234567')
   })
 
+  it('should remove parentheses from ApplicantChineseName in newResultJson', () => {
+    const detail: any = {
+      newResultJson: {
+        'Applicant Info': {
+          ApplicantChineseName: '(陳大文)',
+          ApplicantHKID: 'A1234567'
+        }
+      }
+    }
+    const setting = createMockSetting()
+
+    normalizeDocumentData(detail, setting)
+
+    expect(detail.newResultJson['Applicant Info'].ApplicantChineseName).toBe('陳大文')
+  })
+
+  it('should remove parentheses from oldResultJson', () => {
+    const detail: any = {
+      oldResultJson: {
+        Section1: {
+          FamilyMemberHKID: '(B987654)3',
+          Name: 'Test'
+        }
+      }
+    }
+    const setting = createMockSetting()
+
+    normalizeDocumentData(detail, setting)
+
+    expect(detail.oldResultJson.Section1.FamilyMemberHKID).toBe('B9876543')
+  })
+
+  it('should apply zoneResizeConfig to settings sections', () => {
+    const detail: any = {
+      zoneResizeConfig: {
+        section1: { page: 1, zone: '100,200,300,400' }
+      }
+    }
+    const setting = createMockSetting()
+
+    normalizeDocumentData(detail, setting)
+
+    expect(setting.fieldsSetting.section[0].zone).toEqual({ page: 1, zone: '100,200,300,400' })
+  })
+
+  it('should handle missing zoneResizeConfig gracefully', () => {
+    const detail: any = {}
+    const setting = createMockSetting()
+
+    expect(() => normalizeDocumentData(detail, setting)).not.toThrow()
+  })
+
+  it('should handle missing newResultJson gracefully', () => {
+    const detail: any = {}
+    const setting = createMockSetting()
+
+    expect(() => normalizeDocumentData(detail, setting)).not.toThrow()
+  })
+})
+
+describe('Part 2: calculateFamilyClassification', () => {
   describe('Green Form (G) - Single Person', () => {
     it('should classify as 5E - GS EFAS when HA=Y, EFAS date > 14/04/2023', () => {
       const detail = createDetail('G', {}, {}, {
@@ -757,7 +561,6 @@ describe('Family Classification Logic', () => {
   })
 
   describe('Complete Matrix Test Cases', () => {
-    // These tests verify specific scenarios from the Excel matrix
     const familyMember = { FamilyMemberPregnanted16Week: 'N' }
 
     it('Green-0: Family, HA, EFAS>14/4/2023, Elderly+Newborn', () => {
@@ -828,6 +631,119 @@ describe('Family Classification Logic', () => {
       expect(result.familyCategory).toBe('WS - White Single')
       expect(result.familyClass).toBe('5Y - WS Youth')
     })
+  })
+})
+
+describe('Part 3: updateDocumentValues', () => {
+  it('should replace [formClass] placeholder in oldValue', () => {
+    const detail: any = {
+      oldValue: 'Some text [formClass] more text',
+      newResultJson: {
+        'Applicant Info': { ApplicantHKID: 'A1234567' },
+        ApplicantFamilyMemberList: [],
+        Payment: { PaymentReference: 'REF123' }
+      },
+      applicantNum: '200045'
+    }
+
+    updateDocumentValues(detail, '1S - GF EFAS Elderly & NB')
+
+    expect(detail.oldValue).toBe('Some text 1S - GF EFAS Elderly & NB more text')
+  })
+
+  it('should not modify oldValue if no [formClass] placeholder', () => {
+    const detail: any = {
+      oldValue: 'Some text without placeholder',
+      newResultJson: {
+        'Applicant Info': { ApplicantHKID: 'A1234567' },
+        ApplicantFamilyMemberList: [],
+        Payment: { PaymentReference: 'REF123' }
+      },
+      applicantNum: '200045'
+    }
+
+    updateDocumentValues(detail, '1S - GF EFAS Elderly & NB')
+
+    expect(detail.oldValue).toBe('Some text without placeholder')
+  })
+
+  it('should handle undefined oldValue', () => {
+    const detail: any = {
+      newResultJson: {
+        'Applicant Info': { ApplicantHKID: 'A1234567' },
+        ApplicantFamilyMemberList: [],
+        Payment: { PaymentReference: 'REF123' }
+      },
+      applicantNum: '200045'
+    }
+
+    expect(() => updateDocumentValues(detail, '1S - GF EFAS Elderly & NB')).not.toThrow()
+  })
+
+  it('should build newValue with correct format', () => {
+    const detail: any = {
+      newResultJson: {
+        'Applicant Info': { ApplicantHKID: 'A1234567' },
+        ApplicantFamilyMemberList: [],
+        Payment: { PaymentReference: 'REF123' }
+      },
+      applicantNum: '200045'
+    }
+
+    updateDocumentValues(detail, '1S - GF EFAS Elderly & NB')
+
+    // Format: <appln no>&<family class>&<ahkid>&<hkics>&<PaymentReference>&<family class>
+    expect(detail.newValue).toBe('200045&1S - GF EFAS Elderly & NB&A1234567&&REF123&1S - GF EFAS Elderly & NB')
+  })
+
+  it('should include family member HKIDs in newValue', () => {
+    const detail: any = {
+      newResultJson: {
+        'Applicant Info': { ApplicantHKID: 'A1234567' },
+        ApplicantFamilyMemberList: [
+          { FamilyMemberHKID: 'B7654321' },
+          { FamilyMemberHKID: 'C1234567' }
+        ],
+        Payment: { PaymentReference: 'REF456' }
+      },
+      applicantNum: '200046'
+    }
+
+    updateDocumentValues(detail, '2N - GF HA Elderly & NB')
+
+    expect(detail.newValue).toBe('200046&2N - GF HA Elderly & NB&A1234567&B7654321&C1234567&REF456&2N - GF HA Elderly & NB')
+  })
+
+  it('should handle empty FamilyMemberHKID', () => {
+    const detail: any = {
+      newResultJson: {
+        'Applicant Info': { ApplicantHKID: 'A1234567' },
+        ApplicantFamilyMemberList: [
+          { FamilyMemberHKID: undefined },
+          { FamilyMemberHKID: 'C1234567' }
+        ],
+        Payment: { PaymentReference: 'REF789' }
+      },
+      applicantNum: '200047'
+    }
+
+    updateDocumentValues(detail, '8 - GF HA')
+
+    expect(detail.newValue).toBe('200047&8 - GF HA&A1234567&&C1234567&REF789&8 - GF HA')
+  })
+
+  it('should handle missing PaymentReference', () => {
+    const detail: any = {
+      newResultJson: {
+        'Applicant Info': { ApplicantHKID: 'A1234567' },
+        ApplicantFamilyMemberList: []
+      },
+      applicantNum: '200048'
+    }
+
+    updateDocumentValues(detail, '5 - WS')
+
+    expect(detail.newValue).toBe('200048&5 - WS&A1234567&&undefined&5 - WS')
   })
 })
 
