@@ -1,6 +1,7 @@
 import { clientApi } from 'api'
 import { normalizeValue, createValidator, type NormalizeOptions, type ValidationFunction } from '../types/formOCR'
 import { useOldValue } from 'element-plus/es/components/time-picker/src/composables/use-time-picker.mjs'
+import dayjs from 'dayjs'
 
 /**
  * Batch Detail Composable
@@ -783,8 +784,11 @@ function DocumentInitFunctionBackup(detail, setting) {
   console.log(detail.newResultJson)
   if (detail.formTypeCode === 'G') {
     if (detail.newResultJson.ApplicantFamilyMemberList.length === 0) {
-      if (HA === 'Y' && EFAS === 'Y' &&　EFAS_COT) {
+      if (HA === 'Y') {
         // cal date
+        if (EFAS === 'Y' && EFAS_COT) {
+          const date = dayjs(EFAS_COT).format('DD/MM/YYYY')
+        }
       }
     }
   }
