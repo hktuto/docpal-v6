@@ -19,7 +19,8 @@ const {
   sectionsWithValues,
   isLockedByOther,
   projectId,
-  updateSectionZone
+  updateSectionZone,
+  selectedDocDetail
 } = context
 
 // Check user permissions
@@ -1014,7 +1015,18 @@ const paginationItems = computed(() => {
         </div>
       </div>
       <div class="pageNav">
-
+          <div class="navStat">
+              Category: {{selectedDocDetail.detail.FamilyCategory}}
+          </div>
+          <div class="navStat">
+              Class: {{selectedDocDetail.detail.FamilyClass}}
+          </div>
+          <div class="navStat">
+              Person: {{selectedDocDetail.detail.statePerson}}
+          </div>
+          <div class="navStat">
+              Source: {{selectedDocDetail.detail.formSource}}
+          </div>
       </div>
 
       <div class="pageInfo">
@@ -1127,6 +1139,7 @@ const paginationItems = computed(() => {
 .pageNav {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: var(--app-space-xs);
 }
 

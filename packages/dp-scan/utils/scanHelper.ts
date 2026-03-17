@@ -80,6 +80,11 @@ export const ScanTableColumns: any[] = [
     formatter({ cellValue }: any) {
       return formatDate(cellValue)
     }
+  }, {
+    field: 'updatedBy',
+    title: 'Updated By',
+    filterable: true,
+    formatter: ({cellValue}) => cellValue || 'System'
   }
 ]
 

@@ -762,10 +762,6 @@ function DocumentInitFunctionBackup(detail, setting) {
       })
     })
   }
-  console.log({
-    detail,
-    setting,
-  })
 
   // convert section zoneResizeConfig to settings section
   // selectedDocDetail.value.detail.zoneResizeConfig
@@ -781,13 +777,53 @@ function DocumentInitFunctionBackup(detail, setting) {
   const { PrioritySchemeForElderly = 'N', PrioritySchemeForNewborns =
     'N', YouthSchema = 'N' } = detail.newResultJson?.PriorityScheme || {}
   const { HKHS = 'N', HA = 'N', EFAS = 'N', CotForEfasApplication: EFAS_COT, CleareesCat } = detail.newResultJson.SpecificField || {}
-  console.log(detail.newResultJson)
+  const pplCount = detail.newResultJson.ApplicantFamilyMemberList.length
+  const babyCount = detail.newResultJson.ApplicantFamilyMemberList.reduce((acc, curr) => {
+
+  },0)
+  console.log(detail)
+  let FamilyClass = "";
+  let FamilyCategory = "";
+  let PriorityIndicator = '';
+  let FormSource = "";
+  let Person = ""
   if (detail.formTypeCode === 'G') {
     if (detail.newResultJson.ApplicantFamilyMemberList.length === 0) {
-      if (HA === 'Y') {
-        // cal date
-        if (EFAS === 'Y' && EFAS_COT) {
-          const date = dayjs(EFAS_COT).format('DD/MM/YYYY')
+      if (HKHS === 'N') {
+
+        if (HA === 'Y' && !CleareesCat || CleareesCat == '') {
+          // cal date
+          if (EFAS === 'Y' && EFAS_COT) {
+            const EFAS_date = dayjs(EFAS_COT, 'DD/MM/YYYY')
+            const Target_date = dayjs('14/4/2023', 'DD/MM/YYYY')
+            if(EFAS_date.isAfter(Target_date)) {
+              FamilyCategory = "WS - White Single"
+              FamilyClass = "5E - GS EFAS"
+              FormSource = "HA - HA Green"
+            }
+          } else {
+            FamilyCategory = "GS - Green Single"
+            FamilyClass = "6 - GS HA"
+            FormSource = "HA - HA Green"
+          }
+        } else {
+          FamilyCategory = "GS - Green Single"
+          FamilyClass = "7 - GS Cert"
+          FormSource = "HS - HS Green"
+        }
+      } else {
+        if (!CleareesCat || CleareesCat == '') {
+          FamilyCategory = "GS - Green Single"
+          FamilyClass = "8 - GS HS"
+          FormSource = "HS - HS Green"
+        }else if (CleareesCat === 'Cat. 2') {
+          FamilyCategory = "GS - Green Single"
+          FamilyClass = "10 - GS 1st Absolute Priority"
+          FormSource = "HS - HS Green"
+        } else if (CleareesCat === 'Cat. 4') {
+          FamilyCategory = "GS - Green Single"
+          FamilyClass = "12 - GS 2nd Absolute Priority"
+          FormSource = "HS - HS Green"
         }
       }
     }
@@ -795,7 +831,13 @@ function DocumentInitFunctionBackup(detail, setting) {
   if (detail.formTypeCode === 'W') {
 
   }
-
+  // TODO : calculate Person
+  Person = pplCount + ' + ' + 0;
+  detail.formSource = FormSource
+  detail.familyCategory = FamilyCategory
+  detail.familyClass = FamilyClass
+  detail.statePerson = Person
+  // update oldValue ans newValue in detail
   return {
     detail,
     setting

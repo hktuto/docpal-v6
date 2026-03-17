@@ -91,15 +91,16 @@ watchThrottled(filter, search, { throttle: 300 })
 <template>
   <div class="fitlerRow">
     <!-- /status-count -->
-    <ElInput v-model="filter.filter" placeholder="Search..." clearable />
-    <ElSelect v-model="filter.projectId" placeholder="Projects">
+    <ElInput class="keywords" v-model="filter.filter" placeholder="Search..." clearable />
+    <ElSelect class="project" v-model="filter.projectId" placeholder="Projects">
       <ElOption v-for="p in projects" :key="p.id" :label="p.name" :value="p.id" />
     </ElSelect>
-    <ElSelect v-model="filter.status" placeholder="Status" multiple clearable>
+    <ElSelect class="status" v-model="filter.status" placeholder="Status" multiple clearable>
       <ElOption v-for="(status, key) in StatusMap" :key="key" :label="key" :value="key" />
     </ElSelect>
     <el-date-picker
       v-show="false"
+      class="datePicker"
       ref="createDatepicker"
       v-model="filterCreate"
       type="daterange"
@@ -112,6 +113,7 @@ watchThrottled(filter, search, { throttle: 300 })
     />
     <el-date-picker
       v-show="false"
+      class="datePicker"
       ref="updateDatepicker"
       v-model="filterUpdate"
       type="daterange"
@@ -158,6 +160,21 @@ watchThrottled(filter, search, { throttle: 300 })
   justify-content: flex-start;
   align-items: center;
   gap: var(--app-space-s);
+  :deep(.el-range-editor.el-input__wrapper){
+      width: 200px;
+  }
+}
+.keywords{
+    width: 200px;
+}
+.project {
+  width: 200px;
+}
+.status {
+  width: 200px;
+}
+.datePicker{
+    width: 200px;
 }
 .orderBySelected,
 .sortIcon {
