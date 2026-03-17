@@ -17,6 +17,9 @@ importers:
       element-plus:
         specifier: ^2.11.5
         version: 2.13.2(vue@3.5.6(typescript@5.9.3))
+      jspdf-autotable:
+        specifier: ^5.0.7
+        version: 5.0.7(jspdf@3.0.4)
       keycloak-js:
         specifier: 26.2.0
         version: 26.2.0
@@ -35,6 +38,9 @@ importers:
       vue-router:
         specifier: latest
         version: 5.0.3(@vue/compiler-sfc@3.5.27)(vue@3.5.6(typescript@5.9.3))
+      xlsx:
+        specifier: ^0.18.5
+        version: 0.18.5
     devDependencies:
       '@nuxt/test-utils':
         specifier: 3.18.0
@@ -9251,6 +9257,11 @@ packages:
   jsonfile@6.2.0:
     resolution: {integrity: sha512-FGuPw30AdOIUTRMC2OMRtQV+jkVj2cfPqSeWXv1NEAJ1qZ5zb1X6z1mFhbfOB/iy3ssJCD+3KuZ8r8C3uVFlAg==}
 
+  jspdf-autotable@5.0.7:
+    resolution: {integrity: sha512-2wr7H6liNDBYNwt25hMQwXkEWFOEopgKIvR1Eukuw6Zmprm/ZcnmLTQEjW7Xx3FCbD3v7pflLcnMAv/h1jFDQw==}
+    peerDependencies:
+      jspdf: ^2 || ^3 || ^4
+
   jspdf@3.0.4:
     resolution: {integrity: sha512-dc6oQ8y37rRcHn316s4ngz/nOjayLF/FFxBF4V9zamQKRqXxyiH1zagkCdktdWhtoQId5K20xt1lB90XzkB+hQ==}
 
@@ -16026,7 +16037,7 @@ snapshots:
       structured-clone-es: 1.0.0
       tinyglobby: 0.2.15
       vite: 6.4.1(@types/node@24.10.12)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(yaml@2.8.2)
-      vite-plugin-inspect: 11.3.3(@nuxt/kit@3.19.3(magicast@0.5.2))(vite@6.4.1(@types/node@24.10.12)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(yaml@2.8.2))
+      vite-plugin-inspect: 11.3.3(@nuxt/kit@3.19.3(magicast@0.3.5))(vite@6.4.1(@types/node@24.10.12)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(yaml@2.8.2))
       vite-plugin-vue-tracer: 1.2.0(vite@6.4.1(@types/node@24.10.12)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(yaml@2.8.2))(vue@3.5.27(typescript@5.9.3))
       which: 5.0.0
       ws: 8.19.0
@@ -22665,6 +22676,10 @@ snapshots:
     optionalDependencies:
       graceful-fs: 4.2.11
 
+  jspdf-autotable@5.0.7(jspdf@3.0.4):
+    dependencies:
+      jspdf: 3.0.4
+
   jspdf@3.0.4:
     dependencies:
       '@babel/runtime': 7.28.6
@@ -27304,6 +27319,23 @@ snapshots:
       optionator: 0.9.4
       typescript: 5.9.3
 
+  vite-plugin-inspect@11.3.3(@nuxt/kit@3.19.3(magicast@0.3.5))(vite@6.4.1(@types/node@24.10.12)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(yaml@2.8.2)):
+    dependencies:
+      ansis: 4.2.0
+      debug: 4.4.3
+      error-stack-parser-es: 1.0.5
+      ohash: 2.0.11
+      open: 10.2.0
+      perfect-debounce: 2.1.0
+      sirv: 3.0.2
+      unplugin-utils: 0.3.1
+      vite: 6.4.1(@types/node@24.10.12)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(yaml@2.8.2)
+      vite-dev-rpc: 1.1.0(vite@6.4.1(@types/node@24.10.12)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(yaml@2.8.2))
+    optionalDependencies:
+      '@nuxt/kit': 3.19.3(magicast@0.3.5)
+    transitivePeerDependencies:
+      - supports-color
+
   vite-plugin-inspect@11.3.3(@nuxt/kit@3.19.3(magicast@0.3.5))(vite@7.3.1(@types/node@24.10.12)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(yaml@2.8.2)):
     dependencies:
       ansis: 4.2.0
@@ -27318,23 +27350,6 @@ snapshots:
       vite-dev-rpc: 1.1.0(vite@7.3.1(@types/node@24.10.12)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(yaml@2.8.2))
     optionalDependencies:
       '@nuxt/kit': 3.19.3(magicast@0.3.5)
-    transitivePeerDependencies:
-      - supports-color
-
-  vite-plugin-inspect@11.3.3(@nuxt/kit@3.19.3(magicast@0.5.2))(vite@6.4.1(@types/node@24.10.12)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(yaml@2.8.2)):
-    dependencies:
-      ansis: 4.2.0
-      debug: 4.4.3
-      error-stack-parser-es: 1.0.5
-      ohash: 2.0.11
-      open: 10.2.0
-      perfect-debounce: 2.1.0
-      sirv: 3.0.2
-      unplugin-utils: 0.3.1
-      vite: 6.4.1(@types/node@24.10.12)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(yaml@2.8.2)
-      vite-dev-rpc: 1.1.0(vite@6.4.1(@types/node@24.10.12)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(yaml@2.8.2))
-    optionalDependencies:
-      '@nuxt/kit': 3.19.3(magicast@0.5.2)
     transitivePeerDependencies:
       - supports-color
 

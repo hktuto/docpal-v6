@@ -2,6 +2,8 @@
 import { ArrowDownBold } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
 import dayjs from 'dayjs'
+import { exportSingleSheet } from '~/utils/excelHelper'
+import { exportTableToPDF } from '~/utils/pdfHelper'
 
 const props = withDefaults(
   defineProps<{
@@ -106,10 +108,35 @@ function handleRefresh() {
 
 function handleDownloadCommand(command: string) {
   if (command === 'excel') {
-    console.log('excel')
+    handleDownloadExcel()
   } else if (command === 'pdf') {
-    console.log('pdf')
+    handleDownloadPDF()
   }
+}
+
+function handleDownloadExcel() {
+  // Format data with proper date formatting
+  const formattedData = dataList.value.map(row => ({
+    ...row,
+    transaction_date: row.transaction_date ? dayjs(row.transaction_date).format('DD/MM/YYYY') : ''
+  }))
+  exportSingleSheet(columnsRef.value, formattedData, 'SCS-100_Summary_Application_Forms_Processed', footerData.value)
+}
+
+function handleDownloadPDF() {
+  // Format data with proper date formatting for PDF
+  const formattedData = dataList.value.map(row => ({
+    ...row,
+    transaction_date: row.transaction_date ? dayjs(row.transaction_date).format('DD/MM/YYYY') : ''
+  }))
+  exportTableToPDF({
+    title: 'SCS-100 - Summary of Application Forms Processed',
+    columns: columnsRef.value.map(col => ({ field: col.field, title: col.title })),
+    data: formattedData,
+    footerData: footerData.value,
+    fileName: 'SCS-100_Summary_Application_Forms_Processed',
+    orientation: 'landscape'
+  })
 }
 
 const IncludeDuplicateOption = ref([

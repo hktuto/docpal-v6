@@ -8,5 +8,8 @@ export default defineNuxtConfig({
   ],
   modules: [
     
-  ]
+  ],
+  build: {
+    transpile: ['xlsx', 'jspdf-autotable']
+  }
 })

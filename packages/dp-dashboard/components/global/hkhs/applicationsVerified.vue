@@ -2,6 +2,8 @@
 import { ArrowDownBold } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
 import dayjs from 'dayjs'
+import { exportSingleSheet } from '~/utils/excelHelper'
+import { exportTableToPDF } from '~/utils/pdfHelper'
 
 const emits = defineEmits(['delete', 'refreshSetting'])
 const props = withDefaults(
@@ -95,10 +97,69 @@ const name = ref('SCS-102 - List of the Applications Verified')
 
 function handleDownloadCommand(command: string) {
   if (command === 'excel') {
-    console.log('excel')
+    handleDownloadExcel()
   } else if (command === 'pdf') {
-    console.log('pdf')
+    handleDownloadPDF()
   }
+}
+
+function handleDownloadExcel() {
+  // Prepare clean data for export (without HTML)
+  const exportColumns = [
+    { field: 'batch_no', title: 'Batch No.' },
+    { field: 'application_no', title: 'Application No.' },
+    { field: 'form_type', title: 'Form Type' },
+    { field: 'compare_export', title: 'Compare' },
+    { field: 'modified_export', title: 'Modified' },
+    { field: 'verified_by', title: 'Verified By' },
+    { field: 'completed_on', title: 'Completed on' }
+  ]
+
+  const exportData = dataList.value.map(row => ({
+    ...row,
+    compare_export: getCompareExportValue(row),
+    modified_export: getModifiedExportValue(row)
+  }))
+
+  exportSingleSheet(exportColumns, exportData, 'SCS-102_Applications_Verified', footerData.value)
+}
+
+function getCompareExportValue(row: any): string {
+  if (!row.compare || !Array.isArray(row.compare)) return ''
+  return row.compare.map((item: string) => {
+    // Clean HTML tags
+    return item.replace(/<[^>]*>/g, '').trim()
+  }).join('; ')
+}
+
+function getModifiedExportValue(row: any): string {
+  return row.modified || ''
+}
+
+function handleDownloadPDF() {
+  const exportColumns = [
+    { field: 'batch_no', title: 'Batch No.' },
+    { field: 'application_no', title: 'Application No.' },
+    { field: 'form_type', title: 'Form Type' },
+    { field: 'compare_export', title: 'Compare' },
+    { field: 'modified', title: 'Modified' },
+    { field: 'verified_by', title: 'Verified By' },
+    { field: 'completed_on', title: 'Completed on' }
+  ]
+
+  const exportData = dataList.value.map(row => ({
+    ...row,
+    compare_export: getCompareExportValue(row)
+  }))
+
+  exportTableToPDF({
+    title: 'SCS-102 - List of the Applications Verified',
+    columns: exportColumns,
+    data: exportData,
+    footerData: footerData.value,
+    fileName: 'SCS-102_Applications_Verified',
+    orientation: 'landscape'
+  })
 }
 
 function handleDelete() {

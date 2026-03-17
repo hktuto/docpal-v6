@@ -2,6 +2,8 @@
 import { ArrowDownBold } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { newClientApi } from 'api'
+import { exportToExcel, type ExcelSheet } from '~/utils/excelHelper'
+import { exportMultipleTablesToPDF, type PDFColumn } from '~/utils/pdfHelper'
 
 const props = withDefaults(
   defineProps<{
@@ -24,6 +26,7 @@ function handleDelete() {
 
 function handleRefresh() {
   refresh()
+  fetchAllData()
 }
 
 const tableComponent = ref([
@@ -62,21 +65,79 @@ const sortingName = computed(() => {
   return find ? find.title : columnsRef.value[0].title
 })
 
+// Store data for all tables
+const tablesData = ref<Record<string, any[]>>({})
+
 function handleDownloadCommand(command: string) {
   if (command === 'excel') {
-    console.log('excel')
+    handleDownloadExcel()
   } else if (command === 'pdf') {
-    console.log('pdf')
+    handleDownloadPDF()
   }
 }
 
-function query(){
+async function fetchAllData() {
+  // Fetch data for all stages
+  for (const item of tableComponent.value) {
+    await fetchStageData(item.field)
+  }
+}
+
+async function fetchStageData(stage: string) {
+  try {
+    const rpcParams = {
+      p_start_date: formData.value.date[0],
+      p_end_date: formData.value.date[1],
+      p_stage: stage,
+      p_distinct_flag: 2,
+      default_schema: true
+    }
+    const data: any[] = await newClientApi
+      .postPostgrestRpcFunc('get_batch_stage_detail_report', JSON.stringify(rpcParams))
+      .then((res: any) => res.data)
+    tablesData.value[stage] = data || []
+  } catch (error) {
+    console.error(`Failed to fetch data for stage ${stage}:`, error)
+    tablesData.value[stage] = []
+  }
+}
+
+function handleDownloadExcel() {
+  const sheets: ExcelSheet[] = tableComponent.value.map((item) => ({
+    name: item.title.replace(/[\\/*?:\[\]]/g, ''), // Remove invalid sheet name characters
+    columns: columnsRef.value.map((col) => ({ field: col.field, title: col.title })),
+    data: tablesData.value[item.field] || []
+  }))
+
+  exportToExcel({
+    sheets,
+    fileName: 'SCS-101_Activity_Log_Application_Forms'
+  })
+}
+
+function handleDownloadPDF() {
+  const tables = tableComponent.value.map((item) => ({
+    title: item.title,
+    columns: columnsRef.value.map((col) => ({ field: col.field, title: col.title })) as PDFColumn[],
+    data: tablesData.value[item.field] || []
+  }))
+
+  exportMultipleTablesToPDF(
+    tables,
+    'SCS-101 - Activity Log of Application Forms Processed',
+    'SCS-101_Activity_Log_Application_Forms'
+  )
+}
+
+function query() {
   const refs = hkhsTableRef.value
   if (Array.isArray(refs)) {
     refs.forEach((inst: any) => inst?.query?.())
   } else if (refs?.query) {
     refs.query()
   }
+  // Also fetch data for export
+  fetchAllData()
 }
 
 function HandleSorting(command: string) {
@@ -96,6 +157,8 @@ function handleOrderBy() {
 
 onMounted(async () => {
   projectList.value = (await newClientApi.postCaptureProjPage({}).then((r) => r.data)) as any[]
+  // Fetch data for export after a short delay to allow child components to load
+  setTimeout(fetchAllData, 1000)
 })
 </script>
 

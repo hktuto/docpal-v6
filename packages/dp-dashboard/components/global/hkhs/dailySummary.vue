@@ -3,6 +3,8 @@ import { ArrowDownBold } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
 import dayjs from 'dayjs'
 import { statusToGroupStatus } from '#imports'
+import { exportSingleSheet, formatDate } from '~/utils/excelHelper'
+import { exportTableToPDF } from '~/utils/pdfHelper'
 
 const props = withDefaults(
   defineProps<{
@@ -76,10 +78,25 @@ const name = ref('SCS-103 - Daily Summary of the applications from Verified to C
 
 function handleDownloadCommand(command: string) {
   if (command === 'excel') {
-    console.log('excel')
+    handleDownloadExcel()
   } else if (command === 'pdf') {
-    console.log('pdf')
+    handleDownloadPDF()
   }
+}
+
+function handleDownloadExcel() {
+  exportSingleSheet(columnsRef.value, dataList.value, 'SCS-103_Daily_Summary', footerData.value)
+}
+
+function handleDownloadPDF() {
+  exportTableToPDF({
+    title: 'SCS-103 - Daily Summary of the applications from Verified to Completed',
+    columns: columnsRef.value.map(col => ({ field: col.field, title: col.title })),
+    data: dataList.value,
+    footerData: footerData.value,
+    fileName: 'SCS-103_Daily_Summary',
+    orientation: 'landscape'
+  })
 }
 
 function handleDelete() {

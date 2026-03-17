@@ -10,6 +10,8 @@ const props = defineProps<{
   orderBy: boolean
 }>()
 
+const emits = defineEmits(['dataLoaded'])
+
 const dataList = ref<any[]>([])
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'HKHS-ApplicationFormsPassLog',
@@ -40,6 +42,8 @@ async function getData() {
   }
   const data: any[] = await newClientApi.postPostgrestRpcFunc('get_batch_stage_detail_report', JSON.stringify(rpcParams)).then((res: any) => res.data)
   dataList.value = data as any[]
+  // Emit data to parent
+  emits('dataLoaded', { stage: props.stage, data })
   return data
 }
 
@@ -61,7 +65,8 @@ function HandleSorting() {
 
 defineExpose({
   query,
-  HandleSorting
+  HandleSorting,
+  getDataList: () => dataList.value
 })
 </script>
 
