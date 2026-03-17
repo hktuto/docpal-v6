@@ -176,7 +176,7 @@ onMounted(() => {
   z-index: 10;
   background-color: var(--app-grey-950);
   border-radius: 4px;
-  box-shadow: 0px 4px 10px 0px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.3);
   padding-block: 8px;
   display: none;
   left: var(--x);
@@ -190,7 +190,6 @@ onMounted(() => {
     gap: 0;
   }
 }
-
 .contextAction {
   display: flex;
   flex-flow: row nowrap;
@@ -209,7 +208,6 @@ onMounted(() => {
     border-top: 1px solid var(--app-grey-800);
   }
 }
-
 .propertiesHeader {
   width: 100%;
   padding-block: var(--app-space-xs);
@@ -228,8 +226,7 @@ onMounted(() => {
   opacity: 0;
   padding: var(--app-space-xs);
   border-radius: var(--app-border-radius-m);
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   transform: translateX(100%);
   transition: all 0.2s ease-in-out;
   display: grid;

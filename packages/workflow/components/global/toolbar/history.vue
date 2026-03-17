@@ -55,11 +55,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="icon">
-    <Icon name="lucide:save" @click="save" />
-    <div class="label">Save</div>
-  </div>
-
+<!--  <div class="icon">-->
+<!--    <Icon name="lucide:save" @click="save" />-->
+<!--    <div class="label">Save</div>-->
+<!--  </div>-->
   <div :class="{ icon: true, disabled: !state.canUndo }">
     <Icon name="lucide:undo-dot" @click="undo" />
     <div class="label">Undo</div>

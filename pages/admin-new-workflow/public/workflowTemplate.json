@@ -59,27 +59,10 @@
   ],
   "edges": [],
   "variables": {
-    "po_number": {
-      "name": "Po Number",
-      "type": "string",
-      "required": true,
-      "pattern": "^PO-[0-9]{6}$"
-    },
-    "requester_name": {
-      "name": "Requester Name",
+    "user_creator_id": {
+      "name": "Creator",
       "type": "string",
       "required": true
-    },
-    "requester_email": {
-      "name": "Requester Email",
-      "type": "string",
-      "required": true,
-      "format": "email"
-    },
-    "vendor_id": {
-      "name": "Vendor Id",
-      "type": "string",
-      "required": false
     }
   },
   "metadata": {

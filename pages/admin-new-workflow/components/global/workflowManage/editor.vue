@@ -19,13 +19,14 @@ async function getWorkflowData() {
     throw new Error('Workflow ID is null')
   }
   try {
+    openWorkflowEdit.value = true
     const data = await $api.get(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${props.id}`).then((r) => r.data)
     if (!data) {
       throw Error('workflow Data is null')
     }
     workflowData.value = data.draft_content
     workflowReadonly.value = data.status !== 'D'
-    openWorkflowEdit.value = true
+
     nextTick(() => {
       workflowEditorRef.value?.init()
     })

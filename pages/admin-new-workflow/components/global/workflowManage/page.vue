@@ -172,9 +172,9 @@ function handleDuplicate(row: any) {
 
 async function handleRemove(row: any) {
   if (row.status === 'A') return
-
   try {
-    await $api.delete(`/api/v1/workflow/definitions/instance/${row.id}`).then((r) => r.dada)
+    await $api.delete(`http://192.168.5.147:8080/api/v1/workflow/definitions/instance/${row.id}`).then((r) => r.dada)
+    reload()
   } catch (e) {
     console.log('')
   }

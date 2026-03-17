@@ -1,13 +1,14 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
+import { createError } from '#imports'
 
 const { node } = defineProps<{
   node: Node
 }>()
 
 const switchRef = ref(true)
-const editorProvider = inject(EDITOR_PROVIDER)
-if (!editorProvider) {
+const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
+if (!graphProvider) {
   throw createError('graph provider not found')
 }
 
@@ -49,25 +50,19 @@ function handleSwitch() {
   node.setData(newData, { overwrite: true, deep: true, silent: false })
 }
 
-watch(
-  () => node,
-  () => {
-    if (node) {
-      switchRef.value = 'attr_flowable:candidateGroups' in node.data.data
-    }
-  },
-  {
-    immediate: true,
-    deep: true
-  }
-)
+watch(() => node, () => {
+  if (node) {}
+}, {
+  immediate: true,
+  deep: true
+})
 </script>
 
 <template>
   <div class="fromContainer">
     <SidebarLabel :node="node" />
-    <!--     <BpmnSidebarEditAssignee :node="node" />-->
-    <el-switch :disabled="editorProvider.readonly.value" v-model="switchRef" size="small" active-text="Group" inactive-text="Roles" @change="handleSwitch" />
+    <ContextUserTaskAssignee :node="node" />
+<!--    <el-switch :disabled="graphProvider.readonly.value" v-model="switchRef" size="small" active-text="Group" inactive-text="Roles" @change="handleSwitch" />-->
     <!--    <BpmnSidebarEditCandidateGroup v-if="switchRef" :node="node" />
     <BpmnSidebarEditCandidateRoles v-else :node="node" />
     <BpmnSidebarEditForm :node="node" />

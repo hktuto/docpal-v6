@@ -11,7 +11,9 @@ const { node } = defineProps<{
 }>()
 const { getVariablesByType, deleteVariableItem } = useVariablesProvide()
 const FormDialogRef = ref()
-const variables = ref<VariableSelectItem[]>([])
+const variables = computed(() => {
+  return getVariablesByType()
+})
 const FormRef = ref()
 const form = ref({
   name: ''
@@ -49,10 +51,6 @@ function handleEdit(item: any) {
 function handleRemove(item: any) {
   deleteVariableItem(node, item.id)
 }
-
-onMounted(() => {
-  variables.value = getVariablesByType()
-})
 </script>
 
 <template>
