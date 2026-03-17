@@ -72,7 +72,7 @@ export const useUserListFilter = () =>
     createdAtEnd: '',
     updatedAtStart: '',
     updatedAtEnd: '',
-    orderBy: 'updateAt',
+    orderBy: 'updatedAt',
     isDesc: false
   }))
 export const useScanClient = () => {
