@@ -7,6 +7,8 @@ const stateEl = ref()
 function tableUpdated() {
   stateEl.value.getStats()
 }
+
+
 // Example: Update props when needed
 // function handleIdChange(newId: string) {
 //   routerProvider?.updateProps({ id: newId })

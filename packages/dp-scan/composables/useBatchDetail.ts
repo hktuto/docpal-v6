@@ -358,19 +358,23 @@ export const useBatchDetail = (batchId: string) => {
           fieldsSetting
         } as any
         let detail = docDetailRes.data
-        if (setting.fieldsSetting.custom_init_logic) {
-          try {
-            //formValue
+        // TODO : move the DocumentInitFunctionBackup back to backend
+        //
+        const { detail: newDetail, setting: newSetting } = DocumentInitFunctionBackup(detail, setting)
+        if(newDetail) detail = newDetail
+        if (newSetting) setting = newSetting
+        // if (setting.fieldsSetting.custom_init_logic) {
+        //   try {
+        //     //formValue
 
-            const fn = new Function('detail','setting', setting.fieldsSetting.custom_init_logic)
-            const { detail: newDetail, setting: newSetting } = fn(detail, setting)
-            if(newDetail) detail = newDetail
-            if (newSetting) setting = newSetting
-            console.log("newDetail",newDetail)
-          } catch (err) {
-            console.error(err)
-          }
-        }
+        //     const fn = new Function('detail','setting', setting.fieldsSetting.custom_init_logic)
+        //     const { detail: newDetail, setting: newSetting } = fn(detail, setting)
+        //     if(newDetail) detail = newDetail
+        //     if (newSetting) setting = newSetting
+        //   } catch (err) {
+        //     console.error(err)
+        //   }
+        // }
         selectedDocDetail.value = {
           setting,
           detail
@@ -712,7 +716,6 @@ export const useBatchDetail = (batchId: string) => {
 
   // Cleanup on unmount
   onUnmounted( async() => {
-    console.log('Unmounted batch detail')
     await clientApi.api.postCaptureBatchBatchidRelease(currentBatchId.value)
     // Cancel any pending image request
     cancelImageRequest()
@@ -733,44 +736,60 @@ export const useBatchDetailContext = (): BatchDetailContext | undefined => {
 
 function DocumentInitFunctionBackup(detail, setting) {
   // normalize json
-  if(detail.newResultJson){
-    Object.keys(detail.newResultJson).forEach( (sectionKey) => {
+  if (detail.newResultJson) {
+    Object.keys(detail.newResultJson).forEach((sectionKey) => {
       const section = detail.newResultJson[sectionKey]
       Object.keys(section).forEach((fieldKey) => {
-          if(fieldKey.includes('HKID') || fieldKey === 'ApplicantChineseName') {
-             detail.newResultJson[sectionKey][fieldKey] = detail.newResultJson[sectionKey][fieldKey].replaceAll('(','').replaceAll(')','')
-              console.log("fieldKeykey", fieldKey, detail.newResultJson[sectionKey][fieldKey])
-            }
+        if (fieldKey.includes('HKID') || fieldKey === 'ApplicantChineseName') {
+          detail.newResultJson[sectionKey][fieldKey] = detail.newResultJson[sectionKey][fieldKey].replaceAll('(', '').replaceAll(')', '')
+          console.log("fieldKeykey", fieldKey, detail.newResultJson[sectionKey][fieldKey])
+        }
 
-       })
+      })
     })
   }
-  if(detail.oldResultJson){
-     Object.keys(detail.oldResultJson).forEach( (sectionKey) => {
+  if (detail.oldResultJson) {
+    Object.keys(detail.oldResultJson).forEach((sectionKey) => {
       const section = detail.oldResultJson[sectionKey]
       Object.keys(section).forEach((fieldKey) => {
-          if(fieldKey.includes('HKID') || fieldKey === 'ApplicantChineseName') {
+        if (fieldKey.includes('HKID') || fieldKey === 'ApplicantChineseName') {
 
-             detail.oldResultJson[sectionKey][fieldKey] = detail.oldResultJson[sectionKey][fieldKey].replaceAll('(','').replaceAll(')','')
-              console.log("fieldKeykey", fieldKey, detail.oldResultJson[sectionKey][fieldKey])
-            }
+          detail.oldResultJson[sectionKey][fieldKey] = detail.oldResultJson[sectionKey][fieldKey].replaceAll('(', '').replaceAll(')', '')
+          console.log("fieldKeykey", fieldKey, detail.oldResultJson[sectionKey][fieldKey])
+        }
 
-       })
+      })
     })
   }
+  console.log({
+    detail,
+    setting,
+  })
 
   // convert section zoneResizeConfig to settings section
   // selectedDocDetail.value.detail.zoneResizeConfig
-  console.log(detail)
   if (detail.zoneResizeConfig) {
     console.log(detail.zoneResizeConfig)
     setting.fieldsSetting.section?.forEach((section) => {
       if (detail.zoneResizeConfig[section.section_id]) {
-
         section.zone = detail.zoneResizeConfig[section.section_id]
-        console.log(section)
       }
     })
+  }
+  // Family Class logic
+  const { PrioritySchemeForElderly = 'N', PrioritySchemeForNewborns =
+    'N', YouthSchema = 'N' } = detail.newResultJson?.PriorityScheme || {}
+  const { HKHS = 'N', HA = 'N', EFAS = 'N', CotForEfasApplication: EFAS_COT, CleareesCat } = detail.newResultJson.SpecificField || {}
+  console.log(detail.newResultJson)
+  if (detail.formTypeCode === 'G') {
+    if (detail.newResultJson.ApplicantFamilyMemberList.length === 0) {
+      if (HA === 'Y' && EFAS === 'Y' &&　EFAS_COT) {
+        // cal date
+      }
+    }
+  }
+  if (detail.formTypeCode === 'W') {
+
   }
 
   return {

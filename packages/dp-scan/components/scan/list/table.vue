@@ -162,6 +162,13 @@ const debounceReload = useDebounceFn(reload, 300)
 watch(filter, debounceReload, {
   deep: true
 })
+
+onMounted(() => {
+  routerProvider.refeshActions.value.push({
+    fn: reload,
+    params:[]
+  })
+})
 </script>
 
 <template>

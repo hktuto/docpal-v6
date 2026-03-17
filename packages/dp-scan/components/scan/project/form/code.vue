@@ -19,7 +19,7 @@ const localValue = computed({
 <template>
 <ElButton @click="visible = true">Edit</ElButton>
 <ElDialog v-model="visible" fullscreen>
-    <span>function(detail, setting) {</span>
+<span>function(detail, setting) {</span>
   <CodeEditor :wrap="true" :header="false" width="100%" theme="github"  :languages="[['javascript','JS']]" v-model="localValue" />
   <span>}</span>
 </ElDialog>
