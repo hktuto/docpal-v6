@@ -2,8 +2,8 @@
 import { ArrowDownBold } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { newClientApi } from 'api'
-import { exportToExcel, type ExcelSheet } from '~/utils/excelHelper'
-import { exportMultipleTablesToPDF, type PDFColumn } from '~/utils/pdfHelper'
+import { exportSCS101ToExcel, type ReportHeader } from '~/utils/excelHelper'
+import { exportSCS101ToPDF, type PDFColumn } from '~/utils/pdfHelper'
 
 const props = withDefaults(
   defineProps<{
@@ -102,17 +102,41 @@ async function fetchStageData(stage: string) {
   }
 }
 
+function getReportHeader(): ReportHeader {
+  const projectName = formData.value.project 
+    ? projectList.value.find(p => p.id === formData.value.project)?.name || 'SSF2026'
+    : 'SSF2026'
+  
+  return {
+    reportId: 'SCS-101',
+    compiledBy: 'HONG KONG HOUSING SOCIETY',
+    project: projectName,
+    inputProject: projectName,
+    inputFrom: formData.value.date[0] || 'NULL',
+    inputTo: formData.value.date[1] || 'NULL',
+    title: 'SUBSIDISED SALE FLATS PROJECTS 2026',
+    subtitle: 'Activity Log of Application Forms Processed',
+    dateRange: `From ${formatDate(formData.value.date[0])} to ${formatDate(formData.value.date[1])}`
+  }
+}
+
+function formatDate(dateStr: string): string {
+  if (!dateStr) return 'NULL'
+  const parts = dateStr.split('-')
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`
+  }
+  return dateStr
+}
+
 function handleDownloadExcel() {
-  const sheets: ExcelSheet[] = tableComponent.value.map((item) => ({
-    name: item.title.replace(/[\\/*?:\[\]]/g, ''), // Remove invalid sheet name characters
+  const tables = tableComponent.value.map((item) => ({
+    name: item.title,
     columns: columnsRef.value.map((col) => ({ field: col.field, title: col.title })),
     data: tablesData.value[item.field] || []
   }))
 
-  exportToExcel({
-    sheets,
-    fileName: 'SCS-101_Activity_Log_Application_Forms'
-  })
+  exportSCS101ToExcel(getReportHeader(), tables)
 }
 
 function handleDownloadPDF() {
@@ -122,11 +146,7 @@ function handleDownloadPDF() {
     data: tablesData.value[item.field] || []
   }))
 
-  exportMultipleTablesToPDF(
-    tables,
-    'SCS-101 - Activity Log of Application Forms Processed',
-    'SCS-101_Activity_Log_Application_Forms'
-  )
+  exportSCS101ToPDF(getReportHeader(), tables)
 }
 
 function query() {

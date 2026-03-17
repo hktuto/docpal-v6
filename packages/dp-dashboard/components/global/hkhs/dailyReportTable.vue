@@ -2,8 +2,8 @@
 import { ArrowDownBold } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
 import dayjs from 'dayjs'
-import { exportSingleSheet } from '~/utils/excelHelper'
-import { exportTableToPDF } from '~/utils/pdfHelper'
+import { exportReportToExcel } from '~/utils/excelHelper'
+import { exportReportToPDF, type ReportHeader } from '~/utils/pdfHelper'
 
 const props = withDefaults(
   defineProps<{
@@ -114,13 +114,48 @@ function handleDownloadCommand(command: string) {
   }
 }
 
+function getReportHeader(): ReportHeader {
+  const projectName = formData.value.project 
+    ? projectList.value.find(p => p.id === formData.value.project)?.name || 'SSF2026'
+    : 'SSF2026'
+  
+  const includeDup = formData.value.includeDuplicate === 2 ? 'Yes' : 'No'
+  
+  return {
+    reportId: 'SCS-100',
+    compiledBy: 'HONG KONG HOUSING SOCIETY',
+    project: projectName,
+    inputProject: projectName,
+    inputFrom: formData.value.date[0] || 'NULL',
+    inputTo: formData.value.date[1] || 'NULL',
+    inputIncluded: includeDup,
+    title: 'SUBSIDISED SALE FLATS PROJECTS 2026',
+    subtitle: 'Summary of Application Forms Processed',
+    dateRange: `From ${formatDate(formData.value.date[0])} to ${formatDate(formData.value.date[1])}`
+  }
+}
+
+function formatDate(dateStr: string): string {
+  if (!dateStr) return 'NULL'
+  const parts = dateStr.split('-')
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`
+  }
+  return dateStr
+}
+
 function handleDownloadExcel() {
   // Format data with proper date formatting
   const formattedData = dataList.value.map(row => ({
     ...row,
     transaction_date: row.transaction_date ? dayjs(row.transaction_date).format('DD/MM/YYYY') : ''
   }))
-  exportSingleSheet(columnsRef.value, formattedData, 'SCS-100_Summary_Application_Forms_Processed', footerData.value)
+  exportReportToExcel(
+    getReportHeader(),
+    columnsRef.value,
+    formattedData,
+    footerData.value
+  )
 }
 
 function handleDownloadPDF() {
@@ -129,14 +164,11 @@ function handleDownloadPDF() {
     ...row,
     transaction_date: row.transaction_date ? dayjs(row.transaction_date).format('DD/MM/YYYY') : ''
   }))
-  exportTableToPDF({
-    title: 'SCS-100 - Summary of Application Forms Processed',
-    columns: columnsRef.value.map(col => ({ field: col.field, title: col.title })),
-    data: formattedData,
-    footerData: footerData.value,
-    fileName: 'SCS-100_Summary_Application_Forms_Processed',
-    orientation: 'landscape'
-  })
+  exportReportToPDF(
+    getReportHeader(),
+    columnsRef.value.map(col => ({ field: col.field, title: col.title })),
+    formattedData
+  )
 }
 
 const IncludeDuplicateOption = ref([

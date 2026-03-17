@@ -2,8 +2,8 @@
 import { ArrowDownBold } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
 import dayjs from 'dayjs'
-import { exportSingleSheet } from '~/utils/excelHelper'
-import { exportTableToPDF } from '~/utils/pdfHelper'
+import { exportReportToExcel } from '~/utils/excelHelper'
+import { exportReportToPDF, type ReportHeader } from '~/utils/pdfHelper'
 
 const emits = defineEmits(['delete', 'refreshSetting'])
 const props = withDefaults(
@@ -107,6 +107,38 @@ function handleDownloadCommand(command: string) {
   }
 }
 
+function getReportHeader(): ReportHeader {
+  const projectName = formData.value.project 
+    ? projectList.value.find(p => p.id === formData.value.project)?.name || 'SSF2026'
+    : 'SSF2026'
+  
+  const totalCount = dataList.value.length
+  
+  return {
+    reportId: 'SCS-102',
+    compiledBy: 'HONG KONG HOUSING SOCIETY',
+    project: projectName,
+    inputProject: projectName,
+    inputFrom: formData.value.date || 'NULL',
+    inputTo: formData.value.date || 'NULL',
+    title: 'SUBSIDISED SALE FLATS PROJECTS 2026',
+    subtitle: 'List of the applications verified',
+    dateRange: `From ${formatDate(formData.value.date)} to ${formatDate(formData.value.date)}`,
+    remark: 'Remark: Before/After data format - <appln no>&<form type>&<ahkid>&<hkic1>&<hkic2>&<hkic3>&<hkicx>&<PaymentReference>&<family class>',
+    totalLabel: 'Total number of application:',
+    totalValue: totalCount
+  }
+}
+
+function formatDate(dateStr: string): string {
+  if (!dateStr) return 'NULL'
+  const parts = dateStr.split('-')
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`
+  }
+  return dateStr
+}
+
 function handleDownloadExcel() {
   // Use columns directly as they no longer have HTML formatting (except modified)
   const exportColumns = columnsRef.value.map(col => ({ field: col.field, title: col.title }))
@@ -117,7 +149,11 @@ function handleDownloadExcel() {
     modified: getModifiedExportValue(row)
   }))
 
-  exportSingleSheet(exportColumns, exportData, 'SCS-102_Applications_Verified', footerData.value)
+  exportReportToExcel(
+    getReportHeader(),
+    exportColumns,
+    exportData
+  )
 }
 
 function getModifiedExportValue(row: any): string {
@@ -141,14 +177,11 @@ function handleDownloadPDF() {
     modified: getModifiedExportValue(row)
   }))
 
-  exportTableToPDF({
-    title: 'SCS-102 - List of the Applications Verified',
-    columns: exportColumns,
-    data: exportData,
-    footerData: footerData.value,
-    fileName: 'SCS-102_Applications_Verified',
-    orientation: 'landscape'
-  })
+  exportReportToPDF(
+    getReportHeader(),
+    exportColumns,
+    exportData
+  )
 }
 
 function handleDelete() {

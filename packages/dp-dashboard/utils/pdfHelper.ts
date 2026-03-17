@@ -57,8 +57,155 @@ export interface PDFTableOptions {
   orientation?: 'portrait' | 'landscape'
 }
 
+export interface ReportHeader {
+  reportId: string
+  compiledBy: string
+  project: string
+  inputProject?: string
+  inputFrom?: string
+  inputTo?: string
+  inputIncluded?: string
+  stage?: string
+  title: string
+  subtitle: string
+  dateRange: string
+  remark?: string
+  totalLabel?: string
+  totalValue?: number
+}
+
 /**
- * Export table data to PDF using autoTable
+ * Export report with headers to PDF
+ */
+export function exportReportToPDF(header: ReportHeader, columns: PDFColumn[], data: any[]): void {
+  const pdf = new jsPDF('landscape', 'mm', 'a4')
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const margin = 14
+  const timestamp = new Date().toISOString().split('T')[0]
+  const pageDate = formatDateForReport(new Date())
+
+  let yPos = 10
+
+  // Report header section (left side)
+  pdf.setFontSize(9)
+  pdf.setFont('helvetica', 'normal')
+  pdf.text(`REPORT ID: ${header.reportId}`, margin, yPos)
+  pdf.text(`PAGE: 1`, pageWidth - margin - 30, yPos, { align: 'left' })
+  yPos += 5
+
+  pdf.text(`COMPILED BY: ${header.compiledBy}`, margin, yPos)
+  pdf.text(`DATE: ${pageDate}`, pageWidth - margin - 30, yPos, { align: 'left' })
+  yPos += 5
+
+  pdf.text(`PROJECT: ${header.project}`, margin, yPos)
+  yPos += 8
+
+  // Input filters
+  pdf.setFontSize(8)
+  if (header.inputProject !== undefined) {
+    pdf.text(`Input Project: ${header.inputProject || 'NULL'}`, margin, yPos)
+    yPos += 4
+  }
+  if (header.inputFrom !== undefined) {
+    pdf.text(`Input From: ${header.inputFrom || 'NULL'}`, margin, yPos)
+    yPos += 4
+  }
+  if (header.inputTo !== undefined) {
+    pdf.text(`Input To: ${header.inputTo || 'NULL'}`, margin, yPos)
+    yPos += 4
+  }
+  if (header.inputIncluded !== undefined) {
+    pdf.text(`Input Included: ${header.inputIncluded || '-'}`, margin, yPos)
+    yPos += 4
+  }
+  if (header.stage !== undefined) {
+    pdf.text(`Stage: ${header.stage}`, margin, yPos)
+    yPos += 4
+  }
+
+  // Title section (centered)
+  yPos += 5
+  pdf.setFontSize(11)
+  pdf.setFont('helvetica', 'bold')
+  const titleX = pageWidth / 2
+  pdf.text(header.title, titleX, yPos, { align: 'center' })
+  yPos += 6
+  pdf.text(header.subtitle, titleX, yPos, { align: 'center' })
+  yPos += 6
+  pdf.setFont('helvetica', 'normal')
+  pdf.text(header.dateRange, titleX, yPos, { align: 'center' })
+  yPos += 8
+
+  // Remark (for SCS-102)
+  if (header.remark) {
+    pdf.setFontSize(8)
+    pdf.setTextColor(255, 0, 0) // Red color for remark
+    pdf.text(header.remark, margin, yPos)
+    pdf.setTextColor(0, 0, 0) // Reset to black
+    yPos += 6
+  }
+
+  // Prepare table data
+  const headers = columns.map((col) => col.title)
+  const dataRows = data.map((row) => {
+    return columns.map((col) => {
+      const value = row[col.field]
+      if (typeof value === 'string' && value.includes('<')) {
+        return stripHtml(value)
+      }
+      return value != null ? String(value) : ''
+    })
+  })
+
+  // Generate table
+  const result = autoTable(pdf, {
+    head: [headers],
+    body: dataRows,
+    startY: yPos,
+    margin: { left: margin, right: margin },
+    styles: {
+      fontSize: 8,
+      cellPadding: 2,
+      overflow: 'linebreak'
+    },
+    headStyles: {
+      fillColor: [200, 200, 200],
+      textColor: 0,
+      fontStyle: 'bold'
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245]
+    },
+    didDrawPage: (data) => {
+      // Add page number at bottom
+      pdf.setFontSize(8)
+      pdf.text(`Page ${data.pageNumber}`, pageWidth - margin, pdf.internal.pageSize.getHeight() - 10, {
+        align: 'right'
+      })
+    }
+  })
+
+  let finalY = result.finalY + 5
+
+  // Add total row if specified (for SCS-102)
+  if (header.totalLabel && header.totalValue !== undefined) {
+    pdf.setFontSize(9)
+    pdf.setFont('helvetica', 'bold')
+    pdf.text(`${header.totalLabel} ${header.totalValue}`, margin, finalY)
+    pdf.setFont('helvetica', 'normal')
+    finalY += 8
+  }
+
+  // End of report marker
+  pdf.setFontSize(9)
+  pdf.text('*** END OF REPORT ***', pageWidth / 2, finalY + 5, { align: 'center' })
+
+  // Save PDF
+  pdf.save(`${header.reportId}_${timestamp}.pdf`)
+}
+
+/**
+ * Export table data to PDF using autoTable (legacy function)
  */
 export function exportTableToPDF(options: PDFTableOptions): void {
   const orientation = options.orientation || 'landscape'
@@ -183,7 +330,7 @@ export function exportMultipleTablesToPDF(
         if (typeof value === 'string' && value.includes('<')) {
           return stripHtml(value)
         }
-        return value != null ? String(value) : ''
+      return value != null ? String(value) : ''
       })
     })
 
@@ -226,10 +373,137 @@ export function exportMultipleTablesToPDF(
 }
 
 /**
+ * Export SCS-101 report with headers and multiple tables
+ */
+export function exportSCS101ToPDF(
+  header: ReportHeader,
+  tables: { title: string; columns: PDFColumn[]; data: any[] }[]
+): void {
+  const pdf = new jsPDF('landscape', 'mm', 'a4')
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const margin = 14
+  const timestamp = new Date().toISOString().split('T')[0]
+  const pageDate = formatDateForReport(new Date())
+
+  let yPos = 10
+
+  // Report header section (left side)
+  pdf.setFontSize(9)
+  pdf.setFont('helvetica', 'normal')
+  pdf.text(`REPORT ID: ${header.reportId}`, margin, yPos)
+  pdf.text(`PAGE: 1`, pageWidth - margin - 30, yPos, { align: 'left' })
+  yPos += 5
+
+  pdf.text(`COMPILED BY: ${header.compiledBy}`, margin, yPos)
+  pdf.text(`DATE: ${pageDate}`, pageWidth - margin - 30, yPos, { align: 'left' })
+  yPos += 5
+
+  pdf.text(`PROJECT: ${header.project}`, margin, yPos)
+  yPos += 8
+
+  // Input filters
+  pdf.setFontSize(8)
+  if (header.inputProject !== undefined) {
+    pdf.text(`Input Project: ${header.inputProject || 'NULL'}`, margin, yPos)
+    yPos += 4
+  }
+  if (header.inputFrom !== undefined) {
+    pdf.text(`Input From: ${header.inputFrom || 'NULL'}`, margin, yPos)
+    yPos += 4
+  }
+  if (header.inputTo !== undefined) {
+    pdf.text(`Input To: ${header.inputTo || 'NULL'}`, margin, yPos)
+    yPos += 4
+  }
+
+  // Title section (centered)
+  yPos += 5
+  pdf.setFontSize(11)
+  pdf.setFont('helvetica', 'bold')
+  const titleX = pageWidth / 2
+  pdf.text(header.title, titleX, yPos, { align: 'center' })
+  yPos += 6
+  pdf.text(header.subtitle, titleX, yPos, { align: 'center' })
+  yPos += 6
+  pdf.setFont('helvetica', 'normal')
+  pdf.text(header.dateRange, titleX, yPos, { align: 'center' })
+  yPos += 10
+
+  // Process each table
+  tables.forEach((table, index) => {
+    // Check if we need a new page
+    if (yPos > pdf.internal.pageSize.getHeight() - 40) {
+      pdf.addPage()
+      yPos = 20
+    }
+
+    // Add table title
+    pdf.setFontSize(10)
+    pdf.setFont('helvetica', 'bold')
+    pdf.text(table.title, margin, yPos)
+    yPos += 5
+    pdf.setFont('helvetica', 'normal')
+
+    // Prepare headers and data
+    const headers = table.columns.map((col) => col.title)
+    const dataRows = table.data.map((row) => {
+      return table.columns.map((col) => {
+        const value = row[col.field]
+        if (typeof value === 'string' && value.includes('<')) {
+          return stripHtml(value)
+        }
+        return value != null ? String(value) : ''
+      })
+    })
+
+    // Generate table using autoTable
+    const result = autoTable(pdf, {
+      head: [headers],
+      body: dataRows,
+      startY: yPos,
+      margin: { left: margin, right: margin },
+      styles: {
+        fontSize: 7,
+        cellPadding: 1.5,
+        overflow: 'linebreak'
+      },
+      headStyles: {
+        fillColor: [200, 200, 200],
+        textColor: 0,
+        fontStyle: 'bold'
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245]
+      }
+    })
+
+    // Update yPos for next table
+    yPos = result.finalY + 8
+  })
+
+  // End of report marker
+  pdf.setFontSize(9)
+  pdf.text('*** END OF REPORT ***', pageWidth / 2, yPos + 5, { align: 'center' })
+
+  // Save PDF
+  pdf.save(`${header.reportId}_${timestamp}.pdf`)
+}
+
+/**
  * Strip HTML tags from string
  */
 function stripHtml(html: string): string {
   const tmp = document.createElement('div')
   tmp.innerHTML = html
   return tmp.textContent || tmp.innerText || ''
+}
+
+/**
+ * Format date for report header (DD/MM/YYYY)
+ */
+function formatDateForReport(date: Date): string {
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `${day}/${month}/${year}`
 }

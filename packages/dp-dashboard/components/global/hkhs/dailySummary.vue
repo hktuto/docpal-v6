@@ -3,8 +3,8 @@ import { ArrowDownBold } from '@element-plus/icons-vue'
 import { newClientApi } from 'api'
 import dayjs from 'dayjs'
 import { statusToGroupStatus } from '#imports'
-import { exportSingleSheet, formatDate } from '~/utils/excelHelper'
-import { exportTableToPDF } from '~/utils/pdfHelper'
+import { exportReportToExcel } from '~/utils/excelHelper'
+import { exportReportToPDF, type ReportHeader } from '~/utils/pdfHelper'
 
 const props = withDefaults(
   defineProps<{
@@ -84,19 +84,49 @@ function handleDownloadCommand(command: string) {
   }
 }
 
+function getReportHeader(): ReportHeader {
+  const projectName = formData.value.project 
+    ? projectList.value.find(p => p.id === formData.value.project)?.name || 'SSF2026'
+    : 'SSF2026'
+  
+  return {
+    reportId: 'SCS-103',
+    compiledBy: 'HONG KONG HOUSING SOCIETY',
+    project: projectName,
+    inputProject: projectName,
+    inputFrom: formData.value.date[0] || 'NULL',
+    inputTo: formData.value.date[1] || 'NULL',
+    stage: '(5) Verified (6) Failed to Export (7) Export-Ready (8) Completed',
+    title: 'SUBSIDISED SALE FLATS PROJECTS 2026',
+    subtitle: 'Daily Summary of the applications from Verified to Completed',
+    dateRange: `From ${formatDate(formData.value.date[0])} to ${formatDate(formData.value.date[1])}`
+  }
+}
+
+function formatDate(dateStr: string): string {
+  if (!dateStr) return 'NULL'
+  const parts = dateStr.split('-')
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`
+  }
+  return dateStr
+}
+
 function handleDownloadExcel() {
-  exportSingleSheet(columnsRef.value, dataList.value, 'SCS-103_Daily_Summary', footerData.value)
+  exportReportToExcel(
+    getReportHeader(),
+    columnsRef.value,
+    dataList.value,
+    footerData.value
+  )
 }
 
 function handleDownloadPDF() {
-  exportTableToPDF({
-    title: 'SCS-103 - Daily Summary of the applications from Verified to Completed',
-    columns: columnsRef.value.map(col => ({ field: col.field, title: col.title })),
-    data: dataList.value,
-    footerData: footerData.value,
-    fileName: 'SCS-103_Daily_Summary',
-    orientation: 'landscape'
-  })
+  exportReportToPDF(
+    getReportHeader(),
+    columnsRef.value.map(col => ({ field: col.field, title: col.title })),
+    dataList.value
+  )
 }
 
 function handleDelete() {
