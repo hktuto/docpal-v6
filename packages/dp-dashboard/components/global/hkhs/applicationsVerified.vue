@@ -311,8 +311,7 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 .title-suffix-name {
-  font-size: 35px;
-  line-height: 35px;
+  font-size: var(--app-font-size-xxl);
 }
 
 .toolbar-wrap {

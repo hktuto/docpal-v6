@@ -250,8 +250,7 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 .title-suffix-name {
-  font-size: 35px;
-  line-height: 35px;
+  font-size: var(--app-font-size-xxl);
 }
 
 .toolbar-wrap {
@@ -287,8 +286,7 @@ onMounted(async () => {
 
 .table-list-scroll {
   overflow-y: auto;
-  height: calc(100% - 100px);
-  max-height: 80vh;
+  height: calc(100% - 60px);
 }
 
 .table-block {
