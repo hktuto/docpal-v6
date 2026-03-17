@@ -44,7 +44,7 @@ const isBatchProcessing = computed(() => {
  */
 const canCancel = computed(() => {
   const gorupStatus = statusToGroupStatus(batchDetail.value?.status)
-  const canCancelStatus = !gorupStatus || (gorupStatus.key !== 'cancelled' && gorupStatus.key !== 'completed')
+  const canCancelStatus = !gorupStatus || (gorupStatus.key !== 'cancelled' )
   const hasAdminPermission = isAdmin(projectId.value)
   return canCancelStatus && hasAdminPermission
 })
@@ -161,9 +161,7 @@ watch(detailLoading, (isLoading) => {
     if (isBatchProcessing.value) {
       routerProvider?.message.warning('Batch is still processing, please wait...')
       // Navigate back to list after a short delay
-      setTimeout(() => {
-        backToList()
-      }, 300)
+      backToList()
     }
   }
 })

@@ -84,6 +84,7 @@ export type FieldWithValue = {
     options: Record<string, string>[]
   }
   format?: string // e.g. 'DD/MM/YYYY' for date formatting
+  page?: number // for table type if field is from other page then section
   // Added values from result JSON
   currentValue: any
   originalValue: any
@@ -104,6 +105,7 @@ export type SectionWithValues = {
   section_type: 'standard' | 'table'
   save_to_result: boolean
   prompt_template_id: string
+
   // Added values from result JSON
   currentValue: any
   originalValue: any
@@ -231,13 +233,21 @@ export const useBatchDetail = (batchId: string) => {
         const rows = newRows.map((rowData: any, index: number) => {
           const oldRowData = oldRows[index] || {}
 
-          return {
+          const result = {
             currentValue: rowData,
             originalValue: oldRowData,
             fields: section.fields?.map((field: any): FieldWithValue => {
               return convertFieldToWithValues(field, rowData, oldRowData)
             })
           }
+          // check if rowData has page , if so need to overide fields
+          const page = rowData.page
+          if (page) {
+            result.fields.forEach((field: FieldWithValue) => {
+              field.page = page
+            })
+          }
+          return result
         })
 
         return {
@@ -290,6 +300,10 @@ export const useBatchDetail = (batchId: string) => {
             const fieldLabel = field.lable || field.label
             rowData[fieldLabel] = field.currentValue
           })
+          // add back the page number to row data
+          if (row.fields[0].page) {
+            rowData.page = row.fields[0].page
+          }
           return rowData
         }) || []
       } else {
@@ -344,7 +358,7 @@ export const useBatchDetail = (batchId: string) => {
     try {
       const docDetailRes = await clientApi.api.getCaptureBatchBatchidDocDocidDetail(batchDetail.value.id, docId)
       const status = statusToGroupStatus(docDetailRes.data.status)
-      if (!status || status.key.includes('failed')) {
+      if (!status || status.key.includes('failed') || status.key.includes('processing') || !docDetailRes.data.formId) {
         selectedDocDetail.value = {
           setting: null,
           detail: docDetailRes.data
@@ -614,6 +628,14 @@ export const useBatchDetail = (batchId: string) => {
       ...selectedDocDetail.value.detail,
       newResultJson
     }
+    const classification = calculateFamilyClassification(newDetail);
+
+    // Apply classification results to detail
+    newDetail.formSource = classification.formSource;
+    newDetail.familyCategory = classification.familyCategory;
+    newDetail.familyClass = classification.familyClass;
+    newDetail.priorityIndicator = classification.priorityIndicator;
+    newDetail.statePerson = classification.statePerson;
     updateDocumentValues(newDetail)
     delete newDetail.updatedBy
     delete newDetail.updatedAt
@@ -642,6 +664,14 @@ export const useBatchDetail = (batchId: string) => {
       ...selectedDocDetail.value.detail,
       newResultJson
     }
+    const classification = calculateFamilyClassification(newDetail);
+
+    // Apply classification results to detail
+    newDetail.formSource = classification.formSource;
+    newDetail.familyCategory = classification.familyCategory;
+    newDetail.familyClass = classification.familyClass;
+    newDetail.priorityIndicator = classification.priorityIndicator;
+    newDetail.statePerson = classification.statePerson;
     updateDocumentValues(newDetail)
     delete newDetail.updatedBy
     delete newDetail.updatedAt
@@ -1117,18 +1147,18 @@ export function calculateFamilyClassification(detail: any): {
  * - Update oldValue if it contains [formClass] placeholder
  * - Build newValue string with applicant info and family class
  */
-export function updateDocumentValues(detail: any, familyClass: string): void {
+export function updateDocumentValues(detail: any): void {
   // Update oldValue - replace [formClass] placeholder if present
   if (detail.oldValue?.includes('[formClass]')) {
-    detail.oldValue = detail.oldValue.replace('[formClass]', familyClass);
+    detail.oldValue = detail.oldValue.replace('[formClass]', detail.familyClass);
   }
 
-  // Build newValue: <appln no>&<family class>&<ahkid>&<hkic1>&<hkic2>&<hkic3>&<hkicx>&<PaymentReference>&<family class>
+  // Build newValue: <appln no>&<family type>&<ahkid>&<hkic1>&<hkic2>&<hkic3>&<hkicx>&<PaymentReference>&<family class>
   const appl_no = detail.applicantNum
   const ahkid = detail.newResultJson?.['Applicant Info']?.ApplicantHKID
   const hkics = detail.newResultJson?.ApplicantFamilyMemberList?.map((cur: any) => cur.FamilyMemberHKID || '') || []
   const PaymentReference = detail.newResultJson?.Payment?.PaymentReference
-  detail.newValue = `${appl_no}&${familyClass}&${ahkid}&${hkics.join('&')}&${PaymentReference}&${familyClass}`;
+  detail.newValue = `${appl_no}&${detail.formTypeCode}&${ahkid}&${hkics.join('&')}&${PaymentReference}&${detail.familyClass}`;
 }
 
 /**

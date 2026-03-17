@@ -252,6 +252,7 @@ provide(MenuRouterKey, {
   getHistory,
   addToHistory,
   refeshActions,
+  reloadComponent,
   message: {
     success: (...args) => createMessage('success', ...args),
     error: (...args) => createMessage('error', ...args),

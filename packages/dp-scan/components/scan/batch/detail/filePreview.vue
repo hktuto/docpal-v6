@@ -1016,16 +1016,16 @@ const paginationItems = computed(() => {
       </div>
       <div class="pageNav">
           <div class="navStat">
-              Category: {{selectedDocDetail.detail.FamilyCategory}}
+              Category: <span class="docClass"> {{selectedDocDetail.detail.FamilyCategory}} </span>
           </div>
           <div class="navStat">
-              Class: {{selectedDocDetail.detail.FamilyClass}}
+              Class: <span class="docClass">{{selectedDocDetail.detail.FamilyClass}}</span>
           </div>
           <div class="navStat">
-              Person: {{selectedDocDetail.detail.statePerson}}
+              Person: <span class="docClass">{{selectedDocDetail.detail.statePerson}}</span>
           </div>
           <div class="navStat">
-              Source: {{selectedDocDetail.detail.formSource}}
+              Source:<span class="docClass"> {{selectedDocDetail.detail.formSource}}</span>
           </div>
       </div>
 
@@ -1093,6 +1093,13 @@ const paginationItems = computed(() => {
 </template>
 
 <style lang="scss" scoped>
+.docClass{
+    padding: 0 var(--app-space-xs);
+    background: var(--app-primary-color);
+    border-radius: var(--app-border-radius-s);
+    color: #fff;
+    margin-inline: var(--app-space-xs);
+}
 .previewContainer {
   width: 100%;
   height: 100%;
@@ -1119,7 +1126,7 @@ const paginationItems = computed(() => {
 .zoomControls {
   display: flex;
   align-items: center;
-  gap: var(--app-space-xs);
+  gap: 0;
 
   :deep(.el-button) {
     padding: 4px 8px;

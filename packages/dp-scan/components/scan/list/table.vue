@@ -11,6 +11,30 @@ const selectedRow = ref<any[]>([])
 const { projects, isAdmin } = useScanClient()
 const filter = useUserListFilter()
 
+const pageParams = ref<any>({})
+async function getListData(params:any) {
+  pageParams.value = params
+  if (filter.value.projectId.length === 0) return []
+  cleanSelectedRows()
+  const f = { ...filter.value }
+  f.projectId = [filter.value.projectId]
+  if(f.status && f.status.length) {
+    // convert status to multiple stage
+    const newStatusFilter:string[] = []
+    f.status.forEach((status) => {
+      const map = StatusMap[status]
+      if(map) newStatusFilter.push(...map.status)
+    })
+    f.status = newStatusFilter
+  }
+  const p = {
+    ...params,
+    ...f
+  }
+  const res = await clientApi.api.postCaptureBatchList(p)
+  return res
+}
+const getListInterval = ref()
 /**
  * Check if user can cancel batches based on project permissions
  * All selected batches must belong to projects where user is admin
@@ -60,28 +84,16 @@ async function cancelBatchs(ids: string[]) {
     emits('updated')
 }
 
+const userId = useUserId()
+function openDetail(row: any) {
+
+  const newTab = createBatchDetailPageTab(row.id)
+  routerProvider?.navigateTo(newTab)
+}
 const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeTable({
   id: 'scan-table',
   api: async (params: any) => {
-
-    if (filter.value.projectId.length === 0) return []
-    cleanSelectedRows()
-    const f = { ...filter.value }
-    f.projectId = [filter.value.projectId]
-    if(f.status && f.status.length) {
-      // convert status to multiple stage
-      const newStatusFilter:string[] = []
-      f.status.forEach((status) => {
-        const map = StatusMap[status]
-        if(map) newStatusFilter.push(...map.status)
-      })
-      f.status = newStatusFilter
-    }
-    const p = {
-      ...params,
-      ...f
-    }
-    return clientApi.api.postCaptureBatchList(p)
+    return getListData(params)
   },
   customeToolBar: false,
   saveColumnOrder: false,
@@ -96,9 +108,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
     ...ScanTableColumns
   ],
   dblClickAction: ({ row }) => {
-    console.log("row id",row.id)
-    const newTab = createBatchDetailPageTab(row.id)
-    routerProvider?.navigateTo(newTab)
+    openDetail(row)
   },
   bodyActions: [
     [
@@ -106,8 +116,7 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
         code: 'view',
         name: 'Open',
         action: ({ row }) => {
-          const newTab = createBatchDetailPageTab(row.id)
-          routerProvider?.navigateTo(newTab)
+          openDetail(row)
         }
       },
       {
@@ -159,15 +168,42 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
   }
 })
 const debounceReload = useDebounceFn(reload, 300)
+
 watch(filter, debounceReload, {
   deep: true
 })
 
+onUnmounted(() => {
+  if (getListInterval.value) {
+    clearInterval(getListInterval.value)
+  }
+})
+
+
 onMounted(() => {
-  routerProvider.refeshActions.value.push({
-    fn: reload,
-    params:[]
-  })
+
+  getListInterval.value = setInterval(async() => {
+
+    // if pageParams is undefine that mean first run is not ready yet, ignore
+    if (!pageParams.value) return
+    try {
+
+      const {data:{entryList}} = await getListData(pageParams.value)
+      // get table data
+        const { fullData } = tableRef.value?.getTableData()
+        for(let i = 0; i < fullData.length; i++) {
+          if (entryList[i].updatedAt !== fullData[i].updatedAt) {
+            console.log("updatedAt mismatch", entryList[i].updatedAt, fullData[i].updatedAt)
+            routerProvider?.reloadComponent()
+            break
+          }
+        }
+
+    } catch (err) {
+      return
+    }
+
+  }, 60000)
 })
 </script>
 
@@ -191,6 +227,7 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   position: relative;
+  overflow: hidden;
 }
 </style>
 
