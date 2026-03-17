@@ -48,6 +48,7 @@ function handleAdd() {
 }
 
 function handleEdit(item: any) {
+  if (!checkIsSystemDefVariable(item)) return
   FormDialogRef.value.handleOpen(item)
 }
 
@@ -74,6 +75,9 @@ onMounted(() => {
     <div v-for="(item, index) in variables" :key="item.id" class="formFieldItem">
       <div class="label" @click="handleEdit(item)">
         {{ item.name }}
+      </div>
+      <div v-if="!checkIsSystemDefVariable(item)" style="width: 84px;">
+        <span style="color: #ff0000">System Field</span>
       </div>
       <div v-if="checkIsSystemDefVariable(item)" class="actions">
         <Icon name="lucide:square-pen" @click="handleEdit(item)" />
