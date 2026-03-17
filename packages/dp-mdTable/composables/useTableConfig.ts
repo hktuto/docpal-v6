@@ -2,7 +2,7 @@
 import { ref, computed, watch, type Ref, type ComputedRef } from 'vue'
 import type { VxeGridProps, VxeGridInstance } from 'vxe-table'
 import { VxeUI } from 'vxe-pc-ui'
-import type { ColumnConfig } from './useColumns'
+import type { ColumnConfig } from '../types/column-context'
 import { ColumnFieldType } from '../types/column-types'
 import { calculateCount, type CountMethod, flattenAggregatedData } from '../utils/tableCount'
 // 初始化注册管理器
@@ -10,6 +10,12 @@ import { rendererManager } from '../renderers/registry-manager'
 rendererManager.registerAllRenderers()
 
 export interface TableConfigOptions {
+  extraColumnConfig?: {
+    columns: ColumnConfig[]
+    deleteColumn: (column: ColumnConfig) => void
+    updateColumn: (column: ColumnConfig) => void
+    addColumn: (column: ColumnConfig) => void
+  }
   /** 表格高度 */
   height?: string | number
   /** 是否自动调整大小 */
@@ -33,7 +39,6 @@ export interface TableConfigOptions {
   /** 排序字段 */
   sortBy?: any
   /** 列配置 */
-  columns: Ref<ColumnConfig[]> | ComputedRef<ColumnConfig[]>
   /** 加载状态 */
   loading: Ref<boolean> | ComputedRef<boolean>
   apiMethod: Function
@@ -57,16 +62,18 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
     keepSource = true,
     rowId = 'id',
     editConfig,
-    columns,
     loading,
     apiMethod,
     childApiMethod,
-    groupBy,
-    filterBy,
-    sortBy,
     cellClassName
   } = options
-
+  const { columns } = toRefs(options.extraColumnConfig as any)
+  console.log('data', options)
+  // console.log('columns', columns)
+  // console.log('deleteColumn', deleteColumn)
+  // console.log('updateColumn', updateColumn)
+  // console.log('addColumn', addColumn)
+  const currentView = ref([])
   /**
    * 计算表格高度
    */
@@ -84,11 +91,15 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
    * 处理列配置（添加默认编辑配置）
    */
   const processedColumns = computed(() => {
-    let _columns: any[] = JSON.parse(JSON.stringify(columns.value))
+    console.log('columns', columns)
+    if (!columns.value) {
+      return []
+    }
+    const _columns = JSON.parse(JSON.stringify(columns.value ?? []))
     if (_columns.length === 0) {
       return []
     }
-    _columns[0].treeNode = !!groupBy.value && groupBy.value.length > 0
+    // _columns[0].treeNode = !!groupBy.value && groupBy.value.length > 0
     _columns.unshift({
       type: 'checkbox',
       width: 60,
@@ -99,7 +110,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       headerAlign: 'right',
       align: 'center'
     })
-    return _columns.map((col) => {
+    const data = _columns.map((col: any) => {
       if (col.type === 'checkbox') return col
 
       if (!col.business_type) col.business_type = ColumnFieldType.Text
@@ -111,7 +122,6 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         aggFunc: true,
         ...rendererManager.getColumnConfig(col.business_type as ColumnFieldType, col.display_structure, col.display_structure)
       }
-      console.log('colConfig', colConfig)
       colConfig.slots = {
         footer: 'footerCount',
         header: 'header'
@@ -120,14 +130,17 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
       if (col.business_type === ColumnFieldType.Number) {
         colConfig.align = 'right'
       }
-      console.log('colConfig', colConfig)
       return colConfig
     })
+    console.log('data', data)
+    return data
   })
   const processedEditRules = computed(() => {
-    let _columns: any[] = JSON.parse(JSON.stringify(columns.value))
-
-    return _columns.reduce((acc, col) => {
+    if (!columns.value) {
+      return []
+    }
+    const _columns = JSON.parse(JSON.stringify(columns.value ?? []))
+    return _columns.reduce((acc: any, col: any) => {
       acc[col.field] = rendererManager.getRules(col.type as ColumnFieldType)
       if (col.isRequired) {
         acc[col.field].push({ required: true, message: '必填项' })
@@ -242,23 +255,23 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
 
     // IMPORTANT: treeConfig with lazy:true DISABLES virtual scrolling!
     // Only enable treeConfig when grouping/aggregation is actually being used
-    const isGroupingEnabled = groupBy?.value && groupBy.value.length > 0
-    if (isGroupingEnabled) {
-      options.treeConfig = {
-        transform: true,
-        rowField: 'id',
-        parentField: 'parentId',
-        lazy: true,
-        hasChild: 'isAggregate',
-        loadMethod: treeLoadData,
-        expandAll: true
-      }
-      // Must disable virtual scroll when using tree config with lazy loading
-      // options.virtualYConfig = { enabled: false }
-    }
+    // const isGroupingEnabled = groupBy?.value && groupBy.value.length > 0
+    // if (isGroupingEnabled) {
+    //   options.treeConfig = {
+    //     transform: true,
+    //     rowField: 'id',
+    //     parentField: 'parentId',
+    //     lazy: true,
+    //     hasChild: 'isAggregate',
+    //     loadMethod: treeLoadData,
+    //     expandAll: true
+    //   }
+    // Must disable virtual scroll when using tree config with lazy loading
+    // options.virtualYConfig = { enabled: false }
+    // }
     // 编辑配置
     // 检查是否有列配置了 editRender
-    const hasEditRender = processedColumns.value.some((col) => col.editRender)
+    const hasEditRender = processedColumns.value.some((col: any) => col.editRender)
 
     // 如果显式传递了 editConfig 或者有列配置了 editRender，则启用编辑功能
     if (!!editConfig || hasEditRender) {
@@ -308,7 +321,7 @@ export function useTableConfig(options: TableConfigOptions, gridRef: any) {
         console.warn('childApiMethod is not defined')
         return []
       }
-      return await childApiMethod(params, groupBy.value)
+      // return await childApiMethod(params, groupBy.value)
     } catch (error) {
       console.error('treeLoadData error:', error)
       return []

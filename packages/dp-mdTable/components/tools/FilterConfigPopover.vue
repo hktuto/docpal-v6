@@ -130,7 +130,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
 import { Delete, Plus, QuestionFilled, Document, Clock } from '@element-plus/icons-vue'
-import type { ColumnConfig } from '../../composables/useColumns'
+import type { ColumnConfig } from '../../types/column-context'
 import { ColumnFieldType } from '../../types/column-types'
 
 export interface FilterRule {

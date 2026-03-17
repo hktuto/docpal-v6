@@ -140,7 +140,7 @@
 import { ref, computed, watch } from 'vue'
 import { Delete, Rank, QuestionFilled, Document, Clock } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
-import type { ColumnConfig } from '../../composables/useColumns'
+import type { ColumnConfig } from '../../types/column-context'
 import { ColumnFieldType } from '../../types/column-types'
 
 export interface GroupingRule {
@@ -217,6 +217,7 @@ const getFieldIcon = (type?: ColumnFieldType | string) => {
 
 // 获取排序标签
 const getSortLabel = (field: string, order: 'asc' | 'desc'): string => {
+  console.log('props.availableColumns', props.availableColumns, field)
   const column = props.availableColumns.find((col) => col.field === field)
   const isNumeric =
     column?.type === ColumnFieldType.Number ||

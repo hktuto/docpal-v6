@@ -185,7 +185,13 @@ interface MatchPreview {
   }>
 }
 const { query } = usePglite()
-const { getAvailableTablesForRelation, getFieldsForTable } = useColumnsInject()
+// const { getAvailableTablesForRelation, getFieldsForTable } = useColumnsInject()
+function getAvailableTablesForRelation() {
+  return []
+}
+function getFieldsForTable(tableId: string) {
+  return []
+}
 const { getSuggestionsForField, dismissSuggestion } = useRelationSuggestions()
 
 const emit = defineEmits<{

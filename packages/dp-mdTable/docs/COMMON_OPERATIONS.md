@@ -7,8 +7,10 @@ Quick reference for common tasks in the dp-mdTable package.
 ### Get Column Context
 
 ```typescript
-import { useColumnsContext } from '@nicepkg/dp-mdTable/composables/useColumns'
+import { ColumnContextKey } from '@nicepkg/dp-mdTable/types/column-context'
+import { inject } from 'vue'
 
+const columnContext = inject(ColumnContextKey)
 const {
   columns,           // Ref<ColumnConfig[]>
   addColumn,         // (column: ColumnConfig) => Promise<void>
@@ -16,7 +18,7 @@ const {
   deleteColumn,      // (field: string) => Promise<void>
   getColumn,         // (field: string) => ColumnConfig | undefined
   addVirtualColumn,  // (relationField, displayField, position?) => Promise<void>
-} = useColumnsContext()
+} = columnContext ?? {}
 ```
 
 ### Add a New Column
@@ -213,14 +215,14 @@ await gridRef.value?.commitProxy('reload')
 ### Get View Context
 
 ```typescript
-import { useViewContext } from './useTableViews'
+import { useViewInject } from './useTableViews'
 
 const {
   currentView,      // Ref<CaseViewRecord>
   views,            // Ref<CaseViewRecord[]>
   updateView,       // (viewId, updates) => Promise<void>
   switchView,       // (viewId) => Promise<void>
-} = useViewContext()
+} = useViewInject()
 ```
 
 ### Update View Fields Order
@@ -671,7 +673,7 @@ The form renderer supports these field types:
 
 1. **"ColumnContext not found"**
    - Ensure `ColumnContextKey` is provided by parent composable
-   - Check that `useColumnsContext()` is called within component tree
+   - Check that column context is provided (parent provides `ColumnContextKey`) and component uses `inject(ColumnContextKey)`
 
 2. **"Display field not found"**
    - Verify `displayFieldNames` contains valid field names

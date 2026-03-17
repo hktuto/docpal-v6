@@ -100,8 +100,10 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const { queryRelatedTable, getTableCardConfig, getFieldsForTable, getRecordById } = useColumnsInject()
-
+const queryRelatedTable = (tableId: string, params: any) => {
+  // return newClientApi.postTableRows(tableId, params)
+  return Promise.resolve([])
+}
 const displayTableLabel = computed(() => props.tableLabel || t('mdTable.relationPicker.defaultTableLabel'))
 
 const popoverVisible = ref(false)

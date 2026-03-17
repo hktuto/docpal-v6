@@ -4,11 +4,15 @@
       <div class="el-dialog__title mdForm-title">
         {{ $t('common_edit') }}
         <div v-if="showSourceButtons">
-          <el-icon style="font-size: 16px;" @click="handleSourceClick"><Position /></el-icon>
+          <el-icon style="font-size: 16px" @click="handleSourceClick"><Position /></el-icon>
         </div>
         <div v-if="showMoveButtons">
-          <el-icon style="font-size: 16px;" :class="disabledUp ? 'cursor-not-allowed' : 'cursor-pointer'" :disabled="disabledUp" @click="handleMove('up')"><Top /></el-icon>
-          <el-icon style="font-size: 16px;" :class="disabledDown ? 'cursor-not-allowed' : 'cursor-pointer'" :disabled="disabledDown" @click="handleMove('down')"><Bottom /></el-icon>
+          <el-icon style="font-size: 16px" :class="disabledUp ? 'cursor-not-allowed' : 'cursor-pointer'" :disabled="disabledUp" @click="handleMove('up')">
+            <Top />
+          </el-icon>
+          <el-icon style="font-size: 16px" :class="disabledDown ? 'cursor-not-allowed' : 'cursor-pointer'" :disabled="disabledDown" @click="handleMove('down')">
+            <Bottom />
+          </el-icon>
         </div>
       </div>
     </template>
@@ -51,7 +55,7 @@ const open = (row: any, _mode: 'default' | 'edit' = 'default') => {
   formData.value = row
   mode.value = _mode
   visible.value = true
-  if(props.showMoveButtons) setCurrentRow(row)
+  if (props.showMoveButtons) setCurrentRow(row)
 }
 function handleMove(direction: 'up' | 'down') {
   console.log('handleMove', direction)

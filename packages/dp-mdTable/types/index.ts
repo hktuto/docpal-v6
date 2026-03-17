@@ -3,6 +3,8 @@ import type { VxeGridProps, VxeGridListeners } from 'vxe-table'
 
 // Re-export view config types
 export * from './view-config'
+// Re-export column context types and key
+export * from './column-context'
 
 export interface GridColumn {
   field: string

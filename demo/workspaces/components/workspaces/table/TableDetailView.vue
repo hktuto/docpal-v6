@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import type { TreeItem } from '../../../composables/workspace/useSingleWorkspace'
 
 const props = defineProps<{
-  menuItem: TreeItem
   dataTableId: string
 }>()
 
@@ -27,7 +25,6 @@ const fileDrop = useFileDropImport({
       physicalTableName: tableView.physicalTableName,
       fields: tableView.fields,
       query,
-      tableDisplayName: props.menuItem?.label || 'Table',
       tableIdValue: props.dataTableId
     })
   }
@@ -110,7 +107,6 @@ function handleImport() {
     physicalTableName: tableView.physicalTableName,
     fields: tableView.fields,
     query,
-    tableDisplayName: props.menuItem?.label || 'Table',
     tableIdValue: props.dataTableId
   })
 }

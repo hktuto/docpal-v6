@@ -71,7 +71,7 @@ watch(() => workspaceRouteParams.value.detailId, () => {
     
     <template v-else>
       <!-- Table Detail View -->
-      <WorkspacesTableDetailView
+      <WorkspacesTableView
         :menu-item="currentTable"
         :data-table-id="currentTable.item_id"
       />

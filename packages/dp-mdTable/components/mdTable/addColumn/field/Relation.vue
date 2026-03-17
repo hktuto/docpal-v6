@@ -111,7 +111,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, inject } from 'vue'
 import draggable from 'vuedraggable'
-import { ColumnContextKey } from '../../../../composables/useColumns'
+import { ColumnContextKey } from '../../../../types/column-context'
 import type { CaseTableRecord, CaseFieldRecord } from '../../../../../../demo/workspaces/utils/db/schema/newTableSchema'
 
 const props = defineProps<{

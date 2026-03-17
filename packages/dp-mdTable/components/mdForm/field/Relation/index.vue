@@ -28,7 +28,6 @@ const emit = defineEmits<{
 }>()
 const pickerRef = ref<InstanceType<typeof MdFormFieldRelationPicker>>()
 const availableRecords = ref<any[]>([])
-const { queryRelatedTable, getFieldsForTable } = useColumnsInject()
 const { columns } = useMDTableInject()
 const relationTableId = computed(() => props.column?.display_structure?.relationTableId ?? '')
 const { t } = useI18n()

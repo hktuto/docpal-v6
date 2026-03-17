@@ -164,7 +164,7 @@ Comprehensive relation system allowing tables to link to each other with flexibl
 - `demo/workspaces/components/global/workspaces/dialogs/CreateReverseRelationDialog.vue` - Reverse dialog
 
 ### Types
-- `packages/dp-mdTable/composables/useColumns.ts` - ColumnContext interface
+- `packages/dp-mdTable/types/column-context.ts` - ColumnContext interface and ColumnContextKey
 
 ## Future Enhancements
 

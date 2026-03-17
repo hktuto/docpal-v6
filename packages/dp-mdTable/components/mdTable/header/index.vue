@@ -34,7 +34,7 @@ const props = defineProps<{
   column: any
   headerProps: any
 }>()
-const mdTableHeaderPopover = inject('mdTableHeaderPopover')
+const mdTableHeaderPopover = inject<Ref<any>>('mdTableHeaderPopover')
 const mdTable = useMDTableInject()
 const triggerRef = ref()
 const suggestionBadgeRef = ref()
@@ -146,7 +146,7 @@ const handleContextMenu = (event: MouseEvent) => {
 }
 function handleClick(htmlElement: HTMLElement) {
   const fullColumn = getFullColumnConfig()
-  mdTableHeaderPopover?.value?.open(htmlElement, fullColumn)
+  mdTableHeaderPopover.value?.open(htmlElement, fullColumn)
 }
 </script>
 <style scoped lang="scss">

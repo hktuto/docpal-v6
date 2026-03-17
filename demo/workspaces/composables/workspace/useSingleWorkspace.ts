@@ -66,11 +66,13 @@ export function useSingleWorkspaceContext() {
 export type WorkspaceRouteParams = {
   detailId: string | null
   pageType: 'setting' | 'detail'
-  detailType: 'folder' | 'table' | 'view' | 'dashboard' | 'root' | 'record'
+  detailType: 'folder' | 'master_table' | 'view' | 'dashboard' | 'root' | 'record'
   /** For record detail view: the record ID being viewed */
   recordId?: string | null
   /** For record detail view: the table ID the record belongs to */
   tableId?: string | null
+  /** For master_table detail view: the item ID of the master table */
+  item_id?: string | null
 }
 
 export function useSingleWorkspace() {
@@ -315,6 +317,7 @@ export function useSingleWorkspace() {
       case 'master_table':
         workspaceRouteParams.value.detailId = item.id
         workspaceRouteParams.value.detailType = 'master_table'
+        workspaceRouteParams.value.item_id = item.item_id
         workspaceRouteParams.value.pageType = pageType
         break
       case 'view':

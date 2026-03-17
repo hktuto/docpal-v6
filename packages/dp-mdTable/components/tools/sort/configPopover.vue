@@ -109,7 +109,7 @@
 import { ref, computed, watch, nextTick } from 'vue'
 import { Delete, Plus, Rank } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
-import type { ColumnConfig } from '../../composables/useColumns'
+import type { ColumnConfig } from '../../types/column-context'
 
 export interface SortRule {
   id: string

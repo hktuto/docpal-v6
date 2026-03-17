@@ -5,7 +5,10 @@ import { useUpdateStatus } from './useUpdateStatus'
 import { clientApi } from 'api'
 import { newClientApi } from 'api'
 export interface mdTable {
-  columns: any
+  columns: any[]
+  deleteColumn: (column: any) => void
+  updateColumn: (column: any) => void
+  addColumn: (column: any) => void
   gridRef: Ref<VxeGridInstance | undefined>
   getOptionsFromTableData: (column: any) => any[]
   clearCheckboxRow: () => void
@@ -20,7 +23,7 @@ export function useMDTable(props: any) {
   console.log('useMDTable', props)
   const editable = ref(props.editable)
   const gridRef = ref<any>()
-  const { columns, addColumnPopoverRef, deleteColumn, addColumn } = useColumns(props.tableId)
+  const addColumnPopoverRef = ref()
 
   const {
     loading,
@@ -31,11 +34,7 @@ export function useMDTable(props: any) {
     updateRow,
     deleteRow,
     getTableData,
-    getAggChildData,
-
-    columnGroupRules,
-    columnFilterRules,
-    columnSortRules,
+    getAggChildData
   } = useTableData(props.tableId, gridRef)
 
   // Get update status helper for cell styling
@@ -43,10 +42,6 @@ export function useMDTable(props: any) {
   const { gridOptions } = useTableConfig(
     {
       ...props,
-      groupBy: columnGroupRules,
-      filterBy: columnFilterRules,
-      sortBy: columnSortRules,
-      columns,
       loading,
       childApiMethod: getAggChildData,
       apiMethod: getTableData,
@@ -67,7 +62,6 @@ export function useMDTable(props: any) {
       gridRef.value?.clearCheckboxRow()
     }
   }
-
 
   const userList = ref<any[]>([])
   let lastLoadTime = 0
@@ -105,7 +99,7 @@ export function useMDTable(props: any) {
   }
 
   provide(MdTableContextKey, {
-    columns,
+    ...props.extraColumnConfig,
     tableData,
     gridRef,
     clearCheckboxRow,
@@ -114,24 +108,19 @@ export function useMDTable(props: any) {
     getUserList,
     userList,
     updateRow,
-    addRow
+    addRow,
+    addColumnPopoverRef
   })
 
   return {
-    columns,
+    columns: props.extraColumnConfig.columns,
     addColumnPopoverRef,
-    addColumn,
-    deleteColumn,
-    columnGroupRules,
-    columnFilterRules,
-    columnSortRules,
-
     gridOptions,
     gridRef,
     refreshTableData,
     tableData,
     editable,
-    
+
     clearCheckboxRow,
     addRow,
     updateRow

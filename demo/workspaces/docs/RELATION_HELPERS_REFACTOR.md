@@ -49,7 +49,7 @@ ORDER BY "fieldNameAlias"
 
 ### 2. Updated `ColumnContext` Interface ✅
 
-**File**: `/packages/dp-mdTable/composables/useColumns.ts`
+**File**: `/packages/dp-mdTable/types/column-context.ts`
 
 **Added Properties**:
 ```typescript
@@ -274,7 +274,7 @@ async function getFieldsForTable(targetTableId: string) {
    - Added `getFieldsForTable()`
    - Updated `ColumnContext` provide to include new methods
 
-2. `/packages/dp-mdTable/composables/useColumns.ts`
+2. `/packages/dp-mdTable/types/column-context.ts`
    - Updated `ColumnContext` interface with optional relation helpers
 
 3. `/packages/dp-mdTable/components/mdTable/addColumn/field/Relation.vue`

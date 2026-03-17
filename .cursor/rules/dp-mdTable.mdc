@@ -95,7 +95,7 @@ export const MyTypeEdit = ({ options, params }: EditRenderFunctionParams) => {
 | File | Purpose |
 |------|---------|
 | `composables/useMDTable.ts` | Main composable, provides MdTableContextKey |
-| `composables/useColumns.ts` | Column context interface and operations |
+| `types/column-context.ts` | Column context types and ColumnContextKey |
 | `types/column-types.ts` | ColumnFieldType enum and interfaces |
 | `renderers/registry-manager.ts` | Registers renderers with vxe-table |
 | `renderers/render-components.ts` | Maps types to renderer configs |

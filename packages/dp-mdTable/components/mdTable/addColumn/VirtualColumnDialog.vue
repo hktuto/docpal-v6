@@ -36,8 +36,8 @@
 
 <script setup lang="ts">
 import { ref, computed, inject } from 'vue'
-import { ColumnContextKey } from '../../../composables/useColumns'
-import type { ColumnConfig } from '../../../composables/useColumns'
+import { ColumnContextKey } from '../../../types/column-context'
+import type { ColumnConfig } from '../../../types/column-context'
 
 const emit = defineEmits<{
   select: [relationFieldName: string, displayFieldName: string]

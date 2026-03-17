@@ -1,5 +1,4 @@
 import { useState, createError } from '#imports'
-import { useWorkspaces } from '../../../demo/workspaces/composables/useWorkspace'
 type FormRenderSlotsType = {
   name: string
   component: any // FormRenderSlots
@@ -44,20 +43,11 @@ export const useWorkflow = () => {
     }
   }
 
-  /**
-   * Delete workspace and all related tables
-   */
-  async function deleteWorkspace(workspaceId: string): Promise<void> {
-    const { deleteWorkspace: deleteWorkspaceFromDb } = useWorkspaces()
-    await deleteWorkspaceFromDb(workspaceId)
-  }
-
   return {
     customStartCallBackList,
     customStartCallBack,
     customWorkflowHandler,
     formRenderSlots,
     formStartHandle,
-    deleteWorkspace
   }
 }

@@ -10,7 +10,7 @@
 const emits = defineEmits(['headerClick'])
 let triggerEl: HTMLElement | null = null
 let currentColumn: any = null
-
+const { gridRef, addColumn, deleteColumn, columns, addColumnPopoverRef } = useMDTableInject()
 const baseList = [
   { label: 'Column Setting', icon: 'lucide:square-pen', type: 'edit' },
   { label: 'Insert Column ', icon: 'lucide:panel-right-close', type: 'insertRight' },
@@ -19,39 +19,33 @@ const baseList = [
 ]
 
 // Relation-specific menu items
-const relationMenuItems = [
-  { label: 'Add Virtual Column', icon: 'lucide:columns-3', type: 'addVirtualColumn' }
-]
+const relationMenuItems = [{ label: 'Add Virtual Column', icon: 'lucide:columns-3', type: 'addVirtualColumn' }]
 
 // Filter menu items based on column type
 const filteredList = computed(() => {
   if (!currentColumn) return baseList
-  
+
   const columnType = currentColumn.type
-  
+
   // Check if it's a relation column (type 14 = MagicLink)
-  const isRelationColumn = columnType === 14 || 
-    columnType === 'MagicLink' ||
-    currentColumn.properties?.relationTableId
-  
+  const isRelationColumn = columnType === 14 || columnType === 'MagicLink' || currentColumn.properties?.relationTableId
+
   // Check if it's a virtual column (type 15 = VirtualColumn or has dot notation)
-  const isVirtualColumn = columnType === 15 || 
-    columnType === 'VirtualColumn' ||
-    currentColumn.field?.includes('.')
-  
+  const isVirtualColumn = columnType === 15 || columnType === 'VirtualColumn' || currentColumn.field?.includes('.')
+
   let items = [...baseList]
-  
+
   // Add relation-specific items for relation columns (but not virtual columns)
   if (isRelationColumn && !isVirtualColumn) {
     // Insert after 'Column Setting'
     items.splice(1, 0, ...relationMenuItems)
   }
-  
+
   // Remove 'Create Relation' for virtual columns (they can't have relations)
   if (isVirtualColumn) {
-    items = items.filter(item => item.type !== 'createRelation')
+    items = items.filter((item) => item.type !== 'createRelation')
   }
-  
+
   return items
 })
 
@@ -61,9 +55,60 @@ function open(_triggerEl: HTMLElement | null, _column: any) {
   currentColumn = _column
   popoverRef.value.open(triggerEl)
 }
-function handleClick(type: string) {
+
+const handleClick = (type: string) => {
   popoverRef.value.close()
-  emits('headerClick', type, triggerEl, currentColumn)
+  switch (type) {
+    case 'edit':
+      addColumnPopoverRef.value.show(triggerEl, currentColumn)
+      break
+    case 'sortAz':
+      gridRef.value.sort(currentColumn.field, 'asc')
+      break
+    case 'sortZa':
+      gridRef.value.sort(currentColumn.field, 'desc')
+      break
+    case 'insertLeft':
+      const defaultNewColumn = {
+        field_name: `New Column`,
+        business_type: ColumnFieldType.MultiText
+      } as unknown as ColumnConfig
+      addColumn([defaultNewColumn], currentColumn.field, 'left')
+      break
+    case 'insertRight':
+      const defaultNewColumnRight = {
+        field_name: `New Column`,
+        business_type: ColumnFieldType.MultiText
+      } as unknown as ColumnConfig
+      //
+      addColumn([defaultNewColumnRight], currentColumn.field, 'right')
+      console.log('insertRight', column)
+      break
+    case 'createRelation':
+      // if (handleCreateRelation) {
+      //   handleCreateRelation(column)
+      // } else {
+      //   console.warn('handleCreateRelation not provided')
+      // }
+      break
+    case 'addVirtualColumn':
+      // virtualColumnDialogRef.value?.open(triggerEl, column)
+      break
+    case 'editDescription':
+      break
+    case 'permission':
+      break
+    case 'hide':
+      break
+    case 'delete':
+      try {
+        const column = columns.value.find((item: any) => item.field_name === currentColumn.field)
+        deleteColumn(column.id as string)
+      } catch (error) {
+        console.error(error)
+      }
+      break
+  }
 }
 defineExpose({
   open

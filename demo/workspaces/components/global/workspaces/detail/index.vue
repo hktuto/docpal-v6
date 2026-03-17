@@ -89,7 +89,7 @@ const detailComponent = computed(() => {
       if (workspaceRouteParams.value.pageType === 'setting') {
         return 'LazyWorkspacesSettingTable'
       }
-      return 'LazyWorkspacesDetailTable'
+      return 'LazyWorkspacesDetailTableViews'
     case 'view':
       if (workspaceRouteParams.value.pageType === 'setting') {
         return 'LazyWorkspacesSettingView'

@@ -1,265 +1,213 @@
-import type { CaseViewRecord, ViewFilter, ViewSorting, ViewGrouping } from '../../utils/db/schema/newTableSchema'
+import type { ViewConfig } from '../../utils/db/schema/tableView'
+import {
+  parseViewConfigList,
+  serializeViewConfigList,
+  addView as addViewUtil,
+  deleteView as deleteViewUtil,
+  reorderViews as reorderViewsUtil,
+  replaceViewInList,
+  applyViewUpdates,
+  getDisplayColumns
+} from '../../utils/tableViews'
+
 import { ElMessage } from 'element-plus'
-import { getCurrentUserId } from '../useCurrentUser'
+import { newClientApi } from 'api'
+import type { ResultCfUserTableConfigResponseDTO } from 'api/src/generate/newClient'
+import { v7 as uuidv7 } from 'uuid'
+
 /**
  * View Context for view management
  */
 export interface ViewContext {
-  currentView: Ref<CaseViewRecord | null>
-  views: Ref<CaseViewRecord[]>
+  tableFields: Ref<any[]>
+  currentView: Ref<ViewConfig | null>
+  tableViews: Ref<ViewConfig[]>
   columnFilterRules: Ref<any[]>
   columnSortRules: Ref<any[]>
   columnGroupRules: Ref<any[]>
-  getViews: () => Promise<CaseViewRecord[]>
-  getViewById: (viewId: string) => Promise<void>
-  getDefaultView: () => Promise<CaseViewRecord | null>
-  createView: (view: Partial<CaseViewRecord>) => Promise<CaseViewRecord>
-  updateView: (viewId: string, updates: Partial<CaseViewRecord>) => Promise<void>
+  getViews: () => Promise<void>
+  createView: (view: Partial<ViewConfig>) => Promise<ViewConfig>
+  updateView: (viewId: string, updates: Partial<ViewConfig>) => Promise<void>
   deleteView: (viewId: string) => Promise<void>
-  saveViewFilterSortGroup: () => Promise<void>
+  reorderViews: (fromIndex: number, toIndex: number) => Promise<void>
+  saveViewFilterSortGroup: (updates?: Partial<Pick<ViewConfig, 'filterInfo' | 'sortInfo' | 'groupInfo'>>) => Promise<void>
+  addField: (newColumns: any[]) => Promise<void>
+  deleteField: (fieldId: string) => Promise<void>
+  updateField: (fieldName: string, updates: Partial<{ field_name: string; business_type: any; display_structure: any }>) => Promise<void>
 }
 
-export const ViewContextKey: InjectionKey<ViewContext> = Symbol('ViewContext')
+export const TableViewsInjectKey: InjectionKey<ViewContext> = Symbol('TableViewsInjectKey')
 
 export interface UseTableViewsOptions {
   tableId: Ref<string>
-  entityId: Ref<string>
-  query: <T = any>(sql: string, params?: any[]) => Promise<T[]>
-  // Optional callbacks
-  onViewChanged?: (view: CaseViewRecord) => void
+  reference_entity_id: Ref<string>
 }
-
+function generateViewId(prefix: string = 'tv'): string {
+  return prefix + '_' + uuidv7()
+}
 export function useTableViews(options: UseTableViewsOptions) {
-  const { tableId, entityId, query, onViewChanged } = options
+  const { tableId, reference_entity_id } = options
 
-  const currentView = ref<CaseViewRecord | null>(null)
-  const views = ref<CaseViewRecord[]>([])
+  const currentView = ref<ViewConfig | null>(null)
+  const tableViews = ref<ViewConfig[]>([])
+  const tableFields = ref<any[]>([])
 
-  // Filter, sort, group rules - loaded from view
   const columnFilterRules = ref<any[]>([])
   const columnSortRules = ref<any[]>([])
   const columnGroupRules = ref<any[]>([])
 
-  /**
-   * Get all views for the current table
-   */
-  async function getViews(): Promise<CaseViewRecord[]> {
-    if (!tableId.value) {
-      throw new Error('tableId is required')
-    }
-    const data = await query<CaseViewRecord>(`SELECT * FROM case_views WHERE "tableId" = $1 ORDER BY "isDefault" DESC, name ASC`, [tableId.value])
-    views.value = data
-
-    // Set current view to default if not set
-    if (!currentView.value && data.length > 0) {
-      currentView.value = data.find((v) => v.isDefault) || data[0]
-    }
-
-    return data
-  }
-
-  /**
-   * Get the default view for the current table
-   */
-  async function getDefaultView(): Promise<CaseViewRecord | null> {
-    if (!tableId.value) {
-      return null
-    }
-    const data = await query<CaseViewRecord>(`SELECT * FROM case_views WHERE "tableId" = $1 AND "isDefault" = true`, [tableId.value])
-    return data[0] || null
-  }
-
-  /**
-   * Get a view by ID and set it as current
-   */
-  async function getViewById(viewId: string): Promise<void> {
-    const data = await query<CaseViewRecord>(`SELECT * FROM case_views WHERE id = $1`, [viewId])
-    if (!data || !data.length) {
-      throw new Error(`View with id ${viewId} not found`)
-    }
-
-    currentView.value = data[0]
-
-    // Load filter, sort, group from view
-    columnFilterRules.value = data[0].filter || []
-    columnSortRules.value = data[0].sorting || []
-    columnGroupRules.value = data[0].grouping || []
-
-    onViewChanged?.(data[0])
-  }
-
-  /**
-   * Create a new view
-   */
-  async function createView(viewData: Partial<CaseViewRecord>): Promise<CaseViewRecord> {
-    if (!tableId.value || !entityId.value) {
-      throw new Error('tableId and entityId are required')
-    }
-
-    const now = new Date()
-    const viewId = viewData.id || crypto.randomUUID()
-    const viewName = viewData.viewName || `view_${viewId.replace(/-/g, '_')}`
-
-    const newView: CaseViewRecord = {
-      id: viewId,
-      name: viewData.name || 'New View',
-      description: viewData.description || null,
-      viewName,
-      viewType: viewData.viewType || 'table',
-      viewSettings: viewData.viewSettings || null,
-      filter: viewData.filter || null,
-      sorting: viewData.sorting || null,
-      grouping: viewData.grouping || null,
-      tableId: tableId.value,
-      isDefault: viewData.isDefault || false,
-      entityId: entityId.value,
-      fields: viewData.fields || [],
-      createdBy: viewData.createdBy || getCurrentUserId(),
-      createdAt: now,
-      updatedBy: viewData.createdBy || getCurrentUserId(),
-      updatedAt: now
-    }
-
-    await query(
-      `INSERT INTO case_views (
-        id, name, description, "viewName", "viewType", "viewSettings", filter, sorting, grouping,
-        "tableId", "isDefault", "entityId", fields, "createdBy", "createdAt", "updatedBy", "updatedAt"
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
-      [
-        newView.id,
-        newView.name,
-        newView.description,
-        newView.viewName,
-        newView.viewType,
-        JSON.stringify(newView.viewSettings),
-        JSON.stringify(newView.filter),
-        JSON.stringify(newView.sorting),
-        JSON.stringify(newView.grouping),
-        newView.tableId,
-        newView.isDefault,
-        newView.entityId,
-        newView.fields,
-        newView.createdBy,
-        newView.createdAt,
-        newView.updatedBy,
-        newView.updatedAt
-      ]
-    )
-
-    views.value.push(newView)
-    return newView
-  }
-
-  /**
-   * Update an existing view
-   */
-  async function updateView(viewId: string, updates: Partial<CaseViewRecord>): Promise<void> {
-    const now = new Date()
-
-    const updateKeys = Object.keys(updates).filter((k) => k !== 'id')
-    if (updateKeys.length === 0) return
-
-    const setClauses: string[] = []
-    const values: any[] = []
-    let paramIndex = 1
-
-    for (const key of updateKeys) {
-      setClauses.push(`"${key}" = $${paramIndex}`)
-
-      const value = ['filter', 'sorting', 'grouping', 'viewSettings'].includes(key)
-        ? JSON.stringify(updates[key as keyof CaseViewRecord])
-        : updates[key as keyof CaseViewRecord]
-      values.push(value)
-      paramIndex++
-    }
-
-    setClauses.push(`"updatedAt" = $${paramIndex}`)
-    values.push(now)
-    paramIndex++
-
-    setClauses.push(`"updatedBy" = $${paramIndex}`)
-    values.push(getCurrentUserId())
-    paramIndex++
-
-    values.push(viewId)
-
-    const sql = `UPDATE case_views SET ${setClauses.join(', ')} WHERE id = $${paramIndex}`
-    await query(sql, values)
-
-    // Update local state
-    const index = views.value.findIndex((v) => v.id === viewId)
-    if (index !== -1) {
-      views.value[index] = { ...views.value[index], ...updates, updatedAt: now }
-    }
-    if (currentView.value?.id === viewId) {
-      currentView.value = { ...currentView.value, ...updates, updatedAt: now }
-    }
-  }
-
-  /**
-   * Save filter, sort, and group rules to current view
-   */
-  async function saveViewFilterSortGroup(): Promise<void> {
-    if (!currentView.value?.id) {
-      throw new Error('View not found')
-    }
-    return updateView(currentView.value.id, {
-      filter: columnFilterRules.value as ViewFilter[],
-      sorting: columnSortRules.value as ViewSorting[],
-      grouping: columnGroupRules.value as ViewGrouping[]
+  async function getViews() {
+    const data: ResultCfUserTableConfigResponseDTO = await newClientApi.getDocpalMasterTableUserConfig({
+      tableId: tableId.value
     })
-    ElMessage.success('View has saved ')
+    let views = parseViewConfigList(data?.data?.tableConfig)
+
+    if (!views.length) {
+      const defaultViewId = generateViewId()
+      views = addViewUtil([], {
+        id: defaultViewId,
+        name: '默认视图'
+      })
+      await saveViews(views)
+    }
+    tableFields.value = data.data?.tableFields ?? []
+    tableViews.value = views
+    setCurrentView(views[0])
+  }
+  function setCurrentView(view: ViewConfig | string) {
+    if (typeof view === 'string') {
+      const target = tableViews.value.find((v: ViewConfig) => v.id === view) ?? null
+      if (!target) return
+      currentView.value = target
+    } else {
+      currentView.value = view
+    }
+    console.log(currentView.value)
+    if (currentView.value) {
+      console.log(tableFields.value)
+      currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
+    }
+  }
+  async function saveViews(views: ViewConfig[]) {
+    await newClientApi.postDocpalMasterTableUserConfig({
+      tableId: tableId.value,
+      tableConfig: serializeViewConfigList(views)
+    })
   }
 
-  /**
-   * Delete a view
-   */
-  async function deleteView(viewId: string): Promise<void> {
-    await query(`DELETE FROM case_views WHERE id = $1`, [viewId])
-    views.value = views.value.filter((v) => v.id !== viewId)
+  async function createView(partial: Partial<ViewConfig>) {
+    const id = 'tv_' + uuidv7()
+    const next = addViewUtil(tableViews.value, { ...partial, id })
+    tableViews.value = next
+    await saveViews(next)
+    const created = next[next.length - 1]
+    setCurrentView(created)
+    ElMessage.success('视图已创建')
+    return created
+  }
 
-    if (currentView.value?.id === viewId) {
-      currentView.value = views.value.find((v) => v.isDefault) || views.value[0] || null
+  async function updateView(viewId: string, updates: Partial<ViewConfig>) {
+    const view = tableViews.value.find((v) => v.id === viewId)
+    if (!view) return
+    const updated = applyViewUpdates(view, updates)
+    tableViews.value = replaceViewInList(tableViews.value, viewId, updated)
+    if (currentView.value?.id === viewId) currentView.value = updated
+    await saveViews(tableViews.value)
+  }
+
+  async function deleteView(viewId: string) {
+    tableViews.value = deleteViewUtil(tableViews.value, viewId)
+    if (currentView.value?.id === viewId) currentView.value = tableViews.value[0] ?? null
+    await saveViews(tableViews.value)
+    ElMessage.success('视图已删除')
+  }
+
+  async function reorderViews(fromIndex: number, toIndex: number) {
+    tableViews.value = reorderViewsUtil(tableViews.value, fromIndex, toIndex)
+    await saveViews(tableViews.value)
+  }
+
+  async function saveViewFilterSortGroup(updates?: Partial<Pick<ViewConfig, 'filterInfo' | 'sortInfo' | 'groupInfo'>>) {
+    const view = currentView.value
+    if (!view) return
+    const merged = updates ?? {
+      filterInfo: { conditions: columnFilterRules.value, conjunction: view.filterInfo.conjunction },
+      sortInfo: columnSortRules.value?.[0] ?? view.sortInfo,
+      groupInfo: columnGroupRules.value?.length ? columnGroupRules.value : view.groupInfo
+    }
+    await updateView(view.id, merged)
+  }
+
+  async function addField(newColumns: any[]) {
+    await newClientApi.postDynamicDbTableTableidFields(tableId.value, { fields: newColumns })
+    await getViews()
+  }
+
+  async function deleteField(fieldId: string) {
+    await newClientApi.deleteDynamicDbTableFieldsFieldid(fieldId)
+    const index = tableFields.value.findIndex((f: any) => f.id === fieldId)
+    if (index !== -1) tableFields.value.splice(index, 1)
+    if (currentView.value) currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
+
+  }
+
+  async function updateField(fieldName: string, updates: Partial<{ field_name: string; business_type: any; display_structure: any }>) {
+    const index = tableFields.value.findIndex((f: any) => f.field_name === fieldName)
+    if (index === -1) return
+    const fieldId = (tableFields.value[index] as any).id as string
+    const { data }: any = await newClientApi.putDynamicDbTableFieldsFieldid(fieldId, updates)
+    if (data) {
+      tableFields.value[index] = {
+        ...tableFields.value[index],
+        field_name_alias: updates.field_name,
+        business_type: updates.business_type,
+        display_structure: updates.display_structure
+      }
     }
   }
 
-  // Provide context
-  provide(ViewContextKey, {
+  provide(TableViewsInjectKey, {
+    tableFields,
     currentView,
-    views,
+    tableViews,
     columnFilterRules,
     columnSortRules,
     columnGroupRules,
     getViews,
-    getViewById,
-    getDefaultView,
     createView,
     updateView,
     deleteView,
-    saveViewFilterSortGroup
+    reorderViews,
+    saveViewFilterSortGroup,
+    addField,
+    deleteField,
+    updateField
   })
 
   return {
+    setCurrentView,
     currentView,
-    views,
+    tableViews,
     columnFilterRules,
     columnSortRules,
     columnGroupRules,
     getViews,
-    getViewById,
-    getDefaultView,
     createView,
     updateView,
     deleteView,
-    saveViewFilterSortGroup
+    reorderViews,
+    saveViewFilterSortGroup,
+    addField,
+    deleteField,
+    updateField
   }
 }
 
 /**
  * Use the view context from a parent component
  */
-export function useViewContext(): ViewContext {
-  const context = inject(ViewContextKey)
+export function useTableViewsInject(): ViewContext {
+  const context = inject(TableViewsInjectKey)
   if (!context) {
     throw new Error('ViewContext not found. Make sure useTableViews is called in a parent component.')
   }

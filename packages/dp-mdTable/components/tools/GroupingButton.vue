@@ -23,7 +23,7 @@
 import { ref, computed } from 'vue'
 import GroupingConfigPopover from './GroupingConfigPopover.vue'
 import type { GroupingRule } from './GroupingConfigPopover.vue'
-import type { ColumnConfig } from '../../composables/useColumns'
+import type { ColumnConfig } from '../../types/column-context'
 
 
 interface Props {

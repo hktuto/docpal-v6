@@ -128,7 +128,7 @@ The package uses Vue's `provide/inject` for dependency injection:
 │  ┌───────────────────────────────────────────────────┐  │
 │  │  dp-mdTable package                               │  │
 │  │  ├── useMDTable() - Consumes contexts             │  │
-│  │  ├── useColumnsContext() - Column operations      │  │
+│  │  ├── inject(ColumnContextKey) - Column operations │  │
 │  │  └── useTableDataInject() - Data operations      │  │
 │  └───────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────┘
@@ -143,8 +143,8 @@ Main table composable that:
 - Configures grid options via `useTableConfig`
 - Exposes table operations (add/update/delete columns/rows)
 
-#### `useColumns.ts` (Package Level)
-Defines `ColumnContext` interface and provides column operations:
+#### `types/column-context.ts` (Package Level)
+Defines `ColumnContext` interface and `ColumnContextKey`. Consumers inject the context via `inject(ColumnContextKey)`. Column operations:
 - `getColumn(field)` - Get column by field name
 - `addColumn(column)` - Add new column
 - `updateColumn(field, updates)` - Update column settings
@@ -668,7 +668,7 @@ formStructure: {
 | File | Purpose |
 |------|---------|
 | `composables/useMDTable.ts` | Main table composable, provides MdTableContextKey |
-| `composables/useColumns.ts` | Column operations, provides ColumnContextKey |
+| `types/column-context.ts` | Column context types and ColumnContextKey |
 | `types/column-types.ts` | ColumnFieldType enum and interfaces |
 | `renderers/registry-manager.ts` | Registers renderers with vxe-table |
 | `renderers/render-components.ts` | Maps types to renderer configs |

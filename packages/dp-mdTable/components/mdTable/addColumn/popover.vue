@@ -50,6 +50,7 @@ interface Props {
   placement?: string
   popperClass?: string
 }
+const { deleteColumn, updateColumn, addColumn } = useMDTableInject()
 const columnFieldOptions = getColumnFieldOptions()
 const displayColumnFieldOptions = computed(() => {
   return state.isEdit ? columnFieldOptions : columnFieldOptions.filter((item: any) => !item.disableCreate)
@@ -59,7 +60,6 @@ const props = withDefaults(defineProps<Props>(), {
   placement: 'left-start',
   popperClass: ''
 })
-const { addColumn, updateColumn, deleteColumn } = useColumnsInject()
 
 const emit = defineEmits<{
   submit: [column: ColumnConfig]
@@ -150,7 +150,7 @@ const handleSubmit = async () => {
   try {
     await formRef.value.validate()
     // 基本字段
-    const basicFields = [ 'field_name', 'business_type']
+    const basicFields = ['field_name', 'business_type']
     const columnConfig: ColumnConfig = {
       business_type: formData.value.business_type as ColumnFieldType
     }
@@ -191,8 +191,7 @@ const handleSubmit = async () => {
       updateColumn(state.column?.field, columnConfig as any)
     } else {
       columnConfig.field_name = formData.value.field_name
-      console.log('addColumn', columnConfig)
-      addColumn(columnConfig)
+      addColumn([columnConfig])
     }
     resetForm()
     handleClose()

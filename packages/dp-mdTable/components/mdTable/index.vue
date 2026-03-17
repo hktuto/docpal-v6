@@ -2,6 +2,7 @@
   <div class="multi-dimension-table" :style="{ height: height || '100%' }">
     <!-- 工具栏 -->
     <Toolbar
+      v-if="columns.length > 0"
       :groupable-columns="columns"
       @refresh="handleRefresh"
       @search="handleSearch"
@@ -52,12 +53,10 @@
             <el-icon><Plus /></el-icon>
           </slot>
         </div>
-        
-        <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" />
       </div>
+      <MdTableAddColumnPopover ref="addColumnPopoverRef" placement="left-start" popper-class="add-popover-content" />
       <MdFormPopover ref="MdFormPopoverRef" showMoveButtons @submit="handleAddRowSubmit" />
-
-      <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" @headerClick="handleHeaderClick" />
+      <MdTableHeaderPopover ref="mdTableHeaderPopoverRef" />
       <VirtualColumnDialog ref="virtualColumnDialogRef" @select="handleVirtualColumnSelect" />
       <RecordCardDialog ref="recordCardDialogRef" />
     </div>
@@ -74,7 +73,7 @@ import VirtualColumnDialog from './addColumn/VirtualColumnDialog.vue'
 import RecordCardDialog from './RecordCardDialog.vue'
 import { onClickOutside } from '@vueuse/core'
 import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
-import type { ColumnConfig } from '../../composables/useColumns'
+import type { ColumnConfig } from '../../types/column-context'
 import type { SortRule } from '../tools/sort/configPopover.vue'
 import { createFieldId } from '../../utils/mdTableHelper'
 // 导入并注册自定义渲染器（必须在组件加载时执行）
@@ -83,11 +82,23 @@ const slots = useSlots()
 interface Props {
   tableId?: string
   editable?: boolean
+  extraColumnConfig?: {
+    columns: Ref<ColumnConfig[]>
+    deleteColumn: (column: ColumnConfig) => void
+    updateColumn: (column: ColumnConfig) => void
+    addColumn: (column: ColumnConfig) => void
+  }
 }
 
 const props = withDefaults(defineProps<Props>(), {
   tableId: '',
-  editable: false
+  editable: false,
+  extraColumnConfig: () => ({
+    columns: [],
+    deleteColumn: () => {},
+    updateColumn: () => {},
+    addColumn: () => {}
+  })
 })
 
 const emit = defineEmits<{
@@ -102,30 +113,15 @@ const emit = defineEmits<{
   'column-add': [column: ColumnConfig]
   'save-view': []
   import: []
-  'add-row': [],
+  'add-row': []
   'add-row-submit': [data: any]
 }>()
 
 // 引用
 const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
-const {
-  tableData,
-  columns,
-  columnGroupRules,
-  columnFilterRules,
-  columnSortRules,
-  gridOptions,
-  gridRef,
-  refreshTableData,
-  saveColumnOrder,
-  updateRow,
-  addVirtualColumn,
-  addColumnPopoverRef,
-  deleteColumn,
-  addColumn,
-  addRow
-} = useMDTable(props)
+const { tableData, columns, gridOptions, gridRef, refreshTableData, saveColumnOrder, updateRow, addVirtualColumn, addColumnPopoverRef, addRow } =
+  useMDTable(props)
 // Import update status composable
 await new Promise((resolve) => setTimeout(resolve, 1000))
 const { setLoading, setSuccess, setError, getCellClass } = useUpdateStatus()
@@ -196,7 +192,7 @@ const gridEvents = computed<VxeGridListeners>(() => ({
     const { fullData } = gridRef.value?.getTableData()
     console.log('checkbox-all', checked, fullData)
     const setChecked = (row: any) => {
-      if(row.children && row.children.length > 0) {
+      if (row.children && row.children.length > 0) {
         row.children.forEach((child: any) => {
           setChecked(child)
         })
@@ -232,13 +228,13 @@ const handleSearch = (value: string) => {
 }
 
 const handleGroupToggle = (rules: any[]) => {
-  columnGroupRules.value = rules
+  // columnGroupRules.value = rules
 }
 const handleFilterChange = (rules: any[]) => {
-  columnFilterRules.value = rules
+  // columnFilterRules.value = rules
 }
 const handleSortChange = (rules: SortRule[]) => {
-  columnSortRules.value = rules
+  // columnSortRules.value = rules
 }
 
 const handleSaveView = () => {
@@ -274,61 +270,13 @@ const handleAddColumn = (e: MouseEvent) => {
 }
 const handleCreateRelation = inject<((column: any) => void) | undefined>('handleCreateRelation', undefined)
 
-const handleHeaderClick = (type: string, triggerEl: HTMLElement, column: any) => {
-  switch (type) {
-    case 'edit':
-      console.log('handleHeaderClick', type, triggerEl, column)
-      addColumnPopoverRef.value.show(triggerEl, column)
-      break
-    case 'sortAz':
-      gridRef.value.sort(column.field, 'asc')
-      break
-    case 'sortZa':
-      gridRef.value.sort(column.field, 'desc')
-      break
-    case 'insertLeft':
-      const defaultNewColumn = {
-        field_name: `New Column`,
-        business_type: ColumnFieldType.MultiText
-      } as unknown as ColumnConfig
-      //
-      addColumn(defaultNewColumn, column.field, 'left')
-      break
-    case 'insertRight':
-      const defaultNewColumnRight = {
-        field_name: `New Column`,
-        business_type: ColumnFieldType.MultiText
-      } as unknown as ColumnConfig
-      //
-      addColumn(defaultNewColumnRight, column.field, 'right')
-      console.log('insertRight', column)
-      break
-    case 'createRelation':
-      if (handleCreateRelation) {
-        handleCreateRelation(column)
-      } else {
-        console.warn('handleCreateRelation not provided')
-      }
-      break
-    case 'addVirtualColumn':
-      virtualColumnDialogRef.value?.open(triggerEl, column)
-      break
-    case 'editDescription':
-      break
-    case 'permission':
-      break
-    case 'hide':
-      break
-    case 'delete':
-      deleteColumn(column.field)
-      break
-  }
-}
 const mdTableHeaderPopoverRef = ref()
 const virtualColumnDialogRef = ref()
 const checkboxIndexRef = ref()
 provide('mdTableHeaderPopover', mdTableHeaderPopoverRef)
-
+function handleClick() {
+  console.log('handleClick', mdTableHeaderPopoverRef)
+}
 // Handle virtual column selection from dialog
 const handleVirtualColumnSelect = async (relationFieldName: string, displayFieldName: string) => {
   // Use the injected addVirtualColumn or fall back to context

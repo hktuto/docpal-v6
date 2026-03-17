@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import FilterConfigPopover from './FilterConfigPopover.vue'
 import type { FilterRule } from './FilterConfigPopover.vue'
-import type { ColumnConfig } from '../../composables/useColumns'
+import type { ColumnConfig } from '../../types/column-context'
 
 interface Props {
   availableColumns: ColumnConfig[]

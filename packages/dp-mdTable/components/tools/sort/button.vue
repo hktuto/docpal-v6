@@ -21,7 +21,7 @@
 import { ref, computed } from 'vue'
 import { Sort } from '@element-plus/icons-vue'
 import type { SortRule } from './sort/configPopover.vue'
-import type { ColumnConfig } from '../../composables/useColumns'
+import type { ColumnConfig } from '../../types/column-context'
 
 interface Props {
   availableColumns: ColumnConfig[]

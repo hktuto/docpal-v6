@@ -41,7 +41,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { CardViewConfig, FieldInfo } from '../../types/view-config'
-import { ColumnContextKey, type ColumnContext } from '../../composables/useColumns'
+import { ColumnContextKey, type ColumnContext } from '../../types/column-context'
 import CardPreview from '../viewConfig/CardPreview.vue'
 
 interface RecordCardParams {
