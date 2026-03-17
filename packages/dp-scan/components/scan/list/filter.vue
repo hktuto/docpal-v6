@@ -76,6 +76,10 @@ const shortcuts = [
   }
 ]
 
+const filterableColumn = computed(() => {
+  return ScanTableColumns.filter(col => col.filterable)
+})
+
 const search = useDebounceFn(() => {
   emit('search', filter)
 }, 500)
@@ -121,14 +125,14 @@ watchThrottled(filter, search, { throttle: 300 })
     <div class="sortContainer">
       <ElDropdown>
         <span class="el-dropdown-link">
-          {{ filter.orderBy }}
+          {{filterableColumn.find(col => col.field === filter.orderBy)?.title}}
           <el-icon class="el-icon--right">
             <ArrowDown />
           </el-icon>
         </span>
         <template #dropdown>
           <ElDropdownMenu>
-            <ElDropdownItem v-for="col in ScanTableColumns" :key="col.field" @click="filter.orderBy = col.field">
+            <ElDropdownItem v-for="col in filterableColumn" :key="col.field" @click="filter.orderBy = col.field">
               <span :class="{ orderBySelected: filter.orderBy === col.field }">{{ col.title }}</span>
             </ElDropdownItem>
           </ElDropdownMenu>

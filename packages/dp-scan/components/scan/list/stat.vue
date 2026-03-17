@@ -1,14 +1,14 @@
 <script lang="ts" setup>
 import { clientApi } from 'api'
 import { StatusMap } from '#imports'
-const { projects } = useScanClient()
+const { projects, filter } = useScanClient()
 const stat = ref()
 const loading = ref(true)
 const getStats = async () => {
   loading.value = true
   try {
     const { data } = (await clientApi.api.postCaptureBatchStatusCount({
-      projectId: projects.value.map((project) => project.id)
+      projectId: [filter.value.projectId]
     })) as any
     stat.value = data
   } catch (err) {
@@ -24,13 +24,14 @@ function foundStat(item: any) {
   return result
 }
 watch(
-  projects,
-  (projectList) => {
-    if (projectList.length === 0) return
+  filter,
+  () => {
+    if (projects.value.length === 0) return
     getStats()
   },
   {
-    immediate: true
+    immediate: true,
+    deep:true
   }
 )
 defineExpose({

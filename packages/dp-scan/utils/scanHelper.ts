@@ -48,11 +48,12 @@ export const ScanTableColumns: any[] = [
   {
     field: 'batchNo',
     title: 'Batch Name',
-    width: 200
+    width: 200,
   },
   {
     field: 'status',
     title: 'Status',
+    filterable:true,
     type: 'html',
     formatter({ cellValue }: any) {
       if (!cellValue) return ''
@@ -67,6 +68,7 @@ export const ScanTableColumns: any[] = [
   {
     field: 'createdAt',
     title: 'Created At',
+    filterable:true,
     formatter({ cellValue }: any) {
       return formatDate(cellValue)
     }
@@ -74,6 +76,7 @@ export const ScanTableColumns: any[] = [
   {
     field: 'updatedAt',
     title: 'Updated At',
+    filterable:true,
     formatter({ cellValue }: any) {
       return formatDate(cellValue)
     }
