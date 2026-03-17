@@ -72,8 +72,8 @@ export const useUserListFilter = () =>
     createdAtEnd: '',
     updatedAtStart: '',
     updatedAtEnd: '',
-    orderBy: 'createdAt',
-    isDesc: true
+    orderBy: 'updateAt',
+    isDesc: false
   }))
 export const useScanClient = () => {
   const projects = useUsetProject()
