@@ -205,6 +205,8 @@ export interface FormFieldsSetting {
   out_file_name_template: string
   /** New document name template */
   new_document_name_tempate: string
+  /** String to store the init logic to a form */
+  custom_init_logic?:string
 }
 
 // ==================== API/Runtime Types ====================

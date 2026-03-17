@@ -110,6 +110,9 @@ const activeQrcode = ref([])
             <ElFormItem label="Form Prompt Template">
                 <PropmtSelect v-model="config.prompt_template_id" />
             </ElFormItem>
+            <ElFormItem label="Init Logic">
+                <ElInput v-model="config.custom_init_logic" />
+            </ElFormItem>
             </ElForm>
         </div>
         </div>
