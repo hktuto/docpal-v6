@@ -14,7 +14,7 @@ const emits = defineEmits(['openForm'])
     <ContextStartEventAdditionLogic :node="node" />
     <ContextForm :node="node" />
     <ContextPreviewDocument v-if="node.data.type !== 'StartEvent'" :node="node" />
-<!--    <ContextBooleanButton :node="node" />-->
+    <ContextUserTaskBooleanButton :node="node" />
   </div>
 </template>
 

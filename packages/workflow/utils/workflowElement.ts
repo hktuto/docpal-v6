@@ -5,13 +5,13 @@ export enum WorkflowElementType {
   StartEvent = 'StartEvent',
   EndEvent = 'EndEvent',
   Gateway = 'Gateway',
-  UserTask = 'UserTask'
+  UserTask = 'UserTask',
+  HTTPTask = 'HTTPTask'
   // exclusiveGateway = 'exclusiveGateway',
   // ServiceTask = 'serviceTask',
   // boundaryEvent = 'boundaryEvent',
   // scriptTask = 'scriptTask',
   // sequenceFlow = 'sequenceFlow'
-  // httpTask: 'httpTask'
 }
 
 Graph.registerNode(
@@ -132,7 +132,8 @@ export enum CellType {
   signatureTask = 'SignatureTask',
   exclusive = 'ExclusiveGateway',
   parallel = 'ParallelGateway',
-  inclusive = 'InclusiveGateway'
+  inclusive = 'InclusiveGateway',
+  HTTPTask = 'HTTPTask'
 }
 
 interface portsItems {
@@ -161,7 +162,7 @@ export type CellTypeItem = {
       inputSchema?: string
       outputSchema?: string
       config?: any
-      execution: {
+      execution?: {
         async: boolean
         timeout_ms: number
         priority: number
@@ -567,10 +568,55 @@ export const workflowElement: WorkflowElement = {
       }
       return 'LazyContextUserTask'
     }
-  }
+  },
   // ServiceTask: {
   //
-  // }
+  // },
+  HTTPTask: {
+    embed: false,
+    toolbar: [
+      {
+        id: CellType.HTTPTask,
+        icon: 'mdi:web',
+        label: 'HTTP Task',
+        group: '',
+        order: 0
+      }
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
+      const graph: GraphItem = {
+        id: workflowNodeItem.id,
+        markup: [
+          { tagName: 'rect', selector: 'body' },
+          { tagName: 'image', selector: 'image' },
+          { tagName: 'text', selector: 'title' },
+          { tagName: 'text', selector: 'text' }
+        ],
+        attrs: GenAttrs('HTTP Task', workflowNodeItem.name, workflowNodeItem.metadata.icon),
+        shape: 'bpmn-node',
+        zIndex: 1,
+        visible: true,
+        position: {
+          x: workflowNodeItem.metadata.x || 60,
+          y: workflowNodeItem.metadata.y || 60
+        },
+        size: {
+          width: workflowNodeItem.metadata.width || 120,
+          height: workflowNodeItem.metadata.height || 64
+        },
+        data: {
+          ...workflowNodeItem
+        },
+        ports: GenDefPorts(),
+        _order: 0
+      }
+      return graph
+    },
+    clickHandler: () => {},
+    contextMenuComponent: () => {
+      return 'ContextHttpTask'
+    }
+  }
 }
 
 // #region toolbar
@@ -616,6 +662,7 @@ const workflowCellElementTemplate: CellTypeItem = {
         input_mapping: {},
         output_mapping: {}
       },
+      execution: { async: false, timeout_ms: 1000, priority: 0 },
       metadata: {
         tags: CellType.userTask,
         formKey: '',
@@ -648,10 +695,20 @@ const workflowCellElementTemplate: CellTypeItem = {
     data: {
       id: '',
       name: 'New Signature Task',
+      label: 'New Signature Task',
+      documentation: '',
       type: WorkflowElementType.UserTask,
       inputSchema: '',
       outputSchema: '',
-      assignee: '',
+      config: {
+        assignee: '',
+        candidate_roles: [],
+        candidate_groups: [],
+        due_date: '',
+        input_mapping: {},
+        output_mapping: {}
+      },
+      execution: { async: false, timeout_ms: 1000, priority: 0 },
       metadata: {
         tags: CellType.signatureTask,
         formKey: '',
@@ -684,6 +741,8 @@ const workflowCellElementTemplate: CellTypeItem = {
     data: {
       id: '',
       name: 'New Exclusive Gateway',
+      label: 'New Exclusive Gateway',
+      documentation: '',
       type: WorkflowElementType.Gateway,
       execution: { async: false, timeout_ms: 1000, priority: 0 },
       metadata: {
@@ -726,11 +785,13 @@ const workflowCellElementTemplate: CellTypeItem = {
     },
     data: {
       id: '',
-      name: 'New Exclusive Gateway',
+      name: 'New Parallel Gateway',
+      label: 'New Parallel Gateway',
+      documentation: '',
       type: WorkflowElementType.Gateway,
       execution: { async: false, timeout_ms: 1000, priority: 0 },
       metadata: {
-        tags: CellType.exclusive
+        tags: CellType.parallel
       }
     }
   },
@@ -758,10 +819,50 @@ const workflowCellElementTemplate: CellTypeItem = {
     data: {
       id: '',
       name: 'New Inclusive Gateway',
+      label: 'New Inclusive Gateway',
+      documentation: '',
       type: WorkflowElementType.Gateway,
       execution: { async: false, timeout_ms: 1000, priority: 0 },
       metadata: {
         tags: CellType.inclusive
+      }
+    }
+  },
+  HTTPTask: {
+    id: `New_HTTPTask_${Date.now()}`,
+    label: 'HTTP Task',
+    shape: 'bpmn-node',
+    width: 200,
+    height: 64,
+    attrs: GenAttrs('HTTP Task', 'HTTP Task', '/icons/http-task.svg'),
+    markup: [{ tagName: 'rect', selector: 'body' }],
+    ports: {
+      items: [
+        { id: 'from', group: 'from' },
+        { id: 'to', group: 'to' },
+        { id: 'left', group: 'left' },
+        { id: 'right', group: 'right' }
+      ]
+    },
+    data: {
+      id: '',
+      name: 'New HTTP Task',
+      label: 'New HTTP Task',
+      documentation: '',
+      type: WorkflowElementType.HTTPTask,
+      execution: { async: false, timeout_ms: 1000, priority: 0 },
+      config: {
+        method: 'GET',
+        url: '',
+        headers: {},
+        body: {},
+        output_mapping: {},
+        celCondition: {},
+        inputSchema: {},
+        outputSchema: {}
+      },
+      metadata: {
+        tags: CellType.HTTPTask
       }
     }
   }
