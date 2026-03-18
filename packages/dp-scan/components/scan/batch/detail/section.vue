@@ -53,7 +53,12 @@ function handleSectionMouseEnter() {
 
 // Handle field mouse enter - highlight persists until another is hovered
 function handleFieldMouseEnter(field: FieldWithValue) {
+
   selectField(field)
+}
+
+function handleTableFieldMouseEnter(field: FieldWithValue){
+  selectField(field, props.section)
 }
 
 // Handle field value change
@@ -297,7 +302,7 @@ defineExpose({
               <div
                 class="fieldItem"
                 :class="{ modified: field.currentValue !== field.originalValue }"
-                @mouseenter="handleFieldMouseEnter(field)"
+                @mouseenter="handleTableFieldMouseEnter(field)"
               >
                 <div class="fieldLabel">
                   <span class="labelText">{{ field.lable || field.label }}</span>

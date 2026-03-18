@@ -144,7 +144,7 @@ async function detectFormForDocument(imageBlob: Blob): Promise<{ form: FormSetti
   try {
     // Load image to get dimensions
     const img = await loadImage(imageUrl)
-    
+
     // STEP 1: Try each form's configured QR code zones
     for (const form of projectForms.value) {
       const qrFields = form.fieldsSetting?.qrcode || []
@@ -158,10 +158,10 @@ async function detectFormForDocument(imageBlob: Blob): Promise<{ form: FormSetti
 
         // Crop image to zone
         const croppedImageUrl = await cropImageToZone(img, zoneCoords)
-        
+
         // Try to read QR code from cropped region
         const qrResult = await readQRCode(croppedImageUrl)
-        
+
         if (qrResult?.value) {
           // Found a valid QR code in configured zone
           console.log('QR found in form zone:', form.name, qrResult.value)
@@ -176,7 +176,7 @@ async function detectFormForDocument(imageBlob: Blob): Promise<{ form: FormSetti
     // STEP 2: If all form zones fail, try grid-based scanning
     console.log('No QR found in form zones, trying grid scan...')
     const gridResult = await scanImageGrid(img, 4, 0.5)  // 4x4 grid with 50% overlap
-    
+
     if (gridResult?.value) {
       // Found QR code in grid scan, use first form as default
       console.log('QR found in grid scan:', gridResult.value)
@@ -215,7 +215,7 @@ function parseZone(zone: string): { x: number; y: number; width: number; height:
 
 // Crop image to specified zone
 async function cropImageToZone(
-  img: HTMLImageElement, 
+  img: HTMLImageElement,
   zone: { x: number; y: number; width: number; height: number }
 ): Promise<string> {
   const canvas = document.createElement('canvas')
@@ -223,7 +223,7 @@ async function cropImageToZone(
   canvas.height = zone.height
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Failed to get canvas context')
-  
+
   ctx.drawImage(img, zone.x, zone.y, zone.width, zone.height, 0, 0, zone.width, zone.height)
   return canvas.toDataURL('image/png')
 }
@@ -238,21 +238,21 @@ async function scanImageGrid(
 ): Promise<{ value: string } | null> {
   const width = img.width
   const height = img.height
-  
+
   // Calculate base cell size
   const baseCellWidth = width / gridSize
   const baseCellHeight = height / gridSize
-  
+
   // Calculate overlap size
   const overlapX = baseCellWidth * overlapRatio
   const overlapY = baseCellHeight * overlapRatio
-  
+
   // Calculate actual cell size with overlap
   const cellWidth = baseCellWidth + overlapX
   const cellHeight = baseCellHeight + overlapY
-  
+
   console.log(`Grid scan: ${gridSize}x${gridSize} grid, cell size: ${cellWidth.toFixed(0)}x${cellHeight.toFixed(0)}`)
-  
+
   // Scan each grid cell
   for (let row = 0; row < gridSize; row++) {
     for (let col = 0; col < gridSize; col++) {
@@ -260,20 +260,20 @@ async function scanImageGrid(
       // Start position accounts for overlap to ensure coverage
       const x = Math.max(0, col * baseCellWidth - overlapX / 2)
       const y = Math.max(0, row * baseCellHeight - overlapY / 2)
-      
+
       // Adjust width/height for edge cells
       const w = Math.min(cellWidth, width - x)
       const h = Math.min(cellHeight, height - y)
-      
+
       console.log(`Scanning grid cell [${row},${col}]: x=${x.toFixed(0)}, y=${y.toFixed(0)}, w=${w.toFixed(0)}, h=${h.toFixed(0)}`)
-      
+
       try {
         // Crop to grid cell
         const cellImageUrl = await cropImageToZone(img, { x, y, width: w, height: h })
-        
+
         // Try to read QR code from this cell
         const result = await readQRCode(cellImageUrl)
-        
+
         if (result?.value) {
           console.log(`QR found in grid cell [${row},${col}]:`, result.value)
           return { value: result.value }
@@ -283,7 +283,7 @@ async function scanImageGrid(
       }
     }
   }
-  
+
   console.log('No QR found in any grid cell')
   return null
 }
@@ -386,22 +386,22 @@ async function processUploadedFile(uploadedFile: UploadedFile, originalFile: Fil
 
     // Detect which form this document belongs to and extract application number
     const detectionResult = await detectFormForDocument(imageBlob)
-    
+
     if (detectionResult) {
       const { form, applicationNumber } = detectionResult
-      
+
       // Update form ID and application number
-      updateFileInArray(filePath, uploadedFile.fileName, { 
+      updateFileInArray(filePath, uploadedFile.fileName, {
         detectedFormId: form.id,
         applicationNumber: applicationNumber || undefined,
         thumbnail,
-        isProcessing: false 
+        isProcessing: false
       })
     } else {
       // No form detected, just update thumbnail and stop processing
-      updateFileInArray(filePath, uploadedFile.fileName, { 
+      updateFileInArray(filePath, uploadedFile.fileName, {
         thumbnail,
-        isProcessing: false 
+        isProcessing: false
       })
     }
   } catch (error) {
@@ -466,7 +466,7 @@ function backToList() {
   const tab = createBatchListPageTab()
   routerProvider?.navigateTo(tab)
 }
-
+const isAllFileProcessed = computed(() => uploadedFiles.value.every((f) => f.isUploaded && !f.isProcessing))
 // Confirm batch
 async function confirmBatch() {
   if (uploadedFiles.value.length === 0) {
@@ -651,7 +651,7 @@ onMounted(() => {
           <ElButton
             type="primary"
             :loading="confirmLoading"
-            :disabled="uploadedFiles.length === 0"
+            :disabled="uploadedFiles.length === 0 || !isAllFileProcessed"
             @click="confirmBatch"
           >
             <Icon name="lucide:check" />

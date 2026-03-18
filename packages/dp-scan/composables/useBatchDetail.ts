@@ -547,12 +547,25 @@ export const useBatchDetail = (batchId: string) => {
     }
   }
 
-  function selectField(field: any) {
+  function selectField(field: any, section?:any) {
     if (!field) {
       highlightedField.value = undefined
       return
     }
-
+    if (section) {
+      if (section.section_type === 'table') {
+        const newHightlight = {
+          section_type: section.section_type,
+          page: field.page || section.zone.page,
+          zone: section.zone.zone
+        }
+        highlightedSection.value = newHightlight
+        if (newHightlight.page !== currentPageNumber.value) {
+          changePage(newHightlight.page)
+        }
+        return
+      }
+    }
     const zoneInfo = getZoneFromObject(field)
 
     if (zoneInfo) {
