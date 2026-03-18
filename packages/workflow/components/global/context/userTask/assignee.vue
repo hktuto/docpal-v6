@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { Node } from '@antv/x6'
-import { useWorkflowAdditionalContext } from '@packages/workflow/composables/useWorkflow'
 
 const { node } = defineProps<{
   node: Node
@@ -13,18 +12,21 @@ const { getVariablesByType } = useVariablesProvide()
 const autoAssignField = ref<string>('')
 function refreshData() {
   const data = node.getData()
-  if (!!data.assignee) {
-    autoAssignField.value = data
+  if (!!data.config.assignee) {
+    autoAssignField.value = data.config.assignee
   } else {
-    autoAssignField.value = undefined
+    autoAssignField.value = ''
   }
 }
 
 function assigneeChanged(newVal: string) {
-  const data = node.getData()
+  const nodeData = node.getData()
   const newData = {
-    ...data,
-    assignee: newVal,
+    ...nodeData,
+    config: {
+      ...nodeData.config,
+      assignee: newVal
+    },
     version: node.data.version + 1 || 0
   }
 

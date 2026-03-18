@@ -27,6 +27,7 @@ watch(
   <div class="fromContainer">
     <SidebarLabel :node="node" />
     <ContextUserTaskAssignee :node="node" />
+    <ContextUserTaskPermissions :node="node"/>
     <ContextForm :node="node" />
     <ContextUserTaskPreviewDocument :node="node" />
     <ContextUserTaskBooleanButton :node="node" />

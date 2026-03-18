@@ -505,16 +505,7 @@ export const workflowElement: WorkflowElement = {
       return graph
     },
     clickHandler: () => {},
-    contextMenuComponent: (workflowNodeItem: NodeItem) => {
-      switch (workflowNodeItem.metadata.tags) {
-        case CellType.parallel:
-          return 'LazyContextGatewayParallel'
-        case CellType.inclusive:
-          return 'LazyContextGatewayInclusive'
-        default:
-          return 'LazyContextGatewayExclusive'
-      }
-    }
+    contextMenuComponent: (workflowNodeItem: NodeItem) => {}
   },
   UserTask: {
     embed: false,
@@ -619,8 +610,8 @@ const workflowCellElementTemplate: CellTypeItem = {
       config: {
         formKey: '',
         assignee: '',
-        candidate_groups: [],
         candidate_roles: [],
+        candidate_groups: [],
         due_date: '',
         input_mapping: {},
         output_mapping: {}
