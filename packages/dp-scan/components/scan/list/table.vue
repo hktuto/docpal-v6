@@ -44,7 +44,7 @@ const canCancelBatches = (rows: any[]): boolean => {
   return rows.every((row) => {
     // Check status allows cancel
     const gorupStatus = statusToGroupStatus(row.status)
-    const canCancelStatus = !gorupStatus || (gorupStatus.key !== 'cancelled' && gorupStatus.key !== 'completed')
+    const canCancelStatus = !gorupStatus || (gorupStatus.key !== 'cancelled')
     // Check user has admin permission for this batch's project
     const hasAdminPermission = isAdmin(row.projectId)
     return canCancelStatus && hasAdminPermission
@@ -150,9 +150,15 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
           disabled: false
         }
       }
+      if (code === 'cancel') {
+        return {
+          visible: canCancelBatches(row),
+          disabled: false
+        }
+      }
       return {
         visible: false,
-        disabled: true
+        disabled: false
       }
     }
     if (code === 'cancel') {
