@@ -89,25 +89,25 @@ function handleOpenUpload(show: boolean = false, action: 'upload' | 'ai' | '' = 
                 </ElButton>
                 <template #dropdown>
                     <ElDropdownItem @click="openSetting">{{ $t('adminMenu.setting') }}</ElDropdownItem>
-                    <ElDropdownItem @click="appThemeEditorRef?.open()">{{ $t('adminMenu.theme') }}</ElDropdownItem>
+                    <!-- <ElDropdownItem @click="appThemeEditorRef?.open()">{{ $t('adminMenu.theme') }}</ElDropdownItem> -->
                     <!-- TODO: remove this part from prodction, or mark it avalible only for super admin -->
                     <!-- <Language /> -->
-                    <ElDropdownItem @click="openHelp">{{ $t('adminMenu.help') }}</ElDropdownItem>
-                    <ElDivider />
-                    <ElDropdownItem v-for="lang in locales" :key="lang.code"
+                    <!-- <ElDropdownItem @click="openHelp">{{ $t('adminMenu.help') }}</ElDropdownItem> -->
+                    <!-- <ElDivider /> -->
+                    <!-- <ElDropdownItem v-for="lang in locales" :key="lang.code"
                         :disabled="lang.code === locale" @click="changeLanguage(lang.code)">
                         {{$t(lang.code)}}
-                    </ElDropdownItem>
+                    </ElDropdownItem> -->
                     <ElDivider />
                     <template v-if="showSwitchMenu">
                       <ElDropdownItem @click="switchPlatform()">Switch to {{ appPlatform === 'admin' ? 'Client' : 'Admin' }}</ElDropdownItem>
                       <ElDivider />
-                    </template>                      
+                    </template>
                     <ElDropdownItem v-if="isDesktop" @click="removeBaseUrl">Reset Desktop</ElDropdownItem>
                     <ElDropdownItem @click="logout">{{ $t('login_loginOut')}}</ElDropdownItem>
                 </template>
             </ElDropdown>
-          
+
     </div>
 
 </template>
@@ -121,7 +121,7 @@ function handleOpenUpload(show: boolean = false, action: 'upload' | 'ai' | '' = 
     align-items: center;
     gap: var(--app-space-s);
     line-height: 1;
-    
+
     &.collapse{
       flex-flow: column nowrap;
     }
