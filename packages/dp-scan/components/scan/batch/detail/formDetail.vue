@@ -74,6 +74,10 @@ async function handleSaveDraft() {
   try {
     const p = allSectionsRef.value.forEach(c => (c.validateForm()))
 
+    if(!p){
+      routerProvider?.message.error('Please fill in all required fields')
+      return
+    }
     await saveDraft()
     routerProvider?.message.success('Draft saved successfully')
   } catch (error) {
@@ -87,6 +91,11 @@ async function handleSaveDraft() {
 async function handleConfirm() {
   confirming.value = true
   try {
+    const p = allSectionsRef.value.forEach(c => (c.validateForm()))
+    if(!p){
+      routerProvider?.message.error('Please fill in all required fields')
+      return
+    }
     await confirm()
     routerProvider?.message.success('Document confirmed successfully')
     routerProvider?.reloadComponent()

@@ -189,9 +189,7 @@ export const useBatchDetail = (batchId: string) => {
     const fieldLabel = field.lable || field.label
     const rawValue = newData?.[fieldLabel] ?? ''
 
-    if (field.lable === 'TotalHouseholdMonthlyIncome') {
-      console.log(normalizeValue(rawValue, field.normalize_options),field.normalize_options )
-    }
+
     const normalizedValue = field.normalize_options
       ? normalizeValue(rawValue, field.normalize_options)
       : rawValue
@@ -1210,7 +1208,7 @@ function DocumentInitFunctionBackup(detail: any, setting: any) {
 
   // Part 2: Calculate family classification
   const classification = calculateFamilyClassification(detail);
-  console.log(classification)
+
   // Apply classification results to detail
   detail.formSource = classification.formSource;
   detail.familyCategory = classification.familyCategory;

@@ -79,9 +79,17 @@ function isFieldModified(field: FieldWithValue): boolean {
 function splitByCamelCase(str: string): string {
   return str.replace(/([a-z])([A-Z])/g, '$1 $2')
 }
-
+function getFieldAllRules(): any {
+  const allRules: any = {}
+  if (props.section.fields) {
+    props.section.fields.forEach((field) => {
+      allRules[field.key] = getFieldRules(field)
+    })
+  }
+  return allRules
+}
 // Generate validation rules for a field
-function getFieldRules(field: FieldWithValue): any[] {
+function getFieldRules(field: FieldWithValue, index?:number): any[] {
   const rules: any[] = []
 
   // Required rule
@@ -97,7 +105,7 @@ function getFieldRules(field: FieldWithValue): any[] {
         if(!props.section.fields) callback()
         // Build allData from section values for cross-field validation
         const allData = context.buildResultJson()
-        validatorFn(rule, value, callback, allData, context.sectionsWithValues)
+        validatorFn(rule, value, callback, allData, context.sectionsWithValues, index)
       },
       trigger: 'blur'
     })
@@ -114,7 +122,7 @@ function getAllFieldValues(): Record<string, any> {
   }
   if(!props.section.fields) return {}
   return props.section.fields.reduce((acc, f) => {
-    acc[f.label || f.label || f.key] = f.currentValue
+    acc[f.key] = f.currentValue
     return acc
   }, {} as Record<string, any>)
 }
@@ -124,14 +132,13 @@ const sectionFormEl = ref()
 const tabelSectionRef = ref()
 async function validateForm(){
   if(sectionFormEl.value){
-
-    return sectionFormEl.value.validate()
+    return sectionFormEl.value.validate((valid) => valid)
   }
   if (tabelSectionRef.value) {
-    return await Promise.all(tabelSectionRef.value.map(async (row) => {
-      return await row.validate()
+    let result =  await Promise.all(tabelSectionRef.value.map(async (row) => {
+      return await row.validate((valid) => valid)
     }))
-
+    return result.every(Boolean)
   }
 }
 
@@ -193,6 +200,7 @@ defineExpose({
       <ElForm
         ref="sectionFormEl"
         :model="getAllFieldValues()"
+
         label-position="top"
         size="small"
         class="section-form"
@@ -200,7 +208,7 @@ defineExpose({
         <ElFormItem
           v-for="field in displayField(section.fields)"
           :key="field.key"
-          :prop="field.label || field.key"
+          :prop="field.key"
           :rules="getFieldRules(field)"
           class="field-form-item"
         >
@@ -289,7 +297,7 @@ defineExpose({
         <div class="rowFields">
           <ElForm
             :model="row.fields.reduce((acc, f) => {
-              acc[f.label || f.lable || f.key] = f.currentValue
+              acc[f.key] = f.currentValue
               return acc
             }, {})"
             ref="tabelSectionRef"
@@ -301,7 +309,7 @@ defineExpose({
               v-for="field in row.fields"
               :key="field.key"
               :prop="field.label || field.lable || field.key"
-              :rules="getFieldRules(field)"
+              :rules="getFieldRules(field, rowIndex)"
               class="field-form-item"
             >
               <div
@@ -548,6 +556,9 @@ defineExpose({
 
 .field-form-item {
   margin-bottom: 0;
+  &.is-error{
+      margin-bottom: var(--app-space-s);
+  }
 }
 
 .field-form-item :deep(.el-form-item__content) {
