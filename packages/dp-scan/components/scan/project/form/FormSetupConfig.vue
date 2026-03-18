@@ -143,7 +143,7 @@ const activeQrcode = ref([])
                 </div>
 
 
-                <ElEmpty v-if="config.section.length === 0" description="No sections added">
+                <ElEmpty v-if="!config.section || config.section.length === 0" description="No sections added">
                 <ElButton type="primary" @click="$emit('addSection')">Add Section</ElButton>
                 </ElEmpty>
             </div>
@@ -170,7 +170,7 @@ const activeQrcode = ref([])
                     @delete="onDeleteQRCode(qr.key)"
                 />
                 </el-collapse>
-                <ElEmpty v-if="config.qrcode.length === 0" description="No QRCodes added" />
+                <ElEmpty v-if="!config.qrcod || config.qrcode.length === 0" description="No QRCodes added" />
             </div>
         </div>
     </div>

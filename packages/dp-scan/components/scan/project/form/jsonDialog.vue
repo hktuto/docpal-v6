@@ -15,7 +15,11 @@ function close(){
 }
 
 function save(){
-  emit('update', deepCopy(formJson.value))
+  let newData = formJson.value
+  if(typeof newData === 'string'){
+    newData = JSON.parse(newData)
+  }
+  emit('update', deepCopy(newData))
 }
 
 defineExpose({

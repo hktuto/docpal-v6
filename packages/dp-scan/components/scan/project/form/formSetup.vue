@@ -387,7 +387,8 @@ function openJsonEditor(){
 }
 
 function handleJsonSave(newJson:any){
-  formConfig.value = deepCopy(newJson)
+  console.log(typeof newJson , newJson);
+  // formConfig.value = deepCopy(newJson)
 }
 </script>
 
