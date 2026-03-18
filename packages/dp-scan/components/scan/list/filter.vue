@@ -45,7 +45,22 @@ const filterCreate = computed({
     filter.value.createdAtEnd = ''
   }
 })
+const filterType = ref<"keyword" | 'Application'>()
 
+const filtetKeyword = computed({
+  get(){
+    return filterType.value === 'keyword' ? filter.value.filter : filter.value.applicantNum
+  },
+  set(val){
+    if (filterType.value === 'keyword') {
+      filter.value.filter = val
+      filter.value.applicantNum = ''
+    } else {
+      filter.value.applicantNum = val
+      filter.value.filter = ''
+    }
+  }
+})
 const shortcuts = [
   {
     text: 'Last week',
@@ -91,7 +106,12 @@ watchThrottled(filter, search, { throttle: 300 })
 <template>
   <div class="fitlerRow">
     <!-- /status-count -->
-    <ElInput class="keywords" v-model="filter.filter" placeholder="Search..." clearable />
+    <ElInput class="keywords" v-model="filtetKeyword" placeholder="Search..." clearable >
+        <template #prefix>
+          <Icon v-tooltip="filterType === 'keyword' ? 'Search by keyword' : 'Search by application'"
+          :name="filterType === 'keyword' ? 'mdi:magnify' : 'mdi:application'" @click="filterType = filterType === 'keyword' ? 'Application' : 'keyword'"/>
+        </template>
+    </ElInput>
     <ElSelect class="project" v-model="filter.projectId"  placeholder="Projects">
       <ElOption v-for="p in projects" :key="p.id" :label="p.name" :value="p.id" />
     </ElSelect>
