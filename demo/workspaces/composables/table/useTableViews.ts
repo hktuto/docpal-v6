@@ -110,7 +110,6 @@ export function useTableViews(options: UseTableViewsOptions) {
   }
 
   async function updateView(viewId: string, updates: Partial<ViewConfig>) {
-    console.log(JSON.stringify(updates), 'updateView')
     const view = tableViews.value.find((v) => v.id === viewId)
     if (!view) return
     const updated = applyViewUpdates(view, updates)
@@ -152,9 +151,6 @@ export function useTableViews(options: UseTableViewsOptions) {
     const newFieldsOnly = newFields.filter((col2: any) => !oldFields.some((col1: any) => col1.id === col2.id))
     if (newFieldsOnly.length > 0) {
       await saveColumnOrder(newFieldsOnly[0].id, targetFieldId, dragPos)
-      if (currentView.value) {
-        currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
-      }
     }
   }
 
@@ -195,11 +191,12 @@ export function useTableViews(options: UseTableViewsOptions) {
     if (!view) return
     let updatedColumns = await initViewColumnsOrder(view.columns, tableFields.value)
     const targetFieldIndex = updatedColumns.findIndex((col: any) => col.id === targetFieldId)
-    const newFieldIndex = updatedColumns.findIndex((col: any) => col.id === columnId)
     const positionNum = dragPos === 'left' ? 0 : 1
-    const position = targetFieldIndex - newFieldIndex + positionNum
-    updatedColumns = updateViewColumnOrder(updatedColumns, columnId, position)
+    updatedColumns = updateViewColumnOrder(updatedColumns, columnId, targetFieldIndex + positionNum)
     await updateView(view.id, { columns: updatedColumns })
+    if (currentView.value) {
+      currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
+    }
   }
   provide(TableViewsInjectKey, {
     tableFields,

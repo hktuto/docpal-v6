@@ -193,7 +193,9 @@ const gridEvents = computed<VxeGridListeners>(() => ({
   //   emit('row-dblclick', { row, rowIndex })
   // },
   columnDragend({ newColumn, oldColumn, dragPos }) {
-    props.extraColumnConfig.saveColumnOrder(oldColumn.id, newColumn.id, dragPos)
+    const newFullColumn = columns.value.find((item: any) => item.field_name === newColumn.field)
+    const oldFullColumn = columns.value.find((item: any) => item.field_name === oldColumn.field)
+    props.extraColumnConfig.saveColumnOrder(oldFullColumn.id, newFullColumn.id, dragPos)
   },
   'cell-menu': ({ row, column, $event }: any) => {
     $event?.preventDefault()
