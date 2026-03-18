@@ -72,12 +72,7 @@ function handleAddRow(sectionId: string) {
 async function handleSaveDraft() {
   savingDraft.value = true
   try {
-    const p = allSectionsRef.value.forEach(c => (c.validateForm()))
 
-    if(!p){
-      routerProvider?.message.error('Please fill in all required fields')
-      return
-    }
     await saveDraft()
     routerProvider?.message.success('Draft saved successfully')
   } catch (error) {
