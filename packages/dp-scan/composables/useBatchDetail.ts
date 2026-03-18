@@ -141,6 +141,7 @@ export type BatchDetailContext = {
   confirm: () => Promise<void>
   reload: () => Promise<void>
   updateSectionZone: (sectionId: string, newZone: ZoneObject) => Promise<void>
+  buildResultJson: () => Record<string, any>
 }
 
 export const useBatchDetail = (batchId: string) => {
@@ -747,7 +748,8 @@ export const useBatchDetail = (batchId: string) => {
     saveDraft,
     confirm,
     reload: getBatchDetail,
-    updateSectionZone
+    updateSectionZone,
+    buildResultJson
   }
 
   provide('batchDetailProvider', context)

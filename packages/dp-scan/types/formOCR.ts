@@ -533,16 +533,16 @@ export function normalizeValue(
  */
 export function createValidator(
   validationCode?: ValidationFunction
-): (rule: any, value: any, callback: (error?: Error) => void, allData?: any) => void {
+): (rule: any, value: any, callback: (error?: Error) => void, allData?: any, SectionWithValues?:any) => void {
   if (!validationCode) {
     return (_rule: any, _value: any, callback: (error?: Error) => void) => callback()
   }
 
-  return (rule: any, value: any, callback: (error?: Error) => void, allData?: any) => {
+  return (rule: any, value: any, callback: (error?: Error) => void, allData?: any, SectionWithValues?:any) => {
     try {
       // Create function with proper signature
-      const fn = new Function('rule', 'value', 'callback', 'allData', validationCode)
-      fn(rule, value, callback, allData)
+      const fn = new Function('rule', 'value', 'callback', 'allData', 'SectionWithValues', validationCode)
+      fn(rule, value, callback, allData, SectionWithValues)
     } catch (e) {
       console.error('Validation function error:', e)
       callback(new Error('Validation error'))

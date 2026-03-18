@@ -211,7 +211,7 @@ watch(detailLoading, (isLoading) => {
         />
       </ElSplitterPanel>
 
-      <ElSplitterPanel size="300px" min="200">
+      <ElSplitterPanel size="400px" min="200">
         <ScanBatchDetailFormDetail
           v-if="selectedDocDetail"
         />

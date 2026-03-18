@@ -181,9 +181,9 @@ function copyError() {
       <div class="sectionsList" :class="{ 'withWarning': isLockedByOther }">
         <ScanBatchDetailSection
           v-for="section in sectionsWithValues"
-
           :key="section.section_id"
           :section="section"
+          :allData="sectionsWithValues"
           :readonly="isReadonly"
           @field-change="handleFieldChange"
           @add-row="handleAddRow"

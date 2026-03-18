@@ -635,7 +635,7 @@ onMounted(() => {
             </ElSelect>
           </div>
 
-          <div class="infoRow">
+          <!-- <div class="infoRow">
             <label>Remark</label>
             <ElInput
               v-model="formData.remark"
@@ -643,7 +643,7 @@ onMounted(() => {
               :rows="4"
               placeholder="Enter remarks..."
             />
-          </div>
+          </div> -->
         </div>
 
         <div class="actions">

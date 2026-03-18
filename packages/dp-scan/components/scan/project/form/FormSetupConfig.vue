@@ -36,6 +36,22 @@ function onAddSection() {
   emit('addSection')
 }
 
+function onMoveSectionUp(index: number) {
+  if (index <= 0) return
+  const sections = config.value.section
+  const temp = sections[index]
+  sections[index] = sections[index - 1]
+  sections[index - 1] = temp
+}
+
+function onMoveSectionDown(index: number) {
+  const sections = config.value.section
+  if (index >= sections.length - 1) return
+  const temp = sections[index]
+  sections[index] = sections[index + 1]
+  sections[index + 1] = temp
+}
+
 function onEditSection(section: Section) {
   console.log("edit section", section)
   emit('editSection', section)
@@ -73,7 +89,9 @@ function getFieldTypeLabel(type: string): string {
   }
   return labels[type] || type
 }
-
+function splitByCamelCase(str: string): string {
+  return str.replace(/([a-z])([A-Z])/g, '$1 $2')
+}
 const activeQrcode = ref([])
 </script>
 
@@ -133,10 +151,23 @@ const activeQrcode = ref([])
 
             <div class="section-content">
                 <div class="scction-item"
-                    v-for="section in config.section"
+                    v-for="(section, index) in config.section"
+                    :key="section.section_id"
                 >
-                    <div class="section-name">{{section.section_name}} </div>
+                    <div class="section-name">{{splitByCamelCase(section.section_name)}} </div>
                     <div class="section-actions">
+                         <Icon 
+                            class="move-icon" 
+                            :class="{ disabled: index === 0 }"
+                            name="lucide:arrow-up" 
+                            @click="index > 0 && onMoveSectionUp(index)" 
+                         />
+                         <Icon 
+                            class="move-icon" 
+                            :class="{ disabled: index === config.section.length - 1 }"
+                            name="lucide:arrow-down" 
+                            @click="index < config.section.length - 1 && onMoveSectionDown(index)" 
+                         />
                          <Icon class="info" name="lucide:edit" @click="onEditSection(section)" />
                           <Icon class="warning" name="lucide:trash-2" @click="onDeleteSection(section.section_id)" />
                     </div>
@@ -280,6 +311,7 @@ const activeQrcode = ref([])
     display: flex;
     gap: var(--app-space-xs);
     justify-content: flex-end;
+    align-items: center;
 
     > *{
         cursor:pointer;
@@ -289,6 +321,16 @@ const activeQrcode = ref([])
     }
     .info{
         color: var(--app-info-color);
+    }
+    .move-icon {
+        color: var(--app-text-secondary);
+        &:hover:not(.disabled) {
+            color: var(--app-primary-color);
+        }
+        &.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
     }
 }
 

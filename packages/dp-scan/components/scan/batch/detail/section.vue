@@ -5,6 +5,7 @@ import { createValidator } from '../../../../types/formOCR'
 const props = defineProps<{
   section: SectionWithValues
   readonly?: boolean
+  allData: SectionWithValues[]
 }>()
 
 const emits = defineEmits<{
@@ -75,6 +76,9 @@ function handleAddRow() {
 function isFieldModified(field: FieldWithValue): boolean {
   return field.currentValue !== field.originalValue
 }
+function splitByCamelCase(str: string): string {
+  return str.replace(/([a-z])([A-Z])/g, '$1 $2')
+}
 
 // Generate validation rules for a field
 function getFieldRules(field: FieldWithValue): any[] {
@@ -92,13 +96,8 @@ function getFieldRules(field: FieldWithValue): any[] {
         const validatorFn = createValidator(field.validation_function)
         if(!props.section.fields) callback()
         // Build allData from section values for cross-field validation
-        const allData = props.section.section_type === 'table'
-          ? {} // Table row validation - pass empty for now
-          : props.section.fields.reduce((acc, f) => {
-              acc[f.label || f.lable || f.key] = f.currentValue
-              return acc
-            }, {} as Record<string, any>)
-        validatorFn(rule, value, callback, allData)
+        const allData = context.buildResultJson()
+        validatorFn(rule, value, callback, allData, context.sectionsWithValues)
       },
       trigger: 'blur'
     })
@@ -151,6 +150,10 @@ onMounted(() => {
   validateForm()
 })
 
+function displayField(fields: FieldWithValues) {
+  return fields.filter((f) => !f.hidden )
+}
+
 defineExpose({
   validateForm
 })
@@ -165,7 +168,7 @@ defineExpose({
   >
     <div class="sectionHeader">
       <Icon name="lucide:layout-template" class="sectionIcon" />
-      <span class="sectionName">{{ section.section_name }}</span>
+      <span class="sectionName">{{ splitByCamelCase(section.section_name) }}</span>
       <ElTag v-if="section.zone?.page" size="small" type="info">
         Page {{ section.zone.page }}
       </ElTag>
@@ -193,7 +196,7 @@ defineExpose({
         class="section-form"
       >
         <ElFormItem
-          v-for="field in section.fields"
+          v-for="field in displayField(section.fields)"
           :key="field.key"
           :prop="field.label || field.key"
           :rules="getFieldRules(field)"
