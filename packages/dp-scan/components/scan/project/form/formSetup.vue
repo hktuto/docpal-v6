@@ -411,7 +411,7 @@ function handleJsonSave(newJson:any){
       </ElSplitterPanel>
 
       <!-- Right Panel: Configuration Panel -->
-      <ElSplitterPanel size="260" min="120">
+      <ElSplitterPanel size="400" min="120">
         <FormSetupConfig
           v-model="formConfig"
           :formImages="formImages"

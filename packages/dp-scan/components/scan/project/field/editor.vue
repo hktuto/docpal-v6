@@ -220,6 +220,23 @@ const validationCode = computed({
   }
 })
 
+function onMoveSectionUp(index:number) {
+  if (index <= 0) return
+  const sections = optionRows.value
+  const temp = sections[index]
+  sections[index] = sections[index - 1]
+  sections[index - 1] = temp
+  console.log(index, optionRows)
+}
+
+function onMoveSectionDown(index: number) {
+  const sections = optionRows.value
+  if (index >= sections.length - 1) return
+  const temp = sections[index]
+  sections[index] = sections[index + 1]
+  sections[index + 1] = temp
+}
+
 const validationPlaceholder = `// Example: Validate ID with other field
 // (rule, value, callback, allData) => {
 //   if (!value) {
@@ -296,13 +313,23 @@ const validationPlaceholder = `// Example: Validate ID with other field
               v-model="row.key"
               placeholder="Value"
               size="small"
-              @change="updateOptionRow"
             />
             <ElInput
               v-model="row.value"
               placeholder="Label"
               size="small"
-              @change="updateOptionRow"
+            />
+            <Icon
+               class="move-icon"
+               :class="{ disabled: index === 0 }"
+               name="lucide:arrow-up"
+               @click="index > 0 && onMoveSectionUp(index)"
+            />
+            <Icon
+               class="move-icon"
+               :class="{ disabled: index === optionRows.length - 1 }"
+               name="lucide:arrow-down"
+               @click="index < optionRows.length - 1 && onMoveSectionDown(index)"
             />
             <ElButton
               type="danger"
@@ -368,18 +395,12 @@ const validationPlaceholder = `// Example: Validate ID with other field
       </template>
 
       <!-- Row 6: Validation Function -->
-      <div class="section-header" @click="showValidationSection = !showValidationSection">
+      <div class="section-header" >
         <span>Custom Validation</span>
         <ElTag v-if="localValue.validation_function" size="small" type="success">Configured</ElTag>
-        <Icon :name="showValidationSection ? 'lucide:chevron-down' : 'lucide:chevron-right'" />
+        <CodeEdit v-model="validationCode" wrapperString="Function signature: (rule, value, callback, allData, SectionWithValues)" />
       </div>
 
-      <div v-show="showValidationSection" class="validation-section">
-        <ElAlert type="info" :closable="false" class="validation-hint">
-          Function signature: <code>(rule, value, callback, allData) => { ... }</code>
-        </ElAlert>
-         <CodeEdit v-model="validationCode" wrapperString="Function signature: (rule, value, callback, allData)" />
-      </div>
     </ElForm>
   </div>
 </template>
@@ -405,7 +426,7 @@ const validationPlaceholder = `// Example: Validate ID with other field
 .option-row,
 .normalize-row {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr 1fr min-content min-content auto;
   gap: 8px;
   align-items: center;
 }
