@@ -495,6 +495,7 @@ export function normalizeValue(
       const isRegex = pattern.startsWith('^') ||
                       pattern.endsWith('$') ||
                       /[.*+?()[\]{}|]/.test(pattern)
+      // Remark **** is the keyword to for default value, so the
       if (pattern === '****') {
         return targetValue
       }
