@@ -495,10 +495,13 @@ export function normalizeValue(
       const isRegex = pattern.startsWith('^') ||
                       pattern.endsWith('$') ||
                       /[.*+?()[\]{}|]/.test(pattern)
-
+      if (pattern === '****') {
+        return targetValue
+      }
       if (isRegex) {
         try {
           const regex = new RegExp(pattern, 'i') // case-insensitive
+          console.log("regex", regex, input)
           if (regex.test(input)) {
             return targetValue
           }

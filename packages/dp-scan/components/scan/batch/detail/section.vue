@@ -106,6 +106,7 @@ function getFieldRules(field: FieldWithValue): any[] {
   return rules
 }
 
+
 // Get all field values for validation context
 function getAllFieldValues(): Record<string, any> {
   if (props.section.section_type === 'table') {

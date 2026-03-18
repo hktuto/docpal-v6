@@ -188,6 +188,10 @@ export const useBatchDetail = (batchId: string) => {
   function convertFieldToWithValues(field:any, newData: Record<string, any>, oldData: Record<string, any> | undefined) :FieldWithValue {
     const fieldLabel = field.lable || field.label
     const rawValue = newData?.[fieldLabel] ?? ''
+
+    if (field.lable === 'TotalHouseholdMonthlyIncome') {
+      console.log(normalizeValue(rawValue, field.normalize_options),field.normalize_options )
+    }
     const normalizedValue = field.normalize_options
       ? normalizeValue(rawValue, field.normalize_options)
       : rawValue
