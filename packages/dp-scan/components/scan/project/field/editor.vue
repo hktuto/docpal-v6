@@ -102,12 +102,12 @@ function removeOptionRow(index: number) {
   optionRows.value.splice(index, 1)
   saveOptionsToField()
   // Also remove from normalize options
-  syncNormalizeOptionsFromFieldOptions()
+  // syncNormalizeOptionsFromFieldOptions()
 }
 
 function updateOptionRow() {
   saveOptionsToField()
-  syncNormalizeOptionsFromFieldOptions()
+  // syncNormalizeOptionsFromFieldOptions()
 }
 
 // ==================== Normalize Options Handling ====================
@@ -206,7 +206,7 @@ watch(() => localValue.value.normalize_options, loadNormalizeOptions, { immediat
 // Initialize normalize options from field options when section opens
 watch(() => showNormalizeSection.value, (show) => {
   if (show && normalizeRows.value.length === 0) {
-    syncNormalizeOptionsFromFieldOptions()
+    // syncNormalizeOptionsFromFieldOptions()
   }
 })
 
@@ -227,6 +227,7 @@ function onMoveSectionUp(index:number) {
   sections[index] = sections[index - 1]
   sections[index - 1] = temp
   console.log(index, optionRows)
+  updateOptionRow()
 }
 
 function onMoveSectionDown(index: number) {
@@ -235,6 +236,7 @@ function onMoveSectionDown(index: number) {
   const temp = sections[index]
   sections[index] = sections[index + 1]
   sections[index + 1] = temp
+  updateOptionRow()
 }
 
 const validationPlaceholder = `// Example: Validate ID with other field
@@ -313,11 +315,13 @@ const validationPlaceholder = `// Example: Validate ID with other field
               v-model="row.key"
               placeholder="Value"
               size="small"
+               @change="updateOptionRow"
             />
             <ElInput
               v-model="row.value"
               placeholder="Label"
               size="small"
+              @change="updateOptionRow"
             />
             <Icon
                class="move-icon"

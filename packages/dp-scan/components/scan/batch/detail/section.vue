@@ -176,6 +176,9 @@ onMounted(() => {
 function displayField(fields: FieldWithValues) {
   return fields.filter((f) => !f.hidden )
 }
+watch(() => props.section.section_fields, () => {
+  validateForm()
+})
 
 defineExpose({
   validateForm
@@ -375,7 +378,7 @@ defineExpose({
                     :disabled="readonly"
                     :format="field.format || 'DD/MM/YYYY'"
                     :value-format="field.format || 'DD/MM/YYYY'"
-                    @update:model-value="(val) => handleFieldChange(field, val)"
+                    @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
                   />
                   <!-- currentValue:{{field.currentValue}} -->
                 </template>

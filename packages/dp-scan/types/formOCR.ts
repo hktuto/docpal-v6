@@ -485,8 +485,16 @@ export function normalizeValue(
   value: string,
   normalizeOptions?: NormalizeOptions
 ): string {
-  if (!normalizeOptions || !value) return value
+  if (!normalizeOptions ) return value
 
+  if (!value) {
+    // if no value find default value
+    const defaultPattern = Object.entries(normalizeOptions).find(([targetValue, patterns]) => patterns.includes('****'))
+    if (!defaultPattern) {
+      return " ";
+    }
+    return defaultPattern[0] || ""
+  }
   const input = String(value).trim()
 
   for (const [targetValue, patterns] of Object.entries(normalizeOptions)) {
@@ -497,6 +505,7 @@ export function normalizeValue(
                       /[.*+?()[\]{}|]/.test(pattern)
       // Remark **** is the keyword to for default value, so the
       if (pattern === '****') {
+        console.log("found detail value", targetValue, input)
         return targetValue
       }
       if (isRegex) {
