@@ -92,11 +92,11 @@ watchThrottled(filter, search, { throttle: 300 })
   <div class="fitlerRow">
     <!-- /status-count -->
     <ElInput class="keywords" v-model="filter.filter" placeholder="Search..." clearable />
-    <ElSelect class="project" v-model="filter.projectId" placeholder="Projects">
+    <ElSelect class="project" v-model="filter.projectId"  placeholder="Projects">
       <ElOption v-for="p in projects" :key="p.id" :label="p.name" :value="p.id" />
     </ElSelect>
-    <ElSelect class="status" v-model="filter.status" placeholder="Status" multiple clearable>
-      <ElOption v-for="(status, key) in StatusMap" :key="key" :label="key" :value="key" />
+    <ElSelect class="status" v-model="filter.status" collapse-tags placeholder="Status" multiple clearable>
+      <ElOption v-for="(status, key) in StatusMap" :key="key" :label="status.label" :value="key" />
     </ElSelect>
     <el-date-picker
       v-show="false"

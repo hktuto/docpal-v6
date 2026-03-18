@@ -6,6 +6,7 @@ import DocumentPreview from './DocumentPreview.vue'
 import SectionDialog from './SectionDialog.vue'
 import FormSetupConfig from './FormSetupConfig.vue'
 import TestFromDialog from './testDialog.vue'
+import JsonDialog from './jsonDialog.vue'
 import type {
   FormFieldsSetting,
   Section,
@@ -326,7 +327,6 @@ async function saveConfig() {
     delete updateData.updatedAt
     delete updateData.createdAt
     delete updateData.createdBy
-    console.log(formConfig.value.section[1].fields[0].zone.zone)
     await clientApi.api.putCaptureProjformsetting(updateData)
     hasUnSaveChange.value = false
     routerProvider?.message.success('Form has Updated')
@@ -379,6 +379,16 @@ onUnmounted(() => {
 defineExpose({
   hasUnSaveChange
 })
+
+// json dialog logic
+const jsonDialogRef = ref()
+function openJsonEditor(){
+  jsonDialogRef.value.open(deepCopy(formConfig.value))
+}
+
+function handleJsonSave(newJson:any){
+  formConfig.value = deepCopy(newJson)
+}
 </script>
 
 <template>
@@ -387,6 +397,7 @@ defineExpose({
            <!-- <ElButton type="primary" @click="testForm">Test Form</ElButton> -->
           <ElButton type="primary" @click="$emit('back', 'classificationUpload')">Repalce Sample</ElButton>
           <ElButton type="primary" @click="$emit('back', 'split')">Split Page</ElButton>
+          <ElButton type="info" @click="openJsonEditor">Edit In Json</ElButton>
       </Teleport>
     <ElSplitter class="splitter">
       <!-- Left Panel: Document Preview -->
@@ -421,6 +432,7 @@ defineExpose({
       @save="handleSaveSection"
     />
     <TestFromDialog ref="testFormRef" />
+    <JsonDialog ref="jsonDialogRef" @update="handleJsonSave" />
   </div>
 </template>
 
