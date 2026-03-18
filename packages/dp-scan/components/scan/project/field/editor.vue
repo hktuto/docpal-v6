@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue'
 import type { Field, FieldType, NormalizeOptions } from '../../../../types/formOCR'
-
+import CodeEdit from '../form/code.vue'
 const modelValue = defineModel<Field>('modelValue', {
   required: true
 })
+
 
 const fieldTypeOptions: { label: string; value: FieldType }[] = [
   { label: 'Text', value: 'text' },
@@ -377,14 +378,7 @@ const validationPlaceholder = `// Example: Validate ID with other field
         <ElAlert type="info" :closable="false" class="validation-hint">
           Function signature: <code>(rule, value, callback, allData) => { ... }</code>
         </ElAlert>
-
-        <ElInput
-          v-model="validationCode"
-          type="textarea"
-          :rows="6"
-          :placeholder="validationPlaceholder"
-          class="validation-code"
-        />
+         <CodeEdit v-model="validationCode" wrapperString="Function signature: (rule, value, callback, allData)" />
       </div>
     </ElForm>
   </div>

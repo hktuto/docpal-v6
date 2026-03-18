@@ -4,7 +4,9 @@ import hljs from 'highlight.js';
 import CodeEditor from 'simple-code-editor';
 const visible = ref(false);
 const modelValue = defineModel();
-
+const props = defineProps<{
+  wrapperString:string
+}>()
 const localValue = computed({
   get: () => modelValue.value,
   set: (value) => {
@@ -19,7 +21,7 @@ const localValue = computed({
 <template>
 <ElButton @click="visible = true">Edit</ElButton>
 <ElDialog v-model="visible" fullscreen>
-<span>function(detail, setting) {</span>
+<span>{{wrapperString}} {</span>
   <CodeEditor :wrap="true" :header="false" width="100%" theme="github"  :languages="[['javascript','JS']]" v-model="localValue" />
   <span>}</span>
 </ElDialog>
