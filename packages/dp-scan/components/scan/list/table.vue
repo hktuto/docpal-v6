@@ -27,6 +27,9 @@ async function getListData(params:any) {
     })
     f.status = newStatusFilter
   }
+  if (f.updatedAtEnd) {
+    f.updatedAtEnd = f.updatedAtEnd.replace('00:00:00Z','23:59:59Z')
+  }
   const p = {
     ...params,
     ...f
