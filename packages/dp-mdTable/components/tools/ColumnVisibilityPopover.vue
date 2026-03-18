@@ -42,7 +42,6 @@ const popoverRef = ref()
 const searchKeyword = ref('')
 const columnsWithDisplay = ref([])
 function handleOpen() {
-  console.log(columns)
   searchKeyword.value = ''
   columnsWithDisplay.value = tableFields.value.map((c) => ({
     id: c.id,
@@ -50,7 +49,6 @@ function handleOpen() {
     title: c.field_name_alias ?? c.field_name ?? c.id,
     display: columns.value.find((col) => col.field_name === c.field_name) ? true : false
   }))
-  console.log(columnsWithDisplay.value)
 }
 
 async function handleSwitch(id: string, display: boolean, col: ColumnVisibilityItem) {

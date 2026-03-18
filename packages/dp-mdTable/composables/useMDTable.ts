@@ -102,12 +102,7 @@ export function useMDTable(props: any) {
   }
 
   provide(MdTableContextKey, {
-    columns: props.extraColumnConfig.columns,
-    updatedViewConfigs: props.extraColumnConfig.updatedViewConfigs,
-    tableFields: props.extraColumnConfig.tableFields,
-    deleteColumn: props.extraColumnConfig.deleteColumn,
-    updateColumn: props.extraColumnConfig.updateColumn,
-    addColumn: props.extraColumnConfig.addColumn,
+    ...props.extraColumnConfig,
     tableData,
     gridRef,
     clearCheckboxRow,

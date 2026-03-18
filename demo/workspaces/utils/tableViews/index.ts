@@ -78,61 +78,6 @@ export function updateViewName(view: ViewConfig, name: string): ViewConfig {
 }
 
 /**
- * 根据列显隐配置更新 view.columns 中对应 column 的 hidden（display: true => hidden: false，display: false => hidden: true）
- */
-export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: string; display: boolean }>, tableFields: any[]): ViewColumn[] {
-  const fieldsById = new Map<string, any>()
-  for (const f of tableFields ?? []) {
-    if (f?.id == null) continue
-    fieldsById.set(String(f.id), f)
-  }
-
-  const updatesById = new Map<string, boolean>()
-  for (const u of updates ?? []) {
-    if (u?.id == null) continue
-    updatesById.set(String(u.id), Boolean(u.display))
-  }
-  const seen = new Set<string>()
-  const nextColumns: ViewColumn[] = []
-
-  // 1) 过滤 tableFields 不存在的数据 + 2) 按 columns 原有顺序排序
-  for (const col of view?.columns ?? []) {
-    const fieldId = col?.id
-    if (fieldId == null) continue
-    const key = String(fieldId)
-    if (seen.has(key)) continue
-    const tableField = fieldsById.get(key)
-    if (!tableField) continue
-    seen.add(key)
-
-    const display = updatesById.get(key)
-    const hasKey = updatesById.has(key)
-    const tableFieldItem = tableFields.find((f: any) => f.id === fieldId)
-    const item = {
-      title: tableFieldItem.field_name_alias,
-      id: String(tableField.id),
-      hidden: hasKey ? (display === false ? true : false) : col.hidden
-    }
-    nextColumns.push(item)
-  }
-
-  // 3) 补充 tableFields 中存在但 columns 不存在的数据
-  for (const f of tableFields ?? []) {
-    if (f?.id == null) continue
-    const key = String(f.id)
-    if (seen.has(key)) continue
-    seen.add(key)
-
-    const display = updatesById.get(key)
-    nextColumns.push({
-      id: String(f.id),
-      hidden: display === false ? true : false
-    })
-  }
-  return nextColumns
-}
-
-/**
  * 在列表末尾添加新视图；partial 会与默认值合并，id 由调用方传入
  */
 export function addView(views: ViewConfig[], newView: Partial<ViewConfig> & { id: string }): ViewConfig[] {
@@ -225,4 +170,88 @@ export function getDisplayColumns<T extends { id?: unknown; tableFieldId?: unkno
     title: c.field_name_alias
   }))
   return result
+}
+
+/**
+ * 根据列显隐配置更新 view.columns 中对应 column 的 hidden（display: true => hidden: false，display: false => hidden: true）
+ */
+export function updateViewColumnDisplay(view: ViewConfig, updates: Array<{ id: string; display: boolean }>, tableFields: any[]): ViewColumn[] {
+  const fieldsById = new Map<string, any>()
+  for (const f of tableFields ?? []) {
+    if (f?.id == null) continue
+    fieldsById.set(String(f.id), f)
+  }
+
+  const updatesById = new Map<string, boolean>()
+  for (const u of updates ?? []) {
+    if (u?.id == null) continue
+    updatesById.set(String(u.id), Boolean(u.display))
+  }
+  const seen = new Set<string>()
+  const nextColumns: ViewColumn[] = []
+
+  // 1) 过滤 tableFields 不存在的数据 + 2) 按 columns 原有顺序排序
+  for (const col of view?.columns ?? []) {
+    const fieldId = col?.id
+    if (fieldId == null) continue
+    const key = String(fieldId)
+    if (seen.has(key)) continue
+    const tableField = fieldsById.get(key)
+    if (!tableField) continue
+    seen.add(key)
+
+    const display = updatesById.get(key)
+    const hasKey = updatesById.has(key)
+    const tableFieldItem = tableFields.find((f: any) => f.id === fieldId)
+    const item = {
+      title: tableFieldItem.field_name_alias,
+      id: String(tableField.id),
+      hidden: hasKey ? (display === false ? true : false) : col.hidden
+    }
+    nextColumns.push(item)
+  }
+
+  // 3) 补充 tableFields 中存在但 columns 不存在的数据
+  for (const f of tableFields ?? []) {
+    if (f?.id == null) continue
+    const key = String(f.id)
+    if (seen.has(key)) continue
+    seen.add(key)
+
+    const display = updatesById.get(key)
+    nextColumns.push({
+      id: String(f.id),
+      hidden: display === false ? true : false
+    })
+  }
+  return nextColumns
+}
+export async function initViewColumnsOrder(columns: ViewColumn[], tableFields: any[]): Promise<ViewColumn[]> {
+  const fieldsById = new Map<string, any>()
+  for (const f of tableFields ?? []) {
+    if (f?.id == null) continue
+    fieldsById.set(String(f.id), f)
+  }
+  const columnsOrder: ViewColumn[] = []
+  for (const col of columns) {
+    if (col?.id == null) continue
+    const key = String(col.id)
+    const field = fieldsById.get(key)
+    if (!field) continue
+    columnsOrder.push({ ...col })
+  }
+  for (const f of tableFields ?? []) {
+    if (f?.id == null) continue
+    const key = String(f.id)
+    if (columnsOrder.some((c) => c.id === key)) continue
+    columnsOrder.push({ id: String(f.id), hidden: false })
+  }
+  return columnsOrder
+}
+export function updateViewColumnOrder(columns: ViewColumn[], columnId: string, position: number): ViewColumn[] {
+  // const source = Array.isArray(view?.columns) ? view.columns : []
+  const index = columns.findIndex((c) => c.id === columnId)
+  if (index === -1) return columns
+  columns.splice(position, 0, columns.splice(index, 1)[0])
+  return columns
 }

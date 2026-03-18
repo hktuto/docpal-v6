@@ -95,6 +95,7 @@ interface Props {
     addColumn: (column: ColumnConfig) => void
     tableFields: Ref<any[]>
     updatedViewConfigs: (updates: Array<{ fieldId: string; display: boolean }>) => void
+    saveColumnOrder: (columnId: string, position: number) => void
   }
 }
 
@@ -107,7 +108,8 @@ const props = withDefaults(defineProps<Props>(), {
     updateColumn: () => {},
     addColumn: () => {},
     tableFields: [],
-    updatedViewConfigs: () => {}
+    updatedViewConfigs: () => {},
+    saveColumnOrder: () => {}
   })
 })
 
@@ -130,8 +132,7 @@ const emit = defineEmits<{
 // 引用
 const activeGroupFields = ref<string[]>([])
 const addPopoverRef = ref()
-const { tableData, columns, gridOptions, gridRef, refreshTableData, saveColumnOrder, updateRow, addVirtualColumn, addColumnPopoverRef, addRow } =
-  useMDTable(props)
+const { tableData, columns, gridOptions, gridRef, refreshTableData, updateRow, addVirtualColumn, addColumnPopoverRef, addRow } = useMDTable(props)
 
 // Import update status composable
 await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -192,8 +193,7 @@ const gridEvents = computed<VxeGridListeners>(() => ({
   //   emit('row-dblclick', { row, rowIndex })
   // },
   columnDragend({ newColumn, oldColumn, dragPos }) {
-    console.log(`拖拽完成，被拖拽列：${oldColumn.field} 目标列：${newColumn.field} 目标位置：${dragPos}`)
-    saveColumnOrder({ newColumn, oldColumn, dragPos })
+    props.extraColumnConfig.saveColumnOrder(oldColumn.id, newColumn.id, dragPos)
   },
   'cell-menu': ({ row, column, $event }: any) => {
     $event?.preventDefault()

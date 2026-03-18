@@ -7,13 +7,14 @@
   </UiPopoverDialog>
 </template>
 <script setup lang="ts">
+import { ColumnFieldType } from '@packages/dp-mdTable/types/column-types'
 const emits = defineEmits(['headerClick'])
 let triggerEl: HTMLElement | null = null
 let currentColumn: any = null
 const { gridRef, addColumn, deleteColumn, columns, addColumnPopoverRef } = useMDTableInject()
 const baseList = [
   { label: 'Column Setting', icon: 'lucide:square-pen', type: 'edit' },
-  { label: 'Insert Column ', icon: 'lucide:panel-right-close', type: 'insertRight' },
+  { label: 'Insert Column ', icon: 'lucide:panel-left-close', type: 'insertLeft' },
   { label: 'Create Relation', icon: 'lucide:link', type: 'createRelation' },
   { label: 'Delete Column', icon: 'lucide:trash-2', type: 'delete' }
 ]
@@ -58,6 +59,7 @@ function open(_triggerEl: HTMLElement | null, _column: any) {
 
 const handleClick = (type: string) => {
   popoverRef.value.close()
+  const fullColumn = columns.value.find((item: any) => item.field_name === currentColumn.field)
   switch (type) {
     case 'edit':
       addColumnPopoverRef.value.show(triggerEl, currentColumn)
@@ -73,16 +75,14 @@ const handleClick = (type: string) => {
         field_name: `New Column`,
         business_type: ColumnFieldType.MultiText
       } as unknown as ColumnConfig
-      addColumn([defaultNewColumn], currentColumn.field, 'left')
+      addColumn([defaultNewColumn], fullColumn.id, 'left')
       break
     case 'insertRight':
       const defaultNewColumnRight = {
         field_name: `New Column`,
         business_type: ColumnFieldType.MultiText
       } as unknown as ColumnConfig
-      //
-      addColumn([defaultNewColumnRight], currentColumn.field, 'right')
-      console.log('insertRight', column)
+      addColumn([defaultNewColumnRight], fullColumn.id, 'right')
       break
     case 'createRelation':
       // if (handleCreateRelation) {
@@ -102,8 +102,7 @@ const handleClick = (type: string) => {
       break
     case 'delete':
       try {
-        const column = columns.value.find((item: any) => item.field_name === currentColumn.field)
-        deleteColumn(column.id as string)
+        deleteColumn(fullColumn.id as string)
       } catch (error) {
         console.error(error)
       }

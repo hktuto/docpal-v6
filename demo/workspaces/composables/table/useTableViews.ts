@@ -8,7 +8,9 @@ import {
   replaceViewInList,
   applyViewUpdates,
   getDisplayColumns,
-  updateViewColumnDisplay
+  updateViewColumnDisplay,
+  initViewColumnsOrder,
+  updateViewColumnOrder
 } from '../../utils/tableViews'
 
 import { ElMessage } from 'element-plus'
@@ -35,7 +37,8 @@ export interface ViewContext {
   addField: (newColumns: any[]) => Promise<void>
   deleteField: (fieldId: string) => Promise<void>
   updateField: (fieldName: string, updates: Partial<{ field_name: string; business_type: any; display_structure: any }>) => Promise<void>
-  updatedViewConfigs: (updates: Array<{ fieldId: string; display: boolean }>) => Promise<void>
+  updatedViewConfigs: (updates: Array<{ id: string; display: boolean }>) => Promise<void>
+  saveColumnOrder: (columnId: string, position: number) => Promise<void>
 }
 
 export const TableViewsInjectKey: InjectionKey<ViewContext> = Symbol('TableViewsInjectKey')
@@ -139,9 +142,20 @@ export function useTableViews(options: UseTableViewsOptions) {
     await updateView(view.id, merged)
   }
 
-  async function addField(newColumns: any[]) {
+  async function addField(newColumns: any[], targetFieldId: string, dragPos?: 'left' | 'right') {
+    const oldFields = JSON.parse(JSON.stringify(tableFields.value))
     await newClientApi.postDynamicDbTableTableidFields(tableId.value, { fields: newColumns })
     await getViews()
+    if (!dragPos) return
+    // insert new field to the target field
+    const newFields = JSON.parse(JSON.stringify(tableFields.value))
+    const newFieldsOnly = newFields.filter((col2: any) => !oldFields.some((col1: any) => col1.id === col2.id))
+    if (newFieldsOnly.length > 0) {
+      await saveColumnOrder(newFieldsOnly[0].id, targetFieldId, dragPos)
+      if (currentView.value) {
+        currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
+      }
+    }
   }
 
   async function deleteField(fieldId: string) {
@@ -172,11 +186,21 @@ export function useTableViews(options: UseTableViewsOptions) {
   async function updatedViewConfigs(updates: Array<{ id: string; display: boolean }>) {
     const view = currentView.value
     if (!view) return
-    let updatedColumns = updateViewColumnDisplay(view, updates, tableFields.value)
+    const updatedColumns = updateViewColumnDisplay(view, updates, tableFields.value)
     await updateView(view.id, { columns: updatedColumns })
     if (currentView.value) currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
   }
-
+  async function saveColumnOrder(columnId: string, targetFieldId: string, dragPos: 'left' | 'right') {
+    const view = currentView.value
+    if (!view) return
+    let updatedColumns = await initViewColumnsOrder(view.columns, tableFields.value)
+    const targetFieldIndex = updatedColumns.findIndex((col: any) => col.id === targetFieldId)
+    const newFieldIndex = updatedColumns.findIndex((col: any) => col.id === columnId)
+    const positionNum = dragPos === 'left' ? 0 : 1
+    const position = targetFieldIndex - newFieldIndex + positionNum
+    updatedColumns = updateViewColumnOrder(updatedColumns, columnId, position)
+    await updateView(view.id, { columns: updatedColumns })
+  }
   provide(TableViewsInjectKey, {
     tableFields,
     currentView,
@@ -193,7 +217,8 @@ export function useTableViews(options: UseTableViewsOptions) {
     addField,
     deleteField,
     updateField,
-    updatedViewConfigs
+    updatedViewConfigs,
+    saveColumnOrder
   })
 
   return {
@@ -212,7 +237,8 @@ export function useTableViews(options: UseTableViewsOptions) {
     addField,
     deleteField,
     updateField,
-    updatedViewConfigs
+    updatedViewConfigs,
+    saveColumnOrder
   }
 }
 
