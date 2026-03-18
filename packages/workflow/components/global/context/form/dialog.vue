@@ -15,23 +15,24 @@ const formDialogVisible = ref(false)
 async function openDialog(json: any) {
   formDialogVisible.value = true
   nextTick(() => {
-    FormDesignRef.value.setForm(json)
+    FormDesignRef.value?.setFormJson(json)
   })
 }
 
 async function handleFormSubmit() {
   const json = FormDesignRef.value.getFormJson()
   //  save e-form
-  // TODO: 該接口會不斷創建新的 E-form Json。每次返回的ID都是新的
-  const data = await newAdminApi
-    .postDmsFormPropertiesSave({
-      processKey: props.processKey,
-      userTaskId: props.node.id,
-      jsonValue: JSON.stringify(json),
-      versionId: '0'
-    })
-    .then((r) => r.data)
+  const params = {
+    processKey: props.processKey,
+    userTaskId: props.node.id,
+    jsonValue: JSON.stringify(json),
+    versionId: '0'
+  }
+  if (props.node.data.metadata.formKey !== '') {
+    params.id = props.node.data.metadata.formKey
+  }
 
+  const data: any = await newAdminApi.postDmsFormPropertiesSave(params).then((r) => r.data)
   emits('submit', data.id)
   formDialogVisible.value = false
 }

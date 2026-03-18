@@ -18,24 +18,15 @@ if (!graphProvider) {
 }
 const { workflowKey } = graphProvider
 
-const drag = ref(false)
 const formItems = ref<any[]>([])
 const RuleManageDialogRef = ref()
 
-function formChange() {
-  graphProvider?.graph.value?.startBatch('update-from-data')
-  const newData = {
-    ...node.data,
-    version: (node.data.version || 0) + 1,
-    data: {
-      ...node.data
-    }
-  }
-  node.setData(newData, { overwrite: true, deep: true, silent: false })
-  graphProvider?.graph.value?.stopBatch('update-from-data')
-}
+const formKey = ref<number>(0)
 
-function refreshData() {}
+function refreshData() {
+  const data = node.getData()
+  formKey.value = Number(data.metadata.formKey)
+}
 
 function editField() {
   RuleManageDialogRef.value.open()
@@ -67,10 +58,11 @@ function handelSubmitForm(id: string) {
   const newData = {
     ...data,
     metadata: {
+      ...data.metadata,
       formKey: id
     }
   }
-  node.setData(newData, { overwrite: true, deep: true, silent: false })
+  node.setData(newData, { overwrite: true, deep: true })
   graphProvider?.graph.value?.stopBatch('update-fromKey-data')
 }
 
@@ -84,21 +76,23 @@ async function previewForm() {
 
 async function getFormJson() {
   const id = node.data.id
-  // TODO: 接口需要更換， 需要使用metadata.formKey去獲取form json
-  // const id = node.data.metadata.formKey
-  const response = await newAdminApi.getDmsFormPropertiesQuery({
-    processKey: node.data.Key,
-    userTaskId: id,
-    versionId: node.data.versionId
-  })
-  if (!response || !response.data) {
+  const data = await newAdminApi.getDmsFormPropertiesQuery({ userTaskId: id }).then((r) => r.data)
+  if (!data) {
     throw createError('Server Error')
   }
-  if (response.data.length == 0 || !response.data[0].jsonValue || response.data[0].jsonValue === '{}') {
+
+  if (data.length == 0 || !data[0].jsonValue) {
     ElMessage.warning('Empty Form')
-    return
+    return {}
   }
-  return JSON.parse(response.data[0].jsonValue || '{}')
+
+  if (formKey.value != 0) {
+    const find = data.find((item: any) => item.id === formKey.value)
+    if (!find) return {}
+    return find.jsonValue
+  } else {
+    return {}
+  }
 }
 
 onMounted(() => {
