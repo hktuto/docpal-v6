@@ -1,9 +1,20 @@
 <script lang="ts" setup>
-import { createError, WorkflowElementType } from '#imports'
+import { CellType, createError, WorkflowElementType } from '#imports'
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
   throw createError('graph provider not found')
+}
+
+type EdgeData = {
+  id: string
+  source_node_id: string
+  target_node_id: string
+  flow_control: {
+    type: 'sequence' | 'conditional' | 'default'
+    condition?: string
+    label?: string
+  }
 }
 
 function setupEdge() {
@@ -73,7 +84,7 @@ function setupEdge() {
 
     // create new edge
     // TODO: 需要多一個字段用於 用保存進出/出口綫，從cell中的那個點出發。以及該綫是虛綫還是實綫
-    edge.data = {
+    const newEdgeData: EdgeData = {
       id: `edge-${edge.id}`,
       source_node_id: edge.source.cell,
       target_node_id: edge.target.cell,
@@ -81,6 +92,30 @@ function setupEdge() {
         type: 'sequence'
       }
     }
+
+    // type is Gateway
+    // TODO: 無法從source區分是那個子節點連接到不同規則
+    if (source.type === WorkflowElementType.Gateway) {
+      newEdgeData.flow_control.type = 'conditional'
+
+      const allNodeConnected = graphProvider?.graph.value?.getConnectedEdges(source).filter((connectedEdge:any) => {
+        return connectedEdge.id !== edge.id && connectedEdge.source.cell === source.id
+      })
+      console.log(123,allNodeConnected)
+
+      switch (source.data.metadata.tags) {
+        case CellType.parallel:
+          break
+        case CellType.inclusive:
+          break
+        default:
+          // CellType.exclusive
+          newEdgeData.flow_control.condition = source.data.metadata.rules.success.condition
+          const successLabel = source.data.metadata.rules.success.label || 'true'
+          const failureLabel = source.data.metadata.rules.failure.label || 'false'
+      }
+    }
+    edge.data = newEdgeData
     edge.setRouter('manhattan')
   })
 }

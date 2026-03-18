@@ -33,7 +33,7 @@ interface Markup {
  * @const icon graph的包含的Icon
  */
 interface Metadata {
-  tags?: 'signature' | 'document'
+  tags?: string
   x: number
   y: number
   width: number

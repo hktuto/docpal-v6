@@ -4,6 +4,7 @@ import type { NodeItem } from './jsonConversion'
 export enum WorkflowElementType {
   StartEvent = 'StartEvent',
   EndEvent = 'EndEvent',
+  Gateway = 'Gateway',
   UserTask = 'UserTask'
   // exclusiveGateway = 'exclusiveGateway',
   // ServiceTask = 'serviceTask',
@@ -76,13 +77,62 @@ Graph.registerNode(
   },
   true
 )
+Graph.registerNode(
+  'custom-polygon',
+  {
+    inherit: 'polygon',
+    width: 66,
+    height: 36,
+    attrs: {
+      body: {
+        strokeWidth: 1,
+        stroke: '#5F95FF',
+        fill: '#EFF4FF'
+      },
+      text: {
+        fontSize: 12,
+        fill: '#262626'
+      }
+    },
+    ports: {
+      groups: {
+        from: {
+          position: 'top',
+          attrs: {
+            circle: {
+              magnet: true,
+              stroke: 'transparent',
+              fill: 'transparent',
+              r: 5
+            }
+          }
+        },
+        to: {
+          position: 'bottom',
+          attrs: {
+            circle: {
+              magnet: true,
+              stroke: 'transparent',
+              fill: 'transparent',
+              r: 5
+            }
+          }
+        }
+      }
+    }
+  },
+  true
+)
 
 /**
  * Render Workflow Toolbar Chart Types
  */
 export enum CellType {
   userTask = 'UserTask',
-  signatureTask = 'SignatureTask'
+  signatureTask = 'SignatureTask',
+  exclusive = 'ExclusiveGateway',
+  parallel = 'ParallelGateway',
+  inclusive = 'InclusiveGateway'
 }
 
 interface portsItems {
@@ -102,7 +152,28 @@ export type CellTypeItem = {
     ports: {
       items: portsItems[]
     }
-    data: {}
+    data: {
+      id: string
+      name: string
+      type: WorkflowElementType
+      label: string
+      documentation: string
+      inputSchema?: string
+      outputSchema?: string
+      config?: any
+      execution: {
+        async: boolean
+        timeout_ms: number
+        priority: number
+      }
+      metadata: {
+        tags: CellType
+        formKey?: string
+        buttonSetting?: any
+        booleanButton?: any[]
+        rules?: any
+      }
+    }
   }
 }
 
@@ -365,6 +436,86 @@ export const workflowElement: WorkflowElement = {
     clickHandler: () => {},
     contextMenuComponent: 'LazyContextEndEvent'
   },
+  Gateway: {
+    embed: false,
+    toolbar: [
+      {
+        id: CellType.exclusive,
+        icon: 'mdi:call-split',
+        label: 'Exclusive',
+        group: 'Gateway',
+        order: 0
+      },
+      {
+        id: CellType.parallel,
+        icon: 'mdi:axis-arrow',
+        label: 'Parallel',
+        group: 'Gateway',
+        order: 0
+      },
+      {
+        id: CellType.inclusive,
+        icon: 'mdi:axis-arrow',
+        label: 'Inclusive',
+        group: 'Gateway',
+        order: 0
+      }
+    ],
+    workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
+      let title
+      switch (workflowNodeItem.metadata.tags) {
+        case 'ParallelGateway':
+          title = 'Parallel Gateway'
+          break
+        case 'InclusiveGateway':
+          title = 'Inclusive Gateway'
+          break
+        default:
+          title = 'Exclusive Gateway'
+      }
+
+      const attrs = GenAttrs(title, workflowNodeItem.name, workflowNodeItem.metadata.icon)
+
+      const graph: GraphItem = {
+        id: workflowNodeItem.id,
+        markup: [
+          { tagName: 'rect', selector: 'body' },
+          { tagName: 'image', selector: 'image' },
+          { tagName: 'text', selector: 'title' },
+          { tagName: 'text', selector: 'text' }
+        ],
+        attrs: attrs,
+        shape: 'bpmn-node',
+        zIndex: 1,
+        visible: true,
+        position: {
+          x: workflowNodeItem.metadata.x || 60,
+          y: workflowNodeItem.metadata.y || 60
+        },
+        size: {
+          width: workflowNodeItem.metadata.width || 120,
+          height: workflowNodeItem.metadata.height || 64
+        },
+        data: {
+          ...workflowNodeItem
+        },
+        ports: GenDefPorts(),
+        _order: 0
+      }
+      return graph
+    },
+    clickHandler: () => {},
+    contextMenuComponent: (workflowNodeItem: NodeItem) => {
+      switch (workflowNodeItem.metadata.tags) {
+        case CellType.parallel:
+          return 'LazyContextGatewayParallel'
+        case CellType.inclusive:
+          return 'LazyContextGatewayInclusive'
+        default:
+          return 'LazyContextGatewayExclusive'
+      }
+    }
+  },
   UserTask: {
     embed: false,
     toolbar: [
@@ -385,7 +536,7 @@ export const workflowElement: WorkflowElement = {
     ],
     workflowDataToGraphData: (workflowNodeItem: NodeItem) => {
       let title = 'User Task'
-      if (!!workflowNodeItem.metadata.tags && workflowNodeItem.metadata.tags === 'signature') {
+      if (workflowNodeItem.metadata.tags === 'SignatureTask') {
         title = 'User Signature Task'
       }
       const attrs = GenAttrs(title, workflowNodeItem.name, workflowNodeItem.metadata.icon)
@@ -420,7 +571,7 @@ export const workflowElement: WorkflowElement = {
     },
     clickHandler: () => {},
     contextMenuComponent: (workflowNodeItem: NodeItem) => {
-      if (!!workflowNodeItem.metadata.tags && workflowNodeItem.metadata.tags === 'signature') {
+      if (workflowNodeItem.metadata.tags === 'SignatureTask') {
         return 'LazyContextSignature'
       }
       return 'LazyContextUserTask'
@@ -460,13 +611,22 @@ const workflowCellElementTemplate: CellTypeItem = {
     data: {
       id: '',
       name: 'New User Task',
-      type: 'UserTask',
-      formKey: '',
+      label: 'New User Task',
+      documentation: '',
+      type: WorkflowElementType.UserTask,
       inputSchema: '',
       outputSchema: '',
-      assignee: '',
+      config: {
+        formKey: '',
+        assignee: '',
+        candidate_groups: [],
+        candidate_roles: [],
+        due_date: '',
+        input_mapping: {},
+        output_mapping: {}
+      },
       metadata: {
-        tags: 'userTask',
+        tags: CellType.userTask,
         formKey: '',
         buttonSetting: {},
         booleanButton: []
@@ -497,16 +657,120 @@ const workflowCellElementTemplate: CellTypeItem = {
     data: {
       id: '',
       name: 'New Signature Task',
-      type: 'UserTask',
-      formKey: '',
+      type: WorkflowElementType.UserTask,
       inputSchema: '',
       outputSchema: '',
       assignee: '',
       metadata: {
-        tags: 'signature',
+        tags: CellType.signatureTask,
         formKey: '',
         buttonSetting: {},
         booleanButton: []
+      }
+    }
+  },
+  ExclusiveGateway: {
+    id: `New_ExclusiveGateway_${Date.now()}`,
+    label: 'Exclusive Gateway',
+    shape: 'custom-polygon',
+    width: 200,
+    height: 64,
+    attrs: GenAttrs('Exclusive Gateway', 'Exclusive Gateway', '/icons/form.svg'),
+    markup: [
+      { tagName: 'rect', selector: 'body' },
+      { tagName: 'image', selector: 'image' },
+      { tagName: 'text', selector: 'title' },
+      { tagName: 'text', selector: 'text' }
+    ],
+    ports: {
+      items: [
+        { id: 'from', group: 'from' },
+        { id: 'to', group: 'to' },
+        { id: 'left', group: 'left' },
+        { id: 'right', group: 'right' }
+      ]
+    },
+    data: {
+      id: '',
+      name: 'New Exclusive Gateway',
+      type: WorkflowElementType.Gateway,
+      execution: { async: false, timeout_ms: 1000, priority: 0 },
+      metadata: {
+        tags: CellType.exclusive,
+        rules: {
+          success: {
+            label: 'success',
+            condition: {},
+            style: ''
+          },
+          failure: {
+            label: 'failure',
+            condition: {},
+            style: ''
+          }
+        }
+      }
+    }
+  },
+  ParallelGateway: {
+    id: `New_ParallelGateway_${Date.now()}`,
+    label: 'Parallel Gateway',
+    shape: 'custom-polygon',
+    width: 200,
+    height: 64,
+    attrs: GenAttrs('Parallel Gateway', 'Parallel Gateway', '/icons/a.svg'),
+    markup: [
+      { tagName: 'rect', selector: 'body' },
+      { tagName: 'image', selector: 'image' },
+      { tagName: 'text', selector: 'title' },
+      { tagName: 'text', selector: 'text' }
+    ],
+    ports: {
+      items: [
+        { id: 'from', group: 'from' },
+        { id: 'to', group: 'to' },
+        { id: 'left', group: 'left' },
+        { id: 'right', group: 'right' }
+      ]
+    },
+    data: {
+      id: '',
+      name: 'New Exclusive Gateway',
+      type: WorkflowElementType.Gateway,
+      execution: { async: false, timeout_ms: 1000, priority: 0 },
+      metadata: {
+        tags: CellType.exclusive
+      }
+    }
+  },
+  InclusiveGateway: {
+    id: `New_InclusiveGateway_${Date.now()}`,
+    label: 'Inclusive Gateway',
+    shape: 'custom-polygon',
+    width: 200,
+    height: 64,
+    attrs: GenAttrs('Inclusive Gateway', 'Inclusive Gateway', '/icons/form.svg'),
+    markup: [
+      { tagName: 'rect', selector: 'body' },
+      { tagName: 'image', selector: 'image' },
+      { tagName: 'text', selector: 'title' },
+      { tagName: 'text', selector: 'text' }
+    ],
+    ports: {
+      items: [
+        { id: 'from', group: 'from' },
+        { id: 'to', group: 'to' },
+        { id: 'left', group: 'left' },
+        { id: 'right', group: 'right' }
+      ]
+    },
+    data: {
+      id: '',
+      name: 'New Inclusive Gateway',
+      type: WorkflowElementType.Gateway,
+      execution: { async: false, timeout_ms: 1000, priority: 0 },
+      metadata: {
+        tags: CellType.inclusive
       }
     }
   }

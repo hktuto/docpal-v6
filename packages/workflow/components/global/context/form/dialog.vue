@@ -26,9 +26,9 @@ async function handleFormSubmit() {
   const data = await newAdminApi
     .postDmsFormPropertiesSave({
       processKey: props.processKey,
-      userTaskId: props.userTaskId,
+      userTaskId: props.node.id,
       jsonValue: JSON.stringify(json),
-      versionId: 0
+      versionId: '0'
     })
     .then((r) => r.data)
 

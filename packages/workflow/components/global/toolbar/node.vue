@@ -138,7 +138,7 @@ onMounted(() => {
       <Icon name="lucide:settings-2" />
       <div class="label">Edit</div>
     </div>
-    <div class="contextAction" v-if="contextSelectedNode && ['userTask', 'startEvent'].includes(contextSelectedNode.data.type)" @click="copy">
+    <div class="contextAction" v-if="contextSelectedNode && ['UserTask', 'StartEvent'].includes(contextSelectedNode.data.type)" @click="copy">
       <Icon name="lucide:clipboard-copy" />
       <div class="label">Copy</div>
     </div>
@@ -146,7 +146,7 @@ onMounted(() => {
       class="contextAction"
       v-if="
         contextSelectedNode &&
-        ['userTask', 'startEvent'].includes(contextSelectedNode.data.type) &&
+        ['UserTask', 'StartEvent'].includes(contextSelectedNode.data.type) &&
         graphProvider.copyKey.value &&
         graphProvider.copyKey.value !== contextSelectedNode.data.id
       "
