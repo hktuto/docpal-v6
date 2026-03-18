@@ -55,13 +55,13 @@ export const ScanTableColumns: any[] = [
     title: 'Status',
     filterable:true,
     type: 'html',
-    formatter({ cellValue }: any) {
+    formatter({ cellValue, row }: any) {
       if (!cellValue) return ''
       const groupStatus = statusToGroupStatus(cellValue)
       if (!groupStatus) return cellValue
       return `<div class="table-status" style="--status-color: ${groupStatus.color}">
         <div class="status-dot" ></div>
-        ${cellValue}
+        ${cellValue} ${row.lockBy ? '('+ row.lockBy + ')' : ''}
       </div>`
     }
   },

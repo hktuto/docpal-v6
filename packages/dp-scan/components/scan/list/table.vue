@@ -86,7 +86,7 @@ async function cancelBatchs(ids: string[]) {
 
 const userId = useUserId()
 function openDetail(row: any) {
-
+  if(row.lockBy && row.lockBy !== userId.value) return
   const newTab = createBatchDetailPageTab(row.id)
   routerProvider?.navigateTo(newTab)
 }
@@ -144,6 +144,12 @@ const { tableConfig, tableEvent, tableRef, reload, cleanSelectedRows } = useVxeT
   ],
   permissionMethod: ({ code, row }) => {
     if (!row) {
+      if (row.lockBy && row.lockBy !== userId.value) {
+        return {
+          visible: false,
+          disabled: false
+        }
+      }
       return {
         visible: false,
         disabled: true
@@ -193,7 +199,6 @@ onMounted(() => {
         const { fullData } = tableRef.value?.getTableData()
         for(let i = 0; i < fullData.length; i++) {
           if (entryList[i].updatedAt !== fullData[i].updatedAt) {
-            console.log("updatedAt mismatch", entryList[i].updatedAt, fullData[i].updatedAt)
             routerProvider?.reloadComponent()
             break
           }
