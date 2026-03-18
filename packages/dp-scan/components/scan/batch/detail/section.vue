@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useBatchDetailContext, type SectionWithValues, type FieldWithValue } from '#imports'
 import { createValidator } from '../../../../types/formOCR'
+import { ElMessageBox } from 'element-plus'
 
 const props = defineProps<{
   section: SectionWithValues
@@ -11,6 +12,7 @@ const props = defineProps<{
 const emits = defineEmits<{
   fieldChange: [sectionId: string, fieldKey: string, value: any, rowIndex?: number]
   addRow: [sectionId: string]
+  removeRow: [sectionId: string, rowIndex: number]
 }>()
 
 const context = useBatchDetailContext()
@@ -70,6 +72,18 @@ function handleFieldChange(field: FieldWithValue, value: any, rowIndex?: number)
 // Handle add row for table sections
 function handleAddRow() {
   emits('addRow', props.section.section_id)
+}
+
+// Handle remove row for table sections
+async function handleRemoveRow(rowIndex: number) {
+  const action = await ElMessageBox.confirm('Are you sure you want to remove this row?', 'Confirm', {
+    confirmButtonText: 'Yes',
+    cancelButtonText: 'No',
+    type: 'warning',
+  })
+  if (action === 'confirm') {
+    emits('removeRow', props.section.section_id, rowIndex)
+  }
 }
 
 // Determine if field has been modified
@@ -292,6 +306,17 @@ defineExpose({
         <div class="rowHeader">
           <Icon name="lucide:rows-3" class="rowIcon" />
           <span>Row {{ rowIndex + 1 }}</span>
+          <!-- Remove row button - only show when not readonly -->
+          <ElButton
+            v-if="!readonly"
+            type="danger"
+            size="small"
+            circle
+            class="removeRowBtn"
+            @click.stop="handleRemoveRow(rowIndex)"
+          >
+            <Icon name="lucide:minus" />
+          </ElButton>
         </div>
 
         <div class="rowFields">
@@ -428,6 +453,10 @@ defineExpose({
 }
 
 .addRowBtn {
+  margin-left: auto;
+}
+
+.removeRowBtn {
   margin-left: auto;
 }
 

@@ -137,6 +137,7 @@ export type BatchDetailContext = {
   changePage: (pageNumber: number) => Promise<void>
   updateFieldValue: (sectionId: string, fieldKey: string, value: any, rowIndex?: number) => void
   addTableRow: (sectionId: string) => void
+  removeTableRow: (sectionId: string, rowIndex: number) => void
   saveDraft: () => Promise<void>
   confirm: () => Promise<void>
   reload: () => Promise<void>
@@ -634,6 +635,18 @@ export const useBatchDetail = (batchId: string) => {
   }
 
   /**
+   * Remove a row from a table section
+   */
+  function removeTableRow(sectionId: string, rowIndex: number) {
+    const section = sectionsWithValues.value.find((s) => s.section_id === sectionId)
+    if (!section || section.section_type !== 'table') return
+
+    if (section.rows && rowIndex >= 0 && rowIndex < section.rows.length) {
+      section.rows.splice(rowIndex, 1)
+    }
+  }
+
+  /**
    * Save draft - saves current values without finalizing
    */
   async function saveDraft() {
@@ -747,6 +760,7 @@ export const useBatchDetail = (batchId: string) => {
     changePage,
     updateFieldValue,
     addTableRow,
+    removeTableRow,
     saveDraft,
     confirm,
     reload: getBatchDetail,

@@ -13,6 +13,7 @@ const {
   sectionsWithValues,
   updateFieldValue,
   addTableRow,
+  removeTableRow,
   saveDraft,
   confirm,
   currentSelectedDoc,
@@ -66,6 +67,11 @@ function handleFieldChange(sectionId: string, fieldKey: string, value: any, rowI
 // Add row handler
 function handleAddRow(sectionId: string) {
   addTableRow(sectionId)
+}
+
+// Remove row handler
+function handleRemoveRow(sectionId: string, rowIndex: number) {
+  removeTableRow(sectionId, rowIndex)
 }
 
 // Save draft handler
@@ -194,6 +200,7 @@ function copyError() {
           :readonly="isReadonly"
           @field-change="handleFieldChange"
           @add-row="handleAddRow"
+          @remove-row="handleRemoveRow"
         />
       </div>
 
