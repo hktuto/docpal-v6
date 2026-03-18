@@ -863,7 +863,21 @@ export function calculateFamilyClassification(detail: any): {
   if (detail.newResultJson?.['Applicant Info']?.ApplicantFemalePregnanted16week === 'Y') {
     babyCount++
   }
-
+  console.log({
+    pplCount,
+    hasFamilyMember,
+    PrioritySchemeForElderly,
+    PrioritySchemeForNewborns,
+    YouthSchema,
+    babyCount,
+    CleareesCat,
+    HKHS,
+    HA,
+    EFAS_COT,
+    EFAS,
+    formTypeCode: detail.formTypeCode,
+    detail
+  })
   let FamilyClass = "";
   let FamilyCategory = "";
   let PriorityIndicator = '';
@@ -1109,7 +1123,12 @@ export function calculateFamilyClassification(detail: any): {
       }
     }
   }
-
+  console.log({
+    FamilyCategory,
+    FamilyClass,
+    PriorityIndicator,
+    FormSource,
+  })
   if (detail.formTypeCode === 'W') {
     // White Form logic
     if (hasFamilyMember) {
@@ -1191,7 +1210,7 @@ function DocumentInitFunctionBackup(detail: any, setting: any) {
 
   // Part 2: Calculate family classification
   const classification = calculateFamilyClassification(detail);
-
+  console.log(classification)
   // Apply classification results to detail
   detail.formSource = classification.formSource;
   detail.familyCategory = classification.familyCategory;
@@ -1205,4 +1224,42 @@ function DocumentInitFunctionBackup(detail: any, setting: any) {
     detail,
     setting
   };
+}
+
+
+function checkHKID(value,callback) {
+  if (typeof value !== 'string') {
+    callback(new Error('The HKID number must be a string'));
+    return
+  }
+  if(value.length !== 8) {
+    callback(new Error('Invalid HKID number'));
+    return;
+  }
+
+  // Remove any whitespace from the input
+  value = value.trim();
+
+  // Check if the input is a valid HKID number
+  if (!/^[A-Z]{1,2}[0-9]{7}$/.test(value)) {
+    callback(new Error('Invalid HKID number'));
+    return;
+  }
+  const finalCheckDigit  = value.charAt(8)
+  const sumStr = value.slice(0, 7);
+
+    // Convert the letters to numbers
+    let letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let letter1 = letters.indexOf(value.charAt(0)) + 10;
+    let letter2 = letters.indexOf(value.charAt(1)) + 10;
+
+    // Calculate the check digit
+    let sum = letter1 / 10 + (letter1 % 10) * 9 + letter2 * 8;
+    for (let i = 2; i <= 7; i++) {
+        sum += parseInt(value.charAt(i)) * (8 - i);
+    }
+    let checkDigit = (11 - (sum % 11)) % 10;
+
+    // Return the check digit
+    return checkDigit.toString();
 }

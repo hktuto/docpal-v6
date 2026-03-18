@@ -61,7 +61,7 @@ export default defineNuxtConfig({
     // '../../pages/admin-config-migration',
     // "../../pages/admin-share",
     // '../../pages/admin-rbac',
-    // '../../pages/admin-password-policy',
+    '../../pages/admin-password-policy',
     // '../../pages/admin-company-profile',
     // '../../pages/admin-external-storage',
     // '../../pages/admin-import-jobs',

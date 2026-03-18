@@ -158,7 +158,7 @@ export function exportReportToPDF(header: ReportHeader, columns: PDFColumn[], da
   })
 
   // Generate table
-  const result = autoTable(pdf, {
+  autoTable(pdf, {
     head: [headers],
     body: dataRows,
     startY: yPos,
@@ -178,30 +178,31 @@ export function exportReportToPDF(header: ReportHeader, columns: PDFColumn[], da
     },
     didDrawPage: (data) => {
       // Add page number at bottom
+      let finalY = pdf.internal.pageSize.getHeight() - 10
       pdf.setFontSize(8)
       pdf.text(`Page ${data.pageNumber}`, pageWidth - margin, pdf.internal.pageSize.getHeight() - 10, {
         align: 'right'
       })
+      // Add total row if specified (for SCS-102)
+      if (header.totalLabel && header.totalValue !== undefined) {
+        pdf.setFontSize(9)
+        pdf.setFont('helvetica', 'bold')
+        pdf.text(`${header.totalLabel} ${header.totalValue}`, margin, finalY)
+        pdf.setFont('helvetica', 'normal')
+        finalY += 8
+      }
+
+      // End of report marker
+      pdf.setFontSize(9)
+      pdf.text('*** END OF REPORT ***', pageWidth / 2, finalY + 5, { align: 'center' })
+
+      // Save PDF
+
     }
   })
-
-  let finalY = result.finalY + 5
-
-  // Add total row if specified (for SCS-102)
-  if (header.totalLabel && header.totalValue !== undefined) {
-    pdf.setFontSize(9)
-    pdf.setFont('helvetica', 'bold')
-    pdf.text(`${header.totalLabel} ${header.totalValue}`, margin, finalY)
-    pdf.setFont('helvetica', 'normal')
-    finalY += 8
-  }
-
-  // End of report marker
-  pdf.setFontSize(9)
-  pdf.text('*** END OF REPORT ***', pageWidth / 2, finalY + 5, { align: 'center' })
-
-  // Save PDF
   pdf.save(`${header.reportId}_${timestamp}.pdf`)
+
+
 }
 
 /**
@@ -343,7 +344,7 @@ export function exportMultipleTablesToPDF(
     }
 
     // Generate table using autoTable
-    const result = autoTable(pdf, {
+    autoTable(pdf, {
       head: [headers],
       body: dataRows,
       startY: startY,
@@ -360,11 +361,10 @@ export function exportMultipleTablesToPDF(
       },
       alternateRowStyles: {
         fillColor: [245, 245, 245]
-      }
+      },
+
     })
 
-    // Update startY for next table
-    startY = result.finalY + 15
   })
 
   // Save PDF
@@ -477,8 +477,6 @@ export function exportSCS101ToPDF(
       }
     })
 
-    // Update yPos for next table
-    yPos = result.finalY + 8
   })
 
   // End of report marker
