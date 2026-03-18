@@ -30,6 +30,9 @@ async function getListData(params:any) {
   if (f.updatedAtEnd) {
     f.updatedAtEnd = f.updatedAtEnd.replace('00:00:00Z','23:59:59Z')
   }
+  if(f.createdAtEnd) {
+    f.createdAtEnd = f.createdAtEnd.replace('00:00:00Z','23:59:59Z')
+  }
   const p = {
     ...params,
     ...f
