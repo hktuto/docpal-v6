@@ -2,7 +2,7 @@
 import dayjs from 'dayjs'
 import type { DashboardWidget, DashboardWidgetSetting } from '#imports'
 import { dashboardWidgetSetting, getNormalizeSetting, getWidgetSetting } from '#imports'
-import { publicApi } from 'api'
+import { newClientApi } from 'api'
 
 const routerProvider = inject(MenuRouterKey)
 const { id } = defineProps<{
@@ -45,7 +45,7 @@ function handleDelete(i: string) {
 async function handleSave() {
   try {
     state.saveLoading = true
-    await publicApi.api.putDocpalUserDashboard({
+    await newClientApi.putDsbUserDashboards({
       ...state.info,
       styleJson: JSON.stringify(state.layout)
     })
@@ -63,12 +63,12 @@ function handleEdit() {
 }
 
 async function getInfo() {
-  state.info = await publicApi.api.getDocpalUserDashboardId(id).then((res) => res.data)
+  state.info = await newClientApi.getDsbUserDashboardsId(id).then((res) => res.data)
   if (!state.info || !state.info.styleJson) return
   const temLayout = JSON.parse(state.info.styleJson)
   if (Array.isArray(temLayout)) {
     state.layout = temLayout.map((item) => {
-      return Object.assign(item, getNormalizeSetting(item.component))
+      return Object.assign(item, getNormalizeSetting(item.label))
     })
   } else {
     // dashboard is new, set layout to empty array

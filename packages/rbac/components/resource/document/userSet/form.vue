@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { adminApi } from 'api'
 const props = defineProps<{
   targetOptions: any[]
 }>()

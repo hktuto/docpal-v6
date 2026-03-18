@@ -5,7 +5,8 @@
 </template>
 
 <script lang="ts" setup>
-import { publicApi } from 'api'
+import { newClientApi } from 'api'
+
 const props = withDefaults(
   defineProps<{
     dates?: any
@@ -91,7 +92,7 @@ async function getData(workflow: string) {
         to: props.dates[1]
       }
     }
-    const initData = await publicApi.api.postDashboardNewworkflowcounttrend(params).then((res) => res.data)
+    const initData = await newClientApi.postDsbNewWorkflowCountTrend(params).then((res) => res.data)
     resultData.data = initData?.reduce((prev: any, item: any) => {
       prev.push(item.count)
       resultData.xAxis.push(item.key)
@@ -103,6 +104,7 @@ async function getData(workflow: string) {
     return resultData
   }
 }
+
 // #endregion
 
 defineExpose({

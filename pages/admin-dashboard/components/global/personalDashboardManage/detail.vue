@@ -79,7 +79,7 @@ async function getInfo() {
   const temLayout = JSON.parse(state.info.styleJson)
   if (Array.isArray(temLayout)) {
     state.layout = temLayout.map((item) => {
-      return Object.assign(item, getNormalizeSetting(item.component))
+      return Object.assign(item, getNormalizeSetting(item.label))
     })
     handleDataMigration()
   } else {
@@ -160,7 +160,6 @@ onMounted(() => {
         <span class="template-title"> {{ state.info.name }} </span>
         <Icon id="WorkPanel__Detail__Edit" name="material-symbols:edit-square" class="normal cursor-pointer" @click="handleEdit"></Icon>
       </div>
-      <!-- <el-button id="WorkPanel__Detail__Save" size="small" @click="handleSave">{{ t('common_save') }}</el-button> -->
       <el-button id="WorkPanel__Detail__Clear" v-if="state.layout.length > 0" type="danger" size="small" @click="handleClear">
         {{ $t('common_clear') }}
       </el-button>

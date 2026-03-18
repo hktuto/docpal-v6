@@ -171,7 +171,7 @@ export function logout() {
   const userState = useUserState()
   const router = useRouter()
   const route = useRoute()
-  const ignoreRedirectPath = ['/login', '/forgetPassword', '/resetPassword', '/admin']
+  const ignoreRedirectPath = ['/login', '/forgetPassword', '/resetPassword', '/initPassword', '/admin']
   router.push({
     path: '/login',
     query: {

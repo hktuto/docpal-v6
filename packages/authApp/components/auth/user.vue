@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import {emitBus, EventType} from 'eventbus';
-import {clientApi} from 'api'
+import { newClientApi } from 'api'
 import {logout} from '#imports'
 const routerProvider = inject(MenuRouterKey)
 const user = useUserState()
@@ -29,7 +28,7 @@ function switchPlatform() {
 async function changeLanguage(langCode:string) {
     const perference = useUserPreference()
     perference.value.language = langCode
-    await clientApi.api.putDmsUserSetting(perference.value as any)
+    await newClientApi.putDmsUserSetting(perference.value as any)
     setLocale(langCode);
     window.location.reload()
 }

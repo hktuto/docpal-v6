@@ -18,7 +18,7 @@
 </template>
 <script lang="ts" setup>
 import { ElMessageBox } from 'element-plus'
-import { publicApi } from 'api'
+import { newClientApi } from 'api'
 import { routeDashboardManageDetail } from '~/utils/routerHelper'
 
 const routerProvider = inject(MenuRouterKey)
@@ -26,7 +26,7 @@ const { t } = useI18n()
 let extraParams: any = {}
 const { tableConfig, tableEvent, tableRef, query, reload, cleanSelectedRows } = useVxeTable({
   id: 'dashboardManage',
-  api: (pageParams: any) => publicApi.api.postUserDashboardPage({ ...pageParams, ...extraParams }),
+  api: (pageParams: any) => newClientApi.postDsbUserDashboardsPage({ ...pageParams, ...extraParams }),
   columns: [
     { field: 'name', title: 'dashboard_name', fixed: 'left' },
     { field: 'access', title: 'dashboard_accessUserGroup' },
@@ -96,7 +96,7 @@ async function deleteItem(row: any) {
         confirmButtonText: t('common_confirmDelete')
       })
     if (action !== 'confirm') return
-    await publicApi.api.deleteUserDashboardId(row.id)
+    await newClientApi.deleteDsbUserDashboardsId(row.id)
     routerProvider?.message.success(t('tip_deleteSuccessMessage', { name: row.name }))
     query({})
   } catch (error) {

@@ -4,7 +4,7 @@
     <ContactBookPermissionForm ref="ContactBookPermissionRef" />
     <ContactBookFieldSetting ref="ContactBookFieldSettingRef" />
     <template #footer>
-      <el-button id="CaseManagement__CreateNewCaseTemplate__Submit" type="primary" :loading="state.loading"
+      <el-button id="ContactBook__NewContactBook__Submit" type="primary" :loading="state.loading"
                  @click="handleSubmit">
         {{ $t('common_submit') }}
       </el-button>

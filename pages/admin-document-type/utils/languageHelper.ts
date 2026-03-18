@@ -1,4 +1,4 @@
-import { newAdminApi } from 'api'
+import { newAdminApi, newClientApi } from 'api'
 
 export const localeKeys = ['en-US', 'zh-CN', 'zh-HK']
 
@@ -24,7 +24,7 @@ export async function getMetaLanguageList(languageKey: string = 'meta') {
   let pList: any = []
   for (const locale of localeKeys) {
     pList.push(
-      newAdminApi.getDmsFormPropertiesLanguageList({
+      newClientApi.getDmsFormPropertiesLanguageList({
         locale,
         languageKey
       }).then((res) => res.data[0])

@@ -17,7 +17,7 @@
 <script lang="ts" setup>
 import { useEventListener } from '@vueuse/core'
 
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import formJson from './AclForm.json'
 
 const emit = defineEmits(['handleUpdate', 'handleAdd'])
@@ -83,7 +83,7 @@ function handleInternalShare(docDetail) {
 
 async function createInternalShare(formData, cb) {
   try {
-    await clientApi.api.postDmsInternalshare(formData).then(r => r.data)
+    await newClientApi.postDmsInternalshare(formData).then(r => r.data)
     cb()
   } catch (error) {
     cb(false)

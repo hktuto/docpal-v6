@@ -36,9 +36,9 @@ async function handleSubmit() {
     }
     if (state.edit) {
       await newAdminApi.putDocpalPersonalDashboardUpdate({
-          ...state.setting,
-          ..._data
-        })
+        ...state.setting,
+        ..._data
+      })
         .then((r) => r.data)
       ElMessage.success(
         t('tip_updateMsg', {
@@ -49,9 +49,9 @@ async function handleSubmit() {
       emits('refresh')
     } else {
       const res = await newAdminApi.postDocpalPersonalDashboardSave({
-          ..._data,
-          styleJson: '{}'
-        })
+        ..._data,
+        styleJson: '{}'
+      })
         .then((res) => res.data)
       ElMessage.success(
         t('tip_createdMsg', {

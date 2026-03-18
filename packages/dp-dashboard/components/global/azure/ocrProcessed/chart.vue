@@ -7,7 +7,8 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
 import { getYearMonthDates } from '../../../../utils/tool'
-import { publicApi } from 'api'
+import { newClientApi } from 'api'
+
 const props = withDefaults(
   defineProps<{
     dataType?: string
@@ -61,7 +62,7 @@ const setting = {
     type: 'bar',
     tooltip: {
       appendToBody: true,
-      valueFormatter: function (value: any) {
+      valueFormatter: function(value: any) {
         return value
       }
     },
@@ -78,7 +79,7 @@ const setting = {
     type: 'line',
     tooltip: {
       appendToBody: true,
-      valueFormatter: function (value: any) {
+      valueFormatter: function(value: any) {
         return value
       }
     }
@@ -137,6 +138,7 @@ function setHighlight(curSeriesIndex = -1, curDataIndex: -1) {
   })
   instance.setOption(currentOption, true)
 }
+
 async function getData(dataType: string) {
   const resultData = {
     series: [],
@@ -177,39 +179,34 @@ async function getData(dataType: string) {
     return resultData
   }
 }
+
 const GetOcrProcessApi = async ({ dataType, mode, startDate, endDate }: any) => {
   if (dataType == 'workflow') {
-    if (mode === 'date')
-      return await publicApi.api
-        .postOcrQueryDailyWorkflowInfo({
-          startDate,
-          endDate
-        })
-        .then((res) => res.data)
-    else
-      return await publicApi.api
-        .postOcrQueryWorkflowInfo({
-          startDate,
-          endDate
-        })
-        .then((res) => res.data)
+    if (mode === 'date') {
+      return await newClientApi.postDsbOcrDailyWorkflowInfo({
+        startDate,
+        endDate
+      }).then((res) => res.data)
+    } else {
+      return await newClientApi.postDsbOcrWorkflowInfo({
+        startDate,
+        endDate
+      }).then((res) => res.data)
+    }
   } else {
     if (mode === 'date')
-      return await publicApi.api
-        .postOcrQueryDailyScanTypeInfo({
-          startDate,
-          endDate
-        })
-        .then((res) => res.data)
+      return await newClientApi.postDsbOcrDailyScanTypeInfo({
+        startDate,
+        endDate
+      }).then((res) => res.data)
     else
-      return await publicApi.api
-        .postOcrQueryScanTypeInfo({
-          startDate,
-          endDate
-        })
-        .then((res) => res.data)
+      return await newClientApi.postDsbOcrScanTypeInfo({
+        startDate,
+        endDate
+      }).then((res) => res.data)
   }
 }
+
 function getXAxisAndFillZeroData(data: any, mode: any) {
   const yData: any = {}
   const xData: any = {}

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import { type EventFormData, updateEventWorkflow } from '../../../../composables/useCalendar'
 import type { CalendarEventExternal } from '@schedule-x/calendar'
 
@@ -183,7 +183,7 @@ async function handleJump() {
   }
 
   showForm.value = true
-  const historyList: any = await clientApi.api.postWorkflowHistoryProcess({
+  const historyList: any = await newClientApi.postDocpalWorkflowHistoryProcessWithoutVariables({
     processInstanceId: workflowInstanceId.value,
     completed: false
   }).then((res) => res?.data?.entryList)

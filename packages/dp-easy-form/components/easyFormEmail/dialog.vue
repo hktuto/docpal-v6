@@ -93,7 +93,7 @@
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import { clientApi } from 'api'
+import { newClientApi } from 'api'
 import type { FormInstance } from 'element-plus'
 import { ElMessage } from 'element-plus'
 
@@ -193,7 +193,7 @@ async function handleSubmit() {
     userEmails: getEmail(),
     body: getBody(form.value.body)
   }
-  await clientApi.api.postDmsEasyFormEmailSend(params)
+  await newClientApi.postDmsEasyFormEmailSend(params)
   emits('email-update')
   ElMessage.success(t('dpMsg_success'))
   state.visible = false
@@ -247,7 +247,7 @@ function handleSelectChange() {
 // #endregion
 // #endregion
 onMounted(async () => {
-  const data = await clientApi.api.postUcenterUsers({}).then((res) => res.data)
+  const data = await newClientApi.postUcenterUsers({}).then((res) => res.data)
   const uniqueEmails = Array.from(
     new Map(data.map((item) => [item.email, item])).values()
   )

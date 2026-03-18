@@ -23,6 +23,7 @@
 import type { FormJson, FormData, WidgetItem, FormRenderer } from '@/types/vform'
 import { newClientApi } from 'api'
 import { ElMessage } from 'element-plus'
+
 const emits = defineEmits(['submit', 'clean', 'fail', 'formChange', 'emit'])
 const { t } = useI18n()
 const props = withDefaults(

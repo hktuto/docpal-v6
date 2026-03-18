@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { adminApi, clientApi } from 'api'
+import { newAdminApi, newClientApi } from 'api'
 
 const dialogVisible = ref(false)
 
@@ -14,7 +14,7 @@ const { list } = defineProps<{
 const emits = defineEmits(['create'])
 
 async function getAllWorkflows() {
-  workflowList.value = await clientApi.api.postDsbWorkflowProcessList({}).then((res) => res.data || [])
+  workflowList.value = await newClientApi.postDsbWorkflowProcessList({}).then((res) => res.data || [])
 }
 
 const form = reactive<any>({
@@ -31,7 +31,7 @@ async function resetInfo() {
   form.infoToImport = []
   if (form.workflowName) {
     const workflow = workflowList.value.find((item) => item.id === form.workflowName)
-    const blob = await adminApi.api.getWorkflowVersionBpmnxml(
+    const blob = await newAdminApi.getDocpalWorkflowVersionBpmnxml(
       {
         draftId: workflow.draftId,
         versionNumber: workflow.versionNumber

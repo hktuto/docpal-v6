@@ -11,7 +11,9 @@
       >
         <template #default="{ item }">
           <span>{{ item.label }}</span>
-          <el-tag v-if="item.tag" class="el-icon--right" :type="item.tagType || 'info'" size="small">{{ item.tag }}</el-tag>
+          <el-tag v-if="item.tag" class="el-icon--right" :type="item.tagType || 'info'" size="small">
+            {{ item.tag }}
+          </el-tag>
         </template>
       </el-select-v2>
       <div v-if="rule.type === 'number'" class="filter-row">
@@ -48,15 +50,18 @@
         <ElSwitch v-if="rule.type === 'boolean'" v-model="rule.value[0]" />
         <ElInput v-else v-model="rule.value[0]" :placeholder="$t('dataField.apiFieldValue')" />
       </div>
-      <el-divider v-if="index !== formData.resourceRules.length - 1 || formData.resourceRules.length > 1" content-position="left">
+      <el-divider v-if="index !== formData.resourceRules.length - 1 || formData.resourceRules.length > 1"
+                  content-position="left">
         <template v-if="index !== formData.resourceRules.length - 1">
           {{ $t(`logic.${formData.condition}`) }}
         </template>
-        <ElButton class="delete-button" type="text" icon="el-icon-delete" @click="removeResourceRule(index)" v-if="formData.resourceRules.length > 1" circle />
+        <ElButton class="delete-button" type="text" icon="el-icon-delete" @click="removeResourceRule(index)"
+                  v-if="formData.resourceRules.length > 1" circle />
       </el-divider>
     </div>
     <div class="flex-x-start">
-      <el-dropdown v-if="!isOr" type="primary" size="small" split-button @click="addResourceRule" @command="handleCommand">
+      <el-dropdown v-if="!isOr" type="primary" size="small" split-button @click="addResourceRule"
+                   @command="handleCommand">
         {{ $t(`logic.${formData.condition}`) }}
         <template #dropdown>
           <el-dropdown-menu>
@@ -73,8 +78,8 @@
 </template>
 <script lang="ts" setup>
 import { getMasterTableOptions, getUserList, getUserGroupList, getRoleList } from '../meta/metadata'
-import { ArrowUp } from '@element-plus/icons-vue'
-import { adminApi } from 'api'
+import { newAdminApi } from 'api'
+
 const props = defineProps({
   isOr: {
     type: Boolean,
@@ -91,10 +96,12 @@ const props = defineProps({
 })
 const emits = defineEmits(['update:formData'])
 const { t } = useI18n()
+
 function handleCommand(command: string) {
   const newFormData = { ...props.formData, condition: command }
   emits('update:formData', newFormData)
 }
+
 const numberConditions = [
   { label: t('vxe.renderer.cases.gt'), value: 'gt' },
   { label: t('vxe.renderer.cases.equal'), value: 'eq' },
@@ -106,6 +113,7 @@ const stringConditions = [
   { label: t('vxe.renderer.cases.unequal'), value: 'neq' }
 ]
 const selectConditions = stringConditions
+
 // 监听 attribute 变化，自动设置 type
 async function onResourceAttributeChange(rule: any, attrValue: string, isInit: boolean = false) {
   const attr = props.resourceAttributes.find((a) => a.value === attrValue)
@@ -120,19 +128,20 @@ async function onResourceAttributeChange(rule: any, attrValue: string, isInit: b
     rule.selectConfig = attr?.selectConfig
   }
 }
-function getDocumentTypes() {
-  // TODO: 未更換
+
+async function getDocumentTypes() {
   try {
-    return adminApi.api.getNuxeoTypes().then((res) => {
-      return res.data.map((item: any) => ({
-        label: item.name,
-        value: item.name
-      }))
-    })
+    const data = await newAdminApi.postDmsDocpalTypePage({ pageSize: 9999 }).then((res) => res.data)
+    if (!data || !data.entryList) return []
+    return data.entryList.map((item: any) => ({
+      label: item.name,
+      value: item.name
+    }))
   } catch (e) {
     console.log('getDocumentTypes', e)
   }
 }
+
 async function getSelectOptions(selectConfig: any) {
   if (selectConfig.type === 'user') {
     return await getUserList()
@@ -163,18 +172,21 @@ async function getSelectOptions(selectConfig: any) {
     return await getDocumentTypes()
   }
 }
+
 // 添加/删除规则
 function addResourceRule() {
   const newRules = [...props.formData.resourceRules, { attribute: '', type: 'string', condition: 'eq', value: [] }]
   const newFormData = { ...props.formData, resourceRules: newRules }
   emits('update:formData', newFormData)
 }
+
 function removeResourceRule(index: number) {
   const newRules = [...props.formData.resourceRules]
   newRules.splice(index, 1)
   const newFormData = { ...props.formData, resourceRules: newRules }
   emits('update:formData', newFormData)
 }
+
 defineExpose({
   addResourceRule,
   onResourceAttributeChange
@@ -207,29 +219,36 @@ defineExpose({
 .rotateLast {
   transition: all 0.5s;
 }
+
 .el-divider--horizontal {
   margin: var(--app-space-s) 0 !important;
 }
+
 .el-tag {
   margin-right: var(--app-space-xs);
   margin-bottom: var(--app-space-xs);
 }
+
 .filter-row {
   display: flex;
   flex-flow: row nowrap;
   gap: var(--app-space-xs);
   align-items: center;
   justify-content: flex-start;
+
   .el-select:first-child {
     width: 30rem;
   }
 }
+
 .attribute-row {
   margin-bottom: var(--app-space-xs);
 }
+
 .delete-button {
   height: 1rem;
 }
+
 .flex-x-start {
   margin-top: var(--app-space-xs);
 }
