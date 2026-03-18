@@ -127,10 +127,11 @@ async function validateForm(){
 
     return sectionFormEl.value.validate()
   }
-  if(tabelSectionRef.value){
-    tabelSectionRef.value.forEach((row) => {
-      row.validate()
-    })
+  if (tabelSectionRef.value) {
+    return await Promise.all(tabelSectionRef.value.map(async (row) => {
+      return await row.validate()
+    }))
+
   }
 }
 

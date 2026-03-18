@@ -6,7 +6,7 @@ const context = useBatchDetailContext()
 if (!context) {
   throw new Error('BatchDetailContext not found')
 }
-
+const allSectionsRef  = ref()
 // Destructure for easier access
 const {
   documentLoading,
@@ -72,6 +72,8 @@ function handleAddRow(sectionId: string) {
 async function handleSaveDraft() {
   savingDraft.value = true
   try {
+    const p = allSectionsRef.value.forEach(c => (c.validateForm()))
+
     await saveDraft()
     routerProvider?.message.success('Draft saved successfully')
   } catch (error) {
@@ -181,6 +183,7 @@ function copyError() {
       <div class="sectionsList" :class="{ 'withWarning': isLockedByOther }">
         <ScanBatchDetailSection
           v-for="section in sectionsWithValues"
+          ref="allSectionsRef"
           :key="section.section_id"
           :section="section"
           :allData="sectionsWithValues"
