@@ -498,16 +498,18 @@ export function normalizeValue(
   const input = String(value).trim()
 
   for (const [targetValue, patterns] of Object.entries(normalizeOptions)) {
+
+    const fullOptions = patterns.join(',').replace(' ','')
+    if (fullOptions.toLowerCase().includes(input.toLowerCase().replace(' ',''))) {
+      return targetValue
+    }
     for (const pattern of patterns) {
       // Check if pattern looks like a regex (starts with ^ or ends with $ or contains regex chars)
       const isRegex = pattern.startsWith('^') ||
                       pattern.endsWith('$') ||
                       /[.*+?()[\]{}|]/.test(pattern)
       // Remark **** is the keyword to for default value, so the
-      if (pattern === '****') {
-        console.log("found detail value", targetValue, input)
-        return targetValue
-      }
+
       if (isRegex) {
         try {
           const regex = new RegExp(pattern, 'i') // case-insensitive
@@ -516,16 +518,22 @@ export function normalizeValue(
             return targetValue
           }
         } catch (e) {
+
           // Invalid regex, treat as literal string
           if (input.toLowerCase() === pattern.toLowerCase()) {
             return targetValue
           }
         }
       } else {
+
         // Plain string comparison (case-insensitive)
         if (input.toLowerCase() === pattern.toLowerCase()) {
           return targetValue
         }
+      }
+      if (pattern === '****') {
+        console.log("found detail value", targetValue, input)
+        return targetValue
       }
     }
   }

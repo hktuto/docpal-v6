@@ -190,7 +190,7 @@ export const useBatchDetail = (batchId: string) => {
     const fieldLabel = field.lable || field.label
     const rawValue = newData?.[fieldLabel] ?? ''
 
-    if (field.lable === "FamilyMemberRelationship") {
+    if (field.key === "TotalHouseholeNetAssetValue") {
       console.log("convertFieldToWithValues", fieldLabel, rawValue, normalizeValue(rawValue, field.normalize_options))
     }
 
@@ -249,10 +249,6 @@ export const useBatchDetail = (batchId: string) => {
             currentValue: rowData,
             originalValue: oldRowData,
             fields: section.fields?.map((field: any): FieldWithValue => {
-
-              if (field.lable === "FamilyMemberRelationship") {
-                console.log("field", field, rowData, oldRowData)
-              }
               return convertFieldToWithValues(field, rowData, oldRowData)
             })
           }
