@@ -30,7 +30,7 @@ const { isVerifier } = useScanClient()
 const canVerify = computed(() => isVerifier(projectId.value))
 
 // Check if form should be readonly (locked by other or no verifier permission)
-const isReadonly = computed(() => isLockedByOther.value || !canVerify.value)
+const isReadonly = computed(() => isLockedByOther.value || !canVerify.value || context?.selectedDocDetail.value.detail.status === 'completed' )
 
 // Get lock message
 const lockMessage = computed(() => {
@@ -266,7 +266,7 @@ watch(hasError,(bool)=>{
           type="primary"
           size="default"
           :loading="savingDraft"
-          :disabled="!currentSelectedDoc"
+          :disabled="!currentSelectedDoc ||　isReadonly"
           @click="handleSaveDraft"
         >
           <Icon name="lucide:save" />
@@ -276,7 +276,7 @@ watch(hasError,(bool)=>{
           type="success"
           size="default"
           :loading="confirming"
-          :disabled="!currentSelectedDoc"
+          :disabled="!currentSelectedDoc ||　isReadonly"
           @click="handleConfirm"
         >
           <Icon name="lucide:check-circle" />
