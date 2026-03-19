@@ -837,7 +837,7 @@ export function normalizeDocumentData(detail: any, setting: any): void {
       if (Array.isArray(section)) {
         section.forEach((item) => {
           Object.keys(item).forEach((fieldKey) => {
-            if (fieldKey.includes('HKID') || fieldKey.includes('HKIC') || fieldKey === 'ApplicantChineseName') {
+            if (fieldKey.includes('HKID') || fieldKey.includes('HKIC') || fieldKey === 'ApplicantChineseName' || fieldKey === 'FamilyMemberChineseName') {
 
               item[fieldKey] = item[fieldKey].replaceAll('(', '').replaceAll(')', '')
             }
@@ -846,7 +846,7 @@ export function normalizeDocumentData(detail: any, setting: any): void {
       } else {
 
         Object.keys(section).forEach((fieldKey) => {
-          if (fieldKey.includes('HKID') || fieldKey.includes('HKIC') || fieldKey === 'ApplicantChineseName') {
+          if (fieldKey.includes('HKID') || fieldKey.includes('HKIC') || fieldKey === 'ApplicantChineseName'  || fieldKey === 'FamilyMemberChineseName') {
 
             detail.newResultJson[sectionKey][fieldKey] = detail.newResultJson[sectionKey][fieldKey].replaceAll('(', '').replaceAll(')', '')
           }
@@ -859,11 +859,22 @@ export function normalizeDocumentData(detail: any, setting: any): void {
   if (detail.oldResultJson) {
     Object.keys(detail.oldResultJson).forEach((sectionKey) => {
       const section = detail.oldResultJson[sectionKey]
-      Object.keys(section).forEach((fieldKey) => {
-        if (fieldKey.includes('HKID') || fieldKey.includes('HKIC') || fieldKey === 'ApplicantChineseName') {
-          detail.oldResultJson[sectionKey][fieldKey] = detail.oldResultJson[sectionKey][fieldKey].replaceAll('(', '').replaceAll(')', '')
-        }
-      })
+      if (Array.isArray(section)) {
+        section.forEach((item) => {
+          Object.keys(item).forEach((fieldKey) => {
+            if (fieldKey.includes('HKID') || fieldKey.includes('HKIC') || fieldKey === 'ApplicantChineseName' || fieldKey === 'FamilyMemberChineseName') {
+
+              item[fieldKey] = item[fieldKey].replaceAll('(', '').replaceAll(')', '')
+            }
+          })
+        })
+      } else {
+        Object.keys(section).forEach((fieldKey) => {
+          if (fieldKey.includes('HKID') || fieldKey.includes('HKIC') || fieldKey === 'ApplicantChineseName' || fieldKey === 'FamilyMemberChineseName') {
+            detail.oldResultJson[sectionKey][fieldKey] = detail.oldResultJson[sectionKey][fieldKey].replaceAll('(', '').replaceAll(')', '')
+          }
+        })
+      }
     })
   }
 

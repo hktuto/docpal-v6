@@ -111,6 +111,16 @@ export const statusToGroupStatus = (status: any): STATUS_GROUP | null => {
   return result
 }
 
+export const statusToGroupStatusKey = (status: any): STATUS_GROUP | null => {
+  let result = null
+  Object.keys(StatusMap).forEach((groupStatus) => {
+    if (StatusMap[groupStatus as keyof typeof StatusMap].status.includes(status)) {
+      result = groupStatus
+    }
+  })
+  return result
+}
+
 export const groupStatusToStatus = (groupStatus: string) => StatusMap[groupStatus as keyof typeof StatusMap]?.status || []
 
 export const createBatchListPageTab = () => {
