@@ -135,19 +135,33 @@ async function cancelBatch(){
   routerProvider?.message.success('Batch cancelled successfully')
   reload()
 }
+
 async function downloadBatch(){
+  detailLoading.value = true
   const batchIdList = [batchDetail.value.id]
-  const b = await clientApi.api.postCaptureExportZip({ batchIdList }, {
-    format: 'blob'
+  const token = localStorage.getItem('access_token')
+
+  await fetch('/api/capture/export/zip',{
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({ batchIdList }),
+  }).then(async(res) => {
+    const fileName = res.headers.get('content-disposition')?.split('filename=')[1]
+    if (!fileName) return
+    const b = await res.blob()
+    const blob = new Blob([b], { type: 'application/zip' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = fileName.replaceAll('"', '')
+    a.click()
+    URL.revokeObjectURL(url)
+    a.remove()
   })
-  const blob = new Blob([b], { type: 'application/zip' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `batch_export_${new Date().toISOString().replace(/:/g, '-')}.zip`
-  a.click()
-  URL.revokeObjectURL(url)
-  a.remove()
+  detailLoading.value = false
 }
 
 watch(() => props.batchId, (newBatchId) => {

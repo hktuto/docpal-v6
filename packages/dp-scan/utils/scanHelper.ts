@@ -40,11 +40,7 @@ export const StatusMap: {
 }
 
 export const ScanTableColumns: any[] = [
-  {
-    field: 'projectName',
-    title: 'Project',
-    fixed: 'left'
-  },
+
   {
     field: 'batchNo',
     title: 'Batch Name',
@@ -76,6 +72,11 @@ export const ScanTableColumns: any[] = [
     formatter({ cellValue }: any) {
       return formatDate(cellValue)
     }
+  },
+  {
+    field: 'createdBy',
+    title: 'Created By',
+    filterable:true,
   },
   {
     field: 'updatedAt',

@@ -66,17 +66,28 @@ async function batchExport(ids: string[]) {
   exportLoading.value = true;
   const batchIdList = ids ? ids : selectedRow.value.map((row) => row.id)
   if (!batchIdList || batchIdList.length === 0) return
-  const b = await clientApi.api.postCaptureExportZip({ batchIdList }, {
-    format: 'blob'
+  const token = localStorage.getItem('access_token')
+
+  await fetch('/api/capture/export/zip',{
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({ batchIdList }),
+  }).then(async(res) => {
+    const fileName = res.headers.get('content-disposition')?.split('filename=')[1]
+    if (!fileName) return
+    const b = await res.blob()
+    const blob = new Blob([b], { type: 'application/zip' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = fileName.replaceAll('"', '')
+    a.click()
+    URL.revokeObjectURL(url)
+    a.remove()
   })
-  const blob = new Blob([b], { type: 'application/zip' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `batch_export_${new Date().toISOString().replace(/:/g, '-')}.zip`
-  a.click()
-  URL.revokeObjectURL(url)
-  a.remove()
   emits('updated')
   exportLoading.value = false;
   // routerProvider?.message.info('Waiting Api to be ready')
@@ -232,7 +243,7 @@ onMounted(() => {
           <ScanListFilter />
         </template>
         <template v-else>
-          <ScanListMultipleSelect :selectedRow="selectedRow" @cancel="cleanSelected" @batchCancel="cancelBatchs" @batchExport="batchExport" />
+          <ScanListMultipleSelect v-loading="exportLoading" :selectedRow="selectedRow" @cancel="cleanSelected" @batchCancel="cancelBatchs" @batchExport="batchExport" />
         </template>
       </template>
     </vxe-grid>
