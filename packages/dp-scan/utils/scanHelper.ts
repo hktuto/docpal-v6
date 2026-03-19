@@ -44,6 +44,7 @@ export const ScanTableColumns: any[] = [
   {
     field: 'batchNo',
     title: 'Batch Name',
+    filterable:true,
     width: 200,
   },
   {
