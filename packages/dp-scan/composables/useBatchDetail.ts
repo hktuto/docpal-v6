@@ -190,8 +190,8 @@ export const useBatchDetail = (batchId: string) => {
     const fieldLabel = field.lable || field.label
     const rawValue = newData?.[fieldLabel] ?? ''
 
-    if (field.key === "FamilyMemberPregnanted16Week") {
-      console.log("convertFieldToWithValues", fieldLabel, rawValue, normalizeValue(rawValue, field.normalize_options))
+    if (field.key === "TotalHouseholeNetAssetValue") {
+      console.log("TotalHouseholeNetAssetValue", fieldLabel, rawValue, normalizeValue(rawValue, field.normalize_options))
     }
 
     const normalizedValue = field.normalize_options

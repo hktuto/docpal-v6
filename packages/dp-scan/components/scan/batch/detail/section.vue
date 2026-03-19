@@ -93,15 +93,7 @@ function isFieldModified(field: FieldWithValue): boolean {
 function splitByCamelCase(str: string): string {
   return str.replace(/([a-z])([A-Z])/g, '$1 $2')
 }
-function getFieldAllRules(): any {
-  const allRules: any = {}
-  if (props.section.fields) {
-    props.section.fields.forEach((field) => {
-      allRules[field.key] = getFieldRules(field)
-    })
-  }
-  return allRules
-}
+
 // Generate validation rules for a field
 function getFieldRules(field: FieldWithValue, index?:number): any[] {
   const rules: any[] = []
@@ -259,6 +251,7 @@ defineExpose({
               :class="{fieldInput: true, edited: isFieldModified(field)}"
               :placeholder="`Select ${ field.label}`"
               :disabled="readonly"
+              filterable
               @update:model-value="(val) => handleFieldChange(field, val)"
             >
               <ElOption
@@ -266,7 +259,6 @@ defineExpose({
                 :key="opt.value"
                 :label="opt.label"
                 :value="opt.value"
-                filterable
               />
             </ElSelect>
             <template v-else-if="field.type === 'date'">
