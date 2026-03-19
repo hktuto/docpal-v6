@@ -139,7 +139,7 @@ function saveNormalizeOptions() {
   const result: NormalizeOptions = {}
 
   for (const row of normalizeRows.value) {
-    if (row.targetValue.trim()) {
+    if (row.targetValue) {
       // Split by comma or newline, trim each pattern
       const patterns = row.patterns
         .split(/[,\n]/)
@@ -188,7 +188,7 @@ function syncNormalizeOptionsFromFieldOptions() {
 }
 
 function addNormalizeRow() {
-  normalizeRows.value.push({ targetValue: '', patterns: '' })
+  normalizeRows.value.push({ targetValue: ' ', patterns: '  ' })
 }
 
 function removeNormalizeRow(index: number) {

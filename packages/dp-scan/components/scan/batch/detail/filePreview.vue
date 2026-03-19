@@ -1016,10 +1016,10 @@ const paginationItems = computed(() => {
       </div>
       <div class="pageNav">
           <div class="navStat">
-              Category: <span class="docClass"> {{selectedDocDetail.detail.FamilyCategory}} </span>
+              Category: <span class="docClass"> {{selectedDocDetail.detail.familyCategory}} </span>
           </div>
           <div class="navStat">
-              Class: <span class="docClass">{{selectedDocDetail.detail.FamilyClass}}</span>
+              Class: <span class="docClass">{{selectedDocDetail.detail.familyClass}}</span>
           </div>
           <div class="navStat">
               Person: <span class="docClass">{{selectedDocDetail.detail.statePerson}}</span>

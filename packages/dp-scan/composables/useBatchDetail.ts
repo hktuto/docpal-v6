@@ -190,7 +190,7 @@ export const useBatchDetail = (batchId: string) => {
     const fieldLabel = field.lable || field.label
     const rawValue = newData?.[fieldLabel] ?? ''
 
-    if (field.key === "TotalHouseholeNetAssetValue") {
+    if (field.key === "FamilyMemberPregnanted16Week") {
       console.log("convertFieldToWithValues", fieldLabel, rawValue, normalizeValue(rawValue, field.normalize_options))
     }
 
@@ -394,7 +394,6 @@ export const useBatchDetail = (batchId: string) => {
         const { detail: newDetail, setting: newSetting } = DocumentInitFunctionBackup(detail, setting)
         if(newDetail) detail = newDetail
         if (newSetting) setting = newSetting
-
         selectedDocDetail.value = {
           setting,
           detail
