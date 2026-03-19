@@ -130,10 +130,12 @@ async function confirmBatch(){
   backToList()
 }
 async function cancelBatch(){
+  detailLoading.value = true
   const batchIds = [batchDetail.value.id]
   await clientApi.api.postCaptureBatchCancel({ batchIds })
   routerProvider?.message.success('Batch cancelled successfully')
   reload()
+  detailLoading.value = false
 }
 
 async function downloadBatch(){
