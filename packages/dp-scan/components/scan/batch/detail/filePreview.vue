@@ -1146,6 +1146,7 @@ watch(currentSelectedDoc, () => {
     border-radius: var(--app-border-radius-s);
     color: #fff;
     margin-inline: var(--app-space-xs);
+    white-space: nowrap;
 }
 .previewContainer {
   width: 100%;
