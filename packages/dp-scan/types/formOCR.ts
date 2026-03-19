@@ -561,8 +561,9 @@ export function createValidator(
 
   return (rule: any, value: any, callback: (error?: Error) => void, allData?: any, SectionWithValues?:any, index?:number) => {
     try {
+      const newValidatFu = validationCode + ';callback();'
       // Create function with proper signature
-      const fn = new Function('rule', 'value', 'callback', 'allData', 'SectionWithValues','index', validationCode)
+      const fn = new Function('rule', 'value', 'callback', 'allData', 'SectionWithValues','index', newValidatFu)
       fn(rule, value, callback, allData, SectionWithValues, index)
     } catch (e) {
       console.error('Validation function error:', e)
