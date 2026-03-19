@@ -167,6 +167,38 @@ function copyError() {
     routerProvider?.message.error('Failed to copy error')
   })
 }
+
+const forms = ref<any[]>([])
+const updateFromId = ref();
+async function getAllForms(){
+
+  const projectId = context?.projectId.value
+  const f = await clientApi.api.postCaptureProjformsettingPage({ projectId })
+  forms.value = f.data
+}
+
+async function triggerCustomForm(){
+  if(!updateFromId.value) {
+    routerProvider?.message.error('Please select a form first')
+    return
+  }
+
+  const { batchId, id} = context?.selectedDocDetail.value.detail
+  await clientApi.api.postCaptureBatchBatchidDocDocidRetryWithForm(
+    batchId,
+    id,
+    { formId: updateFromId.value }
+  )
+  routerProvider?.reloadComponent()
+}
+watch(hasError,(bool)=>{
+  if(bool) {
+    getAllForms()
+  }
+},{
+  immediate: true,
+})
+
 </script>
 
 <template>
@@ -179,6 +211,15 @@ function copyError() {
           File Error:
         </div>
         <div class="errorMessage">{{ errorMessage }}</div>
+        <h2>Choose Form</h2>
+        <ElSelect v-model="updateFromId" filterable placeholder="Select a form">
+          <ElOption v-for="form in forms" :key="form.id" :label="form.name" :value="form.id" />
+        </ElSelect>
+        <ElButton type="primary" @click="triggerCustomForm">
+          Use Custom Form
+        </ElButton>
+        <ElDivider />
+        <h2>Replace File</h2>
         <ElButton type="primary" @click="triggerFileUpload">
           <Icon name="lucide:upload" />
           Upload File

@@ -54,6 +54,7 @@ export async function loadPDF(source: File | ArrayBuffer): Promise<PDFWrapper> {
   }
 }
 
+
 /**
  * Get information about all pages in a PDF
  */

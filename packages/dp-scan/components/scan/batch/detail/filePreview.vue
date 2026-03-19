@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useBatchDetailContext, useScanClient } from '#imports'
-
+import {clientApi} from 'api';
 const context = useBatchDetailContext()
 if (!context) {
   throw new Error('BatchDetailContext not found')
@@ -997,11 +997,62 @@ const paginationItems = computed(() => {
 
   return items
 })
+
+
+const previewErrorFile = ref()
+const errorPreviewLoading = ref(false)
+async function getPreviewPdf(){
+    const detail = context?.selectedDocDetail.value.detail
+    previewErrorFile.value = null;
+    if(!detail.originalFilename) return
+    errorPreviewLoading.value = true;
+    console.log("try get document")
+    try{
+
+      const path = `/process/${detail.batchId}/${detail.id}/${detail.id}.pdf`
+      const b = await clientApi.api.postCaptureFileQuerycapturefilebypath({ path }, {
+        format: 'blob',
+        headers: { noThrowError: true },
+      })
+      const pdf = await loadPDF(b)
+      previewErrorFile.value = await pdfPageToImageUrl(pdf, 1, {
+        scale: 1.5,
+        maxWidth: 1000,
+        maxHeight: 1000
+      })
+
+    }catch(err){
+      console.log("err", err)
+    }finally{
+      errorPreviewLoading.value = false;
+    }
+}
+
+watch(currentSelectedDoc, () => {
+  if(hasError.value){
+    getPreviewPdf()
+  }
+},{
+  immediate:true
+})
+
+
 </script>
 
 <template>
   <div v-loading="previewLoading" class="previewContainer">
-    <div class="previewHeader">
+    <div v-if="hasError" v-loading="errorPreviewLoading" class="errorState">
+        <template v-if="!previewErrorFile">
+            <Icon name="lucide:file-x" class="errorIcon" />
+            <span class="errorText">Can Not Preview File</span>
+        </template>
+        <template v-else>
+            <div class="errorImage">
+                <img :src="previewErrorFile" />
+            </div>
+        </template>
+    </div>
+    <div v-else-if="previewImgUrl" class="previewHeader">
       <div class="action">
         <!-- Zoom Controls -->
         <div class="zoomControls">
@@ -1075,19 +1126,15 @@ const paginationItems = computed(() => {
       @mouseleave="handleMouseLeave"
     >
       <!-- Error State -->
-      <div v-if="hasError" class="errorState">
-        <Icon name="lucide:file-x" class="errorIcon" />
-        <span class="errorText">Can Not Preview File</span>
-      </div>
+
       <!-- Normal Preview -->
       <canvas
-        v-else-if="previewImgUrl"
         ref="canvasRef"
         class="previewCanvas"
         :class="{ editing: isEditingCrop }"
         :style="{ cursor: canvasCursor }"
       />
-      <ElEmpty v-else description="No preview available" />
+
     </div>
   </div>
 </template>
@@ -1107,7 +1154,22 @@ const paginationItems = computed(() => {
   flex-flow: column nowrap;
   overflow: hidden;
 }
-
+.errorImage{
+    width: 100%;
+    height:100%;
+    overflow:hidden;
+    padding: var(--app-space-s);
+    display: grid;
+    place-items: center;
+    position: relative;
+    img{
+        width: 100%;
+        height:100%;
+        object-fit: contain;
+        margin: 0 auto;
+        overflow: hidden;
+    }
+}
 .previewHeader {
   display: grid;
   grid-template-columns: min-content 1fr min-content;
