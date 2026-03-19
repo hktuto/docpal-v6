@@ -488,21 +488,7 @@ export function normalizeValue(
   normalizeOptions?: NormalizeOptions,
 
 ): string {
-  // check if option can value
-  const testValue = value.toLowerCase()
-  let v:any;
-  options.forEach((op) => {
-    for (let [key, value] of Object.entries(op)) {
-      if (testValue === key.toLowerCase() ) {
-        v = key;
-        return key;
-      }
-    }
-
-  })
-  console.log("v", v)
   if (!normalizeOptions ) return value
-
   if (!value) {
     // if no value find default value
     const defaultPattern = Object.entries(normalizeOptions).find(([targetValue, patterns]) => patterns.includes('****'))
@@ -511,6 +497,18 @@ export function normalizeValue(
     }
     return defaultPattern[0] || ""
   }
+  // check if option can value
+  const testValue = value.toLowerCase()
+  let v:any;
+  options.forEach((op) => {
+    for (let [key, val] of Object.entries(op)) {
+      if (testValue === key.toLowerCase() ||val &&　testValue === val.toLowerCase() ) v = key
+    }
+  })
+
+  if(v) return v
+
+
   const input = String(value).trim()
 
   for (const [targetValue, patterns] of Object.entries(normalizeOptions)) {

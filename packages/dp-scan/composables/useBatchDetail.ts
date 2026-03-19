@@ -190,9 +190,14 @@ export const useBatchDetail = (batchId: string) => {
     const fieldLabel = field.lable || field.label
     const rawValue = newData?.[fieldLabel] ?? ''
 
-    if (fieldLabel === "TotalHouseholeNetAssetValue") {
-      console.log("TotalHouseholeNetAssetValue",  rawValue, field.field_setting.options, normalizeValue(rawValue, field.field_setting.options, field.normalize_options ))
-    }
+    // if (fieldLabel === "TotalHouseholeNetAssetValue") {
+    //   const normalizedValue = field.normalize_options
+    //     ? normalizeValue(rawValue, field.field_setting.options, field.normalize_options)
+    //     : rawValue
+    //   if (rawValue !== normalizedValue) {
+    //     console.log("TotalHouseholeNetAssetValue", rawValue, normalizedValue)
+    //   }
+    // }
 
     const normalizedValue = field.normalize_options
       ? normalizeValue(rawValue, field.field_setting.options, field.normalize_options)
