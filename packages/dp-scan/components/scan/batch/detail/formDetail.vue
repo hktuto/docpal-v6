@@ -136,10 +136,10 @@ async function handleFileUpload(event: Event) {
   try {
     const formData = new FormData()
     formData.append('file', file)
-
+    const { batchId, id} = context?.selectedDocDetail.value.detail
     await clientApi.api.postCaptureBatchBatchidDocDocidReplaceAndRetry(
-      currentBatchId.value,
-      currentSelectedDoc.value.id,
+      batchId,
+      id,
       formData
     )
 
