@@ -44,7 +44,8 @@ const isBatchProcessing = computed(() => {
  */
 const canCancel = computed(() => {
   const gorupStatus = statusToGroupStatus(batchDetail.value?.status)
-  const canCancelStatus = !gorupStatus || (gorupStatus.key !== 'cancelled' )
+  console.log("gorupStatus", gorupStatus)
+  const canCancelStatus = !gorupStatus || (!gorupStatus.key.includes('cancelled') && !gorupStatus.key.includes('completed'))
   const hasAdminPermission = isAdmin(projectId.value)
   return canCancelStatus && hasAdminPermission
 })
