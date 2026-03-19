@@ -190,15 +190,15 @@ export const useBatchDetail = (batchId: string) => {
     const fieldLabel = field.lable || field.label
     const rawValue = newData?.[fieldLabel] ?? ''
 
-    if (field.key === "TotalHouseholeNetAssetValue") {
-      console.log("TotalHouseholeNetAssetValue", fieldLabel, rawValue, normalizeValue(rawValue, field.normalize_options))
+    if (fieldLabel === "TotalHouseholeNetAssetValue") {
+      console.log("TotalHouseholeNetAssetValue",  rawValue, field.field_setting.options, normalizeValue(rawValue, field.field_setting.options, field.normalize_options ))
     }
 
     const normalizedValue = field.normalize_options
-      ? normalizeValue(rawValue, field.normalize_options)
+      ? normalizeValue(rawValue, field.field_setting.options, field.normalize_options)
       : rawValue
     const normalizeOldValue = field.normalize_options
-      ? normalizeValue(oldData?.[fieldLabel], field.normalize_options)
+      ? normalizeValue(oldData?.[fieldLabel], field.field_setting.options, field.normalize_options)
       : oldData?.[fieldLabel]
 
     if (field.type === 'hkic') {

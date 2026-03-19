@@ -481,10 +481,26 @@ export function createEmptyQRCodeField(label?: string): QRCodeField {
  *   normalizeValue("Yes", { "Y": ["Yes", "Y"], "N": ["No", "N"] }) → "Y"
  *   normalizeValue("y", { "Y": ["^[Yy]$"], "N": ["^[Nn]$"] }) → "Y"
  */
+
 export function normalizeValue(
   value: string,
-  normalizeOptions?: NormalizeOptions
+  options: any[],
+  normalizeOptions?: NormalizeOptions,
+
 ): string {
+  // check if option can value
+  const testValue = value.toLowerCase()
+  let v:any;
+  options.forEach((op) => {
+    for (let [key, value] of Object.entries(op)) {
+      if (testValue === key.toLowerCase() ) {
+        v = key;
+        return key;
+      }
+    }
+
+  })
+  console.log("v", v)
   if (!normalizeOptions ) return value
 
   if (!value) {
@@ -500,7 +516,8 @@ export function normalizeValue(
   for (const [targetValue, patterns] of Object.entries(normalizeOptions)) {
 
     const fullOptions = patterns.join(',').replace(' ','')
-    if (fullOptions.toLowerCase().includes(input.toLowerCase().replace(' ',''))) {
+    if (fullOptions.toLowerCase().includes(input.toLowerCase().replace(' ', ''))) {
+
       return targetValue
     }
     for (const pattern of patterns) {

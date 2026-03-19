@@ -249,7 +249,7 @@ defineExpose({
               :model-value="field.currentValue"
               size="small"
               :class="{fieldInput: true, edited: isFieldModified(field)}"
-              :placeholder="`Select ${ field.label}`"
+
               :disabled="readonly"
               filterable
               @update:model-value="(val) => handleFieldChange(field, val)"
@@ -267,7 +267,7 @@ defineExpose({
                 :modelValue="field.currentValue"
                 size="small"
                 :class="{fieldInput: true, edited: isFieldModified(field)}"
-                :placeholder="field.lable || field.label"
+
                 :disabled="readonly"
                 :format="field.format || 'DD/MM/YYYY'"
                 :value-format="field.format || 'DD/MM/YYYY'"
@@ -282,7 +282,7 @@ defineExpose({
               size="small"
               :class="{fieldInput: true, edited: isFieldModified(field), warning: field.warning }"
               :type="getInputType(field.type)"
-              :placeholder="field.lable || field.label"
+
               :disabled="readonly"
               @update:model-value="(val) => handleFieldChange(field, val)"
             />
@@ -378,7 +378,7 @@ defineExpose({
                     :modelValue="field.currentValue"
                     size="small"
                     :class="{fieldInput: true, edited: isFieldModified(field)}"
-                    :placeholder="field.lable || field.label"
+
                     :disabled="readonly"
                     :format="field.format || 'DD/MM/YYYY'"
                     :value-format="field.format || 'DD/MM/YYYY'"
