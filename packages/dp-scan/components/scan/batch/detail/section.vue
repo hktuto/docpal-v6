@@ -430,7 +430,9 @@ defineExpose({
   background-color: var(--app-bg-color);
   transition: all 0.2s ease;
   flex-shrink: 0;
-
+  :deep(.el-input){
+      width: 100%;
+  }
   &:hover,
   &.highlighted {
     border-color: var(--app-primary-color);
