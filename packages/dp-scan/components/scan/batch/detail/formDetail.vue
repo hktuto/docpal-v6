@@ -92,14 +92,19 @@ async function handleSaveDraft() {
 async function handleConfirm() {
   confirming.value = true
   try {
-    const p = allSectionsRef.value.forEach(c => (c.validateForm()))
-    if(!p){
-      routerProvider?.message.error('Please fill in all required fields')
-      return
+    for (let i = 0; i < allSectionsRef.value.length; i++) {
+      if (allSectionsRef.value[i].validateForm) {
+        const result = await allSectionsRef.value[i].validateForm()
+
+        if (!result) {
+          routerProvider?.message.error('Validation failed')
+          return
+        }
+      }
     }
     await confirm()
     routerProvider?.message.success('Document confirmed successfully')
-    routerProvider?.reloadComponent()
+    // routerProvider?.reloadComponent()
   } catch (error) {
     routerProvider?.message.error('Failed to confirm document')
   } finally {

@@ -144,15 +144,23 @@ function getAllFieldValues(): Record<string, any> {
 // validate form
 const sectionFormEl = ref()
 const tabelSectionRef = ref()
-async function validateForm(){
-  if(sectionFormEl.value){
-    return sectionFormEl.value.validate((valid) => valid)
-  }
-  if (tabelSectionRef.value) {
-    let result =  await Promise.all(tabelSectionRef.value.map(async (row) => {
-      return await row.validate((valid) => valid)
-    }))
-    return result.every(Boolean)
+async function validateForm() {
+  try {
+    if (sectionFormEl.value) {
+
+      return sectionFormEl.value.validate((valid) => valid)
+    }
+    if (tabelSectionRef.value) {
+
+      let result =  await Promise.all(tabelSectionRef.value.map(async (row) => {
+        return await row.validate((valid) => valid)
+      }))
+      return result.every(Boolean)
+    }
+    return Promise.resolve(true)
+  } catch (error) {
+    console.error(error)
+    return Promise.resolve(false)
   }
 }
 
@@ -183,6 +191,8 @@ watch(() => props.section.section_fields, () => {
 defineExpose({
   validateForm
 })
+
+
 </script>
 
 <template>
@@ -277,13 +287,13 @@ defineExpose({
               v-else
               :model-value="field.currentValue"
               size="small"
-              :class="{fieldInput: true, edited: isFieldModified(field)}"
+              :class="{fieldInput: true, edited: isFieldModified(field), warning: field.warning }"
               :type="getInputType(field.type)"
               :placeholder="field.lable || field.label"
               :disabled="readonly"
               @update:model-value="(val) => handleFieldChange(field, val)"
             />
-
+            <div v-if="field.warning" class="warningText">{{ field.warning }}</div>
 
             <!-- Original OCR value display -->
             <div v-if="isFieldModified(field)" class="originalValue">

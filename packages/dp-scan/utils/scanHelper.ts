@@ -214,3 +214,73 @@ export const createScanTestFormPageTab = (params: { formName: string, ocrResult:
     }
   }
 }
+
+
+export function checkHKID(id: string) {
+  const cleanValue = id.replace(/\s/g, '').toUpperCase();
+  // HKID format: 1-2 letters followed by 6 digits and 1 check digit (0-9 or A)
+  // Examples: A1234563, AB9876543, Y123456A, Z1234567
+  const hkidRegex = /^[A-NP-Z]{1,2}\d{6}[0-9A]$/;
+  const match = cleanValue.match(hkidRegex);
+
+  if (!match) {
+
+    return {
+      result: false,
+      message: "Invalid HKID format. Expected: X1234560 or XY123456A",
+    };
+  }
+
+  // Calculate check digit
+  const isValid = validateHKIDCheckDigit(cleanValue);
+
+  if(isValid) {
+    return {
+          result: true,
+      }
+  } else {
+    return {
+      result: false,
+      message: "Invalid HKID check digit",
+    };
+  }
+
+  // Helper function to validate check digit
+  function validateHKIDCheckDigit(id:string) {
+      /*
+   	Check digit algorithm is variation of the ISBN-10 check digit algorithm.
+   	For each character: character * weight.
+   	Weight from largest to smallest (1).
+   	If ID is 8 character long, a space is added to the beginning.
+   	Value of space is 36, hence 36 * 9 = 324.
+   	*/
+   	let weight = id.length;
+   	let weightedSum = weight === 8 ? 324 : 0;
+   	const identifier = id.slice(0, -1);
+   	for (const char of identifier) {
+    		const charValue = isCaptialLetter(char) ? _getLetterValue(char) : +char;
+    		weightedSum += charValue * weight;
+    		weight--;
+   	}
+   	const remainder = (11 - (weightedSum % 11)) % 11;
+              const checkSum =  remainder === 10 ? 'A' : '' + remainder;
+
+   	return id.slice(-1) === checkSum
+  }
+
+  function isCaptialLetter(character:string) {
+    return /^[A-Z]$/.test(character);
+  }
+
+  /**
+   * While charCode = { A: 65, B: 66... Z: 90 },
+   *           HKID = { A: 10, B: 11... Z: 35 }.
+   * Therefore, diff = 55.
+   * @ignore
+   * @param {string} letter A single character.
+   * @returns {number}
+   */
+  function _getLetterValue(letter:string) {
+    return letter.charCodeAt(0) - 55;
+  }
+}
