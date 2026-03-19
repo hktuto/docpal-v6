@@ -51,6 +51,10 @@ export const ScanTableColumns: any[] = [
     width: 200,
   },
   {
+    field: "documentCount",
+    title: 'Document Count',
+  },
+  {
     field: 'status',
     title: 'Status',
     filterable:true,

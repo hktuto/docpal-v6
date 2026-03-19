@@ -266,6 +266,7 @@ defineExpose({
                 :key="opt.value"
                 :label="opt.label"
                 :value="opt.value"
+                filterable
               />
             </ElSelect>
             <template v-else-if="field.type === 'date'">
@@ -367,6 +368,7 @@ defineExpose({
                   :model-value="field.currentValue"
                   size="small"
                   class="fieldInput"
+                  filterable
                   :disabled="readonly"
                   @update:model-value="(val) => handleFieldChange(field, val, rowIndex)"
                 >

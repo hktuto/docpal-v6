@@ -341,6 +341,7 @@ export const useBatchDetail = (batchId: string) => {
     try {
       const response = await clientApi.api.getCaptureBatchBatchidDetail(currentBatchId.value)
       batchDetail.value = response.data
+      batchDetail.value.documents = batchDetail.value.documents.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename))
       currentSelectedDoc.value = response.data.documents[0]
 
       // Handle batch locking
