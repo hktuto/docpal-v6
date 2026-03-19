@@ -1,5 +1,5 @@
 <template>
-  <div class="grouping-button-wrapper">
+  <div class="grouping-button-wrapper" v-if="groupingRules">
     <el-button
       ref="buttonRef"
       type="primary"
@@ -36,7 +36,7 @@ const emits = defineEmits<{
 }>()
 const buttonRef = ref<HTMLElement>()
 const popoverRef = ref<InstanceType<typeof GroupingConfigPopover>>()
-const { columnGroupRules : groupingRules  } = useTableDataInject()
+const { columnGroupRules: groupingRules } = useMDTableInject()
 
 // 获取可用列（自动响应 tableRef 变化）
 const availableColumns = computed<ColumnConfig[]>(() => {

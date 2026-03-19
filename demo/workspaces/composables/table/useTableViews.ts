@@ -33,12 +33,12 @@ export interface ViewContext {
   updateView: (viewId: string, updates: Partial<ViewConfig>) => Promise<void>
   deleteView: (viewId: string) => Promise<void>
   reorderViews: (fromIndex: number, toIndex: number) => Promise<void>
-  saveViewFilterSortGroup: (updates?: Partial<Pick<ViewConfig, 'filterInfo' | 'sortInfo' | 'groupInfo'>>) => Promise<void>
-  addField: (newColumns: any[]) => Promise<void>
+  addField: (newColumns: any[], targetFieldId: string, dragPos?: 'left' | 'right') => Promise<void>
   deleteField: (fieldId: string) => Promise<void>
   updateField: (fieldName: string, updates: Partial<{ field_name: string; business_type: any; display_structure: any }>) => Promise<void>
   updatedViewConfigs: (updates: Array<{ id: string; display: boolean }>) => Promise<void>
-  saveColumnOrder: (columnId: string, position: number) => Promise<void>
+  updateViewFilterSortGroup: (fieldName: 'filterInfo' | 'sortInfo' | 'groupInfo', value: any) => Promise<void>
+  saveColumnOrder: (columnId: string, targetFieldId: string, dragPos: 'left' | 'right') => Promise<void>
 }
 
 export const TableViewsInjectKey: InjectionKey<ViewContext> = Symbol('TableViewsInjectKey')
@@ -89,6 +89,12 @@ export function useTableViews(options: UseTableViewsOptions) {
     }
     if (currentView.value) {
       currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
+      columnFilterRules.value = currentView.value.filterInfo as FilterInfo ?? {
+        conditions: [],
+        conjunction: 'and'
+      }
+      columnSortRules.value = currentView.value.sortInfo ? [currentView.value.sortInfo] : []
+      columnGroupRules.value = currentView.value.groupInfo ?? []
     }
   }
   async function saveViews(views: ViewConfig[]) {
@@ -128,17 +134,6 @@ export function useTableViews(options: UseTableViewsOptions) {
   async function reorderViews(fromIndex: number, toIndex: number) {
     tableViews.value = reorderViewsUtil(tableViews.value, fromIndex, toIndex)
     await saveViews(tableViews.value)
-  }
-
-  async function saveViewFilterSortGroup(updates?: Partial<Pick<ViewConfig, 'filterInfo' | 'sortInfo' | 'groupInfo'>>) {
-    const view = currentView.value
-    if (!view) return
-    const merged = updates ?? {
-      filterInfo: { conditions: columnFilterRules.value, conjunction: view.filterInfo.conjunction },
-      sortInfo: columnSortRules.value?.[0] ?? view.sortInfo,
-      groupInfo: columnGroupRules.value?.length ? columnGroupRules.value : view.groupInfo
-    }
-    await updateView(view.id, merged)
   }
 
   async function addField(newColumns: any[], targetFieldId: string, dragPos?: 'left' | 'right') {
@@ -198,6 +193,13 @@ export function useTableViews(options: UseTableViewsOptions) {
       currentView.value.displayColumns = getDisplayColumns(currentView.value, tableFields.value)
     }
   }
+  async function updateViewFilterSortGroup(fieldName: 'groupInfo' | 'sortInfo' | 'filterInfo', value: any) {
+    const view = currentView.value
+    if (!view) return
+    // @ts-ignore
+    currentView.value[fieldName] = value
+    await updateView(view.id, { [fieldName]: value })
+  }
   provide(TableViewsInjectKey, {
     tableFields,
     currentView,
@@ -210,12 +212,12 @@ export function useTableViews(options: UseTableViewsOptions) {
     updateView,
     deleteView,
     reorderViews,
-    saveViewFilterSortGroup,
     addField,
     deleteField,
     updateField,
     updatedViewConfigs,
-    saveColumnOrder
+    saveColumnOrder,
+    updateViewFilterSortGroup
   })
 
   return {
@@ -230,12 +232,12 @@ export function useTableViews(options: UseTableViewsOptions) {
     updateView,
     deleteView,
     reorderViews,
-    saveViewFilterSortGroup,
     addField,
     deleteField,
     updateField,
     updatedViewConfigs,
-    saveColumnOrder
+    saveColumnOrder,
+    updateViewFilterSortGroup
   }
 }
 

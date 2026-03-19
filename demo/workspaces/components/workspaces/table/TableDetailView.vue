@@ -98,9 +98,7 @@ async function handleColumnSuggestionDismissed(suggestionId: string) {
 }
 
 // —— 仅做绑定与派发：表格 / 导入 / 审计 / 加行 ——
-function handleSaveView() {
-  tableView.saveViewFilterSortGroup()
-}
+
 
 function handleImport() {
   importToTableDialogRef.value?.open({
@@ -224,7 +222,6 @@ onMounted(() => {
         <MdTable v-if="props.dataTableId"
           :editable="true"
           :table-id="props.dataTableId"
-          @saveView="handleSaveView"
           @import="handleImport"
           @expand-click="handleExpandClick"
           @add-row="handleAddRow"

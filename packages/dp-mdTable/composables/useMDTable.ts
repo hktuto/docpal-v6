@@ -27,7 +27,18 @@ export function useMDTable(props: any) {
   const editable = ref(props.editable)
   const gridRef = ref<any>()
   const addColumnPopoverRef = ref()
-
+  if(!props.extraColumnConfig.columnFilterRules) {
+    props.extraColumnConfig.columnFilterRules = ref({
+      conditions: [],
+      conjunction: 'and'
+    })
+  }
+  if(!props.extraColumnConfig.columnGroupRules) {
+    props.extraColumnConfig.columnGroupRules = ref([])
+  }
+  if(!props.extraColumnConfig.columnSortRules) {
+    props.extraColumnConfig.columnSortRules = ref([]) 
+  }
   const {
     loading,
     queryParams,
@@ -100,7 +111,7 @@ export function useMDTable(props: any) {
     })
     return Array.from(options).filter(Boolean)
   }
-
+  console.log(props.extraColumnConfig, 'props.extraColumnConfig')
   provide(MdTableContextKey, {
     ...props.extraColumnConfig,
     tableData,

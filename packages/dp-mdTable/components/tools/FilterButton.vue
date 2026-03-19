@@ -1,20 +1,9 @@
 <template>
   <div class="filter-button-wrapper">
-    <el-button
-      ref="buttonRef"
-      type="primary"
-      @click="handleButtonClick"
-    >
-      {{ filterRules.length > 0 ? `${filterRules.length}个筛选` : '筛选' }}
+    <el-button ref="buttonRef" type="primary" @click="handleButtonClick">
+      {{ columnFilterRules && columnFilterRules?.conditions?.length > 0 ? `${columnFilterRules?.conditions?.length}个筛选` : '筛选' }}
     </el-button>
-    <FilterConfigPopover
-      ref="popoverRef"
-      :available-columns="availableColumns"
-      v-model:filter-rules="filterRules"
-      width="600"
-      placement="bottom-start"
-      @change="handleFilterChange"
-    />
+    <FilterConfigPopover ref="popoverRef" :available-columns="availableColumns" width="600" placement="bottom-start" @filter-change="handleFilterChange" />
   </div>
 </template>
 
@@ -35,15 +24,7 @@ const emits = defineEmits<{
 const buttonRef = ref<InstanceType<typeof ElButton>>()
 const popoverRef = ref<InstanceType<typeof FilterConfigPopover>>()
 
-const { columnFilterRules : filterRules  } = useTableDataInject()
-
-// 获取可用列（自动响应 tableRef 变化）
-const availableColumns = computed<ColumnConfig[]>(() => {
-  if (props.availableColumns) {
-    return props.availableColumns
-  }
-  return []
-})
+const { columnFilterRules } = useMDTableInject()
 
 // 处理按钮点击（传 $el 给 popover，因 ref 绑在组件上拿到的是组件实例不是 DOM）
 const handleButtonClick = () => {
@@ -55,16 +36,9 @@ const handleButtonClick = () => {
 
 // 处理筛选配置变化
 const handleFilterChange = (rules: FilterRule[]) => {
-  filterRules.value = rules
+  columnFilterRules.value = rules
   emits('filter-change', rules)
 }
-
-// 暴露方法
-defineExpose({
-  filterRules,
-  show: () => popoverRef.value?.show(),
-  hide: () => popoverRef.value?.hide()
-})
 </script>
 
 <style scoped lang="scss">
@@ -72,4 +46,3 @@ defineExpose({
   display: inline-block;
 }
 </style>
-

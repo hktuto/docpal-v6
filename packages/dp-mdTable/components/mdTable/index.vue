@@ -6,9 +6,6 @@
       :groupable-columns="columns"
       @refresh="handleRefresh"
       @search="handleSearch"
-      @filter-change="handleFilterChange"
-      @grouping-change="handleGroupToggle"
-      @sort-change="handleSortChange"
       @save-view="handleSaveView"
       @import="handleImport"
       @add-row="handleAddRow"
@@ -96,6 +93,9 @@ interface Props {
     tableFields: Ref<any[]>
     updatedViewConfigs: (updates: Array<{ fieldId: string; display: boolean }>) => void
     saveColumnOrder: (columnId: string, position: number) => void
+    columnFilterRules: Ref<any[]>
+    columnGroupRules: Ref<any[]>
+    columnSortRules: Ref<any[]>
   }
 }
 
@@ -109,7 +109,10 @@ const props = withDefaults(defineProps<Props>(), {
     addColumn: () => {},
     tableFields: [],
     updatedViewConfigs: () => {},
-    saveColumnOrder: () => {}
+    saveColumnOrder: () => {},
+    columnFilterRules: [],
+    columnGroupRules: [],
+    columnSortRules: []
   })
 })
 
@@ -238,16 +241,6 @@ const handleRefresh = async () => {
 
 const handleSearch = (value: string) => {
   emit('search', value)
-}
-
-const handleGroupToggle = (rules: any[]) => {
-  // columnGroupRules.value = rules
-}
-const handleFilterChange = (rules: any[]) => {
-  // columnFilterRules.value = rules
-}
-const handleSortChange = (rules: SortRule[]) => {
-  // columnSortRules.value = rules
 }
 
 const handleSaveView = () => {

@@ -59,9 +59,6 @@ export interface TableDataContext {
   loading: Ref<boolean>
   error: Ref<Error | null>
   queryParams: Ref<any>
-  columnGroupRules: Ref<any[]>
-  columnFilterRules: Ref<any[]>
-  columnSortRules: Ref<any[]>
   // 方法
   getTableData: (params?: any) => Promise<{ entryList: any[]; totalSize: number } | undefined>
   refresh: () => Promise<void>
@@ -119,9 +116,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     { key: 'age', asc: true }
   ])
 
-  const columnGroupRules = ref<any[]>([])
-  const columnFilterRules = ref<any[]>([])
-  const columnSortRules = ref<any[]>([])
   /**
    * 获取表格数据
    */
@@ -130,13 +124,13 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
       pageSize: 100
     }
   ): Promise<{ entryList: any[]; totalSize: number } | undefined> => {
-    if (columnGroupRules.value?.length > 0) {
-      tableData.value = getAggregateData(params)
-      return {
-        entryList: tableData.value,
-        totalSize: tableData.value.length
-      }
-    }
+    // if (columnGroupRules.value?.length > 0) {
+    //   tableData.value = getAggregateData(params)
+    //   return {
+    //     entryList: tableData.value,
+    //     totalSize: tableData.value.length
+    //   }
+    // }
     if (tableId) {
       const { data } = await newClientApi.postDynamicDbTableTableidDataPage(tableId, { ...params })
       return {
@@ -225,10 +219,6 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     addRow,
     updateRow,
     deleteRow,
-
-    columnGroupRules,
-    columnFilterRules,
-    columnSortRules
   })
 
   return {
@@ -245,11 +235,7 @@ export function useTableData(tableId: string, gridRef: any, options: UseTableDat
     refresh,
     addRow,
     updateRow,
-    deleteRow,
-
-    columnGroupRules,
-    columnFilterRules,
-    columnSortRules
+    deleteRow
   }
 }
 

@@ -7,9 +7,9 @@
         </template>
       </el-input>
       <ToolsColumnVisibilityPopover />
-      <ToolsGroupingButton :groupableColumns="groupableColumns" @grouping-change="emit('grouping-change', $event)" />
-      <ToolsFilterButton :available-columns="groupableColumns" @filter-change="handleFilterChange" />
-      <ToolsSortButton :available-columns="groupableColumns" @sort-change="handleSortChange" />
+      <ToolsGroupingButton :groupableColumns="groupableColumns" @grouping-change="(v) => handleRefresh('groupInfo', v)" />
+      <ToolsFilterButton :available-columns="groupableColumns" @filter-change="(v) => handleRefresh('filterInfo', v)" />
+      <ToolsSortButton :available-columns="groupableColumns" @sort-change="(v) => handleRefresh('sortInfo', v)" />
       <slot name="toolbar-left">
         <el-button type="primary" @click="handleAddRow">
           <el-icon><Plus /></el-icon>
@@ -68,7 +68,7 @@ interface Emits {
   (e: 'save-view'): void
   (e: 'add-row'): void
 }
-
+const { updateViewFilterSortGroup } = useMDTableInject()
 const props = withDefaults(defineProps<Props>(), {
   showToolbar: true,
   showSearch: true,
@@ -90,7 +90,9 @@ const activeGroupFields = computed({
     emit('update:activeGroupFields', value)
   }
 })
-const handleRefresh = () => {
+const handleRefresh = (type: 'sortInfo' | 'groupInfo' | 'filterInfo', value: any) => {
+  console.log('handleRefresh', type, value)
+  updateViewFilterSortGroup(type, value)
   emit('refresh')
 }
 
@@ -114,39 +116,12 @@ const handleAddRow = () => {
   emit('add-row')
 }
 
-const handleFilterChange = (group: FilterGroup) => {
-  console.log('handleFilterChange', group)
-  emit('filter-change', group)
-}
-
-const handleSortChange = (rules: SortRule[]) => {
-  console.log('handleSortChange', rules)
-  emit('sort-change', rules)
-}
-
-const handleGroupCommand = (field: string) => {
-  toggleGroup(field)
-}
-
-const toggleGroup = (field: string) => {
-  const currentFields = [...activeGroupFields.value]
-  const index = currentFields.indexOf(field)
-  if (index > -1) {
-    currentFields.splice(index, 1)
-  } else {
-    currentFields.push(field)
-  }
-  activeGroupFields.value = currentFields
-  emit('group-toggle', field)
-}
-
 // 暴露方法
 defineExpose({
   searchValue,
   get activeGroupFields() {
     return activeGroupFields.value
-  },
-  toggleGroup
+  }
 })
 </script>
 

@@ -1,135 +1,93 @@
 <template>
-  <UiPopoverDialog
-    ref="popoverRef"
-    :width="width"
-    :placement="placement"
-    title="设置筛选"
-    :close-on-click-outside="closeOnClickOutside"
-  >
+  <UiPopoverDialog ref="popoverRef" :width="width" :placement="placement" title="设置筛选" :close-on-click-outside="closeOnClickOutside">
     <div class="filter-config-popover">
-        <!-- 标题和提示信息 -->
-        <div class="popover-header">
-          <div class="auto-save-tip">
-            视图配置处于自动保存中，你的操作会实时保存并同步给其他成员
-          </div>
-        </div>
+      <!-- 标题和提示信息 -->
+      <div class="popover-header">
+        <div class="auto-save-tip">视图配置处于自动保存中，你的操作会实时保存并同步给其他成员</div>
+      </div>
 
-        <!-- 筛选规则列表 -->
-        <div class="filter-rules">
-          <div
-            v-for="(rule, index) in filterRules"
-            :key="rule.id"
-            class="filter-rule-item"
-          >
-            <!-- 第一列：逻辑连接符 -->
-            <div class="logic-connector">
-              <el-button
-                v-if="index !== 1"
-                disabled
-                size="small"
-                class="connector-btn"
-              >
-                {{ index === 0 ? '当' : filterRules[0].connector === 'and' ? '并且' : '或者' }}
-              </el-button>
-              <el-select
-                v-else
-                v-model="filterRules[0].connector"
-                size="small"
-                class="connector-select"
-                :disabled="index > 1"
-                @change="handleRuleChange"
-                @visible-change="handleSelectVisibleChange"
-                @click.stop
-              >
-                <el-option label="并且" value="and" />
-                <el-option label="或者" value="or" />
-              </el-select>
-            </div>
-
-            <!-- 第二列：字段选择 -->
+      <!-- 筛选规则列表 -->
+      <div class="filter-rules">
+        <div v-for="(rule, index) in columnFilterRules.conditions" :key="rule.id" class="filter-rule-item">
+          <!-- 第一列：逻辑连接符 -->
+          <div class="logic-connector">
+            <el-button v-if="index !== 1" disabled size="small" class="connector-btn">
+              {{ index === 0 ? '当' : columnFilterRules.conjunction === 'and' ? '并且' : '或者' }}
+            </el-button>
             <el-select
-              v-model="rule.field"
-              placeholder="请选择字段"
+              v-else
+              v-model="columnFilterRules.conjunction"
               size="small"
-              class="field-select"
-              @change="handleFieldChange(rule, index)"
+              class="connector-select"
+              :disabled="index > 1"
+              @change="handleRuleChange"
               @visible-change="handleSelectVisibleChange"
               @click.stop
             >
-              <el-option
-                v-for="col in availableColumns"
-                :key="col.field"
-                :label="col.title"
-                :value="col.field"
-              >
-                <div class="field-option">
-                  <el-icon class="field-icon" :size="16">
-                    <component :is="getFieldIcon(col.type)" />
-                  </el-icon>
-                  <span>{{ col.title }}</span>
-                </div>
-              </el-option>
+              <el-option label="并且" value="and" />
+              <el-option label="或者" value="or" />
             </el-select>
-
-            <!-- 第三列：操作符选择 -->
-            <el-select
-              v-model="rule.operator"
-              placeholder="请选择操作符"
-              size="small"
-              class="operator-select"
-              @change="handleOperatorChange(rule)"
-              @visible-change="handleSelectVisibleChange"
-              @click.stop
-            >
-              <el-option
-                v-for="op in getOperatorsForField(rule.field)"
-                :key="op.value"
-                :label="op.label"
-                :value="op.value"
-              />
-            </el-select>
-
-            <!-- 第四列：值输入 -->
-            <el-input
-              v-if="!isValueEmptyOperator(rule.operator)"
-              v-model="rule.value"
-              placeholder="请输入值"
-              size="small"
-              class="value-input"
-              @input="handleRuleChange"
-            />
-
-            <!-- 删除按钮 -->
-            <el-button
-              type="danger"
-              :icon="Delete"
-              size="small"
-              text
-              class="delete-btn"
-              @click="handleDeleteRule(index)"
-            />
           </div>
-        </div>
 
-        <!-- 添加新规则 -->
-        <div class="add-rule-section">
-          <el-button
-            type="primary"
-            :icon="Plus"
+          <!-- 第二列：字段选择 -->
+          <el-select
+            v-model="rule.field"
+            placeholder="请选择字段"
             size="small"
-            text
-            @click="handleAddRule"
+            class="field-select"
+            @change="handleFieldChange(rule)"
+            @visible-change="handleSelectVisibleChange"
+            @click.stop
           >
-            添加筛选条件
-          </el-button>
+            <el-option v-for="col in availableColumns" :key="col.field" :label="col.title" :value="col.field">
+              <div class="field-option">
+                <el-icon class="field-icon" :size="16">
+                  <component :is="getFieldIcon(col.type)" />
+                </el-icon>
+                <span>{{ col.title }}</span>
+              </div>
+            </el-option>
+          </el-select>
+
+          <!-- 第三列：操作符选择 -->
+          <el-select
+            v-model="rule.operator"
+            placeholder="请选择操作符"
+            size="small"
+            class="operator-select"
+            @change="handleEditRule(rule)"
+            @visible-change="handleSelectVisibleChange"
+            @click.stop
+          >
+            <el-option v-for="op in getOperatorsForField(rule.field)" :key="op.value" :label="op.label" :value="op.value" />
+          </el-select>
+
+          <!-- 第四列：值输入 -->
+          <el-input
+            v-if="!isValueEmptyOperator(rule.operator)"
+            v-model="rule.value"
+            placeholder="请输入值"
+            size="small"
+            class="value-input"
+            @input="handleEditRule(rule)"
+          />
+
+          <!-- 删除按钮 -->
+          <el-button type="danger" :icon="Delete" size="small" text class="delete-btn" @click="handleDeleteRule(index)" />
         </div>
+      </div>
+
+      <!-- 添加新规则 -->
+      <div class="add-rule-section">
+        <el-button type="primary" :icon="Plus" size="small" text @click="handleAddRule"> 添加筛选条件 </el-button>
+      </div>
     </div>
   </UiPopoverDialog>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
-import { Delete, Plus, QuestionFilled, Document, Clock } from '@element-plus/icons-vue'
+import { ref, nextTick } from 'vue'
+import { Delete, Plus, Document, Clock } from '@element-plus/icons-vue'
 import type { ColumnConfig } from '../../types/column-context'
 import { ColumnFieldType } from '../../types/column-types'
 
@@ -148,25 +106,27 @@ interface OperatorOption {
 
 interface Props {
   availableColumns?: ColumnConfig[]
-  filterRules?: FilterRule[]
   width?: number | string
   placement?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   availableColumns: () => [],
-  filterRules: () => [],
   width: 600,
   placement: 'bottom-start'
 })
 
 const emit = defineEmits<{
-  'update:filterRules': [rules: FilterRule[]]
-  change: [rules: FilterRule[]]
+  'filter-change': [
+    rules: {
+      conditions: FilterRule[]
+      conjunction: 'and' | 'or'
+    }
+  ]
 }>()
 
 const popoverRef = ref()
-const filterRules = ref<FilterRule[]>([...props.filterRules])
+const { columnFilterRules } = useMDTableInject()
 const closeOnClickOutside = ref(true)
 const openSelectCount = ref(0)
 
@@ -187,17 +147,6 @@ const handleSelectVisibleChange = (visible: boolean) => {
     }
   }
 }
-
-// 监听外部传入的规则变化
-watch(
-  () => props.filterRules,
-  (newRules) => {
-    if (JSON.stringify(newRules) !== JSON.stringify(filterRules.value)) {
-      filterRules.value = [...newRules]
-    }
-  },
-  { deep: true }
-)
 
 // 检查字段是否为数字类型
 const isNumericField = (field: string): boolean => {
@@ -259,24 +208,26 @@ const getFieldIcon = (type?: ColumnFieldType | string) => {
   }
   return Document
 }
-
+function handleEditRule(rule: FilterRule) {
+  if (rule.field && rule.operator) {
+    if (isValueEmptyOperator(rule.operator)) {
+      handleRuleChange()
+    } else if (rule.value) {
+      handleRuleChange()
+    }
+  }
+}
 // 处理规则变化
 const handleRuleChange = () => {
-  emit('update:filterRules', [...filterRules.value])
-  emit('change', [...filterRules.value])
+  emit('filter-change', {
+    conditions: [...(columnFilterRules.value?.conditions || [])],
+    conjunction: columnFilterRules.value?.conjunction || 'and'
+  })
 }
 
-// 处理操作符变化
-const handleOperatorChange = (rule: FilterRule) => {
-  // 如果操作符是"为空"类型，清空值
-  if (isValueEmptyOperator(rule.operator)) {
-    rule.value = ''
-  }
-  handleRuleChange()
-}
 
 // 处理字段变化
-const handleFieldChange = (rule: FilterRule, index: number) => {
+const handleFieldChange = (rule: FilterRule) => {
   if (!rule.field) {
     return
   }
@@ -287,13 +238,12 @@ const handleFieldChange = (rule: FilterRule, index: number) => {
     rule.operator = operators[0].value
   }
   rule.value = ''
-
-  handleRuleChange()
+  handleEditRule(rule)
 }
 
 // 处理删除规则
 const handleDeleteRule = (index: number) => {
-  filterRules.value.splice(index, 1)
+  columnFilterRules.value.conditions.splice(index, 1)
   handleRuleChange()
 }
 
@@ -301,14 +251,16 @@ const handleDeleteRule = (index: number) => {
 const handleAddRule = () => {
   const newRule: FilterRule = {
     id: `filter-${Date.now()}-${Math.random()}`,
-    connector: filterRules.value.length > 0 ? filterRules.value[0].connector : 'and',
+    connector: columnFilterRules.value?.conjunction || 'and',
     field: '',
     operator: '',
     value: ''
   }
 
-  filterRules.value.push(newRule)
-  handleRuleChange()
+  columnFilterRules.value = {
+    conjunction: columnFilterRules.value?.conjunction || 'and',
+    conditions: [...(columnFilterRules.value?.conditions || []), newRule]
+  }
 }
 
 // 显示 popover
@@ -425,4 +377,3 @@ defineExpose({
   }
 }
 </style>
-

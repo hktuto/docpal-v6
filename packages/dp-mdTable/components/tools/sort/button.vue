@@ -1,5 +1,5 @@
 <template>
-  <div class="sort-button-wrapper">
+  <div class="sort-button-wrapper" v-if="sortRules">
     <el-button ref="buttonRef" type="primary" @click="handleButtonClick">
       <el-icon class="sort-icon">
         <Sort />
@@ -34,7 +34,7 @@ const emits = defineEmits<{
 
 const buttonRef = ref<HTMLElement>()
 const popoverRef = ref()
-const { columnSortRules: sortRules } = useTableDataInject()
+const { columnSortRules: sortRules } = useMDTableInject()
 
 // 获取可用列（自动响应 tableRef 变化）
 const availableColumns = computed<ColumnConfig[]>(() => {

@@ -9,7 +9,19 @@ const props = defineProps<{
   dataTableId: string
 }>()
 const tableId = computed(() => props.dataTableId)
-const { currentView, tableFields, deleteField, updateField, addField, updatedViewConfigs, saveColumnOrder } = useTableViewsInject()
+const {
+  currentView,
+  tableFields,
+  deleteField,
+  updateField,
+  addField,
+  updatedViewConfigs,
+  saveColumnOrder,
+  columnFilterRules,
+  columnSortRules,
+  columnGroupRules,
+  updateViewFilterSortGroup
+} = useTableViewsInject()
 const columns = computed(() => currentView.value?.displayColumns)
 
 const extraColumnConfig = computed(() => {
@@ -20,7 +32,12 @@ const extraColumnConfig = computed(() => {
     addColumn: addField,
     tableFields,
     updatedViewConfigs,
-    saveColumnOrder
+    saveColumnOrder,
+
+    columnFilterRules,
+    columnSortRules,
+    columnGroupRules,
+    updateViewFilterSortGroup
   }
   return data
 })

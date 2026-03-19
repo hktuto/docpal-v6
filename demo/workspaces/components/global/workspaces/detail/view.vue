@@ -101,10 +101,6 @@ async function handleDeleteView() {
   }
 }
 
-function handleSaveView() {
-  tableView.saveViewFilterSortGroup()
-}
-
 onMounted(() => {
   checkMenuItemStatus()
   if (currentMenuItem.value) {
@@ -178,7 +174,7 @@ watch(
         <!-- Dynamic View Component -->
         <Suspense>
           <template #default>
-            <component :is="viewComponent" :view="currentView" :table-view="tableView" @save-view="handleSaveView" />
+            <component :is="viewComponent" :view="currentView" :table-view="tableView" />
           </template>
           <template #fallback>
             <div class="loading-state">
