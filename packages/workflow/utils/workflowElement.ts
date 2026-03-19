@@ -835,7 +835,12 @@ const workflowCellElementTemplate: CellTypeItem = {
     width: 200,
     height: 64,
     attrs: GenAttrs('HTTP Task', 'HTTP Task', '/icons/http-task.svg'),
-    markup: [{ tagName: 'rect', selector: 'body' }],
+    markup: [
+      { tagName: 'rect', selector: 'body' },
+      { tagName: 'image', selector: 'image' },
+      { tagName: 'text', selector: 'title' },
+      { tagName: 'text', selector: 'text' }
+    ],
     ports: {
       items: [
         { id: 'from', group: 'from' },

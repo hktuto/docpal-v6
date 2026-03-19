@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { QuestionFilled } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const { t } = useI18n()
 const dialogVisible = ref()
@@ -7,7 +8,9 @@ const props = defineProps<{
   title: string
 }>()
 const emits = defineEmits(['update'])
-const state = reactive({
+const state = reactive<{
+  variables: any[]
+}>({
   variables: []
 })
 
@@ -25,6 +28,17 @@ function handleDelete(index: number) {
 }
 
 function handleSubmit() {
+  // 檢查是否存在重複的key
+  const duplicateKey = state.variables.some((item, index) => {
+    return state.variables.some((item2, index2) => {
+      return item.key === item2.key && index !== index2
+    })
+  })
+  if (duplicateKey) {
+    ElMessage.error('Key already exists')
+    return
+  }
+
   dialogVisible.value = false
   emits('update', state.variables)
 }
@@ -33,9 +47,9 @@ defineExpose({ openDrawer })
 </script>
 
 <template>
-  <el-dialog v-model="dialogVisible" :title="props.title" append-to-body>
+  <el-dialog v-model="dialogVisible" :title="props.title" append-to-body :close-on-click-modal="false">
     <div>
-      <div style="display: flex; justify-content: flex-end; align-items: center;">
+      <div style="display: flex; justify-content: flex-end; align-items: center">
         <el-button type="primary" size="small" @click="handleCreate">
           {{ t('docTemplate.variable.addRow') }}
         </el-button>
@@ -48,12 +62,11 @@ defineExpose({ openDrawer })
         </el-table-column>
         <el-table-column prop="value">
           <template #header>
-            <div style="display: flex; ">
+            <div style="display: flex">
               {{ t('Value') }}
-              <el-popover class="box-item" width="300" title="Info" content="You can set data through '${key}'"
-                          placement="top">
+              <el-popover class="box-item" width="300" title="Info" content="You can set data through '${key}'" placement="top">
                 <template #reference>
-                  <el-icon style="display: flex; align-items: center; margin-left: 8px;">
+                  <el-icon style="display: flex; align-items: center; margin-left: 8px">
                     <QuestionFilled />
                   </el-icon>
                 </template>
@@ -79,9 +92,6 @@ defineExpose({ openDrawer })
       </div>
     </template>
   </el-dialog>
-
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

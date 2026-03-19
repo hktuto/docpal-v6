@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import type { Node } from '@antv/x6'
-import { Codemirror } from 'vue-codemirror'
-import { linter } from '@codemirror/lint'
-import { json, jsonParseLinter } from '@codemirror/lang-json'
-import { oneDark } from '@codemirror/theme-one-dark'
 import { QuestionFilled } from '@element-plus/icons-vue'
-
 
 const { t } = useI18n()
 const { node } = defineProps<{
@@ -13,6 +8,7 @@ const { node } = defineProps<{
 }>()
 const variablesParamsRef = ref()
 const variablesHeaderRef = ref()
+const bodyDialogRef = ref()
 
 const graphProvider = inject(WORKFLOW_EDITOR_PROVIDER)
 if (!graphProvider) {
@@ -26,18 +22,9 @@ const stringFields = computed(() => {
 
 const state = reactive({
   method: ['GET', 'POST', 'PUT', 'PATH', 'DELETE'],
-  requestMethod: '',
-  requestUrl: '',
   requestParams: '',
   requestHeader: '',
-  requestBody: '',
-  responseBodyName: '',
-  saveResponseVariableAsJson: false,
-  saveResponseParametersTransient: false,
-  saveResponseParameters: false,
-  disallowRedirects: false,
-  ignoreException: true,
-  bodyVisible: false
+  requestBody: ''
 })
 
 const formData = ref({
@@ -54,6 +41,7 @@ const formData = ref({
 function initForm() {
   const data = node.getData()
   const config = data.config
+
   formData.value = {
     method: config.method || 'GET',
     url: config.url || '',
@@ -64,38 +52,22 @@ function initForm() {
     inputSchema: config.inputSchema || {},
     outputSchema: config.outputSchema || {}
   }
-}
 
-function fieldMappingUpdate(newVal: string, name: string) {
-  graphProvider?.graph.value?.startBatch('update-http-field-data')
-
-  const nodeData = node.getData()
-  const newData = {
-    ...nodeData,
-    config: {
-      ...nodeData.config,
-      ...formData.value
-    },
-    version: (nodeData.version || 0) + 1
+  // To Params
+  const paramsArray = extractParamsFromUrl(formData.value.url)
+  if (paramsArray.length > 0) {
+    state.requestParams = paramsArray
+      .filter((item) => item.key)
+      .map((item) => `${item.key.trim()}=${item.value.trim()}`)
+      .join('&')
   }
-  node.setData(newData, { overwrite: true, deep: true, silent: false })
 
-  graphProvider?.graph.value?.stopBatch('update-http-field-data')
-}
-
-function fieldBooleanMappingUpdate(newVal: boolean, name: string) {
-  graphProvider?.graph.value?.startBatch('update-http-field-data')
-
-  const nodeData = node.getData()
-  const newData = {
-    ...nodeData,
-    version: (nodeData.version || 0) + 1
-  }
-  const index = newData.data.extensionElements['flowable:field'].findIndex((f: any) => f.attr_name === name)
-  newData.data.extensionElements['flowable:field'][index]['flowable:expression'].__cdata = newVal || false
-  node.setData(newData, { overwrite: true, deep: true, silent: false })
-
-  graphProvider?.graph.value?.stopBatch('update-http-field-data')
+  state.requestHeader = Object.entries(formData.value.headers)
+    .map(([key, value]) => `${key.trim()}: ${String(value).trim()}`)
+    .join('\n')
+  state.requestBody = Object.entries(formData.value.body)
+    .map(([key, value]) => `${key.trim()}: ${String(value).trim()}`)
+    .join('\n')
 }
 
 function extractParamsFromUrl(url: string) {
@@ -132,6 +104,17 @@ function openVisible(status: string) {
   }
 }
 
+function handleUpdateUrl() {
+  const paramsArray = extractParamsFromUrl(formData.value.url)
+  if (paramsArray.length > 0) {
+    state.requestParams = paramsArray
+      .filter((item) => item.key)
+      .map((item) => `${item.key.trim()}=${item.value.trim()}`)
+      .join('&')
+  }
+  updateData()
+}
+
 function handleUpdateParams(visible: any) {
   if (visible.length > 0 && Array.isArray(visible)) {
     state.requestParams = visible
@@ -140,18 +123,18 @@ function handleUpdateParams(visible: any) {
       .join('&')
 
     // update url
-    const urlArray = state.requestUrl.split('?')
+    const urlArray = formData.value.url.split('?')
     if (!urlArray || urlArray[0] === '') return
 
     if (urlArray.length > 1) {
-      state.requestUrl = urlArray[0] + '?' + state.requestParams
+      formData.value.url = urlArray[0] + '?' + state.requestParams
     } else {
-      state.requestUrl = state.requestUrl + '?' + state.requestParams
+      formData.value.url = formData.value.url + '?' + state.requestParams
     }
-    fieldMappingUpdate(state.requestUrl, 'requestUrl')
   } else {
     state.requestParams = ''
   }
+  updateData()
 }
 
 function handleUpdateHeader(visible: any) {
@@ -160,65 +143,44 @@ function handleUpdateHeader(visible: any) {
       .filter((item) => item.key)
       .map((item) => `${item.key.trim()}: ${item.value.trim()}`)
       .join('\n')
+
+    formData.value.headers = visible.reduce((acc, { key, value }) => {
+      acc[key] = value
+      return acc
+    }, {})
   } else {
     state.requestHeader = ''
   }
-  fieldMappingUpdate(state.requestHeader, 'requestHeaders')
+  updateData()
 }
 
-const codeMirror = reactive({
-  data: '',
-  extensions: [json(), linter(jsonParseLinter()), oneDark],
-  checkFormat: false,
-  errorMessage: ''
-})
+function handleUpdateBody(body: any) {
+  formData.value.body = body
+  state.requestBody = Object.entries(body)
+    .map(([key, value]) => `${key.trim()}: ${String(value).trim()}`)
+    .join('\n')
+  updateData()
+}
 
 function openBodyEdit() {
-  state.bodyVisible = true
-  if (state.requestBody !== '') {
-    codeMirror.data = deepCopy(state.requestBody)
-  } else {
-    codeMirror.data = ''
-  }
+  bodyDialogRef.value.open(formData.value.body)
 }
 
-function handleJsonFormat() {
-  if (!checkJsonFormat()) {
-    codeMirror.data = JSON.stringify(JSON.parse(codeMirror.data), null, 2)
-    codeMirror.errorMessage = ''
-  }
-}
+function updateData() {
+  graphProvider?.graph.value?.startBatch('update-http-field-data')
 
-function checkJsonFormat() {
-  if (!codeMirror.checkFormat) {
-    return false
+  const nodeData = node.getData()
+  const newData = {
+    ...nodeData,
+    config: {
+      ...nodeData.config,
+      ...formData.value
+    },
+    version: (nodeData.version || 0) + 1
   }
-  try {
-    JSON.parse(codeMirror.data)
-    codeMirror.errorMessage = ''
-    return false
-  } catch (e) {
-    codeMirror.errorMessage = 'Unable to format JSON: ' + e.message
-    return true
-  }
-}
 
-function handleJsonFormatCheck() {
-  if (!codeMirror.checkFormat) {
-    codeMirror.errorMessage = ''
-  } else {
-    checkJsonFormat()
-  }
-}
-
-function handleRequestBodySubmit() {
-  // Because of the interpolation syntax, json syntax checks throw error, so no detection is done when submitting
-  if (checkJsonFormat()) {
-    return
-  }
-  state.requestBody = codeMirror.data
-  fieldMappingUpdate(state.requestBody, 'requestBody')
-  state.bodyVisible = false
+  node.setData(newData, { overwrite: true, deep: true, silent: false })
+  graphProvider?.graph.value?.stopBatch('update-http-field-data')
 }
 
 watch(
@@ -239,7 +201,7 @@ watch(
   <SidebarLabel :node="node" />
   <el-form label-width="auto" label-position="top" :disabled="graphProvider.readonly.value">
     <el-form-item :label="t('Request Method')">
-      <el-select v-model="formData.method" placeholder="please select your zone" @change="(val: any) => fieldMappingUpdate(val, 'requestMethod')">
+      <el-select v-model="formData.method" placeholder="please select your zone">
         <el-option v-for="item in state.method" :key="item" :label="item" :value="item" />
       </el-select>
     </el-form-item>
@@ -257,7 +219,7 @@ watch(
           </el-popover>
         </div>
       </template>
-      <el-input v-model="formData.url" @change="(val: any) => fieldMappingUpdate(val, 'requestUrl')" />
+      <el-input v-model="formData.url" @change="handleUpdateUrl" />
     </el-form-item>
 
     <el-form-item :label="t('Request Params')">
@@ -294,52 +256,9 @@ watch(
     </el-form-item>
   </el-form>
 
-  <LazyBpmnContextHttpVariables ref="variablesParamsRef" :title="t('Add Params')" @update="handleUpdateParams" />
-  <LazyBpmnContextHttpVariables ref="variablesHeaderRef" :title="t('Add Header')" @update="handleUpdateHeader" />
-
-  <el-dialog v-model="state.bodyVisible" :title="t('Edit Request Body')" append-to-body>
-    <div style="display: flex; align-items: center; justify-content: space-between">
-      <div style="display: flex; align-items: center">
-        <span>Json</span>
-        <el-popover
-          class="box-item"
-          width="300"
-          title="Info"
-          content="You can set data using {key}. Using interpolation syntax will fail the JSON syntax check. Please disable syntax checking and check whether the interpolation syntax is correct."
-          placement="top"
-        >
-          <template #reference>
-            <div style="display: flex; align-items: center; margin-left: 8px; cursor: pointer; color: #909399">
-              <el-icon>
-                <QuestionFilled />
-              </el-icon>
-            </div>
-          </template>
-        </el-popover>
-      </div>
-    </div>
-    <div>
-      {{ t('JSON Format Check') }}
-      <el-switch v-model="codeMirror.checkFormat" size="small" @change="handleJsonFormatCheck" />
-      <el-button v-if="codeMirror.checkFormat" style="margin-left: 20px" @click="handleJsonFormat" type="primary" size="small"> JSON Format </el-button>
-    </div>
-
-    <div v-if="codeMirror.errorMessage" class="error">{{ codeMirror.errorMessage }}</div>
-    <codemirror
-      v-model="codeMirror.data"
-      :style="{ height: '400px' }"
-      :autofocus="true"
-      :indent-with-tab="true"
-      :tab-size="2"
-      :extensions="codeMirror.extensions"
-      @change="checkJsonFormat"
-    />
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button type="primary" @click="handleRequestBodySubmit"> {{ t('common_submit') }}</el-button>
-      </div>
-    </template>
-  </el-dialog>
+  <LazyContextHttpTaskVariables ref="variablesParamsRef" :title="t('Add Params')" @update="handleUpdateParams" />
+  <LazyContextHttpTaskVariables ref="variablesHeaderRef" :title="t('Add Header')" @update="handleUpdateHeader" />
+  <LazyContextHttpTaskDialog ref="bodyDialogRef" @submit="handleUpdateBody" />
 </template>
 
 <style scoped lang="scss">
