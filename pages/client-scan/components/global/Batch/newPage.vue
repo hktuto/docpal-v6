@@ -302,6 +302,12 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 // Handle file upload
 async function handleFileUpload(file: File) {
   const formDataUpload = new FormData()
+
+  const existingFile = uploadedFiles.value.find(f => f.fileName === file.name)
+  if (existingFile) {
+    routerProvider?.message.warning(`File "${file.name}" is already uploaded`)
+    return
+  }
   formDataUpload.append('file', file)
   formDataUpload.append('batchId', props.id)
 
