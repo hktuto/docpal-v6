@@ -19,7 +19,7 @@ const props = withDefaults(
 const { cardRef, settingRef, refresh, loading } = useDashboardCard({
   props
 })
-const emits = defineEmits(['delete'])
+const emits = defineEmits(['refreshSetting', 'delete'])
 
 const formData = ref({
   project: '',
