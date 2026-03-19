@@ -20,7 +20,8 @@ const {
   projectId,
   reload,
   isLockedByOther,
-  lockedByUser
+  lockedByUser,
+  selectedDocDetail
 } = context
 
 const routerProvider = inject(MenuRouterKey)
@@ -64,16 +65,59 @@ function handleFieldChange(sectionId: string, fieldKey: string, value: any, rowI
   updateFieldValue(sectionId, fieldKey, value, rowIndex)
   nextTick(() => {
     validateAllSection()
+    const newResultJson = context?.buildResultJson()
+    const newDetail = {
+      ...selectedDocDetail.value.detail,
+      newResultJson
+    }
+    const classification = calculateFamilyClassification(newDetail);;
+    selectedDocDetail.value.detail.formSource = classification.formSource;
+    selectedDocDetail.value.detail.familyCategory = classification.familyCategory;
+    selectedDocDetail.value.detail.familyClass = classification.familyClass;
+    selectedDocDetail.value.detail.priorityIndicator = classification.priorityIndicator;
+    selectedDocDetail.value.detail.statePerson = classification.statePerson;
+     console.log(classification)
   })
 }
 
 // Add row handler
 function handleAddRow(sectionId: string) {
-  addTableRow(sectionId)}
+  addTableRow(sectionId)
+  nextTick(() => {
+    validateAllSection()
+    const newResultJson = context?.buildResultJson()
+    const newDetail = {
+      ...selectedDocDetail.value.detail,
+      newResultJson
+    }
+    const classification = calculateFamilyClassification(newDetail);
+    selectedDocDetail.value.detail.formSource = classification.formSource;
+    selectedDocDetail.value.detail.familyCategory = classification.familyCategory;
+    selectedDocDetail.value.detail.familyClass = classification.familyClass;
+    selectedDocDetail.value.detail.priorityIndicator = classification.priorityIndicator;
+    selectedDocDetail.value.detail.statePerson = classification.statePerson;
+     console.log(classification)
+  })
+}
 
 // Remove row handler
 function handleRemoveRow(sectionId: string, rowIndex: number) {
   removeTableRow(sectionId, rowIndex)
+  nextTick(() => {
+    validateAllSection()
+    const newResultJson = context?.buildResultJson()
+    const newDetail = {
+      ...selectedDocDetail.value.detail,
+      newResultJson
+    }
+    const classification = calculateFamilyClassification(newDetail);
+    selectedDocDetail.value.detail.formSource = classification.formSource;
+    selectedDocDetail.value.detail.familyCategory = classification.familyCategory;
+    selectedDocDetail.value.detail.familyClass = classification.familyClass;
+    selectedDocDetail.value.detail.priorityIndicator = classification.priorityIndicator;
+    selectedDocDetail.value.detail.statePerson = classification.statePerson;
+    console.log(classification)
+  })
 }
 
 // Save draft handler
